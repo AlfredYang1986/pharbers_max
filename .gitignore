@@ -61,5 +61,7 @@ files/.project
 files/RUNNING_PID
 files/.settings
 
-
 .history
+
+calc/lib
+util/lib
