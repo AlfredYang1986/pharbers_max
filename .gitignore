@@ -66,5 +66,7 @@ files/.settings
 calc/lib
 util/lib
 files/lib
+client/lib
 
 util/.cache-main
+
