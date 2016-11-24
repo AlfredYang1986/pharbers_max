@@ -12,6 +12,7 @@ trait interactparser extends excelparser with exceltitleparser with exceltargetc
 	var closeV = false
 	
 	var rowlist : List[String] = Nil
+	var resultlist: List[target_type] = Nil
 
 	def richText2String = {
 		if (nextIsString) {
@@ -29,10 +30,10 @@ trait interactparser extends excelparser with exceltitleparser with exceltargetc
 
 		name match {
 			case "v" => {
-				val value = if (lastContents.trim == "") " "
+				val value = if (lastContents.trim.equals("")) " "
 							else lastContents.trim
 				rowlist = rowlist :+ value
-				closeV = true;
+				closeV = true
 			}
 			case "c" => {
 				if(!closeV){
@@ -46,21 +47,24 @@ trait interactparser extends excelparser with exceltitleparser with exceltargetc
 											   		else 0)).sum != title.length) {
 					
 						System.err.println("该标题有误或顺序错乱请重新检查、下载模板！")
+					}else{
+					    rowlist = Nil
+					    switchbtn = true
 					}
 				} else {
 					try {
 						val target = targetInstance
 						(rowlist zip fields).foreach ( x => ReflectUtil.invokeSetter(target, x._2, x._1))
-						println(target)
+						resultlist = resultlist :+ target
 						handleOneTarget(target)
 						rowlist = Nil
 						switchbtn = true
-						
 					} catch {
 						case e : Exception => e.printStackTrace()
 					}
 				}
 			}
+			case _ => Unit
 		}
 	}
 	
