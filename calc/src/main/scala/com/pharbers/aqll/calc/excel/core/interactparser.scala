@@ -5,7 +5,7 @@ import org.xml.sax.Attributes
 
 import akka.actor.actorRef2Scala
 
-trait interactparser extends excelparser with exceltitleparser {
+trait interactparser extends excelparser with exceltitleparser with exceltargetcreator {
 
 	var nextIsString = false
 	var lastContents = ""
@@ -49,7 +49,7 @@ trait interactparser extends excelparser with exceltitleparser {
 					}
 				} else {
 					try {
-						val target = new target_type
+						val target = targetInstance
 						(rowlist zip fields).foreach ( x => ReflectUtil.invokeSetter(target, x._2, x._1))
 						println(target)
 						handleOneTarget(target)

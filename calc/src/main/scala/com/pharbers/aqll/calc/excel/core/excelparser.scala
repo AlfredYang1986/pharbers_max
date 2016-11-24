@@ -17,10 +17,7 @@ import org.xml.sax.helpers.XMLReaderFactory
 
 import akka.actor.ActorRef
 
-case class placehold()
-
 trait excelparser extends DefaultHandler {
-	type target_type = placehold
 	val a : ActorRef
 	
 	var sst : SharedStringsTable  = null
@@ -60,4 +57,9 @@ trait exceltitleparser {
 	def f(fn : String) : List[String] = ((xml.XML.loadFile(fn) \ "title").map (x => x.text)).toList
 	lazy val fields = f(xml_file_name)
 	lazy val title = f(xml_file_name_ch)
+}
+
+trait exceltargetcreator {
+	type target_type 
+	def targetInstance : target_type
 }
