@@ -6,6 +6,7 @@ import akka.cluster.Cluster
 import akka.actor.Props
 
 import com.pharbers.aqll.calc.split.SplitReception
+import com.pharbers.aqll.calc.split.SplitReception.excelJobStart
 
 object StubMain extends App {
 	val config = ConfigFactory.load("split-master")
