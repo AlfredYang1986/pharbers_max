@@ -30,5 +30,6 @@ object MainTest2Call extends App{
 	val path = "akka.tcp://calc@127.0.0.1:2551/user/splitreception"
 	val sample = forend.actorSelection(path)
 	println(sample)
-	sample ! excelJobStart("""E:\文件\法伯相关\MAX改建\程序测试数据\客户上传\201601-07-CPA-HTN市场数据待上传.xlsx""")
+    import com.pharbers.aqll.calc.split.JobCategories._
+	sample ! excelJobStart("""E:\文件\法伯相关\MAX改建\程序测试数据\客户上传\201601-07-CPA-HTN市场数据待上传.xlsx""", cpaJob)
 }
