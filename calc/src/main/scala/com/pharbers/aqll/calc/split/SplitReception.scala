@@ -3,28 +3,29 @@ package com.pharbers.aqll.calc.split
 import akka.actor.Actor
 import akka.actor.Props
 import akka.actor.ActorLogging
-import com.pharbers.aqll.calc.split.SplitMaster.startReadExcel
 import akka.actor.ActorRef
 import akka.actor.Terminated
+import com.pharbers.aqll.calc.maxmessages.{excelJobStart,excelJobEnd}
+import com.pharbers.aqll.calc.maxmessages.startReadExcel
+import com.pharbers.aqll.calc.excel.CPA.CpaMarket
 
 /**
  * enum
  */
 object JobCategories {
-    object cpaJob extends JobDefines(0, "CPA")
+    object cpaMarketJob extends JobDefines(0, "CpaMarket")
+    
+    object cpaProductJob extends JobDefines(1, "CpaProduct")
+    
+    object phaMarketJob extends JobDefines(2, "PhaMarket")
+    
+    object ppaProductJob extends JobDefines(3, "PhaProduct")
 }
 
 sealed case class JobDefines(t : Int, des : String)
 
 object SplitReception {
 	def props = Props[SplitReception]
-
-	/**
-	 * messages
-	 */
-	case class excelJobStart(filename : String, cat : JobDefines)
-	case class excelJobEnd(filename : String)
-	
 }
 
 class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
@@ -39,9 +40,10 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 			act ! startReadExcel(filename, cat)
 		}
 		case excelJobEnd(filename) => {
-			// TODO : 拼接成计算表后 从这里 进如开始计算吗 ？ // 说了那么多还没听懂 // 动脑
+		    println(filename)
 		}
 		case Terminated(a) => {
+		    println("-*-*-*-*-*-*-*-")
 		    context.unwatch(a)
 		    masters = masters.filterNot (_ == a)
 		    // job没有完成，提醒用户

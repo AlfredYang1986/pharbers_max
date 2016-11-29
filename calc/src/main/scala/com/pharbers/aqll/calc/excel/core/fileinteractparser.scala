@@ -15,43 +15,43 @@ case class hospdatainteractparser(xml_file_name : String, xml_file_name_ch : Str
 	override def targetInstance = new target_type
 }
 
-case class hospmatchinteractparse(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
+case class hospmatchinteractparser(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
     override val a: ActorRef = null
     type target_type = AdminHospitalMatchingData
     override def targetInstance = new target_type
 }
 
-case class marketinteractparse(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
+case class marketinteractparser(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
     override val a: ActorRef = null
     type target_type = AdminMarket
     override def targetInstance = new target_type
 }
 
-case class productinteractparse(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
+case class productinteractparser(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
     override val a: ActorRef = null
     type target_type = AdminProduct
     override def targetInstance = new target_type
 }
 
-case class cpaproductinteractparse(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
+case class cpaproductinteractparser(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
     override val a: ActorRef = null
     type target_type = CpaProduct
     override def targetInstance = new target_type
 }
 
-case class cpamarketinteractparse(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
+case class cpamarketinteractparser(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
     override val a: ActorRef = null
     type target_type = CpaMarket
     override def targetInstance = new target_type
 }
 
-case class phaproductinteractparse(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
+case class phaproductinteractparser(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
     override val a: ActorRef = null
     type target_type = PharmaTrustPorduct
     override def targetInstance = new target_type
 }
 
-case class phamarketinteractparse(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
+case class phamarketinteractparser(xml_file_name: String, xml_file_name_ch: String) extends fileinteractparser {
     override val a: ActorRef = null
     type target_type = PharmaTrustMarket
     override def targetInstance = new target_type

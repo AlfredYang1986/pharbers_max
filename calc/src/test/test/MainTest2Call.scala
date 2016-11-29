@@ -1,8 +1,8 @@
-package com.pharbers.aqll.calc.main
+package test
 
 import com.typesafe.config.ConfigFactory
 import akka.actor.ActorSystem
-import com.pharbers.aqll.calc.split.SplitReception.excelJobStart
+import com.pharbers.aqll.calc.maxmessages.excelJobStart
 
 object MainTest2Call extends App{
     val conf = """akka {
@@ -30,6 +30,9 @@ object MainTest2Call extends App{
 	val path = "akka.tcp://calc@127.0.0.1:2551/user/splitreception"
 	val sample = forend.actorSelection(path)
 	println(sample)
-    import com.pharbers.aqll.calc.split.JobCategories._
-	sample ! excelJobStart("""E:\文件\法伯相关\MAX改建\程序测试数据\客户上传\201601-07-CPA-HTN市场数据待上传.xlsx""", cpaJob)
+	import com.pharbers.aqll.calc.split.JobCategories._
+	sample ! excelJobStart("""config/test/201601-07-CPA-HTN市场数据待上传.xlsx""", cpaMarketJob)
+	
+//	sample ! excelJobStart("""config/test/2016 01-07-CPA-Taxol产品待上传.xlsx""", cpaProductJob)
+	
 }
