@@ -14,11 +14,8 @@ import com.pharbers.aqll.calc.excel.CPA.CpaMarket
  */
 object JobCategories {
     object cpaMarketJob extends JobDefines(0, "CpaMarket")
-    
     object cpaProductJob extends JobDefines(1, "CpaProduct")
-    
     object phaMarketJob extends JobDefines(2, "PhaMarket")
-    
     object ppaProductJob extends JobDefines(3, "PhaProduct")
 }
 
@@ -46,7 +43,7 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 		    println("-*-*-*-*-*-*-*-")
 		    context.unwatch(a)
 		    masters = masters.filterNot (_ == a)
-		    // job没有完成，提醒用户
+		    // job完成，提醒用户
 		}
 		case _ => ???
 	}
