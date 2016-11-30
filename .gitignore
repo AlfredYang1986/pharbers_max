@@ -64,6 +64,8 @@ files/.settings
 .history
 
 calc/lib
+calc/bin
+calc/config
 util/lib
 files/lib
 client/lib
