@@ -9,7 +9,7 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.query.dsl.QueryExpressionObject
 
 object _data_connection {
-	def conn_name : String = "pharbers_max"
+	def conn_name : String = "Max_Basic"
 
 	val _conn = MongoConnection()
 	var _conntion : Map[String, MongoCollection] = Map.empty

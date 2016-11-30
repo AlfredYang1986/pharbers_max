@@ -1,0 +1,37 @@
+<hospital>
+	<title>PHA Hosp name</title>
+	<title>PHA ID</title>
+	<title>If County</title>
+	<title>Hosp_level</title>
+	<title>Region</title>
+	<title>Province</title>
+	<title>Prefecture</title>
+	<title>City Tier 2010</title>
+	<title>Specialty_1</title>
+	<title>Specialty_2</title>
+	<title>医生数</title>
+	<title>床位数</title>
+	<title>全科床位数</title>
+	<title>内科床位数</title>
+	<title>外科床位数</title>
+	<title>眼科床位数</title>
+	<title>年诊疗人次</title>
+	<title>门诊诊次</title>
+	<title>内科诊次</title>
+	<title>外科诊次</title>
+	<title>入院人数</title>
+	<title>住院病人手术人次数</title>
+	<title>医疗收入</title>
+	<title>门诊收入</title>
+	<title>门诊治疗收入</title>
+	<title>门诊手术收入</title>
+	<title>住院收入</title>
+	<title>住院床位收入</title>
+	<title>住院治疗收入</title>
+	<title>住院手术收入</title>
+	<title>药品收入</title>
+	<title>门诊药品收入</title>
+	<title>门诊西药收入</title>
+	<title>住院药品收入</title>
+	<title>住院西药收入</title>
+</hospital>
