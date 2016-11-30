@@ -74,3 +74,5 @@ util/.cache-main
 
 
 calc/.cache-main
+
+calc/.cache-tests
