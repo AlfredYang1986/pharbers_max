@@ -67,6 +67,7 @@ calc/lib
 calc/bin
 calc/config
 util/lib
+util/file
 files/lib
 client/lib
 
