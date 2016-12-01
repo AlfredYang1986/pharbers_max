@@ -38,7 +38,8 @@ object MarketModule {
     
     def maxData(data: BaseMaxDataArgs): Option[DataIOTrait] = data.data match {
         case (AdminHospDataBaseArgs(hsopdata),IntegratedDataArgs(union)) => {
-            lazy val data_max_new = backWriterSumVolumFunction(maxCalcUnionAlgorithm(union,hsopdata).sortBy(x => x.sortConditions1), union.sortBy(y => y.sortConditions1))(x => x.sortConditions1)(y => y.sortConditions1)
+        	lazy val tmp = new maxCalcUnionAlgorithm()(union, hsopdata)
+            lazy val data_max_new = new backWriterSumVolumFunction()(tmp.sortBy(x => x.sortConditions1), union.sortBy(y => y.sortConditions1))(x => x.sortConditions1)(y => y.sortConditions1)
             Some(ModelRunDataArgs(data_max_new))
         }
     }

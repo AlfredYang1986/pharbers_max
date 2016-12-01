@@ -20,6 +20,8 @@ import com.pharbers.aqll.calc.maxmessages.cancel
 
 object SplitMaster {
 	def props = Props[SplitMaster]
+	
+	val num_count = 10
 }
 
 class SplitMaster extends Actor with ActorLogging 
@@ -95,19 +97,19 @@ trait CreateSplitWorker { this : Actor =>
 	def CreateSplitWorker(a : ActorRef, b : SplitEventBus) = {
 	    context.actorOf(
             ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
-                totalInstances = 50, maxInstancesPerNode = 10,
+                totalInstances = 50, maxInstancesPerNode = SplitMaster.num_count,
                 allowLocalRoutees = true, useRole = None)).props(SplitWorker.props(a, b)),
               name = "worker-router")
 	}
 }
 
 trait CreateSplitEventBus { this : Actor => 
-	def CreateSplitEventBus = new SplitEventBus(10)
+	def CreateSplitEventBus = new SplitEventBus(SplitMaster.num_count)
 }
 
 trait CreateSplitAggregator { this : Actor => 
     def CreateSplitAggregator(b : SplitEventBus) = {
-    	val a = context.actorOf(SplitAggregator.props(10, b, self))
+    	val a = context.actorOf(SplitAggregator.props(SplitMaster.num_count, b, self))
     	context.watch(a)
     	a
     }

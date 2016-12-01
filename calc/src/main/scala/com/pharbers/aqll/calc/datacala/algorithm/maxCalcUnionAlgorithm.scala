@@ -6,7 +6,7 @@ import com.pharbers.aqll.calc.excel.model.modelRunData
 
 
 
-object maxCalcUnionAlgorithm {
+class maxCalcUnionAlgorithm {
      def apply(integratedData : Stream[integratedData], hospdatabase : Stream[AdminHospitalDataBase]) = {  
          val output = integratedData.groupBy(x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh)).map(_._2.head).toStream
          lazy val hosp_data_base = hospdatabase

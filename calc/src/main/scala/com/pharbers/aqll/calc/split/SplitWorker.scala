@@ -19,7 +19,7 @@ import akka.actor.ActorLogging
 import akka.actor.ActorRef
 import akka.actor.Props
 import akka.event.EventBus
-import scala.collection.mutable.Set
+import scala.collection.mutable.ArrayBuffer
 
 object SplitWorker {
 	def props(a : ActorRef, b : SplitEventBus) = Props(new SplitWorker(a, b))
@@ -34,18 +34,11 @@ object adminData {
 	lazy val market = DefaultData.marketdata.toStream
 }
 
-object dataByList {
-//    var temp : Stream[modelRunData] = null
-//    def integratedDataByList(oneData : Stream[modelRunData])(pre : Stream[modelRunData]) : Stream[modelRunData] = {
-//        temp = pre ++: oneData
-//        temp
-//    }
-    
-    val integratedDataByList: Set[Stream[modelRunData]] = Set()
-}
-
 class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with ActorLogging with CreateSplitWorker {
     var isSub = false
+    
+    val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
+    var mr : Stream[modelRunData] = Stream.Empty
     
 	val idle : Receive = {
 	    case cparesult(target) => {
@@ -64,19 +57,7 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
 	            case None => None
 	            
 	            case Some(IntegratedDataArgs(igda)) => {
-	                if(igda.size != 0) {
-	                    val baseMaxData = BaseMaxDataArgs(new AdminHospDataBaseArgs(adminData.hospbasedata), new IntegratedDataArgs(igda))
-	                    val maxAllData = msg_MaxData(baseMaxData)
-	                    MarketModule.dispatchMessage(maxAllData) match {
-	                        case None => None
-	                        
-	                        case Some(ModelRunDataArgs(modelrun)) => {
-	                            dataByList.integratedDataByList += modelrun
-	                        }
-	                        
-	                        case _ => Unit
-	                    }
-	                }
+	            	data.appendAll(igda)
 	            }
 	            case _ => Unit
 	        }
@@ -94,6 +75,22 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
     		 * 1. 分组并计算sum1, sum2, sum3
     		 * 2. 向a发sum1，sum2，sum3
     		 */
+	        if(data.size != 0) {
+                val baseMaxData = BaseMaxDataArgs(new AdminHospDataBaseArgs(adminData.hospbasedata), new IntegratedDataArgs(data.toStream))
+                val maxAllData = msg_MaxData(baseMaxData)
+                MarketModule.dispatchMessage(maxAllData) match {
+                    case None => None
+                    
+                    case Some(ModelRunDataArgs(modelrun)) => {
+                    	println(s"current handle model: ${modelrun.size}")
+                    	data.clear
+                    	mr = modelrun
+                    }
+                    
+                    case _ => Unit
+                }
+            }
+	    	
 	    	aggregator ! SplitWorker.requestaverage(8, 9, 10)
 	    }
 	    case SplitEventBus.average(avg1, avg2) => {			// 对应白纸上的算法，avg1 = sum1 / sum2, avg2 = sum1 / sum3
