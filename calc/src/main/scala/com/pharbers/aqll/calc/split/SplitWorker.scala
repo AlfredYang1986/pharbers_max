@@ -57,7 +57,7 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
 	            case None => None
 	            
 	            case Some(IntegratedDataArgs(igda)) => {
-	            	data.appendAll(igda)
+	            	data ++= igda
 	            }
 	            case _ => Unit
 	        }
@@ -76,6 +76,7 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
     		 * 2. 向a发sum1，sum2，sum3
     		 */
 	        if(data.size != 0) {
+                println(s"current context handle integrate: ${data.size}")
                 val baseMaxData = BaseMaxDataArgs(new AdminHospDataBaseArgs(adminData.hospbasedata), new IntegratedDataArgs(data.toStream))
                 val maxAllData = msg_MaxData(baseMaxData)
                 MarketModule.dispatchMessage(maxAllData) match {
@@ -85,6 +86,7 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
                     	println(s"current handle model: ${modelrun.size}")
                     	data.clear
                     	mr = modelrun
+                    	println(s"head is : ${mr.head}")
                     }
                     
                     case _ => Unit
