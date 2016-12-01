@@ -5,6 +5,7 @@
 # Home page
 POST	/example					controllers.Example.exampAjaxCall
 POST	/error						controllers.Example.exampAjaxError
+POST	/paralle					controllers.SatterGatherTestController.testIndex
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
