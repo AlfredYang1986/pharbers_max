@@ -19,6 +19,7 @@ import akka.actor.ActorLogging
 import akka.actor.ActorRef
 import akka.actor.Props
 import akka.event.EventBus
+import scala.collection.mutable.Set
 
 object SplitWorker {
 	def props(a : ActorRef, b : SplitEventBus) = Props(new SplitWorker(a, b))
@@ -34,11 +35,13 @@ object adminData {
 }
 
 object dataByList {
-    var temp : List[modelRunData] = Nil
-    def integratedDataByList(oneData : List[modelRunData])(pre : List[modelRunData]) : List[modelRunData] = {
-        temp = pre ::: oneData
-        temp
-    }
+//    var temp : Stream[modelRunData] = null
+//    def integratedDataByList(oneData : Stream[modelRunData])(pre : Stream[modelRunData]) : Stream[modelRunData] = {
+//        temp = pre ++: oneData
+//        temp
+//    }
+    
+    val integratedDataByList: Set[Stream[modelRunData]] = Set()
 }
 
 class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with ActorLogging with CreateSplitWorker {
@@ -68,7 +71,7 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
 	                        case None => None
 	                        
 	                        case Some(ModelRunDataArgs(modelrun)) => {
-	                            dataByList.temp = dataByList.integratedDataByList(modelrun.toList)(dataByList.temp)
+	                            dataByList.integratedDataByList += modelrun
 	                        }
 	                        
 	                        case _ => Unit
