@@ -16,6 +16,10 @@ object splitData{
     def cityData(data: List[Hospital]): List[List[Any]] = {
         data map { x => (x.getCity_Name :: x.getCity_Tier :: Nil)}
     }
+    //特殊专科Collections
+    def specialtyData(data: List[Hospital]): List[List[String]] = {
+        data map { x => (x.getSpecialty_Classification :: Nil)}
+    }
     //计算变量Collections
     def universityHospInfoData(data: List[Hospital]): List[List[Any]] = {
         data map { x =>

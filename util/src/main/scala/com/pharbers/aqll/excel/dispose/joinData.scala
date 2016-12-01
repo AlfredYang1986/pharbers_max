@@ -63,6 +63,15 @@ object joinData {
             _data_connection.getCollection("City") += builder.result
         }
     }
+    //特殊专科
+    def joinSpecialty = {
+        specialtyData(hospdatadataobj(hospitalFileName)).distinct foreach { x=>
+            val builder = MongoDBObject.newBuilder
+            builder += "Specialty_Id" -> MD5.md5(x(0))
+            builder += "Specialty_Classification" -> x(0)
+            _data_connection.getCollection("Specialty") += builder.result
+        }
+    }
     //计算变量
     def joinUniversityHospInfo = {
         universityHospInfoData(hospdatadataobj(hospitalFileName)) foreach { x => 

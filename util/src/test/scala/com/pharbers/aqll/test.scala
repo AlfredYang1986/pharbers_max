@@ -8,6 +8,7 @@ object test extends App{
 //    joinData.joinHospital
 //    joinData.joinProvince
 //    joinData.joinCity
+//    joinData.joinSpecialty
 //    joinData.joinUniversityHospInfo
 //    joinData.joinProducts
 //    joinData.joinDosageForms
@@ -37,6 +38,5 @@ object test extends App{
 //                case "5" => pow(2,4).asInstanceOf[Int]
 //            })
 //    }
-    
     
 }
