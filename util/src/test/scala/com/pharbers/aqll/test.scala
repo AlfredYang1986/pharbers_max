@@ -8,6 +8,7 @@ object test extends App{
 //    joinData.joinHospital
 //    joinData.joinProvince
 //    joinData.joinCity
+//    joinData.joinSpecialty
 //    joinData.joinUniversityHospInfo
 //    joinData.joinProducts
 //    joinData.joinDosageForms
