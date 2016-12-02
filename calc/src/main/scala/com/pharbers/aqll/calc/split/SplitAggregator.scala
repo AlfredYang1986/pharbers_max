@@ -23,9 +23,7 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 	val avgsize = Ref(0)
 	val rltsize = Ref(0)
 	
-	val sum_1 = Ref(0.0)
-	val sum_2 = Ref(0.0)
-	val sum_3 = Ref(0.0)
+	val unionSum = Ref(Stream(("",(0.0,0.0,0.0))))
 	
 	val value = Ref(0.0)
 	val unit = Ref(0.0)
@@ -33,20 +31,25 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 	import SplitWorker.requestaverage
 	import SplitWorker.postresult
     def receive = {
-		case requestaverage(sum1, sum2, sum3) => {
+		case requestaverage(sum) => {
 			atomic { implicit thx => 
 				avgsize() = avgsize() + 1
-				sum_1() = sum_1() + sum1
-				sum_2() = sum_2() + sum2
-				sum_3() = sum_3() + sum3
+				unionSum() = unionSum() ++: sum
 			}
 			
 			if (avgsize.single.get == msgSize) {
-				println(s"sum_1 : ${sum_1.single.get}")
-				println(s"sum_2 : ${sum_2.single.get}")
-				println(s"sum_3 : ${sum_3.single.get}")
-				bus.publish(SplitEventBus.average(sum_1.single.get / sum_2.single.get, sum_2.single.get / sum_3.single.get))
+			    val sumAll = unionSum.single.get.tail.groupBy(_._1) map { x => 
+			        (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+//			        (x._1, x._2.map(z => z._2._1).toList)
+			    }
+			    
+				lazy val mapAvg = sumAll map { x =>
+        	        (x._1,(x._2._1 / x._2._3),(x._2._2 / x._2._3))
+        	    }
+//				println(mapAvg.toList.mkString("\n"))
+        	    bus.publish(SplitEventBus.average(mapAvg.toStream))
 			}
+			
 		}
 		case postresult(v, u) => {
 			atomic { implicit thx => 

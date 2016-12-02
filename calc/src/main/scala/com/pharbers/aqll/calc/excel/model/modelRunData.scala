@@ -1,6 +1,7 @@
 package com.pharbers.aqll.calc.excel.model
 
 import scala.beans.BeanProperty
+import com.pharbers.aqll.calc.excel.helpFunc.StringOption
 
 class modelRunData(@BeanProperty val	company	:String,
     @BeanProperty val	uploadYear	:Int,
@@ -71,18 +72,18 @@ class modelRunData(@BeanProperty val	company	:String,
     @BeanProperty var	finalResultsValue	:Double,
     @BeanProperty var	finalResultsUnit	:Double) {
   
-    override def toString =  /*"segment = "+segment.toString+
+    override def toString =  "segment = "+segment.toString+
                              "uploadYear = "+uploadYear.toString()+
                              ",uploadMonth = "+uploadMonth.toString()+
                              ",minimumUnitEn = "+minimumUnitEn+
                              ",ifPanelTouse = "+ifPanelTouse+
                              ",hospId = "+hospId.toString+
                              ",SumValue = "+sumValue.toString()+
-                             ",volumeUnit = "+volumeUnit.toString()+*/
-                             finalResultsValue.toString()+ "===" +finalResultsUnit.toString()
+                             ",volumeUnit = "+volumeUnit.toString()
+//                             finalResultsValue.toString()+ "===" +finalResultsUnit.toString()
 //                             "uploadYear = "+uploadYear.toString()+"，uploadMonth = "+uploadMonth.toString()+"，minimumUnitCh = "+minimumUnitCh+"，hospId = "+hospId
                              
                              
-    lazy val sortConditions1 : String = uploadYear.toString + uploadMonth.toString + hospId.toString //+ StringOption.takeStringSpace(minimumUnitCh.toString)
+    lazy val sortConditions1 : String = uploadYear.toString + uploadMonth.toString + hospId.toString + StringOption.takeStringSpace(minimumUnitCh.toString)
 //      MD5.md5(uploadYear.toString + uploadMonth.toString + hospId.toString + StringOption.takeStringSpace(minimumUnitCh.toString))
 }

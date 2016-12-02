@@ -9,7 +9,7 @@ sealed class broadcastingDefines
 
 object SplitEventBus {
 	case class excelEnded() extends broadcastingDefines 
-	case class average(ave1 : Double, ave2 : Double) extends broadcastingDefines 
+	case class average(avg : Stream[(String, Double, Double)]) extends broadcastingDefines 
 }
 
 class SplitEventBus(s : Int) extends EventBus with LookupClassification with ActorEventBus {

@@ -1,6 +1,7 @@
 package com.pharbers.aqll.calc.excel.model
 
 import scala.beans.BeanProperty
+import com.pharbers.aqll.calc.excel.helpFunc.StringOption
 
 class integratedData(@BeanProperty val uploadYear : Int,
     @BeanProperty val uploadMonth : Int,
@@ -40,11 +41,11 @@ class integratedData(@BeanProperty val uploadYear : Int,
     
     override def toString = ""+uploadYear.toString()+
                              "	"+uploadMonth.toString()+
-                             //"	"+StringOption.takeStringSpace(minimumUnit)+
+                             "	"+StringOption.takeStringSpace(minimumUnit)+
                              "	"+hospNum.toString()+
                              "	"+sumValue.toString()+
                              "	"+volumeUnit.toString()
                              
-  lazy val sortConditions1 : String = uploadYear.toString + uploadMonth.toString + hospNum.toString //+ StringOption.takeStringSpace(minimumUnitCh.toString)
+  lazy val sortConditions1 : String = uploadYear.toString + uploadMonth.toString + hospNum.toString + StringOption.takeStringSpace(minimumUnitCh.toString)
 //    MD5.md5(uploadYear.toString + uploadMonth.toString + hospNum.toString + StringOption.takeStringSpace(minimumUnitCh.toString)) 
 }
