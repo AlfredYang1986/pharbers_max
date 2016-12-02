@@ -5,19 +5,15 @@ import com.pharbers.aqll.excel.model._
 
 object ReadFileData {
     
-    def hospdatadataobj(file: String): List[Hospital] = {
-        val fields = """file/xml/HospitalFields.xml"""
-        val titles= """file/xml/HospitalTitles.xml"""
-        val hospdata_file_data = hospitalinteractparser(fields,titles)
-        hospdata_file_data.startParse(file, 1)
+    def hospdatadataobj(excel_file_name : String, xml_file_name : String, xml_file_name_ch : String): List[Hospital] = {
+        val hospdata_file_data = hospitalinteractparser(xml_file_name,xml_file_name_ch)
+        hospdata_file_data.startParse(excel_file_name, 1)
         hospdata_file_data.resultlist
     }
     
-    def productdataobj(file: String): List[Products] = {
-        val fields = """file/xml/ProductsFields.xml"""
-        val titles= """file/xml/ProductsTitles.xml"""
-        val products_file_data = productsinteractparser(fields,titles)
-        products_file_data.startParse(file, 1)
+    def productdataobj(excel_file_name : String, xml_file_name : String, xml_file_name_ch : String): List[Products] = {
+        val products_file_data = productsinteractparser(xml_file_name,xml_file_name_ch)
+        products_file_data.startParse(excel_file_name, 1)
         products_file_data.resultlist
     }
     
