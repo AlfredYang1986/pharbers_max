@@ -9,7 +9,7 @@ import com.pharbers.aqll.calc.excel.model.modelRunData
 sealed class endException extends Exception
 sealed class continueException extends Exception
 
-object backWriterSumVolumFunction {
+class backWriterSumVolumFunction {
     val con = new continueException
     def apply(data_max : Stream[modelRunData], integratedData : Stream[integratedData])
               (stl : modelRunData => String)(str : integratedData => String) : Stream[modelRunData] = {

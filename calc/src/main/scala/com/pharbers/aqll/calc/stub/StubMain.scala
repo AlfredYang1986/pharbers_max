@@ -9,7 +9,6 @@ import com.pharbers.aqll.calc.common.DefaultData
 import com.pharbers.aqll.calc.excel.Manage.AdminHospitalDataBase
 import com.pharbers.aqll.calc.maxmessages.excelJobStart
 
-
 object StubMain extends App {
     val config = ConfigFactory.load("split-master")
 	val system = ActorSystem("calc", config) 
