@@ -20,6 +20,8 @@ import akka.actor.ActorRef
 import akka.actor.Props
 import akka.event.EventBus
 import scala.collection.mutable.ArrayBuffer
+import com.pharbers.aqll.calc.datacala.algorithm.maxSumData
+import com.pharbers.aqll.calc.datacala.algorithm.maxCalcData
 
 object SplitWorker {
 	def props(a : ActorRef, b : SplitEventBus) = Props(new SplitWorker(a, b))
@@ -92,8 +94,11 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
                     case _ => Unit
                 }
             }
-	    	
-	    	aggregator ! SplitWorker.requestaverage(8, 9, 10)
+	        lazy val maxSum = new maxSumData()(mr)
+	        //这块儿我写错了 昨天的的计算结果应该是巧合
+//	        maxSum.foreach{ x => 
+//	            aggregator ! SplitWorker.requestaverage(x._2._1, x._2._2, x._2._3)
+//	        }
 	    }
 	    case SplitEventBus.average(avg1, avg2) => {			// 对应白纸上的算法，avg1 = sum1 / sum2, avg2 = sum1 / sum3
 	    	println(s"actor : $self receive average $avg1 and $avg2")
@@ -101,8 +106,10 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
 	    	 * 1. 通过avg1，avg2 继续本线程中的数据进行计算
 	    	 * 2. 将结果发给发给aggregator
 	    	 */
-	    	val unit = 100.0
-	    	val value = 1000.0
+	    	lazy val calc = new maxCalcData()(mr, avg1, avg2) 
+	        lazy val value = calc.map(_.finalResultsValue).sum
+	    	lazy val unit = calc.map(_.finalResultsUnit).sum
+	    	println(s"value = ${value} , unit = ${unit}")
 	    	aggregator ! SplitWorker.postresult(value, unit)
 	    }
 	    case _ => {
