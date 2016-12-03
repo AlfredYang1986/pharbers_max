@@ -91,9 +91,7 @@ class SplitMaster extends Actor with ActorLogging
 		    println(s"end() $self")
 		}
 	    
-	    case _ => {
-	        println("sssssssssss")
-	    }
+	    case _ => Unit
 	}
 	
 	def receive = ready
