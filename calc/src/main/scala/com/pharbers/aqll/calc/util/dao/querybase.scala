@@ -8,7 +8,7 @@ package com.pharbers.aqll.calc.util.dao
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.query.dsl.QueryExpressionObject
 
-object _data_connection {
+object _data_connection { 
 	def conn_name : String = "Max_Cores"
 
 	val _conn = MongoConnection()

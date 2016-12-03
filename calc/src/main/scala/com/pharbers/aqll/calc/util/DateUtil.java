@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * 日期工具类：用于日期相关的处理
+ * 日期工具类：用于日期相关的处理 
  * 
  */
 public class DateUtil {

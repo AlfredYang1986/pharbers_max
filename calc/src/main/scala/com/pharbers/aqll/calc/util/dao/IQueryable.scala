@@ -5,7 +5,7 @@
 
 package com.pharbers.aqll.calc.util.dao
 
-trait IEnumerable {
+trait IEnumerable { 
 	type TResult
 	type TContainer
 	

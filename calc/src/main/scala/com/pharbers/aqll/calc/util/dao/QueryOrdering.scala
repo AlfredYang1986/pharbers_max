@@ -5,7 +5,7 @@
 
 package com.pharbers.aqll.calc.util.dao
 
-class QueryOrdering[T] extends Ordering[T] {
+class QueryOrdering[T] extends Ordering[T] { 
 	def compare(x: T, y: T): Int = {
 		x match {
 		  case x: Int => 

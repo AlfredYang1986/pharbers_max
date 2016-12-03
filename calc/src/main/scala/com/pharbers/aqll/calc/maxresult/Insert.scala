@@ -5,7 +5,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.calc.util.dao._data_connection
 import java.util.Date
 
-object Insert {
+object Insert { 
      def maxResultInsert(mr: Stream[(Long, (Double, Double))])(m: (String, String, String, Long)) = {
          mr.toList map { x =>
              val builder = MongoDBObject.newBuilder

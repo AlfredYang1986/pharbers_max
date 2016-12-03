@@ -2,7 +2,7 @@ package com.pharbers.util.dao
 
 import com.mongodb.casbah.Imports._
 
-object MongoDBCollManager {
+object MongoDBCollManager { 
   
     /**
      * for further use which database and the service are not in the same machine
