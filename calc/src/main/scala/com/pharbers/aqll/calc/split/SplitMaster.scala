@@ -17,6 +17,9 @@ import akka.cluster.routing.ClusterRouterPool
 import akka.cluster.routing.ClusterRouterPoolSettings
 import akka.routing.RoundRobinPool
 import com.pharbers.aqll.calc.maxmessages.cancel
+import com.pharbers.aqll.calc.maxresult.Insert
+import com.pharbers.aqll.calc.maxresult.InserAdapter
+import java.util.Date
 
 object SplitMaster {
 	def props = Props[SplitMaster]
@@ -35,9 +38,11 @@ class SplitMaster extends Actor with ActorLogging
 	val bus = CreateSplitEventBus
 	val agg = CreateSplitAggregator(bus)
 	val router = CreateSplitWorker(agg, bus)
+	var fileName = ""
 	
 	val ready : Receive = {
 		case startReadExcel(filename, cat) => {
+		    fileName = filename.substring(filename.lastIndexOf("""/""")+1, filename.length())
 	        context.become(spliting)
 		    (cat.t match {
 		        case 0 => {
@@ -71,8 +76,9 @@ class SplitMaster extends Actor with ActorLogging
 	val spliting : Receive = {
 	    case startReadExcel(filename, cat) => println("one master only start one cal process at one time")
 	    
-	    case SplitAggregator.aggregatefinalresult(v, u) => {
-	    	println(s"final result are $v and $u")
+	    case SplitAggregator.aggregatefinalresult(mr) => {
+	        val time = new Date().getTime
+	    	Insert.maxResultInsert(mr)(InserAdapter(fileName,"BMS",time))
 	    	/**
 	    	 * 入数据库
 	    	 */

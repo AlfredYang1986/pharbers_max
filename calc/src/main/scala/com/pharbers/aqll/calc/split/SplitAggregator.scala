@@ -8,11 +8,14 @@ import akka.event.ActorEventBus
 import akka.event.LookupClassification
 import scala.concurrent.stm._
 import akka.actor.ActorRef
+import com.pharbers.aqll.calc.excel.model.modelRunData
+import java.util.Date
+import com.pharbers.aqll.calc.util.DateUtil
 
 object SplitAggregator {
     def props(msgSize: Int, bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(msgSize, bus, master))
     
-    case class aggregatefinalresult(value : Double, unit : Double)
+    case class aggregatefinalresult(mr: Stream[(Long, (Double, Double))])
 }
 
 class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) extends Actor {
@@ -23,7 +26,9 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 	val avgsize = Ref(0)
 	val rltsize = Ref(0)
 	
-	val unionSum = Ref(Stream(("",(0.0,0.0,0.0))))
+	val unionSum = Ref(Stream[(String, (Double, Double, Double))]())
+	
+	val mrResult = Ref(Stream[modelRunData]())
 	
 	val value = Ref(0.0)
 	val unit = Ref(0.0)
@@ -38,31 +43,29 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 			}
 			
 			if (avgsize.single.get == msgSize) {
-			    val sumAll = unionSum.single.get.tail.groupBy(_._1) map { x => 
+			    val sumAll = unionSum.single.get.groupBy(_._1) map { x => 
 			        (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
-//			        (x._1, x._2.map(z => z._2._1).toList)
 			    }
 			    
 				lazy val mapAvg = sumAll map { x =>
         	        (x._1,(x._2._1 / x._2._3),(x._2._2 / x._2._3))
         	    }
-//				println(mapAvg.toList.mkString("\n"))
         	    bus.publish(SplitEventBus.average(mapAvg.toStream))
 			}
 			
 		}
-		case postresult(v, u) => {
+		case postresult(mr) => {
 			atomic { implicit thx => 
 				rltsize() = rltsize() + 1
-				value() = value() + v
-				unit() = unit() + u
+				
+				mrResult() = mrResult() ++: mr
 			}
 			
 			if (rltsize.single.get == msgSize) {
-				println(s"value: ${value.single.get}")
-				println(s"unit: ${unit.single.get}")
-				
-				master ! SplitAggregator.aggregatefinalresult(value.single.get, unit.single.get)
+				val result = mrResult.single.get.groupBy ( x => (x.uploadYear,x.uploadMonth) ) map { x =>
+				    (DateUtil.getDateLong(x._1._1,x._1._2),(x._2 map(_.finalResultsValue) sum, x._2 map(_.finalResultsUnit) sum))
+				}
+				master ! SplitAggregator.aggregatefinalresult(result.toStream)
 			}
 		}
         case _ => println("aggregator")

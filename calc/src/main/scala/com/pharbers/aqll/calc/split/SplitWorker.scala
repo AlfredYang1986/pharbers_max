@@ -25,7 +25,7 @@ object SplitWorker {
 	def props(a : ActorRef, b : SplitEventBus) = Props(new SplitWorker(a, b))
 	
 	case class requestaverage(sum: Stream[(String, (Double, Double, Double))])
-	case class postresult(value : Double, unit : Double)
+	case class postresult(mr: Stream[modelRunData])
 }
 
 object adminData {
@@ -94,18 +94,14 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
 	        lazy val maxSum = new maxSumData()(mr)
 	        aggregator ! SplitWorker.requestaverage(maxSum)
 	    }
-	    case SplitEventBus.average(avg) => {			// 对应白纸上的算法，avg1 = sum1 / sum2, avg2 = sum1 / sum3
-//	    	println(s"actor : $self receive average $avg")
+	    case SplitEventBus.average(avg) => {
 	    	/**
 	    	 * 1. 通过avg1，avg2 继续本线程中的数据进行计算
 	    	 * 2. 将结果发给发给aggregator
 	    	 */
 	        
 	    	lazy val calc = new maxCalcData()(mr, avg) 
-	        lazy val value = calc.map(_.finalResultsValue).sum
-	    	lazy val unit = calc.map(_.finalResultsUnit).sum
-	    	println(s"value = ${value} , unit = ${unit}")
-	    	aggregator ! SplitWorker.postresult(value, unit)
+	    	aggregator ! SplitWorker.postresult(calc)
 	    }
 	    case _ => {
 //	        println(s"result is : other in context router: $self")
