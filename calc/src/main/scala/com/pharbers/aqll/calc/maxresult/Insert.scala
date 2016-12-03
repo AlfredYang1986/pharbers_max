@@ -12,8 +12,8 @@ object Insert {
              builder += "MaxResults_Id" -> m._3
              builder += "FileName" -> m._1
              builder += "Company" -> m._2
-             builder += "Units" -> x._2._1
-             builder += "Sales" -> x._2._2
+             builder += "Sales" -> x._2._1
+             builder += "Units" -> x._2._2
              builder += "Sales_Date" -> x._1
              builder += "Creation_Date" -> m._4
              _data_connection.getCollection("MaxResults") += builder.result
