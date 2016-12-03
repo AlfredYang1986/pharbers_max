@@ -12,7 +12,7 @@ object SplitEventBus {
 	case class average(avg : Stream[(String, Double, Double)]) extends broadcastingDefines 
 }
 
-class SplitEventBus(s : Int) extends EventBus with LookupClassification with ActorEventBus {
+class SplitEventBus(s : Int) extends EventBus with LookupClassification with ActorEventBus with Serializable {
     type Event = broadcastingDefines
     override def mapSize = s
     type Classifier = String

@@ -16,16 +16,6 @@ object StubMain extends App {
 	if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
     	Cluster(system).registerOnMemberUp {
 		    val end_point = system.actorOf(Props[SplitReception], "splitreception")
-			  
-			/**
-			 * 1. common data 
-			 * should see default data
-			 */
-//		    println(DefaultData.hospdatabase.size)
-		    
-		    /**
-		     * 2. parser data one by one 
-		     */
 		    import com.pharbers.aqll.calc.split.JobCategories._
 	        end_point ! excelJobStart("""config/test/201601-07-CPA-HTN市场数据待上传.xlsx""", cpaMarketJob)
     	}
