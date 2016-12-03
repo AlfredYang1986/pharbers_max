@@ -17,6 +17,8 @@ object ErrorCode {
     
     private def xls : List[ErrorNode] = List(
         new ErrorNode("file not exist", -1, "文件不存在"),
+        new ErrorNode("error reading data", -2, "读取数据出错"),
+        new ErrorNode("data is null", -100, "文件数据无效"),
         new ErrorNode("unknown error", -999, "未知错误")
   	)
   	
