@@ -27,6 +27,25 @@ object _data_connection {
 	def releaseConntions = _conntion = Map.empty
 }
 
+object _data_connection2 {
+	def conn_name : String = "Max_Cores"
+
+	val _conn = MongoConnection()
+	var _conntion : Map[String, MongoCollection] = Map.empty
+	
+	def getCollection(coll_name : String) : MongoCollection = {
+		if (!_conntion.contains(coll_name)) _conntion += (coll_name -> _conn(conn_name)(coll_name))
+		
+		_conntion.get(coll_name).get
+	}
+	
+	def resetCollection(coll_name : String) : Unit = getCollection(coll_name).drop
+	
+	def isExisted(coll_name : String) : Boolean = !(getCollection(coll_name).isEmpty)
+	
+	def releaseConntions = _conntion = Map.empty
+}
+
 trait IDatabaseContext {
 	var coll_name : String = null
 

@@ -3,7 +3,8 @@ package com.pharbers.aqll.excel.dispose
 import scala.math._
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.excel.common._
-import com.pharbers.aqll.excel.dispose.splitData._
+import com.pharbers.aqll.excel.dispose.AssemblyBasicData._
+import com.pharbers.aqll.excel.dispose.AssemblyCoresData._
 import com.pharbers.aqll.excel.model._
 import com.pharbers.aqll.util.MD5
 import com.pharbers.aqll.util.dao._
@@ -12,9 +13,8 @@ import com.pharbers.aqll.util.errorcode.ErrorCode._
 import com.pharbers.aqll.excel.exception._
 import com.pharbers.aqll.util.errorcode.ErrorCode
 
-
-object joinData{
-    def insertHospitalInfo(excel_file_name : String) = {
+object WriteInBasicData{
+    def insertHospitalBasicInfo(excel_file_name : String) {
         
         val hospitalbulk = getbulk(getMongoCollection("Hospital"))
         val provincebulk = getbulk(getMongoCollection("Province"))
@@ -51,7 +51,7 @@ object joinData{
           case ReadFileException(m) => throw new ExcelDataException(ErrorCode.errorToTrait("error reading data"))
         }
     }
-    def insertProductInfo(excel_file_name : String) = {
+    def insertProductBasicInfo(excel_file_name : String) {
         val productsbulk = getbulk(getMongoCollection("Products"))
         val dosageFormsbulk = getbulk(getMongoCollection("DosageForms"))
         val drugspecificationbulk = getbulk(getMongoCollection("DrugSpecifications"))
@@ -90,6 +90,49 @@ object joinData{
     def getbulk(mongo_collection : MongoCollection) : BulkWriteOperation = {
         mongo_collection.initializeUnorderedBulkOperation
     }
-    
 }
-
+object WriteInCoresData{
+    def insertHospitalCoresInfo(excel_file_name : String){
+        val hospitalinfobulk = getbulk(getMongoCollection("HospitalInfo"))
+        val regioninfobulk = getbulk(getMongoCollection("Region"))
+         try {
+          val hospdatadata = hospdatadataobj(excel_file_name)
+          hospdatadata.size match {
+              case 0 => throw new ExcelDataException(ErrorCode.errorToTrait("data is null"))
+              case _ => {
+                  hospitalInfo(hospdatadata).foreach(x => hospitalinfobulk.insert(x))
+                  regionData(hospdatadata).foreach(x => regioninfobulk.insert(x))
+                  getMongoCollection("HospitalInfo").drop()
+                  getMongoCollection("Region").drop()
+                  hospitalinfobulk.execute()
+                  regioninfobulk.execute()
+              }
+          }
+        } catch {
+          case ReadFileException(m) => throw new ExcelDataException(ErrorCode.errorToTrait("error reading data"))
+        }
+    }
+    def insertProductsCoresInfo(excel_file_name : String){
+        val productsinfobulk = getbulk(getMongoCollection("MinimumProductInfo"))
+        try {
+          val productdata = productdataobj(excel_file_name)
+          productdata.size match {
+              case 0 => throw new ExcelDataException(ErrorCode.errorToTrait("data is null"))
+              case _ => {
+                  minimumProductInfo(productdata).foreach(x => productsinfobulk.insert(x))
+                  getMongoCollection("MinimumProductInfo").drop()
+                  productsinfobulk.execute()
+              }
+          }
+        } catch {
+          case ReadFileException(m) => throw new ExcelDataException(ErrorCode.errorToTrait("error reading data"))
+        }
+    }
+    def getMongoCollection(coll_name : String) : MongoCollection = {
+        _data_connection2.getCollection(coll_name)
+    }
+    
+    def getbulk(mongo_collection : MongoCollection) : BulkWriteOperation = {
+        mongo_collection.initializeUnorderedBulkOperation
+    }
+}

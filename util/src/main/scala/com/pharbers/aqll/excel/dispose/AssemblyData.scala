@@ -4,7 +4,7 @@ import com.pharbers.aqll.excel.model._
 import scala.math._
 import com.pharbers.aqll.util._
 
-object splitData{
+object AssemblyBasicData{
     def hospitalData(data: List[Hospital]): List[Map[String, AnyRef]] = {
         data map { x => (
            Map("Hosp_Id" -> MD5.md5(x.getHosp_Name+x.getPha_Code),
@@ -93,5 +93,68 @@ object splitData{
         val lst = data map { x=> Map("Manufacturer_Id" -> MD5.md5(x.getManufacturer_Name),"Manufacturer_Name" -> Map("Ch" -> x.getManufacturer_Name, "En" -> ""))}
         lst.distinct
     }   
+}
+
+object AssemblyCoresData{
+    def hospitalInfo(data: List[Hospital]): List[Map[String, AnyRef]] = {
+        data map { x=> Map("HospInfo_Id" -> MD5.md5(x.getHosp_Name+x.getPha_Code),
+            "Hospital" -> Map(
+               "Hosp_Name" -> x.getHosp_Name, 
+               "Pha_Code" -> x.getPha_Code, 
+               "Tag" -> (
+                    (x.getHosp_level match{
+                        case "一级" => pow(2,2).asInstanceOf[Int]
+                        case "二级" => pow(2,3).asInstanceOf[Int]
+                        case "三级" => pow(2,4).asInstanceOf[Int]
+                    })+
+                    (x.getSpecialty match {
+                        case "综合" => pow(2,5).asInstanceOf[Int]
+                        case "专科" => pow(2,6).asInstanceOf[Int]
+                    })+
+                    (x.getIf_County match{
+                        case "是" => pow(2,0).asInstanceOf[Int]
+                        case "否" => pow(2,1).asInstanceOf[Int]
+                    })).asInstanceOf[Number]),
+            "Province" -> Map(
+                    "Province_Name" -> x.getProvince_Name,
+                    "City" -> Map(
+                            "City_Name" -> x.getCity_Name,
+                            "City_Tier" -> (x.getCity_Tier.toString() match {
+                    case "1" => pow(2,0).asInstanceOf[Number]
+                    case "2" => pow(2,1).asInstanceOf[Number]
+                    case "3" => pow(2,2).asInstanceOf[Number]
+                    case "4" => pow(2,3).asInstanceOf[Number]
+                    case "5" => pow(2,4).asInstanceOf[Number]}))),
+            "Specialty" -> x.getSpecialty_Classification)}
+    }
+    def regionData(data: List[Hospital]): Iterable[Map[String, AnyRef]] = {
+        data.groupBy( x => (x.getRegion_Name)).map(a => Map(
+            "Region_Id" -> MD5.md5(a._1),
+            "Region_Name" -> a._1, 
+            "Province_Name" -> a._2.groupBy( y => y.getProvince_Name ).map( b => b._1), 
+            "City_lst" -> a._2.groupBy( z => (z.getCity_Name,z.getCity_Tier)).map( c => Map(
+                    "City_Name" -> c._1._1,
+                    "City_Tier" -> (c._1._2.toString() match {
+                    case "1" => pow(2,0).asInstanceOf[Number]
+                    case "2" => pow(2,1).asInstanceOf[Number]
+                    case "3" => pow(2,2).asInstanceOf[Number]
+                    case "4" => pow(2,3).asInstanceOf[Number]
+                    case "5" => pow(2,4).asInstanceOf[Number]})
+            ))))
+    }
+    def minimumProductInfo(data: List[Products]): List[Map[String, AnyRef]] = {
+        data.distinct.map(a => Map(
+            "MiniProdInfo_Id" -> MD5.md5(a.getTrade_Name+a.getDosageform+a.getDrugspecification+a.getPackage_Quantity+a.getManufacturer_Name), 
+            "Products" -> Map(
+                    "Trade_Name" -> Map("Ch" -> a.getTrade_Name,"En" -> ""),
+                    "Package_Quantity" -> a.getPackage_Quantity), 
+            "DosageForm" -> Map("Ch" -> a.getDosageform,"En" -> "") , 
+            "DrugSpecification" -> Map("Ch" -> "","En" -> a.getDrugspecification), 
+            "Manufacturer_Name" -> Map("Ch" -> a.getManufacturer_Name,"En" -> ""),
+            "Genericname" -> Map("Ch" -> "","En" -> ""),
+            "RouteOfMedication" -> Map("Ch" -> "En","" -> ""),
+            "AtcCode" -> Map("Atc_Code" -> "","Atc_Code" -> "")
+        ))
+    }
 }
 
