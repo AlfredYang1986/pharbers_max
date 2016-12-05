@@ -1,10 +1,14 @@
 package com.pharbers.aqll.calc.excel.CPA;
 
+import java.io.Serializable;
+
 import com.pharbers.aqll.calc.excel.common.commonMarketObjectTrait;
 
 
-public class CpaMarket extends commonMarketObjectTrait{
-    private String province;
+public class CpaMarket extends commonMarketObjectTrait implements Serializable {
+	private static final long serialVersionUID = 999L;
+
+	private String province;
 
     private String city;
 

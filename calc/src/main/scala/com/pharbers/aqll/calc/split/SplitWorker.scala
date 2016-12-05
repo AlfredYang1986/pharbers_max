@@ -20,12 +20,13 @@ import akka.event.EventBus
 import scala.collection.mutable.ArrayBuffer
 import com.pharbers.aqll.calc.datacala.algorithm.maxSumData
 import com.pharbers.aqll.calc.datacala.algorithm.maxCalcData
+import com.pharbers.aqll.calc.util.DateUtil
 
 object SplitWorker {
-	def props(a : ActorRef, b : SplitEventBus) = Props(new SplitWorker(a, b))
+	def props(a : ActorRef) = Props(new SplitWorker(a))
 	
-	case class requestaverage(sum: Stream[(String, (Double, Double, Double))])
-	case class postresult(mr: Stream[modelRunData])
+	case class requestaverage(sum: List[(String, (Double, Double, Double))])
+	case class postresult(mr: Map[Long, (Double, Double)])
 }
 
 object adminData {
@@ -34,7 +35,8 @@ object adminData {
 	lazy val market = DefaultData.marketdata.toStream
 }
 
-class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with ActorLogging with CreateSplitWorker {
+class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
+//class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with ActorLogging with CreateSplitWorker {
     var isSub = false
     
     val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
@@ -47,7 +49,7 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
 	    case cpamarketresult(target) => {
 	        if (!isSub) {
                 isSub = true
-                bus.subscribe(self, "AggregorBus")
+                aggregator ! SplitAggregator.aggsubcribe(self)
 	        }
 	        
 	        val listCpaMarket = (target :: Nil).toStream
@@ -71,14 +73,10 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
 	    }
 	    
 	    case SplitEventBus.excelEnded() => {
-    		/**
-    		 * 1. 分组并计算sum1, sum2, sum3
-    		 * 2. 向a发sum1，sum2，sum3
-    		 */
 	        if(data.size != 0) {
-//                println(s"current context handle integrate: ${data.size}")
                 val baseMaxData = BaseMaxDataArgs(new AdminHospDataBaseArgs(adminData.hospbasedata), new IntegratedDataArgs(data.toStream))
                 val maxAllData = msg_MaxData(baseMaxData)
+                println("start integate")
                 MarketModule.dispatchMessage(maxAllData) match {
                     case None => None
                     
@@ -91,7 +89,7 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
                 }
             }
 	        
-	        lazy val maxSum = new maxSumData()(mr)
+	        lazy val maxSum = new maxSumData()(mr).toList
 	        aggregator ! SplitWorker.requestaverage(maxSum)
 	    }
 	    case SplitEventBus.average(avg) => {
@@ -99,9 +97,12 @@ class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with 
 	    	 * 1. 通过avg1，avg2 继续本线程中的数据进行计算
 	    	 * 2. 将结果发给发给aggregator
 	    	 */
-	        
-	    	lazy val calc = new maxCalcData()(mr, avg) 
-	    	aggregator ! SplitWorker.postresult(calc)
+	    	lazy val calc = new maxCalcData()(mr, avg)
+	    	val result = calc.groupBy ( x => (x.uploadYear,x.uploadMonth) ) map { x =>
+				    (DateUtil.getDateLong(x._1._1,x._1._2), (x._2 map(_.finalResultsValue) sum, x._2 map(_.finalResultsUnit) sum))
+				}
+	    	println(s"result is $result")
+	    	aggregator ! SplitWorker.postresult(result)
 	    }
 	    case _ => {
 //	        println(s"result is : other in context router: $self")

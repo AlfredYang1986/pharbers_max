@@ -20,6 +20,9 @@ import com.pharbers.aqll.calc.maxmessages.cancel
 import com.pharbers.aqll.calc.maxresult.Insert
 import com.pharbers.aqll.calc.maxresult.InserAdapter
 import java.util.Date
+import akka.agent.Agent
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object SplitMaster {
 	def props = Props[SplitMaster]
@@ -37,7 +40,7 @@ class SplitMaster extends Actor with ActorLogging
 	
 	val bus = CreateSplitEventBus
 	val agg = CreateSplitAggregator(bus)
-	val router = CreateSplitWorker(agg, bus)
+	val router = CreateSplitWorker(agg)
 	var fileName = ""
 	
 	val ready : Receive = {
@@ -79,9 +82,6 @@ class SplitMaster extends Actor with ActorLogging
 	    case SplitAggregator.aggregatefinalresult(mr) => {
 	        val time = new Date().getTime
 	    	Insert.maxResultInsert(mr)(InserAdapter(fileName,"BMS",time))
-	    	/**
-	    	 * 入数据库
-	    	 */
 	    	context.stop(self)
 	    }
 		case cancel() => {
@@ -98,11 +98,11 @@ class SplitMaster extends Actor with ActorLogging
 }
 
 trait CreateSplitWorker { this : Actor =>
-	def CreateSplitWorker(a : ActorRef, b : SplitEventBus) = {
+	def CreateSplitWorker(a : ActorRef) = {
 	    context.actorOf(
             ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
-                totalInstances = 50, maxInstancesPerNode = SplitMaster.num_count,
-                allowLocalRoutees = true, useRole = None)).props(SplitWorker.props(a, b)),
+                totalInstances = 100, maxInstancesPerNode = SplitMaster.num_count,
+                allowLocalRoutees = false, useRole = None)).props(SplitWorker.props(a)),
               name = "worker-router")
 	}
 }

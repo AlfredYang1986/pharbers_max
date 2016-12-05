@@ -3,7 +3,7 @@ package com.pharbers.aqll.calc.excel.model
 import scala.beans.BeanProperty
 import com.pharbers.aqll.calc.excel.helpFunc.StringOption
 
-class modelRunData(@BeanProperty val	company	:String,
+class modelRunData  (@BeanProperty val	company	:String,
     @BeanProperty val	uploadYear	:Int,
     @BeanProperty val	uploadMonth	:Int,
     @BeanProperty var	sumValue	:Double,
@@ -70,7 +70,7 @@ class modelRunData(@BeanProperty val	company	:String,
     @BeanProperty val	hospitalizedDrugIncome	:String,
     @BeanProperty val	hospitalizedWestenIncome	:String,
     @BeanProperty var	finalResultsValue	:Double,
-    @BeanProperty var	finalResultsUnit	:Double) {
+    @BeanProperty var	finalResultsUnit	:Double) extends java.io.Serializable {
   
     override def toString =  "segment = "+segment.toString+
                              "uploadYear = "+uploadYear.toString()+

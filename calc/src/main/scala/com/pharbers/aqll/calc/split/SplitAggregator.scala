@@ -1,37 +1,32 @@
 package com.pharbers.aqll.calc.split
 
-import akka.actor.Actor
-import akka.event.EventBus
-import akka.actor.ActorLogging
-import akka.actor.Props
-import akka.event.ActorEventBus
-import akka.event.LookupClassification
-import scala.concurrent.stm._
-import akka.actor.ActorRef
+import scala.Stream
+import scala.concurrent.stm.Ref
+import scala.concurrent.stm.atomic
+
 import com.pharbers.aqll.calc.excel.model.modelRunData
-import java.util.Date
 import com.pharbers.aqll.calc.util.DateUtil
+
+import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.actor.Props
+import akka.actor.actorRef2Scala
+import akka.agent.Agent
 
 object SplitAggregator {
     def props(msgSize: Int, bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(msgSize, bus, master))
     
     case class aggregatefinalresult(mr: Stream[(Long, (Double, Double))])
+    case class aggsubcribe(a : ActorRef)
 }
 
 class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) extends Actor {
 	
-	/**
-	 * 所有的东西需要
-	 */
 	val avgsize = Ref(0)
 	val rltsize = Ref(0)
 	
-	val unionSum = Ref(Stream[(String, (Double, Double, Double))]())
-	
-	val mrResult = Ref(Stream[modelRunData]())
-	
-	val value = Ref(0.0)
-	val unit = Ref(0.0)
+	val unionSum = Ref(List[(String, (Double, Double, Double))]())
+	val mrResult = Ref(Map[Long, (Double, Double)]())
 	
 	import SplitWorker.requestaverage
 	import SplitWorker.postresult
@@ -57,17 +52,22 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 		case postresult(mr) => {
 			atomic { implicit thx => 
 				rltsize() = rltsize() + 1
-				
-				mrResult() = mrResult() ++: mr
+				mr.foreach { kvs => 
+					val (v, u) = mrResult().get(kvs._1).map { x => 
+						(x._1 + kvs._2._1, x._2 + kvs._2._2)
+					}.getOrElse(kvs._2._1, kvs._2._2)
+					mrResult() = mrResult() + (kvs._1 -> (v, u))
+				}
 			}
 			
 			if (rltsize.single.get == msgSize) {
-				val result = mrResult.single.get.groupBy ( x => (x.uploadYear,x.uploadMonth) ) map { x =>
-				    (DateUtil.getDateLong(x._1._1,x._1._2),(x._2 map(_.finalResultsValue) sum, x._2 map(_.finalResultsUnit) sum))
-				}
+				val result = mrResult.single.get
 				master ! SplitAggregator.aggregatefinalresult(result.toStream)
 			}
 		}
-        case _ => println("aggregator")
+		case SplitAggregator.aggsubcribe(a) => {
+			bus.subscribe(a, "AggregorBus")
+		}
+        case _ => ???
     }
 }
