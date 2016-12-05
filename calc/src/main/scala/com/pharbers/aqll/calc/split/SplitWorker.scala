@@ -76,7 +76,6 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	        if(data.size != 0) {
                 val baseMaxData = BaseMaxDataArgs(new AdminHospDataBaseArgs(adminData.hospbasedata), new IntegratedDataArgs(data.toStream))
                 val maxAllData = msg_MaxData(baseMaxData)
-                println("start integate")
                 MarketModule.dispatchMessage(maxAllData) match {
                     case None => None
                     
@@ -101,7 +100,6 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	    	val result = calc.groupBy ( x => (x.uploadYear,x.uploadMonth) ) map { x =>
 				    (DateUtil.getDateLong(x._1._1,x._1._2), (x._2 map(_.finalResultsValue) sum, x._2 map(_.finalResultsUnit) sum))
 				}
-	    	println(s"result is $result")
 	    	aggregator ! SplitWorker.postresult(result)
 	    }
 	    case _ => {
