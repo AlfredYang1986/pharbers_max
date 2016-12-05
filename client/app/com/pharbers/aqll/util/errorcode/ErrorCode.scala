@@ -1,6 +1,7 @@
 package com.pharbers.aqll.util.errorcode
 
 object ErrorCode {
+    
   	case class ErrorNode(name : String, code : Int, message : String)
 
   	private def xls : List[ErrorNode] = List(

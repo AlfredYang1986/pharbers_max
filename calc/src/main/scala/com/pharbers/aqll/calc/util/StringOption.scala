@@ -1,4 +1,4 @@
-package com.pharbers.aqll.calc.excel.helpFunc
+package com.pharbers.aqll.calc.util
 
 object StringOption {
   /***

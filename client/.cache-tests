@@ -1,0 +1,185 @@
+format version: 5
+output mode:
+1 items
+0 -> multiple
+output directories:
+1 items
+F:\GitHub\pharbers_max\client\test -> F:\GitHub\pharbers_max\client\.target
+compile options:
+12 items
+00 -> -javabootclasspath
+01 -> F:\Program Files\Java\jre7\lib\resources.jar;F:\Program Files\Java\jre7\lib\rt.jar;F:\Program Files\Java\jre7\lib\jsse.jar;F:\Program Files\Java\jre7\lib\jce.jar;F:\Program Files\Java\jre7\lib\charsets.jar;F:\Program Files\Java\jre7\lib\jfr.jar;F:\Program Files\Java\jre7\lib\ext\access-bridge-64.jar;F:\Program Files\Java\jre7\lib\ext\dnsns.jar;F:\Program Files\Java\jre7\lib\ext\jaccess.jar;F:\Program Files\Java\jre7\lib\ext\localedata.jar;F:\Program Files\Java\jre7\lib\ext\sunec.jar;F:\Program Files\Java\jre7\lib\ext\sunjce_provider.jar;F:\Program Files\Java\jre7\lib\ext\sunmscapi.jar;F:\Program Files\Java\jre7\lib\ext\zipfs.jar
+02 -> -javaextdirs
+03 ->  
+04 -> -bootclasspath
+05 -> F:\开发\scala-ide\eclipse\plugins\org.scala-ide.scala210.jars_4.4.1.201605041056\target\jars\scala-library.jar
+06 -> -deprecation
+07 -> -unchecked
+08 -> -encoding
+09 -> UTF-8
+10 -> -encoding
+11 -> utf8
+javac options:
+0 items
+compiler version:
+1 items
+0 -> 2.10.6
+compile order:
+1 items
+0 -> Mixed
+name hashing:
+1 items
+0 -> false
+products:
+25 items
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1$$anonfun$3.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1$$anonfun$4.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1$delayedInit$body.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$2.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$1.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$5$$anonfun$apply$1.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$5.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$6.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$7$$anonfun$apply$4.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$7.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$8.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$9.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$delayedInit$body.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2.class
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\GitHub\pharbers_max\client\.target\ApplicationSpec.class
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1$$anonfun$2.class
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1$$anonfun$3.class
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1$delayedInit$body.class
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1.class
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1$$anonfun$apply$1.class
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1.class
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\GitHub\pharbers_max\client\.target\IntegrationSpec.class
+binary dependencies:
+12 items
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\PlayServer\play-2.2.6\repository\local\com.typesafe.play\play-test_2.10\2.2.6\jars\play-test_2.10.jar
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\PlayServer\play-2.2.6\repository\local\com.typesafe.play\play_2.10\2.2.6\jars\play_2.10.jar
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\PlayServer\play-2.2.6\repository\local\junit\junit\4.11\jars\junit.jar
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\PlayServer\play-2.2.6\repository\local\org.specs2\specs2_2.10\2.1.1\jars\specs2_2.10.jar
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\Program Files\Java\jre7\lib\rt.jar
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> F:\开发\scala-ide\eclipse\plugins\org.scala-ide.scala210.jars_4.4.1.201605041056\target\jars\scala-library.jar
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\PlayServer\play-2.2.6\repository\local\com.typesafe.play\play-test_2.10\2.2.6\jars\play-test_2.10.jar
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\PlayServer\play-2.2.6\repository\local\junit\junit\4.11\jars\junit.jar
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\PlayServer\play-2.2.6\repository\local\org.fluentlenium\fluentlenium-core\0.8.0\jars\fluentlenium-core.jar
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\PlayServer\play-2.2.6\repository\local\org.specs2\specs2_2.10\2.1.1\jars\specs2_2.10.jar
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\Program Files\Java\jre7\lib\rt.jar
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> F:\开发\scala-ide\eclipse\plugins\org.scala-ide.scala210.jars_4.4.1.201605041056\target\jars\scala-library.jar
+direct source dependencies:
+0 items
+direct external dependencies:
+0 items
+public inherited source dependencies:
+0 items
+public inherited external dependencies:
+0 items
+member reference internal dependencies:
+0 items
+member reference external dependencies:
+0 items
+inheritance internal dependencies:
+0 items
+inheritance external dependencies:
+0 items
+class names:
+25 items
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$2
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1$$anonfun$3
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1$$anonfun$4
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1$delayedInit$body
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$1
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$5
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$5$$anonfun$apply$1
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$6
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$7
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$7$$anonfun$apply$4
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$8
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$9
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$delayedInit$body
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> IntegrationSpec
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> IntegrationSpec$$anonfun$1
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> IntegrationSpec$$anonfun$1$$anonfun$apply$1
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1$$anonfun$2
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1$$anonfun$3
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1$delayedInit$body
+used names:
+0 items
+product stamps:
+25 items
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1$$anonfun$3.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1$$anonfun$4.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1$delayedInit$body.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$2$$anon$1.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$2.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$1.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$5$$anonfun$apply$1.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$5.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$6.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$7$$anonfun$apply$4.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$7.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$8.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$$anonfun$9.class -> lastModified(1480944226492)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2$delayedInit$body.class -> lastModified(1480944226492)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3$$anon$2.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2$$anonfun$apply$3.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec$$anonfun$2.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\ApplicationSpec.class -> lastModified(1480944226477)
+F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1$$anonfun$2.class -> lastModified(1480944226492)
+F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1$$anonfun$3.class -> lastModified(1480944226492)
+F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1$delayedInit$body.class -> lastModified(1480944226492)
+F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1$$anonfun$apply$1$$anon$1.class -> lastModified(1480944226492)
+F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1$$anonfun$apply$1.class -> lastModified(1480944226492)
+F:\GitHub\pharbers_max\client\.target\IntegrationSpec$$anonfun$1.class -> lastModified(1480944226492)
+F:\GitHub\pharbers_max\client\.target\IntegrationSpec.class -> lastModified(1480944226492)
+source stamps:
+2 items
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> hash(e9d73e8699d49c3fe286488005f90161e13de033)
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> hash(7ea42688d57c35348589187b8b4de8ced7e70309)
+binary stamps:
+7 items
+F:\PlayServer\play-2.2.6\repository\local\com.typesafe.play\play-test_2.10\2.2.6\jars\play-test_2.10.jar -> lastModified(1415918290000)
+F:\PlayServer\play-2.2.6\repository\local\com.typesafe.play\play_2.10\2.2.6\jars\play_2.10.jar -> lastModified(1415918290000)
+F:\PlayServer\play-2.2.6\repository\local\junit\junit\4.11\jars\junit.jar -> lastModified(1415918290000)
+F:\PlayServer\play-2.2.6\repository\local\org.fluentlenium\fluentlenium-core\0.8.0\jars\fluentlenium-core.jar -> lastModified(1415918290000)
+F:\PlayServer\play-2.2.6\repository\local\org.specs2\specs2_2.10\2.1.1\jars\specs2_2.10.jar -> lastModified(1415918290000)
+F:\Program Files\Java\jre7\lib\rt.jar -> lastModified(1478013814154)
+F:\开发\scala-ide\eclipse\plugins\org.scala-ide.scala210.jars_4.4.1.201605041056\target\jars\scala-library.jar -> lastModified(1462337780000)
+class names:
+7 items
+F:\PlayServer\play-2.2.6\repository\local\com.typesafe.play\play-test_2.10\2.2.6\jars\play-test_2.10.jar -> play.api.test.WithBrowser
+F:\PlayServer\play-2.2.6\repository\local\com.typesafe.play\play_2.10\2.2.6\jars\play_2.10.jar -> play.api.mvc.Codec$
+F:\PlayServer\play-2.2.6\repository\local\junit\junit\4.11\jars\junit.jar -> org.junit.runner.RunWith
+F:\PlayServer\play-2.2.6\repository\local\org.fluentlenium\fluentlenium-core\0.8.0\jars\fluentlenium-core.jar -> org.fluentlenium.core.Fluent
+F:\PlayServer\play-2.2.6\repository\local\org.specs2\specs2_2.10\2.1.1\jars\specs2_2.10.jar -> org.specs2.mutable.SpecificationInclusion
+F:\Program Files\Java\jre7\lib\rt.jar -> java.io.Serializable
+F:\开发\scala-ide\eclipse\plugins\org.scala-ide.scala210.jars_4.4.1.201605041056\target\jars\scala-library.jar -> scala.Serializable
+internal apis:
+2 items
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> 
+rO0ABXNyABB4c2J0aS5hcGkuU291cmNlFlpwRASfbtoCAAZJAAdhcGlIYXNoWgAIaGFzTWFjcm9MABhfaW50ZXJuYWxPbmx5X25hbWVIYXNoZXN0ACRMeHNidGkvYXBpL19pbnRlcm5hbE9ubHlfTmFtZUhhc2hlcztMAANhcGl0ABVMeHNidGkvYXBpL1NvdXJjZUFQSTtMAAtjb21waWxhdGlvbnQAF0x4c2J0aS9hcGkvQ29tcGlsYXRpb247WwAEaGFzaHQAAltCeHBtzdl9AHNyACJ4c2J0aS5hcGkuX2ludGVybmFsT25seV9OYW1lSGFzaGVzVNq+mfrU7EwCAAJbAA9pbXBsaWNpdE1lbWJlcnN0ACNbTHhzYnRpL2FwaS9faW50ZXJuYWxPbmx5X05hbWVIYXNoO1sADnJlZ3VsYXJNZW1iZXJzcQB+AAd4cHVyACNbTHhzYnRpLmFwaS5faW50ZXJuYWxPbmx5X05hbWVIYXNoO0lagLbdlov0AgAAeHAAAAAAdXEAfgAJAAAAAHNyABN4c2J0aS5hcGkuU291cmNlQVBJuV6n+SkjOKQCAAJbAAtkZWZpbml0aW9uc3QAF1tMeHNidGkvYXBpL0RlZmluaXRpb247WwAIcGFja2FnZXN0ABRbTHhzYnRpL2FwaS9QYWNrYWdlO3hwdXIAF1tMeHNidGkuYXBpLkRlZmluaXRpb247iMlc57TjXg4CAAB4cAAAAAFzcgATeHNidGkuYXBpLkNsYXNzTGlrZYM0HKHfsJdsAgAETAAOZGVmaW5pdGlvblR5cGV0ABpMeHNidGkvYXBpL0RlZmluaXRpb25UeXBlO1sAEHNhdmVkQW5ub3RhdGlvbnN0ABNbTGphdmEvbGFuZy9TdHJpbmc7TAAIc2VsZlR5cGV0ABBMeHNidGkvYXBpL0xhenk7TAAJc3RydWN0dXJlcQB+ABV4cgAheHNidGkuYXBpLlBhcmFtZXRlcml6ZWREZWZpbml0aW9u+RFusdVQPOICAAFbAA50eXBlUGFyYW1ldGVyc3QAGltMeHNidGkvYXBpL1R5cGVQYXJhbWV0ZXI7eHIAFHhzYnRpLmFwaS5EZWZpbml0aW9uhyob6HFC40YCAARMAAZhY2Nlc3N0ABJMeHNidGkvYXBpL0FjY2VzcztbAAthbm5vdGF0aW9uc3QAF1tMeHNidGkvYXBpL0Fubm90YXRpb247TAAJbW9kaWZpZXJzdAAVTHhzYnRpL2FwaS9Nb2RpZmllcnM7TAAEbmFtZXQAEkxqYXZhL2xhbmcvU3RyaW5nO3hwc3IAEHhzYnRpLmFwaS5QdWJsaWO6WD2ubC1gQgIAAHhyABB4c2J0aS5hcGkuQWNjZXNz3WKa+B1jMUgCAAB4cHVyABdbTHhzYnRpLmFwaS5Bbm5vdGF0aW9uO+uX6xkQ9o1IAgAAeHAAAAABc3IAFHhzYnRpLmFwaS5Bbm5vdGF0aW9u3g6BovZcCrICAAJbAAlhcmd1bWVudHN0AB9bTHhzYnRpL2FwaS9Bbm5vdGF0aW9uQXJndW1lbnQ7TAAEYmFzZXQAEEx4c2J0aS9hcGkvVHlwZTt4cHVyAB9bTHhzYnRpLmFwaS5Bbm5vdGF0aW9uQXJndW1lbnQ7UZ2mjzglD3gCAAB4cAAAAAFzcgAceHNidGkuYXBpLkFubm90YXRpb25Bcmd1bWVudNZFsdgDGxd8AgACTAAEbmFtZXEAfgAcTAAFdmFsdWVxAH4AHHhwdAAFdmFsdWV0ACZjbGFzc09mW29yZy5zcGVjczIucnVubmVyLkpVbml0UnVubmVyXXNyABR4c2J0aS5hcGkuUHJvamVjdGlvbvPSjVTpRaQtAgACTAACaWRxAH4AHEwABnByZWZpeHQAFkx4c2J0aS9hcGkvU2ltcGxlVHlwZTt4cgAUeHNidGkuYXBpLlNpbXBsZVR5cGVyeGKIISO/QAIAAHhyAA54c2J0aS5hcGkuVHlwZT9q2SEWSarKAgAAeHB0AAdSdW5XaXRoc3IAE3hzYnRpLmFwaS5TaW5nbGV0b278p1/4z1bkRgIAAUwABHBhdGh0ABBMeHNidGkvYXBpL1BhdGg7eHEAfgAvc3IADnhzYnRpLmFwaS5QYXRomz1cCM6lJ4QCAAFbAApjb21wb25lbnRzdAAaW0x4c2J0aS9hcGkvUGF0aENvbXBvbmVudDt4cHVyABpbTHhzYnRpLmFwaS5QYXRoQ29tcG9uZW50O0PaCXQtZxZ0AgAAeHAAAAAEc3IADHhzYnRpLmFwaS5JZJgybIs3U8RAAgABTAACaWRxAH4AHHhyABd4c2J0aS5hcGkuUGF0aENvbXBvbmVudF+aIlsuhp+8AgAAeHB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uc3EAfgCwc3EAfgAtdAASVGhyb3duRXhwZWN0YXRpb25zcQB+ALBzcQB+AC10AA9TdGFuZGFyZFJlc3VsdHNxAH4AkHNxAH4ALXQACE1hdGNoZXJzcQB+ALBzcQB+AC10ABBMYW5ndWFnZUZlYXR1cmVzcQB+AHhzcQB+AC10ABFNYXRjaGVyc0ltcGxpY2l0c3EAfgCwc3EAfgAtdAAXRXhwZWN0YXRpb25zRGVzY3JpcHRpb25xAH4AsHNxAH4ALXQACVNlbnRlbmNlc3NxAH4AM3NxAH4ANnVxAH4AOQAAAARzcQB+ADt0AANvcmdzcQB+ADt0AAZzcGVjczJzcQB+ADt0AAR0ZXh0cQB+AERzcQB+AC10ABRNYXRjaFJlc3VsdEltcGxpY2l0c3EAfgCwc3EAfgAtdAAWTWF0Y2hSZXN1bHRDb21iaW5hdG9yc3EAfgCwc3EAfgAtdAAYUmVzdWx0TG9naWNhbENvbWJpbmF0b3JzcQB+AJBzcQB+AC10AAdSZXN1bHRzcQB+AJBzcQB+AC10AB1NYXRjaFJlc3VsdExvZ2ljYWxDb21iaW5hdG9yc3EAfgCwc3EAfgAtdAAORnV0dXJlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAEkV2ZW50dWFsbHlNYXRjaGVyc3EAfgCwc3EAfgAtdAARRXZlbnR1YWxseVJlc3VsdHNxAH4AkHNxAH4ALXQAC1RyeU1hdGNoZXJzcQB+ALBzcQB+AC10ABFUcnlCZUhhdmVNYXRjaGVyc3EAfgCwc3EAfgAtdAAPVHJ5QmFzZU1hdGNoZXJzcQB+ALBzcQB+AC10AA5FaXRoZXJNYXRjaGVyc3EAfgCwc3EAfgAtdAAURWl0aGVyQmVIYXZlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAEkVpdGhlckJhc2VNYXRjaGVyc3EAfgCwc3EAfgAtdAAOT3B0aW9uTWF0Y2hlcnNxAH4AsHNxAH4ALXQAFE9wdGlvbkJlSGF2ZU1hdGNoZXJzcQB+ALBzcQB+AC10ABJPcHRpb25CYXNlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAD051bWVyaWNNYXRjaGVyc3EAfgCwc3EAfgAtdAAVTnVtZXJpY0JlSGF2ZU1hdGNoZXJzcQB+ALBzcQB+AC10ABNOdW1lcmljQmFzZU1hdGNoZXJzcQB+ALBzcQB+AC10ABFFeGNlcHRpb25NYXRjaGVyc3EAfgCwc3EAfgAtdAAXRXhjZXB0aW9uQmVIYXZlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAFUV4Y2VwdGlvbkJhc2VNYXRjaGVyc3EAfgCwc3EAfgAtdAAMRXhwZWN0YXRpb25zcQB+ALBzcQB+AC10AApDYW5CZUVxdWFscQB+ALBzcQB+AC10AA5TdHJpbmdNYXRjaGVyc3EAfgCwc3EAfgAtdAAUU3RyaW5nQmVIYXZlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAElN0cmluZ0Jhc2VNYXRjaGVyc3EAfgCwc3EAfgAtdAALTWFwTWF0Y2hlcnNxAH4AsHNxAH4ALXQAEU1hcEJlSGF2ZU1hdGNoZXJzcQB+ALBzcQB+AC10AA9NYXBCYXNlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAE1RyYXZlcnNhYmxlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAIURlcHJlY2F0ZWRUcmF2ZXJzYWJsZUJhc2VNYXRjaGVyc3EAfgCwc3EAfgAtdAAZVHJhdmVyc2FibGVCZUhhdmVNYXRjaGVyc3EAfgCwc3EAfgAtdAAOTGF6eVBhcmFtZXRlcnNxAH4AeHNxAH4ALXQADU51bWJlck9mVGltZXNxAH4AeHNxAH4ALXQAF1RyYXZlcnNhYmxlQmFzZU1hdGNoZXJzcQB+ALBzcQB+AC10ACNUcmF2ZXJzYWJsZUJhc2VNYXRjaGVyc0xvd0ltcGxpY2l0c3EAfgCwc3EAfgAtdAANQ29udGFpbkNoZWNrc3EAfgCwc3EAfgAtdAAOQmVIYXZlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAC0FueU1hdGNoZXJzcQB+ALBzcQB+AC10ABFBbnlCZUhhdmVNYXRjaGVyc3EAfgCwc3EAfgAtdAAPQW55QmFzZU1hdGNoZXJzcQB+ALBzcQB+AC10ABJBcmd1bWVudHNTaG9ydGN1dHNzcQB+ADNzcQB+ADZ1cQB+ADkAAAAEc3EAfgA7dAADb3Jnc3EAfgA7dAAGc3BlY3Myc3EAfgA7dAAEbWFpbnEAfgBEc3EAfgAtdAANQXJndW1lbnRzQXJnc3EAfgBpc3EAfgAtdAANQXJndW1lbnRzQXJnc3EAfgE4c3EAfgAtdAANQXJnUHJvcGVydGllc3EAfgE4c3EAfgAtdAAWU3BlY2lmaWNhdGlvbkluY2x1c2lvbnEAfgBpc3EAfgAtdAAWU3BlY2lmaWNhdGlvbkluY2x1c2lvbnEAfgCDc3EAfgAtdAAQRnJhZ21lbnRzQnVpbGRlcnEAfgBpc3EAfgAtdAAaU2lkZUVmZmVjdGluZ0NyZWF0aW9uUGF0aHNxAH4AaXNxAH4ALXQAF1NwZWNpZmljYXRpb25OYXZpZ2F0aW9ucQB+AINzcQB+AC10AA9FeGFtcGxlc0ZhY3RvcnlxAH4AaXNxAH4ALXQAEEZyYWdtZW50c0J1aWxkZXJxAH4Ag3NxAH4ALXQADkZvcm1hdHRpbmdUYWdzcQB+AINzcQB+AC10AARUYWdzcQB+AINzcQB+AC10ABJJbXBsaWNpdFBhcmFtZXRlcnNxAH4AeHNxAH4ALXQAD0V4YW1wbGVzRmFjdG9yeXEAfgCDc3EAfgAtdAAaU3BlY2lmaWNhdGlvblN0cmluZ0NvbnRleHRxAH4Ag3NxAH4ALXQAFlNwZWNpZmljYXRpb25TdHJ1Y3R1cmVxAH4Ag3NxAH4ALXQAGkRlZmF1bHRGcmFnbWVudHNGb3JtYXR0aW5ncQB+AINzcQB+AC10AA9UYWdzQXNzb2NpYXRpb25xAH4Ag3NxAH4ALXQAE0ZyYWdtZW50c0Zvcm1hdHRpbmdxAH4Ag3NxAH4ALXQABk9iamVjdHNxAH4AM3NxAH4ANnVxAH4AOQAAAANzcQB+ADt0AARqYXZhc3EAfgA7dAAEbGFuZ3EAfgBEc3EAfgAtdAADQW55c3EAfgAzc3EAfgA2dXEAfgA5AAAAAnNxAH4AO3QABXNjYWxhcQB+AER1cgAUW0x4c2J0aS5hcGkuUGFja2FnZTtbExk3cKcnoQIAAHhwAAAAAHNyABV4c2J0aS5hcGkuQ29tcGlsYXRpb27t+uDDauigQgIAAkoACXN0YXJ0VGltZVsAB291dHB1dHN0ABpbTHhzYnRpL2FwaS9PdXRwdXRTZXR0aW5nO3hwAAABWM8ni191cgAaW0x4c2J0aS5hcGkuT3V0cHV0U2V0dGluZzt/asLzp4elQgIAAHhwAAAAAXNyABd4c2J0aS5hcGkuT3V0cHV0U2V0dGluZ3rZmkd0+x17AgACTAAPb3V0cHV0RGlyZWN0b3J5cQB+ABxMAA9zb3VyY2VEaXJlY3RvcnlxAH4AHHhwdAAlRjpcR2l0SHViXHBoYXJiZXJzX21heFxjbGllbnRcLnRhcmdldHQAIkY6XEdpdEh1YlxwaGFyYmVyc19tYXhcY2xpZW50XHRlc3R1cgACW0Ks8xf4BghU4AIAAHhwAAAAFOnXPoaZ1Jw/4oZIgAX5AWHhPeAz
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> 
+rO0ABXNyABB4c2J0aS5hcGkuU291cmNlFlpwRASfbtoCAAZJAAdhcGlIYXNoWgAIaGFzTWFjcm9MABhfaW50ZXJuYWxPbmx5X25hbWVIYXNoZXN0ACRMeHNidGkvYXBpL19pbnRlcm5hbE9ubHlfTmFtZUhhc2hlcztMAANhcGl0ABVMeHNidGkvYXBpL1NvdXJjZUFQSTtMAAtjb21waWxhdGlvbnQAF0x4c2J0aS9hcGkvQ29tcGlsYXRpb247WwAEaGFzaHQAAltCeHBC3k9OAHNyACJ4c2J0aS5hcGkuX2ludGVybmFsT25seV9OYW1lSGFzaGVzVNq+mfrU7EwCAAJbAA9pbXBsaWNpdE1lbWJlcnN0ACNbTHhzYnRpL2FwaS9faW50ZXJuYWxPbmx5X05hbWVIYXNoO1sADnJlZ3VsYXJNZW1iZXJzcQB+AAd4cHVyACNbTHhzYnRpLmFwaS5faW50ZXJuYWxPbmx5X05hbWVIYXNoO0lagLbdlov0AgAAeHAAAAAAdXEAfgAJAAAAAHNyABN4c2J0aS5hcGkuU291cmNlQVBJuV6n+SkjOKQCAAJbAAtkZWZpbml0aW9uc3QAF1tMeHNidGkvYXBpL0RlZmluaXRpb247WwAIcGFja2FnZXN0ABRbTHhzYnRpL2FwaS9QYWNrYWdlO3hwdXIAF1tMeHNidGkuYXBpLkRlZmluaXRpb247iMlc57TjXg4CAAB4cAAAAAFzcgATeHNidGkuYXBpLkNsYXNzTGlrZYM0HKHfsJdsAgAETAAOZGVmaW5pdGlvblR5cGV0ABpMeHNidGkvYXBpL0RlZmluaXRpb25UeXBlO1sAEHNhdmVkQW5ub3RhdGlvbnN0ABNbTGphdmEvbGFuZy9TdHJpbmc7TAAIc2VsZlR5cGV0ABBMeHNidGkvYXBpL0xhenk7TAAJc3RydWN0dXJlcQB+ABV4cgAheHNidGkuYXBpLlBhcmFtZXRlcml6ZWREZWZpbml0aW9u+RFusdVQPOICAAFbAA50eXBlUGFyYW1ldGVyc3QAGltMeHNidGkvYXBpL1R5cGVQYXJhbWV0ZXI7eHIAFHhzYnRpLmFwaS5EZWZpbml0aW9uhyob6HFC40YCAARMAAZhY2Nlc3N0ABJMeHNidGkvYXBpL0FjY2VzcztbAAthbm5vdGF0aW9uc3QAF1tMeHNidGkvYXBpL0Fubm90YXRpb247TAAJbW9kaWZpZXJzdAAVTHhzYnRpL2FwaS9Nb2RpZmllcnM7TAAEbmFtZXQAEkxqYXZhL2xhbmcvU3RyaW5nO3hwc3IAEHhzYnRpLmFwaS5QdWJsaWO6WD2ubC1gQgIAAHhyABB4c2J0aS5hcGkuQWNjZXNz3WKa+B1jMUgCAAB4cHVyABdbTHhzYnRpLmFwaS5Bbm5vdGF0aW9uO+uX6xkQ9o1IAgAAeHAAAAABc3IAFHhzYnRpLmFwaS5Bbm5vdGF0aW9u3g6BovZcCrICAAJbAAlhcmd1bWVudHN0AB9bTHhzYnRpL2FwaS9Bbm5vdGF0aW9uQXJndW1lbnQ7TAAEYmFzZXQAEEx4c2J0aS9hcGkvVHlwZTt4cHVyAB9bTHhzYnRpLmFwaS5Bbm5vdGF0aW9uQXJndW1lbnQ7UZ2mjzglD3gCAAB4cAAAAAFzcgAceHNidGkuYXBpLkFubm90YXRpb25Bcmd1bWVudNZFsdgDGxd8AgACTAAEbmFtZXEAfgAcTAAFdmFsdWVxAH4AHHhwdAAFdmFsdWV0ACZjbGFzc09mW29yZy5zcGVjczIucnVubmVyLkpVbml0UnVubmVyXXNyABR4c2J0aS5hcGkuUHJvamVjdGlvbvPSjVTpRaQtAgACTAACaWRxAH4AHEwABnByZWZpeHQAFkx4c2J0aS9hcGkvU2ltcGxlVHlwZTt4cgAUeHNidGkuYXBpLlNpbXBsZVR5cGVyeGKIISO/QAIAAHhyAA54c2J0aS5hcGkuVHlwZT9q2SEWSarKAgAAeHB0AAdSdW5XaXRoc3IAE3hzYnRpLmFwaS5TaW5nbGV0b278p1/4z1bkRgIAAUwABHBhdGh0ABBMeHNidGkvYXBpL1BhdGg7eHEAfgAvc3IADnhzYnRpLmFwaS5QYXRomz1cCM6lJ4QCAAFbAApjb21wb25lbnRzdAAaW0x4c2J0aS9hcGkvUGF0aENvbXBvbmVudDt4cHVyABpbTHhzYnRpLmFwaS5QYXRoQ29tcG9uZW50O0PaCXQtZxZ0AgAAeHAAAAAEc3IADHhzYnRpLmFwaS5JZJgybIs3U8RAAgABTAACaWRxAH4AHHhyABd4c2J0aS5hcGkuUGF0aENvbXBvbmVudF+aIlsuhp+8AgAAeHB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uc3EAfgCwc3EAfgAtdAASVGhyb3duRXhwZWN0YXRpb25zcQB+ALBzcQB+AC10AA9TdGFuZGFyZFJlc3VsdHNxAH4AkHNxAH4ALXQACE1hdGNoZXJzcQB+ALBzcQB+AC10ABBMYW5ndWFnZUZlYXR1cmVzcQB+AHhzcQB+AC10ABFNYXRjaGVyc0ltcGxpY2l0c3EAfgCwc3EAfgAtdAAXRXhwZWN0YXRpb25zRGVzY3JpcHRpb25xAH4AsHNxAH4ALXQACVNlbnRlbmNlc3NxAH4AM3NxAH4ANnVxAH4AOQAAAARzcQB+ADt0AANvcmdzcQB+ADt0AAZzcGVjczJzcQB+ADt0AAR0ZXh0cQB+AERzcQB+AC10ABRNYXRjaFJlc3VsdEltcGxpY2l0c3EAfgCwc3EAfgAtdAAWTWF0Y2hSZXN1bHRDb21iaW5hdG9yc3EAfgCwc3EAfgAtdAAYUmVzdWx0TG9naWNhbENvbWJpbmF0b3JzcQB+AJBzcQB+AC10AAdSZXN1bHRzcQB+AJBzcQB+AC10AB1NYXRjaFJlc3VsdExvZ2ljYWxDb21iaW5hdG9yc3EAfgCwc3EAfgAtdAAORnV0dXJlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAEkV2ZW50dWFsbHlNYXRjaGVyc3EAfgCwc3EAfgAtdAARRXZlbnR1YWxseVJlc3VsdHNxAH4AkHNxAH4ALXQAC1RyeU1hdGNoZXJzcQB+ALBzcQB+AC10ABFUcnlCZUhhdmVNYXRjaGVyc3EAfgCwc3EAfgAtdAAPVHJ5QmFzZU1hdGNoZXJzcQB+ALBzcQB+AC10AA5FaXRoZXJNYXRjaGVyc3EAfgCwc3EAfgAtdAAURWl0aGVyQmVIYXZlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAEkVpdGhlckJhc2VNYXRjaGVyc3EAfgCwc3EAfgAtdAAOT3B0aW9uTWF0Y2hlcnNxAH4AsHNxAH4ALXQAFE9wdGlvbkJlSGF2ZU1hdGNoZXJzcQB+ALBzcQB+AC10ABJPcHRpb25CYXNlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAD051bWVyaWNNYXRjaGVyc3EAfgCwc3EAfgAtdAAVTnVtZXJpY0JlSGF2ZU1hdGNoZXJzcQB+ALBzcQB+AC10ABNOdW1lcmljQmFzZU1hdGNoZXJzcQB+ALBzcQB+AC10ABFFeGNlcHRpb25NYXRjaGVyc3EAfgCwc3EAfgAtdAAXRXhjZXB0aW9uQmVIYXZlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAFUV4Y2VwdGlvbkJhc2VNYXRjaGVyc3EAfgCwc3EAfgAtdAAMRXhwZWN0YXRpb25zcQB+ALBzcQB+AC10AApDYW5CZUVxdWFscQB+ALBzcQB+AC10AA5TdHJpbmdNYXRjaGVyc3EAfgCwc3EAfgAtdAAUU3RyaW5nQmVIYXZlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAElN0cmluZ0Jhc2VNYXRjaGVyc3EAfgCwc3EAfgAtdAALTWFwTWF0Y2hlcnNxAH4AsHNxAH4ALXQAEU1hcEJlSGF2ZU1hdGNoZXJzcQB+ALBzcQB+AC10AA9NYXBCYXNlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAE1RyYXZlcnNhYmxlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAIURlcHJlY2F0ZWRUcmF2ZXJzYWJsZUJhc2VNYXRjaGVyc3EAfgCwc3EAfgAtdAAZVHJhdmVyc2FibGVCZUhhdmVNYXRjaGVyc3EAfgCwc3EAfgAtdAAOTGF6eVBhcmFtZXRlcnNxAH4AeHNxAH4ALXQADU51bWJlck9mVGltZXNxAH4AeHNxAH4ALXQAF1RyYXZlcnNhYmxlQmFzZU1hdGNoZXJzcQB+ALBzcQB+AC10ACNUcmF2ZXJzYWJsZUJhc2VNYXRjaGVyc0xvd0ltcGxpY2l0c3EAfgCwc3EAfgAtdAANQ29udGFpbkNoZWNrc3EAfgCwc3EAfgAtdAAOQmVIYXZlTWF0Y2hlcnNxAH4AsHNxAH4ALXQAC0FueU1hdGNoZXJzcQB+ALBzcQB+AC10ABFBbnlCZUhhdmVNYXRjaGVyc3EAfgCwc3EAfgAtdAAPQW55QmFzZU1hdGNoZXJzcQB+ALBzcQB+AC10ABJBcmd1bWVudHNTaG9ydGN1dHNzcQB+ADNzcQB+ADZ1cQB+ADkAAAAEc3EAfgA7dAADb3Jnc3EAfgA7dAAGc3BlY3Myc3EAfgA7dAAEbWFpbnEAfgBEc3EAfgAtdAANQXJndW1lbnRzQXJnc3EAfgBpc3EAfgAtdAANQXJndW1lbnRzQXJnc3EAfgE4c3EAfgAtdAANQXJnUHJvcGVydGllc3EAfgE4c3EAfgAtdAAWU3BlY2lmaWNhdGlvbkluY2x1c2lvbnEAfgBpc3EAfgAtdAAWU3BlY2lmaWNhdGlvbkluY2x1c2lvbnEAfgCDc3EAfgAtdAAQRnJhZ21lbnRzQnVpbGRlcnEAfgBpc3EAfgAtdAAaU2lkZUVmZmVjdGluZ0NyZWF0aW9uUGF0aHNxAH4AaXNxAH4ALXQAF1NwZWNpZmljYXRpb25OYXZpZ2F0aW9ucQB+AINzcQB+AC10AA9FeGFtcGxlc0ZhY3RvcnlxAH4AaXNxAH4ALXQAEEZyYWdtZW50c0J1aWxkZXJxAH4Ag3NxAH4ALXQADkZvcm1hdHRpbmdUYWdzcQB+AINzcQB+AC10AARUYWdzcQB+AINzcQB+AC10ABJJbXBsaWNpdFBhcmFtZXRlcnNxAH4AeHNxAH4ALXQAD0V4YW1wbGVzRmFjdG9yeXEAfgCDc3EAfgAtdAAaU3BlY2lmaWNhdGlvblN0cmluZ0NvbnRleHRxAH4Ag3NxAH4ALXQAFlNwZWNpZmljYXRpb25TdHJ1Y3R1cmVxAH4Ag3NxAH4ALXQAGkRlZmF1bHRGcmFnbWVudHNGb3JtYXR0aW5ncQB+AINzcQB+AC10AA9UYWdzQXNzb2NpYXRpb25xAH4Ag3NxAH4ALXQAE0ZyYWdtZW50c0Zvcm1hdHRpbmdxAH4Ag3NxAH4ALXQABk9iamVjdHNxAH4AM3NxAH4ANnVxAH4AOQAAAANzcQB+ADt0AARqYXZhc3EAfgA7dAAEbGFuZ3EAfgBEc3EAfgAtdAADQW55c3EAfgAzc3EAfgA2dXEAfgA5AAAAAnNxAH4AO3QABXNjYWxhcQB+AER1cgAUW0x4c2J0aS5hcGkuUGFja2FnZTtbExk3cKcnoQIAAHhwAAAAAHNyABV4c2J0aS5hcGkuQ29tcGlsYXRpb27t+uDDauigQgIAAkoACXN0YXJ0VGltZVsAB291dHB1dHN0ABpbTHhzYnRpL2FwaS9PdXRwdXRTZXR0aW5nO3hwAAABWM8ni191cgAaW0x4c2J0aS5hcGkuT3V0cHV0U2V0dGluZzt/asLzp4elQgIAAHhwAAAAAXNyABd4c2J0aS5hcGkuT3V0cHV0U2V0dGluZ3rZmkd0+x17AgACTAAPb3V0cHV0RGlyZWN0b3J5cQB+ABxMAA9zb3VyY2VEaXJlY3RvcnlxAH4AHHhwdAAlRjpcR2l0SHViXHBoYXJiZXJzX21heFxjbGllbnRcLnRhcmdldHQAIkY6XEdpdEh1YlxwaGFyYmVyc19tYXhcY2xpZW50XHRlc3R1cgACW0Ks8xf4BghU4AIAAHhwAAAAFH6kJojVfDU0hYkYe4tN6M7X5wMJ
+external apis:
+0 items
+source infos:
+2 items
+F:\GitHub\pharbers_max\client\test\ApplicationSpec.scala -> 
+AAAAAAAAAAA=
+F:\GitHub\pharbers_max\client\test\IntegrationSpec.scala -> 
+AAAAAAAAAAA=
+compilations:
+2 items
+0 -> rO0ABXNyABV4c2J0aS5hcGkuQ29tcGlsYXRpb27t+uDDauigQgIAAkoACXN0YXJ0VGltZVsAB291dHB1dHN0ABpbTHhzYnRpL2FwaS9PdXRwdXRTZXR0aW5nO3hwAAABWM5daCR1cgAaW0x4c2J0aS5hcGkuT3V0cHV0U2V0dGluZzt/asLzp4elQgIAAHhwAAAAAXNyABd4c2J0aS5hcGkuT3V0cHV0U2V0dGluZ3rZmkd0+x17AgACTAAPb3V0cHV0RGlyZWN0b3J5dAASTGphdmEvbGFuZy9TdHJpbmc7TAAPc291cmNlRGlyZWN0b3J5cQB+AAZ4cHQAJUQ6XEdpdEh1YlxwaGFyYmVyc19tYXhcY2xpZW50XC50YXJnZXR0ACJEOlxHaXRIdWJccGhhcmJlcnNfbWF4XGNsaWVudFx0ZXN0
+1 -> rO0ABXNyABV4c2J0aS5hcGkuQ29tcGlsYXRpb27t+uDDauigQgIAAkoACXN0YXJ0VGltZVsAB291dHB1dHN0ABpbTHhzYnRpL2FwaS9PdXRwdXRTZXR0aW5nO3hwAAABWM8ni191cgAaW0x4c2J0aS5hcGkuT3V0cHV0U2V0dGluZzt/asLzp4elQgIAAHhwAAAAAXNyABd4c2J0aS5hcGkuT3V0cHV0U2V0dGluZ3rZmkd0+x17AgACTAAPb3V0cHV0RGlyZWN0b3J5dAASTGphdmEvbGFuZy9TdHJpbmc7TAAPc291cmNlRGlyZWN0b3J5cQB+AAZ4cHQAJUY6XEdpdEh1YlxwaGFyYmVyc19tYXhcY2xpZW50XC50YXJnZXR0ACJGOlxHaXRIdWJccGhhcmJlcnNfbWF4XGNsaWVudFx0ZXN0

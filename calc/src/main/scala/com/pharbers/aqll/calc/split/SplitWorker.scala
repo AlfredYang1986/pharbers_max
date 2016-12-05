@@ -97,6 +97,7 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	    	 * 2. 将结果发给发给aggregator
 	    	 */
 	    	lazy val calc = new maxCalcData()(mr, avg)
+	    	
 	    	val result = calc.groupBy ( x => (x.uploadYear,x.uploadMonth) ) map { x =>
 				    (DateUtil.getDateLong(x._1._1,x._1._2), (x._2 map(_.finalResultsValue) sum, x._2 map(_.finalResultsUnit) sum))
 				}
