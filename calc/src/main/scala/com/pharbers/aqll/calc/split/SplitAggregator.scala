@@ -12,6 +12,7 @@ import akka.actor.ActorRef
 import akka.actor.Props
 import akka.actor.actorRef2Scala
 import akka.agent.Agent
+import scala.collection.mutable.Map
 
 object SplitAggregator {
     def props(msgSize: Int, bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(msgSize, bus, master))
@@ -53,6 +54,7 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 		case postresult(mr) => {
 			atomic { implicit thx => 
 				rltsize() = rltsize() + 1
+				println(s"rltsize.single.get = ${rltsize.single.get}")
 				mr.foreach { kvs => 
 					val (v, u) = mrResult().get(kvs._1).map { x => 
 						(x._1 + kvs._2._1, x._2 + kvs._2._2)

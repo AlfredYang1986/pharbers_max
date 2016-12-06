@@ -1,9 +1,11 @@
 package com.pharbers.aqll.calc.excel.core
 
-import akka.actor.ActorRef
-import com.pharbers.aqll.calc.excel.Manage._
 import com.pharbers.aqll.calc.excel.CPA._
+import com.pharbers.aqll.calc.excel.Manage._
 import com.pharbers.aqll.calc.excel.PharmaTrust._
+
+import akka.actor.ActorRef
+import com.pharbers.aqll.excel.core.interactparser
 
 trait fileinteractparser extends interactparser {
 	override def handleOneTarget(target : target_type) = Unit

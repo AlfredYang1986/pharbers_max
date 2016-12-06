@@ -31,7 +31,13 @@ public class DateUtil {
      */
     public static long getDateLong(int year, int month) {
     	Calendar time=Calendar.getInstance();
-    	time.set(year, (month-1), 1);
+    	time.set(Calendar.YEAR, year);
+    	time.set(Calendar.MONTH, month-1);
+    	time.set(Calendar.DATE, 1);
+    	time.set(Calendar.HOUR, 0);
+    	time.set(Calendar.MINUTE, 0);
+    	time.set(Calendar.SECOND, 0);
+    	time.set(Calendar.MILLISECOND, 0);
     	return time.getTime().getTime();
     }
  

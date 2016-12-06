@@ -1,7 +1,7 @@
 package com.pharbers.aqll.calc.excel.model
 
 import scala.beans.BeanProperty
-import com.pharbers.aqll.calc.excel.helpFunc.StringOption
+import com.pharbers.aqll.calc.util.StringOption
 
 class integratedData(@BeanProperty val uploadYear : Int,
     @BeanProperty val uploadMonth : Int,

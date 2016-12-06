@@ -1,14 +1,12 @@
 package com.pharbers.aqll.util.errorcode
 
 object ErrorCode {
+    
   	case class ErrorNode(name : String, code : Int, message : String)
 
   	private def xls : List[ErrorNode] = List(
-  		//new ErrorNode("token exprie", -1, "inputing token is exprition"),
-  		new ErrorNode("error reading data", -2, "读取数据出错"),
-        new ErrorNode("data is null", -100, "文件数据无效"),
-        new ErrorNode("unknown error", -999, "未知错误")
-  		//new ErrorNode("unknown error", -999, "unknown error")
+  		new ErrorNode("token exprie", -1, "inputing token is exprition"),
+  		new ErrorNode("unknown error", -999, "unknown error")
   	)
 
   	def getErrorCodeByName(name : String) : Int = (xls.find(x => x.name == name)) match {
