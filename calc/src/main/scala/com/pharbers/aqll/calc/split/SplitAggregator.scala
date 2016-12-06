@@ -16,7 +16,7 @@ import akka.agent.Agent
 object SplitAggregator {
     def props(msgSize: Int, bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(msgSize, bus, master))
     
-    case class aggregatefinalresult(mr: Stream[(Long, (Double, Double))])
+    case class aggregatefinalresult(mr: List[(Long, (Double, Double))])
     case class aggsubcribe(a : ActorRef)
 }
 
@@ -24,6 +24,7 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 	
 	val avgsize = Ref(0)
 	val rltsize = Ref(0)
+	val mapsize = Ref(0)
 	
 	val unionSum = Ref(List[(String, (Double, Double, Double))]())
 	val mrResult = Ref(Map[Long, (Double, Double)]())
@@ -62,12 +63,23 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 			
 			if (rltsize.single.get == msgSize) {
 				val result = mrResult.single.get
-				master ! SplitAggregator.aggregatefinalresult(result.toStream)
+				val check = result.map (x => x._2._1).sum
+				println(s"final result is : $check")
+//				master ! SplitAggregator.aggregatefinalresult(result)
 			}
 		}
 		case SplitAggregator.aggsubcribe(a) => {
 			bus.subscribe(a, "AggregorBus")
 		}
-        case _ => ???
+		case SplitHashMappingWorker.HashMappingEnd() => {
+			atomic { implicit thx => 
+				mapsize() = mapsize() + 1
+			}
+			
+			if (mapsize.single.get == msgSize) {
+        	    bus.publish(SplitHashMappingWorker.HashMappingEnd())
+			}
+		}
+        case x : AnyRef => println(x); ???
     }
 }

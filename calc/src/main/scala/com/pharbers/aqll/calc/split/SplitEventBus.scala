@@ -5,7 +5,7 @@ import akka.actor.ActorLogging
 import akka.event.EventBus
 import akka.event.ActorEventBus
 
-sealed class broadcastingDefines
+class broadcastingDefines
 
 object SplitEventBus {
 	case class excelEnded() extends broadcastingDefines 
@@ -14,7 +14,7 @@ object SplitEventBus {
 
 class SplitEventBus(s : Int) extends EventBus with LookupClassification with ActorEventBus with Serializable {
     type Event = broadcastingDefines
-    override def mapSize = s
+    override def mapSize = s * 2
     type Classifier = String
     
     override def classify(event : Event) = {

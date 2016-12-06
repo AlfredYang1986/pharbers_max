@@ -21,9 +21,10 @@ import scala.collection.mutable.ArrayBuffer
 import com.pharbers.aqll.calc.datacala.algorithm.maxSumData
 import com.pharbers.aqll.calc.datacala.algorithm.maxCalcData
 import com.pharbers.aqll.calc.util.DateUtil
+import com.pharbers.aqll.calc.datacala.algorithm.maxCalcUnionAlgorithm
 
 object SplitWorker {
-	def props(a : ActorRef) = Props(new SplitWorker(a))
+	def props(a : ActorRef, m : ActorRef) = Props(new SplitWorker(a, m))
 	
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
 	case class postresult(mr: Map[Long, (Double, Double)])
@@ -35,16 +36,13 @@ object adminData {
 	lazy val market = DefaultData.marketdata.toStream
 }
 
-class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
-//class SplitWorker(aggregator: ActorRef, bus : SplitEventBus) extends Actor with ActorLogging with CreateSplitWorker {
+class SplitWorker(aggregator: ActorRef, mapping : ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
     var isSub = false
-    
     val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
-    var mr : Stream[modelRunData] = Stream.Empty
     
 	val idle : Receive = {
 	    case cparesult(target) => {
-//	        println(s"result is : $target in context router: $self")	        
+
 	    }
 	    case cpamarketresult(target) => {
 	        if (!isSub) {
@@ -66,44 +64,19 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	        
 	    }
 	    case pharesult(target) => {
-//	        println(s"result is : $target in context router: $self")
+
 	    }
 	    case phamarketresult(target) => {
-//	        println(s"result is : $target in context router: $self")
+
 	    }
-	    
 	    case SplitEventBus.excelEnded() => {
 	        if(data.size != 0) {
-                val baseMaxData = BaseMaxDataArgs(new AdminHospDataBaseArgs(adminData.hospbasedata), new IntegratedDataArgs(data.toStream))
-                val maxAllData = msg_MaxData(baseMaxData)
-                MarketModule.dispatchMessage(maxAllData) match {
-                    case None => None
-                    
-                    case Some(ModelRunDataArgs(modelrun)) => {
-                    	data.clear
-                    	mr = modelrun
-                    }
-                    
-                    case _ => Unit
-                }
+	        	(new maxCalcUnionAlgorithm())(data.toStream, adminData.hospbasedata)(mrd => mapping ! mrd)
             }
-	        
-	        lazy val maxSum = new maxSumData()(mr).toList
-	        aggregator ! SplitWorker.requestaverage(maxSum)
-	    }
-	    case SplitEventBus.average(avg) => {
-	    	/**
-	    	 * 1. 通过avg1，avg2 继续本线程中的数据进行计算
-	    	 * 2. 将结果发给发给aggregator
-	    	 */
-	    	lazy val calc = new maxCalcData()(mr, avg)
-	    	val result = calc.groupBy ( x => (x.uploadYear,x.uploadMonth) ) map { x =>
-				    (DateUtil.getDateLong(x._1._1,x._1._2), (x._2 map(_.finalResultsValue) sum, x._2 map(_.finalResultsUnit) sum))
-				}
-	    	aggregator ! SplitWorker.postresult(result)
+	        aggregator ! SplitHashMappingWorker.HashMappingEnd()
 	    }
 	    case _ => {
-//	        println(s"result is : other in context router: $self")
+
 	    }
 	}
 	

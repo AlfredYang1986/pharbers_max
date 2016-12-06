@@ -8,6 +8,7 @@ import com.pharbers.aqll.calc.excel.core.row_phamarketinteractparser
 import com.pharbers.aqll.calc.excel.core.row_phaproductinteractparser
 import com.pharbers.aqll.calc.maxmessages.end
 import com.pharbers.aqll.calc.maxmessages.startReadExcel
+import com.pharbers.aqll.calc.excel.model.modelRunData
 
 import akka.actor.Actor
 import akka.actor.ActorLogging
@@ -20,7 +21,9 @@ import com.pharbers.aqll.calc.maxmessages.cancel
 import com.pharbers.aqll.calc.maxresult.Insert
 import com.pharbers.aqll.calc.maxresult.InserAdapter
 import java.util.Date
-import akka.agent.Agent
+
+import akka.routing.ConsistentHashingRouter._
+import akka.routing.ConsistentHashingPool
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -33,19 +36,21 @@ object SplitMaster {
 class SplitMaster extends Actor with ActorLogging 
 	with CreateSplitWorker 
 	with CreateSplitEventBus
-	with CreateSplitAggregator {
+	with CreateSplitAggregator 
+	with CreateSplitHashMappingWorker {
 
 	import SplitMaster._
 	import JobCategories._
 	
 	val bus = CreateSplitEventBus
 	val agg = CreateSplitAggregator(bus)
-	val router = CreateSplitWorker(agg)
+	val mapping = CreateSplitHashMappingWorker(agg)
+	val router = CreateSplitWorker(agg, mapping)
 	var fileName = ""
 	
 	val ready : Receive = {
 		case startReadExcel(filename, cat) => {
-		    fileName = filename.substring(filename.lastIndexOf("""/""")+1, filename.length())
+		    fileName = filename.substring(filename.lastIndexOf("""/""") + 1, filename.length())
 	        context.become(spliting)
 		    (cat.t match {
 		        case 0 => {
@@ -81,7 +86,7 @@ class SplitMaster extends Actor with ActorLogging
 	    
 	    case SplitAggregator.aggregatefinalresult(mr) => {
 	        val time = new Date().getTime
-	    	Insert.maxResultInsert(mr)(InserAdapter(fileName,"BMS",time))
+	    	Insert.maxResultInsert(mr)(InserAdapter(fileName, "BMS", time))
 	    	context.stop(self)
 	    }
 		case cancel() => {
@@ -98,12 +103,30 @@ class SplitMaster extends Actor with ActorLogging
 }
 
 trait CreateSplitWorker { this : Actor =>
-	def CreateSplitWorker(a : ActorRef) = {
+	def CreateSplitWorker(a : ActorRef, m : ActorRef) = {
 	    context.actorOf(
             ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
                 totalInstances = 100, maxInstancesPerNode = SplitMaster.num_count,
-                allowLocalRoutees = false, useRole = None)).props(SplitWorker.props(a)),
+                allowLocalRoutees = false, useRole = None)).props(SplitWorker.props(a, m)),
               name = "worker-router")
+	}
+}
+
+trait CreateSplitHashMappingWorker { this : Actor => 
+	def hashMapping: ConsistentHashMapping = {
+  		case msg : modelRunData => msg.getUploadYear() + msg.getUploadMonth()
+	}
+
+	def CreateSplitHashMappingWorker(a : ActorRef) = {
+		context.actorOf(
+//			  ConsistentHashingPool(10, 
+//			 		// virtualNodesFactor = 100000,
+//					hashMapping = hashMapping
+//				).props(SplitHashMappingWorker.props(a)), name = "router-mapping")
+			ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
+                totalInstances = 100, maxInstancesPerNode = SplitMaster.num_count,
+                allowLocalRoutees = false, useRole = None)).props(SplitHashMappingWorker.props(a)),
+              name = "router-mapping")
 	}
 }
 

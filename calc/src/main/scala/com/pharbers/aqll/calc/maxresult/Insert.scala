@@ -7,7 +7,7 @@ import java.util.Date
 import com.pharbers.aqll.calc.util.dao.from
 
 object Insert { 
-     def maxResultInsert(mr: Stream[(Long, (Double, Double))])(m: (String, String, String, Long)) = {
+     def maxResultInsert(mr: List[(Long, (Double, Double))])(m: (String, String, String, Long)) = {
          val conditions = ("MaxResults_Id" -> m._3)
          val count = (from db() in "MaxResults" where conditions count)
          count match {
