@@ -6,7 +6,7 @@ import com.pharbers.aqll.util._
 
 object AssemblyBasicData{
     def hospitalData(data: List[Hospital]): List[Map[String, AnyRef]] = {
-        data map { x => (
+        data.map( x => (
            Map("Hosp_Id" -> MD5.md5(x.getHosp_Name+x.getPha_Code),
                "Hosp_Name" -> x.getHosp_Name, 
                "Pha_Code" -> x.getPha_Code, 
@@ -24,30 +24,26 @@ object AssemblyBasicData{
                         case "是" => pow(2,0).asInstanceOf[Int]
                         case "否" => pow(2,1).asInstanceOf[Int]
                     })).asInstanceOf[Number]
-             ))
-        }
+             )))
     }
-    def provinceData(data: List[Hospital]): List[Map[String,String]] = {
-        val provincelst = data map { x => Map("Province_Id" -> MD5.md5(x.getProvince_Name), "Province_Name" -> x.getProvince_Name)}
-        provincelst.distinct
+    def provinceData(data: List[Hospital]): Iterable[Map[String,String]] = {
+        data.groupBy(x => x.getProvince_Name).map(a => Map("Province_Id" -> MD5.md5(a._1), "Province_Name" -> a._1))
     }
     def cityData(data: List[Hospital]): List[Map[String, AnyRef]] = {
-        val citylst = data map { x => Map("City_Id" -> MD5.md5(x.getCity_Name), "City_Name" -> x.getCity_Name, "City_Tier" -> (x.getCity_Tier match {
+        data.map( x => Map("City_Id" -> MD5.md5(x.getCity_Name), "City_Name" -> x.getCity_Name, "City_Tier" -> (x.getCity_Tier match {
                     case "1" => pow(2,0).asInstanceOf[Number]
                     case "2" => pow(2,1).asInstanceOf[Number]
                     case "3" => pow(2,2).asInstanceOf[Number]
                     case "4" => pow(2,3).asInstanceOf[Number]
                     case "5" => pow(2,4).asInstanceOf[Number]
                 })
-        )}
-        citylst.distinct
+        )).distinct
     }
-    def specialtyData(data: List[Hospital]): List[Map[String,String]] = {
-        val specialtylst =  data map { x => Map("Specialty_Id" -> MD5.md5(x.getSpecialty_Classification), "Specialty_Classification" -> x.getSpecialty_Classification)}
-        specialtylst.distinct
+    def specialtyData(data: List[Hospital]): Iterable[Map[String,String]] = {
+        data.groupBy(x => x.getSpecialty_Classification).map(a => Map("Specialty_Id" -> MD5.md5(a._1), "Specialty_Classification" -> a._1))
     }
     def universityHospInfoData(data: List[Hospital]): List[Map[String, AnyRef]] = {
-        data map { x =>
+        data.map( x =>
             Map("Hosp_Id" -> MD5.md5(x.getHosp_Name+x.getPha_Code),
                 "doctorsnum" -> x.getDoctorsnum,
                 "bedsnum" -> x.getBedsnum,
@@ -74,30 +70,26 @@ object AssemblyBasicData{
                 "income_clinic_wst_drugs" -> x.getIncome_clinic_wst_drugs,
                 "income_inpatient_drugs" -> x.getIncome_inpatient_drugs,
                 "income_inpatient_wst_drugs" -> x.getIncome_inpatient_wst_drugs
-           )
-       }
+           ))
     }
     
     def productsData(data: List[Products]):  Iterable[Map[String, AnyRef]] = {
-        data.groupBy( x => x.getTrade_Name).map( y => Map("Prod_Id" -> MD5.md5(y._1), "Trade_Name" -> y._1, "Package_Quantity" -> y._2.map(z => z.getPackage_Quantity).distinct))
+        data.groupBy( x => x.getTrade_Name).map( a => Map("Prod_Id" -> MD5.md5(a._1), "Trade_Name" -> a._1, "Package_Quantity" -> a._2.groupBy(y => y.getPackage_Quantity).map(b => b._1)))
     }
-    def dosageFormsData(data: List[Products]): List[Map[String, AnyRef]] = {
-        val lst = data map { x=> Map("Dosageform_Id" -> MD5.md5(x.getDosageform), "Dosageform" -> Map("Ch" -> x.getDosageform, "En" -> ""))}
-        lst.distinct
+    def dosageFormsData(data: List[Products]): Iterable[Map[String, AnyRef]] = {
+        data.groupBy(x => x.getDosageform).map(a => Map("Dosageform_Id" -> MD5.md5(a._1), "Dosageform" -> Map("Ch" -> a._1, "En" -> "")))
     }
-    def drugspecificationData(data: List[Products]): List[Map[String, AnyRef]] = {
-        val lst = data map { x => Map("Drugspecification_Id" -> MD5.md5(x.getDrugspecification), "Drugspecification" -> Map("Ch" -> "", "En" -> x.getDrugspecification))}
-        lst.distinct
+    def drugspecificationData(data: List[Products]): Iterable[Map[String, AnyRef]] = {
+        data.groupBy(x => x.getDrugspecification).map(a => Map("Drugspecification_Id" -> MD5.md5(a._1), "Drugspecification" -> Map("Ch" -> "", "En" -> a._1)))
     }
-    def manufacturerData(data: List[Products]): List[Map[String, AnyRef]] = {
-        val lst = data map { x=> Map("Manufacturer_Id" -> MD5.md5(x.getManufacturer_Name),"Manufacturer_Name" -> Map("Ch" -> x.getManufacturer_Name, "En" -> ""))}
-        lst.distinct
+    def manufacturerData(data: List[Products]): Iterable[Map[String, AnyRef]] = {
+        data.groupBy(x => x.getManufacturer_Name).map(a => Map("Manufacturer_Id" -> MD5.md5(a._1),"Manufacturer_Name" -> Map("Ch" -> a._1, "En" -> "")))
     }   
 }
 
 object AssemblyCoresData{
     def hospitalInfo(data: List[Hospital]): List[Map[String, AnyRef]] = {
-        data map { x=> Map("HospInfo_Id" -> MD5.md5(x.getHosp_Name+x.getPha_Code),
+        data.map( x=> Map("HospInfo_Id" -> MD5.md5(x.getHosp_Name+x.getPha_Code),
             "Hospital" -> Map(
                "Hosp_Name" -> x.getHosp_Name, 
                "Pha_Code" -> x.getPha_Code, 
@@ -125,7 +117,7 @@ object AssemblyCoresData{
                     case "3" => pow(2,2).asInstanceOf[Number]
                     case "4" => pow(2,3).asInstanceOf[Number]
                     case "5" => pow(2,4).asInstanceOf[Number]}))),
-            "Specialty" -> x.getSpecialty_Classification)}
+            "Specialty" -> x.getSpecialty_Classification))
     }
     def regionData(data: List[Hospital]): Iterable[Map[String, AnyRef]] = {
         data.groupBy( x => (x.getRegion_Name)).map(a => Map(
@@ -143,17 +135,23 @@ object AssemblyCoresData{
             ))))
     }
     def minimumProductInfo(data: List[Products]): List[Map[String, AnyRef]] = {
-        data.distinct.map(a => Map(
-            "MiniProdInfo_Id" -> MD5.md5(a.getTrade_Name+a.getDosageform+a.getDrugspecification+a.getPackage_Quantity+a.getManufacturer_Name), 
-            "Products" -> Map(
-                    "Trade_Name" -> Map("Ch" -> a.getTrade_Name,"En" -> ""),
-                    "Package_Quantity" -> a.getPackage_Quantity), 
-            "DosageForm" -> Map("Ch" -> a.getDosageform,"En" -> "") , 
-            "DrugSpecification" -> Map("Ch" -> "","En" -> a.getDrugspecification), 
-            "Manufacturer_Name" -> Map("Ch" -> a.getManufacturer_Name,"En" -> ""),
-            "Genericname" -> Map("Ch" -> "","En" -> ""),
-            "RouteOfMedication" -> Map("Ch" -> "En","" -> ""),
-            "AtcCode" -> Map("Atc_Code" -> "","Atc_Code" -> "")
+//        data.groupBy(x => x.getTrade_Name).map(a => Map(
+//            "MiniProdInfo_Id" -> MD5.md5(a._1), 
+//            "Products" -> Map("lst" -> (Map("Ch" -> a._1,"En" -> "") :: Nil),"Package_Quantity" -> (a._2.groupBy(y => y.getPackage_Quantity).map(b => b._1))), 
+//            "Genericname" -> Map("lst" -> (Map("Ch" -> "", "En" -> "") :: Nil)), 
+//            "DosageForm" -> Map("lst" -> a._2.groupBy(z => z.getDosageform).map(b => Map("Ch" -> b._1, "En" -> ""))), 
+//            "DrugSpecification" -> Map("lst" -> a._2.groupBy(v => v.getDrugspecification).map(c => Map("Ch" -> "", "En" -> c._1))), 
+//            "Manufacturer" -> Map("lst" -> a._2.groupBy(w => w.getManufacturer_Name).map(d => Map("Ch" -> d._1, "En" -> "")))
+//        ))
+        data.map( x=> Map(
+                "MiniProdInfo_Id" -> MD5.md5(x.getTrade_Name+x.getDosageform+x.getDrugspecification+x.getPackage_Quantity+x.getManufacturer_Name),
+                "Products" -> Map("Ch" -> x.getTrade_Name,"En" -> ""),
+                "Drug" -> Map("Ch" -> "","En" -> ""),
+                "DosageForm" -> Map("Ch" -> x.getDosageform,"En" -> ""),
+                "DrugSpecification" -> Map("Ch" -> "","En" -> x.getDrugspecification),
+                "RouteOfMedication" -> Map("Route" -> ""),
+                "Manufacturer" -> Map("Ch" -> x.getManufacturer_Name,"En" -> ""),
+                "AtcCode" -> Map("Atc_Code" -> "","Atc_Name" -> "")
         ))
     }
 }

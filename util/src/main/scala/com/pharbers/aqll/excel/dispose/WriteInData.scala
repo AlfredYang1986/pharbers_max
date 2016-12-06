@@ -25,7 +25,7 @@ object WriteInBasicData{
         try {
             val hospdatadata = hospdatadataobj(excel_file_name)
             hospdatadata.size match {
-                case 0 => throw new ExcelDataException(ErrorCode.errorToTrait("data is null"))
+                case 0 => throw new ExcelDataException(ErrorCode.getErrorMessageByName("data is null"))
                 case _ => {
                     hospitalData(hospdatadata) foreach { x => hospitalbulk.insert(x)}
                     provinceData(hospdatadata) foreach { x => provincebulk.insert(x)}
@@ -48,7 +48,7 @@ object WriteInBasicData{
             }
             
         } catch {
-          case ReadFileException(m) => throw new ExcelDataException(ErrorCode.errorToTrait("error reading data"))
+          case ReadFileException(m) => throw new ExcelDataException(ErrorCode.getErrorMessageByName("data is null"))
         }
     }
     def insertProductBasicInfo(excel_file_name : String) {
@@ -60,7 +60,7 @@ object WriteInBasicData{
         try {
           val productdata = productdataobj(excel_file_name)
           productdata.size match {
-              case 0 => throw new ExcelDataException(ErrorCode.errorToTrait("data is null"))
+              case 0 => throw new ExcelDataException(ErrorCode.getErrorMessageByName("data is null"))
               case _ => {
                   productsData(productdata) foreach { x =>productsbulk.insert(x)}
                   dosageFormsData(productdata) foreach { x => dosageFormsbulk.insert(x)}
@@ -79,7 +79,7 @@ object WriteInBasicData{
               }
           }
         } catch {
-          case ReadFileException(m) => throw new ExcelDataException(ErrorCode.errorToTrait("error reading data"))
+          case ReadFileException(m) => throw new ExcelDataException(ErrorCode.getErrorMessageByName("data is null"))
         }
     }
     
@@ -98,7 +98,7 @@ object WriteInCoresData{
          try {
           val hospdatadata = hospdatadataobj(excel_file_name)
           hospdatadata.size match {
-              case 0 => throw new ExcelDataException(ErrorCode.errorToTrait("data is null"))
+              case 0 => throw new ExcelDataException(ErrorCode.getErrorMessageByName("data is null"))
               case _ => {
                   hospitalInfo(hospdatadata).foreach(x => hospitalinfobulk.insert(x))
                   regionData(hospdatadata).foreach(x => regioninfobulk.insert(x))
@@ -109,7 +109,7 @@ object WriteInCoresData{
               }
           }
         } catch {
-          case ReadFileException(m) => throw new ExcelDataException(ErrorCode.errorToTrait("error reading data"))
+          case ReadFileException(m) => throw new ExcelDataException(ErrorCode.getErrorMessageByName("data is null"))
         }
     }
     def insertProductsCoresInfo(excel_file_name : String){
@@ -117,7 +117,7 @@ object WriteInCoresData{
         try {
           val productdata = productdataobj(excel_file_name)
           productdata.size match {
-              case 0 => throw new ExcelDataException(ErrorCode.errorToTrait("data is null"))
+              case 0 => throw new ExcelDataException(ErrorCode.getErrorMessageByName("data is null"))
               case _ => {
                   minimumProductInfo(productdata).foreach(x => productsinfobulk.insert(x))
                   getMongoCollection("MinimumProductInfo").drop()
@@ -125,7 +125,7 @@ object WriteInCoresData{
               }
           }
         } catch {
-          case ReadFileException(m) => throw new ExcelDataException(ErrorCode.errorToTrait("error reading data"))
+          case ReadFileException(m) => throw new ExcelDataException(ErrorCode.getErrorMessageByName("data is null"))
         }
     }
     def getMongoCollection(coll_name : String) : MongoCollection = {

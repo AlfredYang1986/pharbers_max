@@ -6,7 +6,6 @@ public class Products {
 	private String Drugspecification;
 	private Integer Package_Quantity;
 	private String Manufacturer_Name;
-	private String MiniProdInfo;
 	
 	public String getTrade_Name() {
 		return Trade_Name;
@@ -37,11 +36,5 @@ public class Products {
 	}
 	public void setManufacturer_Name(String manufacturer_Name) {
 		Manufacturer_Name = manufacturer_Name;
-	}
-	public String getMiniProdInfo() {
-		return MiniProdInfo;
-	}
-	public void setMiniProdInfo(String miniProdInfo) {
-		MiniProdInfo = miniProdInfo;
 	}
 }
