@@ -36,16 +36,14 @@ object SplitMaster {
 class SplitMaster extends Actor with ActorLogging 
 	with CreateSplitWorker 
 	with CreateSplitEventBus
-	with CreateSplitAggregator 
-	with CreateSplitHashMappingWorker {
+	with CreateSplitAggregator {
 
 	import SplitMaster._
 	import JobCategories._
 	
 	val bus = CreateSplitEventBus
 	val agg = CreateSplitAggregator(bus)
-	val mapping = CreateSplitHashMappingWorker(agg)
-	val router = CreateSplitWorker(agg, mapping)
+	val router = CreateSplitWorker(agg)
 	var fileName = ""
 	
 	val ready : Receive = {
@@ -103,30 +101,12 @@ class SplitMaster extends Actor with ActorLogging
 }
 
 trait CreateSplitWorker { this : Actor =>
-	def CreateSplitWorker(a : ActorRef, m : ActorRef) = {
+	def CreateSplitWorker(a : ActorRef) = {
 	    context.actorOf(
             ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
                 totalInstances = 100, maxInstancesPerNode = SplitMaster.num_count,
-                allowLocalRoutees = false, useRole = None)).props(SplitWorker.props(a, m)),
+                allowLocalRoutees = true, useRole = None)).props(SplitWorker.props(a)),
               name = "worker-router")
-	}
-}
-
-trait CreateSplitHashMappingWorker { this : Actor => 
-	def hashMapping: ConsistentHashMapping = {
-  		case msg : modelRunData => msg.getUploadYear() + msg.getUploadMonth()
-	}
-
-	def CreateSplitHashMappingWorker(a : ActorRef) = {
-		context.actorOf(
-//			  ConsistentHashingPool(10, 
-//			 		// virtualNodesFactor = 100000,
-//					hashMapping = hashMapping
-//				).props(SplitHashMappingWorker.props(a)), name = "router-mapping")
-			ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
-                totalInstances = 100, maxInstancesPerNode = SplitMaster.num_count,
-                allowLocalRoutees = false, useRole = None)).props(SplitHashMappingWorker.props(a)),
-              name = "router-mapping")
 	}
 }
 

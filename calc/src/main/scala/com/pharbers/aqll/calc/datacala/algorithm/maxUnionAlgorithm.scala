@@ -6,8 +6,6 @@ import com.pharbers.aqll.calc.excel.Manage.AdminProduct
 import com.pharbers.aqll.calc.excel.Manage.AdminMarket
 import com.pharbers.aqll.calc.excel.common.commonMarketObjectTrait
 import com.pharbers.aqll.calc.excel.model.integratedData
-
-
 //import excel.model.CPA.CpaProduct
 
 object maxUnionAlgorithm {

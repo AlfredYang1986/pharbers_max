@@ -6,7 +6,6 @@ import com.pharbers.aqll.calc.datacala.module.MarketMessage.msg_IntegratedData
 import com.pharbers.aqll.calc.maxmessages.MaxMessageTrait
 import com.pharbers.aqll.calc.datacala.algorithm.maxCalcUnionAlgorithm
 import com.pharbers.aqll.calc.datacala.module.MarketMessage.msg_MaxData
-import com.pharbers.aqll.calc.datacala.algorithm.backWriterSumVolumFunction
 import com.pharbers.aqll.calc.excel.model.modelRunData
 import com.pharbers.aqll.calc.util.StringOption
 

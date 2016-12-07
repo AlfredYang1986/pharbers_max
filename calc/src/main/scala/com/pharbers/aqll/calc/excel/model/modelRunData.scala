@@ -86,4 +86,15 @@ class modelRunData  (@BeanProperty val	company	:String,
                              
     lazy val sortConditions1 : String = uploadYear.toString + uploadMonth.toString + hospId.toString + StringOption.takeStringSpace(minimumUnitCh.toString)
 //      MD5.md5(uploadYear.toString + uploadMonth.toString + hospId.toString + StringOption.takeStringSpace(minimumUnitCh.toString))
+    
+    def equals(other : modelRunData) : Boolean =
+    	this.uploadYear	== other.uploadYear &&
+	    this.uploadMonth == other.uploadMonth &&
+    	this.minimumUnit == other.minimumUnit &&
+	    this.segment == other.segment &&
+	    this.factor	== other.factor &&
+	    this.ifPanelAll	== other.ifPanelAll &&
+	    this.ifPanelTouse == other.ifPanelTouse &&
+		this.hospId	== other.hospId &&
+	    this.phaid == other.phaid
 }

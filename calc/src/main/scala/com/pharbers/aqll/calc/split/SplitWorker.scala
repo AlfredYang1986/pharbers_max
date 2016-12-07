@@ -24,10 +24,12 @@ import com.pharbers.aqll.calc.util.DateUtil
 import com.pharbers.aqll.calc.datacala.algorithm.maxCalcUnionAlgorithm
 
 object SplitWorker {
-	def props(a : ActorRef, m : ActorRef) = Props(new SplitWorker(a, m))
+	def props(a : ActorRef) = Props(new SplitWorker(a))
 	
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
 	case class postresult(mr: Map[Long, (Double, Double)])
+	
+	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
 }
 
 object adminData {
@@ -36,7 +38,7 @@ object adminData {
 	lazy val market = DefaultData.marketdata.toStream
 }
 
-class SplitWorker(aggregator: ActorRef, mapping : ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
+class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
     var isSub = false
     val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
     
@@ -55,7 +57,6 @@ class SplitWorker(aggregator: ActorRef, mapping : ActorRef) extends Actor with A
 	        val dataMsg = msg_IntegratedData(integratedDataArgs)
 	        MarketModule.dispatchMessage(dataMsg) match {
 	            case None => None
-	            
 	            case Some(IntegratedDataArgs(igda)) => {
 	            	data ++= igda
 	            }
@@ -69,15 +70,8 @@ class SplitWorker(aggregator: ActorRef, mapping : ActorRef) extends Actor with A
 	    case phamarketresult(target) => {
 
 	    }
-	    case SplitEventBus.excelEnded() => {
-	        if(data.size != 0) {
-	        	(new maxCalcUnionAlgorithm())(data.toStream, adminData.hospbasedata)(mrd => mapping ! mrd)
-            }
-	        aggregator ! SplitHashMappingWorker.HashMappingEnd()
-	    }
-	    case _ => {
-
-	    }
+	    case SplitEventBus.excelEnded() => aggregator ! SplitWorker.integratedataresult(data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh)))
+	    case _ => Unit
 	}
 	
 	val working : Receive = {

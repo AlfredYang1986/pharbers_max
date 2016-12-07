@@ -16,8 +16,9 @@ class maxCalcUnionAlgorithm {
                 	 mrd.sumValue = y.sumValue
 					 mrd.volumeUnit = y.volumeUnit
                  }.getOrElse(Unit)
-				 f(mrd)
+                 f(mrd)
              }
-         })
+         })//.flatten
+//         println(s"size max result ${a.size}")
      }
 }

@@ -4,7 +4,7 @@ import com.pharbers.aqll.calc.excel.model.modelRunData
 
 class maxCalcData {
     
-    def apply(data: Stream[modelRunData],avg: Stream[(String, Double, Double)]) = {
+    def apply(data: List[modelRunData],avg: List[(String, Double, Double)]) = {
         avg foreach { x =>
             data filter (y => y.segment.equals(x._1)) foreach { iter => 
                 if (iter.ifPanelAll.equals("1")) {
