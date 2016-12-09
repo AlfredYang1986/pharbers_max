@@ -26,5 +26,4 @@ class SplitEventBus(s : Int) extends EventBus with LookupClassification with Act
     }
     
     def subscribe(subscriber : Subscriber) : Boolean = subscribers.put("AggregorBus", subscriber)
- 
 }

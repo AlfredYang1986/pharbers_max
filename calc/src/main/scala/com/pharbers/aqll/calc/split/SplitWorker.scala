@@ -51,7 +51,8 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
                 isSub = true
                 aggregator ! SplitAggregator.aggsubcribe(self)
 	        }
-	        
+	       
+	        println(s"start read at $self")
 	        val listCpaMarket = (target :: Nil).toStream
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserMarketDataArgs(listCpaMarket)))
 	        val dataMsg = msg_IntegratedData(integratedDataArgs)
@@ -70,7 +71,10 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	    case phamarketresult(target) => {
 
 	    }
-	    case SplitEventBus.excelEnded() => aggregator ! SplitWorker.integratedataresult(data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh)))
+	    case SplitEventBus.excelEnded() =>  {
+	    	println(s"read ended at $self")
+	    	aggregator ! SplitWorker.integratedataresult(data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh)))
+	    }
 	    case _ => Unit
 	}
 	

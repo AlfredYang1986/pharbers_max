@@ -11,7 +11,6 @@ class maxSumData {
             val max_filter = max_filter_data.filter(x => x.segment.equals(x1))
             (x1,(max_filter.map(_.sumValue).sum, max_filter.map(_.volumeUnit).sum, max_filter.map(_.westMedicineIncome).sum))
         }
-//        println(sum_data.toList)
         sum_data
     }
 }
