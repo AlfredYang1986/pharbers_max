@@ -1,12 +1,18 @@
 package com.pharbers.aqll.calc.excel.PharmaTrust;
 
-//import com.pharbers.max.util.StringOption;
+import java.io.Serializable;
+
 import com.pharbers.aqll.calc.excel.common.commonProductObjectTrait;
 import com.pharbers.aqll.calc.util.StringOption;
 
-public class PharmaTrustPorduct extends commonProductObjectTrait {
+public class PharmaTrustPorduct extends commonProductObjectTrait implements Serializable {
 
-    private String province;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private String province;
 
     private String city;
 

@@ -1,9 +1,16 @@
 package com.pharbers.aqll.calc.excel.PharmaTrust;
 
+import java.io.Serializable;
+
 import com.pharbers.aqll.calc.excel.common.commonMarketObjectTrait;
 
-public class PharmaTrustMarket extends commonMarketObjectTrait{
-    private String province;
+public class PharmaTrustMarket extends commonMarketObjectTrait implements Serializable{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private String province;
 
     private String city;
 

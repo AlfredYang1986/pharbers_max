@@ -5,10 +5,17 @@ package com.pharbers.aqll.calc.excel.CPA;
  * @author Faiz
  *
  */
+import java.io.Serializable;
+
 import com.pharbers.aqll.calc.excel.common.commonProductObjectTrait;
 import com.pharbers.aqll.calc.util.StringOption;
 
-public class CpaProduct extends commonProductObjectTrait {
+public class CpaProduct extends commonProductObjectTrait implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private String province;
 

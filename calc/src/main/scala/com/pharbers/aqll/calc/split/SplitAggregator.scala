@@ -91,10 +91,11 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 				mapping_master_actor.single.get.get(kvs._1) match {
 					case Some(a) => a ! SplitGroupMaster.groupintegrated(kvs._2)
 					case None => {
-						val a = context.actorOf(
+						val a = //context.system.actorOf(SplitGroupMaster.props(self))
+						    context.actorOf(
                                     ClusterRouterPool(RoundRobinPool(1), ClusterRouterPoolSettings(    
                                         totalInstances = 1, maxInstancesPerNode = 1,
-                                        allowLocalRoutees = true, useRole = None)).props(SplitGroupMaster.props(self))) 
+                                        allowLocalRoutees = false, useRole = None)).props(SplitGroupMaster.props(self))) 
 						atomic { implicit thx =>
 							mapping_master_actor() = mapping_master_actor() + (kvs._1 -> a)
 						}

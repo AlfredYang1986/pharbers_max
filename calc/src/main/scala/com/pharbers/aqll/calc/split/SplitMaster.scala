@@ -105,7 +105,7 @@ trait CreateSplitWorker { this : Actor =>
 	    context.actorOf(
             ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
                 totalInstances = 100, maxInstancesPerNode = SplitMaster.num_count,
-                allowLocalRoutees = true, useRole = None)).props(SplitWorker.props(a)),
+                allowLocalRoutees = false, useRole = None)).props(SplitWorker.props(a)),
               name = "worker-router")
 	}
 }

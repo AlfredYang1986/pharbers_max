@@ -37,7 +37,7 @@ class integratedData(@BeanProperty val uploadYear : Int,
     @BeanProperty val provinceCh : String,
     @BeanProperty val provinceEn : String,
     @BeanProperty val cityCh : String,
-    @BeanProperty val cityEn : String) {
+    @BeanProperty val cityEn : String) extends java.io.Serializable {
     
     override def toString = ""+uploadYear.toString()+
                              "	"+uploadMonth.toString()+
