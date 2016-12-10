@@ -3,9 +3,6 @@ package com.pharbers.aqll.calc.split
 import scala.concurrent.stm._
 import com.pharbers.aqll.calc.common.DefaultData
 import com.pharbers.aqll.calc.datacala.common._
-import com.pharbers.aqll.calc.datacala.module.MarketMessage.msg_IntegratedData
-import com.pharbers.aqll.calc.datacala.module.MarketMessage.msg_MaxData
-import com.pharbers.aqll.calc.datacala.module.MarketModule
 import com.pharbers.aqll.calc.excel.core.cpamarketresult
 import com.pharbers.aqll.calc.excel.core.cparesult
 import com.pharbers.aqll.calc.excel.core.phamarketresult
@@ -22,6 +19,9 @@ import com.pharbers.aqll.calc.datacala.algorithm.maxSumData
 import com.pharbers.aqll.calc.datacala.algorithm.maxCalcData
 import com.pharbers.aqll.calc.util.DateUtil
 import com.pharbers.aqll.calc.datacala.algorithm.maxCalcUnionAlgorithm
+import com.pharbers.aqll.calc.datacala.module.MaxMessage.msg_IntegratedData
+import com.pharbers.aqll.calc.datacala.module.MaxModule
+import com.pharbers.aqll.calc.adapter.SplitAdapter
 
 object SplitWorker {
 	def props(a : ActorRef) = Props(new SplitWorker(a))
@@ -36,37 +36,38 @@ object adminData {
     lazy val hospbasedata = DefaultData.hospdatabase.toStream
 	lazy val hospmatchdata = DefaultData.hospmatchdata.toStream
 	lazy val market = DefaultData.marketdata.toStream
+	lazy val product = DefaultData.productdata.toStream
 }
 
 class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
     var isSub = false
     val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
     
+    def isSubFun(b: Boolean) = {
+	    if (!b) {
+            isSub = true
+            aggregator ! SplitAggregator.aggsubcribe(self)
+        }
+	}
+    
 	val idle : Receive = {
 	    case cparesult(target) => {
-
+	        isSubFun(isSub)
+	        val listCpaProdcut = (target :: Nil).toStream
+	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut))) 
+	        data ++= new splitdata(new SplitAdapter(),integratedDataArgs).d
 	    }
 	    case cpamarketresult(target) => {
-	        if (!isSub) {
-                isSub = true
-                aggregator ! SplitAggregator.aggsubcribe(self)
-	        }
-	       
-	        println(s"start read at $self")
+	        isSubFun(isSub)
 	        val listCpaMarket = (target :: Nil).toStream
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserMarketDataArgs(listCpaMarket)))
-	        val dataMsg = msg_IntegratedData(integratedDataArgs)
-	        MarketModule.dispatchMessage(dataMsg) match {
-	            case None => None
-	            case Some(IntegratedDataArgs(igda)) => {
-	            	data ++= igda
-	            }
-	            case _ => Unit
-	        }
-	        
+	        data ++= new splitdata(new SplitAdapter(),integratedDataArgs).d
 	    }
 	    case pharesult(target) => {
-
+	        isSubFun(isSub)
+            val listPhaProdcut = (target :: Nil).toStream
+            val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaProductDataArgs(listPhaProdcut)))
+	        data ++= new splitdata(new SplitAdapter(),integratedDataArgs).d
 	    }
 	    case phamarketresult(target) => {
 

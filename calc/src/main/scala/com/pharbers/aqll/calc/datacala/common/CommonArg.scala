@@ -63,6 +63,6 @@ case class IntegratedDataArgs(val data: Stream[integratedData]) extends CommonAr
     type data_type = Stream[integratedData]
 }
 
-case class ModelRunDataArgs(val data: Stream[modelRunData]) extends CommonArg {
-    type data_type = Stream[modelRunData]
+case class ModelRunDataArgs(val data: List[modelRunData]) extends CommonArg {
+    type data_type = List[modelRunData]
 }

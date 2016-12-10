@@ -6,6 +6,7 @@ package com.pharbers.aqll.calc.excel.CPA;
  *
  */
 import com.pharbers.aqll.calc.excel.common.commonProductObjectTrait;
+import com.pharbers.aqll.calc.util.StringOption;
 
 public class CpaProduct extends commonProductObjectTrait {
 
@@ -182,8 +183,8 @@ public class CpaProduct extends commonProductObjectTrait {
 	}
 
     public String commonObjectCondition() {
-//    	return StringOption.takeStringSpace(this.getTradename() +
-    	return (this.getTradename() +
+    	return StringOption.takeStringSpace(
+    			this.getTradename() +
     	        this.getManufacturer() +
     	        this.getDosageforms() +
     	        this.getDrugspecifications() +

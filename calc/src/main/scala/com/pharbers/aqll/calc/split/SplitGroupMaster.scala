@@ -12,6 +12,12 @@ import com.pharbers.aqll.calc.common.DefaultData
 import com.pharbers.aqll.calc.datacala.algorithm.maxCalcData
 import com.pharbers.aqll.calc.datacala.algorithm.maxSumData
 import com.pharbers.aqll.calc.util.DateUtil
+import com.pharbers.aqll.calc.datacala.common.BaseMaxDataArgs
+import com.pharbers.aqll.calc.datacala.common.AdminHospDataBaseArgs
+import com.pharbers.aqll.calc.datacala.common.IntegratedDataArgs
+import com.pharbers.aqll.calc.datacala.module.MaxMessage.msg_MaxData
+import com.pharbers.aqll.calc.datacala.module.MaxModule
+import com.pharbers.aqll.calc.datacala.common.ModelRunDataArgs
 
 object SplitGroupMaster {
 	def props(a : ActorRef) = Props(new SplitGroupMaster(a))
@@ -22,7 +28,9 @@ object SplitGroupMaster {
 
 class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 	
-	val r : ArrayBuffer[modelRunData] = ArrayBuffer.empty
+//  val r : ArrayBuffer[Stream[modelRunData]] = ArrayBuffer.empty
+//	var r : Stream[modelRunData] = Stream.Empty
+  val r : ArrayBuffer[modelRunData] = ArrayBuffer.empty
 	
 	def receive = {
 		case SplitGroupMaster.groupintegrated(lst) => {
@@ -51,6 +59,17 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 	                 }
 	             }
 	        })
+		    
+//		    val baseMaxData = BaseMaxDataArgs(new AdminHospDataBaseArgs(adminData.hospbasedata), new IntegratedDataArgs(lst.toStream))
+//		    val maxAllData = msg_MaxData(baseMaxData)
+//		    MaxModule.dispatchMessage(maxAllData) match {
+//               case None => None
+//               
+//               case Some(ModelRunDataArgs(modelrun)) => {
+//                   r = modelrun.toStream
+//               }
+//               case _ => Unit
+//           }
 		}
 		case SplitGroupMaster.mappingend() => {
 			println(s"mapping size is ${r.size} in context $self")

@@ -44,7 +44,7 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 				unionSum() = unionSum() ++: sum
 			}
 			
-			println("average")
+//			println("average")
 			
 			if (avgsize.single.get == mapping_master_actor.single.get.size) {
 			    val sumAll = unionSum.single.get.groupBy(_._1) map { x => 
@@ -71,12 +71,14 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 					mrResult() = mrResult() + (kvs._1 -> (v, u))
 				}
 			}
-			println("result")
+//			println("result")
 			
 			if (rltsize.single.get == mapping_master_actor.single.get.size) {
 				val result = mrResult.single.get
-				val check = result.map (x => x._2._1).sum
-				println(s"final result is : $check")
+				val value = result.map (x => x._2._1).sum
+				val unit = result.map (x => x._2._2).sum
+				println(s"final result value is : $value")
+				println(s"final result unit is : $unit")
 //				master ! SplitAggregator.aggregatefinalresult(result)
 			}
 		}
@@ -88,18 +90,8 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 				mapsize() = mapsize() + 1
 			}
 		
-			println("integrated result")
+//			println("integrated result")
 			m.map { kvs => 
-//				if (!mapping_master_actor.single.get.isEmpty) {
-//					mapping_master_actor.single.get.head._2 ! SplitGroupMaster.groupintegrated(kvs._2)					
-//				} else {
-//					val a = context.system.actorOf(SplitGroupMaster.props(self))
-//					atomic { implicit thx =>
-//						mapping_master_actor() = mapping_master_actor() + (kvs._1 -> a)
-//					}
-//					a ! SplitGroupMaster.groupintegrated(kvs._2)
-//				}
-					
 				mapping_master_actor.single.get.get(kvs._1) match {
 					case Some(a) => a ! SplitGroupMaster.groupintegrated(kvs._2)
 					case None => {

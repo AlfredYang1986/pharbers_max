@@ -2,6 +2,7 @@ package com.pharbers.aqll.calc.excel.PharmaTrust;
 
 //import com.pharbers.max.util.StringOption;
 import com.pharbers.aqll.calc.excel.common.commonProductObjectTrait;
+import com.pharbers.aqll.calc.util.StringOption;
 
 public class PharmaTrustPorduct extends commonProductObjectTrait {
 
@@ -166,8 +167,11 @@ public class PharmaTrustPorduct extends commonProductObjectTrait {
 	}
    
     public String commonObjectCondition() {
-//    	return StringOption.takeStringSpace(
-    	return (
-            this.getTradename() + this.getManufacturer() + this.getDosageforms() + this.getDrugspecifications() + this.getNumberPackaging());
+    	return StringOption.takeStringSpace(
+            this.getTradename() + 
+            this.getManufacturer() + 
+            this.getDosageforms() + 
+            this.getDrugspecifications() + 
+            this.getNumberPackaging());
     }
 }
