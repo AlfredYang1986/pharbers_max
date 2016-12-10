@@ -14,6 +14,10 @@ import akka.actor.actorRef2Scala
 import akka.agent.Agent
 import scala.collection.mutable.Map
 import com.pharbers.aqll.calc.excel.model.integratedData
+import com.typesafe.config.ConfigFactory
+import akka.cluster.routing.ClusterRouterPool
+import akka.routing.RoundRobinPool
+import akka.cluster.routing.ClusterRouterPoolSettings
 
 object SplitAggregator {
     def props(msgSize: Int, bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(msgSize, bus, master))
@@ -44,8 +48,6 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 				unionSum() = unionSum() ++: sum
 			}
 			
-//			println("average")
-			
 			if (avgsize.single.get == mapping_master_actor.single.get.size) {
 			    val sumAll = unionSum.single.get.groupBy(_._1) map { x => 
 			        (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
@@ -71,15 +73,10 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 					mrResult() = mrResult() + (kvs._1 -> (v, u))
 				}
 			}
-//			println("result")
 			
 			if (rltsize.single.get == mapping_master_actor.single.get.size) {
 				val result = mrResult.single.get
-				val value = result.map (x => x._2._1).sum
-				val unit = result.map (x => x._2._2).sum
-				println(s"final result value is : $value")
-				println(s"final result unit is : $unit")
-//				master ! SplitAggregator.aggregatefinalresult(result)
+				master ! SplitAggregator.aggregatefinalresult(result.toList)
 			}
 		}
 		case SplitAggregator.aggsubcribe(a) => {
@@ -90,12 +87,14 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 				mapsize() = mapsize() + 1
 			}
 		
-//			println("integrated result")
 			m.map { kvs => 
 				mapping_master_actor.single.get.get(kvs._1) match {
 					case Some(a) => a ! SplitGroupMaster.groupintegrated(kvs._2)
 					case None => {
-						val a = context.system.actorOf(SplitGroupMaster.props(self))
+						val a = context.actorOf(
+                                    ClusterRouterPool(RoundRobinPool(1), ClusterRouterPoolSettings(    
+                                        totalInstances = 1, maxInstancesPerNode = 1,
+                                        allowLocalRoutees = true, useRole = None)).props(SplitGroupMaster.props(self))) 
 						atomic { implicit thx =>
 							mapping_master_actor() = mapping_master_actor() + (kvs._1 -> a)
 						}

@@ -70,7 +70,10 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	        data ++= new splitdata(new SplitAdapter(),integratedDataArgs).d
 	    }
 	    case phamarketresult(target) => {
-
+	        isSubFun(isSub)
+	        val listPhaMarket = (target :: Nil).toStream
+	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
+	        data ++= new splitdata(new SplitAdapter(),integratedDataArgs).d
 	    }
 	    case SplitEventBus.excelEnded() =>  {
 	    	println(s"read ended at $self")

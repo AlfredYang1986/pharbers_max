@@ -16,7 +16,7 @@ object JobCategories {
     object cpaMarketJob extends JobDefines(0, "CpaMarket")
     object cpaProductJob extends JobDefines(1, "CpaProduct")
     object phaMarketJob extends JobDefines(2, "PhaMarket")
-    object ppaProductJob extends JobDefines(3, "PhaProduct")
+    object phaProductJob extends JobDefines(3, "PhaProduct")
 }
 
 sealed case class JobDefines(t : Int, des : String)

@@ -28,8 +28,6 @@ object SplitGroupMaster {
 
 class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 	
-//  val r : ArrayBuffer[Stream[modelRunData]] = ArrayBuffer.empty
-//	var r : Stream[modelRunData] = Stream.Empty
   val r : ArrayBuffer[modelRunData] = ArrayBuffer.empty
 	
 	def receive = {
@@ -59,17 +57,6 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 	                 }
 	             }
 	        })
-		    
-//		    val baseMaxData = BaseMaxDataArgs(new AdminHospDataBaseArgs(adminData.hospbasedata), new IntegratedDataArgs(lst.toStream))
-//		    val maxAllData = msg_MaxData(baseMaxData)
-//		    MaxModule.dispatchMessage(maxAllData) match {
-//               case None => None
-//               
-//               case Some(ModelRunDataArgs(modelrun)) => {
-//                   r = modelrun.toStream
-//               }
-//               case _ => Unit
-//           }
 		}
 		case SplitGroupMaster.mappingend() => {
 			println(s"mapping size is ${r.size} in context $self")
