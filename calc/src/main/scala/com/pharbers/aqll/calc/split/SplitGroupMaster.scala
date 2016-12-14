@@ -23,18 +23,26 @@ object SplitGroupMaster {
 	def props(a : ActorRef) = Props(new SplitGroupMaster(a))
 	
 	case class groupintegrated(lst : List[integratedData])
-	case class mappingend()
+	case class mappingend() extends broadcastingDefines
 }
 
 class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
-	
-  val r : ArrayBuffer[modelRunData] = ArrayBuffer.empty
-	
+
+//	val inte_lst : ArrayBuffer[integratedData] = ArrayBuffer.empty
+  	val r : ArrayBuffer[modelRunData] = ArrayBuffer.empty
+  	val subFun = aggregator ! SplitAggregator.aggmapsubscrbe(self)
+  
 	def receive = {
-		case SplitGroupMaster.groupintegrated(lst) => {
-			val output = lst.toList.groupBy(x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh)).map(_._2.head).toList
+//		case SplitGroupMaster.groupintegrated(lst) => {
+		case SplitAggregator.msg_container(group, lst) => {
+//	        inte_lst ++= lst
+//	        println(s"end integrate $group is ${inte_lst.size} in context $self")
+			println("start max 1234")
+	        val output = lst.toList.groupBy(x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh)).map(_._2.head).toList
+			println(s"output size is ${output.size}")
+			println(s"inte_lst size is ${lst.size}")
 	        (output map { element2 =>
-	             DefaultData.hospdatabase.toList map { element =>
+	            DefaultData.hospdatabase.toList map { element =>
 	                 val mrd = new modelRunData(element.getCompany, element2.uploadYear, element2.uploadMonth, 0.0, 0.0, element2.minimumUnit, element2.minimumUnitCh, element2.minimumUnitEn, element2.manufacturerCh, element2.manufacturerEn, element2.generalnameCh, element2.generalnameEn, element2.tradenameCh, element2.tradenameEn, element2.dosageformsCh, element2.dosageformsEn, element2.drugspecificationsCh, element2.drugspecificationsEn, element2.numberpackagingCh, element2.numberpackagingEn, element2.skuCh, element2.skuEn, element2.market1Ch, element2.market1En, element.getSegment, element.getFactor, element.getIfPanelAll, element.getIfPanelTouse, element.getHospId, element.getHospName, element.getPhaid, element.getIfCounty, element.getHospLevel, element.getRegion, element.getProvince, element.getPrefecture, element.getCityTier, element.getSpecialty1, element.getSpecialty2, element.getReSpecialty, element.getSpecialty3, element.getWestMedicineIncome, element.getDoctorNum, element.getBedNum, element.getGeneralBedNum, element.getMedicineBedNum, element.getSurgeryBedNum, element.getOphthalmologyBedNum, element.getYearDiagnosisNum, element.getClinicNum, element.getMedicineNum, element.getSurgeryNum, element.getHospitalizedNum, element.getHospitalizedOpsNum, element.getIncome, element.getClinicIncome, element.getClimicCureIncome, element.getHospitalizedIncome, element.getHospitalizedBeiIncome, element.getHospitalizedCireIncom, element.getHospitalizedOpsIncome, element.getDrugIncome, element.getClimicDrugIncome, element.getClimicWestenIncome, element.getHospitalizedDrugIncome, element.getHospitalizedWestenIncome, 0.0, 0.0)
 	                 r.find (x => x.equals(mrd)) match {
 	                	 case Some(x) => {
@@ -44,6 +52,7 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 			                	 x.sumValue = y.sumValue
 								 x.volumeUnit = y.volumeUnit
 			                 }.getOrElse(Unit)
+			                 Unit
 	                	 }
 	                	 case None => {
 				             lst.find { iter =>
@@ -57,8 +66,11 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 	                 }
 	             }
 	        })
+
 		}
 		case SplitGroupMaster.mappingend() => {
+			println("end mapping")
+			
 			println(s"mapping size is ${r.size} in context $self")
 			lazy val maxSum = new maxSumData()(r.toStream).toList
 			aggregator ! SplitWorker.requestaverage(maxSum)	
@@ -66,7 +78,7 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 		case SplitEventBus.average(avg) => {
 	    	lazy val calc = new maxCalcData()(r.toList, avg)
 	    	val result = calc.groupBy (x => (x.uploadYear, x.uploadMonth)) map { x =>
-				    (DateUtil.getDateLong(x._1._1,x._1._2), (x._2 map(_.finalResultsValue) sum, x._2 map(_.finalResultsUnit) sum))
+				    (DateUtil.getDateLong(x._1._1, x._1._2), (x._2 map(_.finalResultsValue) sum, x._2 map(_.finalResultsUnit) sum))
 				}
 	    	aggregator ! SplitWorker.postresult(result)
 	    }

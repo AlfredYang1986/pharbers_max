@@ -29,7 +29,9 @@ object SplitWorker {
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
 	case class postresult(mr: Map[Long, (Double, Double)])
 	
-	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
+//	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
+	case class integratedataresult(integrated : ((Int, Int, String), List[integratedData]))
+	case class integratedataended()
 }
 
 object adminData {
@@ -40,44 +42,40 @@ object adminData {
 }
 
 class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
-    var isSub = false
     val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
-    
-    def isSubFun(b: Boolean) = {
-	    if (!b) {
-            isSub = true
-            aggregator ! SplitAggregator.aggsubcribe(self)
-        }
-	}
+    val subFun = aggregator ! SplitAggregator.aggsubcribe(self)
     
 	val idle : Receive = {
 	    case cparesult(target) => {
-	        isSubFun(isSub)
 	        val listCpaProdcut = (target :: Nil).toStream
 	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut))) 
-	        data ++= new splitdata(new SplitAdapter(),integratedDataArgs).d
+	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case cpamarketresult(target) => {
-	        isSubFun(isSub)
 	        val listCpaMarket = (target :: Nil).toStream
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserMarketDataArgs(listCpaMarket)))
-	        data ++= new splitdata(new SplitAdapter(),integratedDataArgs).d
+	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case pharesult(target) => {
-	        isSubFun(isSub)
             val listPhaProdcut = (target :: Nil).toStream
             val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaProductDataArgs(listPhaProdcut)))
-	        data ++= new splitdata(new SplitAdapter(),integratedDataArgs).d
+	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case phamarketresult(target) => {
-	        isSubFun(isSub)
 	        val listPhaMarket = (target :: Nil).toStream
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
-	        data ++= new splitdata(new SplitAdapter(),integratedDataArgs).d
+	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case SplitEventBus.excelEnded() =>  {
 	    	println(s"read ended at $self")
-	    	aggregator ! SplitWorker.integratedataresult(data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh)))
+	    	
+//			aggregator ! SplitWorker.integratedataresult(data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth(), x.getMinimumUnitCh)))
+	    	(data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))).map { tmp => 
+		    	aggregator ! SplitWorker.integratedataresult(tmp)
+	    	}
+	    
+			aggregator ! SplitWorker.integratedataended()
+//	    	cancelActor
 	    }
 	    case _ => Unit
 	}
@@ -89,4 +87,8 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	}
 
 	def receive = idle
+	
+	def cancelActor = {
+		context.stop(self)
+	}
 }
