@@ -82,7 +82,7 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 			}
 			
 //			if (rltsize.single.get == SplitAggregator.mapping_nr_total_instance) {
-			if (avgsize.single.get == mapshouldsize.single.get) {
+			if (rltsize.single.get == mapshouldsize.single.get) {
 				val result = mrResult.single.get
 				master ! SplitAggregator.aggregatefinalresult(result.toList)
 			}
