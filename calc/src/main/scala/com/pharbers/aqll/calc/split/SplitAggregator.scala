@@ -20,7 +20,7 @@ import akka.cluster.routing.ClusterRouterPoolSettings
 import akka.routing.ConsistentHashingPool
 
 object SplitAggregator {
-    def props(msgSize: Int, bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(msgSize, bus, master))
+    def props(bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(bus, master))
     
     case class aggregatefinalresult(mr: List[(Long, (Double, Double))])
     case class aggsubcribe(a : ActorRef)
@@ -28,24 +28,28 @@ object SplitAggregator {
     
     case class integratedata(data : List[integratedData])
     
-    val mapping_nr_of_instance_in_node = 10
+    val mapping_nr_of_instance_in_node = 8
     val mapping_nr_of_node = 2
     val mapping_nr_total_instance = mapping_nr_of_instance_in_node * mapping_nr_of_node
     
     case class msg_container(group : (Int, Int, String), lst : List[integratedData])
 }
 
-class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) extends Actor with CreateMappingActor {
-	
-	val avgsize = Ref(0)
-	val rltsize = Ref(0)
+class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with CreateMappingActor with CreateMaxBroadcastingActor {
 	
 	val unionSum = Ref(List[(String, (Double, Double, Double))]())
 	val mrResult = Ref(Map[Long, (Double, Double)]())
 	
 	val mapping_master_router = CreateMappingActor
-	val mapsize = Ref(0)
+	val excelsize = Ref(0)
+	val excelshouleszie = Ref(0)
+	
+	val avgsize = Ref(0)
+	val rltsize = Ref(0)
 	val mapshouldsize = Ref(0)
+	
+	val broadcasting_actor = CreateMaxBroadcastingActor(bus)
+	val iterator_count = Ref(0)
 	
 	import SplitWorker.requestaverage
 	import SplitWorker.postresult
@@ -88,6 +92,10 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 			}
 		}
 		case SplitAggregator.aggsubcribe(a) => {
+			atomic { implicit thx => 
+				excelshouleszie() = excelshouleszie() + 1
+			}
+			println(s"worker should size ${excelshouleszie.single.get}")
 			bus.subscribe(a, "AggregorBus")
 		}
 		case SplitAggregator.aggmapsubscrbe(a) => {
@@ -101,15 +109,33 @@ class SplitAggregator(msgSize: Int, bus : SplitEventBus, master : ActorRef) exte
 			
 		case SplitWorker.integratedataended() => {
 			atomic { implicit thx => 
-				mapsize() = mapsize() + 1
+				excelsize() = excelsize() + 1
 			}
 	
-			println(s"integratedata ended ${mapsize.single.get}")
-			if (mapsize.single.get == msgSize) {
-				bus.publish(SplitGroupMaster.mappingend())
+			println(s"integratedata ended ${excelsize.single.get}")
+//			if (excelsize.single.get == msgSize) {
+			if (excelsize.single.get == excelshouleszie.single.get) {
+//				bus.publish(SplitGroupMaster.mappingend())
+				broadcasting_actor ! SplitMaxBroadcasting.startmapping()
 			}
 		}
-		case SplitWorker.integratedataresult(m) => mapping_master_router ! SplitAggregator.msg_container(m._1, m._2)
+		case SplitWorker.integratedataresult(m) => {
+			broadcasting_actor ! SplitMaxBroadcasting.premapping((m._1, m._2.head))
+			mapping_master_router ! SplitAggregator.msg_container(m._1, m._2)
+		}
+		case SplitMaxBroadcasting.mappingiteratornext() => {
+			atomic { implicit thx => 
+				iterator_count() = iterator_count() + 1
+			}
+			
+			if (iterator_count.single.get == mapshouldsize.single.get) {
+				atomic { implicit thx => 
+					iterator_count() = 0
+				}
+			
+				broadcasting_actor ! SplitMaxBroadcasting.mappingiteratornext()
+			}
+		}
         case x : AnyRef => println(x); ???
     }
 }
@@ -125,6 +151,10 @@ trait CreateMappingActor { this : Actor =>
 		context.actorOf(
 			ClusterRouterPool(ConsistentHashingPool(SplitAggregator.mapping_nr_total_instance, hashMapping = AggregateHashMapping), ClusterRouterPoolSettings(    
             	totalInstances = SplitAggregator.mapping_nr_total_instance, maxInstancesPerNode = SplitAggregator.mapping_nr_of_instance_in_node,
-                allowLocalRoutees = true, useRole = None)).props(SplitGroupMaster.props(self)), name = "mapping-route") 
+                allowLocalRoutees = false, useRole = None)).props(SplitGroupMaster.props(self)), name = "mapping-route") 
 	}
+}
+
+trait CreateMaxBroadcastingActor { this : Actor => 
+	def CreateMaxBroadcastingActor(b : SplitEventBus) = context.actorOf(SplitMaxBroadcasting.props(b))
 }

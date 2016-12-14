@@ -104,7 +104,7 @@ trait CreateSplitWorker { this : Actor =>
 	def CreateSplitWorker(a : ActorRef) = {
 	    context.actorOf(
             ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
-                totalInstances = 100, maxInstancesPerNode = SplitMaster.num_count,
+                totalInstances = 10, maxInstancesPerNode = SplitMaster.num_count,
                 allowLocalRoutees = false, useRole = None)).props(SplitWorker.props(a)),
               name = "worker-router")
 	}
@@ -116,7 +116,7 @@ trait CreateSplitEventBus { this : Actor =>
 
 trait CreateSplitAggregator { this : Actor => 
     def CreateSplitAggregator(b : SplitEventBus) = {
-    	val a = context.actorOf(SplitAggregator.props(SplitMaster.num_count, b, self))
+    	val a = context.actorOf(SplitAggregator.props(b, self))
     	context.watch(a)
     	a
     }
