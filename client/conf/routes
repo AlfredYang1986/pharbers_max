@@ -2,7 +2,26 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
+# static page
+GET     /                           controllers.Application.landing
+GET     /landing                    controllers.Application.landing
+GET		/login						controllers.Application.login
+GET		/index						controllers.Application.index
+GET		/register					controllers.Application.register
+GET		/error404					controllers.Application.error404
+GET		/error500					controllers.Application.error500
+GET		/lockscreen					controllers.Application.lockScreen
+GET		/forgotpassword				controllers.Application.forgotPassword
+GET		/emptypage					controllers.Application.emptyPage
+# Core Function
+GET		/filesupload				controllers.Application.filesUpload
+GET		/samplecheck				controllers.Application.sampleCheck
+GET		/modeloperation				controllers.Application.modelOperation
+GET		/resultcheck				controllers.Application.resultCheck
+GET		/resultquery				controllers.Application.resultQuery
+
+
+
 POST	/example					controllers.Example.exampAjaxCall
 POST	/error						controllers.Example.exampAjaxError
 POST	/paralle					controllers.SatterGatherTestController.testIndex
