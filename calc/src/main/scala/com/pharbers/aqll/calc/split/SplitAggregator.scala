@@ -61,14 +61,13 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			}
 
 			println(s"average ${avgsize.single.get} whith sender $sender")
-//			if (avgsize.single.get == SplitAggregator.mapping_nr_total_instance) {
 			if (avgsize.single.get == mapshouldsize.single.get) {
 			    val sumAll = unionSum.single.get.groupBy(_._1) map { x => 
 			        (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
 			    }
 			    
 				lazy val mapAvg = sumAll map { x =>
-        	        (x._1,(x._2._1 / x._2._3),(x._2._2 / x._2._3))
+        	        (x._1, (x._2._1 / x._2._3),(x._2._2 / x._2._3))
         	    }
         	    bus.publish(SplitEventBus.average(mapAvg.toList))
 			}
@@ -85,7 +84,6 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 				}
 			}
 			
-//			if (rltsize.single.get == SplitAggregator.mapping_nr_total_instance) {
 			if (rltsize.single.get == mapshouldsize.single.get) {
 				val result = mrResult.single.get
 				master ! SplitAggregator.aggregatefinalresult(result.toList)

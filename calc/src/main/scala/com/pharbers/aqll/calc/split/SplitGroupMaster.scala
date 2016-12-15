@@ -55,13 +55,18 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 	}
 	
 	def iteratorMrd(mrd : modelRunData) = {
+		var b = false
 		inte_lst.find { iter =>
         	mrd.uploadYear == iter.uploadYear && mrd.uploadMonth == iter.uploadMonth && mrd.minimumUnitCh == iter.minimumUnitCh && mrd.hospId == iter.hospNum
         }.map { y => 
         	mrd.sumValue = y.sumValue
 			mrd.volumeUnit = y.volumeUnit
+			b = true
 			r.append(mrd)
-        }.getOrElse(Unit)
+        }.getOrElse (Unit)
+    
+        if (b == false && mrd.ifPanelAll == 1)
+			r.append(mrd)
 	}
 	
 	def startContextAvg = {
