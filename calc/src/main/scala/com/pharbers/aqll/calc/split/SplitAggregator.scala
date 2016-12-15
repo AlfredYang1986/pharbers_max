@@ -48,8 +48,8 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 	val rltsize = Ref(0)
 	val mapshouldsize = Ref(0)
 	
-	val broadcasting_actor = CreateMaxBroadcastingActor(bus)
-	val iterator_count = Ref(0)
+	val broadcasting_actor = CreateMaxBroadcastingActor(bus, mapping_master_router)
+//	val iterator_count = Ref(0)
 	
 	import SplitWorker.requestaverage
 	import SplitWorker.postresult
@@ -124,17 +124,17 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			mapping_master_router ! SplitAggregator.msg_container(m._1, m._2)
 		}
 		case SplitMaxBroadcasting.mappingiteratornext() => {
-			atomic { implicit thx => 
-				iterator_count() = iterator_count() + 1
-			}
-			
-			if (iterator_count.single.get == mapshouldsize.single.get) {
-				atomic { implicit thx => 
-					iterator_count() = 0
-				}
-			
+//			atomic { implicit thx => 
+//				iterator_count() = iterator_count() + 1
+//			}
+//			
+//			if (iterator_count.single.get == mapshouldsize.single.get) {
+//				atomic { implicit thx => 
+//					iterator_count() = 0
+//				}
+//			
 				broadcasting_actor ! SplitMaxBroadcasting.mappingiteratornext()
-			}
+//			}
 		}
         case x : AnyRef => println(x); ???
     }
@@ -145,6 +145,7 @@ trait CreateMappingActor { this : Actor =>
 	
 	def AggregateHashMapping : ConsistentHashMapping = {
 		case SplitAggregator.msg_container(group, lst) => group._1 + group._2 + group._3
+		case SplitMaxBroadcasting.mappingiteratorhashed(mrd) => mrd.getUploadYear + mrd.getUploadMonth + mrd.getMinimumUnitCh 
 	} 
 	
 	def CreateMappingActor = {
@@ -156,5 +157,5 @@ trait CreateMappingActor { this : Actor =>
 }
 
 trait CreateMaxBroadcastingActor { this : Actor => 
-	def CreateMaxBroadcastingActor(b : SplitEventBus) = context.actorOf(SplitMaxBroadcasting.props(b))
+	def CreateMaxBroadcastingActor(b : SplitEventBus, h : ActorRef) = context.actorOf(SplitMaxBroadcasting.props(b, h))
 }
