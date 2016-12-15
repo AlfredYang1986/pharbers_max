@@ -28,7 +28,7 @@ object SplitAggregator {
     
     case class integratedata(data : List[integratedData])
     
-    val mapping_nr_of_instance_in_node = 8
+    val mapping_nr_of_instance_in_node = 1
     val mapping_nr_of_node = 2
     val mapping_nr_total_instance = mapping_nr_of_instance_in_node * mapping_nr_of_node
     
@@ -49,7 +49,6 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 	val mapshouldsize = Ref(0)
 	
 	val broadcasting_actor = CreateMaxBroadcastingActor(bus, mapping_master_router)
-//	val iterator_count = Ref(0)
 	
 	import SplitWorker.requestaverage
 	import SplitWorker.postresult
@@ -111,9 +110,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			}
 	
 			println(s"integratedata ended ${excelsize.single.get}")
-//			if (excelsize.single.get == msgSize) {
 			if (excelsize.single.get == excelshouleszie.single.get) {
-//				bus.publish(SplitGroupMaster.mappingend())
 				broadcasting_actor ! SplitMaxBroadcasting.startmapping()
 			}
 		}
@@ -122,17 +119,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			mapping_master_router ! SplitAggregator.msg_container(m._1, m._2)
 		}
 		case SplitMaxBroadcasting.mappingiteratornext() => {
-//			atomic { implicit thx => 
-//				iterator_count() = iterator_count() + 1
-//			}
-//			
-//			if (iterator_count.single.get == mapshouldsize.single.get) {
-//				atomic { implicit thx => 
-//					iterator_count() = 0
-//				}
-//			
-				broadcasting_actor ! SplitMaxBroadcasting.mappingiteratornext()
-//			}
+			broadcasting_actor ! SplitMaxBroadcasting.mappingiteratornext()
 		}
         case x : AnyRef => println(x); ???
     }

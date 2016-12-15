@@ -31,6 +31,7 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 	val inte_lst : ArrayBuffer[integratedData] = ArrayBuffer.empty
   	val r : ArrayBuffer[modelRunData] = ArrayBuffer.empty
   	val subFun = aggregator ! SplitAggregator.aggmapsubscrbe(self)
+  	var factor_adjust : List[(String, Double)] = Nil
   
 	def receive = {
 //		case SplitGroupMaster.groupintegrated(lst) => {
@@ -55,18 +56,13 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 	}
 	
 	def iteratorMrd(mrd : modelRunData) = {
-		var b = false
 		inte_lst.find { iter =>
         	mrd.uploadYear == iter.uploadYear && mrd.uploadMonth == iter.uploadMonth && mrd.minimumUnitCh == iter.minimumUnitCh && mrd.hospId == iter.hospNum
         }.map { y => 
         	mrd.sumValue = y.sumValue
 			mrd.volumeUnit = y.volumeUnit
-			b = true
-			r.append(mrd)
         }.getOrElse (Unit)
-    
-        if (b == false && mrd.ifPanelAll == 1)
-			r.append(mrd)
+		r.append(mrd)
 	}
 	
 	def startContextAvg = {
