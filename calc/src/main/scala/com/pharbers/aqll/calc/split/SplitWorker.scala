@@ -29,8 +29,8 @@ object SplitWorker {
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
 	case class postresult(mr: Map[Long, (Double, Double)])
 	
-//	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
-	case class integratedataresult(integrated : ((Int, Int, String), List[integratedData]))
+	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
+//	case class integratedataresult(integrated : ((Int, Int, String), List[integratedData]))
 	case class integratedataended()
 }
 
@@ -68,14 +68,15 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	    }
 	    case SplitEventBus.excelEnded() =>  {
 	    	println(s"read ended at $self")
+	   
+	    	val tmp = data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))
+			aggregator ! SplitWorker.integratedataresult(tmp)
 	    	
-//			aggregator ! SplitWorker.integratedataresult(data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth(), x.getMinimumUnitCh)))
-	    	(data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))).map { tmp => 
-		    	aggregator ! SplitWorker.integratedataresult(tmp)
-	    	}
-	    
+//	    	(data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))).map { tmp => 
+//		    	aggregator ! SplitWorker.integratedataresult(tmp)
+//	    	}
+//	    
 			aggregator ! SplitWorker.integratedataended()
-//	    	cancelActor
 	    }
 	    case _ => Unit
 	}
