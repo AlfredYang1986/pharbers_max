@@ -29,9 +29,9 @@ object SplitGroupMaster {
 class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 
 	val inte_lst : ArrayBuffer[integratedData] = ArrayBuffer.empty
-  	val r : ArrayBuffer[modelRunData] = ArrayBuffer.empty
   	val subFun = aggregator ! SplitAggregator.aggmapsubscrbe(self)
-  	var factor_adjust : List[(String, Double)] = Nil
+  	val maxSum : scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
+  	val r : ArrayBuffer[List[(String, Double, Double)] => Option[(Int, Int, (Double, Double))]] = ArrayBuffer.empty
   
 	def receive = {
 //		case SplitGroupMaster.groupintegrated(lst) => {
@@ -43,31 +43,43 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 			iteratorMrd(mrd)
 		}
 		case SplitMaxBroadcasting.mappingiterator(mrd) => iteratorMrd(mrd)
-		case SplitMaxBroadcasting.mappingeof() => startContextAvg
-		case SplitGroupMaster.mappingend() => startContextAvg
+		case SplitMaxBroadcasting.mappingeof() => {
+			println(s"maxSum is ${maxSum.toList} in context $self")
+			aggregator ! SplitWorker.requestaverage(maxSum.toList) //startContextAvg
+		}
+		case SplitGroupMaster.mappingend() => {
+			println(s"maxSum is ${maxSum.toList} in context $self")
+			aggregator ! SplitWorker.requestaverage(maxSum.toList) //startContextAvg
+		}
 		case SplitEventBus.average(avg) => {
-	    	lazy val calc = new maxCalcData()(r.toList, avg)
-	    	val result = calc.groupBy (x => (x.uploadYear, x.uploadMonth)) map { x =>
-				    (DateUtil.getDateLong(x._1._1, x._1._2), (x._2 map(_.finalResultsValue) sum, x._2 map(_.finalResultsUnit) sum))
-				}
+			val result = r.map (f => f(avg)).filterNot(_ == None).map(_.get).groupBy(x => (x._1, x._2)).map (x =>
+								(DateUtil.getDateLong(x._1._1, x._1._2), (x._2.map (_._3._1).sum, x._2.map (_._3._2).sum)))
 	    	aggregator ! SplitWorker.postresult(result)
 	    }
 		case _ => Unit
 	}
 	
 	def iteratorMrd(mrd : modelRunData) = {
-		inte_lst.find { iter =>
-        	mrd.uploadYear == iter.uploadYear && mrd.uploadMonth == iter.uploadMonth && mrd.minimumUnitCh == iter.minimumUnitCh && mrd.hospId == iter.hospNum
-        }.map { y => 
-        	mrd.sumValue = y.sumValue
-			mrd.volumeUnit = y.volumeUnit
-        }.getOrElse (Unit)
-		r.append(mrd)
-	}
-	
-	def startContextAvg = {
-		println(s"mapping size is ${r.size} in context $self")
-		lazy val maxSum = new maxSumData()(r.toStream).toList
-		aggregator ! SplitWorker.requestaverage(maxSum)	
+		val tmp = inte_lst.find (iter => mrd.uploadYear == iter.uploadYear 
+									 && mrd.uploadMonth == iter.uploadMonth 
+									 && mrd.minimumUnitCh == iter.minimumUnitCh 
+									 && mrd.hospId == iter.hospNum) 
+									 
+		tmp match {
+			case Some(x) => {
+				mrd.sumValue = x.sumValue
+				mrd.volumeUnit = x.volumeUnit
+			}
+			case None => Unit
+		}
+		
+		r += (SplitResultFunc(mrd)(_))
+		
+		if (mrd.ifPanelTouse == "1") {
+			maxSum += mrd.segment -> 
+				maxSum.find(p => p._1 == mrd.segment)
+					.map (x => (x._2._1 + mrd.sumValue, x._2._2 + mrd.volumeUnit, x._2._3 + mrd.westMedicineIncome))
+					.getOrElse ((mrd.sumValue, mrd.volumeUnit, mrd.westMedicineIncome))
+		}
 	}
 }
