@@ -28,6 +28,9 @@ object SplitReception {
 class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	import SplitReception._
 	var masters = Seq[ActorRef]()     // supervisor
+
+	var begin : Long = 0
+	var end : Long = 0 
 	
 	def receive = {
 		case excelJobStart(filename, cat) => {
@@ -35,6 +38,7 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 		    masters = masters :+ act
 		    context.watch(act)
 			act ! startReadExcel(filename, cat)
+			begin = System.currentTimeMillis
 		}
 		case excelJobEnd(filename) => {
 		    println(filename)
@@ -44,6 +48,8 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 		    context.unwatch(a)
 		    masters = masters.filterNot (_ == a)
 		    // job完成，提醒用户
+			end = System.currentTimeMillis() - begin
+		    println(s"执行时间为 : ${end / 1000} 秒")
 		}
 		case _ => ???
 	}

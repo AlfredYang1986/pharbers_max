@@ -28,8 +28,8 @@ object SplitAggregator {
     
     case class integratedata(data : List[integratedData])
     
-    val mapping_nr_of_instance_in_node = 1
-    val mapping_nr_of_node = 2
+    val mapping_nr_of_instance_in_node = 10
+    val mapping_nr_of_node = 3
     val mapping_nr_total_instance = mapping_nr_of_instance_in_node * mapping_nr_of_node
     
     case class msg_container(group : (Int, Int, String), lst : List[integratedData])
@@ -137,7 +137,7 @@ trait CreateMappingActor { this : Actor =>
 		context.actorOf(
 			ClusterRouterPool(ConsistentHashingPool(SplitAggregator.mapping_nr_total_instance, hashMapping = AggregateHashMapping), ClusterRouterPoolSettings(    
             	totalInstances = SplitAggregator.mapping_nr_total_instance, maxInstancesPerNode = SplitAggregator.mapping_nr_of_instance_in_node,
-                allowLocalRoutees = false, useRole = None)).props(SplitGroupMaster.props(self)), name = "mapping-route") 
+                allowLocalRoutees = true, useRole = None)).props(SplitGroupMaster.props(self)), name = "mapping-route") 
 	}
 }
 
