@@ -24,16 +24,11 @@ object SplitMaxBroadcasting {
 
 class SplitMaxBroadcasting(bus : SplitEventBus, hash : ActorRef) extends Actor with ActorLogging {
 	
-//	val group = Ref(List[((Int, Int, String), integratedData)]())
 	val group = ArrayBuffer[((Int, Int, String), integratedData)]()
 	var s : Stream[modelRunData] = Stream.Empty
 	
 	def receive = {
 		case SplitMaxBroadcasting.premapping(m) => {
-//			atomic { implicit thx => 
-//				group() = group().filterNot(p => p._1._1 == m._1._1 && p._1._2 == m._1._2 && p._1._3 == m._1._3) :+ m 
-//			}
-			
 			group.find (p => p._1._1 == m._1._1 && p._1._2 == m._1._2 && p._1._3 == m._1._3) match {
 				case Some(x) => Unit
 				case None =>group += m	
@@ -62,7 +57,6 @@ class SplitMaxBroadcasting(bus : SplitEventBus, hash : ActorRef) extends Actor w
 	
 	def nextiterator = {
 		if (!s.isEmpty) {
-//			bus.publish(SplitMaxBroadcasting.mappingiterator(s.head))
 			hash ! SplitMaxBroadcasting.mappingiteratorhashed(s.head)
 			s = s.tail
 		} else {

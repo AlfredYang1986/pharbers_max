@@ -43,14 +43,8 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 			iteratorMrd(mrd)
 		}
 		case SplitMaxBroadcasting.mappingiterator(mrd) => iteratorMrd(mrd)
-		case SplitMaxBroadcasting.mappingeof() => {
-			println(s"maxSum is ${maxSum.toList} in context $self")
-			aggregator ! SplitWorker.requestaverage(maxSum.toList) //startContextAvg
-		}
-		case SplitGroupMaster.mappingend() => {
-			println(s"maxSum is ${maxSum.toList} in context $self")
-			aggregator ! SplitWorker.requestaverage(maxSum.toList) //startContextAvg
-		}
+		case SplitMaxBroadcasting.mappingeof() => aggregator ! SplitWorker.requestaverage(maxSum.toList) 
+		case SplitGroupMaster.mappingend() => aggregator ! SplitWorker.requestaverage(maxSum.toList)
 		case SplitEventBus.average(avg) => {
 			val result = r.map (f => f(avg)).filterNot(_ == None).map(_.get).groupBy(x => (x._1, x._2)).map (x =>
 								(DateUtil.getDateLong(x._1._1, x._1._2), (x._2.map (_._3._1).sum, x._2.map (_._3._2).sum)))
