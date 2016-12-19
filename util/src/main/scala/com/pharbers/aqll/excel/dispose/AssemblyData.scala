@@ -156,3 +156,56 @@ object AssemblyCoresData{
     }
 }
 
+object CroesMatchData {
+    def segmentMatch(data: List[SegmentInfo]): Iterable[Map[String,AnyRef]] = {
+        data.groupBy(x=> x.getSegment).map(a => Map(
+            "SegmentDefinition_Id" -> MD5.md5(a._1.toString()),
+            "Segment_lst" -> (MD5.md5(a._1.toString()) :: Nil), 
+            "HospitalInfo_lst" -> a._2.map(b => MD5.md5(b.getHosp_Name+b.getPha_Code))
+        ))
+    }
+}
+
+object BasicMatchData {
+    
+    def atccodeMatch(data: List[AtcCode]):List[Map[String,AnyRef]] = {
+        data.map(x => Map("Atccode_Id" -> MD5.md5(x.getAtcCode), "Atc_Code" -> x.getAtcCode, "Atc_Name" -> x.getAtcCodeName_En))
+    }
+    
+    def durgMatch(data: List[Durg]):List[Map[String,AnyRef]] = {
+        data.map(x => Map("Dosageform_Id" -> MD5.md5(x.getGenericName), "Genericname" -> Map("Ch" -> x.getGenericName,"En" -> "")))
+    }
+    
+    def routeofmedicationMatch(data: List[Routeofmedication]):Iterable[Map[String,AnyRef]] = {
+        data map {x => Map(
+               "Route_Id" -> MD5.md5(x.getRouteofmedication), "Route" -> x.getRouteofmedication
+        )}
+    }
+    
+    def segmentbasicMatch(data: List[SegmentBasic]):List[Map[String,AnyRef]] = {
+        data map { x => Map(
+            "Segment_Id" -> MD5.md5(x.getSegment.toString()), "Segment_Code" -> x.getSegment   
+        )}
+    }
+    
+    def datasourceMatch():List[Map[String,AnyRef]] = {
+        (Map("Datasource_Id" -> MD5.md5("CPA"), "Datasource_Type" -> "CPA", "File_Path" -> "", "Creation_Date" -> "") :: 
+         Map("Datasource_Id" -> MD5.md5("PharmaTrust"), "Datasource_Type" -> "PharmaTrust", "File_Path" -> "", "Creation_Date" -> "") :: Nil)
+    }
+    
+    def companyMatch():List[Map[String,AnyRef]] = {
+        (Map("Company_Id" -> MD5.md5("Astellas"),"Company_Name" -> "Astellas","Usr_lst" -> (Map("User_Id" -> MD5.md5("Guest"),"User_Account" -> "Guest","User_Name" -> "Guest") :: Nil)) ::
+         Map("Company_Id" -> MD5.md5("Pfizer"),"Company_Name" -> "Astellas","Usr_lst" -> (Map("User_Id" -> MD5.md5("Guest"),"User_Account" -> "Guest","User_Name" -> "Guest") :: Nil)) ::
+         Map("Company_Id" -> MD5.md5("Bayer"),"Company_Name" -> "Astellas","Usr_lst" -> (Map("User_Id" -> MD5.md5("Guest"),"User_Account" -> "Guest","User_Name" -> "Guest") :: Nil)) ::
+         Map("Company_Id" -> MD5.md5("BMS"),"Company_Name" -> "Astellas","Usr_lst" -> (Map("User_Id" -> MD5.md5("Guest"),"User_Account" -> "Guest","User_Name" -> "Guest") :: Nil)) :: Nil)
+    }
+    
+    def marketMatch():List[Map[String,AnyRef]] = {
+        (Map("Market_Id" -> MD5.md5("降压药市场"), "Market_Code" -> Map("Ch" -> "降压药市场", "En" -> "")) ::
+         Map("Market_Id" -> MD5.md5("ACEI"), "Market_Code" -> Map("Ch" -> "ACEI", "En" -> "")) ::
+         Map("Market_Id" -> MD5.md5("CCB"), "Market_Code" -> Map("Ch" -> "CCB", "En" -> "")) ::
+         Map("Market_Id" -> MD5.md5("高血压市场"), "Market_Code" -> Map("Ch" -> "高血压市场", "En" -> "")) :: Nil
+        )
+    }
+}
+

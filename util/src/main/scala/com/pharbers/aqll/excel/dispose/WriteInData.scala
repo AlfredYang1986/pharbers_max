@@ -5,6 +5,8 @@ import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.excel.common._
 import com.pharbers.aqll.excel.dispose.AssemblyBasicData._
 import com.pharbers.aqll.excel.dispose.AssemblyCoresData._
+import com.pharbers.aqll.excel.dispose.CroesMatchData._
+import com.pharbers.aqll.excel.dispose.BasicMatchData._
 import com.pharbers.aqll.excel.model._
 import com.pharbers.aqll.util.MD5
 import com.pharbers.aqll.util.dao._
@@ -84,7 +86,7 @@ object WriteInBasicData{
     }
     
     def getMongoCollection(coll_name : String) : MongoCollection = {
-        _data_connection.getCollection(coll_name)
+        conn_define.conn_basic.getCollection(coll_name)
     }
     
     def getbulk(mongo_collection : MongoCollection) : BulkWriteOperation = {
@@ -128,8 +130,80 @@ object WriteInCoresData{
           case ReadFileException(m) => throw new ExcelDataException(ErrorCode.getErrorMessageByName("data is null"))
         }
     }
+    
+    def insertCoresInfo(excel_file_name : String){
+        val segmentinfobulk = getbulk(getMongoCollection("SegmentDefinition"))
+        val segmentdata = segmentdataobj(excel_file_name)
+        segmentMatch(segmentdata).foreach(x => segmentinfobulk.insert(x))
+        getMongoCollection("SegmentDefinition").drop()
+        segmentinfobulk.execute()
+    }
+    
     def getMongoCollection(coll_name : String) : MongoCollection = {
-        _data_connection2.getCollection(coll_name)
+        conn_define.conn_cores.getCollection(coll_name)
+    }
+    
+    def getbulk(mongo_collection : MongoCollection) : BulkWriteOperation = {
+        mongo_collection.initializeUnorderedBulkOperation
+    }
+}
+
+object BasicWriteInData{
+    def insertAtcCodeBasicInfo(excel_file_name : String){
+        val bulk = getbulk(getMongoCollection("AtcCode"))
+        val data = atccodedataobj(excel_file_name)
+        getMongoCollection("AtcCode").drop()
+        atccodeMatch(data).foreach(x => bulk.insert(x))
+        bulk.execute()
+    }
+    
+    def insertDrugBasicInfo(excel_file_name : String){
+        val bulk = getbulk(getMongoCollection("Drugs"))
+        val data = durgdataobj(excel_file_name)
+        getMongoCollection("Drugs").drop()
+        durgMatch(data).foreach(x => bulk.insert(x))
+        bulk.execute()
+    }
+    
+    def insertRouteofMedicationBasicInfo(excel_file_name : String){
+        val bulk = getbulk(getMongoCollection("RouteofMedication"))
+        val data = routeofmedicationdataobj(excel_file_name)
+        getMongoCollection("RouteofMedication").drop()
+        routeofmedicationMatch(data).foreach(x => bulk.insert(x))
+        bulk.execute()
+    }
+    
+    def insertSegmentBasicInfo(excel_file_name : String){
+        val bulk = getbulk(getMongoCollection("Segment"))
+        val data = segmentbasicdataobj(excel_file_name)
+        getMongoCollection("Segment").drop()
+        segmentbasicMatch(data).foreach(x => bulk.insert(x))
+        bulk.execute()
+    }
+    
+    def insertDatasourceBasicInfo(){
+        val bulk = getbulk(getMongoCollection("DataSources"))
+        getMongoCollection("DataSources").drop()
+        datasourceMatch().foreach(x => bulk.insert(x))
+        bulk.execute()
+    }
+    
+    def insertCompanyBasicInfo(){
+        val bulk = getbulk(getMongoCollection("Company"))
+        getMongoCollection("Company").drop()
+        companyMatch().foreach(x => bulk.insert(x))
+        bulk.execute()
+    }
+    
+    def insertMarketBasicInfo(){
+        val bulk = getbulk(getMongoCollection("Market"))
+        getMongoCollection("Market").drop()
+        marketMatch().foreach(x => bulk.insert(x))
+        bulk.execute()
+    }
+    
+    def getMongoCollection(coll_name : String) : MongoCollection = {
+        conn_define.conn_basic.getCollection(coll_name)
     }
     
     def getbulk(mongo_collection : MongoCollection) : BulkWriteOperation = {
