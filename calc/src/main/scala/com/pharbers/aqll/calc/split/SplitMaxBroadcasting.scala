@@ -31,7 +31,7 @@ class SplitMaxBroadcasting(bus : SplitEventBus, hash : ActorRef) extends Actor w
 		case SplitMaxBroadcasting.premapping(m) => {
 			group.find (p => p._1._1 == m._1._1 && p._1._2 == m._1._2 && p._1._3 == m._1._3) match {
 				case Some(x) => Unit
-				case None =>group += m	
+				case None => group += m	
 			}
 		}
 		

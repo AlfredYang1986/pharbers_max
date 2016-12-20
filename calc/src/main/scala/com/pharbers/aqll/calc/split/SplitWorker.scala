@@ -72,10 +72,6 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	    	val tmp = data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))
 			aggregator ! SplitWorker.integratedataresult(tmp)
 	    	
-//	    	(data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))).map { tmp => 
-//		    	aggregator ! SplitWorker.integratedataresult(tmp)
-//	    	}
-//	    
 			aggregator ! SplitWorker.integratedataended()
 	    }
 	    case _ => Unit

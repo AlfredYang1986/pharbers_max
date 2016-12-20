@@ -102,11 +102,12 @@ class SplitMaster extends Actor with ActorLogging
 
 trait CreateSplitWorker { this : Actor =>
 	def CreateSplitWorker(a : ActorRef) = {
-	    context.actorOf(
-            ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
-                totalInstances = 10, maxInstancesPerNode = SplitMaster.num_count,
-                allowLocalRoutees = true, useRole = None)).props(SplitWorker.props(a)),
-              name = "worker-router")
+//	    context.actorOf(
+//            ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
+//                totalInstances = 10, maxInstancesPerNode = SplitMaster.num_count,
+//                allowLocalRoutees = true, useRole = None)).props(SplitWorker.props(a)),
+//              name = "worker-router")
+		context.actorOf(RoundRobinPool(10).props(SplitWorker.props(a)), name = "worker-router")
 	}
 }
 

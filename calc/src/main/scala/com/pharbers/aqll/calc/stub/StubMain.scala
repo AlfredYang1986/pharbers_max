@@ -17,8 +17,8 @@ object StubMain extends App {
     	Cluster(system).registerOnMemberUp {
 		    val end_point = system.actorOf(Props[SplitReception], "splitreception")
 		    import com.pharbers.aqll.calc.split.JobCategories._
-//	        end_point ! excelJobStart("""config/test/BMS客户上传/201601-07-CPA-Baraclude产品待上传.xlsx""", cpaProductJob)
-	        end_point ! excelJobStart("""config/test/BMS客户上传/350000.xlsx""", cpaProductJob)
+	        end_point ! excelJobStart("""config/test/BMS客户上传/201601-07-CPA-Baraclude产品待上传.xlsx""", cpaProductJob)
+//	        end_point ! excelJobStart("""config/test/BMS客户上传/350000.xlsx""", cpaProductJob)
 //		    end_point ! excelJobStart("""config/test/BMS客户上传/201601-07-PharmaTrust-Baraclude产品待上传.xlsx""", phaProductJob)
     	}
   	}  
