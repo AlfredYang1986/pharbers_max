@@ -10,17 +10,21 @@ import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
+import java.util.UUID
 
 object fop {
 	def uploadFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
-	  	data.file("upload").map { x =>
-	  	  	Files.moveFile(x.ref.file, new File("upload/" + x.filename), true, true)
-	  
-			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson("success")))
-	  	  	
-	  	}.getOrElse {
-			error_handler(-1)
-	  	} 
+		try {
+  	      	var lst : List[JsValue] = Nil
+      	    data.files.foreach { x =>  
+      	        val uuid = UUID.randomUUID
+      	  	  	Files.moveFile(x.ref.file, new File("upload/" + uuid), true, true)
+      	  	  	lst = lst :+ toJson(uuid.toString)
+      	  	}
+      	    Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
+  	    } catch {
+  	    	case ex : Exception => error_handler(-1)
+  	    }
 	}
 
 	def downloadFile(name : String) : Array[Byte] = {
