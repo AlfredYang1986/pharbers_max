@@ -2,6 +2,7 @@ package com.pharbers.aqll.calc.excel.model
 
 import scala.beans.BeanProperty
 import com.pharbers.aqll.calc.util.StringOption
+import com.pharbers.aqll.calc.excel.common.calcPram
 
 class integratedData(@BeanProperty val uploadYear : Int,
     @BeanProperty val uploadMonth : Int,
@@ -37,7 +38,7 @@ class integratedData(@BeanProperty val uploadYear : Int,
     @BeanProperty val provinceCh : String,
     @BeanProperty val provinceEn : String,
     @BeanProperty val cityCh : String,
-    @BeanProperty val cityEn : String) extends java.io.Serializable {
+    @BeanProperty val cityEn : String) extends java.io.Serializable { //calcPram with 
     
     override def toString = ""+uploadYear.toString()+
                              "	"+uploadMonth.toString()+

@@ -5,7 +5,6 @@ import com.pharbers.aqll.calc.datacala.module.MaxMessage.msg_IntegratedData
 import com.pharbers.aqll.calc.excel.model.integratedData
 import com.pharbers.aqll.calc.datacala.module.MaxModule
 import com.pharbers.aqll.calc.excel.model.modelRunData
-import com.pharbers.aqll.calc.datacala.algorithm.maxCalcUnionAlgorithm
 
 import com.pharbers.aqll.calc.util.StringOption
 import com.pharbers.aqll.calc.datacala.algorithm.maxUnionAlgorithm
@@ -24,8 +23,6 @@ trait Adapter {
     def splitdata(data: BaseArgs): Stream[integratedData] = Stream.Empty
     
     def integrateddata(data : BaseArgs): Option[DataIOTrait] = None
-    
-    def maxdata(data: BaseMaxDataArgs): Option[DataIOTrait] = None
 }
 
 trait ELementAdapter {
@@ -98,16 +95,6 @@ class MaxUnionAdapter extends Adapter {
                 Some(IntegratedDataArgs(integratedData))
             } 
             case _ => ???
-        }
-    }
-    
-    override def maxdata(data: BaseMaxDataArgs): Option[DataIOTrait] = {
-            data.data match {
-                case (AdminHospDataBaseArgs(hsopdata), IntegratedDataArgs(union)) => {
-                    lazy val data_max_new = new maxCalcUnionAlgorithm()(union, hsopdata)
-                    Some(ModelRunDataArgs(data_max_new))
-                }
-                case _ => ???
         }
     }
 }

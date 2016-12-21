@@ -175,14 +175,15 @@ public class DateUtil {
      *            指定秒
      * @return 返回重置时分秒后的时间
      */
-    public static Date getResetTime(Date date, int hour, int minute, int second) {
+    public static Date getResetTime(Date date, int hour, int minute, int second, int millisecond) {
         Calendar cal = Calendar.getInstance();
         if (date != null) {
             cal.setTime(date);
         }
         cal.set(Calendar.HOUR_OF_DAY, hour);
-        cal.set(Calendar.SECOND, minute);
-        cal.set(Calendar.MINUTE, second);
+        cal.set(Calendar.MINUTE, minute);
+        cal.set(Calendar.SECOND, second);
+        cal.set(Calendar.MILLISECOND, millisecond);
         return cal.getTime();
     }
  
@@ -194,7 +195,7 @@ public class DateUtil {
      * @return 返回起始时间（例如2014-08-01 00:00:00）
      */
     public static Date getIntegralStartTime(Date date) {
-        return getResetTime(date, 0, 0, 0);
+        return getResetTime(date, 0, 0, 0, 0);
     }
  
     /**
@@ -205,7 +206,7 @@ public class DateUtil {
      * @return 返回结束时间（例如2014-08-01 23:59:59）
      */
     public static Date getIntegralEndTime(Date date) {
-        return getResetTime(date, 23, 59, 59);
+        return getResetTime(date, 23, 59, 59, 00);
     }
  
     /**

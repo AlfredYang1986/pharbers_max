@@ -6,10 +6,10 @@ trait MaxMessageTrait
 
 abstract class CommonMessage extends MaxMessageTrait
 
-case class excelJobStart(filename : String, cat : JobDefines)
+case class excelJobStart(filename : String, cat : JobDefines, company: String, n: Int)
 case class excelJobEnd(filename : String)
 
-case class startReadExcel(filename : String, cat : JobDefines)
+case class startReadExcel(filename : String, cat : JobDefines, company: String, n: Int)
 
 case class cancel()
 case class end()

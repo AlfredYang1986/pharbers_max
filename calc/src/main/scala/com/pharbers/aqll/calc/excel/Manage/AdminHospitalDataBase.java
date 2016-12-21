@@ -72,31 +72,31 @@ public class AdminHospitalDataBase {
 
     private Long hospitalizedOpsNum;
 
-    private String income;
+    private Double income;
 
-    private String clinicIncome;
+    private Double clinicIncome;
 
-    private String climicCureIncome;
+    private Double climicCureIncome;
     
-    private String climicSurgicalIncome;
+    private Double climicSurgicalIncome;
 
-    private String hospitalizedIncome;
+    private Double hospitalizedIncome;
 
-    private String hospitalizedBeiIncome;
+    private Double hospitalizedBeiIncome;
 
-    private String hospitalizedCireIncom;
+    private Double hospitalizedCireIncom;
 
-    private String hospitalizedOpsIncome;
+    private Double hospitalizedOpsIncome;
 
-    private String drugIncome;
+    private Double drugIncome;
 
-    private String climicDrugIncome;
+    private Double climicDrugIncome;
 
-    private String climicWestenIncome;
+    private Double climicWestenIncome;
 
-    private String hospitalizedDrugIncome;
+    private Double hospitalizedDrugIncome;
 
-    private String hospitalizedWestenIncome;
+    private Double hospitalizedWestenIncome;
 
 	public String getCompany() {
 		return company;
@@ -362,107 +362,107 @@ public class AdminHospitalDataBase {
 		this.hospitalizedOpsNum = hospitalizedOpsNum;
 	}
 
-	public String getIncome() {
+	public Double getIncome() {
 		return income;
 	}
 
-	public void setIncome(String income) {
+	public void setIncome(Double income) {
 		this.income = income;
 	}
 
-	public String getClinicIncome() {
+	public Double getClinicIncome() {
 		return clinicIncome;
 	}
 
-	public void setClinicIncome(String clinicIncome) {
+	public void setClinicIncome(Double clinicIncome) {
 		this.clinicIncome = clinicIncome;
 	}
 
-	public String getClimicCureIncome() {
+	public Double getClimicCureIncome() {
 		return climicCureIncome;
 	}
 
-	public void setClimicCureIncome(String climicCureIncome) {
+	public void setClimicCureIncome(Double climicCureIncome) {
 		this.climicCureIncome = climicCureIncome;
 	}
 
-	public String getClimicSurgicalIncome() {
+	public Double getClimicSurgicalIncome() {
 		return climicSurgicalIncome;
 	}
 
-	public void setClimicSurgicalIncome(String climicSurgicalIncome) {
+	public void setClimicSurgicalIncome(Double climicSurgicalIncome) {
 		this.climicSurgicalIncome = climicSurgicalIncome;
 	}
 
-	public String getHospitalizedIncome() {
+	public Double getHospitalizedIncome() {
 		return hospitalizedIncome;
 	}
 
-	public void setHospitalizedIncome(String hospitalizedIncome) {
+	public void setHospitalizedIncome(Double hospitalizedIncome) {
 		this.hospitalizedIncome = hospitalizedIncome;
 	}
 
-	public String getHospitalizedBeiIncome() {
+	public Double getHospitalizedBeiIncome() {
 		return hospitalizedBeiIncome;
 	}
 
-	public void setHospitalizedBeiIncome(String hospitalizedBeiIncome) {
+	public void setHospitalizedBeiIncome(Double hospitalizedBeiIncome) {
 		this.hospitalizedBeiIncome = hospitalizedBeiIncome;
 	}
 
-	public String getHospitalizedCireIncom() {
+	public Double getHospitalizedCireIncom() {
 		return hospitalizedCireIncom;
 	}
 
-	public void setHospitalizedCireIncom(String hospitalizedCireIncom) {
+	public void setHospitalizedCireIncom(Double hospitalizedCireIncom) {
 		this.hospitalizedCireIncom = hospitalizedCireIncom;
 	}
 
-	public String getHospitalizedOpsIncome() {
+	public Double getHospitalizedOpsIncome() {
 		return hospitalizedOpsIncome;
 	}
 
-	public void setHospitalizedOpsIncome(String hospitalizedOpsIncome) {
+	public void setHospitalizedOpsIncome(Double hospitalizedOpsIncome) {
 		this.hospitalizedOpsIncome = hospitalizedOpsIncome;
 	}
 
-	public String getDrugIncome() {
+	public Double getDrugIncome() {
 		return drugIncome;
 	}
 
-	public void setDrugIncome(String drugIncome) {
+	public void setDrugIncome(Double drugIncome) {
 		this.drugIncome = drugIncome;
 	}
 
-	public String getClimicDrugIncome() {
+	public Double getClimicDrugIncome() {
 		return climicDrugIncome;
 	}
 
-	public void setClimicDrugIncome(String climicDrugIncome) {
+	public void setClimicDrugIncome(Double climicDrugIncome) {
 		this.climicDrugIncome = climicDrugIncome;
 	}
 
-	public String getClimicWestenIncome() {
+	public Double getClimicWestenIncome() {
 		return climicWestenIncome;
 	}
 
-	public void setClimicWestenIncome(String climicWestenIncome) {
+	public void setClimicWestenIncome(Double climicWestenIncome) {
 		this.climicWestenIncome = climicWestenIncome;
 	}
 
-	public String getHospitalizedDrugIncome() {
+	public Double getHospitalizedDrugIncome() {
 		return hospitalizedDrugIncome;
 	}
 
-	public void setHospitalizedDrugIncome(String hospitalizedDrugIncome) {
+	public void setHospitalizedDrugIncome(Double hospitalizedDrugIncome) {
 		this.hospitalizedDrugIncome = hospitalizedDrugIncome;
 	}
 
-	public String getHospitalizedWestenIncome() {
+	public Double getHospitalizedWestenIncome() {
 		return hospitalizedWestenIncome;
 	}
 
-	public void setHospitalizedWestenIncome(String hospitalizedWestenIncome) {
+	public void setHospitalizedWestenIncome(Double hospitalizedWestenIncome) {
 		this.hospitalizedWestenIncome = hospitalizedWestenIncome;
 	}
 

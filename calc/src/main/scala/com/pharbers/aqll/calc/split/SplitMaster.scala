@@ -26,11 +26,14 @@ import akka.routing.ConsistentHashingRouter._
 import akka.routing.ConsistentHashingPool
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.pharbers.aqll.calc.util.DateUtil
 
 object SplitMaster {
 	def props = Props[SplitMaster]
 	
 	val num_count = 10
+	
+	var getcompany = ""
 }
 
 class SplitMaster extends Actor with ActorLogging 
@@ -47,8 +50,9 @@ class SplitMaster extends Actor with ActorLogging
 	var fileName = ""
 	
 	val ready : Receive = {
-		case startReadExcel(filename, cat) => {
-		    fileName = filename.substring(filename.lastIndexOf("""/""") + 1, filename.length())
+		case startReadExcel(filename, cat, company, n) => {
+		    getcompany = company
+		    fileName = filename//.substring(filename.lastIndexOf("""/""") + 1, filename.length())
 	        context.become(spliting)
 		    (cat.t match {
 		        case 0 => {
@@ -72,7 +76,7 @@ class SplitMaster extends Actor with ActorLogging
 		                                            router)
 		        }
 		    }).startParse(filename, 1)
-		    bus.publish(SplitEventBus.excelEnded())
+		    bus.publish(SplitEventBus.excelEnded(n))
 		}
 		case _ => {
 		    println("exception")
@@ -80,11 +84,11 @@ class SplitMaster extends Actor with ActorLogging
 	}
 
 	val spliting : Receive = {
-	    case startReadExcel(filename, cat) => println("one master only start one cal process at one time")
+	    case startReadExcel(filename, cat, company, n) => println("one master only start one cal process at one time")
 	    
 	    case SplitAggregator.aggregatefinalresult(mr) => {
-	        val time = new Date().getTime
-	    	Insert.maxResultInsert(mr)(InserAdapter(fileName, "BMS", time))
+	        val time = DateUtil.getIntegralStartTime(new Date()).getTime
+	    	Insert.maxResultInsert(mr)(InserAdapter(fileName, getcompany, time))
 	    	context.stop(self)
 	    }
 		case cancel() => {

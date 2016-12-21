@@ -12,7 +12,8 @@ import akka.actor.ActorRef
 import akka.actor.Props
 import akka.actor.actorRef2Scala
 import akka.agent.Agent
-import scala.collection.mutable.Map
+import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ArrayBuffer
 import com.pharbers.aqll.calc.excel.model.integratedData
 import com.typesafe.config.ConfigFactory
 import akka.cluster.routing.ClusterRouterPool
@@ -22,7 +23,7 @@ import akka.routing.ConsistentHashingPool
 object SplitAggregator {
     def props(bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(bus, master))
     
-    case class aggregatefinalresult(mr: List[(Long, (Double, Double))])
+    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String, String, String)], ArrayBuffer[(String, String)], String))])
     case class aggsubcribe(a : ActorRef)
     case class aggmapsubscrbe(a : ActorRef)
     
@@ -38,7 +39,7 @@ object SplitAggregator {
 class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with CreateMappingActor with CreateMaxBroadcastingActor {
 	
 	val unionSum = Ref(List[(String, (Double, Double, Double))]())
-	val mrResult = Ref(Map[Long, (Double, Double)]())
+	val mrResult = Ref(Map[String, (Long, Double, Double, ArrayBuffer[(String, String, String)], ArrayBuffer[(String, String)], String)]())
 	
 	val mapping_master_router = CreateMappingActor
 	val excelsize = Ref(0)
@@ -72,14 +73,17 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			}
 			
 		}
+		
 		case postresult(mr) => {
 			atomic { implicit thx => 
 				rltsize() = rltsize() + 1
 				mr.foreach { kvs => 
-					val (v, u) = mrResult().get(kvs._1).map { x => 
-						(x._1 + kvs._2._1, x._2 + kvs._2._2)
-					}.getOrElse(kvs._2._1, kvs._2._2)
-					mrResult() = mrResult() + (kvs._1 -> (v, u))
+					val (t, v, u, h, p, s) = mrResult().get(kvs._1).map { x =>
+						kvs._2._4.foreach(x._4.distinct.append(_))
+						kvs._2._5.foreach(x._5.distinct.append(_))
+					    (x._1, x._2 + kvs._2._2, x._3 + kvs._2._3, x._4 , x._5, kvs._2._6)
+					}.getOrElse(kvs._2._1, kvs._2._2, kvs._2._3, kvs._2._4, kvs._2._5, kvs._2._6)
+					mrResult() = mrResult() + (kvs._1 -> (t, v, u, h, p, s))
 				}
 			}
 			
@@ -104,14 +108,14 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			bus.subscribe(a, "AggregorBus")
 		}
 			
-		case SplitWorker.integratedataended() => {
+		case SplitWorker.integratedataended(n) => {
 			atomic { implicit thx => 
 				excelsize() = excelsize() + 1
 			}
 	
 			println(s"integratedata ended ${excelsize.single.get}")
 			if (excelsize.single.get == excelshouleszie.single.get) {
-				broadcasting_actor ! SplitMaxBroadcasting.startmapping()
+				broadcasting_actor ! SplitMaxBroadcasting.startmapping(n)
 			}
 		}
 		case SplitWorker.integratedataresult(m) => m map { tmp =>
@@ -126,11 +130,14 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 }
 
 import akka.routing.ConsistentHashingRouter.ConsistentHashMapping
+import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ArrayBuffer
+
 trait CreateMappingActor { this : Actor =>
 	
 	def AggregateHashMapping : ConsistentHashMapping = {
 		case SplitAggregator.msg_container(group, lst) => group._1 + group._2 + group._3
-		case SplitMaxBroadcasting.mappingiteratorhashed(mrd) => mrd.getUploadYear + mrd.getUploadMonth + mrd.getMinimumUnitCh 
+		case SplitMaxBroadcasting.mappingiteratorhashed(mrd) => mrd.uploadYear + mrd.uploadMonth + mrd.minimumUnitCh 
 	} 
 	
 	def CreateMappingActor = {

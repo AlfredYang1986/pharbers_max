@@ -8,6 +8,4 @@ import com.pharbers.aqll.calc.excel.model.modelRunData
 
 object MaxMessage {
     case class msg_IntegratedData(args: BaseArgs) extends CommonMessage
-    
-    case class msg_MaxData(args: BaseMaxDataArgs) extends CommonMessage
 }

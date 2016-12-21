@@ -33,11 +33,11 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	var end : Long = 0 
 	
 	def receive = {
-		case excelJobStart(filename, cat) => {
+		case excelJobStart(filename, cat, company, n) => {
 		    val act = context.actorOf(SplitMaster.props)
 		    masters = masters :+ act
 		    context.watch(act)
-			act ! startReadExcel(filename, cat)
+			act ! startReadExcel(filename, cat, company, n)
 			begin = System.currentTimeMillis
 		}
 		case excelJobEnd(filename) => {

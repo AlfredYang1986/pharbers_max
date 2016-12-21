@@ -30,4 +30,6 @@ object test extends App{
 //    println(mrResult.single.get)
     
 //    DateUtil.getDateLong(2015,2)
+    
+    println(DateUtil.getIntegralStartTime(new Date()).getTime)
 }

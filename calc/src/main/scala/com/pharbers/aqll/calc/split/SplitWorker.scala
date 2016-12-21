@@ -18,7 +18,6 @@ import scala.collection.mutable.ArrayBuffer
 import com.pharbers.aqll.calc.datacala.algorithm.maxSumData
 import com.pharbers.aqll.calc.datacala.algorithm.maxCalcData
 import com.pharbers.aqll.calc.util.DateUtil
-import com.pharbers.aqll.calc.datacala.algorithm.maxCalcUnionAlgorithm
 import com.pharbers.aqll.calc.datacala.module.MaxMessage.msg_IntegratedData
 import com.pharbers.aqll.calc.datacala.module.MaxModule
 import com.pharbers.aqll.calc.adapter.SplitAdapter
@@ -27,11 +26,11 @@ object SplitWorker {
 	def props(a : ActorRef) = Props(new SplitWorker(a))
 	
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
-	case class postresult(mr: Map[Long, (Double, Double)])
+	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String, String, String)], ArrayBuffer[(String, String)], String)])
 	
 	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
 //	case class integratedataresult(integrated : ((Int, Int, String), List[integratedData]))
-	case class integratedataended()
+	case class integratedataended(n: Int)
 }
 
 object adminData {
@@ -66,13 +65,13 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
-	    case SplitEventBus.excelEnded() =>  {
+	    case SplitEventBus.excelEnded(n) =>  {
 	    	println(s"read ended at $self")
 	   
 	    	val tmp = data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))
 			aggregator ! SplitWorker.integratedataresult(tmp)
 	    	
-			aggregator ! SplitWorker.integratedataended()
+			aggregator ! SplitWorker.integratedataended(n)
 	    }
 	    case _ => Unit
 	}

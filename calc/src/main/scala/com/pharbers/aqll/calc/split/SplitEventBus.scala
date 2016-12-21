@@ -8,7 +8,7 @@ import akka.event.ActorEventBus
 class broadcastingDefines
 
 object SplitEventBus {
-	case class excelEnded() extends broadcastingDefines 
+	case class excelEnded(n: Int) extends broadcastingDefines 
 	case class average(avg : List[(String, Double, Double)]) extends broadcastingDefines 
 }
 

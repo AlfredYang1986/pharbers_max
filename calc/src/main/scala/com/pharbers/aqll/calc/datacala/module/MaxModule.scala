@@ -12,9 +12,6 @@ import com.pharbers.aqll.calc.adapter.MaxUnionAdapter
 object MaxModule {
     def dispatchMessage(dataMsg: MaxMessageTrait): Option[DataIOTrait] = dataMsg match{
         case msg_IntegratedData(data) => new IntegratedData(new MaxUnionAdapter(), data).integrateData
-        case msg_MaxData(data) => {
-            new DataMaxNew(new MaxUnionAdapter(), data).data_max_new
-        }
         case _ => ???
     }
 }
