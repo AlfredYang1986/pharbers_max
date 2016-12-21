@@ -45,6 +45,11 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 	def receive = {
 		case cmd : msg_exampleBase => dispatchImpl(cmd, ExampleModule)
 		case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
+		case cmd : ParallelMessage => {
+		    cancelActor
+			next = context.actorOf(ScatterGatherActor.prop(originSender, msr), "scat")
+			next ! cmd
+		}
 		case timeout() => {
 			originSender ! new timeout
 			cancelActor
@@ -62,8 +67,16 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 						originSender ! result(toJson(r))
 					}
 					case head :: tail => {
-						next = context.actorOf(PipeFilterActor.prop(originSender, MessageRoutes(tail, rst)), "pipe")
-						next ! head
+						head match {
+							case p : ParallelMessage => {
+								next = context.actorOf(ScatterGatherActor.prop(originSender, MessageRoutes(tail, rst)), "scat")
+								next ! p
+							}
+							case c : CommonMessage => {
+								next = context.actorOf(PipeFilterActor.prop(originSender, MessageRoutes(tail, rst)), "pipe")
+								next ! c
+							}
+						}
 					}
 					case _ => println("msr error")
 				}

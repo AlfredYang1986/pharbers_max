@@ -17,8 +17,17 @@ class RoutesActor extends Actor with ActorLogging {
 			msr.lst match {
 				case Nil => originSender ! toJson("error")
 				case head :: tail => {
-					next = context.actorOf(PipeFilterActor.prop(self, MessageRoutes(tail, msr.rst)), "gate")
-					next ! head
+					head match {
+						case p : ParallelMessage => {
+							next = context.actorOf(ScatterGatherActor.prop(self, MessageRoutes(tail, msr.rst)), "gate")
+							next ! head
+						}
+						case c : CommonMessage => {
+							next = context.actorOf(PipeFilterActor.prop(self, MessageRoutes(tail, msr.rst)), "gate")
+							next ! head
+						}
+					}
+					
 					context.watch(next)
 				}
 			}
