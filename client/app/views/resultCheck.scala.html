@@ -1,0 +1,390 @@
+@(message: String)
+@main("Max | Home") {
+<body>
+    <div id="wrapper">
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav metismenu" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element"> <span>
+                            <img alt="image" class="img-circle" src="@routes.Assets.at("images/pfizer.png")" />
+                             </span>
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">Guest</strong>
+                             </span> <span class="text-muted text-xs block">Pfizer Staff<b class="caret"></b></span> </span> </a>
+                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                <li><a href="emptypage">个人资料</a></li>
+                                <li class="divider"></li>
+                                <li><a href="login">退出系统</a></li>
+                            </ul>
+                        </div>
+                        <div class="logo-element">
+                            MAX
+                        </div>
+                    </li>
+                    <li>
+                        <a href="index"><i class="fa fa-th-large"></i> <span class="nav-label">首页</span></a>
+                    </li>
+                    <li>
+                        <a href="filesupload"><i class="fa fa-database"></i> <span class="nav-label">文件上传</span></a>
+                    </li>
+                    <li>
+                        <a href="samplecheck"><i class="fa fa-pie-chart"></i> <span class="nav-label">样本检查</span></a>
+                    </li>
+                    <li>
+                        <a href="modeloperation"><i class="fa fa-globe"></i> <span class="nav-label">模型运算</span></a>
+                    </li>
+                    <li class="active">
+                        <a href="resultcheck"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">结果检查</span>  </a>
+                    </li>
+                    <li>
+                        <a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">结果查询</span></a>
+                    </li>
+                    <li class="landing_link">
+                        <a target="_blank" href="landing"><i class="fa fa-star"></i> <span class="nav-label">官方网站</span> <span class="label label-warning pull-right">NEW</span></a>
+                    </li>
+                </ul>
+
+            </div>
+        </nav>
+        <div id="page-wrapper" class="gray-bg">
+        <div class="row border-bottom">
+	        <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+		        <div class="navbar-header">
+		            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+		            <form role="search" class="navbar-form-custom" action="search_results.html">
+		                <div class="form-group">
+		                    <input type="text" placeholder="搜索..." class="form-control" name="top-search" id="top-search">
+		                </div>
+		            </form>
+		        </div>
+	            <ul class="nav navbar-top-links navbar-right">
+	                <li>
+	                    <span class="m-r-sm text-muted welcome-message">欢迎访问MAX系统</span>
+	                </li>
+	                <li>
+	                    <a href="login.html">
+	                        <i class="fa fa-sign-out"></i> 退出系统
+	                    </a>
+	                </li>
+	            </ul>
+	        </nav>
+        </div>
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>结果检查</h2>
+                <ol class="breadcrumb">
+                    <li>
+                        <a href="index.html">首页</a>
+                    </li>
+                    <li class="active">
+                        <strong>结果检查</strong>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+
+            </div>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight" >
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label class="control-label" for="status">数据类型</label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="0">降压药市场</option>
+                      <option value="1">ACEI市场</option>
+                      <option value="2">泰素市场</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+            	<div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>CHPA By Month</h5>
+                            <div class="ibox-tools">
+	                            <a class="collapse-link">
+	                                <i class="fa fa-chevron-up"></i>
+	                            </a>
+	                            <a class="close-link">
+	                                <i class="fa fa-times"></i>
+	                            </a>
+	                        </div>
+                        </div>
+                        <div class="ibox-content">
+                            <div id="bar1" style="height:400px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+			<div class="row">
+				<div class="col-lg-6">
+	                <div class="ibox float-e-margins">
+	                    <div class="ibox-title">
+	                        <h5>Monopril Size Comparison <small>this month vs last month by city.</small></h5>
+	                        <div class="ibox-tools">
+	                            <a class="collapse-link">
+	                                <i class="fa fa-chevron-up"></i>
+	                            </a>
+	                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+	                                <i class="fa fa-wrench"></i>
+	                            </a>
+	                            <a class="close-link">
+	                                <i class="fa fa-times"></i>
+	                            </a>
+	                        </div>
+	                    </div>
+	                    <div class="ibox-content">
+	                        <div id="morris-bar1-chart"></div>
+	                    </div>
+	                </div>
+	            </div>
+	            <div class="col-lg-6">
+	                <div class="ibox float-e-margins">
+	                    <div class="ibox-title">
+	                        <h5>ACEI Market Size Comparison <small>this month vs last month by city.</small></h5>
+	                        <div class="ibox-tools">
+	                            <a class="collapse-link">
+	                                <i class="fa fa-chevron-up"></i>
+	                            </a>
+	                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+	                                <i class="fa fa-wrench"></i>
+	                            </a>
+	                            <a class="close-link">
+	                                <i class="fa fa-times"></i>
+	                            </a>
+	                        </div>
+	                    </div>
+	                    <div class="ibox-content">
+	                        <div id="morris-bar2-chart"></div>
+	                    </div>
+	                </div>
+	            </div>
+	         </div>
+        </div>
+        <div class="footer">
+            <div class="pull-right">
+                10GB of <strong>250GB</strong> Free.
+            </div>
+            <div>
+                <strong>Copyright</strong> Pharbers Company &copy; 2008-2016
+            </div>
+        </div>
+
+        </div>
+    </div>
+    <script>
+    	var itemStyleColor = ['#1ab394', '#cacaca'];
+
+    	var option1 = {
+   		    tooltip: {
+   		        trigger: 'axis'
+   		    },
+   		    /**toolbox: {
+   		        feature: {
+   		            dataView: {show: true, readOnly: false},
+   		            magicType: {show: true, type: ['line', 'bar']},
+   		            restore: {show: true},
+   		            saveAsImage: {show: true}
+   		        }
+   		    },**/
+   		    xAxis: [
+   		        {
+   		            type: 'category',
+   		            data: ['201601','201602','201603','201604','201605','201606','201607','201608','201609','201610','201611','201612']
+   		        }
+   		    ],
+   		    yAxis: [
+   		        {
+   		            type: 'value',
+   		            name: 'Total Unit (Million)',
+   		        },
+   		        {
+   		            type: 'value',
+   		            name: 'Mono Unit Share',
+   		            show: false,
+   		            spliteLine: {show: false}
+   		        }
+   		    ],
+   		    series: [
+   		        {
+   		            name:'MAX',
+   		            type:'bar',
+   		         	barWidth: 35,
+   		            data:[ 286695468, 143061223, 222934349, 230669845, 213140786, 204258431, 209272379, 193125119, 248527716, 199463996, 210717399, 256115636 ],
+   	    	        itemStyle: {
+   	    	            normal: {
+   	    	                color: itemStyleColor[0]
+   	    	            }
+   	    	        }
+   		        },
+   		        {
+   		            name:'MAX Mono Share',
+   		            type:'line',
+   		            yAxisIndex: 1,
+   		            data:[ 323642806, 141647829, 217667421, 234941969, 221417607, 204436609, 211745760, 192100083, 245414349, 195106160, 217588674, 264578284 ],
+   	    	        itemStyle: {
+   	    	            normal: {
+   	    	                color: itemStyleColor[1]
+   	    	            }
+   	    	        }
+   		        }
+   		    ]
+   		};
+/**    	
+    	var option2 = {
+   			tooltip: {
+    		    trigger: 'axis'
+    		},
+   		    toolbox: {
+   		        feature: {
+   		            dataView: {show: true, readOnly: false},
+   		            magicType: {show: true, type: ['line', 'bar']},
+   		            restore: {show: true},
+   		            saveAsImage: {show: true}
+   		        }
+   		    },
+    	    xAxis: [{
+    	        type: 'category',
+    	        data: ['北京市', '上海市', '广州市', '杭州市', '成都市', '沈阳市', '武汉市'],
+    	        name: 'City',
+   		        show: true,
+     	        splitLine:{show: true}
+    	    }],
+    	    yAxis: [
+    	    	{
+   		            type: 'value',
+   		            name: 'Total Unit (Million)',
+   		         	show: true,
+     	        	splitLine:{show: true}
+   		        }],
+    	    series: [{
+    	    	name:'上月',
+    	        type: 'bar',
+    	        barWidth: 30,
+    	        barGap: 0.2,
+    	        barCategoryGap: 30,
+    	        data: [25113856, 19960668, 10734366, 3400228, 4756212, 2716265, 4928067],
+    	        itemStyle: {
+    	            normal: {
+    	                color: itemStyleColor[0]
+    	            }
+    	        }
+    	    }, {
+    	    	name:'本月',
+    	        type: 'bar',
+    	        barWidth: 30,
+    	        barGap: 0.2,
+    	        barCategoryGap: 30,
+    	        data: [22752760, 17687303, 11097934, 3644575, 4846383, 2552647, 4621978],
+    	        itemStyle: {
+    	            normal: {
+    	                color: itemStyleColor[1]
+    	            }
+    	        }
+    	    }]
+    	};
+**/
+/**
+    	var option3 = {
+   			tooltip: {
+       		    trigger: 'axis'
+       		},
+     		toolbox: {
+      		    feature: {
+      		        dataView: {show: true, readOnly: false},
+      		        magicType: {show: true, type: ['line', 'bar']},
+      		        restore: {show: true},
+      		        saveAsImage: {show: true}
+      		    }
+      		},	
+       	    xAxis: [{
+       	        type: 'category',
+       	        data: ['北京市', '上海市', '广州市', '杭州市', '成都市', '沈阳市', '武汉市'],
+    	        name: 'City',
+    	        show: true,
+    	        splitLine:{show: true}
+       	    }],
+       	    yAxis: [
+       	    	{
+   		            type: 'value',
+   		            name: 'Total Unit (Million)',
+   	    	        show: true,
+   	    	     	splitLine:{show: true}
+   		        }
+   		    ],
+       	    series: [{
+       	    	name:'上月',
+       	        type: 'bar',
+       	        barWidth: 30,
+       	        barGap: 0.2,
+       	        barCategoryGap: 30,
+       	        data: [ 1063216, 312844, 153062, 20160, 82922, 134386, 86576 ],
+       	        itemStyle: {
+       	            normal: {
+       	                color: itemStyleColor[0]
+       	            }
+       	        }
+       	    }, {
+       	    	name:'本月',
+       	        type: 'bar',
+       	        barWidth: 30,
+       	        barGap: 0.2,
+       	        barCategoryGap: 30,
+       	        data: [1071813, 306829, 122101, 21756, 59739, 137556, 68406 ],
+       	        itemStyle: {
+       	            normal: {
+       	                color: itemStyleColor[1]
+       	            }
+       	        }
+       	    }]
+       	};
+**/
+ 		// 基于准备好的dom，初始化echarts实例
+    	var bar1 = echarts.init(document.getElementById('bar1'));
+    	// 使用刚指定的配置项和数据显示图表。
+        bar1.setOption(option1);
+        window.addEventListener("resize", function() {
+        	bar1.resize();
+    	});
+
+    	$(function(){
+    	    Morris.Bar({
+    	        element: 'morris-bar1-chart',
+    	        data: [{ y: '北京市', a: 25113856, b: 22752759 },
+    	            { y: '上海市', a: 19960668, b: 17687302 },
+    	            { y: '广州市', a: 10734366, b: 11097934 },
+    	            { y: '杭州市', a: 3400228, b: 3644574 },
+    	            { y: '成都市', a: 4756212, b: 4846382 },
+    	            { y: '沈阳市', a: 2716265, b: 2552646 },
+    	            { y: '武汉市', a: 4928067, b: 4621978 } ],
+    	        xkey: 'y',
+    	        ykeys: ['a', 'b'],
+    	        labels: ['上月', '本月'],
+    	        hideHover: 'auto',
+    	        resize: true,
+    	        barColors: ['#1ab394', '#cacaca'],
+    	    });
+
+    	    Morris.Bar({
+    	        element: 'morris-bar2-chart',
+    	        data: [{ y: '北京市', a: 1063216, b: 1071812 },
+    	            { y: '上海市', a: 312844, b: 306829 },
+    	            { y: '广州市', a: 153062, b: 122100 },
+    	            { y: '杭州市', a: 20160, b: 21755 },
+    	            { y: '成都市', a: 82922, b: 59739 },
+    	            { y: '沈阳市', a: 134386, b: 137555 },
+    	            { y: '武汉市', a: 86576, b: 68406 } ],
+    	        xkey: 'y',
+    	        ykeys: ['a', 'b'],
+    	        labels: ['上月', '本月'],
+    	        hideHover: 'auto',
+    	        resize: true,
+    	        barColors: ['#1ab394', '#cacaca'],
+    	    });
+        });
+    </script>
+</body>
+}

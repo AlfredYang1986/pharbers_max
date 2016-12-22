@@ -1,0 +1,115 @@
+@(message: String)
+@main("Max | Home") {
+<body>
+    <div id="wrapper">
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav metismenu" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element"> <span>
+                            <img alt="image" class="img-circle" src="@routes.Assets.at("images/pfizer.png")" />
+                             </span>
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">Guest</strong>
+                             </span> <span class="text-muted text-xs block">Pfizer Staff<b class="caret"></b></span> </span> </a>
+                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                <li><a href="emptypage">个人资料</a></li>
+                                <li class="divider"></li>
+                                <li><a href="login">退出系统</a></li>
+                            </ul>
+                        </div>
+                        <div class="logo-element">
+                            MAX
+                        </div>
+                    </li>
+                    <li class="active">
+                        <a href="index"><i class="fa fa-th-large"></i> <span class="nav-label">首页</span></a>
+                    </li>
+                    <li>
+                        <a href="filesupload"><i class="fa fa-database"></i> <span class="nav-label">文件上传</span></a>
+                    </li>
+                    <li>
+                        <a href="samplecheck"><i class="fa fa-pie-chart"></i> <span class="nav-label">样本检查</span></a>
+                    </li>
+                    <li>
+                        <a href="modeloperation"><i class="fa fa-globe"></i> <span class="nav-label">模型运算</span></a>
+                    </li>
+                    <li>
+                        <a href="resultcheck"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">结果检查</span>  </a>
+                    </li>
+                    <li>
+                        <a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">结果查询</span></a>
+                    </li>
+                    <li class="landing_link">
+                        <a target="_blank" href="landing"><i class="fa fa-star"></i> <span class="nav-label">官方网站</span> <span class="label label-warning pull-right">NEW</span></a>
+                    </li>
+                </ul>
+
+            </div>
+        </nav>
+        <div id="page-wrapper" class="gray-bg dashbard-1">
+	        <div class="row border-bottom">
+	        	<nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+			        <div class="navbar-header">
+			            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+			            <form role="search" class="navbar-form-custom" action="search_results.html">
+			                <div class="form-group">
+			                    <input type="text" placeholder="搜索..." class="form-control" name="top-search" id="top-search">
+			                </div>
+			            </form>
+			        </div>
+		            <ul class="nav navbar-top-links navbar-right">
+		                <li>
+		                    <span class="m-r-sm text-muted welcome-message">欢迎来到MAX管理的主题</span>
+		                </li>
+		                <li>
+		                    <a href="login">
+		                        <i class="fa fa-sign-out"></i> 退出系统
+		                    </a>
+		                </li>
+		            </ul>
+		        </nav>
+	        </div>
+        	<div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-sm-4">
+                    <h2>这是主标题</h2>
+                    <ol class="breadcrumb">
+                        <li>
+                            <a href="index">当前</a>
+                        </li>
+                        <li class="active">
+                            <strong>位置</strong>
+                        </li>
+                    </ol>
+                </div>
+                <div class="col-sm-8">
+                    <div class="title-action">
+                        <a href="" class="btn btn-primary">这是行动区</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wrapper wrapper-content">
+                <div class="middle-box text-center animated fadeInRightBig">
+                    <h3 class="font-bold">这是页面内容</h3>
+                    <div class="error-desc">
+                        	在这里你可以创造任何你想要的网格布局。和任何变异布局你想象:) 检查主仪表板和其他网站。它使用许多不同的布局。
+                        <br/><a href="index.html" class="btn btn-primary m-t">主页面</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <div class="pull-right">
+                    10GB of <strong>250GB</strong> Free.
+                </div>
+                <div>
+                    <strong>Copyright</strong> Pharbers Company &copy; 2008-2016
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        
+    </script>
+</body>
+}
