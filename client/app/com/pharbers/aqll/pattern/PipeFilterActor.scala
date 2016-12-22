@@ -15,7 +15,7 @@ import play.api.libs.json.Json.toJson
 
 import module.ExampleModuleMessage._
 import module.ExampleModule
-import module.business.ResultQueryModuleMessage.——
+import module.business.ResultQueryModuleMessage._
 import module.business.ResultQueryModule
 
 object PipeFilterActor {
