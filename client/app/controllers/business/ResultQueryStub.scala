@@ -14,7 +14,7 @@ object ResultQueryStub extends Controller{
     
     def resultQueryAjaxCall = Action (request => requestArgs(request) { jv => 
 		import pattern.ResultMessage.common_result
-		MessageRoutes(msg_provincedata(jv) :: msg_citydata(jv) :: msg_hospitaldata(jv) :: msg_CommonResultMessage() :: Nil, None)
+		MessageRoutes(msg_provincedata(jv) :: msg_error_emp(jv)  :: msg_CommonResultMessage() :: Nil, None)
 	})
 	
 //	def resultQueryAjaxError = Action (request => requestArgs(request) { jv => 
