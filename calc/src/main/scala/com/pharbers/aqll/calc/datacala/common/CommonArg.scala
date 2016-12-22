@@ -25,42 +25,42 @@ case class BaseMaxDataArgs(data: (CommonArg,CommonArg)) extends MaxArgsTrait {
     type data_type = (CommonArg,CommonArg)
 }
 
-case class AdminHospDataBaseArgs(val data: Stream[AdminHospitalDataBase]) extends CommonArg {
-    type data_type = Stream[AdminHospitalDataBase]
+case class AdminHospDataBaseArgs(val data: List[AdminHospitalDataBase]) extends CommonArg {
+    type data_type = List[AdminHospitalDataBase]
 }
 
-case class AdminHospMatchDataArgs(val data: Stream[AdminHospitalMatchingData]) extends CommonArg {
-    type data_type = Stream[AdminHospitalMatchingData]
+case class AdminHospMatchDataArgs(val data: List[AdminHospitalMatchingData]) extends CommonArg {
+    type data_type = List[AdminHospitalMatchingData]
 }
 
-case class AdminMarkeDataArgs(val data: Stream[AdminMarket]) extends CommonArg {
-    type data_type = Stream[AdminMarket]
+case class AdminMarkeDataArgs(val data: List[AdminMarket]) extends CommonArg {
+    type data_type = List[AdminMarket]
 }
 
-case class AdminProductDataArgs(val data: Stream[AdminProduct]) extends CommonArg {
-    type data_type = Stream[AdminProduct]
+case class AdminProductDataArgs(val data: List[AdminProduct]) extends CommonArg {
+    type data_type = List[AdminProduct]
 }
 
 /*************************************产品********************************************/
-case class UserProductDataArgs(val data: Stream[CpaProduct]) extends CommonArg {
-    type data_type = Stream[CpaProduct]
+case class UserProductDataArgs(val data: List[CpaProduct]) extends CommonArg {
+    type data_type = List[CpaProduct]
 }
 
-case class UserPhaProductDataArgs(val data: Stream[PharmaTrustPorduct]) extends CommonArg {
-    type data_type = Stream[PharmaTrustPorduct]
+case class UserPhaProductDataArgs(val data: List[PharmaTrustPorduct]) extends CommonArg {
+    type data_type = List[PharmaTrustPorduct]
 }
 
 /************************************市场********************************************/
-case class UserMarketDataArgs(val data: Stream[CpaMarket]) extends CommonArg {
-    type data_type = Stream[CpaMarket]
+case class UserMarketDataArgs(val data: List[CpaMarket]) extends CommonArg {
+    type data_type = List[CpaMarket]
 }
 
-case class UserPhaMarketDataArgs(val data: Stream[PharmaTrustMarket]) extends CommonArg {
-    type data_type = Stream[PharmaTrustMarket]
+case class UserPhaMarketDataArgs(val data: List[PharmaTrustMarket]) extends CommonArg {
+    type data_type = List[PharmaTrustMarket]
 }
 
-case class IntegratedDataArgs(val data: Stream[integratedData]) extends CommonArg {
-    type data_type = Stream[integratedData]
+case class IntegratedDataArgs(val data: List[integratedData]) extends CommonArg {
+    type data_type = List[integratedData]
 }
 
 case class ModelRunDataArgs(val data: List[modelRunData]) extends CommonArg {

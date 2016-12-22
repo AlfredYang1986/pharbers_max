@@ -20,55 +20,55 @@ import com.pharbers.aqll.calc.excel.common.commonProductObjectTrait
 import scala.collection.mutable.ArrayBuffer
 
 trait Adapter {
-    def splitdata(data: BaseArgs): Stream[integratedData] = Stream.Empty
+    def splitdata(data: BaseArgs): List[integratedData] = Nil
     
     def integrateddata(data : BaseArgs): Option[DataIOTrait] = None
 }
 
 trait ELementAdapter {
     
-    def hospmatchdatafun(data: Stream[AdminHospitalMatchingData]): Stream[AdminHospitalMatchingData] = {
+    def hospmatchdatafun(data: List[AdminHospitalMatchingData]): List[AdminHospitalMatchingData] = {
         data sortBy (_.getHospNum)
     }
     
-    def marketdatasource(market: Stream[AdminMarket], str: String): Stream[AdminMarket] = {
+    def marketdatasource(market: List[AdminMarket], str: String): List[AdminMarket] = {
         market filter(_.getDatasource.equals(str)) sortBy(_.getMinMarket)
     }
     
-    def productdatasource(product: Stream[AdminProduct], str: String): Stream[AdminProduct] = {
+    def productdatasource(product: List[AdminProduct], str: String): List[AdminProduct] = {
         product filter (_.getDatasource.equals(str)) sortBy (_.getMinimumUnitCh)
     }
     
-    def elemmarket(usermarket: Stream[commonMarketObjectTrait], str: String): Stream[integratedData] = Stream.Empty
+    def elemmarket(usermarket: List[commonMarketObjectTrait], str: String): List[integratedData] = Nil
     
-    def elemproduct(userproduct: Stream[commonProductObjectTrait], str: String): Stream[integratedData] = Stream.Empty
+    def elemproduct(userproduct: List[commonProductObjectTrait], str: String): List[integratedData] = Nil
 }
 
 abstract class DataType extends ELementAdapter {
-    def market: Stream[AdminMarket]
-    def product: Stream[AdminProduct]
+    def market: List[AdminMarket]
+    def product: List[AdminProduct]
 }
 
-sealed class AdapterSub(data: CommonArg, hospmatchdata: Stream[AdminHospitalMatchingData]) extends DataType {
-    def market: Stream[AdminMarket] = {
+sealed class AdapterSub(data: CommonArg, hospmatchdata: List[AdminHospitalMatchingData]) extends DataType {
+    def market: List[AdminMarket] = {
         data match {
             case AdminMarkeDataArgs(m) => m
         }
     }
-    def product: Stream[AdminProduct] = {
+    def product: List[AdminProduct] = {
         data match {
             case AdminProductDataArgs(p) => p
         }
     }
     
-    override def elemmarket(usermarket: Stream[commonMarketObjectTrait], str: String): Stream[integratedData] = {
+    override def elemmarket(usermarket: List[commonMarketObjectTrait], str: String): List[integratedData] = {
         lazy val integratedData = maxUnionAlgorithm.market(usermarket,hospmatchdatafun(hospmatchdata),marketdatasource(market,str))((e1,e2) => StringOption.takeStringSpace(e1.getMarketname).equals(e2.getMinMarket))
-        integratedData.toStream
+        integratedData.toList
     }
     
-    override def elemproduct(userproduct: Stream[commonProductObjectTrait], str: String): Stream[integratedData] = {
+    override def elemproduct(userproduct: List[commonProductObjectTrait], str: String): List[integratedData] = {
          lazy val integratedData = maxUnionAlgorithm.product(userproduct, productdatasource(product, str), hospmatchdatafun(hospmatchdata))((e1, e2) => StringOption.takeStringSpace(e2.getMinimumUnit).equals(e1.commonObjectCondition))
-        integratedData.toStream
+        integratedData.toList
     }
 }
 
@@ -102,13 +102,13 @@ class MaxUnionAdapter extends Adapter {
 
 class SplitAdapter extends Adapter {
     
-    override def splitdata(data: BaseArgs): Stream[integratedData] = {
+    override def splitdata(data: BaseArgs): List[integratedData] = {
         lazy val dataMsg = msg_IntegratedData(data)
         MaxModule.dispatchMessage(dataMsg) match {
             case Some(IntegratedDataArgs(igda)) => {
                 igda
             }
-            case _ => Stream.Empty
+            case _ => Nil
         }
     }
 }

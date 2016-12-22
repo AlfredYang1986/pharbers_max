@@ -38,7 +38,7 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
   	val subFun = aggregator ! SplitAggregator.aggmapsubscrbe(self)
   	val maxSum : scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
 //  	val r : ArrayBuffer[List[(String, Double, Double)] => Option[(Int, Int, (Double, Double))]] = ArrayBuffer.empty
-  	val r : ArrayBuffer[List[(String, Double, Double)] => Option[(Int, Int, (Double, Double), (String, String, String), (String, String), String)]] = ArrayBuffer.empty
+  	val r : ArrayBuffer[List[(String, Double, Double)] => Option[(Int, Int, (Double, Double), (String), (String), (String), String)]] = ArrayBuffer.empty
 	
   	def receive = {
 		case SplitAggregator.msg_container(group, lst) => {
@@ -53,9 +53,9 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 		case SplitGroupMaster.mappingend() => aggregator ! SplitWorker.requestaverage(maxSum.toList)
 		case SplitEventBus.average(avg) => {
 		    // TODO 这里不应该是按照年月来分组计算最终结果，不然在结果查询的时候某些条件将无法满足查询还是要改，目前是按照年+月+最小产品单位（或医院phacode来分组）
-			val result = r.map (f => f(avg)).filterNot(_ == None).map(_.get).groupBy(x => (x._1, x._2, x._5._2)).map (x =>
+			val result = r.map (f => f(avg)).filterNot(_ == None).map(_.get).groupBy(x => (x._1, x._2, x._4)).map (x =>
 								(MD5.md5(x._1._1.toString + x._1._2.toString + x._1._3), 
-								(DateUtil.getDateLong(x._1._1, x._1._2), x._2.map (_._3._1).sum, x._2.map (_._3._2).sum, x._2.map(_._4).distinct, x._2.map(_._5).distinct, x._2.map(_._6).head )))
+								(DateUtil.getDateLong(x._1._1, x._1._2), x._2.map (_._3._1).sum, x._2.map (_._3._2).sum, x._2.map(_._4).distinct, x._2.map(_._5).distinct, x._2.map(_._6).distinct, x._2.map(_._7).head )))
             aggregator ! SplitWorker.postresult(result)
 	    }
 		case _ => Unit
