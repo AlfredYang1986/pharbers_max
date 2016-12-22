@@ -9,7 +9,7 @@ import com.pharbers.aqll.calc.excel.model.integratedData
 //import excel.model.CPA.CpaProduct
 
 object maxUnionAlgorithm {
-    def product(elem1 : Stream[commonProductObjectTrait], elem2 : Stream[AdminProduct], elem3 :Stream[AdminHospitalMatchingData])(func : (commonProductObjectTrait, AdminProduct) => Boolean) = {
+    def product(elem1 : List[commonProductObjectTrait], elem2 : List[AdminProduct], elem3 :List[AdminHospitalMatchingData])(func : (commonProductObjectTrait, AdminProduct) => Boolean) = {
         lazy val hospNum = elem1.map(_.getHospNum.asInstanceOf[Number].longValue()).distinct
         (elem1.filter(x => hospNum.contains(x.getHospNum)).map { x =>
             val phaProduct = x
@@ -26,7 +26,7 @@ object maxUnionAlgorithm {
         })
     }
     
-    def market(elem1: Stream[commonMarketObjectTrait],elem2: Stream[AdminHospitalMatchingData],elem3: Stream[AdminMarket])(func: (commonMarketObjectTrait, AdminMarket) => Boolean) = {
+    def market(elem1: List[commonMarketObjectTrait],elem2: List[AdminHospitalMatchingData],elem3: List[AdminMarket])(func: (commonMarketObjectTrait, AdminMarket) => Boolean) = {
         lazy val hospNum = elem1.map (_.getHospNum).distinct
         (elem1.filter(x => hospNum.contains(x.getHospNum)).map{x =>
             val cpaMarket = x

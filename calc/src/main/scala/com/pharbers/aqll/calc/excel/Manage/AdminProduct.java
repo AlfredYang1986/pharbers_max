@@ -188,4 +188,9 @@ public class AdminProduct{
 	public void setMarket4En(String market4En) {
 		this.market4En = market4En;
 	}
+	
+	@Override
+	public String toString() {
+		return "getMarket1Ch = "+getMarket1Ch();
+	}
 }

@@ -42,6 +42,7 @@ class integratedData(@BeanProperty val uploadYear : Int,
     
     override def toString = ""+uploadYear.toString()+
                              "	"+uploadMonth.toString()+
+                             "	"+market1Ch+
                              "	"+StringOption.takeStringSpace(minimumUnit)+
                              "	"+hospNum.toString()+
                              "	"+sumValue.toString()+

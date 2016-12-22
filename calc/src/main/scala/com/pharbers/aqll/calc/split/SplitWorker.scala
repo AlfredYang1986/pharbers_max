@@ -26,7 +26,7 @@ object SplitWorker {
 	def props(a : ActorRef) = Props(new SplitWorker(a))
 	
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
-	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String, String, String)], ArrayBuffer[(String, String)], String)])
+	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String)])
 	
 	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
 //	case class integratedataresult(integrated : ((Int, Int, String), List[integratedData]))
@@ -34,10 +34,10 @@ object SplitWorker {
 }
 
 object adminData {
-    lazy val hospbasedata = DefaultData.hospdatabase.toStream
-	lazy val hospmatchdata = DefaultData.hospmatchdata.toStream
-	lazy val market = DefaultData.marketdata.toStream
-	lazy val product = DefaultData.productdata.toStream
+    lazy val hospbasedata = DefaultData.hospdatabase
+	lazy val hospmatchdata = DefaultData.hospmatchdata
+	lazy val market = DefaultData.marketdata
+	lazy val product = DefaultData.productdata
 }
 
 class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
@@ -46,22 +46,22 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
     
 	val idle : Receive = {
 	    case cparesult(target) => {
-	        val listCpaProdcut = (target :: Nil).toStream
+	        val listCpaProdcut = (target :: Nil)
 	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut))) 
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case cpamarketresult(target) => {
-	        val listCpaMarket = (target :: Nil).toStream
+	        val listCpaMarket = (target :: Nil)
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserMarketDataArgs(listCpaMarket)))
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case pharesult(target) => {
-            val listPhaProdcut = (target :: Nil).toStream
+            val listPhaProdcut = (target :: Nil)
             val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaProductDataArgs(listPhaProdcut)))
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case phamarketresult(target) => {
-	        val listPhaMarket = (target :: Nil).toStream
+	        val listPhaMarket = (target :: Nil)
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
