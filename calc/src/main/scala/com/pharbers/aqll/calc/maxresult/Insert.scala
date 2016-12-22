@@ -18,6 +18,7 @@ object Insert {
                  builder += "Sales" -> x._2._2
                  builder += "Condition" -> (Map("Hospital" -> x._2._4) :: Map("ProductMinunt" -> x._2._5) :: Nil)
                  builder += "Timestamp" -> x._2._1
+                 builder += "Createtime" -> m._4
                  builder += "Filepath" -> m._1
                  builder += "Rtype" -> x._2._6
                  _data_connection.getCollection("MaxResults") += builder.result

@@ -108,14 +108,14 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			bus.subscribe(a, "AggregorBus")
 		}
 			
-		case SplitWorker.integratedataended(n) => {
+		case SplitWorker.integratedataended() => {
 			atomic { implicit thx => 
 				excelsize() = excelsize() + 1
 			}
 	
 			println(s"integratedata ended ${excelsize.single.get}")
 			if (excelsize.single.get == excelshouleszie.single.get) {
-				broadcasting_actor ! SplitMaxBroadcasting.startmapping(n)
+				broadcasting_actor ! SplitMaxBroadcasting.startmapping()
 			}
 		}
 		case SplitWorker.integratedataresult(m) => m map { tmp =>

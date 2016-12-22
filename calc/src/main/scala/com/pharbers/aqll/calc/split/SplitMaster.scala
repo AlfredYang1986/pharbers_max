@@ -28,12 +28,18 @@ import akka.routing.ConsistentHashingPool
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.calc.util.DateUtil
 
+object SplitVarPramary {
+    
+}
+
 object SplitMaster {
 	def props = Props[SplitMaster]
 	
 	val num_count = 10
 	
 	var getcompany = ""
+	
+	var selectvar = 0
 }
 
 class SplitMaster extends Actor with ActorLogging 
@@ -52,6 +58,7 @@ class SplitMaster extends Actor with ActorLogging
 	val ready : Receive = {
 		case startReadExcel(filename, cat, company, n) => {
 		    getcompany = company
+		    selectvar = n
 		    fileName = filename//.substring(filename.lastIndexOf("""/""") + 1, filename.length())
 	        context.become(spliting)
 		    (cat.t match {
@@ -76,7 +83,7 @@ class SplitMaster extends Actor with ActorLogging
 		                                            router)
 		        }
 		    }).startParse(filename, 1)
-		    bus.publish(SplitEventBus.excelEnded(n))
+		    bus.publish(SplitEventBus.excelEnded())
 		}
 		case _ => {
 		    println("exception")

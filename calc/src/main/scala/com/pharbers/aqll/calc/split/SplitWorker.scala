@@ -30,7 +30,7 @@ object SplitWorker {
 	
 	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
 //	case class integratedataresult(integrated : ((Int, Int, String), List[integratedData]))
-	case class integratedataended(n: Int)
+	case class integratedataended()
 }
 
 object adminData {
@@ -65,13 +65,13 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
-	    case SplitEventBus.excelEnded(n) =>  {
+	    case SplitEventBus.excelEnded() =>  {
 	    	println(s"read ended at $self")
 	   
 	    	val tmp = data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))
 			aggregator ! SplitWorker.integratedataresult(tmp)
 	    	
-			aggregator ! SplitWorker.integratedataended(n)
+			aggregator ! SplitWorker.integratedataended()
 	    }
 	    case _ => Unit
 	}
