@@ -18,9 +18,8 @@ GET		/filesupload				controllers.Application.filesUpload
 GET		/samplecheck				controllers.Application.sampleCheck
 GET		/modeloperation				controllers.Application.modelOperation
 GET		/resultcheck				controllers.Application.resultCheck
-GET		/resultquery				controllers.Application.resultQuery
-
-
+GET		/resultquery				controllers.business.ResultQueryController.resultQuery
+POST 	/resultquery/search			controllers.business.ResultQueryStub.resultQueryAjaxCall
 
 POST	/example					controllers.Example.exampAjaxCall
 POST	/error						controllers.Example.exampAjaxError
