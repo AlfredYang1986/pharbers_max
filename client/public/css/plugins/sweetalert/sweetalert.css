@@ -18,7 +18,8 @@ body.stop-scrolling {
 
 .sweet-alert {
   background-color: white;
-  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /*font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
+  font-family: 'PingFang SC','Helvetica Neue',Helvetica,Arial,'Hiragino Sans GB','Microsoft Yahei',微软雅黑,STHeiti,华文细黑,sans-serif;
   width: 478px;
   padding: 17px;
   border-radius: 5px;
