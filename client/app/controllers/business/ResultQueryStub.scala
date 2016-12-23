@@ -14,6 +14,10 @@ object ResultQueryStub extends Controller{
     
     def resultQueryAjaxCall = Action (request => requestArgs(request) { jv => 
 		import pattern.ResultMessage.common_result
+<<<<<<< Updated upstream
+=======
+//		MessageRoutes(msg_provincedata(jv) :: msg_error_emp(jv)  :: msg_CommonResultMessage() :: Nil, None)
+>>>>>>> Stashed changes
 		MessageRoutes(msg_provincedata(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 	
