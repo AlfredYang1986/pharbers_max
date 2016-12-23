@@ -13,9 +13,10 @@ object SplitResultFunc {
                 mrd.finalResultsValue = x._2 * mrd.westMedicineIncome * mrd.factor.toDouble
                 mrd.finalResultsUnit = x._3 * mrd.westMedicineIncome * mrd.factor.toDouble
             }
+			
 			Some(mrd.uploadYear, mrd.uploadMonth, 
 			        (mrd.finalResultsValue, mrd.finalResultsUnit), 
-			        (mrd.phaid), (mrd.minimumUnitCh), (mrd.market1Ch), mrd.selectvariablecalculation().get._1)
+			        (mrd.phaid), (mrd.minimumUnitCh, mrd.finalResultsValue, mrd.finalResultsUnit), (mrd.market1Ch), mrd.selectvariablecalculation().get._1)
 		}.getOrElse (None)
 	}
 }

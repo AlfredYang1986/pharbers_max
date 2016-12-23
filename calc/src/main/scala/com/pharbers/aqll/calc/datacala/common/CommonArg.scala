@@ -25,6 +25,10 @@ case class BaseMaxDataArgs(data: (CommonArg,CommonArg)) extends MaxArgsTrait {
     type data_type = (CommonArg,CommonArg)
 }
 
+case class BaseExcelUnionArgs(data: CommonArg) extends MaxArgsTrait {
+    type data_type = (CommonArg)
+}
+
 case class AdminHospDataBaseArgs(val data: List[AdminHospitalDataBase]) extends CommonArg {
     type data_type = List[AdminHospitalDataBase]
 }

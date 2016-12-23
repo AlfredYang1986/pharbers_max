@@ -23,6 +23,7 @@ trait Adapter {
     def splitdata(data: BaseArgs): List[integratedData] = Nil
     
     def integrateddata(data : BaseArgs): Option[DataIOTrait] = None
+    
 }
 
 trait ELementAdapter {

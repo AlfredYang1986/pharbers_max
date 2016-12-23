@@ -6,10 +6,11 @@ import com.pharbers.aqll.calc.util.dao._data_connection
 import java.util.Date
 import com.pharbers.aqll.calc.util.dao.from
 import scala.collection.mutable.ArrayBuffer
+import com.pharbers.aqll.calc.datacala.common.CommonArg
 
 object Insert {
     
-    def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))]) (m: (String, String, String, Long)) = {
+    def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String, Double, Double)], ArrayBuffer[(String)], String))]) (m: (String, String, String, Long)) = {
         def maxInser() = {
             mr.toList map { x =>
                  val builder = MongoDBObject.newBuilder
@@ -37,10 +38,36 @@ object Insert {
              }
              
              case _ => {
-                 val rm =MongoDBObject("MaxResults_Id"-> m._3)
-                 _data_connection.getCollection("MaxResults").remove(rm)
+                 val rm =MongoDBObject(conditions)
+                 _data_connection.getCollection("FinalResult").remove(rm)
                  maxInser()
              }
          }
      }
+    
+    def maxFactResultInsert(model:  (Double, Double, List[Long], List[String]))(m: (String, String, String, Long)) = {
+        def maxInser() = {
+            val builder = MongoDBObject.newBuilder
+            builder += "ID" -> m._3
+            builder += "Units" -> model._2
+            builder += "Sales" -> model._1
+            builder += "Condition" -> Map("Hospital" -> model._3 , "ProductMinunt" -> model._4)
+            builder += "Timestamp" -> m._4
+            builder += "Filepath" -> m._1
+            _data_connection.getCollection("FactResult") += builder.result
+        }
+        val conditions = ("ID" -> m._3)
+        val count = (from db() in "FactResult" where conditions count)
+        count match {
+             case 0 => {
+                 maxInser()
+             }
+             
+             case _ => {
+                 val rm =MongoDBObject(conditions)
+                 _data_connection.getCollection("FactResult").remove(rm)
+                 maxInser()
+             }
+         }
+    }
 }

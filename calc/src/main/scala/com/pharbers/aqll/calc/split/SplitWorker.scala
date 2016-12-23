@@ -21,16 +21,22 @@ import com.pharbers.aqll.calc.util.DateUtil
 import com.pharbers.aqll.calc.datacala.module.MaxMessage.msg_IntegratedData
 import com.pharbers.aqll.calc.datacala.module.MaxModule
 import com.pharbers.aqll.calc.adapter.SplitAdapter
+import com.pharbers.aqll.calc.excel.CPA.CpaProduct
+import com.pharbers.aqll.calc.excel.CPA.CpaMarket
+import com.pharbers.aqll.calc.excel.PharmaTrust.PharmaTrustPorduct
+import com.pharbers.aqll.calc.excel.PharmaTrust.PharmaTrustMarket
 
 object SplitWorker {
 	def props(a : ActorRef) = Props(new SplitWorker(a))
 	
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
-	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String)])
+	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String, Double, Double)], ArrayBuffer[(String)], String)])
 	
 	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
 //	case class integratedataresult(integrated : ((Int, Int, String), List[integratedData]))
 	case class integratedataended()
+	
+	case class exceluniondata(e: List[BaseExcelUnionArgs])
 }
 
 object adminData {
@@ -42,11 +48,19 @@ object adminData {
 
 class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
     val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
+    val excelunion: ArrayBuffer[BaseExcelUnionArgs] = ArrayBuffer.empty
     val subFun = aggregator ! SplitAggregator.aggsubcribe(self)
+    
+    val cpaproexcel: ArrayBuffer[CpaProduct] = ArrayBuffer.empty
+    val cpomarexcel: ArrayBuffer[CpaMarket] = ArrayBuffer.empty
+    val phaproexcel: ArrayBuffer[PharmaTrustPorduct] = ArrayBuffer.empty
+    val phamarexcel: ArrayBuffer[PharmaTrustMarket] = ArrayBuffer.empty
     
 	val idle : Receive = {
 	    case cparesult(target) => {
 	        val listCpaProdcut = (target :: Nil)
+	        excelunion.append(new BaseExcelUnionArgs(new UserProductDataArgs(listCpaProdcut)))
+//	        cpaproexcel ++= listCpaProdcut
 	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut))) 
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
@@ -67,7 +81,9 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	    }
 	    case SplitEventBus.excelEnded() =>  {
 	    	println(s"read ended at $self")
-	   
+	    	
+	    	aggregator ! SplitWorker.exceluniondata(excelunion.toList)
+	    	
 	    	val tmp = data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))
 			aggregator ! SplitWorker.integratedataresult(tmp)
 	    	
