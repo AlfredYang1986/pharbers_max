@@ -14,7 +14,6 @@ import com.pharbers.aqll.pattern.CommonMessage
 object ResultQueryModuleMessage {
 	sealed class msg_resultqueryBase extends CommonMessage
 	case class msg_provincedata(data : JsValue) extends msg_resultqueryBase
-	case class msg_error_emp(data : JsValue) extends msg_resultqueryBase
 }
 
 object ResultQueryModule extends ModuleTrait {
@@ -22,21 +21,29 @@ object ResultQueryModule extends ModuleTrait {
 	import controllers.common.default_error_handler.f
 	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]]) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_provincedata(data) => msg_province_func(data)
-		case msg_error_emp(data) => msg_error_emp(data)
 		case _ => ???
 	}
 	
 	def msg_province_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-		
-        def dataRandgeConditions(getter : JsValue => Any)(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
+	    import java.text.SimpleDateFormat
+	    val fm = new SimpleDateFormat("MM/yyyy")
+	    
+	    def dateListConditions(getter : JsValue => Any)(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) => {
-            import java.text.SimpleDateFormat
-            import java.util.Date 
-    	    val fm = new SimpleDateFormat("MM/yyyy")
-            val start = fm.parse((data \ "startdate").asOpt[String].get).getTime()
-            val end = fm.parse((data \ "enddate").asOpt[String].get).getTime()
-            Some($and(key $gte start, key $lte end))
+              val start = fm.parse(x.asInstanceOf[List[String]].head).getTime
+              val end = fm.parse(x.asInstanceOf[List[String]].last).getTime
+              Some("Timestamp" $gte start $lte end)
+          }
+        }
+	    
+	    def marketListConditions(getter : JsValue => Any)(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
+          case None => None
+          case Some(x) => {
+            val lst = x.asInstanceOf[List[String]].map { str => 
+                	key $eq str  
+            }
+            Some($and(lst))
           }
         }
 	    
@@ -49,12 +56,11 @@ object ResultQueryModule extends ModuleTrait {
         }
 	    
 	    def conditions : List[DBObject] = {
-	        var con = conditionsAcc(Nil, "Timestamp" :: Nil, dataRandgeConditions(x => x.asOpt[JsValue]))
+	        var con = conditionsAcc(Nil, "Timestamp" :: Nil, dateListConditions(x => x.asOpt[List[String]]))
+	            //con = conditionsAcc(con, "market" :: Nil, marketListConditions(x => x.asOpt[List[String]]))
 	            con
 	    }
 	    
-	    //(Some(Map("ceshi1" -> toJson("ok"))), None)
-		
 	    val take = (data \ "take").asOpt[Int].map (x => x).getOrElse(10)
         val skip = (data \ "skip").asOpt[Int].map (x => x).getOrElse(0)
         val order = "Timestamp"
@@ -71,30 +77,42 @@ object ResultQueryModule extends ModuleTrait {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
 	}
-	
-	def msg_error_emp(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-		try {
-			throw new Exception(-1.toString)
-			(None, None)
-			
-		} catch {
-			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
-		}		
-	}
 
-///begin query finalresult	
+    ///begin query finalresult	
 	def resultQueryJsValue(x : MongoDBObject) : JsValue = {
+	    val timeDate = Calendar.getInstance
+        timeDate.setTimeInMillis(x.getAs[Number]("Timestamp").get.longValue)
+        val createDate = Calendar.getInstance
+        createDate.setTimeInMillis(x.getAs[Number]("Createtime").get.longValue)
+        var condition = x.getAs[Map[String,List[String]]]("Condition").get
+	    
+        println(s"hospital = ${condition.values.head}")
+	    println(s"miniproduct = ${condition.values.toList(1)}")
+	    
         toJson(Map(
-            "Timestamp" -> toJson(x.getAs[Long]("Timestamp").get),
-            "Condition" -> toJson(x.getAs[String]("Condition").get),
-            "Filepath" -> toJson(x.getAs[String]("Filepath").get),
-            "Rtype" -> toJson(x.getAs[String]("Rtype").get),
-            "Sales" -> toJson(x.getAs[Float]("Sales").get),
-            "Units" -> toJson(x.getAs[Float]("Units").get),
-            "Createtime" -> toJson(x.getAs[Long]("Createtime").get)
+            "Year" -> toJson(timeDate.get(Calendar.YEAR)),
+            "Month" -> toJson((timeDate.get(Calendar.MONTH))+1),
+            //"Condition" -> toJson(""),
+            //"Filepath" -> toJson(x.getAs[String]("Filepath").get),
+            
+//            "Hospital" -> toJson(Hospital)
+//            "Miniproduct" -> toJson(condition.values.toList(1).head)
+            
+            //"Rtype" -> toJson(x.getAs[String]("Rtype").get),
+            "Sales" -> toJson(x.getAs[Double]("Sales").get),
+            "Units" -> toJson(x.getAs[Double]("Units").get)
+            //"Createtime" -> toJson(s"${createDate.get(Calendar.YEAR)}-${(createDate.get(Calendar.MONTH) + 1)}-${createDate.get(Calendar.DAY_OF_MONTH)}")
         ))
 	}
-///database attribute joint start	
+	
+//	def queryHospitalInfoByPhas(x : List[String]) : JsValue = {
+//	    
+//	}
+//	
+//	def queryMiniProductInfoByIds(x : List[String]) : JsValue = {
+//	    
+//	}
+	
 	def resultQueryDetailsJsValue(x : MongoDBObject) : JsValue = {
 	    val date = Calendar.getInstance
         date.setTimeInMillis(x.getAs[Number]("Timestamp").get.longValue)
@@ -133,5 +151,4 @@ object ResultQueryModule extends ModuleTrait {
                 "Units" -> toJson(x.getAs[String]("Units").get)
                 ))
 	}
-///database attribute joint end
 }
