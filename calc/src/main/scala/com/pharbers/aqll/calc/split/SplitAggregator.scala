@@ -26,8 +26,8 @@ import com.pharbers.aqll.calc.excel.PharmaTrust._
 object SplitAggregator {
     def props(bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(bus, master))
     
-    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String, Double, Double)], ArrayBuffer[(String)], String))])
-    case class excelResult(exd: (Double, Double, List[(Long)], List[(String)]))
+    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))])
+    case class excelResult(exd: (Double, Double, Int, List[(Long)], List[(String)]))
     case class aggsubcribe(a : ActorRef)
     case class aggmapsubscrbe(a : ActorRef)
     
@@ -43,8 +43,8 @@ object SplitAggregator {
 class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with CreateMappingActor with CreateMaxBroadcastingActor {
 	
 	val unionSum = Ref(List[(String, (Double, Double, Double))]())
-	val mrResult = Ref(Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String, Double, Double)], ArrayBuffer[(String)], String)]())
-	val excelcheckdata = Ref(List[CommonArg]())
+	val mrResult = Ref(Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String)]())
+	val excelcheckdata = Ref(List[(Double, Double, Long, String)]())
 	
 	val mapping_master_router = CreateMappingActor
 	val excelsize = Ref(0)
@@ -86,13 +86,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 				mr.foreach { kvs => 
 					val (t, v, u, h, p, m, s) = mrResult().get(kvs._1).map { x =>
 						kvs._2._4.foreach(x._4.distinct.append(_))
-						kvs._2._5 foreach { m =>
-						    x._5 foreach { y =>
-						        if(m._1.equals(y._1)) {
-						            x._5.append((m._1, y._2 + m._2, y._3 + m._3))
-						        }
-						    }
-						}
+						kvs._2._5 foreach(x._5.distinct.append(_))
 						kvs._2._6.foreach(x._6.distinct.append(_))
 					    (x._1, x._2 + kvs._2._2, x._3 + kvs._2._3, x._4 , x._5, x._6, kvs._2._7)
 					}.getOrElse(kvs._2._1, kvs._2._2, kvs._2._3, kvs._2._4, kvs._2._5, kvs._2._6, kvs._2._7)
@@ -138,53 +132,27 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 		case SplitMaxBroadcasting.mappingiteratornext() => {
 			broadcasting_actor ! SplitMaxBroadcasting.mappingiteratornext()
 		}
-		case SplitWorker.exceluniondata(e) => {	
-//		    println(s"exceldata size = ${exceldata.size}")
+		case SplitWorker.exceluniondata(e) => {
+		    import com.pharbers.aqll.calc.common.DefaultData
 		    atomic { implicit thx =>
 		        excelchecksize() = excelchecksize() + 1
-		        excelcheckdata() = excelcheckdata() ++: e.map (_.data )
+		        excelcheckdata() = excelcheckdata() ++: e
 		    }
 		    if (excelchecksize.single.get == 10) {
-		        val obj = excelcheckdata.single.get.map{ x =>
-		            x match {
-		                case UserProductDataArgs(listCpaProduct) => {
-		                    listCpaProduct.head
-		                }
-		                
-		                case UserMarketDataArgs(listCpaMarket) => {
-		                    listCpaMarket.head
-		                }
-		            }
-		        }
-		        
-		        if(obj.isInstanceOf[List[CpaProduct]]){
-		            val temp = obj.asInstanceOf[List[CpaProduct]]
-//		            val tmp = temp.groupBy(time => (time.getUploadYear, time.getUploadMonth)).map{ x =>
-//		                (DateUtil.getDateLong(x._1._1, x._1._2),
-//		                        (x._2.map(_.getSumValue.asInstanceOf[Double]).sum, 
-//		                         x._2.map(_.getVolumeUnit.asInstanceOf[Double]).sum, 
-//		                         x._2.map(_.getHospNum.toLong).distinct, 
-//		                         x._2.map(_.commonObjectCondition()).distinct, 
-//		                         t))
-//		            }
-		            val tmp = (temp.map(_.getSumValue.asInstanceOf[Double]).sum,
-		            temp.map(_.getVolumeUnit.asInstanceOf[Double]).sum,
-		            temp.map(_.getHospNum.toLong).distinct.toList,
-		            temp.map(_.commonObjectCondition()).distinct.toList)
-		            master ! SplitAggregator.excelResult(tmp)
-		            println("Cpaproduct")
-		        }else if(obj.isInstanceOf[List[CpaMarket]]){
-		            master ! ""
-		            println("CpaMarket")
-		        }else if(obj.isInstanceOf[List[PharmaTrustPorduct]]){
-		            master ! ""
-		            println("PharmaTrustPorduct")
-		        }else {
-		            master ! ""
-		            println("PharmaTrustMarket")
-		        }
-			}
+		        val temp = excelcheckdata.single.get
+		        val t = temp.map(_._3).distinct.sortBy(x => x)
+		        val hospNum = DefaultData.hospmatchdata.map(_.getHospNum.toLong).sortBy(x => x).map { x =>
+		            if(!t.exists ( z => x == z )) x else 0
+		        }.filter(_ != 0)
+		        val tmp = (temp.map(_._1).sum,
+		            temp.map(_._2).sum,
+		            t.size,
+		            hospNum,
+		            temp.map(_._4).distinct)
+		       master ! SplitAggregator.excelResult(tmp)
+		    }
 		}
+		
         case x : AnyRef => println(x); ???
     }
 }
@@ -195,6 +163,8 @@ import scala.collection.mutable.ArrayBuffer
 import com.pharbers.aqll.calc.excel.CPA.CpaProduct
 import com.pharbers.aqll.calc.excel.CPA.CpaProduct
 import com.pharbers.aqll.calc.excel.CPA.CpaProduct
+import com.pharbers.aqll.calc.common.DefaultData
+import com.pharbers.aqll.calc.common.DefaultData
 
 trait CreateMappingActor { this : Actor =>
 	

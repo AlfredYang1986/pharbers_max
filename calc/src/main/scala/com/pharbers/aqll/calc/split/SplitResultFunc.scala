@@ -16,7 +16,7 @@ object SplitResultFunc {
 			
 			Some(mrd.uploadYear, mrd.uploadMonth, 
 			        (mrd.finalResultsValue, mrd.finalResultsUnit), 
-			        (mrd.phaid), (mrd.minimumUnitCh, mrd.finalResultsValue, mrd.finalResultsUnit), (mrd.market1Ch), mrd.selectvariablecalculation().get._1)
+			        (mrd.phaid), (mrd.minimumUnitCh), (mrd.market1Ch), mrd.selectvariablecalculation().get._1)
 		}.getOrElse (None)
 	}
 }

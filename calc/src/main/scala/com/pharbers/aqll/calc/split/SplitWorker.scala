@@ -30,13 +30,12 @@ object SplitWorker {
 	def props(a : ActorRef) = Props(new SplitWorker(a))
 	
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
-	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String, Double, Double)], ArrayBuffer[(String)], String)])
+	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String)])
 	
 	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
-//	case class integratedataresult(integrated : ((Int, Int, String), List[integratedData]))
 	case class integratedataended()
 	
-	case class exceluniondata(e: List[BaseExcelUnionArgs])
+	case class exceluniondata(e: List[(Double, Double, Long, String)])
 }
 
 object adminData {
@@ -48,7 +47,8 @@ object adminData {
 
 class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
     val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
-    val excelunion: ArrayBuffer[BaseExcelUnionArgs] = ArrayBuffer.empty
+    
+    val excelunion: ArrayBuffer[(Double, Double, Long, String)] = ArrayBuffer.empty
     val subFun = aggregator ! SplitAggregator.aggsubcribe(self)
     
     val cpaproexcel: ArrayBuffer[CpaProduct] = ArrayBuffer.empty
@@ -59,8 +59,7 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	val idle : Receive = {
 	    case cparesult(target) => {
 	        val listCpaProdcut = (target :: Nil)
-	        excelunion.append(new BaseExcelUnionArgs(new UserProductDataArgs(listCpaProdcut)))
-//	        cpaproexcel ++= listCpaProdcut
+	        excelunion.append((target.getSumValue, target.getVolumeUnit, target.getHospNum, target.commonObjectCondition()))
 	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut))) 
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }

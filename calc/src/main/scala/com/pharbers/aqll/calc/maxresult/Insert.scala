@@ -10,14 +10,17 @@ import com.pharbers.aqll.calc.datacala.common.CommonArg
 
 object Insert {
     
-    def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String, Double, Double)], ArrayBuffer[(String)], String))]) (m: (String, String, String, Long)) = {
+    def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))]) (m: (String, String, String, Long)) = {
         def maxInser() = {
             mr.toList map { x =>
                  val builder = MongoDBObject.newBuilder
                  builder += "ID" -> m._3
                  builder += "Units" -> x._2._3
                  builder += "Sales" -> x._2._2
-                 builder += "Condition" -> Map("Hospital" -> x._2._4 , "ProductMinunt" -> x._2._5, "Market" -> x._2._6)
+                 builder += "Hospital" -> x._2._4.head
+                 builder += "ProductMinunt" -> x._2._5.head
+                 builder += "Market" -> x._2._6.head
+//                 builder += "Condition" -> Map("Hospital" -> x._2._4.head , "ProductMinunt" -> x._2._5.head, "Market" -> x._2._6.head)
                  builder += "Timestamp" -> x._2._1
                  builder += "Createtime" -> m._4
                  builder += "Filepath" -> m._1
@@ -45,13 +48,13 @@ object Insert {
          }
      }
     
-    def maxFactResultInsert(model:  (Double, Double, List[Long], List[String]))(m: (String, String, String, Long)) = {
+    def maxFactResultInsert(model:  (Double, Double, Int, List[Long], List[String]))(m: (String, String, String, Long)) = {
         def maxInser() = {
             val builder = MongoDBObject.newBuilder
             builder += "ID" -> m._3
             builder += "Units" -> model._2
             builder += "Sales" -> model._1
-            builder += "Condition" -> Map("Hospital" -> model._3 , "ProductMinunt" -> model._4)
+            builder += "Condition" -> Map("Hospital" -> (model._3, model._4) , "ProductMinunt" -> (model._5.size, model._5))
             builder += "Timestamp" -> m._4
             builder += "Filepath" -> m._1
             _data_connection.getCollection("FactResult") += builder.result
