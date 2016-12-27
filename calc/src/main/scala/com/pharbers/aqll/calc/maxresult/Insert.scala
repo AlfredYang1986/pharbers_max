@@ -7,6 +7,7 @@ import java.util.Date
 import com.pharbers.aqll.calc.util.dao.from
 import scala.collection.mutable.ArrayBuffer
 import com.pharbers.aqll.calc.datacala.common.CommonArg
+import com.mongodb.casbah.commons.MongoDBList
 
 object Insert {
     
@@ -48,13 +49,23 @@ object Insert {
          }
      }
     
-    def maxFactResultInsert(model:  (Double, Double, Int, List[Long], List[String]))(m: (String, String, String, Long)) = {
+    def maxFactResultInsert(model:  (Double, Double, Int, List[String], List[String]))(m: (String, String, String, Long)) = {
         def maxInser() = {
             val builder = MongoDBObject.newBuilder
             builder += "ID" -> m._3
             builder += "Units" -> model._2
             builder += "Sales" -> model._1
-            builder += "Condition" -> Map("Hospital" -> (model._3, model._4) , "ProductMinunt" -> (model._5.size, model._5))
+            builder += "HospitalNum" -> model._3
+            builder += "ProductMinuntNum" -> model._5.size
+//            builder += "Hospital" -> model._4
+//            builder += "ProductMinunt" -> model._5
+            
+            val lsth_builder = MongoDBList.newBuilder
+            model._4 foreach (lsth_builder += _)
+            val lstm_builder = MongoDBList.newBuilder
+            model._5 foreach (lstm_builder += _)
+            
+            builder += "Condition" -> Map("Hospital" -> lsth_builder.result, "ProductMinunt" -> lstm_builder.result)
             builder += "Timestamp" -> m._4
             builder += "Filepath" -> m._1
             _data_connection.getCollection("FactResult") += builder.result

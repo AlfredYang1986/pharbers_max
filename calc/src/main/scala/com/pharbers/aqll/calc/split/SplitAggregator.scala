@@ -27,7 +27,7 @@ object SplitAggregator {
     def props(bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(bus, master))
     
     case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))])
-    case class excelResult(exd: (Double, Double, Int, List[(Long)], List[(String)]))
+    case class excelResult(exd: (Double, Double, Int, List[(String)], List[(String)]))
     case class aggsubcribe(a : ActorRef)
     case class aggmapsubscrbe(a : ActorRef)
     
@@ -141,9 +141,9 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 		    if (excelchecksize.single.get == 10) {
 		        val temp = excelcheckdata.single.get
 		        val t = temp.map(_._3).distinct.sortBy(x => x)
-		        val hospNum = DefaultData.hospmatchdata.map(_.getHospNum.toLong).sortBy(x => x).map { x =>
-		            if(!t.exists ( z => x == z )) x else 0
-		        }.filter(_ != 0)
+		        val hospNum = DefaultData.hospmatchdata.map(x => (x.getHospNum.toLong, x.getHospNameCh)).sortBy(x => x).map { x =>
+		            if(!t.exists ( z => x._1 == z )) x._2 else ""
+		        }.filter(!_.equals(""))
 		        val tmp = (temp.map(_._1).sum,
 		            temp.map(_._2).sum,
 		            t.size,
