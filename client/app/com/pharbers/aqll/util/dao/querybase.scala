@@ -8,10 +8,9 @@ package com.pharbers.aqll.util.dao
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.query.dsl.QueryExpressionObject
 
-object _data_connection {
-	def conn_name : String = "Max_Cores"
-
-	val _conn = MongoConnection()
+trait data_connection {
+    def conn_name : String
+    val _conn = MongoConnection()
 	var _conntion : Map[String, MongoCollection] = Map.empty
 	
 	def getCollection(coll_name : String) : MongoCollection = {
@@ -27,11 +26,44 @@ object _data_connection {
 	def releaseConntions = _conntion = Map.empty
 }
 
+object _data_connection_cores extends data_connection {
+    
+    override def conn_name: String = "Max_Cores" 
+}
+
+object _data_connection_basic extends data_connection {
+    
+    override def conn_name: String = "Max_Basic"
+}
+
+//object _data_connection {
+//    def conn_name : String = "Max_Cores"
+//    
+//	val _conn = MongoConnection()
+//	
+//	var _conntion : Map[String, MongoCollection] = Map.empty
+//	
+//	def getCollection(coll_name : String) : MongoCollection = {
+//		if (!_conntion.contains(coll_name)) _conntion += (coll_name -> _conn(conn_name)(coll_name))
+//		
+//		_conntion.get(coll_name).get
+//	}
+//	
+//	def resetCollection(coll_name : String) : Unit = getCollection(coll_name).drop
+//	
+//	def isExisted(coll_name : String) : Boolean = !(getCollection(coll_name).isEmpty)
+//	
+//	def releaseConntions = _conntion = Map.empty
+//}
+
 trait IDatabaseContext {
 	var coll_name : String = null
-
-	protected def openConnection : MongoCollection = 
-	  	_data_connection._conn(_data_connection.conn_name)(coll_name)
+	
+	protected def openConnection(implicit dbc: data_connection) : MongoCollection = 
+	    dbc._conn(dbc.conn_name)(coll_name)
+//	    new _data_connection2()._conn(new _data_connection2().conn_name)(coll_name)
+//	  	_data_connection._conn(_data_connection.conn_name)(coll_name)
+	    
 	protected def closeConnection = null
 }
 
@@ -92,8 +124,7 @@ class AMongoDBLINQ extends IDatabaseContext {
 		this
 	}
 	
-	def select[U](cr: (MongoDBObject) => U) : IQueryable[U] = {
-	 
+	def select[U](cr: (MongoDBObject) => U)(implicit dbc: data_connection) : IQueryable[U] = {
 		val mongoColl = openConnection
 		val ct = mongoColl.find(w)
 		var nc = new Linq_List[U]
@@ -103,11 +134,11 @@ class AMongoDBLINQ extends IDatabaseContext {
 		nc
 	}
 
-	def contains : Boolean = {
+	def contains(implicit dbc: data_connection) : Boolean = {
 		!(select (x => x).empty)
 	}
 	
-	def selectTop[U](n : Int)(o : String)(cr : (MongoDBObject) => U) : IQueryable[U] = {
+	def selectTop[U](n : Int)(o : String)(cr : (MongoDBObject) => U)(implicit dbc: data_connection) : IQueryable[U] = {
 		val mongoColl = openConnection
 		val ct = mongoColl.find(w).sort(MongoDBObject(o -> -1)).limit(n)
 		var nc = new Linq_List[U]
@@ -117,7 +148,7 @@ class AMongoDBLINQ extends IDatabaseContext {
 		nc
 	}
 	
-	def selectSkipTop[U](skip : Int)(take : Int)(o : String)(cr : (MongoDBObject) => U) : IQueryable[U] = {
+	def selectSkipTop[U](skip : Int)(take : Int)(o : String)(cr : (MongoDBObject) => U)(implicit dbc: data_connection) : IQueryable[U] = {
 		val mongoColl = openConnection
 		val ct = mongoColl.find(w).sort(MongoDBObject(o -> -1)).skip(skip).limit(take)
 		var nc = new Linq_List[U]
@@ -127,5 +158,5 @@ class AMongoDBLINQ extends IDatabaseContext {
 		nc
 	}
 
-	def count : Int = openConnection.count(w)
+	def count(implicit dbc: data_connection) : Int = openConnection.count(w)
 }

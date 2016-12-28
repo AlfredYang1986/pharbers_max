@@ -4,12 +4,12 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.util.dao.from
-import com.pharbers.aqll.util.dao._data_connection
 import java.util.Date
 import java.util.Calendar
 import com.pharbers.aqll.pattern.ModuleTrait
 import com.pharbers.aqll.pattern.MessageDefines
 import com.pharbers.aqll.pattern.CommonMessage
+import com.pharbers.aqll.util.dao._data_connection_cores
 
 object ResultQueryModuleMessage {
 	sealed class msg_resultqueryBase extends CommonMessage
@@ -68,9 +68,9 @@ object ResultQueryModule extends ModuleTrait {
 	    try {
 			conditions match {
               case Nil => 
-                  (Some(Map("finalResult" -> toJson((from db() in "FinalResult").selectSkipTop(skip)(take)(order)(resultQueryJsValue(_)).toList))), None)
+                  (Some(Map("finalResult" -> toJson((from db() in "FinalResult").selectSkipTop(skip)(take)(order)(resultQueryJsValue(_))(_data_connection_cores).toList))), None)
               case x : List[DBObject] => 
-                  (Some(Map("finalResult" -> toJson((from db() in "FinalResult" where $and(x)).selectSkipTop(skip)(take)(order)(resultQueryJsValue(_)).toList))), None)
+                  (Some(Map("finalResult" -> toJson((from db() in "FinalResult" where $and(x)).selectSkipTop(skip)(take)(order)(resultQueryJsValue(_))(_data_connection_cores).toList))), None)
             }
 			
 		} catch {

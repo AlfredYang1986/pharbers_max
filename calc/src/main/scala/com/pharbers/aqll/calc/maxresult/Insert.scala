@@ -57,9 +57,6 @@ object Insert {
             builder += "Sales" -> model._1
             builder += "HospitalNum" -> model._3
             builder += "ProductMinuntNum" -> model._5.size
-//            builder += "Hospital" -> model._4
-//            builder += "ProductMinunt" -> model._5
-            
             val lsth_builder = MongoDBList.newBuilder
             model._4 foreach (lsth_builder += _)
             val lstm_builder = MongoDBList.newBuilder
