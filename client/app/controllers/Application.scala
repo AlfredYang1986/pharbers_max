@@ -10,12 +10,13 @@ object Application extends Controller {
       Ok(views.html.landing("Your new application is ready."))
   }
   //登录
-  def login = Action {
+  def login = Action { request =>
       Ok(views.html.login("Your new application is ready."))
   }
   
   //首页
-  def index = Action {
+  def index = Action { request =>
+      request.cookies.get("token").map (x => x.value).getOrElse("")
       Ok(views.html.index("Your new application is ready."))
   }
   
@@ -50,22 +51,26 @@ object Application extends Controller {
   }
   
   //文件上传
-  def filesUpload = Action {
+  def filesUpload = Action { request =>
+      request.cookies.get("token").map (x => x.value).getOrElse("")
       Ok(views.html.filesUpload("Your new application is ready."))
   }
   
   //样本检查
-  def sampleCheck = Action {
+  def sampleCheck = Action { request =>
+      request.cookies.get("token").map (x => x.value).getOrElse("")
       Ok(views.html.sampleCheck("Your new application is ready."))
   }
   
   //模型运算
-  def modelOperation = Action {
+  def modelOperation = Action { request =>
+      request.cookies.get("token").map (x => x.value).getOrElse("")
       Ok(views.html.modelOperation("Your new application is ready."))
   }
   
   //结果检查
-  def resultCheck = Action {
+  def resultCheck = Action { request =>
+      request.cookies.get("token").map (x => x.value).getOrElse("")
       Ok(views.html.resultCheck("Your new application is ready."))
   }
   

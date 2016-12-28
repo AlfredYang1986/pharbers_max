@@ -6,6 +6,7 @@
 GET     /                           controllers.Application.landing
 GET     /landing                    controllers.Application.landing
 GET		/login						controllers.Application.login
+POST	/login						controllers.Application.login
 GET		/index						controllers.Application.index
 GET		/register					controllers.Application.register
 GET		/error404					controllers.Application.error404
@@ -20,7 +21,8 @@ GET		/modeloperation				controllers.Application.modelOperation
 GET		/resultcheck				controllers.Application.resultCheck
 GET		/resultquery				controllers.business.ResultQueryController.resultQuery
 POST 	/resultquery/search			controllers.business.ResultQueryStub.resultQueryAjaxCall
-POST	/samplecheck/check			controllers.business.SampleCheckImpl.sampleCheckAjaxCall
+POST	/samplecheck/check			controllers.business.SampleCheckController.sampleCheckAjaxCall
+POST	/login/start			    controllers.business.LoginController.Login
 
 POST	/example					controllers.Example.exampAjaxCall
 POST	/error						controllers.Example.exampAjaxError

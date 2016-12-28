@@ -31,7 +31,7 @@ object SampleCheckModule extends ModuleTrait {
         val skip = (data \ "skip").asOpt[Int].map (x => x).getOrElse(0)
 
         try {
-            val conditions = ("ID" -> "208d99890c1c8139e2ff650f87b4068e")
+            val conditions = ("ID" -> "21c890ca4b56fd5e61a56010fe96d660")
             val d = (from db() in "FactResult" where $and(conditions)).select(resultData(_))(_data_connection_cores)
 			(Some(d.head), None)
 		} catch {
@@ -44,7 +44,7 @@ object SampleCheckModule extends ModuleTrait {
         val hospNum = d.getAs[Number]("HospitalNum").get.longValue
         val miniProNum = d.getAs[Number]("ProductMinuntNum").get.intValue
         val sales = d.getAs[Number]("Sales").get.doubleValue
-        val hospList = t.getAs[MongoDBList]("Hospital").get.toList.asInstanceOf[List[String]].take(10)
+        val hospList = t.getAs[MongoDBList]("Hospital").get.toList.asInstanceOf[List[String]]
 
 //        val miniPorList = t.getAs[MongoDBList]("ProductMinunt").toList.asInstanceOf[List[String]]
         Map("hospNum" -> toJson(hospNum),
