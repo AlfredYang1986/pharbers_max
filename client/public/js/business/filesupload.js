@@ -3,12 +3,30 @@ $("#file-1").fileinput({
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
-    maxFileSize: 1000,
+    maxFileSize: 50000,
     maxFilesNum: 10,
-    //allowedFileTypes: ['image', 'video', 'flash'],
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
+}).on("fileuploaded", function(event, data) {
+    if(data.response){
+		var query_object = new Object();
+		query_object['uuid'] = data.response.result[0];
+		query_object['Datasource_Type'] = "CPA产品";
+		$.ajax({
+			url: "/uploadfiles",
+			type: 'POST',
+			dataType: 'json',
+			contentType: 'application/json, charset=utf-8',
+			data: JSON.stringify(query_object),
+			cache: false,
+			success: function(data) {
+				if (data.status == "ok") {
+		    		console.info("CPA产品上传成功");
+				}
+			}
+		});
+	}
 });
 
 $("#file-2").fileinput({
@@ -16,12 +34,30 @@ $("#file-2").fileinput({
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
-    maxFileSize: 1000,
+    maxFileSize: 50000,
     maxFilesNum: 10,
-    //allowedFileTypes: ['image', 'video', 'flash'],
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
+}).on("fileuploaded", function(event, data) {
+    if(data.response){
+		var query_object = new Object();
+		query_object['uuid'] = data.response.result[0];
+		query_object['Datasource_Type'] = "CPA市场";
+		$.ajax({
+			url: "/uploadfiles",
+			type: 'POST',
+			dataType: 'json',
+			contentType: 'application/json, charset=utf-8',
+			data: JSON.stringify(query_object),
+			cache: false,
+			success: function(data) {
+				if (data.status == "ok") {
+		    		console.info("CPA市场上传成功");
+				}
+			}
+		});
+	}
 });
 
 $("#file-3").fileinput({
@@ -29,12 +65,30 @@ $("#file-3").fileinput({
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
-    maxFileSize: 1000,
+    maxFileSize: 50000,
     maxFilesNum: 10,
-    //allowedFileTypes: ['image', 'video', 'flash'],
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
+}).on("fileuploaded", function(event, data) {
+	if(data.response){
+		var query_object = new Object();
+		query_object['uuid'] = data.response.result[0];
+		query_object['Datasource_Type'] = "PharmaTrust产品";
+		$.ajax({
+			url: "/uploadfiles",
+			type: 'POST',
+			dataType: 'json',
+			contentType: 'application/json, charset=utf-8',
+			data: JSON.stringify(query_object),
+			cache: false,
+			success: function(data) {
+				if (data.status == "ok") {
+		    		console.info("PharmaTrust产品上传成功");
+				}
+			}
+		});
+	}
 });
 
 $("#file-4").fileinput({
@@ -42,12 +96,30 @@ $("#file-4").fileinput({
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
-    maxFileSize: 1000,
+    maxFileSize: 50000,
     maxFilesNum: 10,
-    //allowedFileTypes: ['image', 'video', 'flash'],
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
+}).on("fileuploaded", function(event, data) {
+	if(data.response){
+		var query_object = new Object();
+		query_object['uuid'] = data.response.result[0];
+		query_object['Datasource_Type'] = "PharmaTrust市场";
+		$.ajax({
+			url: "/uploadfiles",
+			type: 'POST',
+			dataType: 'json',
+			contentType: 'application/json, charset=utf-8',
+			data: JSON.stringify(query_object),
+			cache: false,
+			success: function(data) {
+				if (data.status == "ok") {
+		    		console.info("PharmaTrust市场上传成功");
+				}
+			}
+		});
+	}
 });
 function downloadfile(type){
 	var filename;

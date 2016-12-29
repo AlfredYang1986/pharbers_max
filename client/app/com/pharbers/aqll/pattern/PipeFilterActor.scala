@@ -21,6 +21,8 @@ import module.business.SampleCheckModuleMessage.msg_CheckBaseQuery
 import module.business.SampleCheckModule
 import module.business.LoginModuleMessage.msg_LoginBaseQuery
 import module.business.LoginModule
+import module.business.FilesUploadModuleMessage._
+import module.business.FilesUploadModule
 
 object PipeFilterActor {
 	def prop(originSender : ActorRef, msr : MessageRoutes) : Props = {
@@ -52,6 +54,7 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 		case cmd : msg_exampleBase => dispatchImpl(cmd, ExampleModule)
 		case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
 		case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, LoginModule)
+		case cmd : msg_filesuploadBase => dispatchImpl(cmd, FilesUploadModule)
 		case cmd : msg_CheckBaseQuery => dispatchImpl(cmd, SampleCheckModule)
 		case cmd : msg_resultqueryBase => dispatchImpl(cmd, ResultQueryModule)
 		case cmd : ParallelMessage => {

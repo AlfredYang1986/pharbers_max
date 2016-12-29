@@ -24,10 +24,11 @@ GET		/resultquery				controllers.Application.resultQuery
 POST 	/resultquery/search			controllers.business.ResultQueryController.resultQueryAjaxCall
 POST	/samplecheck/check			controllers.business.SampleCheckController.sampleCheckAjaxCall
 POST	/login/start			    controllers.business.LoginController.Login
+POST	/uploadfiles				controllers.business.FilesUploadController.filesUploadAjaxCall
 
 #upload
-GET     /pharbers/files/:name       controllers.business.FilesUploadController.downloadFile(name)
-POST	/pharbers/files/upload		controllers.business.FilesUploadController.uploadFile
+GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
+POST	/pharbers/files/upload		controllers.foptController.uploadFile
 
 POST	/example					controllers.Example.exampAjaxCall
 POST	/error						controllers.Example.exampAjaxError
