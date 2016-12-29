@@ -9,13 +9,18 @@ var sampleCheckFun = function sampleCheck(company) {
 		data: dataMap,
 		contentType: 'application/json,charset=utf-8',
 		success: function(r){
-			$("#chospNum").text(r.result.hospNum)
-			$("#cproductNum").text(r.result.miniProNum)
-			$("#csales").text(r.result.sales)
-			$.each(r.result.hospList,function(i, v){
-				$("#hospitalList").append("<tr><td>"+(i+1)+"</td><td>"+v+"</td><td>2016</td><td>1</td><td>2016-12-12</td><td><a href=\"#\"><i class=\"fa fa-times text-danger text\"></i></a></td></tr>")
-			});
-			dataTableAjax()
+			if(r.result.FinalResult == "is null"){
+				$("#hospitalList").empty();
+			}else{
+				$("#chospNum").text(r.result.FinalResult.hospNum);
+				$("#cproductNum").text(r.result.FinalResult.miniProNum);
+				$("#csales").text(r.result.FinalResult.sales);
+				$("#hospitalList").empty();
+				$.each(r.result.FinalResult.hospList,function(i, v){
+					$("#hospitalList").append("<tr><td>"+(i+1)+"</td><td>"+v+"</td><td>2016</td><td>1</td><td>2016-12-12</td><td><a href=\"#\"><i class=\"fa fa-times text-danger text\"></i></a></td></tr>")
+				});
+			}
+			dataTableAjax();
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown){
 			console.info("Error")
@@ -23,7 +28,7 @@ var sampleCheckFun = function sampleCheck(company) {
 	});
 }
 window.onload = function() {
-	sampleCheckFun("BMS")
+	sampleCheckFun($.cookie("token"))
 }
 $(document).ready(
 		function() {

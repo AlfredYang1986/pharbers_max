@@ -16,8 +16,12 @@ object Application extends Controller {
   
   //首页
   def index = Action { request =>
-      request.cookies.get("token").map (x => x.value).getOrElse("")
-      Ok(views.html.index("Your new application is ready."))
+      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      if(token.equals("")){
+          Ok(views.html.login("Your new application is ready."))
+      }else{
+          Ok(views.html.index("Your new application is ready."))
+      }
   }
   
   //注册
@@ -52,31 +56,52 @@ object Application extends Controller {
   
   //文件上传
   def filesUpload = Action { request =>
-      request.cookies.get("token").map (x => x.value).getOrElse("")
-      Ok(views.html.filesUpload("Your new application is ready."))
+      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      if(token.equals("")){
+          Ok(views.html.login("Your new application is ready."))
+      }else{
+          Ok(views.html.filesUpload("Your new application is ready."))
+      }
   }
   
   //样本检查
   def sampleCheck = Action { request =>
-      request.cookies.get("token").map (x => x.value).getOrElse("")
-      Ok(views.html.sampleCheck("Your new application is ready."))
+      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      if(token.equals("")){
+          Ok(views.html.login("Your new application is ready."))
+      }else{
+          Ok(views.html.sampleCheck("Your new application is ready."))
+      }
   }
   
   //模型运算
   def modelOperation = Action { request =>
-      request.cookies.get("token").map (x => x.value).getOrElse("")
-      Ok(views.html.modelOperation("Your new application is ready."))
+      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      if(token.equals("")){
+          Ok(views.html.login("Your new application is ready."))
+      }else{
+          Ok(views.html.modelOperation("Your new application is ready."))
+      }
   }
   
   //结果检查
   def resultCheck = Action { request =>
-      request.cookies.get("token").map (x => x.value).getOrElse("")
-      Ok(views.html.resultCheck("Your new application is ready."))
+      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      if(token.equals("")){
+          Ok(views.html.login("Your new application is ready."))
+      }else{
+          Ok(views.html.resultCheck("Your new application is ready."))
+      }
   }
   
     
   //结果查询
-  def resultQuery = Action {
-     Ok(views.html.resultQuery("Your new application is ready."))
+  def resultQuery = Action { request =>
+      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      if(token.equals("")){
+          Ok(views.html.login("Your new application is ready."))
+      }else{
+          Ok(views.html.resultQuery("Your new application is ready."))
+      }
   }
 }
