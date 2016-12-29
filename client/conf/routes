@@ -26,8 +26,8 @@ POST	/samplecheck/check			controllers.business.SampleCheckController.sampleCheck
 POST	/login/start			    controllers.business.LoginController.Login
 
 #upload
-GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
-POST	/pharbers/files/upload		controllers.foptController.uploadFile
+GET     /pharbers/files/:name       controllers.business.FilesUploadController.downloadFile(name)
+POST	/pharbers/files/upload		controllers.business.FilesUploadController.uploadFile
 
 POST	/example					controllers.Example.exampAjaxCall
 POST	/error						controllers.Example.exampAjaxError
