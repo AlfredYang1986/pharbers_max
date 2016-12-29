@@ -8,6 +8,7 @@ GET     /landing                    controllers.Application.landing
 GET		/login						controllers.Application.login
 POST	/login						controllers.Application.login
 GET		/index						controllers.Application.index
+POST	/index						controllers.Application.index
 GET		/register					controllers.Application.register
 GET		/error404					controllers.Application.error404
 GET		/error500					controllers.Application.error500
