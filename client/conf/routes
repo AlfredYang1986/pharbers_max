@@ -20,7 +20,7 @@ GET		/samplecheck				controllers.Application.sampleCheck
 GET		/modeloperation				controllers.Application.modelOperation
 GET		/resultcheck				controllers.Application.resultCheck
 GET		/resultquery				controllers.Application.resultQuery
-POST 	/resultquery/search			controllers.business.ResultQueryStub.resultQueryAjaxCall
+POST 	/resultquery/search			controllers.business.ResultQueryController.resultQueryAjaxCall
 POST	/samplecheck/check			controllers.business.SampleCheckController.sampleCheckAjaxCall
 POST	/login/start			    controllers.business.LoginController.Login
 
