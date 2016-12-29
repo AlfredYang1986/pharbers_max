@@ -74,4 +74,9 @@ object Application extends Controller {
       Ok(views.html.resultCheck("Your new application is ready."))
   }
   
+    
+  //结果查询
+  def resultQuery = Action {
+     Ok(views.html.resultQuery("Your new application is ready."))
+  }
 }

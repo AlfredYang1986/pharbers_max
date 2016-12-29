@@ -16,7 +16,7 @@ import scala.concurrent.Await
 import com.pharbers.aqll.pattern.MessageRoutes
 import com.pharbers.aqll.pattern.excute
 import com.pharbers.aqll.pattern.RoutesActor
-
+import play.api.libs.Files.TemporaryFile
 import play.api.libs.concurrent.Akka
 
 import com.pharbers.aqll.util.errorcode.ErrorCode.errorMessageByCode
@@ -34,6 +34,16 @@ object requestArgsQuery extends Controller {
   			case _ : Exception => BadRequest("Bad Request for input")
   		}  		   
 	}
+	
+	def uploadRequestArgs(request : Request[AnyContent])(func : MultipartFormData[TemporaryFile] => JsValue) : Result = {
+  		try {
+   			request.body.asMultipartFormData.map { x => 
+   				Ok(func(x))
+  			}.getOrElse (BadRequest("Bad Request for input")) 			  
+  		} catch {
+  			case _ : Exception => BadRequest("Bad Request for input")
+  		}
+  	}
   	
   	def commonExcution(msr : MessageRoutes)(implicit app : Application) : JsValue = {
 		val act = Akka.system(app).actorOf(Props[RoutesActor], "main")
