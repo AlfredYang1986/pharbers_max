@@ -64,14 +64,16 @@ object ResultQueryModule extends ModuleTrait {
 	        con
 	    }
 	    
-	    val take = (data \ "take").asOpt[Int].map (x => x).getOrElse(10)
-        val skip = (data \ "skip").asOpt[Int].map (x => x).getOrElse(0)
+	    val currentPage = (data \ "currentPage").asOpt[Int].map (x => x).getOrElse(3)
+	    val take = 10
+        val skip = ((currentPage-1)*take)
         val order = "Timestamp"
         
         try {
             val r = (from db() in "FinalResult" where $and(conditions)).selectSkipTop(skip)(take)(order)(finalResultJsValue(_))(_data_connection_cores).toList
             val n = (from db() in "FinalResult" where $and(conditions)).count(_data_connection_cores)
-            (Some(Map("finalResult" -> toJson(r), "total" -> toJson(n))), None)
+                    
+            (Some(Map("finalResult" -> toJson(r), "page" -> toJson(page(currentPage,take,skip,n)))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
@@ -97,7 +99,7 @@ object ResultQueryModule extends ModuleTrait {
 	            }
 	            finalhosps
 	        }
-	        (Some(Map("finalResult" -> toJson(hosps), "total" -> toJson(pr.get.get("total")))), None)
+	        (Some(Map("finalResult" -> toJson(hosps), "page" -> toJson(pr.get.get("page")))), None)
 	    } catch {
           case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
         }
@@ -133,10 +135,20 @@ object ResultQueryModule extends ModuleTrait {
 	            }
 	            finalprods
 	        }
-	        (Some(Map("finalResult" -> toJson(prods), "total" -> toJson(pr.get.get("total")))), None)
+	        (Some(Map("finalResult" -> toJson(prods), "page" -> toJson(pr.get.get("page")))), None)
 	    } catch {
           case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
         }
+	}
+	
+	def page(currentPage : Int, take : Int, skip : Int, total : Int) : List[Map[String,JsValue]] = {
+	    Map(
+	         "startrow" -> toJson((currentPage-1)*take+1),     
+	         "endrow" -> toJson(currentPage*take),
+	         "currentpage" -> toJson(currentPage),
+	         "totlepage" -> toJson(if(total%take==0)(total/take)else(total/take+1)),
+	         "total" -> toJson(total)
+	    ):: Nil
 	}
 	
 	def finalResultJsValue(x : MongoDBObject) : Map[String,JsValue] = {
