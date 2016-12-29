@@ -1,180 +1,167 @@
-@(message: String)
+@(message: String) 
 @main("Max | 结果查询") {
 <body>
-    <div id="wrapper">
-        <nav class="navbar-default navbar-static-side" role="navigation">
-            <div class="sidebar-collapse">
-                <ul class="nav metismenu" id="side-menu">
-                    <li class="nav-header">
-                        <div class="dropdown profile-element"> <span>
-                            <img alt="image" class="img-circle" src="@routes.Assets.at("images/pfizer.png")" />
-                             </span>
-                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                            <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">Guest</strong>
-                             </span> <span class="text-muted text-xs block">Pfizer Staff<b class="caret"></b></span> </span> </a>
-                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                                <li><a href="emptypage">个人资料</a></li>
-                                <li class="divider"></li>
-                                <li><a href="javaScript:void();" onclick="logout()">退出系统</a></li>
-                            </ul>
-                        </div>
-                        <div class="logo-element">
-                            MAX
-                        </div>
-                    </li>
-                    <li>
-                        <a href="index"><i class="fa fa-th-large"></i> <span class="nav-label">首页</span></a>
-                    </li>
-                    <li>
-                        <a href="filesupload"><i class="fa fa-database"></i> <span class="nav-label">文件上传</span></a>
-                    </li>
-                    <li>
-                        <a href="samplecheck"><i class="fa fa-pie-chart"></i> <span class="nav-label">样本检查</span></a>
-                    </li>
-                    <li>
-                        <a href="modeloperation"><i class="fa fa-globe"></i> <span class="nav-label">模型运算</span></a>
-                    </li>
-                    <li>
-                        <a href="resultcheck"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">结果检查</span>  </a>
-                    </li>
-                    <li class="active">
-                        <a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">结果查询</span></a>
-                    </li>
-                    <li class="landing_link">
-                        <a target="_blank" href="landing"><i class="fa fa-star"></i> <span class="nav-label">官方网站</span> <span class="label label-warning pull-right">NEW</span></a>
-                    </li>
-                </ul>
+	<div id="wrapper">
+		<nav class="navbar-default navbar-static-side" role="navigation">
+			<div class="sidebar-collapse">
+				<ul class="nav metismenu" id="side-menu">
+					<li class="nav-header">
+						<div class="dropdown profile-element">
+							<span> <img alt="image" class="img-circle"
+								src="@routes.Assets.at("images/pfizer.png")" />
+							</span> <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								<span class="clear"> <span class="block m-t-xs"> <strong lass="font-bold">Guest</strong>
+								</span> <span class="text-muted text-xs block">Pfizer Staff<b class="caret"></b></span>
+							</span>
+							</a>
+							<ul class="dropdown-menu animated fadeInRight m-t-xs">
+								<li><a href="emptypage">个人资料</a></li>
+								<li class="divider"></li>
+								<li><a href="javaScript:void();" onclick="logout()">退出系统</a></li>
+							</ul>
+						</div>
+						<div class="logo-element">MAX</div>
+					</li>
+					<li><a href="index"><i class="fa fa-th-large"></i> <span
+							class="nav-label">首页</span></a></li>
+					<li><a href="filesupload"><i class="fa fa-database"></i> <span
+							class="nav-label">文件上传</span></a></li>
+					<li><a href="samplecheck"><i class="fa fa-pie-chart"></i>
+							<span class="nav-label">样本检查</span></a></li>
+					<li><a href="modeloperation"><i class="fa fa-globe"></i> <span
+							class="nav-label">模型运算</span></a></li>
+					<li><a href="resultcheck"><i class="fa fa-bar-chart-o"></i>
+							<span class="nav-label">结果检查</span> </a></li>
+					<li class="active"><a href="resultquery"><i
+							class="fa fa-table"></i> <span class="nav-label">结果查询</span></a></li>
+					<li class="landing_link"><a target="_blank" href="landing"><i
+							class="fa fa-star"></i> <span class="nav-label">官方网站</span> <span
+							class="label label-warning pull-right">NEW</span></a></li>
+				</ul>
 
-            </div>
-        </nav>
-        <div id="page-wrapper" class="gray-bg">
-        <div class="row border-bottom">
-	        <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
-		        <div class="navbar-header">
-		            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
-<!-- 		            <form role="search" class="navbar-form-custom" action="search_results.html"> -->
-<!-- 		                <div class="form-group"> -->
-<!-- 		                    <input type="text" placeholder="搜索..." class="form-control" name="top-search" id="top-search"> -->
-<!-- 		                </div> -->
-<!-- 		            </form> -->
-		        </div>
-	            <ul class="nav navbar-top-links navbar-right">
-	                <li>
-	                    <span class="m-r-sm text-muted welcome-message">欢迎访问MAX系统</span>
-	                </li>
-	                <li>
-	                    <a href="javaScript:void();" onclick="logout()">
-	                        <i class="fa fa-sign-out"></i> 退出系统
-	                    </a>
-	                </li>
-	            </ul>
-	        </nav>
-        </div>
-        <div class="row wrapper border-bottom white-bg page-heading">
-            <div class="col-lg-10">
-                <h2>结果查询</h2>
-                <ol class="breadcrumb">
-                    <li>
-                        <a href="index.html">首页</a>
-                    </li>
-                    <li class="active">
-                        <strong>结果查询</strong>
-                    </li>
-                </ol>
-            </div>
-        </div>
-        <div class="wrapper wrapper-content animated fadeInRight" >
-        	<div class="row">
-                <div class="col-lg-12">
-                    <div class="ibox float-e-margins">
-                        <div class="ibox-title">
-                            <h5>结果导出</h5> <span class="label label-primary">MAX</span>
-                            <div class="ibox-tools">
-                                <a class="collapse-link">
-                                    <i class="fa fa-chevron-up"></i>
-                                </a>
-                                <a class="close-link">
-                                    <i class="fa fa-times"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="ibox-content">
-                            <div class="row">
-                                <div class="col-sm-2">
-                                    <div class="form-group">
-                                        <label class="control-label" for="status">数据类型</label>
-                                        <select data-name="search-result-datatype" class="form-control">
-		                                    <option>省份数据</option>
-		                                    <option>城市数据</option>
-		                                    <option>医院数据</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-sm-2">
-                                   	<div class="container-fluid">
-															      	<label class="control-label" for="status">市场</label>
-															        <div class="form-group">
-															          <select data-name="search-result-market" class="selectpicker" multiple data-live-search="true" data-live-search-placeholder="搜索" data-actions-box="true">
-															              <option>博路定市场</option>
-			                                      <option>降压药市场</option>
-			                                      <option>高血压市场</option>
-															          </select>
-															        </div>
-															    </div>
-                                </div>
-                                <div class="col-sm-2">
-                                    <div class="form-group" id="data_5">
-		                                <label class="control-label">时间范围</label>
-		                                <div class="input-daterange input-group" id="datepicker">
-		                                    <input type="text" class="input-sm form-control" name="startdate" value="01/2016"/>
-		                                    <span class="input-group-addon">to</span>
-		                                    <input type="text" class="input-sm form-control" name="enddate" value="12/2016" />
-		                                </div>
-		                            </div>
-                                </div>
-                                <div class="col-sm-6 text-right">
-																  <div class="btn-group"><button type="button" class="btn btn-primary btn-sm" onclick="pageResult()">查询</button></div>
-																  <div class="btn-group">
-			                            <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">导出 <span class="caret"></span></button>
-			                            <ul class="dropdown-menu">
-			                                <li><a href="#">csv</a></li>
-			                                <li><a href="#">excel</a></li>
-			                                <li><a href="#">xlsb</a></li>
-			                            </ul>
-			                          </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="ibox-content">
-	                        <div class="table-responsive">
-					                    <table class="table table-striped table-bordered table-hover dataTables-example" >
-						                    	<thead id="thead"></thead>
-						                    	<tbody id="tbody"></tbody>
-					                    </table>
-			                    </div>
-			                    <div class="row">
-			                    		<div class="col-sm-12">
-				                    			<div class="col-sm-6 dataTables_info" id="pageinfo"></div>
-				                    			<div class="col-sm-6 text-right"><ul id='pageview'></ul></div>
-			                    		</div>
-			                    </div>
-	                    </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer">
-            <div class="pull-right">
-                10GB of <strong>250GB</strong> Free.
-            </div>
-            <div>
-                <strong>Copyright</strong> Pharbers Company &copy; 2008-2016
-            </div>
-        </div>
-        </div>
-    </div>
-    <script src="@routes.Assets.at("js/business/resultquery.js")"></script>
-    <script src="@routes.Assets.at("js/business/page/bootstrap-paginator.js")"></script>
-    <script src="@routes.Assets.at("js/business/page/page.js")"></script>
+			</div>
+		</nav>
+		<div id="page-wrapper" class="gray-bg">
+			<div class="row border-bottom">
+				<nav class="navbar navbar-static-top" role="navigation"
+					style="margin-bottom: 0">
+					<div class="navbar-header">
+						<a class="navbar-minimalize minimalize-styl-2 btn btn-primary "
+							href="#"><i class="fa fa-bars"></i> </a>
+						<!-- 		            <form role="search" class="navbar-form-custom" action="search_results.html"> -->
+						<!-- 		                <div class="form-group"> -->
+						<!-- 		                    <input type="text" placeholder="搜索..." class="form-control" name="top-search" id="top-search"> -->
+						<!-- 		                </div> -->
+						<!-- 		            </form> -->
+					</div>
+					<ul class="nav navbar-top-links navbar-right">
+						<li><span class="m-r-sm text-muted welcome-message">欢迎访问MAX系统</span>
+						</li>
+						<li><a href="javaScript:void();" onclick="logout()"> <i
+								class="fa fa-sign-out"></i> 退出系统
+						</a></li>
+					</ul>
+				</nav>
+			</div>
+			<div class="row wrapper border-bottom white-bg page-heading">
+				<div class="col-lg-10">
+					<h2>结果查询</h2>
+					<ol class="breadcrumb">
+						<li><a href="index">首页</a></li>
+						<li class="active"><strong>结果查询</strong></li>
+					</ol>
+				</div>
+			</div>
+			<div class="wrapper wrapper-content animated fadeInRight">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="ibox float-e-margins">
+							<div class="ibox-title">
+								<h5>结果导出</h5>
+								<span class="label label-primary">MAX</span>
+								<div class="ibox-tools">
+									<a class="collapse-link"> <i class="fa fa-chevron-up"></i>
+									</a> <a class="close-link"> <i class="fa fa-times"></i>
+									</a>
+								</div>
+							</div>
+							<div class="ibox-content">
+								<div class="row">
+									<div class="col-sm-3 col-md-3">
+										<div class="form-group">
+											<label class="control-label" for="status">数据类型</label> 
+												<select data-name="search-result-datatype" class="form-control">
+													<option>省份数据</option>
+													<option>城市数据</option>
+													<option>医院数据</option>
+												</select>
+										</div>
+									</div>
+									<div class="col-sm-3 col-md-3">
+										<div class="form-group">
+										<label class="control-label" for="status">市场</label>
+											<select data-name="search-result-market" class="form-control selectpicker" multiple data-live-search="true"data-live-search-placeholder="搜索" data-actions-box="true">
+												<option>博路定市场</option>
+												<option>降压药市场</option>
+												<option>高血压市场</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-sm-3 col-md-3">
+										<div class="form-group" id="data_5">
+											<label class="control-label">时间范围</label>
+											<div class="input-daterange input-group" id="datepicker">
+												<input type="text" class="input-md form-control" name="startdate" value="01/2016" /> 
+												<span class="input-group-addon">to</span> 
+												<input type="text" class="input-md form-control" name="enddate" value="12/2016" />
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-3 col-md-3 text-right">
+										<button type="button" class="btn btn-primary btn-sm" onclick="pageResult()">查询</button>
+										<div class="btn-group">
+											<button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle"> 导出 <span class="caret"></span></button>
+											<ul class="dropdown-menu">
+												<li><a href="#">csv</a></li>
+												<li><a href="#">excel</a></li>
+												<li><a href="#">xlsb</a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="ibox-content">
+								<div class="table-responsive-resultquery">
+									<table class="table table-striped table-bordered table-hover dataTables-example">
+										<thead id="thead"></thead>
+										<tbody id="tbody"></tbody>
+									</table>
+								</div>
+								<div class="row">
+									<div class="col-sm-12">
+										<div class="col-sm-6 dataTables_info" id="pageinfo"></div>
+										<div class="col-sm-6 text-right">
+											<ul id='pageview'></ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="footer">
+				<div class="pull-right">
+					10GB of <strong>250GB</strong> Free.
+				</div>
+				<div>
+					<strong>Copyright</strong> Pharbers Company &copy; 2008-2016
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="@routes.Assets.at("js/business/resultquery.js")"></script>
+	<script src="@routes.Assets.at("js/business/page/bootstrap-paginator.js")"></script>
+	<script src="@routes.Assets.at("js/business/page/page.js")"></script>
 </body>
 }
