@@ -10,15 +10,11 @@ import controllers.common.requestArgsQuery.requestArgs
 
 import module.business.ResultQueryModuleMessage._
 
-object ResultQueryStub extends Controller{
+object ResultQueryController extends Controller{
     
     def resultQueryAjaxCall = Action (request => requestArgs(request) { jv => 
 		import pattern.ResultMessage.common_result
 		MessageRoutes(msg_finalresult(jv) :: msg_hospitalresult(jv) :: msg_miniproductresult(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 	
-//	def resultQueryAjaxError = Action (request => requestArgs(request) { jv => 
-//		import pattern.ResultMessage.common_result
-//		MessageRoutes(msg_provincedata(jv) :: msg_citydata(jv) :: msg_hospitaldata(jv) :: msg_error_emp(jv) :: msg_CommonResultMessage() :: Nil, None)
-//	})
 }
