@@ -2,6 +2,7 @@ package module.business
 
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
+import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Calendar
 import com.pharbers.aqll.pattern.ModuleTrait
@@ -30,11 +31,10 @@ object ResultQueryModule extends ModuleTrait {
 	}
 	
 	def msg_finalresult_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-	    
+	    println("first step start.")
 	    def dateListConditions(getter : JsValue => Any)(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) => {
-              import java.text.SimpleDateFormat
 	          val fm = new SimpleDateFormat("MM/yyyy")
               val start = fm.parse(x.asInstanceOf[List[String]].head).getTime
               val end = fm.parse(x.asInstanceOf[List[String]].last).getTime
@@ -72,7 +72,7 @@ object ResultQueryModule extends ModuleTrait {
         try {
             val r = (from db() in "FinalResult" where $and(conditions)).selectSkipTop(skip)(take)(order)(finalResultJsValue(_))(_data_connection_cores).toList
             val n = (from db() in "FinalResult" where $and(conditions)).count(_data_connection_cores)
-                    
+            println("first step end.")       
             (Some(Map("finalResult" -> toJson(r), "page" -> toJson(page(currentPage,take,skip,n)))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -82,23 +82,14 @@ object ResultQueryModule extends ModuleTrait {
 	def msg_hospitalresult_func(data : JsValue)(pr : Option[Map[String, JsValue]])(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 	    import com.pharbers.aqll.pattern.ParallelMessage.f
 	    try {
+	        println("second step start.")
 	        val phacodes = pr.get.map(_._2).map(x => x.\\("Hospital")).head.map(x => x.asOpt[String].get)
 	        val hospitalinfos = (from db() in "HospitalInfo" where ("Pha_Code" $in phacodes)).select(hospitalJsValue(_))(_data_connection_cores).toList
 	        val hosps = pr.get.get("finalResult").map ( x => x.as[List[Map[String,JsValue]]]).get map { x =>
-	            var tmp:Map[String, JsValue] = Map.empty
-	            val flag = hospitalinfos.exists { y => tmp = y; x.get("Hospital").get.asOpt[String].get.equals(y.get("Pha_Code").get.asOpt[String].get) }
-	            var finalhosps: Map[String,JsValue] = x
-	            if(flag) {
-	                finalhosps = finalhosps ++: Map("Region_Name" -> toJson(tmp.get("Region_Name").get.asOpt[String].get), 
-	                                "Province_Name" -> toJson(tmp.get("Province_Name").get.asOpt[String].get), 
-                                    "City_Name" -> toJson(tmp.get("City_Name").get.asOpt[String].get),
-                                    "City_Level" -> toJson(tmp.get("City_Level").get),
-                                    "Hosp_Name" -> toJson(tmp.get("Hosp_Name").get.asOpt[String].get),
-                                    "Pha_Code" -> toJson(tmp.get("Pha_Code").get.asOpt[String].get),
-                                    "Hosp_Level" -> toJson(tmp.get("Hosp_Level").get.asOpt[String].get))
-	            }
-	            finalhosps
+	            val matchresult = hospitalinfos.find(y => y.get("Pha_Code").get.asOpt[String].get.equals(x.get("Hospital").get.asOpt[String].get)).get
+	            f.apply(x :: matchresult :: Nil)
 	        }
+	        println("second step end.") 
 	        (Some(Map("finalResult" -> toJson(hosps), "page" -> toJson(pr.get.get("page")))), None)
 	    } catch {
           case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -108,33 +99,14 @@ object ResultQueryModule extends ModuleTrait {
 	def msg_miniproductresult_func(data : JsValue)(pr : Option[Map[String, JsValue]])(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 	    import com.pharbers.aqll.pattern.ParallelMessage.f
 	    try {
+	        println("third step start.")
 	        val miniproducts = pr.get.map(_._2).map(x => x.\\("ProductMinunt")).head.map(x => x.asOpt[String].get)
 	        val miniproductinfos = (from db() in "MinimumProductInfo" where ("MiniProd_Name_Ch" $in miniproducts)).select(miniProductJsValue(_))(_data_connection_cores).toList
 	        val prods = pr.get.get("finalResult").map ( x => x.as[List[Map[String,JsValue]]]).get map { x =>
-	            var tmp:Map[String, JsValue] = Map.empty
-	            val flag = miniproductinfos.exists { y => tmp = y; x.get("ProductMinunt").get.asOpt[String].get.equals(y.get("MiniProd_Name_Ch").get.asOpt[String].get) }
-	            var finalprods: Map[String,JsValue] = x
-	            if(flag) {
-	                finalprods = finalprods ++: Map(
-                                    "MiniProd_Name_Ch" -> toJson(tmp.get("MiniProd_Name_Ch").get.asOpt[String].get),
-                            	    "MiniProd_Name_En" -> toJson(tmp.get("MiniProd_Name_En").get.asOpt[String].get),
-                            	    "Manufacturer_Ch" -> toJson(tmp.get("Manufacturer_Ch").get.asOpt[String].get),
-                            	    "Manufacturer_En" -> toJson(tmp.get("Manufacturer_En").get.asOpt[String].get),
-                            	    "Drug_Ch" -> toJson(tmp.get("Drug_Ch").get.asOpt[String].get),
-                            	    "Drug_En" -> toJson(tmp.get("Drug_En").get.asOpt[String].get),
-                            	    "Products_Ch" -> toJson(tmp.get("Products_Ch").get.asOpt[String].get),
-                            	    "Products_En" -> toJson(tmp.get("Products_En").get.asOpt[String].get),
-                            	    "DosageForm_Ch" -> toJson(tmp.get("DosageForm_Ch").get.asOpt[String].get),
-                            	    "DosageForm_En" -> toJson(tmp.get("DosageForm_En").get.asOpt[String].get),
-                            	    "DrugSpecification_Ch" -> toJson(tmp.get("DrugSpecification_Ch").get.asOpt[String].get),
-                            	    "DrugSpecification_En" -> toJson(tmp.get("DrugSpecification_En").get.asOpt[String].get),
-                            	    "Package_Quantity_Ch" -> toJson(tmp.get("Package_Quantity_Ch").get),
-                            	    "Package_Quantity_En" -> toJson(tmp.get("Package_Quantity_En").get),
-                            	    "sku_Ch" -> toJson(tmp.get("sku_Ch").get.asOpt[String].get),
-                            	    "sku_En" -> toJson(tmp.get("sku_En").get.asOpt[String].get))
-	            }
-	            finalprods
+	            val matchresult = miniproductinfos.find(y => y.get("MiniProd_Name_Ch").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get
+	            f.apply(x :: matchresult :: Nil)
 	        }
+            println("third step end.") 
 	        (Some(Map("finalResult" -> toJson(prods), "page" -> toJson(pr.get.get("page")))), None)
 	    } catch {
           case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))

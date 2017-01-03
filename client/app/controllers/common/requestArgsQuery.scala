@@ -22,8 +22,9 @@ import play.api.libs.concurrent.Akka
 import com.pharbers.aqll.util.errorcode.ErrorCode.errorMessageByCode
 
 object requestArgsQuery extends Controller {
-	implicit val t = Timeout(3 seconds)
-	
+	implicit val t = Timeout(8 seconds)
+	//implicit val t = Timeout(5 seconds)
+	//implicit val t = Timeout(3 seconds)
   	def requestArgs(request : Request[AnyContent])(func : JsValue => MessageRoutes) : Result = {
   		try {
   			implicit val app = play.api.Play.current

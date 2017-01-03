@@ -108,7 +108,7 @@ function pageResult(page){
 						thead += "<th>市场III（标准_中文）</th>";
 						thead += "<th>市场III（标准_英文）</th>";
 						thead += "<th>Value（金额）</th>";
-						thead += "<th>Volume (Unit)</th>";
+						thead += "<th>Volume（数量）</th>";
 					thead += "</tr>";
 				$('thead[id="thead"]').html(thead);
 				
