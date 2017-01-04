@@ -12,10 +12,5 @@ object MarketsModule {
     def pushMarkets(token : String) : List[String] = {
         var markets = _data_connection_cores.getCollection(token).distinct("Market")
         markets.toList.asInstanceOf[List[String]]
-        //("博路定市场" :: "降压药市场" :: "高血压市场" :: Nil)
-    }
-
-    def MarketJsValue(x : MongoDBObject) : JsValue = {
-        toJson(Map("Market" -> toJson(x.getAs[String]("Market").get)))
     }
 }
