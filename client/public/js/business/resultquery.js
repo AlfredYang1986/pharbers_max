@@ -50,12 +50,13 @@ function pageResult(page){
 	var market = $('select[data-name="search-result-market"]').val();
 	var startdate = $('input[name="startdate"]').val();
 	var enddate = $('input[name="enddate"]').val();
-	
+
 	var query_object = new Object();
 	query_object['datatype'] = datatype;
 	query_object['market'] = market;
 	query_object['Timestamp'] = [startdate, enddate];
 	query_object['currentPage'] = page;
+    query_object['company'] = $.cookie("token");
 
 	$.ajax({
 		url: "/resultquery/search",
@@ -69,6 +70,7 @@ function pageResult(page){
 				
 				var result = data.result.finalResult;
 				var thead = "<tr>";
+						thead += "<th>序号</th>"
 						thead += "<th>年</th>";
 						thead += "<th>月</th>";
 						thead += "<th>区域</th>";
@@ -108,11 +110,14 @@ function pageResult(page){
 						thead += "<th>Volume（数量）</th>";
 					thead += "</tr>";
 				$('thead[id="thead"]').html(thead);
-				
+
+                var page = data.result.page[0];
+
 				var tbody = "";
 				if (result.length != 0) {
 					for (var i in result) {
 						tbody += "<tr class='gradeX'>";
+                        	tbody += "<td>" + (page.serial+parseInt(i)) + "</td>";
 							tbody += "<td>" + result[i].Year + "</td>";
 							tbody += "<td>" + result[i].Month + "</td>";
 							tbody += "<td>" + result[i].Region_Name + "</td>";

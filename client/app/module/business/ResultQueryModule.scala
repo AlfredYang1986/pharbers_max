@@ -31,7 +31,7 @@ object ResultQueryModule extends ModuleTrait {
 	}
 	
 	def msg_finalresult_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-	    println("first step start.")
+	    println("query result start.")
 	    def dateListConditions(getter : JsValue => Any)(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) => {
@@ -68,10 +68,12 @@ object ResultQueryModule extends ModuleTrait {
 	    val take = 10
         val skip = ((currentPage-1)*take)
         val order = "Timestamp"
-        
+
+		val connectionName = (data \ "company").asOpt[String].get
+
         try {
-            val r = (from db() in "FinalResult" where $and(conditions)).selectSkipTop(skip)(take)(order)(finalResultJsValue(_))(_data_connection_cores).toList
-            val n = (from db() in "FinalResult" where $and(conditions)).count(_data_connection_cores)
+            val r = (from db() in connectionName where $and(conditions)).selectSkipTop(skip)(take)(order)(finalResultJsValue(_))(_data_connection_cores).toList
+            val n = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
             println("first step end.")       
             (Some(Map("finalResult" -> toJson(r), "page" -> toJson(page(currentPage,take,skip,n)))), None)
 		} catch {
@@ -82,14 +84,12 @@ object ResultQueryModule extends ModuleTrait {
 	def msg_hospitalresult_func(data : JsValue)(pr : Option[Map[String, JsValue]])(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 	    import com.pharbers.aqll.pattern.ParallelMessage.f
 	    try {
-	        println("second step start.")
 	        val phacodes = pr.get.map(_._2).map(x => x.\\("Hospital")).head.map(x => x.asOpt[String].get)
 	        val hospitalinfos = (from db() in "HospitalInfo" where ("Pha_Code" $in phacodes)).select(hospitalJsValue(_))(_data_connection_cores).toList
 	        val hosps = pr.get.get("finalResult").map ( x => x.as[List[Map[String,JsValue]]]).get map { x =>
 	            val matchresult = hospitalinfos.find(y => y.get("Pha_Code").get.asOpt[String].get.equals(x.get("Hospital").get.asOpt[String].get)).get
 	            f.apply(x :: matchresult :: Nil)
 	        }
-	        println("second step end.") 
 	        (Some(Map("finalResult" -> toJson(hosps), "page" -> toJson(pr.get.get("page")))), None)
 	    } catch {
           case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -99,14 +99,13 @@ object ResultQueryModule extends ModuleTrait {
 	def msg_miniproductresult_func(data : JsValue)(pr : Option[Map[String, JsValue]])(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 	    import com.pharbers.aqll.pattern.ParallelMessage.f
 	    try {
-	        println("third step start.")
 	        val miniproducts = pr.get.map(_._2).map(x => x.\\("ProductMinunt")).head.map(x => x.asOpt[String].get)
 	        val miniproductinfos = (from db() in "MinimumProductInfo" where ("MiniProd_Name_Ch" $in miniproducts)).select(miniProductJsValue(_))(_data_connection_cores).toList
 	        val prods = pr.get.get("finalResult").map ( x => x.as[List[Map[String,JsValue]]]).get map { x =>
 	            val matchresult = miniproductinfos.find(y => y.get("MiniProd_Name_Ch").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get
 	            f.apply(x :: matchresult :: Nil)
 	        }
-            println("third step end.") 
+            println("query result end.")
 	        (Some(Map("finalResult" -> toJson(prods), "page" -> toJson(pr.get.get("page")))), None)
 	    } catch {
           case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -114,12 +113,20 @@ object ResultQueryModule extends ModuleTrait {
 	}
 	
 	def page(currentPage : Int, take : Int, skip : Int, total : Int) : List[Map[String,JsValue]] = {
+		var startrow = (currentPage-1)*take+1
+		var endrow = currentPage*take
+		if(total == 0){
+			startrow = 0
+			endrow = 0
+		}
+
 	    Map(
-	         "startrow" -> toJson((currentPage-1)*take+1),     
-	         "endrow" -> toJson(currentPage*take),
+	         "startrow" -> toJson(startrow),
+	         "endrow" -> toJson(endrow),
 	         "currentpage" -> toJson(currentPage),
 	         "totlepage" -> toJson(if(total%take==0)(total/take)else(total/take+1)),
-	         "total" -> toJson(total)
+	         "total" -> toJson(total),
+			 "serial" -> toJson(skip+1)
 	    ):: Nil
 	}
 	
