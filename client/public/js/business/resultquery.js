@@ -1,3 +1,5 @@
+var loader = new SVGLoader( document.getElementById( 'loader' ), { speedIn : 0, easingIn : mina.easeinout } );
+
 $(function() {
 	var mySelect = $('#first-disabled2');
 	$('#special').on('click', function() {
@@ -46,6 +48,7 @@ for (var selector in config) {
 }
 
 function pageResult(page){
+    loader.show();
 	var datatype = $('select[data-name="search-result-datatype"]').val();
 	var market = $('select[data-name="search-result-market"]').val();
 	var startdate = $('input[name="startdate"]').val();
@@ -67,7 +70,6 @@ function pageResult(page){
 		cache: false,
 		success: function(data) {
 			if (data.status == "ok") {
-				
 				var result = data.result.finalResult;
 				var thead = "<tr>";
 						thead += "<th>序号</th>"
@@ -161,17 +163,18 @@ function pageResult(page){
 					}
 				} else {
 					tbody += "<tr class='gradeX'><td valign='top' colspan='32'>没有匹配的记录</td></tr>";
+                    loader.hide();
 				}
 				$('tbody[id="tbody"]').html(tbody);
-				
 				pageshow(data);
-				
 			} else {
 				alert("请求超时。");
 			}
+            loader.hide();
 		},
 		error: function(xhr, status, error) {
 			alert("请检查您的输入");
+            loader.hide();
 		}
 	});
 }

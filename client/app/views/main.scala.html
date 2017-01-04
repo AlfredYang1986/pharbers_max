@@ -39,7 +39,8 @@
     	<link href="@routes.Assets.at("css/plugins/morris/morris-0.4.3.min.css")" rel="stylesheet">
     	<link href="@routes.Assets.at("css/plugins/select/bootstrap-select.css")" rel="stylesheet">
     	<link href="@routes.Assets.at("css/business/resultQueryTable.css")" rel="stylesheet">
-    	
+		<!-- loader -->
+		<link href="@routes.Assets.at("css/plugins/loader/svgloader.css")" rel="stylesheet">
 	    @*通用CSS 结束*@
 	    <!-- Mainly scripts -->
 	    <script src="@routes.Assets.at("js/jquery-2.1.1.js")"></script>
@@ -120,12 +121,14 @@
 		<script src="@routes.Assets.at("js/plugins/select/bootstrap-select.js")" type="text/javascript"></script>
 		<!-- i18next -->
     	<script src="@routes.Assets.at("js/plugins/i18next/i18next.min.js")"></script>
-		<!-- 用户Longin -->
-		<script src="@routes.Assets.at("js/business/login.js")"></script>
+    	<!-- 用户Longin -->
+    	<script src="@routes.Assets.at("js/business/login.js")"></script>
     	<!-- Ajax全部返回自动分页数据表格 -->
     	<script src="@routes.Assets.at("js/datatable/datatable.js")"></script>
     	<!-- jQuery处理Cookie -->
     	<script src="@routes.Assets.at("js/jquery.cookie.js")"></script>
+		<!-- loader -->
+		<script src="@routes.Assets.at("js/plugins/loader/svgloader.js")"></script>
     	@*通用JS 结束*@
    </head>
    @content
