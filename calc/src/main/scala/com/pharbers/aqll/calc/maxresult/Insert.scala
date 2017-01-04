@@ -26,7 +26,7 @@ object Insert {
                  builder += "Createtime" -> m._4
                  builder += "Filepath" -> m._1
                  builder += "Rtype" -> x._2._7
-                 _data_connection.getCollection("FinalResult") += builder.result
+              _data_connection.getCollection(m._2) += builder.result
              }
         }
          println(s"mr.toList.size = ${mr.toList.size}")
