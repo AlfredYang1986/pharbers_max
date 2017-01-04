@@ -2,6 +2,7 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import module.business.MarketsModule
 
 object Application extends Controller {
     
@@ -101,7 +102,7 @@ object Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.resultQuery("Your new application is ready."))
+          Ok(views.html.resultQuery(MarketsModule.pushMarkets(token)))
       }
   }
 }
