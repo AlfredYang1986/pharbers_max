@@ -31,11 +31,16 @@ object FilesUploadModule extends ModuleTrait {
     
     def msg_filesupload_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
         val uuid = (data \ "uuid").asOpt[String].get
+        val company = (data \ "company").asOpt[String].get
         val filetype = (data \ "Datasource_Type").asOpt[String].get
         val bulk = _data_connection_basic.getCollection("DataSources").initializeUnorderedBulkOperation
         val dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")  
         val longvalue = dateFormat.parse(dateFormat.format(new Date())).getTime
-        bulk.insert(Map("Datasource_Id" -> MD5.md5(uuid), "Datasource_Type" -> filetype, "File_Path" -> uuid, "Creation_Date" -> longvalue))
+        bulk.insert(Map("Datasource_Id" -> MD5.md5(uuid),
+                        "Datasource_Type" -> filetype,
+                        "File_Path" -> uuid,
+                        "Creation_Date" -> longvalue,
+                        "Company" -> company))
         bulk.execute()
         (Some(Map("uploadfiles" -> toJson("ok"))), None)
     }
