@@ -46,9 +46,6 @@ for (var selector in config) {
 }
 
 function pageResult(page){
-	
-	console.info(page);
-	
 	var datatype = $('select[data-name="search-result-datatype"]').val();
 	var market = $('select[data-name="search-result-market"]').val();
 	var startdate = $('input[name="startdate"]').val();

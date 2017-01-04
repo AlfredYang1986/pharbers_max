@@ -3,7 +3,7 @@
 # ~~~~
 
 # static page
-GET     /                           controllers.Application.landing
+GET     /                           controllers.Application.login
 GET     /landing                    controllers.Application.landing
 GET		/login						controllers.Application.login
 POST	/login						controllers.Application.login

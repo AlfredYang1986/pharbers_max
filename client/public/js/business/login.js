@@ -8,6 +8,7 @@ $(function(){
 	$("#loginBtn").click(function(){
 		login();
 	});
+    loginInfo()
 })
 
 function login() {
@@ -30,6 +31,8 @@ function login() {
 				alert("该用户不存在！！！")
 			}else {
 				$.cookie("token",r.result.FinalResult.Token)
+				$.cookie("loginName",r.result.FinalResult.Name)
+                $.cookie("companyName",r.result.FinalResult.Name)
 				location = "index"
 			}
 		},
@@ -42,4 +45,14 @@ function login() {
 function logout() {
 	$.cookie("token", "", {"path": "/", "expires": -1 });
 	location = "login"
+}
+
+function loginInfo() {
+	if($.cookie("loginName") == undefined) {
+        $("#Name").text("未知")
+        $("#company").text("未知")
+	}else {
+		$("#Name").text($.cookie("loginName"))
+        $("#company").text($.cookie("companyName"))
+	}
 }
