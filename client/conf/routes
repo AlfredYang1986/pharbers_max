@@ -24,6 +24,7 @@ GET		/resultquery				controllers.Application.resultQuery
 POST 	/resultquery/search			controllers.business.ResultQueryController.resultQueryAjaxCall
 POST	/samplecheck/check			controllers.business.SampleCheckController.sampleCheckAjaxCall
 POST	/modeloperation/operation	controllers.business.ModelOperationController.mondelOperationAjaxCall
+POST	/resultquery/fileexport	    controllers.business.FileExportController.fileExportAjaxCall
 POST	/login/start			    controllers.business.LoginController.Login
 POST	/uploadfiles				controllers.business.FilesUploadController.filesUploadAjaxCall
 
