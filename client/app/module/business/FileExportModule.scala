@@ -6,14 +6,13 @@ import com.pharbers.aqll.pattern.ModuleTrait
 import com.pharbers.aqll.pattern.MessageDefines
 import com.pharbers.aqll.pattern.CommonMessage
 import java.io.File
-
-import com.pharbers.aqll.util.file.excel.CSVUtils
 import com.pharbers.aqll.util.dao.from
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.util.dao._data_connection_cores
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.ArrayList
+import scala.collection.immutable.List
+import com.pharbers.aqll.util.file.csv._
 
 object FileExportModuleMessage {
       sealed class msg_fileexportBase extends CommonMessage
@@ -27,7 +26,7 @@ object FileExportModule extends ModuleTrait{
 		case msg_fileexport(data) => msg_fileexport_func(data)
 		case _ => ???
 	}
-    
+
     def msg_fileexport_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
         println("写入成功")
 		def dateListConditions(getter : JsValue => Any)(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
@@ -64,17 +63,14 @@ object FileExportModule extends ModuleTrait{
 
 		val connectionName = (data \ "company").asOpt[String].get
 		val datatype = (data \ "datatype").asOpt[String].get
-		try {
-			//val r = (from db() in connectionName where (conditions)).select(finalResultJsValue(_))(_data_connection_cores).toList
-			//println(s"ssssss=$r")
-			var file : File = new File("download/"+datatype+".csv")
-			val list = new ArrayList[String]()
-			list.add("省份,城市,医院")
-			list.add("北京市,北京市,人民医院")
-			list.add("上海市,上海市,武警医院")
 
-			var isSuccess : Boolean = CSVUtils.exportCsv(file, list)
-			println(isSuccess)
+		try {
+//			val r = (from db() in connectionName where $and(conditions)).select(finalResultJsValue(_))(_data_connection_cores).toList
+//			println(s"result=$r")
+			/*var file : File = new File("download/"+datatype+".csv")
+			val list = List("年,月,医院,最小产品单位,市场1,市场I（标准_中文）,市场I（标准_英文）,市场II（标准_中文）,市场II（标准_英文）,市场III（标准_中文）,市场III（标准_英文）,Value（金额）,Volume (数量)")
+			var isSuccess : Boolean = CsvHelper.ExportCsv(file, list)
+			println(isSuccess)*/
 			(Some(Map("finalResult" -> toJson("ok"))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
