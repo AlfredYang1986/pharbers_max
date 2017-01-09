@@ -105,4 +105,14 @@ object Application extends Controller {
           Ok(views.html.resultQuery(MarketsModule.pushMarkets(token)))
       }
   }
+
+  //结果查询
+  def manageUploadFile = Action { request =>
+    val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+    if(token.equals("")){
+      Ok(views.html.login("Your new application is ready."))
+    }else{
+      Ok(views.html.manageUpload("Your new application is ready."))
+    }
+  }
 }

@@ -32,6 +32,13 @@ POST	/uploadfiles				controllers.business.FilesUploadController.filesUploadAjaxC
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
 POST	/pharbers/files/upload		controllers.foptController.uploadFile
 
+GET     /manage                     controllers.Application.manageUploadFile
+POST	/manage/uploadHospitalData	controllers.foptController.uploadHospitalDataFile
+POST	/manage/uploadProductMatch	controllers.foptController.uploadProductMatchFile
+POST	/manage/uploadMarketMatch	controllers.foptController.uploadMarketMatchFile
+POST	/manage/uploadHospitalMatch	controllers.foptController.uploadHospitalMatchFile
+POST	/manage/writedata			controllers.manage.FilesUploadController.filesUploadAjaxCall
+
 POST	/example					controllers.Example.exampAjaxCall
 POST	/error						controllers.Example.exampAjaxError
 POST	/paralle					controllers.SatterGatherTestController.testIndex
