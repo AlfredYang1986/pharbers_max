@@ -10,9 +10,9 @@ import com.pharbers.aqll.calc.excel.Manage.AdminHospitalDataBase
 import com.pharbers.aqll.calc.maxmessages.excelJobStart
 
 object StubMain extends App {
-    val config = ConfigFactory.load("split-master")
-	val system = ActorSystem("calc", config) 
-	
+	val config = ConfigFactory.load("split-master")
+	val system = ActorSystem("calc", config)
+//
 	if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
     	Cluster(system).registerOnMemberUp {
 		    val end_point = system.actorOf(Props[SplitReception], "splitreception")
@@ -21,5 +21,5 @@ object StubMain extends App {
 //	        end_point ! excelJobStart("""config/test/BMS客户上传/350000.xlsx""", cpaProductJob)
 //		    end_point ! excelJobStart("""config/test/BMS客户上传/201601-07-PharmaTrust-Baraclude产品待上传.xlsx""", phaProductJob)
     	}
-  	}  
+  	}
 }

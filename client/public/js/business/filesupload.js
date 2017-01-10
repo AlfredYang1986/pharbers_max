@@ -1,3 +1,30 @@
+$(function(){
+
+})
+
+function excelCheck(file) {
+	var dataMap = JSON.stringify({
+		"filename" : file,
+		"company" : $.cookie("token")
+	});
+    $.ajax({
+        type : "get",
+        data : dataMap,
+        async : false,
+        url :"http://127.0.0.1:5000/checkExcel",
+        cache : false,
+        dataType : "jsonp",
+        jsonp: "callbackparam",
+        jsonpCallback:"jsonpCallback1",
+        success : function(json){
+            console.info(json);
+        },
+        error:function(e){
+            alert("Error")
+        }
+    });
+}
+
 $("#file-1").fileinput({
     //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
@@ -23,6 +50,7 @@ $("#file-1").fileinput({
 			cache: false,
 			success: function(data) {
 				if (data.status == "ok") {
+                    excelCheck(query_object.uuid)
 		    		console.info("CPA产品上传成功");
 				}
 			}

@@ -53,6 +53,7 @@ object Insert {
         def maxInser() = {
             val builder = MongoDBObject.newBuilder
             builder += "ID" -> m._3
+            builder += "CompanyID" -> m._2
             builder += "Units" -> model._2
             builder += "Sales" -> model._1
             builder += "HospitalNum" -> model._3

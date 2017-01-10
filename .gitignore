@@ -77,3 +77,8 @@ util/.cache-main
 calc/.cache-main
 
 calc/.cache-tests
+calc/src/test/test/MainTest2Call.scala
+client/test/com/aqll/pharbers/Test.scala
+client/.cache-main
+client/.cache-tests
+calc/src/test/test/MongoDBCollectionTest.scala

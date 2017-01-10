@@ -11,6 +11,8 @@ case class excelJobEnd(filename : String)
 
 case class startReadExcel(filename : String, cat : JobDefines, company: String, n: Int)
 
+case class checkResult(msg: String)
+
 case class cancel()
 case class end()
 

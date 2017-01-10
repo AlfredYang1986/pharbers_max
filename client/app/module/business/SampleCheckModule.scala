@@ -29,7 +29,7 @@ object SampleCheckModule extends ModuleTrait {
     def check(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         val company = (data \ "company").asOpt[String].get
         try {
-            val conditions = ("ID" -> company)
+            val conditions = ("CompanyID" -> company)
             val d = (from db() in "FactResult" where $and(conditions)).select(resultData(_))(_data_connection_cores).toList
 			d.size match {
                 case 0 => (Some(Map("FinalResult" -> toJson("is null"))), None)
