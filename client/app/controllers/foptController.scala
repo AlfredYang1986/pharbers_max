@@ -12,4 +12,20 @@ object foptController extends Controller {
 		uploadRequestArgs(request)(fop.uploadFile) 
 	}
 	def downloadFile(name : String) = Action (Ok(fop.downloadFile(name)).as("excel/xlsx"))
+
+	def uploadHospitalDataFile = Action { request =>
+		uploadRequestArgs(request)(fop.uploadHospitalDataFile)
+	}
+
+	def uploadProductMatchFile = Action { request =>
+		uploadRequestArgs(request)(fop.uploadProductMatchFile)
+	}
+
+	def uploadMarketMatchFile = Action { request =>
+		uploadRequestArgs(request)(fop.uploadMarketMatchFile)
+	}
+
+	def uploadHospitalMatchFile = Action { request =>
+		uploadRequestArgs(request)(fop.uploadHospitalMatchFile)
+	}
 }

@@ -25,12 +25,20 @@ POST 	/resultquery/search			controllers.business.ResultQueryController.resultQue
 POST	/samplecheck/check			controllers.business.SampleCheckController.sampleCheckAjaxCall
 POST    /checkexcel                 controllers.business.CheckExcelController.checkExcelAjaxCall
 POST	/modeloperation/operation	controllers.business.ModelOperationController.mondelOperationAjaxCall
+POST	/resultquery/fileexport	    controllers.business.FileExportController.fileExportAjaxCall
 POST	/login/start			    controllers.business.LoginController.Login
 POST	/uploadfiles				controllers.business.FilesUploadController.filesUploadAjaxCall
 
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
 POST	/pharbers/files/upload		controllers.foptController.uploadFile
+
+GET     /manage                     controllers.Application.manageUploadFile
+POST	/manage/uploadHospitalData	controllers.foptController.uploadHospitalDataFile
+POST	/manage/uploadProductMatch	controllers.foptController.uploadProductMatchFile
+POST	/manage/uploadMarketMatch	controllers.foptController.uploadMarketMatchFile
+POST	/manage/uploadHospitalMatch	controllers.foptController.uploadHospitalMatchFile
+POST	/manage/writedata			controllers.manage.FilesUploadController.filesUploadAjaxCall
 
 POST	/example					controllers.Example.exampAjaxCall
 POST	/error						controllers.Example.exampAjaxError

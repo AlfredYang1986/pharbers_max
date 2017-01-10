@@ -16,9 +16,9 @@ object fop {
 	def uploadFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 	    try {
   	      	var lst : List[JsValue] = Nil
-      	    data.files.foreach { x =>  
+      	    data.files.foreach { x =>
       	        val uuid = UUID.randomUUID
-      	  	  	Files.moveFile(x.ref.file, new File("upload/" + uuid), true, true)
+      	  	  	Files.moveFile(x.ref.file, new File("D:\\SourceData/Client/" + uuid), true, true)
       	  	  	lst = lst :+ toJson(uuid.toString)
       	  	}
       	    Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -28,9 +28,76 @@ object fop {
 	}
 
 	def downloadFile(name : String) : Array[Byte] = {
-	  	val file = new File("upload/" + name)
-		val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
-		new FileInputStream(file).read(reVal)
-		reVal
+	  	val file = new File("D:\\SourceData/Template/" + name)
+			val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
+			new FileInputStream(file).read(reVal)
+			reVal
+	}
+
+	def uploadHospitalDataFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
+		try {
+			var lst : List[JsValue] = Nil
+			deleteFile(new File("D:\\SourceData/Manage/医院数据/"))
+			data.files.foreach { x =>
+				val uuid = UUID.randomUUID
+				Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/医院数据/" + uuid), true, true)
+				lst = lst :+ toJson(uuid.toString)
+			}
+			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
+		} catch {
+			case ex : Exception => error_handler(-1)
+		}
+	}
+
+	def uploadProductMatchFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
+		try {
+			var lst : List[JsValue] = Nil
+			deleteFile(new File("D:\\SourceData/Manage/产品匹配/"))
+			data.files.foreach { x =>
+				val uuid = UUID.randomUUID
+				Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/产品匹配/" + uuid), true, true)
+				lst = lst :+ toJson(uuid.toString)
+			}
+			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
+		} catch {
+			case ex : Exception => error_handler(-1)
+		}
+	}
+
+	def uploadMarketMatchFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
+		try {
+			var lst : List[JsValue] = Nil
+			deleteFile(new File("D:\\SourceData/Manage/市场匹配/"))
+			data.files.foreach { x =>
+				val uuid = UUID.randomUUID
+				Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/市场匹配/" + uuid), true, true)
+				lst = lst :+ toJson(uuid.toString)
+			}
+			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
+		} catch {
+			case ex : Exception => error_handler(-1)
+		}
+	}
+
+	def uploadHospitalMatchFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
+		try {
+			var lst : List[JsValue] = Nil
+			deleteFile(new File("D:\\SourceData/Manage/医院匹配/"))
+			data.files.foreach { x =>
+				val uuid = UUID.randomUUID
+				Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/医院匹配/" + uuid), true, true)
+				lst = lst :+ toJson(uuid.toString)
+			}
+			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
+		} catch {
+			case ex : Exception => error_handler(-1)
+		}
+	}
+
+	def deleteFile(file : File) {
+		if(file.isDirectory){
+			file.listFiles().foreach(x => deleteFile(x))
+		}
+		file.delete()
 	}
 }

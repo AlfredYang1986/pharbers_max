@@ -20,6 +20,11 @@ import module.business.SampleCheckModuleMessage.msg_CheckBaseQuery
 import module.business.LoginModuleMessage.msg_LoginBaseQuery
 import module.business.FilesUploadModuleMessage._
 import module.business.ModelOperationModuleMessage._
+import module.business.ModelOperationModule
+import module.business.FileExportModuleMessage._
+import module.business.FileExportModule
+import module.manage.ManageFilesUploadModuleMessage._
+import module.manage.ManageFilesUploadModule
 
 object PipeFilterActor {
 	def prop(originSender : ActorRef, msr : MessageRoutes) : Props = {
@@ -56,6 +61,8 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 		case cmd : msg_CheckBaseQuery => dispatchImpl(cmd, SampleCheckModule)
 		case cmd : msg_mondelOperationBase => dispatchImpl(cmd, ModelOperationModule)
 		case cmd : msg_resultqueryBase => dispatchImpl(cmd, ResultQueryModule)
+		case cmd : msg_fileexportBase => dispatchImpl(cmd, FileExportModule)
+		case cmd : msg_managefilesuploadBase => dispatchImpl(cmd, ManageFilesUploadModule)
 		case cmd : ParallelMessage => {
 		    cancelActor
 			next = context.actorOf(ScatterGatherActor.prop(originSender, msr), "scat")

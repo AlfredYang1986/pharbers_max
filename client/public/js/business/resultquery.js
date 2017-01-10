@@ -178,3 +178,46 @@ function pageResult(page){
 		}
 	});
 }
+
+function fileExport(type) {
+	var filetype;
+	switch (type){
+		case "csv":
+            filetype = "导出csv";
+			break;
+		case "excel":
+            filetype = "导出excel";
+			break;
+		case "xlsb":
+            filetype = "导出xlsb";
+			break;
+	}
+    var datatype = $('select[data-name="search-result-datatype"]').val();
+    var market = $('select[data-name="search-result-market"]').val();
+    var startdate = $('input[name="startdate"]').val();
+    var enddate = $('input[name="enddate"]').val();
+
+    var query_object = new Object();
+    query_object['datatype'] = datatype;
+    query_object['market'] = market;
+    query_object['Timestamp'] = [startdate, enddate];
+    query_object['company'] = $.cookie("token");
+    query_object['filetype'] = filetype;
+
+    $.ajax({
+        url: "/resultquery/fileexport",
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json, charset=utf-8',
+        data: JSON.stringify(query_object),
+        cache: false,
+        success: function(data) {
+            if (data.status == "ok") {
+				alert("导出成功");
+            }
+        },
+        error: function(xhr, status, error) {
+            alert("请检查您的输入");
+        }
+    });
+}
