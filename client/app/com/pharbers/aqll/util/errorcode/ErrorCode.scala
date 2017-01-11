@@ -1,11 +1,16 @@
 package com.pharbers.aqll.util.errorcode
 
+import play.api.libs.json.Json
+import play.api.libs.json.Json._
+import play.api.libs.json.JsValue
+
 object ErrorCode {
     
   	case class ErrorNode(name : String, code : Int, message : String)
 
   	private def xls : List[ErrorNode] = List(
   		new ErrorNode("token exprie", -1, "inputing token is exprition"),
+			new ErrorNode("can not parse result", -20, "can not parse result"),
   		new ErrorNode("unknown error", -999, "unknown error")
   	)
 
@@ -25,4 +30,10 @@ object ErrorCode {
   		}
    
    	def errorMessageByCode(code : Int) : (Int, String) = (code, getErrorMessageByCode(code))
+
+		def errorToJson(name : String) : JsValue = {
+			Json.toJson(Map("status" -> toJson("error"), "error" ->
+			toJson(Map("code" -> toJson(this.getErrorCodeByName(name)), "message" -> toJson(this.getErrorMessageByName(name))))))
+		}
+
 }

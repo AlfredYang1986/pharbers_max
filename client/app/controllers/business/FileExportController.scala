@@ -6,12 +6,17 @@ import com.pharbers.aqll.pattern.ResultMessage.msg_CommonResultMessage
 import module.business.FileExportModuleMessage._
 import controllers.common.requestArgsQuery.requestArgs
 import play.api.mvc._
-
+import pattern.LogMessage.msg_log
+import play.api.libs.json.Json.toJson
+/**
+	* Created by Wli on 2017/1/3.
+	*/
 object FileExportController extends Controller{
-    
+
     def fileExportAjaxCall = Action (request => requestArgs(request) { jv =>
-		import pattern.ResultMessage.common_result
-		MessageRoutes(msg_fileexport(jv) :: msg_CommonResultMessage() :: Nil, None)
-	})
-	
+			import pattern.ResultMessage.common_result
+			import pattern.LogMessage.common_log
+			MessageRoutes(msg_log(toJson(Map("method" -> toJson("fileExportAjaxCall"))), jv) :: msg_fileexport(jv) :: msg_CommonResultMessage() :: Nil, None)
+		})
+
 }

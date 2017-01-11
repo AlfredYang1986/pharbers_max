@@ -53,8 +53,6 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 	var rst : Option[Map[String, JsValue]] = msr.rst
 	var next : ActorRef = null
 	def receive = {
-		case cmd : msg_exampleBase => dispatchImpl(cmd, ExampleModule)
-		case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
 		case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, LoginModule)
 		case cmd : msg_filesuploadBase => dispatchImpl(cmd, FilesUploadModule)
 		case cmd : msg_checkexcel => dispatchImpl(cmd, CheckExcelModule)
@@ -63,6 +61,9 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 		case cmd : msg_resultqueryBase => dispatchImpl(cmd, ResultQueryModule)
 		case cmd : msg_fileexportBase => dispatchImpl(cmd, FileExportModule)
 		case cmd : msg_managefilesuploadBase => dispatchImpl(cmd, ManageFilesUploadModule)
+		case cmd : msg_exampleBase => dispatchImpl(cmd, ExampleModule)
+		case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
+		case cmd : msg_LogCommand => dispatchImpl(cmd, LogModule)
 		case cmd : ParallelMessage => {
 		    cancelActor
 			next = context.actorOf(ScatterGatherActor.prop(originSender, msr), "scat")
@@ -75,7 +76,7 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 	 	case _ => ???
 	}
 	
-	val timeOutSchdule = context.system.scheduler.scheduleOnce(8 second, self, new timeout)
+	val timeOutSchdule = context.system.scheduler.scheduleOnce(180 second, self, new timeout)
 	//val timeOutSchdule = context.system.scheduler.scheduleOnce(5 second, self, new timeout)
 	//val timeOutSchdule = context.system.scheduler.scheduleOnce(3 second, self, new timeout)
 
