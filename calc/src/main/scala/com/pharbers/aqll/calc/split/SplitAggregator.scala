@@ -132,27 +132,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 		case SplitMaxBroadcasting.mappingiteratornext() => {
 			broadcasting_actor ! SplitMaxBroadcasting.mappingiteratornext()
 		}
-		case SplitWorker.exceluniondata(e) => {
-		    import com.pharbers.aqll.calc.common.DefaultData
-		    atomic { implicit thx =>
-		        excelchecksize() = excelchecksize() + 1
-		        excelcheckdata() = excelcheckdata() ++: e
-		    }
-		    if (excelchecksize.single.get == 10) {
-		        val temp = excelcheckdata.single.get
-		        val t = temp.map(_._3).distinct.sortBy(x => x)
-		        val hospNum = DefaultData.hospmatchdata.map(x => (x.getHospNum.toLong, x.getHospNameCh)).sortBy(x => x).map { x =>
-		            if(!t.exists ( z => x._1 == z )) x._2 else ""
-		        }.filter(!_.equals(""))
-		        val tmp = (temp.map(_._1).sum,
-		            temp.map(_._2).sum,
-		            t.size,
-		            hospNum,
-		            temp.map(_._4).distinct)
-		       master ! SplitAggregator.excelResult(tmp)
-		    }
-		}
-		
+
         case x : AnyRef => println(x); ???
     }
 }

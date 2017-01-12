@@ -98,10 +98,7 @@ class SplitMaster extends Actor with ActorLogging
 	    	Insert.maxResultInsert(mr)(InserAdapter(fileName, getcompany, time))
 	    	context.stop(self)
 	    }
-	    case SplitAggregator.excelResult(exd) => {
-	        val time = DateUtil.getIntegralStartTime(new Date()).getTime
-	        Insert.maxFactResultInsert(exd)(InserAdapter(fileName, getcompany, time))
-	    }
+
 		case cancel() => {
 		    println(s"cancel() $self")
 		}

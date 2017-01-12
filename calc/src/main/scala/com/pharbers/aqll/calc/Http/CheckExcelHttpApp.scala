@@ -1,4 +1,4 @@
-package scala.com.pharbers.aqll.calc.check
+package scala.com.pharbers.aqll.calc.Http
 
 import scala.concurrent.Future
 
@@ -17,7 +17,7 @@ import com.typesafe.config.{ Config, ConfigFactory }
   * Created by Faiz on 2017/1/7.
   */
 object CheckExcelHttpApp extends App with RequestTimeout {
-    val config = ConfigFactory.load("resources/application")
+    val config = ConfigFactory.load("application")
     val host = config.getString("http.host")
     val port = config.getInt("http.port")
     println(host)
@@ -26,21 +26,15 @@ object CheckExcelHttpApp extends App with RequestTimeout {
     implicit val system = ActorSystem("CheckMain")
     implicit val ec = system.dispatcher
 
-    val processOrders = system.actorOf( Props(new ProcessOrders), "process-orders" )
-
     val api = new OrderServiceApi(system, requestTimeout(config)).routes
 
     implicit val materializer = ActorMaterializer()
     val bindingFuture: Future[ServerBinding] = Http().bindAndHandle(api, host, port)
 
-    val log =  Logging(system.eventStream, "order-service")
     bindingFuture.map { serverBinding =>
-        println("lalaal")
         println(s"serverBinding = ${serverBinding}")
-        log.info(s"Bound to ${serverBinding.localAddress} ")
     }.onFailure {
         case ex: Exception =>
-            log.error(ex, "Failed to bind to {}:{}!", host, port)
             system.terminate()
     }
 

@@ -59,32 +59,26 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	val idle : Receive = {
 	    case cparesult(target) => {
 	        val listCpaProdcut = (target :: Nil)
-	        excelunion.append((target.getSumValue, target.getVolumeUnit, target.getHospNum, target.commonObjectCondition()))
-	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut))) 
+	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut)))
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case cpamarketresult(target) => {
 	        val listCpaMarket = (target :: Nil)
-	        excelunion.append((target.getSumValue, target.getVolumeUnit, target.getHospNum, target.getMarketname))
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserMarketDataArgs(listCpaMarket)))
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case pharesult(target) => {
             val listPhaProdcut = (target :: Nil)
-            excelunion.append((target.getSumValue, target.getVolumeUnit, target.getHospNum, target.commonObjectCondition()))
             val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaProductDataArgs(listPhaProdcut)))
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case phamarketresult(target) => {
 	        val listPhaMarket = (target :: Nil)
-	        excelunion.append((target.getSumValue, target.getVolumeUnit, target.getHospNum, target.getMarketname))
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
 	    case SplitEventBus.excelEnded() =>  {
 	    	println(s"read ended at $self")
-	    	
-	    	aggregator ! SplitWorker.exceluniondata(excelunion.toList)
 	    	
 	    	val tmp = data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))
 			aggregator ! SplitWorker.integratedataresult(tmp)

@@ -1,12 +1,14 @@
+var loader = new SVGLoader( document.getElementById( 'loader' ), { speedIn : 0, easingIn : mina.easeinout } );
 $(function(){
 
 })
 
-function excelCheck(file) {
-	var dataMap = JSON.stringify({
-		"filename" : file,
-		"company" : $.cookie("token")
-	});
+function excelCheck(file, type) {
+	var dataMap = {
+        "filename" : file,
+		"company" : $.cookie("token"),
+		"filetype": type
+    }
     $.ajax({
         type : "get",
         data : dataMap,
@@ -17,7 +19,10 @@ function excelCheck(file) {
         jsonp: "callbackparam",
         jsonpCallback:"jsonpCallback1",
         success : function(json){
-            console.info(json);
+            $.cookie("filename", file)
+            $.cookie("filetype", type)
+            loader.hide();
+            document.getElementById("ybjc").click()
         },
         error:function(e){
             alert("Error")
@@ -50,7 +55,8 @@ $("#file-1").fileinput({
 			cache: false,
 			success: function(data) {
 				if (data.status == "ok") {
-                    excelCheck(query_object.uuid)
+                    loader.show();
+                    excelCheck(query_object.uuid, "0")
 		    		console.info("CPA产品上传成功");
 				}
 			}
@@ -83,6 +89,7 @@ $("#file-2").fileinput({
 			cache: false,
 			success: function(data) {
 				if (data.status == "ok") {
+                    excelCheck(query_object.uuid, "1")
 		    		console.info("CPA市场上传成功");
 				}
 			}
@@ -115,6 +122,7 @@ $("#file-3").fileinput({
 			cache: false,
 			success: function(data) {
 				if (data.status == "ok") {
+                    excelCheck(query_object.uuid, "2")
 		    		console.info("PharmaTrust产品上传成功");
 				}
 			}
@@ -147,6 +155,7 @@ $("#file-4").fileinput({
 			cache: false,
 			success: function(data) {
 				if (data.status == "ok") {
+                    excelCheck(query_object.uuid, "3")
 		    		console.info("PharmaTrust市场上传成功");
 				}
 			}

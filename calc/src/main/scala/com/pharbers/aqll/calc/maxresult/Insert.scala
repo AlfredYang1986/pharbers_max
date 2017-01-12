@@ -1,35 +1,60 @@
 package com.pharbers.aqll.calc.maxresult
 
 import com.pharbers.aqll.calc.util.MD5
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
 import com.pharbers.aqll.calc.util.dao._data_connection
 import java.util.Date
+
 import com.pharbers.aqll.calc.util.dao.from
+
 import scala.collection.mutable.ArrayBuffer
-import com.pharbers.aqll.calc.datacala.common.CommonArg
-import com.mongodb.casbah.commons.MongoDBList
+import com.mongodb.casbah.Imports._
+import com.pharbers.util.dao.MongoDBCollManager
 
 object Insert {
     
     def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))]) (m: (String, String, String, Long)) = {
         def maxInser() = {
-            mr.toList map { x =>
-                 val builder = MongoDBObject.newBuilder
-                 builder += "ID" -> m._3
-                 builder += "Units" -> x._2._3
-                 builder += "Sales" -> x._2._2
-                 builder += "Hospital" -> x._2._4.head
-                 builder += "ProductMinunt" -> x._2._5.head
-                 builder += "Market" -> x._2._6.head
-//                 builder += "Condition" -> Map("Hospital" -> x._2._4.head , "ProductMinunt" -> x._2._5.head, "Market" -> x._2._6.head)
-                 builder += "Timestamp" -> x._2._1
-                 builder += "Createtime" -> m._4
-                 builder += "Filepath" -> m._1
-                 builder += "Rtype" -> x._2._7
-              _data_connection.getCollection(m._2) += builder.result
-             }
+            if(!MongoDBCollManager.isCollectionExist(m._2)){
+                _data_connection.getCollection(m._2).createIndex(MongoDBObject("Hospital" -> 1))
+                _data_connection.getCollection(m._2).createIndex(MongoDBObject("ProductMinunt" -> 1))
+                _data_connection.getCollection(m._2).createIndex(MongoDBObject("Market" -> 1))
+                _data_connection.getCollection(m._2).createIndex(MongoDBObject("Timestamp" -> 1))
+            }
+
+            val bulk = _data_connection.getCollection(m._2).initializeUnorderedBulkOperation
+
+            mr.toList.foreach { x =>
+                bulk.insert(Map("ID"-> m._3,
+                                "Units" -> x._2._3,
+                                "Sales" -> x._2._2,
+                                "Hospital" -> x._2._4.head,
+                                "ProductMinunt" -> x._2._5.head,
+                                "Market" -> x._2._6.head,
+                                "Timestamp" -> x._2._1,
+                                "Createtime" -> m._4,
+                                "Filepath" -> m._1,
+                                "Rtype" -> x._2._7))
+            }
+            bulk.execute()
+//            mr.toList map { x =>
+//                 val builder = MongoDBObject.newBuilder
+//                 builder += "ID" -> m._3
+//                 builder += "Units" -> x._2._3
+//                 builder += "Sales" -> x._2._2
+//                 builder += "Hospital" -> x._2._4.head
+//                 builder += "ProductMinunt" -> x._2._5.head
+//                 builder += "Market" -> x._2._6.head
+//    //                 builder += "Condition" -> Map("Hospital" -> x._2._4.head , "ProductMinunt" -> x._2._5.head, "Market" -> x._2._6.head)
+//                 builder += "Timestamp" -> x._2._1
+//                 builder += "Createtime" -> m._4
+//                 builder += "Filepath" -> m._1
+//                 builder += "Rtype" -> x._2._7
+//                _data_connection.getCollection(m._2) += builder.result
+//             }
         }
-         println(s"mr.toList.size = ${mr.toList.size}")
+        //2727265
+        println(s"mr.toList.size = ${mr.toList.size}")
          println(s"mr.toList.map(_._2._1).sum = ${mr.toList.map(_._2._2).sum}")
          println(s"mr.toList.map(_._2._2).sum = ${mr.toList.map(_._2._3).sum}")
          
