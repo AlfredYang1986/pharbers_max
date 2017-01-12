@@ -60,6 +60,7 @@ function pageResult(page){
 	query_object['Timestamp'] = [startdate, enddate];
 	query_object['currentPage'] = page;
     query_object['company'] = $.cookie("token");
+    console.info($.cookie("token"))
 
 	$.ajax({
 		url: "/resultquery/search",

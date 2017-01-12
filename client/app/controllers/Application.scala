@@ -17,7 +17,7 @@ object Application extends Controller {
   
   //首页
   def index = Action { request =>
-      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
@@ -57,7 +57,7 @@ object Application extends Controller {
   
   //文件上传
   def filesUpload = Action { request =>
-      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
@@ -67,7 +67,7 @@ object Application extends Controller {
   
   //样本检查
   def sampleCheck = Action { request =>
-      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
@@ -77,7 +77,7 @@ object Application extends Controller {
   
   //模型运算
   def modelOperation = Action { request =>
-      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
@@ -87,7 +87,7 @@ object Application extends Controller {
   
   //结果检查
   def resultCheck = Action { request =>
-      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
@@ -98,7 +98,7 @@ object Application extends Controller {
     
   //结果查询
   def resultQuery = Action { request =>
-      val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+      val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
@@ -108,7 +108,7 @@ object Application extends Controller {
 
   //结果查询
   def manageUploadFile = Action { request =>
-    val token = request.cookies.get("token").map (x => x.value).getOrElse("")
+    val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
     if(token.equals("")){
       Ok(views.html.login("Your new application is ready."))
     }else{

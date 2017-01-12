@@ -8,6 +8,7 @@ import com.pharbers.aqll.pattern.MessageDefines
 import com.pharbers.aqll.util.dao.from
 import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.util.dao._data_connection_basic
 import com.pharbers.aqll.util.MD5
 
@@ -32,7 +33,11 @@ object LoginModule extends ModuleTrait {
               if(x.asInstanceOf[String].equals("")) {
                   None
               }else {
-                  Some(key $eq MD5.md5(x.asInstanceOf[String]))
+                  if(key.equals("Account")) {
+                      Some("User_lst."+key $eq x.toString)
+                  }else {
+                      Some("User_lst."+key $eq MD5.md5(x.asInstanceOf[String]))
+                  }
               }
               
         }
@@ -46,7 +51,7 @@ object LoginModule extends ModuleTrait {
         }
 
         def conditions: List[DBObject] = {
-            var con = conditionsAcc(Nil, "ID" :: "Password" :: Nil, userConditions(x => x.asOpt[String]))
+            var con = conditionsAcc(Nil, "Account" :: "Password" :: Nil, userConditions(x => x.asOpt[String]))
             con
         }
 
@@ -57,8 +62,9 @@ object LoginModule extends ModuleTrait {
                 case 1 => (Some(Map("FinalResult" -> toJson("input is null"))), None)
                 
                 case 2 => conditions match {
-                    case x: List[DBObject] => 
-                        val tmp = (from db () in "Company" where $and(x)).select(resultData(_))(_data_connection_basic).toList
+                    case x: List[DBObject] =>
+                        val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))
+                        val tmp = (from db () in "Company" where t).selectAggregate(resultData(_))(_data_connection_basic).toList
                         tmp.size match {
                             case 0 => (Some(Map("FinalResult" -> toJson("is null"))), None)
                             case _ => (Some(Map("FinalResult" -> tmp.head)),None)
@@ -72,11 +78,26 @@ object LoginModule extends ModuleTrait {
     }
 
     def resultData(x: MongoDBObject): JsValue = {
-        val Name = x.getAs[String]("Name").get
-        val Token = x.getAs[String]("Token").get
+        val User_lst = x.getAs[MongoDBObject]("User_lst").get
+        val Company = x.getAs[MongoDBList]("Company_Name").get
+        val Company_Id = x.getAs[String]("Company_Id").get
         val Timestamp = x.getAs[Number]("Timestamp").get.longValue()
-        toJson(Map("Name" -> toJson(Name),
-            "Token" -> toJson(Token),
+
+        val UserName = User_lst.as[String]("Name")
+        val UserId = User_lst.as[String]("ID")
+        val UserTimestamp = User_lst.as[Number]("Timestamp").longValue()
+        val UserAuth = User_lst.as[Number]("auth").intValue()
+
+        val CompanyNameCh = Company.head.asInstanceOf[BasicDBObject].get("Ch").toString
+        val CompanyNameEn = Company.head.asInstanceOf[BasicDBObject].get("En").toString
+
+        toJson(Map("UserName" -> toJson(UserName),
+            "Token" -> toJson(Company_Id),
+            "UserTimestamp" -> toJson(UserTimestamp),
+            "UserAuth" -> toJson(UserAuth),
+            "User_Token" -> toJson(UserId),
+            "CompanyNameCh" -> toJson(CompanyNameCh),
+            "CompanyNameEn" -> toJson(CompanyNameEn),
             "Timestamp" -> toJson(Timestamp)))
     }
 }

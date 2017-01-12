@@ -5,6 +5,7 @@
 
 package com.pharbers.aqll.util.dao 
 
+import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.query.dsl.QueryExpressionObject
 
@@ -59,7 +60,7 @@ object _data_connection_basic extends data_connection {
 trait IDatabaseContext {
 	var coll_name : String = null
 	
-	protected def openConnection(implicit dbc: data_connection) : MongoCollection = 
+	protected def openConnection(implicit dbc: data_connection) : MongoCollection =
 	    dbc._conn(dbc.conn_name)(coll_name)
 //	    new _data_connection2()._conn(new _data_connection2().conn_name)(coll_name)
 //	  	_data_connection._conn(_data_connection.conn_name)(coll_name)
@@ -106,6 +107,7 @@ object from {
 
 class AMongoDBLINQ extends IDatabaseContext {
 	var w : DBObject = null
+    var w2 : List[DBObject] = List.empty
   
 	def in(l: String) : AMongoDBLINQ = {
 		coll_name = l
@@ -118,6 +120,7 @@ class AMongoDBLINQ extends IDatabaseContext {
 			arg match {
 			  case a: (String, AnyRef) => w += a
 			  case a: DBObject => w = w ++ a
+              case a: List[DBObject] => w2 = w2 ++: a
 			  case _ => w
 			}
 		}
@@ -156,6 +159,17 @@ class AMongoDBLINQ extends IDatabaseContext {
 			nc = (nc :+ cr(i)).asInstanceOf[Linq_List[U]]
 		}
 		nc
+	}
+
+	def selectAggregate[U](cr: (MongoDBObject) => U)(implicit dbc: data_connection) : IQueryable[U] = {
+		val mongoColl = openConnection
+        val aggregationOptions = AggregationOptions(AggregationOptions.CURSOR)
+        val ct = mongoColl.aggregate(w2, aggregationOptions)
+        var nc = new Linq_List[U]
+        for (i <- ct) {
+            nc = (nc :+ cr(i)).asInstanceOf[Linq_List[U]]
+        }
+        nc
 	}
 
 	def count(implicit dbc: data_connection) : Int = openConnection.count(w)
