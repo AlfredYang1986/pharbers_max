@@ -165,17 +165,17 @@ $("#file-4").fileinput({
 function downloadfile(type){
 	var filename;
 	switch (type) {
-		case "cpaproduct":
-			filename = "2359310c-0598-4c18-a361-75252e1be9b8";
+		case "CPA产品":
+			filename = "CPA产品.xlsx";
 			break;
-		case "cpamarket":
-			filename = "8b997b55-e6a6-45fd-a58b-25fd2f94f45e";
+		case "CPA市场":
+			filename = "CPA市场数据.xlsx";
 			break;
-		case "ptrustproduct":
-			filename = "0e68d410-f94c-4e5f-951e-92b71916fa63";
+		case "PharmaTrust产品":
+			filename = "PharmaTrust产品.xlsx";
 			break;
-		case "ptrustmarket":
-			filename = "50cd6b75-529c-4fb0-b1e0-d407b7960ef2";
+		case "PharmaTrust市场":
+			filename = "PharmaTrust市场数据.xlsx";
 			break;
 	}
 	location.href = "/pharbers/files/"+filename;
