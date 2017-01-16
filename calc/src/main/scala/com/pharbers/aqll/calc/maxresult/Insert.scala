@@ -15,12 +15,10 @@ object Insert {
     
     def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))]) (m: (String, String, String, Long)) = {
         def maxInser() = {
-            if(!MongoDBCollManager.isCollectionExist(m._2)){
-                _data_connection.getCollection(m._2).createIndex(MongoDBObject("Hospital" -> 1))
-                _data_connection.getCollection(m._2).createIndex(MongoDBObject("ProductMinunt" -> 1))
-                _data_connection.getCollection(m._2).createIndex(MongoDBObject("Market" -> 1))
-                _data_connection.getCollection(m._2).createIndex(MongoDBObject("Timestamp" -> 1))
-            }
+            _data_connection.getCollection(m._2).createIndex(MongoDBObject("Hospital" -> 1))
+            _data_connection.getCollection(m._2).createIndex(MongoDBObject("ProductMinunt" -> 1))
+            _data_connection.getCollection(m._2).createIndex(MongoDBObject("Market" -> 1))
+            _data_connection.getCollection(m._2).createIndex(MongoDBObject("Timestamp" -> 1))
 
             val bulk = _data_connection.getCollection(m._2).initializeUnorderedBulkOperation
 
@@ -54,12 +52,13 @@ object Insert {
 //             }
         }
         //2727265
-        println(s"mr.toList.size = ${mr.toList.size}")
+         println(s"mr.toList.size = ${mr.toList.size}")
          println(s"mr.toList.map(_._2._1).sum = ${mr.toList.map(_._2._2).sum}")
          println(s"mr.toList.map(_._2._2).sum = ${mr.toList.map(_._2._3).sum}")
+         println(s"m._2 = ${m._2}")
          
          val conditions = ("ID" -> m._3)
-         val count = (from db() in "FinalResult" where conditions count)
+         val count = (from db() in m._2 where conditions count)
          println(s"count = ${count}")
          count match {
              case 0 => {
@@ -68,7 +67,7 @@ object Insert {
              
              case _ => {
                  val rm =MongoDBObject(conditions)
-                 _data_connection.getCollection("FinalResult").remove(rm)
+                 _data_connection.getCollection(m._2).remove(rm)
                  maxInser()
              }
          }

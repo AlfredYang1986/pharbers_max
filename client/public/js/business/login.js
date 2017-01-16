@@ -25,12 +25,11 @@ function login() {
 		data: d,
 		contentType: "application/json,charset=utf-8",
 		success: function(r){
-			console.info(r);
 			if(r.result.FinalResult == "input is null") {
 				$("#loginSub").click();
 			}else if(r.result.FinalResult == "is null") {
 				alert("用户名或密码错误！！！")
-			}else {
+			}else if(r != null  && r != ""){
                 $.cookie("user_token",r.result.FinalResult.User_Token)
 				$.cookie("user_name",r.result.FinalResult.UserName)
                 $.cookie("user_auth",r.result.FinalResult.UserAuth)

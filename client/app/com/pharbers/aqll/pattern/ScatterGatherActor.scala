@@ -24,7 +24,7 @@ class ScatterGatherActor(originSender : ActorRef, msr : MessageRoutes)(implicit 
 	var next : ActorRef = null
 	var sub_act = Seq[ActorRef]()
 	var excepted = 0
-	val tmp_result : Ref[List[Map[String, JsValue]]] = Ref(Nil) 
+	val tmp_result : Ref[List[Map[String, JsValue]]] = Ref(List.empty)
 	
 	def receive = {
 		case msg : ParallelMessage => {

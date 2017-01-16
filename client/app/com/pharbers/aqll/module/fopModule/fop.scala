@@ -18,7 +18,8 @@ object fop {
   	      	var lst : List[JsValue] = Nil
       	    data.files.foreach { x =>
       	        val uuid = UUID.randomUUID
-      	  	  	Files.moveFile(x.ref.file, new File("D:\\SourceData/Client/" + uuid), true, true)
+				new TemporaryFile(x.ref.file).moveTo(new File("D:\\SourceData/Client/" + uuid), true)
+      	  	  	//Files.moveFile(x.ref.file, new File("D:\\SourceData/Client/" + uuid), true, true)
       	  	  	lst = lst :+ toJson(uuid.toString)
       	  	}
       	    Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -40,7 +41,8 @@ object fop {
 			deleteFile(new File("D:\\SourceData/Manage/医院数据/"))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/医院数据/" + uuid), true, true)
+				new TemporaryFile(x.ref.file).moveTo(new File("D:\\SourceData/Manage/医院数据/" + uuid), true)
+				//Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/医院数据/" + uuid), true, true)
 				lst = lst :+ toJson(uuid.toString)
 			}
 			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -55,7 +57,8 @@ object fop {
 			deleteFile(new File("D:\\SourceData/Manage/产品匹配/"))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/产品匹配/" + uuid), true, true)
+				new TemporaryFile(x.ref.file).moveTo(new File("D:\\SourceData/Manage/产品匹配/" + uuid), true)
+				//Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/产品匹配/" + uuid), true, true)
 				lst = lst :+ toJson(uuid.toString)
 			}
 			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -70,7 +73,8 @@ object fop {
 			deleteFile(new File("D:\\SourceData/Manage/市场匹配/"))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/市场匹配/" + uuid), true, true)
+				new TemporaryFile(x.ref.file).moveTo(new File("D:\\SourceData/Manage/市场匹配/" + uuid), true)
+				//Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/市场匹配/" + uuid), true, true)
 				lst = lst :+ toJson(uuid.toString)
 			}
 			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -85,7 +89,8 @@ object fop {
 			deleteFile(new File("D:\\SourceData/Manage/医院匹配/"))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/医院匹配/" + uuid), true, true)
+				new TemporaryFile(x.ref.file).moveTo(new File("D:\\SourceData/Manage/医院匹配/" + uuid), true)
+				//Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/医院匹配/" + uuid), true, true)
 				lst = lst :+ toJson(uuid.toString)
 			}
 			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))

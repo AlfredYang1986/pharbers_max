@@ -49,7 +49,7 @@ object FileExportModule extends ModuleTrait{
 
 		def conditionsAcc(o : List[DBObject], keys : List[String], func : (String, JsValue) => Option[DBObject]) : List[DBObject] = keys match {
 			case Nil => o
-			case head :: lst => func(head, (data \ head)) match {
+			case head :: lst => func(head,(data \ head).as[JsValue]) match {
 				case None => conditionsAcc(o, lst, func)
 				case Some(y) => conditionsAcc(y :: o, lst, func)
 			}

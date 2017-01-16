@@ -9,7 +9,7 @@ import module.manage.ManageFilesUploadModuleMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
-object FilesUploadController extends Controller{
+class FilesUploadController extends Controller{
     
     def filesUploadAjaxCall = Action (request => requestArgs(request) { jv => 
 		import pattern.ResultMessage.common_result

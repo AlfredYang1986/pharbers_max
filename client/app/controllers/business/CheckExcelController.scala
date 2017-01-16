@@ -11,7 +11,7 @@ import play.api.libs.json.Json.toJson
 /**
   * Created by Faiz on 2017/1/2.
   */
-object CheckExcelController extends Controller{
+class CheckExcelController extends Controller{
     def checkExcelAjaxCall = Action (request => requestArgs(request) { jv =>
         import pattern.ResultMessage.common_result
         import pattern.LogMessage.common_log

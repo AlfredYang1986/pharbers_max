@@ -12,7 +12,7 @@ import play.api.libs.json.Json.toJson
 /**
 	* Created by Wli on 2017/1/4.
 	*/
-object FilesUploadController extends Controller{
+class FilesUploadController extends Controller{
     
     def filesUploadAjaxCall = Action (request => requestArgs(request) { jv => 
 		import pattern.ResultMessage.common_result

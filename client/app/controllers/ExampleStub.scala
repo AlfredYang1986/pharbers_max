@@ -10,7 +10,7 @@ import controllers.common.requestArgsQuery.requestArgs
 
 import module.ExampleModuleMessage._
 
-object Example extends Controller {
+class Example extends Controller {
 	def exampAjaxCall = Action (request => requestArgs(request) { jv => 
 		import pattern.ResultMessage.common_result
 		MessageRoutes(msg_example_1(jv) :: msg_example_2(jv) :: msg_CommonResultMessage() :: Nil, None)

@@ -1,10 +1,12 @@
 package controllers
 
 import play.api._
+import javax.inject._
 import play.api.mvc._
 import module.business.MarketsModule
 
-object Application extends Controller {
+@Singleton
+class Application extends Controller {
     
   //官网
   def landing = Action {

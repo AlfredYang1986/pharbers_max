@@ -2,7 +2,6 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# static page
 GET     /                           controllers.Application.login
 GET     /landing                    controllers.Application.landing
 GET		/login						controllers.Application.login
@@ -45,4 +44,4 @@ POST	/error						controllers.Example.exampAjaxError
 POST	/paralle					controllers.SatterGatherTestController.testIndex
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

@@ -11,7 +11,7 @@ import play.api.libs.json.Json.toJson
 /**
 	* Created by Wli on 2017/1/3.
 	*/
-object FileExportController extends Controller{
+class FileExportController extends Controller{
 
     def fileExportAjaxCall = Action (request => requestArgs(request) { jv =>
 			import pattern.ResultMessage.common_result

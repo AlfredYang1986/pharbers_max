@@ -44,7 +44,7 @@ object LoginModule extends ModuleTrait {
 
         def conditionsAcc(o: List[DBObject], keys: List[String], func: (String, JsValue) => Option[DBObject]): List[DBObject] = keys match {
             case Nil => o
-            case head :: lst => func(head, (data \ head)) match {
+            case head :: lst => func(head, (data \ head).as[JsValue]) match {
                 case None => conditionsAcc(o, lst, func)
                 case Some(y) => conditionsAcc(y :: o, lst, func)
             }
@@ -63,6 +63,7 @@ object LoginModule extends ModuleTrait {
                 
                 case 2 => conditions match {
                     case x: List[DBObject] =>
+                        println(s"x = $x")
                         val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))
                         val tmp = (from db () in "Company" where t).selectAggregate(resultData(_))(_data_connection_basic).toList
                         tmp.size match {

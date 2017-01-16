@@ -9,7 +9,7 @@ import play.api.mvc._
 import pattern.LogMessage.msg_log
 import play.api.libs.json.Json.toJson
 
-object ModelOperationController extends Controller{
+class ModelOperationController extends Controller{
     def mondelOperationAjaxCall = Action (request => requestArgs(request) { jv =>
 			import pattern.ResultMessage.common_result
 			import pattern.LogMessage.common_log

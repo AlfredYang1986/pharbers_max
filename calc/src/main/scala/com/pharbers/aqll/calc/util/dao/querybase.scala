@@ -5,15 +5,18 @@
 
 package com.pharbers.aqll.calc.util.dao
 
-import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.query.dsl.QueryExpressionObject
+import com.mongodb.casbah.Imports._
+import com.mongodb.MongoCredential._
 
 object _data_connection { 
 	def conn_name : String = "Max_Cores"
-
-	val _conn = MongoConnection()
-	var _conntion : Map[String, MongoCollection] = Map.empty
 	
+	val server = new ServerAddress("127.0.0.1", 2017)
+    val credentials = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
+    val _conn = MongoClient(server, List(credentials))
+
+	var _conntion : Map[String, MongoCollection] = Map.empty
 	def getCollection(coll_name : String) : MongoCollection = {
 		if (!_conntion.contains(coll_name)) _conntion += (coll_name -> _conn(conn_name)(coll_name))
 		

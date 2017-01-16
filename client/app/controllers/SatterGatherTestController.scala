@@ -12,7 +12,7 @@ import com.pharbers.aqll.pattern.ParallelMessage
 import com.pharbers.aqll.pattern.ParallelMessage.f
 import module.test.testMessages._
 
-object SatterGatherTestController extends Controller {
+class SatterGatherTestController extends Controller {
 	def testIndex = Action (request => requestArgs(request) { jv => 
 			import pattern.ResultMessage.common_result
 			MessageRoutes(

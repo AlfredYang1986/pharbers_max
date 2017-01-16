@@ -1,5 +1,7 @@
 package controllers.business
 
+import javax.inject.Singleton
+
 import play.api._
 import play.api.mvc._
 import play.api.libs.json.JsValue
@@ -13,7 +15,8 @@ import pattern.LogMessage.msg_log
 /**
 	* Created by Wli on 2017/1/5.
 	*/
-object ResultQueryController extends Controller{
+@Singleton
+class ResultQueryController extends Controller{
     
     def resultQueryAjaxCall = Action (request => requestArgs(request) { jv => 
 			import pattern.ResultMessage.common_result

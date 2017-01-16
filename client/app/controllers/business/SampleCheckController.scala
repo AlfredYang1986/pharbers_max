@@ -9,7 +9,7 @@ import module.business.SampleCheckModuleMessage.msg_samplecheck
 import pattern.LogMessage.msg_log
 import play.api.libs.json.Json.toJson
 
-object SampleCheckController extends Controller{
+class SampleCheckController extends Controller{
     
     def sampleCheckAjaxCall = Action (request => requestArgs(request) { jv =>
 		import pattern.ResultMessage.common_result
