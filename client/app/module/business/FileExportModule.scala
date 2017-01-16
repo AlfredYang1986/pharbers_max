@@ -70,7 +70,7 @@ object FileExportModule extends ModuleTrait{
 
 			val file : File = new File("D:/SourceData/Download/"+datatype+".csv")
 			if(file.exists()){file.createNewFile()}
-			val writer = CSVWriter.open(file,"UTF8")
+			val writer = CSVWriter.open(file,"GBK")
 			writer.writeRow(List("年","月","医院","最小产品单位","Value（金额）","Volume (数量)"))
 			writer.writeRow(List("2017","10","北京人民医院","阿司匹林","100000","200000"))
 			writer.writeRow(List("2017","10","北京人民医院","阿司匹林","100000","200000"))
