@@ -12,7 +12,7 @@ import com.pharbers.aqll.util.dao._data_connection_cores
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import scala.collection.immutable.List
-import com.pharbers.aqll.util.file.csv._
+import com.pharbers.aqll.util.file.csv.scala._
 
 object FileExportModuleMessage {
       sealed class msg_fileexportBase extends CommonMessage
@@ -67,10 +67,15 @@ object FileExportModule extends ModuleTrait{
 		try {
 //			val r = (from db() in connectionName where $and(conditions)).select(finalResultJsValue(_))(_data_connection_cores).toList
 //			println(s"result=$r")
-			/*var file : File = new File("download/"+datatype+".csv")
-			val list = List("年,月,医院,最小产品单位,市场1,市场I（标准_中文）,市场I（标准_英文）,市场II（标准_中文）,市场II（标准_英文）,市场III（标准_中文）,市场III（标准_英文）,Value（金额）,Volume (数量)")
-			var isSuccess : Boolean = CsvHelper.ExportCsv(file, list)
-			println(isSuccess)*/
+
+			val file : File = new File("D:/SourceData/Download/"+datatype+".csv")
+			if(file.exists()){file.createNewFile()}
+			val writer = CSVWriter.open(file,"UTF8")
+			writer.writeRow(List("年","月","医院","最小产品单位","Value（金额）","Volume (数量)"))
+			writer.writeRow(List("2017","10","北京人民医院","阿司匹林","100000","200000"))
+			writer.writeRow(List("2017","10","北京人民医院","阿司匹林","100000","200000"))
+			writer.close()
+
 			(Some(Map("finalResult" -> toJson("ok"))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
