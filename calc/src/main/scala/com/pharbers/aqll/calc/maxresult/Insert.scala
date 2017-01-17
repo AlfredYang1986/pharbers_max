@@ -93,6 +93,11 @@ object Insert {
             _data_connection.getCollection("FactResult") += builder.result
         }
         val conditions = ("ID" -> m._3)
+        println(s"m._1 = ${m._1}")
+        println(s"m._2 = ${m._2}")
+        println(s"m._3 = ${m._3}")
+        println(s"m._4 = ${m._4}")
+
         val count = (from db() in "FactResult" where conditions count)
         count match {
              case 0 => {

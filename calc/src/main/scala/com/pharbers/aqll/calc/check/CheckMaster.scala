@@ -17,8 +17,6 @@ import com.pharbers.aqll.calc.util.DateUtil
 
 object CheckMaster {
     def props(originSender : ActorRef) = Props(new CheckMaster(originSender))
-    var getcompany = ""
-    var fileName = ""
     val num_count = 10
 }
 
@@ -26,6 +24,9 @@ class CheckMaster(originSender : ActorRef) extends Actor with ActorLogging with 
     val bus = CreateCheckEventBus
     val agg = CreateCheckAggregator(bus)
     val router = CreateCheckWorker(agg)
+
+    var getcompany = ""
+    var fileName = ""
 
     import CheckMaster._
     val check: Receive = {

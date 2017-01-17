@@ -45,16 +45,18 @@ trait OrderService {
     def getCheck = get {
         path("checkExcel") {
             parameters(("filename", "company", "filetype")) { (filename, company, filetype) =>
-                val system = ActorSystem("excelCall")
+                val system = ActorSystem(filename)
                 val act = system.actorOf(CheckReception.props)
                 val r = filetype match  {
                     case "0" => {
+                        println(s"0--filename = $filename")
                         act ? excelJobStart("""D:\SourceData\Client\"""+filename, cpaProductJob, company, 0)
                     }
                     case "1" => {
                         act ? excelJobStart("""D:\SourceData\Client\"""+filename, cpaMarketJob, company, 0)
                     }
                     case "2" => {
+                        println(s"2--filename = $filename")
                         act ? excelJobStart("""D:\SourceData\Client\"""+filename, phaProductJob, company, 0)
                     }
                     case "3" => {
@@ -64,9 +66,11 @@ trait OrderService {
                 val result = Await.result(r.mapTo[String], requestTimeout.duration)
                 if(result.equals("is ok")){
                     system.terminate()
+                    System.gc()
                     complete("""jsonpCallback1({"result":"Ok"})""")
                 }else{
                     system.terminate()
+                    System.gc()
                     complete("""jsonpCallback1({"result":"No"})""")
                 }
 

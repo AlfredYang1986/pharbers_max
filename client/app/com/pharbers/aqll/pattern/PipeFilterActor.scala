@@ -23,6 +23,8 @@ import module.business.ModelOperationModuleMessage._
 import module.business.ModelOperationModule
 import module.business.FileExportModuleMessage._
 import module.business.FileExportModule
+import module.business.TestModuleMessage.msg_TestBaseQuery
+import module.business.TestModule
 import module.manage.ManageFilesUploadModuleMessage._
 import module.manage.ManageFilesUploadModule
 
@@ -53,6 +55,7 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 	var rst : Option[Map[String, JsValue]] = msr.rst
 	var next : ActorRef = null
 	def receive = {
+		case cmd : msg_TestBaseQuery => dispatchImpl(cmd, TestModule)
 		case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, LoginModule)
 		case cmd : msg_filesuploadBase => dispatchImpl(cmd, FilesUploadModule)
 		case cmd : msg_checkexcel => dispatchImpl(cmd, CheckExcelModule)

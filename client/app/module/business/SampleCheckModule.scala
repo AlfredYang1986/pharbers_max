@@ -1,5 +1,7 @@
 package module.business
 
+import java.util.Date
+
 import play.api.libs.json._
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.pattern.CommonMessage
@@ -9,7 +11,7 @@ import com.pharbers.aqll.util.dao.from
 import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.util.dao._data_connection_cores
-import com.pharbers.aqll.util.MD5
+import com.pharbers.aqll.util.{DateUtil, MD5}
 
 
 object SampleCheckModuleMessage {
@@ -28,8 +30,10 @@ object SampleCheckModule extends ModuleTrait {
     
     def check(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         val company = (data \ "company").asOpt[String].get
+        val filename = (data \ "filename").asOpt[String].get
+        val id = MD5.md5("""D:\SourceData\Client\"""+filename+company+DateUtil.getIntegralStartTime(new Date()).getTime.toString)
         try {
-            val conditions = ("CompanyID" -> company)
+            val conditions = ("ID" -> id)
             val d = (from db() in "FactResult" where $and(conditions)).select(resultData(_))(_data_connection_cores).toList
 			d.size match {
                 case 0 => (Some(Map("FinalResult" -> toJson("is null"))), None)

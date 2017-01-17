@@ -1,6 +1,7 @@
-var sampleCheckFun = function sampleCheck(company) {
+var sampleCheckFun = function sampleCheck(company, filename) {
 	var dataMap = JSON.stringify({
-			"company" : company
+			"company" : company,
+			"filename" : filename
 	});
 	$.ajax({
 		type: "POST",
@@ -28,7 +29,7 @@ var sampleCheckFun = function sampleCheck(company) {
 	});
 }
 window.onload = function() {
-	sampleCheckFun($.cookie("token"))
+	sampleCheckFun($.cookie("token"), $.cookie("filename"))
 }
 $(document).ready(
 		function() {
