@@ -5,17 +5,22 @@
 
 package com.pharbers.aqll.util.dao
 
-import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.query.dsl.QueryExpressionObject
-import com.mongodb.MongoCredential._
+import com.mongodb.casbah.MongoClient
+import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.MongoClient
+import com.mongodb.casbah.MongoCollection
+import com.mongodb.MongoCredential
+import com.mongodb.DBObject
+import com.mongodb.casbah.MongoCursor
 
 trait data_connection {
     def conn_name : String
 
-    val server = new ServerAddress("localhost", 2017)
-    val credentials = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
-    val _conn = MongoClient(server, List(credentials))
+    val addr = new com.mongodb.casbah.Imports.ServerAddress("localhost", 2017)
+    val credentialsList = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
+    val _conn = MongoClient.apply(addr)
 
     var _conntion : Map[String, MongoCollection] = Map.empty
     def getCollection(coll_name : String) : MongoCollection = {
