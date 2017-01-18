@@ -20,7 +20,7 @@ trait data_connection {
 
     val addr = new com.mongodb.casbah.Imports.ServerAddress("localhost", 2017)
     val credentialsList = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
-    val _conn = MongoClient.apply(addr)
+    val _conn = MongoClient.apply(addr, List(credentialsList))
 
     var _conntion : Map[String, MongoCollection] = Map.empty
     def getCollection(coll_name : String) : MongoCollection = {
