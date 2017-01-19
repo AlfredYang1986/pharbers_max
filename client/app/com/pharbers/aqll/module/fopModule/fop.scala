@@ -21,7 +21,6 @@ object fop {
       	    data.files.foreach { x =>
       	        val uuid = UUID.randomUUID
 				new TemporaryFile(x.ref.file).moveTo(new File(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path") + uuid), true)
-      	  	  	//Files.moveFile(x.ref.file, new File("D:\\SourceData/Client/" + uuid), true, true)
       	  	  	lst = lst :+ toJson(uuid.toString)
       	  	}
       	    Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -40,11 +39,11 @@ object fop {
 	def uploadHospitalDataFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 		try {
 			var lst : List[JsValue] = Nil
-			deleteFile(new File("D:\\SourceData/Manage/医院数据/"))
+			var path = GetProperties.loadProperties("File.properties").getProperty("Upload_HospitalData_File")
+			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				new TemporaryFile(x.ref.file).moveTo(new File("D:\\SourceData/Manage/医院数据/" + uuid), true)
-				//Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/医院数据/" + uuid), true, true)
+				new TemporaryFile(x.ref.file).moveTo(new File(path + uuid), true)
 				lst = lst :+ toJson(uuid.toString)
 			}
 			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -56,11 +55,11 @@ object fop {
 	def uploadProductMatchFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 		try {
 			var lst : List[JsValue] = Nil
-			deleteFile(new File("D:\\SourceData/Manage/产品匹配/"))
+			var path = GetProperties.loadProperties("File.properties").getProperty("Upload_ProductMatch_File")
+			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				new TemporaryFile(x.ref.file).moveTo(new File("D:\\SourceData/Manage/产品匹配/" + uuid), true)
-				//Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/产品匹配/" + uuid), true, true)
+				new TemporaryFile(x.ref.file).moveTo(new File(path + uuid), true)
 				lst = lst :+ toJson(uuid.toString)
 			}
 			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -72,11 +71,11 @@ object fop {
 	def uploadMarketMatchFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 		try {
 			var lst : List[JsValue] = Nil
-			deleteFile(new File("D:\\SourceData/Manage/市场匹配/"))
+			var path = GetProperties.loadProperties("File.properties").getProperty("Upload_MarketMatch_File")
+			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				new TemporaryFile(x.ref.file).moveTo(new File("D:\\SourceData/Manage/市场匹配/" + uuid), true)
-				//Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/市场匹配/" + uuid), true, true)
+				new TemporaryFile(x.ref.file).moveTo(new File(path + uuid), true)
 				lst = lst :+ toJson(uuid.toString)
 			}
 			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -88,11 +87,11 @@ object fop {
 	def uploadHospitalMatchFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 		try {
 			var lst : List[JsValue] = Nil
-			deleteFile(new File("D:\\SourceData/Manage/医院匹配/"))
+			var path = GetProperties.loadProperties("File.properties").getProperty("Upload_HospitalMatch_File")
+			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				new TemporaryFile(x.ref.file).moveTo(new File("D:\\SourceData/Manage/医院匹配/" + uuid), true)
-				//Files.moveFile(x.ref.file, new File("D:\\SourceData/Manage/医院匹配/" + uuid), true, true)
+				new TemporaryFile(x.ref.file).moveTo(new File(path + uuid), true)
 				lst = lst :+ toJson(uuid.toString)
 			}
 			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))

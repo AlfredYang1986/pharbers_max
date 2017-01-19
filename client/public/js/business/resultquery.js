@@ -136,22 +136,22 @@ function pageResult(page){
 								fbody += "<td>" + result[i].Hosp_Level + "</td>";
 							}
 							tbody += fbody;
-							tbody += "<td>" + result[i].MiniProd_Name_Ch + "</td>";
-							tbody += "<td>" + result[i].MiniProd_Name_En + "</td>";
-							tbody += "<td>" + result[i].Manufacturer_Ch + "</td>";
-							tbody += "<td>" + result[i].Manufacturer_En + "</td>";
-							tbody += "<td>" + result[i].Drug_Ch + "</td>";
-							tbody += "<td>" + result[i].Drug_En + "</td>";
-							tbody += "<td>" + result[i].Products_Ch + "</td>";
-							tbody += "<td>" + result[i].Products_En + "</td>";
-							tbody += "<td>" + result[i].DosageForm_Ch + "</td>";
-							tbody += "<td>" + result[i].DosageForm_En + "</td>";
-							tbody += "<td>" + result[i].DrugSpecification_Ch + "</td>";
-							tbody += "<td>" + result[i].DrugSpecification_En + "</td>";
-							tbody += "<td>" + result[i].Package_Quantity_Ch + "</td>";
-							tbody += "<td>" + result[i].Package_Quantity_En + "</td>";
-							tbody += "<td>" + result[i].sku_Ch + "</td>";
-							tbody += "<td>" + result[i].sku_En + "</td>";
+							tbody += "<td>" + result[i].MC + "</td>";
+							tbody += "<td>" + result[i].ME + "</td>";
+							tbody += "<td>" + result[i].QC + "</td>";
+							tbody += "<td>" + result[i].QC + "</td>";
+							tbody += "<td>" + result[i].YC + "</td>";
+							tbody += "<td>" + result[i].YE + "</td>";
+							tbody += "<td>" + result[i].SC + "</td>";
+							tbody += "<td>" + result[i].SE + "</td>";
+							tbody += "<td>" + result[i].JC + "</td>";
+							tbody += "<td>" + result[i].JE + "</td>";
+							tbody += "<td>" + result[i].GC + "</td>";
+							tbody += "<td>" + result[i].GE + "</td>";
+							tbody += "<td>" + result[i].LC + "</td>";
+							tbody += "<td>" + result[i].LE + "</td>";
+							tbody += "<td>" + result[i].KC + "</td>";
+							tbody += "<td>" + result[i].KE + "</td>";
 							tbody += "<td>" + result[i].Market_Code1_Ch + "</td>";
 							tbody += "<td>" + result[i].Market_Code1_En + "</td>";
 							tbody += "<td>" + result[i].Market_Code2_Ch + "</td>";
@@ -181,6 +181,7 @@ function pageResult(page){
 }
 
 function fileExport(type) {
+    loader.show();
 	var filetype;
 	switch (type){
 		case "csv":
@@ -214,10 +215,12 @@ function fileExport(type) {
         cache: false,
         success: function(data) {
             if (data.status == "ok") {
-				alert("导出成功");
+                loader.hide();
+            	alert("导出成功");
             }
         },
         error: function(xhr, status, error) {
+            loader.hide();
             alert("请检查您的输入");
         }
     });

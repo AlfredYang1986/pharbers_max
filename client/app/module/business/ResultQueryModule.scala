@@ -46,7 +46,7 @@ object ResultQueryModule extends ModuleTrait {
           case None => None
           case Some(x) => {
             val lst = x.asInstanceOf[List[String]].map { str => str }
-            Some($and("Market" $in lst))
+            Some("Market" $in lst)
           }
         }
 	    
@@ -70,8 +70,7 @@ object ResultQueryModule extends ModuleTrait {
         val order = "Timestamp"
 
 		val connectionName = (data \ "company").asOpt[String].get
-
-        try {
+		try {
             val r = (from db() in connectionName where $and(conditions)).selectSkipTop(skip)(take)(order)(finalResultJsValue(_))(_data_connection_cores).toList
             val n = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
             println("first step end.")       
@@ -88,7 +87,7 @@ object ResultQueryModule extends ModuleTrait {
 	        val hospitalinfos = (from db() in "HospitalInfo" where ("Pha_Code" $in phacodes)).select(hospitalJsValue(_))(_data_connection_cores).toList
 	        val hosps = pr.get.get("finalResult").map ( x => x.as[List[Map[String,JsValue]]]).get map { x =>
 	            val matchresult = hospitalinfos.find(y => y.get("Pha_Code").get.asOpt[String].get.equals(x.get("Hospital").get.asOpt[String].get)).get
-	            f.apply(x :: matchresult :: Nil)
+				f.apply(x :: matchresult :: Nil)
 	        }
 	        (Some(Map("finalResult" -> toJson(hosps), "page" -> toJson(pr.get.get("page")))), None)
 	    } catch {
@@ -100,9 +99,9 @@ object ResultQueryModule extends ModuleTrait {
 	    import com.pharbers.aqll.pattern.ParallelMessage.f
 	    try {
 	        val miniproducts = pr.get.map(_._2).map(x => x.\\("ProductMinunt")).head.map(x => x.asOpt[String].get)
-	        val miniproductinfos = (from db() in "MinimumProductInfo" where ("MiniProd_Name_Ch" $in miniproducts)).select(miniProductJsValue(_))(_data_connection_cores).toList
+	        val miniproductinfos = (from db() in "MinimumProductInfo" where ("MC" $in miniproducts)).select(miniProductJsValue(_))(_data_connection_cores).toList
 	        val prods = pr.get.get("finalResult").map ( x => x.as[List[Map[String,JsValue]]]).get map { x =>
-	            val matchresult = miniproductinfos.find(y => y.get("MiniProd_Name_Ch").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get
+	            val matchresult = miniproductinfos.find(y => y.get("MC").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get
 	            f.apply(x :: matchresult :: Nil)
 	        }
             println("query result end.")
@@ -163,22 +162,22 @@ object ResultQueryModule extends ModuleTrait {
 	
 	def miniProductJsValue(x : MongoDBObject) : Map[String,JsValue] = {
 	     Map(
-    	    "MiniProd_Name_Ch" -> toJson(x.getAs[String]("MiniProd_Name_Ch")),
-    	    "MiniProd_Name_En" -> toJson(x.getAs[String]("MiniProd_Name_En")),
-    	    "Manufacturer_Ch" -> toJson(x.getAs[String]("Manufacturer_Ch")),
-    	    "Manufacturer_En" -> toJson(x.getAs[String]("Manufacturer_En")),
-    	    "Drug_Ch" -> toJson(x.getAs[String]("Drug_Ch")),
-    	    "Drug_En" -> toJson(x.getAs[String]("Drug_En")),
-    	    "Products_Ch" -> toJson(x.getAs[String]("Products_Ch")),
-    	    "Products_En" -> toJson(x.getAs[String]("Products_En")),
-    	    "DosageForm_Ch" -> toJson(x.getAs[String]("DosageForm_Ch")),
-    	    "DosageForm_En" -> toJson(x.getAs[String]("DosageForm_En")),
-    	    "DrugSpecification_Ch" -> toJson(x.getAs[String]("DrugSpecification_Ch")),
-    	    "DrugSpecification_En" -> toJson(x.getAs[String]("DrugSpecification_En")),
-    	    "Package_Quantity_Ch" -> toJson(x.getAs[Number]("Package_Quantity_Ch").get.longValue()),
-    	    "Package_Quantity_En" -> toJson(x.getAs[Number]("Package_Quantity_En").get.longValue()),
-    	    "sku_Ch" -> toJson(x.getAs[String]("sku_Ch")),
-    	    "sku_En" -> toJson(x.getAs[String]("sku_En"))
+    	    "MC" -> toJson(x.getAs[String]("MC")),
+    	    "ME" -> toJson(x.getAs[String]("ME")),
+    	    "QC" -> toJson(x.getAs[String]("QC")),
+    	    "QC" -> toJson(x.getAs[String]("QC")),
+    	    "YC" -> toJson(x.getAs[String]("YC")),
+    	    "YE" -> toJson(x.getAs[String]("YE")),
+    	    "SC" -> toJson(x.getAs[String]("SC")),
+    	    "SE" -> toJson(x.getAs[String]("SE")),
+    	    "JC" -> toJson(x.getAs[String]("JC")),
+    	    "JE" -> toJson(x.getAs[String]("JE")),
+    	    "GC" -> toJson(x.getAs[String]("GC")),
+    	    "GE" -> toJson(x.getAs[String]("GE")),
+    	    "LC" -> toJson(x.getAs[Number]("LC").get.longValue()),
+    	    "LE" -> toJson(x.getAs[Number]("LE").get.longValue()),
+    	    "KC" -> toJson(x.getAs[String]("KC")),
+    	    "KE" -> toJson(x.getAs[String]("KE"))
 	     )
 	}
 }

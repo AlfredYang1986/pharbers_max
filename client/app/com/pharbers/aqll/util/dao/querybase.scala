@@ -11,9 +11,7 @@ import com.mongodb.casbah.MongoClient
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoClient
 import com.mongodb.casbah.MongoCollection
-import com.mongodb.MongoCredential
-import com.mongodb.DBObject
-import com.mongodb.casbah.MongoCursor
+import com.mongodb.{DBObject, MongoCredential}
 
 trait data_connection {
     def conn_name : String
@@ -179,6 +177,11 @@ class AMongoDBLINQ extends IDatabaseContext {
             nc = (nc :+ cr(i)).asInstanceOf[Linq_List[U]]
         }
         nc
+    }
+
+    def selectCursor[U](cr: (MongoDBObject) => U)(implicit dbc: data_connection) : MongoCursor = {
+        val mongoColl = openConnection
+        mongoColl.find(w)
     }
 
     def count(implicit dbc: data_connection) : Int = openConnection.count(w)

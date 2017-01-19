@@ -2,9 +2,8 @@ package controllers
 
 import play.api._
 import play.api.mvc._
-
-import controllers.common.requestArgsQuery.uploadRequestArgs
-import controllers.common.default_error_handler.f
+import common.requestArgsQuery.uploadRequestArgs
+import common.default_error_handler.f
 import com.pharbers.aqll.module.fopModule.fop
 
 class foptController extends Controller {
