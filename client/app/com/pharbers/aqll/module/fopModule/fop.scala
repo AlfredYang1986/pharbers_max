@@ -1,16 +1,18 @@
 package com.pharbers.aqll.module.fopModule
 
 import java.io.File
+
 import play.api.libs.Files
 import java.io.FileInputStream
 
 import play.api.mvc.MultipartFormData
 import play.api.libs.Files.TemporaryFile
-
 import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
 import java.util.UUID
+
+import com.pharbers.aqll.util.GetProperties
 
 object fop {
 	def uploadFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
@@ -18,7 +20,7 @@ object fop {
   	      	var lst : List[JsValue] = Nil
       	    data.files.foreach { x =>
       	        val uuid = UUID.randomUUID
-				new TemporaryFile(x.ref.file).moveTo(new File("D:\\SourceData/Client/" + uuid), true)
+				new TemporaryFile(x.ref.file).moveTo(new File(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path") + uuid), true)
       	  	  	//Files.moveFile(x.ref.file, new File("D:\\SourceData/Client/" + uuid), true, true)
       	  	  	lst = lst :+ toJson(uuid.toString)
       	  	}
@@ -29,7 +31,7 @@ object fop {
 	}
 
 	def downloadFile(name : String) : Array[Byte] = {
-	  	val file = new File("D:\\SourceData/Template/" + name)
+	  	val file = new File(GetProperties.loadProperties("File.properties").getProperty("File_Template_Parh") + name)
 			val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
 			new FileInputStream(file).read(reVal)
 			reVal
