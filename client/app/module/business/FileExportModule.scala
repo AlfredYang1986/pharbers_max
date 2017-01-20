@@ -12,6 +12,8 @@ import com.mongodb.casbah.Imports.{$and, _}
 import com.pharbers.aqll.util.dao._data_connection_cores
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import scala.xml._
+import java.util.Date
 
 import com.mongodb.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
@@ -42,6 +44,8 @@ object FileExportModule extends ModuleTrait{
 
 	def msg_finalresult_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 		println("query result start.")
+		var format : SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+		println(format.format(new Date()))
 		def dateListConditions(getter : JsValue => Any)(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
 			case None => None
 			case Some(x) => {
@@ -84,8 +88,8 @@ object FileExportModule extends ModuleTrait{
 			}
 			println("1")
 			var result1 = msg_hospitalresult_func(lst.toList)
-			//var result2 = msg_miniproductresult_func(result1)
-			(Some(Map("finalResult" -> toJson(msg_exportresult_func(data,result1)))), None)
+			var result2 = msg_miniproductresult_func(result1)
+			(Some(Map("finalResult" -> toJson(msg_exportresult_func(data,result2)))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
@@ -119,12 +123,9 @@ object FileExportModule extends ModuleTrait{
 		 val writer = CSVWriter.open(file,"GBK")
 
 		datatype match {
-			case "省份数据" => writer.writeRow(List("年","月","区域","省份","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
-			case "城市数据" => writer.writeRow(List("年","月","区域","省份","城市","城市级别","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
-			case "医院数据" => writer.writeRow(List("年","月","区域","省份","城市","城市级别","医院","医院级别","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
-			/*case "省份数据" => writer.writeRow(List("年","月","区域","省份","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
+			case "省份数据" => writer.writeRow(List("年","月","区域","省份","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
 			case "城市数据" => writer.writeRow(List("年","月","区域","省份","城市","城市级别","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
-			case "医院数据" => writer.writeRow(List("年","月","区域","省份","城市","城市级别","医院","医院级别","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))*/
+			case "医院数据" => writer.writeRow(List("年","月","区域","省份","城市","城市级别","医院","医院级别","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
 		}
 
 		 pr.foreach{ x =>
@@ -148,7 +149,7 @@ object FileExportModule extends ModuleTrait{
 					 lb.append(x.get("Hosp_Name").get)
 					 lb.append(x.get("Hosp_Level").get)
 			 }
-			 /*lb.append(x.get("MC").get)
+			 lb.append(x.get("MC").get)
 			 lb.append(x.get("ME").get)
 			 lb.append(x.get("QC").get)
 			 lb.append(x.get("QE").get)
@@ -163,7 +164,7 @@ object FileExportModule extends ModuleTrait{
 			 lb.append(x.get("LC").get)
 			 lb.append(x.get("LE").get)
 			 lb.append(x.get("KC").get)
-			 lb.append(x.get("KE").get)*/
+			 lb.append(x.get("KE").get)
 			 lb.append(x.get("Market").get)
 			 lb.append(x.get("Market").get)
 			 lb.append(x.get("Market").get)
@@ -175,7 +176,8 @@ object FileExportModule extends ModuleTrait{
 			 writer.writeRow(lb.toList)
 		}
 		writer.close()
-
+		var format : SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+		println(format.format(new Date()))
 		/*val bw: BufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "GBK"))
 		bw.write("年,月,区域,省份,城市,城市级别,医院,医院级别,最小产品单位（标准_中文）,最小产品单位（标准_英文）,生产厂家（标准_中文）,生产厂家（标准_英文）,通用名（标准_中文）,通用名（标准_英文,商品名（标准_中文）,商品名（标准_英文）,剂型（标准_中文）,剂型（标准_英文）,药品规格（标准_中文）,药品规格（标准_英文）,包装数量（标准_中文）,包装数量（标准_英文）,SKU（标准_中文）,SKU（标准_英文）,市场I（标准_中文）,市场I（标准_英文）,市场II（标准_中文）,市场II（标准_英文）,市场III（标准_中文）,市场III（标准_英文）,Value（金额）,Volume（数量）")
 		bw.newLine()
