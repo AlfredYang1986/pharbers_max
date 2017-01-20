@@ -27,6 +27,7 @@ POST	/modeloperation/operation	controllers.business.ModelOperationController.mon
 POST	/resultquery/fileexport	    controllers.business.FileExportController.fileExportAjaxCall
 POST	/login/start			    controllers.business.LoginController.Login
 POST	/uploadfiles				controllers.business.FilesUploadController.filesUploadAjaxCall
+GET     /resultquery/files/:name    controllers.foptController.exportFile(name)
 
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)

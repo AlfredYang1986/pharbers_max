@@ -215,13 +215,13 @@ function fileExport(type) {
         cache: false,
         success: function(data) {
             if (data.status == "ok") {
-                loader.hide();
-            	alert("导出成功");
+                location.href = "/resultquery/files/"+data.result.finalResult;
             }
+            loader.hide();
         },
         error: function(xhr, status, error) {
+            console.info("请检查您的输入");
             loader.hide();
-            alert("请检查您的输入");
         }
     });
 }

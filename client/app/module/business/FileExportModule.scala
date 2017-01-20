@@ -11,12 +11,12 @@ import com.pharbers.aqll.util.dao.from
 import com.mongodb.casbah.Imports.{$and, _}
 import com.pharbers.aqll.util.dao._data_connection_cores
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import scala.xml._
-import java.util.Date
+import java.util.{Calendar, Date, UUID}
 
+import scala.xml._
 import com.mongodb.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
+import com.pharbers.aqll.util.GetProperties
 
 import scala.collection.immutable.List
 import com.pharbers.aqll.util.file.csv.scala._
@@ -89,7 +89,8 @@ object FileExportModule extends ModuleTrait{
 			println("1")
 			var result1 = msg_hospitalresult_func(lst.toList)
 			var result2 = msg_miniproductresult_func(result1)
-			(Some(Map("finalResult" -> toJson(msg_exportresult_func(data,result2)))), None)
+			var result3 = msg_exportresult_func(data,result2)
+			(Some(Map("finalResult" -> toJson(result3))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
@@ -117,17 +118,19 @@ object FileExportModule extends ModuleTrait{
 
 	def msg_exportresult_func(data : JsValue,pr : List[Map[String, JsValue]]) : String = {
 		 val datatype = (data \ "datatype").asOpt[String].get
-		 var filepath = "D:/SourceData/Download/"+datatype+".csv"
-		 val file : File = new File(filepath)
+		 var exportpath = GetProperties.loadProperties("File.properties").getProperty("Export_File")
+		 val uuid = UUID.randomUUID
+		 val file : File = new File(exportpath+uuid)
 		 if(file.exists()){file.createNewFile()}
 		 val writer = CSVWriter.open(file,"GBK")
-
-		datatype match {
-			case "省份数据" => writer.writeRow(List("年","月","区域","省份","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
-			case "城市数据" => writer.writeRow(List("年","月","区域","省份","城市","城市级别","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
-			case "医院数据" => writer.writeRow(List("年","月","区域","省份","城市","城市级别","医院","医院级别","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
-		}
-
+		 datatype match {
+			 case "省份数据" =>
+				 writer.writeRow(List("年","月","区域","省份","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
+			 case "城市数据" =>
+				 writer.writeRow(List("年","月","区域","省份","城市","城市级别","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
+			 case "医院数据" =>
+				 writer.writeRow(List("年","月","区域","省份","城市","城市级别","医院","医院级别","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
+		 }
 		 pr.foreach{ x =>
 			 val lb : ListBuffer[AnyRef] = ListBuffer[AnyRef]()
 			 lb.append(x.get("Year").get)
@@ -176,51 +179,10 @@ object FileExportModule extends ModuleTrait{
 			 writer.writeRow(lb.toList)
 		}
 		writer.close()
+		println("4")
 		var format : SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 		println(format.format(new Date()))
-		/*val bw: BufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "GBK"))
-		bw.write("年,月,区域,省份,城市,城市级别,医院,医院级别,最小产品单位（标准_中文）,最小产品单位（标准_英文）,生产厂家（标准_中文）,生产厂家（标准_英文）,通用名（标准_中文）,通用名（标准_英文,商品名（标准_中文）,商品名（标准_英文）,剂型（标准_中文）,剂型（标准_英文）,药品规格（标准_中文）,药品规格（标准_英文）,包装数量（标准_中文）,包装数量（标准_英文）,SKU（标准_中文）,SKU（标准_英文）,市场I（标准_中文）,市场I（标准_英文）,市场II（标准_中文）,市场II（标准_英文）,市场III（标准_中文）,市场III（标准_英文）,Value（金额）,Volume（数量）")
-		bw.newLine()
-		pr.foreach { x =>
-			var sb : StringBuffer = new StringBuffer()
-			sb.append(x.get("Year").get).append(",")
-			sb.append(x.get("Month").get).append(",")
-			sb.append(x.get("Region_Name").get).append(",")
-			sb.append(x.get("Province_Name").get).append(",")
-			sb.append(x.get("City_Name").get).append(",")
-			sb.append(x.get("City_Level").get).append(",")
-			sb.append(x.get("Hosp_Name").get).append(",")
-			sb.append(x.get("Hosp_Level").get).append(",")
-			sb.append(x.get("MC").get).append(",")
-			sb.append(x.get("ME").get).append(",")
-			sb.append(x.get("QC").get).append(",")
-			sb.append(x.get("QE").get).append(",")
-			sb.append(x.get("YC").get).append(",")
-			sb.append(x.get("YE").get).append(",")
-			sb.append(x.get("SC").get).append(",")
-			sb.append(x.get("SE").get).append(",")
-			sb.append(x.get("JC").get).append(",")
-			sb.append(x.get("JE").get).append(",")
-			sb.append(x.get("GC").get).append(",")
-			sb.append(x.get("GE").get).append(",")
-			sb.append(x.get("LC").get).append(",")
-			sb.append(x.get("LE").get).append(",")
-			sb.append(x.get("KC").get).append(",")
-			sb.append(x.get("KE").get).append(",")
-			sb.append(x.get("Market").get).append(",")
-			sb.append(x.get("Market").get).append(",")
-			sb.append(x.get("Market").get).append(",")
-			sb.append(x.get("Market").get).append(",")
-			sb.append(x.get("Market").get).append(",")
-			sb.append(x.get("Market").get).append(",")
-			sb.append(x.get("Sales").get).append(",")
-			sb.append(x.get("Units").get)
-			bw.write(sb.toString)
-			bw.newLine()
-		}
-		bw.close()*/
-		println("4")
-		"OK"
+		uuid.toString
 	}
 
 	def finalResultJsValue1(obj : DBObject) : Map[String,JsValue] = {
