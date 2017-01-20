@@ -6,18 +6,16 @@
 package com.pharbers.aqll.util.dao
 
 import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.query.dsl.QueryExpressionObject
-import com.mongodb.casbah.MongoClient
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoClient
 import com.mongodb.casbah.MongoCollection
 import com.mongodb.{DBObject, MongoCredential}
+import com.pharbers.aqll.util.dao.Msd._
 
 trait data_connection {
     def conn_name : String
-
-    val addr = new com.mongodb.casbah.Imports.ServerAddress("localhost", 2017)
-    val credentialsList = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
+    val addr = new com.mongodb.casbah.Imports.ServerAddress(DBHost,DBPort)
+    val credentialsList = MongoCredential.createScramSha1Credential(username, conn_name ,password.toCharArray)
     val _conn = MongoClient.apply(addr, List(credentialsList))
 
     var _conntion : Map[String, MongoCollection] = Map.empty
@@ -35,13 +33,11 @@ trait data_connection {
 }
 
 object _data_connection_cores extends data_connection {
-
-    override def conn_name: String = "Max_Cores"
+    override def conn_name: String = DB1
 }
 
 object _data_connection_basic extends data_connection {
-
-    override def conn_name: String = "Max_Basic"
+    override def conn_name: String = DB2
 }
 
 //object _data_connection {
