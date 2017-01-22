@@ -13,7 +13,7 @@ object Sample {
 class Sample() extends Actor{
     def receive = {
         case "cpamarket" => Unit
-        case "cpaproduct" => println("in cpaproduct");//new StubWorkerMain()
+        case "cpaproduct" => println("in cpaproduct");context.system.terminate()//new StubWorkerMain()
         case "phamarket" => Unit
         case "phaproduct" => Unit
     }

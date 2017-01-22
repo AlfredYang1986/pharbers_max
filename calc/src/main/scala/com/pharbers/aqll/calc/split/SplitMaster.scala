@@ -37,9 +37,7 @@ object SplitMaster {
 	
 	val num_count = 10
 	
-	var getcompany = ""
-	
-	var selectvar = 0
+
 }
 
 class SplitMaster extends Actor with ActorLogging 
@@ -54,11 +52,11 @@ class SplitMaster extends Actor with ActorLogging
 	val agg = CreateSplitAggregator(bus)
 	val router = CreateSplitWorker(agg)
 	var fileName = ""
-	
+	var getcompany = ""
+
 	val ready : Receive = {
 		case startReadExcel(filename, cat, company, n) => {
 		    getcompany = company
-		    selectvar = n
 		    fileName = filename//.substring(filename.lastIndexOf("""/""") + 1, filename.length())
 	        context.become(spliting)
 		    (cat.t match {
@@ -83,7 +81,7 @@ class SplitMaster extends Actor with ActorLogging
 		                                            router)
 		        }
 		    }).startParse(filename, 1)
-		    bus.publish(SplitEventBus.excelEnded())
+		    bus.publish(SplitEventBus.excelEnded(n))
 		}
 		case _ => {
 		    println("exception")
@@ -93,10 +91,12 @@ class SplitMaster extends Actor with ActorLogging
 	val spliting : Receive = {
 	    case startReadExcel(filename, cat, company, n) => println("one master only start one cal process at one time")
 	    
-	    case SplitAggregator.aggregatefinalresult(mr) => {
+	    case SplitAggregator.aggregatefinalresult(mr, aggregator) => {
 	        val time = DateUtil.getIntegralStartTime(new Date()).getTime
-	    	Insert.maxResultInsert(mr)(InserAdapter(fileName, getcompany, time))
-	    	context.stop(self)
+	    	new Insert().maxResultInsert(mr)(new InserAdapter().apply(fileName, getcompany, time))
+			//context.stop(aggregator)
+			context.stop(self)
+			System.gc()
 	    }
 
 		case cancel() => {

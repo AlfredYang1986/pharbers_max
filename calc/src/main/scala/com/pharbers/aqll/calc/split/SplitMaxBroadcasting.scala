@@ -16,7 +16,7 @@ import com.pharbers.aqll.calc.excel.model.ModelRunFactory
 object SplitMaxBroadcasting {
 	def props(bus : SplitEventBus, hash : ActorRef) = Props(new SplitMaxBroadcasting(bus, hash))
 
-	case class startmapping() // broadcast to all hash actor
+	case class startmapping(n: Int) // broadcast to all hash actor
 	case class premapping(m : ((Int, Int, String), integratedData))	// send group mapping from aggregator
 	case class mappingiterator(d : modelRunData) extends broadcastingDefines	// send to hash mapping actor
 	case class mappingiteratornext() // can perform next round of iterator
@@ -37,9 +37,9 @@ class SplitMaxBroadcasting(bus : SplitEventBus, hash : ActorRef) extends Actor w
 			}
 		}
 		
-		case SplitMaxBroadcasting.startmapping() => {
+		case SplitMaxBroadcasting.startmapping(n) => {
 			println(s"group list size: ${group.size}")
-			s = new ModelRunFactory()(SplitMaster.selectvar, group.toStream)
+			s = new ModelRunFactory().apply(0, group.toStream)
 	        nextiterator
 		}
 		case SplitMaxBroadcasting.mappingiteratornext() => nextiterator

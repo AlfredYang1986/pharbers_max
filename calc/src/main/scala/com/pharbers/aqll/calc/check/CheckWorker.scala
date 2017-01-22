@@ -38,7 +38,7 @@ class CheckWorker(aggregator: ActorRef) extends Actor with ActorLogging{
             val listPhaMarket = (target :: Nil)
             excelunion.append((target.getSumValue, target.getVolumeUnit, target.getHospNum, target.getMarketname))
         }
-        case SplitEventBus.excelEnded() =>  {
+        case SplitEventBus.excelEnded(n) =>  {
             println(s"read ended at $self")
             aggregator ! CheckWorker.exceluniondata(excelunion.toList)
         }

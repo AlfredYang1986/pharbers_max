@@ -56,7 +56,7 @@ class CheckMaster(originSender : ActorRef) extends Actor with ActorLogging with 
                         router)
                 }
             }).startParse(filename, 1)
-            bus.publish(SplitEventBus.excelEnded())
+            bus.publish(SplitEventBus.excelEnded(n))
         }
         case _ => {
             println("exception")
@@ -67,7 +67,7 @@ class CheckMaster(originSender : ActorRef) extends Actor with ActorLogging with 
         case CheckAggregator.excelResult(exd) => {
             println(s"last end originSender = $originSender")
             val time = DateUtil.getIntegralStartTime(new Date()).getTime
-            Insert.maxFactResultInsert(exd)(InserAdapter(fileName, getcompany, time))
+            new Insert().maxFactResultInsert(exd)(new InserAdapter().apply(fileName, getcompany, time))
             originSender ! checkResult("is ok")
         }
         case cancel() => {

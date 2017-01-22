@@ -25,8 +25,8 @@ import com.pharbers.aqll.calc.excel.PharmaTrust._
 
 object SplitAggregator {
     def props(bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(bus, master))
-    
-    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))])
+
+    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))], self: ActorRef)
     case class excelResult(exd: (Double, Double, Int, List[(String)], List[(String)]))
     case class aggsubcribe(a : ActorRef)
     case class aggmapsubscrbe(a : ActorRef)
@@ -36,7 +36,6 @@ object SplitAggregator {
     val mapping_nr_of_instance_in_node = 10
     val mapping_nr_of_node = 1
     val mapping_nr_total_instance = mapping_nr_of_instance_in_node * mapping_nr_of_node
-    
     case class msg_container(group : (Int, Int, String), lst : List[integratedData])
 }
 
@@ -96,7 +95,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			
 			if (rltsize.single.get == mapshouldsize.single.get) {
 				val result = mrResult.single.get
-				master ! SplitAggregator.aggregatefinalresult(result.toList)
+				master ! SplitAggregator.aggregatefinalresult(result.toList, self)
 			}
 		}
 		case SplitAggregator.aggsubcribe(a) => {
@@ -115,14 +114,14 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			bus.subscribe(a, "AggregorBus")
 		}
 			
-		case SplitWorker.integratedataended() => {
+		case SplitWorker.integratedataended(n) => {
 			atomic { implicit thx => 
 				excelsize() = excelsize() + 1
 			}
 	
 			println(s"integratedata ended ${excelsize.single.get}")
 			if (excelsize.single.get == excelshouleszie.single.get) {
-				broadcasting_actor ! SplitMaxBroadcasting.startmapping()
+				broadcasting_actor ! SplitMaxBroadcasting.startmapping(n)
 			}
 		}
 		case SplitWorker.integratedataresult(m) => m map { tmp =>

@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
 import com.mongodb.casbah.Imports._
 import com.pharbers.util.dao.MongoDBCollManager
 
-object Insert {
+class Insert {
     
     def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))]) (m: (String, String, String, Long)) = {
         def maxInser() = {
@@ -75,6 +75,7 @@ object Insert {
     
     def maxFactResultInsert(model:  (Double, Double, Int, List[String], List[String]))(m: (String, String, String, Long)) = {
         def maxInser() = {
+            println(m._1.substring(m._1.lastIndexOf("\\")+1, m._1.length))
             val builder = MongoDBObject.newBuilder
             builder += "ID" -> m._3
             builder += "CompanyID" -> m._2
@@ -89,14 +90,14 @@ object Insert {
             
             builder += "Condition" -> Map("Hospital" -> lsth_builder.result, "ProductMinunt" -> lstm_builder.result)
             builder += "Timestamp" -> m._4
-            builder += "Filepath" -> m._1
+            builder += "Filepath" -> m._1.substring(m._1.lastIndexOf("\\")+1, m._1.length)
             _data_connection.getCollection("FactResult") += builder.result
         }
         val conditions = ("ID" -> m._3)
-        println(s"m._1 = ${m._1}")
-        println(s"m._2 = ${m._2}")
-        println(s"m._3 = ${m._3}")
-        println(s"m._4 = ${m._4}")
+//        println(s"m._1 = ${m._1}")
+//        println(s"m._2 = ${m._2}")
+//        println(s"m._3 = ${m._3}")
+//        println(s"m._4 = ${m._4}")
 
         val count = (from db() in "FactResult" where conditions count)
         count match {

@@ -2,6 +2,8 @@ package com.pharbers.aqll.calc.stub
 
 import com.typesafe.config.ConfigFactory
 import akka.actor.ActorSystem
+import com.pharbers.aqll.calc.maxmessages.excelJobStart
+import com.pharbers.aqll.calc.split.JobCategories.cpaProductJob
 
 object Call extends App{
     val  conf = """
@@ -18,7 +20,7 @@ object Call extends App{
         			    enabled-transports = ["akka.remote.netty.tcp"]
         			    netty.tcp {
         			      hostname = "127.0.0.1"
-        			      port = 2552
+        			      port = 2556
         			    }
         			  }
         			}
@@ -26,10 +28,10 @@ object Call extends App{
     
     val config = ConfigFactory.parseString(conf)
     val forend = ActorSystem("forend",config)
-    val path = "akka.tcp://backend@127.0.0.1:2551/user/sample"
+    val path = "akka.tcp://calc@127.0.0.1:2552/user/splitreception"
 	val sample = forend.actorSelection(path)
     
     println("start")
-	sample ! "cpaproduct"
+	sample ! excelJobStart("""config/test/BMS客户上传/201601-07-CPA-Baraclude产品待上传.xlsx""", cpaProductJob, "BMS", 0)
 	println("end")
 }
