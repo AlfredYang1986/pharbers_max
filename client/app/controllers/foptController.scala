@@ -27,4 +27,6 @@ class foptController extends Controller {
 	def uploadHospitalMatchFile = Action { request =>
 		uploadRequestArgs(request)(fop.uploadHospitalMatchFile)
 	}
+
+	def exportFile(name : String) = Action (Ok(fop.exportFile(name)).as("excel/csv"))
 }

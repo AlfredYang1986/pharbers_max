@@ -36,6 +36,13 @@ object fop {
 			reVal
 	}
 
+	def exportFile(name : String) : Array[Byte] = {
+		val file = new File(GetProperties.loadProperties("File.properties").getProperty("Export_File") + name)
+		val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
+		new FileInputStream(file).read(reVal)
+		reVal
+	}
+
 	def uploadHospitalDataFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 		try {
 			var lst : List[JsValue] = Nil
