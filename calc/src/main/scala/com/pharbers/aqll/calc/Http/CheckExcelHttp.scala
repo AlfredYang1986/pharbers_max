@@ -15,7 +15,6 @@ import scala.concurrent.Await
 import com.pharbers.aqll.calc.maxmessages.excelJobStart
 import com.pharbers.aqll.calc.split.JobCategories._
 import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitReception}
-import com.pharbers.aqll.calc.stub.CallReception
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 
 import scala.com.pharbers.aqll.calc.check.CheckReception

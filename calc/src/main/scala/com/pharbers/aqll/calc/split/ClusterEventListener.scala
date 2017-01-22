@@ -19,7 +19,8 @@ abstract class ClusterEventListener extends Actor with ActorLogging {
     }
     override def postStop(): Unit = {
         cluster.unsubscribe(self)
-        println("stopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstopstop")
+        println(self)
+        println("stop stop stop stop stop stop stop stop stop stop ")
     }
 
     def register(member: Member, createPath: (Member) => ActorPath): Unit = {

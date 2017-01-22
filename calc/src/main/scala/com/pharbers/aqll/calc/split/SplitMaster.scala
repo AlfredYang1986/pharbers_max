@@ -91,10 +91,9 @@ class SplitMaster extends Actor with ActorLogging
 	val spliting : Receive = {
 	    case startReadExcel(filename, cat, company, n) => println("one master only start one cal process at one time")
 	    
-	    case SplitAggregator.aggregatefinalresult(mr, aggregator) => {
+	    case SplitAggregator.aggregatefinalresult(mr) => {
 	        val time = DateUtil.getIntegralStartTime(new Date()).getTime
 	    	new Insert().maxResultInsert(mr)(new InserAdapter().apply(fileName, getcompany, time))
-			//context.stop(aggregator)
 			context.stop(self)
 			System.gc()
 	    }

@@ -2,7 +2,6 @@ package com.pharbers.aqll.calc.Http
 
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Terminated}
 import akka.cluster.Cluster
-import com.pharbers.aqll.calc.stub.AkkaReception
 import com.pharbers.aqll.calc.util.ListQueue
 
 /**

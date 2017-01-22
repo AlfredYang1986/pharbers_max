@@ -1,6 +1,6 @@
 package com.pharbers.aqll.calc.split
 
-import akka.actor.{ActorPath, RootActorPath, Terminated}
+import akka.actor.{ActorPath, ActorSystem, RootActorPath, Terminated}
 import akka.cluster.ClusterEvent._
 import akka.cluster.{Member, MemberStatus}
 import com.pharbers.aqll.calc.util.ListQueue
@@ -28,14 +28,17 @@ class EventCollector extends ClusterEventListener{
                 members = members :+ member
                 println("Interceptor registered: " + sender)
                 println("address: " + ListQueue.listnode)
-                println("adress2:"+sender.path.toString.substring(0, sender.path.toString.lastIndexOf("user")))
             }
         }
-        case FreeListQueue(act) => {
-            ListQueue.ListNode_Queue_del(act)
-            val path = act.path.toString.substring(0, act.path.toString.lastIndexOf("user"))
+        case FreeListQueue(act, old) => {
+            val path = old.path.toString.substring(0, old.path.toString.lastIndexOf("user")-1)
             val m = members.find(x => x.address.toString.equals(path)).get
-            register(m, getCollectorPath)
+            //register(m, getCollectorPath)
+            println(s"01 === ${ListQueue.listnode}")
+            ListQueue.ListNode_Queue((0, act))
+            println(s"02 === ${ListQueue.listnode}")
+            ListQueue.ListNode_Queue_del(old)
+            println(s"03 === ${ListQueue.listnode}")
         }
         case Terminated(a) =>
 //            masters = masters.filterNot(_ == a)

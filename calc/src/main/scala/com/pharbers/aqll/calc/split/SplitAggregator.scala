@@ -26,7 +26,7 @@ import com.pharbers.aqll.calc.excel.PharmaTrust._
 object SplitAggregator {
     def props(bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(bus, master))
 
-    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))], self: ActorRef)
+    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))])
     case class excelResult(exd: (Double, Double, Int, List[(String)], List[(String)]))
     case class aggsubcribe(a : ActorRef)
     case class aggmapsubscrbe(a : ActorRef)
@@ -95,7 +95,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			
 			if (rltsize.single.get == mapshouldsize.single.get) {
 				val result = mrResult.single.get
-				master ! SplitAggregator.aggregatefinalresult(result.toList, self)
+				master ! SplitAggregator.aggregatefinalresult(result.toList)
 			}
 		}
 		case SplitAggregator.aggsubcribe(a) => {

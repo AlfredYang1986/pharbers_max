@@ -29,7 +29,7 @@ object ListQueue {
     }
     def ListNode_Queue_del(actorref: ActorRef) = {
         val index = listnode.indexWhere(x => x._2.equals(actorref))
-        listmq.remove(index)
+        listnode.remove(index)
     }
 }
 

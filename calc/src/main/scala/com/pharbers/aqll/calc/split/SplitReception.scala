@@ -1,15 +1,12 @@
 package com.pharbers.aqll.calc.split
 
-import akka.actor.Actor
-import akka.actor.Props
-import akka.actor.ActorLogging
-import akka.actor.ActorRef
-import akka.actor.Terminated
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Terminated}
 import akka.cluster.Cluster
 import com.pharbers.aqll.calc.maxmessages.{excelJobEnd, excelJobStart}
 import com.pharbers.aqll.calc.maxmessages.startReadExcel
 import com.pharbers.aqll.calc.excel.CPA.CpaMarket
 import com.pharbers.aqll.calc.util.ListQueue
+import com.typesafe.config.ConfigFactory
 
 /**
  * enum
@@ -47,14 +44,10 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 		}
 		case Terminated(a) => {
 		    println("-*-*-*-*-*-*-*-")
-            println(s"sender = $sender()")
-            println(s"a = $a")
             println(s"self = $self")
-            println(s"ListQueue ======= ${ListQueue.listnode}")
 		    context.unwatch(a)
 		    masters = masters.filterNot (_ == a)
-            context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/cluster-listener") ! FreeListQueue(self)
-			context.stop(self)
+            context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/cluster-listener") ! FreeListQueue(context.actorOf(SplitReception.props), self)
 		    // job完成，提醒用户
 			end = System.currentTimeMillis() - begin
 		    println(s"执行时间为 : ${end / 1000} 秒")

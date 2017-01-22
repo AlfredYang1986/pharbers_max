@@ -11,7 +11,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import com.pharbers.aqll.calc.Http.{QueueActor, ThreadQueue}
 import com.pharbers.aqll.calc.split.{ClusterEventListener, EventCollector, SplitReception}
-import com.pharbers.aqll.calc.stub.AkkaReception
 import com.pharbers.aqll.calc.util.{ListQueue}
 import com.typesafe.config.{Config, ConfigFactory}
 
@@ -41,28 +40,6 @@ object CheckExcelHttpApp extends App with RequestTimeout {
     }
     def stubmain = {
         import scala.concurrent.duration._
-//        val conf = """akka {
-//					  loglevel = DEBUG
-//					  stdout-loglevel = WARNING
-//					  loggers = ["akka.event.slf4j.Slf4jLogger"]
-//
-//					  actor {
-//					    provider = "akka.remote.RemoteActorRefProvider"
-//					  }
-//
-//					  remote {
-//					    enabled-transports = ["akka.remote.netty.tcp"]
-//					    netty.tcp {
-//					      hostname = "127.0.0.1"
-//					      port = 3550
-//					    }
-//					  }
-//					}
-//              """
-//
-//        val configr = ConfigFactory.parseString(conf)
-//        val listqueuefree = ActorSystem("listqueuefree", configr)
-//        listqueuefree.actorOf(ListQueueActor.props, "free")
 
         val config = ConfigFactory.load("split-master")
         val system = ActorSystem("calc", config)
@@ -72,13 +49,6 @@ object CheckExcelHttpApp extends App with RequestTimeout {
             Cluster(system).registerOnMemberUp {
                 system.actorOf(SplitReception.props, "splitreception")
             }
-//            for(i <- 1 to (node_ip.toArray.tail.size)) {
-//                val c = ConfigFactory.load("split-worker_"+i)
-//                val s = ActorSystem("calc", c)
-//                val a = s.actorOf(AkkaReception.props)
-//                ListQueue.ListNode_Queue((0, a, node_ip.get(i)))
-//            }
-
             system.actorOf(Props(new EventCollector), "cluster-listener")
         }
     }
