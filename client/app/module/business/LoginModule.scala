@@ -63,7 +63,6 @@ object LoginModule extends ModuleTrait {
                 
                 case 2 => conditions match {
                     case x: List[DBObject] =>
-                        println(s"x = $x")
                         val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))
                         val tmp = (from db () in "Company" where t).selectAggregate(resultData(_))(_data_connection_basic).toList
                         tmp.size match {

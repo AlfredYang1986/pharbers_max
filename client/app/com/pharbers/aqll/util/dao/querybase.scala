@@ -14,7 +14,7 @@ import com.pharbers.aqll.util.dao.Msd._
 
 trait data_connection {
     def conn_name : String
-    val addr = new com.mongodb.casbah.Imports.ServerAddress(DBHost,DBPort)
+    val addr = new ServerAddress(DBHost,DBPort)
     val credentialsList = MongoCredential.createScramSha1Credential(username, conn_name ,password.toCharArray)
     val _conn = MongoClient.apply(addr, List(credentialsList))
 

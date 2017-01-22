@@ -89,6 +89,7 @@ $("#file-2").fileinput({
 			cache: false,
 			success: function(data) {
 				if (data.status == "ok") {
+                    loader.show();
                     excelCheck(query_object.uuid, "1")
 		    		console.info("CPA市场上传成功");
 				}
@@ -122,6 +123,7 @@ $("#file-3").fileinput({
 			cache: false,
 			success: function(data) {
 				if (data.status == "ok") {
+                    loader.show();
                     excelCheck(query_object.uuid, "2")
 		    		console.info("PharmaTrust产品上传成功");
 				}
@@ -155,6 +157,7 @@ $("#file-4").fileinput({
 			cache: false,
 			success: function(data) {
 				if (data.status == "ok") {
+                    loader.show();
                     excelCheck(query_object.uuid, "3")
 		    		console.info("PharmaTrust市场上传成功");
 				}
