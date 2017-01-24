@@ -29,8 +29,13 @@ object fop {
   	    }
 	}
 
+	def copyLinux() = {
+		val cmd = """sh cp.sh"""
+		Runtime.getRuntime.exec(cmd)
+	}
+
 	def downloadFile(name : String) : Array[Byte] = {
-	  	val file = new File(GetProperties.loadProperties("File.properties").getProperty("File_Template_Parh") + name)
+	  	val file = new File(GetProperties.loadProperties("File.properties").getProperty("File_Template_Path") + name)
 			val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
 			new FileInputStream(file).read(reVal)
 			reVal

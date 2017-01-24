@@ -10,6 +10,7 @@ import com.pharbers.aqll.actor.{CheckExcelActor, checkitem}
 import scala.concurrent.Await
 import com.pharbers.aqll.pattern.JobCategories.cpaProductJob
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait, excelJobStart}
+import com.pharbers.aqll.util.GetProperties
 import com.typesafe.config.ConfigFactory
 import play.api.libs.concurrent.Akka
 import play.api.libs.json.JsValue
@@ -38,7 +39,7 @@ object CheckExcelModule extends ModuleTrait{
         implicit val timeout = Timeout(180 second)
         val filename = (data \ "filename").asOpt[String].get
         val company = (data \ "company").asOpt[String].get
-        val fullfile = """upload/"""+filename
+        val fullfile = GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path")+filename
         try {
 //            val config = ConfigFactory.load("akkaconf/check-remote")
 //            val path = "akka.tcp://ExcelMain@127.0.0.1:4771/user/sample"

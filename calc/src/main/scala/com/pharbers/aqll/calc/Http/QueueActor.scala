@@ -14,6 +14,7 @@ object QueueActor {
 case class ThreadQueue()
 
 class QueueActor extends Actor with ActorLogging{
+    println(s"listmq =========== ${ListQueue.listmq}")
     val queue: Receive = {
         case ThreadQueue() => {
             if(ListQueue.listmq.size != 0){

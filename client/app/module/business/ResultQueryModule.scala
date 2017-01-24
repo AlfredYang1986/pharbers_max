@@ -73,7 +73,8 @@ object ResultQueryModule extends ModuleTrait {
 		try {
             val r = (from db() in connectionName where $and(conditions)).selectSkipTop(skip)(take)(order)(finalResultJsValue(_))(_data_connection_cores).toList
             val n = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
-            println("first step end.")       
+            println("first step end.")
+
             (Some(Map("finalResult" -> toJson(r), "page" -> toJson(page(currentPage,take,skip,n)))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -89,6 +90,7 @@ object ResultQueryModule extends ModuleTrait {
 	            val matchresult = hospitalinfos.find(y => y.get("Pha_Code").get.asOpt[String].get.equals(x.get("Hospital").get.asOpt[String].get)).get
 				f.apply(x :: matchresult :: Nil)
 	        }
+
 	        (Some(Map("finalResult" -> toJson(hosps), "page" -> toJson(pr.get.get("page")))), None)
 	    } catch {
           case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -100,9 +102,9 @@ object ResultQueryModule extends ModuleTrait {
 	    try {
 	        val miniproducts = pr.get.map(_._2).map(x => x.\\("ProductMinunt")).head.map(x => x.asOpt[String].get)
 	        val miniproductinfos = (from db() in "MinimumProductInfo" where ("MC" $in miniproducts)).select(miniProductJsValue(_))(_data_connection_cores).toList
-	        val prods = pr.get.get("finalResult").map ( x => x.as[List[Map[String,JsValue]]]).get map { x =>
-	            val matchresult = miniproductinfos.find(y => y.get("MC").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get
-	            f.apply(x :: matchresult :: Nil)
+            val prods = pr.get.get("finalResult").map ( x => x.as[List[Map[String,JsValue]]]).get map { x =>
+                val matchresult = miniproductinfos.find{y => y.get("MC").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)}.get
+                f(x :: matchresult :: Nil)
 	        }
             println("query result end.")
 	        (Some(Map("finalResult" -> toJson(prods), "page" -> toJson(pr.get.get("page")))), None)

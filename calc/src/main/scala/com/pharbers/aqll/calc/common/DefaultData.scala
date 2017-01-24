@@ -1,15 +1,16 @@
 package com.pharbers.aqll.calc.common
 
 import com.pharbers.aqll.calc.excel.core._
-
 import java.io.File
+
+import com.pharbers.aqll.calc.util.GetProperties
 
 object DefaultData {
     lazy val hospdatabase = {
         val hospdata_ch_file = "config/admin/HospDataStruct.xml"
         val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
         val hospdatabase = hospdatainteractparser(hospdata_en_file, hospdata_ch_file)
-        hospdatabase.startParse(FileFirst("""D:\SourceData\Manage\医院数据"""), 1)
+        hospdatabase.startParse(FileFirst(GetProperties.loadProperties("File.properties").getProperty("Upload_HospitalData_File")), 1)
         hospdatabase.resultlist
     }
     
@@ -17,7 +18,7 @@ object DefaultData {
         val hosp_mathc_ch_file = """config/admin/HospDataMatchStruct.xml"""
         val hosp_match_en_file = """config/admin/FieldNamesHospMatchStruct.xml"""
         val hospmatchdata = hospmatchinteractparser(hosp_match_en_file, hosp_mathc_ch_file)
-        hospmatchdata.startParse(FileFirst("""D:\SourceData\Manage\医院匹配"""), 1)
+        hospmatchdata.startParse(FileFirst(GetProperties.loadProperties("File.properties").getProperty("Upload_HospitalMatch_File")), 1)
         hospmatchdata.resultlist
     }
     
@@ -25,7 +26,7 @@ object DefaultData {
         val market_ch_file = """config/admin/MarketDataStruct.xml"""
         val market_en_file = """config/admin/FieldNamesMarketDataStruct.xml"""
         val adminmarketdata = marketinteractparser(market_en_file, market_ch_file)
-        adminmarketdata.startParse(FileFirst("""D:\SourceData\Manage\市场匹配"""), 1)
+        adminmarketdata.startParse(FileFirst(GetProperties.loadProperties("File.properties").getProperty("Upload_MarketMatch_File")), 1)
         adminmarketdata.resultlist
     }
     
@@ -33,7 +34,7 @@ object DefaultData {
         val product_ch_file = """config/admin/ProductDataStruct.xml"""
         val product_en_file = """config/admin/FieldNamesProductDataStruct.xml"""
         val adminproductdata = productinteractparser(product_en_file, product_ch_file)
-        adminproductdata.startParse(FileFirst("""D:\SourceData\Manage\产品匹配"""), 1)
+        adminproductdata.startParse(FileFirst(GetProperties.loadProperties("File.properties").getProperty("Upload_ProductMatch_File")), 1)
         adminproductdata.resultlist
     }
     

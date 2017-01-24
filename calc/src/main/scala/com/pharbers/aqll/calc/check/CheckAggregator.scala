@@ -26,7 +26,6 @@ class CheckAggregator(bus : SplitEventBus, master : ActorRef)extends Actor {
             atomic { implicit thx =>
                 excelshouleszie() = excelshouleszie() + 1
             }
-            println(s"worker ExcelCheck should size ${excelshouleszie.single.get}")
             bus.subscribe(a, "AggregorBus")
         }
         case CheckWorker.exceluniondata(excel) => {
@@ -35,7 +34,7 @@ class CheckAggregator(bus : SplitEventBus, master : ActorRef)extends Actor {
                 excelchecksize() = excelchecksize() + 1
                 excelcheckdata() = excelcheckdata() ++: excel
             }
-
+            println(s"excelchecksize.single.get == ${excelchecksize.single.get}")
             if (excelchecksize.single.get == 10) {
                 val temp = excelcheckdata.single.get
                 val t = temp.map(_._3).distinct.sortBy(x => x)

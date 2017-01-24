@@ -57,6 +57,7 @@ trait OrderService {
     def getCheck = get {
         path("checkExcel") {
             parameters(("filename", "company", "filetype")) { (filename, company, filetype) =>
+                import java.io.File
                 val system = ActorSystem(filename)
                 val act = system.actorOf(CheckReception.props)
                 val r = filetype match  {

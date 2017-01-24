@@ -23,8 +23,6 @@ import module.business.ModelOperationModuleMessage._
 import module.business.ModelOperationModule
 import module.business.FileExportModuleMessage._
 import module.business.FileExportModule
-import module.business.TestModuleMessage.msg_TestBaseQuery
-import module.business.TestModule
 import module.manage.ManageFilesUploadModuleMessage._
 import module.manage.ManageFilesUploadModule
 

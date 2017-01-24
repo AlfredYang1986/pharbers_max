@@ -68,13 +68,31 @@ object FileExportModule extends ModuleTrait{
 			con = conditionsAcc(con, "market" :: Nil, marketListConditions(x => x.asOpt[List[String]]))
 			con
 		}
-		val connectionName = (data \ "company").asOpt[String].get
+
+        /**
+          * 所有的print都应该变为logger，并生成splunk可分析的文件为最佳
+          * 计算的log，导出的log，应该重新生成一个新的数据导出源
+          */
+        val connectionName = (data \ "company").asOpt[String].get
 		try {
 			val datatype = (data \ "datatype").asOpt[String].get
+            /**
+              * 在这个类中不应有读文件的路径的逻辑
+              * 文件路径的出来应该封装在一个properties config读取的类中
+              */
 			var exportpath = GetProperties.loadProperties("File.properties").getProperty("Export_File")
 			val file : File = new File(exportpath+datatype+".csv")
-			if(file.exists()){file.createNewFile()}
+
+            /**
+              * 文件的创建个管理也同理
+              * 这个地方有一个严重的问题
+              * 当多用户同时访问时会参生同名，这个时候文件造成多线程冲突，每一个线程都不能完成操作
+              */
+            if(file.exists()){file.createNewFile()}
 			val writer = CSVWriter.open(file,"GBK")
+            /**
+              * 以下应该写为配置文件，最好单独提出来作为一个config类别，以应付以后的扩展
+              */
 			datatype match {
 				case "省份数据" =>
 					writer.writeRow(List("年","月","区域","省份","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
@@ -83,7 +101,11 @@ object FileExportModule extends ModuleTrait{
 				case "医院数据" =>
 					writer.writeRow(List("年","月","区域","省份","城市","城市级别","医院","医院级别","最小产品单位（标准_中文）","最小产品单位（标准_英文）","生产厂家（标准_中文）","生产厂家（标准_英文）","通用名（标准_中文）","通用名（标准_英文","商品名（标准_中文）","商品名（标准_英文）","剂型（标准_中文）","剂型（标准_英文）","药品规格（标准_中文）","药品规格（标准_英文）","包装数量（标准_中文）","包装数量（标准_英文）","SKU（标准_中文）","SKU（标准_英文）","市场I（标准_中文）","市场I（标准_英文）","市场II（标准_中文）","市场II（标准_英文）","市场III（标准_中文）","市场III（标准_英文）","Value（金额）","Volume（数量）"))
 			}
-			val order = "Timestamp"
+
+            /**
+              * config 文字
+              */
+            val order = "Timestamp"
 			var first = 0
 			var step = 10000
 			var cache = false			//smarty- caching false
@@ -105,7 +127,11 @@ object FileExportModule extends ModuleTrait{
 
 				prods.foreach{ x =>
 					val lb : ListBuffer[AnyRef] = ListBuffer[AnyRef]()
-					lb.append(x.get("Year").get)
+
+                    /**
+                      * 提出来有函数来完成，工作几年了，还写这样初学者的复制粘贴的代码
+                      */
+                    lb.append(x.get("Year").get)
 					lb.append(x.get("Month").get)
 					datatype match {
 						case "省份数据" =>
@@ -160,6 +186,9 @@ object FileExportModule extends ModuleTrait{
 			writer.close()
 			var format : SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 			println(format.format(new Date()))
+            /**
+              * 导出名字和文件生成的名字是不一样的，是不是逻辑有问题
+              */
 			(Some(Map("finalResult" -> toJson(datatype+".csv"))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))

@@ -75,7 +75,6 @@ class Insert {
     
     def maxFactResultInsert(model:  (Double, Double, Int, List[String], List[String]))(m: (String, String, String, Long)) = {
         def maxInser() = {
-            println(m._1.substring(m._1.lastIndexOf("\\")+1, m._1.length))
             val builder = MongoDBObject.newBuilder
             builder += "ID" -> m._3
             builder += "CompanyID" -> m._2
@@ -94,11 +93,6 @@ class Insert {
             _data_connection.getCollection("FactResult") += builder.result
         }
         val conditions = ("ID" -> m._3)
-//        println(s"m._1 = ${m._1}")
-//        println(s"m._2 = ${m._2}")
-//        println(s"m._3 = ${m._3}")
-//        println(s"m._4 = ${m._4}")
-
         val count = (from db() in "FactResult" where conditions count)
         count match {
              case 0 => {
