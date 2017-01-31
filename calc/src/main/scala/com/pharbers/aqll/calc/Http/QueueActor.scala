@@ -3,6 +3,8 @@ package com.pharbers.aqll.calc.Http
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Terminated}
 import akka.cluster.Cluster
 import com.pharbers.aqll.calc.util.ListQueue
+import scala.concurrent.stm.atomic
+
 
 /**
   * Created by Faiz on 2017/1/19.
@@ -12,27 +14,29 @@ object QueueActor {
 }
 
 case class ThreadQueue()
-
-class QueueActor extends Actor with ActorLogging{
-    println(s"listmq =========== ${ListQueue.listmq}")
-    val queue: Receive = {
-        case ThreadQueue() => {
-            if(ListQueue.listmq.size != 0){
-                println(s"ListQueue.listmq = ${ListQueue.listmq}")
-                val node = ListQueue.listnode.find(x => x._1 == 0)
-                node match {
-                    case None => Unit
-                    case Some(n) => {
-                        println(n._2)
-                        n._2 ! ListQueue.listmq(0)
-                        ListQueue.ListNode_Queue((1, n._2))
-                        ListQueue.ListMq_Queue_del
+    class QueueActor extends Actor with ActorLogging{
+        val queue: Receive = {
+            case ThreadQueue() => {
+                atomic { implicit thx =>
+                    println(s"listmq2 ==========${ListQueue.msgtmp.get}")
+                    if(ListQueue.msgtmp.get.size != 0){
+                        val node = ListQueue.listnode.find(x => x._1 == 0)
+                        node match {
+                            case None => Unit
+                            case Some(n) => {
+                                println(n._2)
+                                println(n._2.path)
+                                //n._2 ! (ListQueue.msgtmp.get).apply(0)
+                                ListQueue.ListNode_Queue((1, n._2))
+                                ListQueue.ListMq_Queue_del
+                            }
+                        }
                     }
                 }
-            }
-        }
-        case _ => ???
-    }
 
-    def receive = queue
-}
+            }
+            case _ => ???
+        }
+
+        def receive = queue
+    }
