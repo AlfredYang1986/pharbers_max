@@ -15,6 +15,7 @@ object QueueActor {
 
 case class ThreadQueue()
     class QueueActor extends Actor with ActorLogging{
+        println(s"listmq =========== ${ListQueue.listmq}")
         val queue: Receive = {
             case ThreadQueue() => {
                 atomic { implicit thx =>
@@ -25,8 +26,7 @@ case class ThreadQueue()
                             case None => Unit
                             case Some(n) => {
                                 println(n._2)
-                                println(n._2.path)
-                                //n._2 ! (ListQueue.msgtmp.get).apply(0)
+                                n._2 ! (ListQueue.msgtmp.get)(0)
                                 ListQueue.ListNode_Queue((1, n._2))
                                 ListQueue.ListMq_Queue_del
                             }
