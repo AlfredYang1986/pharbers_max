@@ -83,8 +83,8 @@ object LoginModule extends ModuleTrait {
         val Company_Id = x.getAs[String]("Company_Id").get
         val Timestamp = x.getAs[Number]("Timestamp").get.longValue()
 
-        val UserName = User_lst.as[String]("Name")
-        val UserId = User_lst.as[String]("ID")
+        val UserName = User_lst.getAs[String]("Name").getOrElse("无")
+        val UserId = User_lst.getAs[String]("ID").getOrElse("无")
         val UserTimestamp = User_lst.as[Number]("Timestamp").longValue()
         val UserAuth = User_lst.as[Number]("auth").intValue()
 
