@@ -13,7 +13,7 @@ $(function(){
                 type : "get",
                 data : dataMap,
                 async : false,
-                url :"http://127.0.0.1:5000/calc",
+                url :"http://59.110.31.215:5000/calc",
                 cache : false,
                 dataType : "jsonp",
                 jsonp: "callbackparam",

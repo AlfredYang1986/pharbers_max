@@ -70,6 +70,7 @@ function pageResult(page){
 		data: JSON.stringify(query_object),
 		cache: false,
 		success: function(data) {
+			console.info(data)
 			if (data.status == "ok") {
 				var result = data.result.finalResult;
 				var thead = "<tr>";

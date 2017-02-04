@@ -13,7 +13,7 @@ function excelCheck(file, type) {
         type : "get",
         data : dataMap,
         async : false,
-        url :"http://127.0.0.1:5000/checkExcel",
+        url :"http://59.110.31.215:5000/checkExcel",
         cache : false,
         dataType : "jsonp",
         jsonp: "callbackparam",
