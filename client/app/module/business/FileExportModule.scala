@@ -68,7 +68,6 @@ object FileExportModule extends ModuleTrait{
 			con = conditionsAcc(con, "market" :: Nil, marketListConditions(x => x.asOpt[List[String]]))
 			con
 		}
-
 		try {
 			val connectionName = (data \ "company").asOpt[String].get
 			val datatype = (data \ "datatype").asOpt[String].get
@@ -77,15 +76,6 @@ object FileExportModule extends ModuleTrait{
             if(!file.exists()){file.createNewFile()}
 			val writer = CSVWriter.open(file,"GBK")
 			writer.writeRow(getFieldContent(datatype,"ch"))
-            /**
-              * order 		排序
-			  * first 		起始行
-			  * step  		步长
-			  * cache 		是否已缓存
-			  * hospdata 	医院数据
-			  * miniprod	最小产品单位数据
-			  * sum			总条目
-              */
             val order = "Timestamp"
 			var first = 0
 			var step = 10000
@@ -103,12 +93,16 @@ object FileExportModule extends ModuleTrait{
 				}
 				val hosps = r map { x => x.++(hospdata.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("Pha_Code").get.asOpt[String].get.equals(x.get("Hospital").get.asOpt[String].get)).get) }
 				val prods = hosps map { x => x.++(miniprod.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("MC").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get) }
+				var field = getFieldContent(datatype,"en")
 				prods.foreach{ x =>
 					val lb : ListBuffer[AnyRef] = ListBuffer[AnyRef]()
-					getFieldContent(datatype,"en").foreach(y => lb.append(x.get(y).get))
+					field.foreach(y => lb.append(x.get(y).get))
 					writer.writeRow(lb.toList)
 				}
-				if(sum - first < step){ step = sum - first }else{ first += step }
+				if(sum - first < step){
+					step = sum - first
+				}
+				first += step
 				writing_log(data,"FileExportModule",first,sum)
 			}
 			writer.close()
