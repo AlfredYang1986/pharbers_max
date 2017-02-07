@@ -62,16 +62,16 @@ trait OrderService {
                 val act = system.actorOf(CheckReception.props)
                 val r = filetype match  {
                     case "0" => {
-                        act ? excelJobStart(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path").toString + filename, cpaProductJob, company, 0)
+                        act ? excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, cpaProductJob, company, 0)
                     }
                     case "1" => {
-                        act ? excelJobStart(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
+                        act ? excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
                     }
                     case "2" => {
-                        act ? excelJobStart(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path").toString + filename, phaProductJob, company, 0)
+                        act ? excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
                     }
                     case "3" => {
-                        act ? excelJobStart(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path").toString + filename, phaMarketJob, company, 0)
+                        act ? excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
                     }
                 }
                 val result = Await.result(r.mapTo[String], requestTimeout.duration)
@@ -96,16 +96,16 @@ trait OrderService {
                 val calc = system.actorOf(Props[SplitReception], "splitreception")
                 filetype match  {
                     case "0" => {
-                        calc ! excelJobStart(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path").toString + filename, cpaProductJob, company, 0)
+                        calc ! excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, cpaProductJob, company, 0)
                     }
                     case "1" => {
-                        calc ! excelJobStart(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
+                        calc ! excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
                     }
                     case "2" => {
-                        calc ! excelJobStart(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path").toString + filename, phaProductJob, company, 0)
+                        calc ! excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
                     }
                     case "3" => {
-                        calc ! excelJobStart(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path").toString + filename, phaMarketJob, company, 0)
+                        calc ! excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
                     }
                 }
                 complete("""jsonpCallback1({"result":"Ok"})""")

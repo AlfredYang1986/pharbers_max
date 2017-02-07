@@ -14,15 +14,18 @@ object ScpCopyActor {
 class ScpCopyActor extends Actor with ActorLogging{
 	val scp: Receive = {
 		case SCPServerInfo(server, map, actorRef, anyRef) => {
-			ScpCopyFile(server, "root", "Pharbers2017.", map) match {
-				case false => println("SCP Copy File Exception")
-				case _ => {
-					println(s"actorRef = $actorRef")
-					println(s"anyRef = $anyRef")
-					actorRef ! anyRef
-					context.stop(self)
-				}
-			}
+//			actorRef ! anyRef
+//			context.stop(self)
+
+//			ScpCopyFile(server, "root", "Pharbers2017.", map) match {
+//				case false => println("SCP Copy File Exception")
+//				case _ => {
+//					println(s"actorRef = $actorRef")
+//					println(s"anyRef = $anyRef")
+//					actorRef ! anyRef
+//					context.stop(self)
+//				}
+//			}
 		}
 	}
 	def receive = scp

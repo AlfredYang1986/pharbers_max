@@ -27,19 +27,19 @@ class QueueActor extends Actor with ActorLogging {
 						case None => Unit
 						case Some(n) => {
 							println(n._2)
-							val address = n._2.path.address.toString
-							val serverIP = address.substring((address lastIndexOf("@"))+1,address lastIndexOf(":"))
-							println(s"serverIP = $serverIP")
-							val local = GetProperties loadConf("File.conf") getString ("SCP.Upload_Client_File_Path")
-							println(s"local = $local")
-							val from = GetProperties loadConf("File.conf") getString("SCP.Upload_Calc_File_Path").toString
-							println(s"from = $from")
-							val filename = "123456.doc"//(ListQueue.msgtmp.get).apply(0).asInstanceOf[excelJobStart].filename
-							val map = Map("local" -> (local+filename), "from" -> from)
-							val atc = context.actorOf(ScpCopyActor.props)
-							context.watch(atc)
-							atc ! SCPServerInfo(serverIP, map, n._2, (ListQueue.msgtmp.get).apply(0))
-							//n._2 ! (ListQueue.msgtmp.get).apply(0)
+//							val address = n._2.path.address.toString
+//							val serverIP = address.substring((address lastIndexOf("@"))+1,address lastIndexOf(":"))
+//							println(s"serverIP = $serverIP")
+//							val local = GetProperties loadConf("File.conf") getString ("SCP.Upload_Client_File_Path")
+//							println(s"local = $local")
+//							val from = GetProperties loadConf("File.conf") getString("SCP.Upload_Calc_File_Path").toString
+//							println(s"from = $from")
+//							val filename = "123456.doc"//(ListQueue.msgtmp.get).apply(0).asInstanceOf[excelJobStart].filename
+//							val map = Map("local" -> (local+filename), "from" -> from)
+//							val atc = context.actorOf(ScpCopyActor.props)
+//							context.watch(atc)
+//							atc ! SCPServerInfo(serverIP, map, n._2, (ListQueue.msgtmp.get).apply(0))
+							n._2 ! (ListQueue.msgtmp.get).apply(0)
 							ListQueue.ListNode_Queue((1, n._2))
 							ListQueue.ListMq_Queue_del
 						}
