@@ -13,7 +13,7 @@ object ScpCopyFile {
 
 	def copyfrom(server: String, port: Int, user: String, pass: String, map: Map[String, String]): Boolean = {
 		val scp = new Scp
-		//scp.setServerAliveCountMax(10)
+		scp.setServerAliveCountMax(100)
 		scp.setPort(port)
 		scp.setLocalFile(map.get("local").get)
 		scp.setTodir(user + ":" + pass + "@" + server + ":" + map.get("from").get)

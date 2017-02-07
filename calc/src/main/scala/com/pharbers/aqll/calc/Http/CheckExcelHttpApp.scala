@@ -1,4 +1,4 @@
-package scala.com.pharbers.aqll.calc.Http
+package com.pharbers.aqll.calc.Http
 
 import scala.concurrent.Future
 import akka.actor.{Actor, ActorSystem, Props}

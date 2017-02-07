@@ -1,4 +1,4 @@
-package scala.com.pharbers.aqll.calc.check
+package com.pharbers.aqll.calc.check
 
 import akka.actor.{Actor, ActorRef, Props}
 import com.pharbers.aqll.calc.split.SplitEventBus

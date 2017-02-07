@@ -21,7 +21,7 @@ object ListQueue {
         atomic { implicit  thx =>
             //msgtmp() = msgtmp() ++: ListBuffer(anyref)
             msgtmp().append(anyref)
-            println(s"msgtmp.get == ==== == ${msgtmp.get}")
+//            println(s"msgtmp.get == ==== == ${msgtmp.get}")
         }
         listmq.append(anyref)
     }
@@ -45,18 +45,3 @@ object ListQueue {
         listnode.remove(index)
     }
 }
-
-//case class ListQueueFree(str: String)
-//
-//object ListQueueActor {
-//    def props = Props[ListQueueActor]
-//}
-//class ListQueueActor extends Actor {
-//    def receive = {
-//        case ListQueueFree(str) =>
-//            println("in ListQueueFree")
-//            ListQueue.ListNode_Queue(0, null, str)
-//        case _ => ???
-//    }
-//}
-

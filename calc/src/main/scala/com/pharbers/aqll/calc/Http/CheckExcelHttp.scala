@@ -1,4 +1,4 @@
-package scala.com.pharbers.aqll.calc.Http
+package com.pharbers.aqll.calc.Http
 
 import java.io.File
 
@@ -17,7 +17,7 @@ import com.pharbers.aqll.calc.split.JobCategories._
 import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitReception}
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 
-import scala.com.pharbers.aqll.calc.check.CheckReception
+import com.pharbers.aqll.calc.check.CheckReception
 
 
 

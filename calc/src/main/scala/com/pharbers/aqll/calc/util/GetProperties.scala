@@ -1,5 +1,7 @@
 package com.pharbers.aqll.calc.util
 
+import com.typesafe.config.{Config, ConfigFactory}
+
 /**
   * Created by Faiz on 2017/1/17.
   */
@@ -12,4 +14,8 @@ object GetProperties {
         properties.load(new FileInputStream(Thread.currentThread().getContextClassLoader.getResource(filename).getPath))
         properties
     }
+
+	def loadConf(filename: String): Config = {
+		ConfigFactory.load(filename)
+	}
 }

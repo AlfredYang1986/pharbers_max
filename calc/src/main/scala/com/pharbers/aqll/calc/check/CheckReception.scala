@@ -1,4 +1,4 @@
-package scala.com.pharbers.aqll.calc.check
+package com.pharbers.aqll.calc.check
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
 import com.pharbers.aqll.calc.maxmessages.{checkResult, excelJobEnd, excelJobStart, startReadExcel}
