@@ -13,14 +13,13 @@ import com.pharbers.aqll.util.dao._data_connection_cores
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date, UUID}
 
-import com.mongodb.DBObject
+import com.mongodb.{BasicDBObject, DBObject}
 import com.pharbers.aqll.util.GetProperties
 
 import scala.collection.immutable.List
 import com.pharbers.aqll.util.file.csv.scala._
 
 import scala.collection.mutable.ListBuffer
-import com.pharbers.aqll.csv.ReadXmlFile._
 import com.pharbers.aqll.pattern.LogMessage._
 
 object FileExportModuleMessage {
@@ -72,7 +71,7 @@ object FileExportModule extends ModuleTrait{
 			val connectionName = (data \ "company").asOpt[String].get
 			val datatype = (data \ "datatype").asOpt[String].get
 			val filename = UUID.randomUUID + ".csv"
-			val file : File = new File(GetProperties.exportpath+filename)
+			val file : File = new File(GetProperties.Client_Export_FilePath+filename)
             if(!file.exists()){file.createNewFile()}
 			val writer = CSVWriter.open(file,"GBK")
 			writer.writeRow(getFieldContent(datatype,"ch"))
@@ -83,7 +82,6 @@ object FileExportModule extends ModuleTrait{
 			var hospdata = List(Map("" -> toJson("")))
 			var miniprod = List(Map("" -> toJson("")))
 			val sum = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
-
 			while (first < sum) {
 				val r = (from db() in connectionName where $and(conditions)).selectSkipTop(first)(step)(order)(finalResultJsValue1(_))(_data_connection_cores).toList
 				if(!iscache){
@@ -110,6 +108,21 @@ object FileExportModule extends ModuleTrait{
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
+	}
+
+	def getFieldContent(fn : String , str : String) : List[String] = {
+		val someXml : String = "xml/FileExport.xml"
+		var header : List[String] = ((xml.XML.loadFile(someXml) \ "header" \ str).map (x => x.text)).toList
+		var tail : List[String] = ((xml.XML.loadFile(someXml) \ "tail" \ str).map (x => x.text)).toList
+		var province = ((xml.XML.loadFile(someXml) \ "body" \ "province" \ str).map (x => x.text)).toList
+		var city = ((xml.XML.loadFile(someXml) \ "body" \ "city" \ str).map (x => x.text)).toList
+		var hospital = ((xml.XML.loadFile(someXml) \ "body" \ "hospital" \ str).map (x => x.text)).toList
+		var body : List[String] = fn match {
+			case "省份数据" => province
+			case "城市数据" => province ++ city
+			case "医院数据" => province ++ city ++ hospital
+		}
+		header ++ body ++ tail
 	}
 
 	def finalResultJsValue1(obj : DBObject) : Map[String,JsValue] = {

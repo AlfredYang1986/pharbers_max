@@ -1,5 +1,7 @@
 package com.pharbers.aqll.util
 
+import com.typesafe.config.{Config, ConfigFactory}
+
 /**
   * Created by Faiz on 2017/1/17.
   */
@@ -7,11 +9,31 @@ object GetProperties {
     import java.util.Properties
     import java.io.FileInputStream
 
-    def exportpath = loadProperties("File.properties").getProperty("Export_File")
-
     def loadProperties(filename: String) : Properties = {
         val properties = new Properties()
         properties.load(new FileInputStream(Thread.currentThread().getContextClassLoader.getResource(filename).getPath))
         properties
     }
+
+    def loadConf(filename: String): Config = {
+        ConfigFactory.load(filename)
+    }
+
+    /*msd.conf*/
+    def DBHost = GetProperties.loadConf("msd.conf").getString("DataBase.DBHost")
+    def DBPort = GetProperties.loadConf("msd.conf").getInt("DataBase.DBPort")
+    def username = GetProperties.loadConf("msd.conf").getString("DataBase.username")
+    def password = GetProperties.loadConf("msd.conf").getString("DataBase.password")
+    def DB1 = GetProperties.loadConf("msd.conf").getString("DataBase.DB1")
+    def DB2 = GetProperties.loadConf("msd.conf").getString("DataBase.DB2")
+
+    /*File.conf*/
+    def Client_Upload_FilePath = loadConf("File.conf").getString("SCP.UpClient_File_Path")
+    def Client_Download_FilePath = loadConf("File.conf").getString("SCP.DownClient_Temp_FilePath")
+    def Client_Export_FilePath = loadConf("File.conf").getString("SCP.DownClient_Export_FilePath")
+    def Manage_Upload_HospitalData_FilePath = loadConf("File.conf").getString("SCP.UpManage_HospitalData_FilePath")
+    def Manage_Upload_HospitalMatch_FilePath = loadConf("File.conf").getString("SCP.UpManage_HospitalMatch_FilePath")
+    def Manage_Upload_ProductMatch_FilePath = loadConf("File.conf").getString("SCP.UpManage_ProductMatch_FilePath")
+    def Manage_Upload_MarketMatch_FilePath = loadConf("File.conf").getString("SCP.UpManage_MarketMatch_FilePath")
+
 }

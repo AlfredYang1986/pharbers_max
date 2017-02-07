@@ -10,7 +10,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoClient
 import com.mongodb.casbah.MongoCollection
 import com.mongodb.{DBObject, MongoCredential}
-import com.pharbers.aqll.util.dao.Msd._
+import com.pharbers.aqll.util.GetProperties._
 
 trait data_connection {
     def conn_name : String

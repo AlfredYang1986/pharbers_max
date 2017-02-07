@@ -20,7 +20,7 @@ object fop {
   	      	var lst : List[JsValue] = Nil
       	    data.files.foreach { x =>
       	        val uuid = UUID.randomUUID
-				new TemporaryFile(x.ref.file).moveTo(new File(GetProperties.loadProperties("File.properties").getProperty("Upload_File_Path") + uuid), true)
+				new TemporaryFile(x.ref.file).moveTo(new File(GetProperties.Client_Upload_FilePath + uuid), true)
       	  	  	lst = lst :+ toJson(uuid.toString)
       	  	}
       	    Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -35,14 +35,14 @@ object fop {
 	}
 
 	def downloadFile(name : String) : Array[Byte] = {
-	  	val file = new File(GetProperties.loadProperties("File.properties").getProperty("File_Template_Path") + name)
+	  	val file = new File(GetProperties.Client_Download_FilePath + name)
 			val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
 			new FileInputStream(file).read(reVal)
 			reVal
 	}
 
 	def exportFile(name : String) : Array[Byte] = {
-		val file = new File(GetProperties.loadProperties("File.properties").getProperty("Export_File") + name)
+		val file = new File(GetProperties.Client_Export_FilePath + name)
 		val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
 		new FileInputStream(file).read(reVal)
 		reVal
@@ -51,7 +51,7 @@ object fop {
 	def uploadHospitalDataFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 		try {
 			var lst : List[JsValue] = Nil
-			var path = GetProperties.loadProperties("File.properties").getProperty("Upload_HospitalData_File")
+			var path = GetProperties.Manage_Upload_HospitalData_FilePath
 			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
@@ -67,7 +67,7 @@ object fop {
 	def uploadProductMatchFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 		try {
 			var lst : List[JsValue] = Nil
-			var path = GetProperties.loadProperties("File.properties").getProperty("Upload_ProductMatch_File")
+			var path = GetProperties.Manage_Upload_ProductMatch_FilePath
 			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
@@ -83,7 +83,7 @@ object fop {
 	def uploadMarketMatchFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 		try {
 			var lst : List[JsValue] = Nil
-			var path = GetProperties.loadProperties("File.properties").getProperty("Upload_MarketMatch_File")
+			var path = GetProperties.Manage_Upload_MarketMatch_FilePath
 			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
@@ -99,7 +99,7 @@ object fop {
 	def uploadHospitalMatchFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 		try {
 			var lst : List[JsValue] = Nil
-			var path = GetProperties.loadProperties("File.properties").getProperty("Upload_HospitalMatch_File")
+			var path = GetProperties.Manage_Upload_HospitalMatch_FilePath
 			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
