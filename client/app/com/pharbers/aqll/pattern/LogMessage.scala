@@ -22,5 +22,11 @@ object LogMessage {
         }
     }
 
+    def writing_log(data : JsValue,method : String, current : Int, totle : Int) {
+        val logger = Logger.getLogger("FileExportLog")
+        val company = (data \ "company").asOpt[String].map (x => x).getOrElse("unknown company")
+        logger.info(s"$company call $method with file export progress [$current/$totle]")
+    }
+
     case class msg_log(ls : JsValue, data : JsValue)(implicit val l : (JsValue, JsValue) => (Option[Map[String, JsValue]], Option[JsValue])) extends msg_LogCommand
 }
