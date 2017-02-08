@@ -21,6 +21,7 @@ import com.pharbers.aqll.util.file.csv.scala._
 
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.pattern.LogMessage._
+import com.pharbers.aqll.excel.model.ExportFile
 
 object FileExportModuleMessage {
 	sealed class msg_fileexportBase extends CommonMessage
@@ -67,47 +68,81 @@ object FileExportModule extends ModuleTrait{
 			con = conditionsAcc(con, "market" :: Nil, marketListConditions(x => x.asOpt[List[String]]))
 			con
 		}
+
 		try {
-			val connectionName = (data \ "company").asOpt[String].get
-			val datatype = (data \ "datatype").asOpt[String].get
-			val filename = UUID.randomUUID + ".csv"
-			val file : File = new File(GetProperties.Client_Export_FilePath+filename)
-            if(!file.exists()){file.createNewFile()}
-			val writer = CSVWriter.open(file,"GBK")
-			writer.writeRow(getFieldContent(datatype,"ch"))
-            val order = "Timestamp"
-			var first = 0
-			var step = 10000
-			var iscache = false			//smarty- caching false
-			var hospdata = List(Map("" -> toJson("")))
-			var miniprod = List(Map("" -> toJson("")))
-			val sum = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
-			while (first < sum) {
-				val r = (from db() in connectionName where $and(conditions)).selectSkipTop(first)(step)(order)(finalResultJsValue1(_))(_data_connection_cores).toList
-				if(!iscache){
-					hospdata = (from db() in "HospitalInfo").select(hospitalJsValue(_))(_data_connection_cores).toList
-					miniprod = (from db() in "MinimumProductInfo").select(miniProductJsValue(_))(_data_connection_cores).toList
-					iscache = true
-				}
-				val hosps = r map { x => x.++(hospdata.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("Pha_Code").get.asOpt[String].get.equals(x.get("Hospital").get.asOpt[String].get)).get) }
-				val prods = hosps map { x => x.++(miniprod.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("MC").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get) }
-				var field = getFieldContent(datatype,"en")
-				prods.foreach{ x =>
-					val lb : ListBuffer[AnyRef] = ListBuffer[AnyRef]()
-					field.foreach(y => lb.append(x.get(y).get))
-					writer.writeRow(lb.toList)
-				}
-				if(sum - first < step){
-					step = sum - first
-				}
-				first += step
-				writing_log(data,"FileExportModule",first,sum)
-			}
-			writer.close()
-			(Some(Map("finalResult" -> toJson(filename))), None)
+			(Some(Map("finalResult" -> toJson(write_CsvFile(data,conditions)))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
+	}
+
+	def write_CsvFile(data : JsValue,conditions : List[DBObject]) : String = {
+		val connectionName = (data \ "company").asOpt[String].get
+		val datatype = (data \ "datatype").asOpt[String].get
+		val fileName = UUID.randomUUID + ".csv"
+		val file : File = new File(GetProperties.Client_Export_FilePath+fileName)
+		if(!file.exists()){
+			file.createNewFile()
+		}
+
+		val writer = CSVWriter.open(file,"GBK")
+		writer.writeRow(getFieldContent(datatype,"ch"))
+		val order = "Timestamp"
+		var first = 0
+		var step = 10000
+		var iscache = false			//smarty- caching false
+		var hospdata = List(Map("" -> toJson("")))
+		var miniprod = List(Map("" -> toJson("")))
+		val sum = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
+		var temp: List[Map[String,JsValue]] = List.empty
+		while (first < sum) {
+			val r = (from db() in connectionName where $and(conditions)).selectSkipTop(first)(step)(order)(finalResultJsValue1(_))(_data_connection_cores).toList
+
+			if(!iscache){
+				hospdata = (from db() in "HospitalInfo").select(hospitalJsValue(_))(_data_connection_cores).toList
+				miniprod = (from db() in "MinimumProductInfo").select(miniProductJsValue(_))(_data_connection_cores).toList
+				iscache = true
+			}
+			val hosps = r map { x => x.++(hospdata.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("Pha_Code").get.asOpt[String].get.equals(x.get("Hospital").get.asOpt[String].get)).get) }
+
+			datatype match {
+				case "省份数据" => {
+					println(s"temp = ${temp.size}")
+					temp = GroupByProvinceFunc.apply(hosps)(temp)
+				}
+				case "城市数据" => {
+					println(s"temp = ${temp.size}")
+					temp = GroupByCityFunc(hosps)(temp)
+				}
+				case "医院数据" => {
+					//temp = GroupByHospitalFunc(hosps)(temp)
+					val prods = hosps map { x => x.++(miniprod.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("MC").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get) }
+
+					var field = getFieldContent(datatype,"en")
+					prods.foreach{ x =>
+						val lb : ListBuffer[AnyRef] = ListBuffer[AnyRef]()
+						field.foreach(y => lb.append(x.get(y).get))
+						writer.writeRow(lb.toList)
+					}
+				}
+			}
+            if(sum - first < step){
+                step = sum - first
+            }
+            first += step
+            writing_log(data,"FileExportModule",first,sum)
+		}
+		if(datatype.equals("省份数据") || datatype.equals("城市数据")){
+			val prods = temp map { x => x.++(miniprod.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("MC").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get) }
+			var field = getFieldContent(datatype,"en")
+			prods.foreach{ x =>
+				val lb : ListBuffer[AnyRef] = ListBuffer[AnyRef]()
+				field.foreach(y => lb.append(x.get(y).get))
+				writer.writeRow(lb.toList)
+			}
+		}
+		writer.close()
+		fileName
 	}
 
 	def getFieldContent(fn : String , str : String) : List[String] = {
