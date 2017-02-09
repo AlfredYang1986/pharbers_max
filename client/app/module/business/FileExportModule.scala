@@ -11,9 +11,9 @@ import com.pharbers.aqll.util.dao.from
 import com.mongodb.casbah.Imports.{$and, _}
 import com.pharbers.aqll.util.dao._data_connection_cores
 import java.text.SimpleDateFormat
-import java.util.{Calendar, Date, UUID}
+import java.util.{Calendar, UUID}
 
-import com.mongodb.{BasicDBObject, DBObject}
+import com.mongodb.{DBObject}
 import com.pharbers.aqll.util.GetProperties
 
 import scala.collection.immutable.List
@@ -21,7 +21,6 @@ import com.pharbers.aqll.util.file.csv.scala._
 
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.pattern.LogMessage._
-import com.pharbers.aqll.excel.model.ExportFile
 
 object FileExportModuleMessage {
 	sealed class msg_fileexportBase extends CommonMessage
@@ -81,10 +80,7 @@ object FileExportModule extends ModuleTrait{
 		val datatype = (data \ "datatype").asOpt[String].get
 		val fileName = UUID.randomUUID + ".csv"
 		val file : File = new File(GetProperties.Client_Export_FilePath+fileName)
-		if(!file.exists()){
-			file.createNewFile()
-		}
-
+		if(!file.exists()){file.createNewFile()}
 		val writer = CSVWriter.open(file,"GBK")
 		writer.writeRow(getFieldContent(datatype,"ch"))
 		val order = "Timestamp"
@@ -93,37 +89,25 @@ object FileExportModule extends ModuleTrait{
 		var iscache = false			//smarty- caching false
 		var hospdata = List(Map("" -> toJson("")))
 		var miniprod = List(Map("" -> toJson("")))
-		val sum = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
 		var temp: List[Map[String,JsValue]] = List.empty
+		val sum = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
 		while (first < sum) {
 			val r = (from db() in connectionName where $and(conditions)).selectSkipTop(first)(step)(order)(finalResultJsValue1(_))(_data_connection_cores).toList
-
 			if(!iscache){
 				hospdata = (from db() in "HospitalInfo").select(hospitalJsValue(_))(_data_connection_cores).toList
 				miniprod = (from db() in "MinimumProductInfo").select(miniProductJsValue(_))(_data_connection_cores).toList
 				iscache = true
 			}
 			val hosps = r map { x => x.++(hospdata.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("Pha_Code").get.asOpt[String].get.equals(x.get("Hospital").get.asOpt[String].get)).get) }
-
 			datatype match {
 				case "省份数据" => {
-					println(s"temp = ${temp.size}")
 					temp = GroupByProvinceFunc.apply(hosps)(temp)
 				}
 				case "城市数据" => {
-					println(s"temp = ${temp.size}")
 					temp = GroupByCityFunc(hosps)(temp)
 				}
 				case "医院数据" => {
-					//temp = GroupByHospitalFunc(hosps)(temp)
-					val prods = hosps map { x => x.++(miniprod.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("MC").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get) }
-
-					var field = getFieldContent(datatype,"en")
-					prods.foreach{ x =>
-						val lb : ListBuffer[AnyRef] = ListBuffer[AnyRef]()
-						field.foreach(y => lb.append(x.get(y).get))
-						writer.writeRow(lb.toList)
-					}
+					writeConFunc(hosps, miniprod, datatype, writer)
 				}
 			}
             if(sum - first < step){
@@ -133,16 +117,20 @@ object FileExportModule extends ModuleTrait{
             writing_log(data,"FileExportModule",first,sum)
 		}
 		if(datatype.equals("省份数据") || datatype.equals("城市数据")){
-			val prods = temp map { x => x.++(miniprod.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("MC").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get) }
-			var field = getFieldContent(datatype,"en")
-			prods.foreach{ x =>
-				val lb : ListBuffer[AnyRef] = ListBuffer[AnyRef]()
-				field.foreach(y => lb.append(x.get(y).get))
-				writer.writeRow(lb.toList)
-			}
+			writeConFunc(temp, miniprod, datatype, writer)
 		}
 		writer.close()
 		fileName
+	}
+
+	def writeConFunc(temp : List[Map[String,JsValue]], miniprod : List[Map[String,JsValue]], datatype : String, writer : CSVWriter) {
+		val prods = temp map { x => x.++(miniprod.asInstanceOf[List[Map[String,JsValue]]].find(y => y.get("MC").get.asOpt[String].get.equals(x.get("ProductMinunt").get.asOpt[String].get)).get) }
+		var field = getFieldContent(datatype,"en")
+		prods.foreach{ x =>
+			val lb : ListBuffer[AnyRef] = ListBuffer[AnyRef]()
+			field.foreach(y => lb.append(x.get(y).get))
+			writer.writeRow(lb.toList)
+		}
 	}
 
 	def getFieldContent(fn : String , str : String) : List[String] = {
