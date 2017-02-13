@@ -52,10 +52,10 @@ object fop {
 		try {
 			var lst : List[JsValue] = Nil
 			var path = GetProperties.Manage_Upload_HospitalData_FilePath
-			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				new TemporaryFile(x.ref.file).moveTo(new File(path + uuid), true)
+				println(path + uuid)
+				Files.TemporaryFile(x.ref.file).moveTo(new File(path + uuid), true)
 				lst = lst :+ toJson(uuid.toString)
 			}
 			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -68,7 +68,6 @@ object fop {
 		try {
 			var lst : List[JsValue] = Nil
 			var path = GetProperties.Manage_Upload_ProductMatch_FilePath
-			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
 				new TemporaryFile(x.ref.file).moveTo(new File(path + uuid), true)
@@ -84,7 +83,6 @@ object fop {
 		try {
 			var lst : List[JsValue] = Nil
 			var path = GetProperties.Manage_Upload_MarketMatch_FilePath
-			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
 				new TemporaryFile(x.ref.file).moveTo(new File(path + uuid), true)
@@ -100,7 +98,6 @@ object fop {
 		try {
 			var lst : List[JsValue] = Nil
 			var path = GetProperties.Manage_Upload_HospitalMatch_FilePath
-			deleteFile(new File(path))
 			data.files.foreach { x =>
 				val uuid = UUID.randomUUID
 				new TemporaryFile(x.ref.file).moveTo(new File(path + uuid), true)
@@ -110,12 +107,5 @@ object fop {
 		} catch {
 			case ex : Exception => error_handler(-1)
 		}
-	}
-
-	def deleteFile(file : File) {
-		if(file.isDirectory){
-			file.listFiles().foreach(x => deleteFile(x))
-		}
-		file.delete()
 	}
 }

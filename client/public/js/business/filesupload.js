@@ -36,7 +36,7 @@ $("#file-1").fileinput({
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 10,
+    maxFilesNum: 1,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
@@ -70,7 +70,7 @@ $("#file-2").fileinput({
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 10,
+    maxFilesNum: 1,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
@@ -104,7 +104,7 @@ $("#file-3").fileinput({
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 10,
+    maxFilesNum: 1,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
@@ -138,7 +138,7 @@ $("#file-4").fileinput({
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 10,
+    maxFilesNum: 1,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
