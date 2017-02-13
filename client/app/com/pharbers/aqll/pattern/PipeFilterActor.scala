@@ -25,6 +25,8 @@ import module.business.FileExportModuleMessage._
 import module.business.FileExportModule
 import module.manage.ManageFilesUploadModuleMessage._
 import module.manage.ManageFilesUploadModule
+import module.business.TempExportModuleMessage._
+import module.business.TempExportModule
 
 object PipeFilterActor {
 	def prop(originSender : ActorRef, msr : MessageRoutes) : Props = {
@@ -53,6 +55,7 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 	var rst : Option[Map[String, JsValue]] = msr.rst
 	var next : ActorRef = null
 	def receive = {
+		case cmd : msg_tempexportBase => dispatchImpl(cmd, TempExportModule)
         case cmd : msg_CallHttp => dispatchImpl(cmd, CallAkkaHttpModule)
 		case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, LoginModule)
 		case cmd : msg_filesuploadBase => dispatchImpl(cmd, FilesUploadModule)

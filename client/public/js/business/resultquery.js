@@ -208,7 +208,8 @@ function fileExport(type) {
     query_object['filetype'] = filetype;
 
     $.ajax({
-        url: "/resultquery/fileexport",
+        //url: "/resultquery/fileexport",
+        url: "/resultquery/tempexport",
         type: 'POST',
         dataType: 'json',
         contentType: 'application/json, charset=utf-8',
