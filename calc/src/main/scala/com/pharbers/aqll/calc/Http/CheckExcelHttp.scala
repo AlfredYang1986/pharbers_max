@@ -54,7 +54,7 @@ trait OrderService {
         }
     }
 
-    def getCheck = get {
+    def getCheck = post {
         path("checkExcel") {
             parameters(("filename", "company", "filetype")) { (filename, company, filetype) =>
                 import java.io.File
@@ -78,7 +78,7 @@ trait OrderService {
                 if(result.equals("is ok")){
                     system.terminate()
                     System.gc()
-                    complete("""jsonpCallback1({"result":"Ok"})""")
+                    complete("""{"result":"Ok"}""")
                 }else{
                     system.terminate()
                     System.gc()
@@ -89,7 +89,7 @@ trait OrderService {
         }
     }
 
-    def getCalc = get {
+    def getCalc = post {
         path("calc") {
             parameters(("filename", "company", "filetype")) { (filename, company, filetype) =>
                 val system = ActorSystem("calc")
@@ -108,7 +108,7 @@ trait OrderService {
                         calc ! excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
                     }
                 }
-                complete("""jsonpCallback1({"result":"Ok"})""")
+                complete("""{"result":"Ok"}""")
             }
         }
     }

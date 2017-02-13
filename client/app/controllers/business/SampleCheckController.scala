@@ -13,7 +13,7 @@ class SampleCheckController extends Controller{
     
     def sampleCheckAjaxCall = Action (request => requestArgs(request) { jv =>
 		import pattern.ResultMessage.common_result
-			import pattern.LogMessage.common_log
+		import pattern.LogMessage.common_log
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheckAjaxCall"))), jv) :: msg_samplecheck(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 }
