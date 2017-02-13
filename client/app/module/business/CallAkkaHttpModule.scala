@@ -47,8 +47,6 @@ object CallAkkaHttpModule extends ModuleTrait{
             }else {
                 (Some(Map("FinalResult" -> toJson("no"))), None)
             }
-
-
         } catch {
             case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
         }
