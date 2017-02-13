@@ -12,6 +12,7 @@ import play.api.libs.ws.ahc.AhcWSClient
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import scala.concurrent.ExecutionContext.Implicits._
 
 /**
   * Created by qianpeng on 2017/2/13.
@@ -33,6 +34,7 @@ object CallAkkaHttpModule extends ModuleTrait{
 
     def checkExcel(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
+
             implicit val system = ActorSystem()
             implicit val materializer = ActorMaterializer()
             implicit val timeout = Timeout(10 second)
@@ -67,7 +69,7 @@ object CallAkkaHttpModule extends ModuleTrait{
         }
     }
 
-    def call(wsClient: WSClient, uri: String, map: Map[String, String]): Future[String] = {
+    def call(wsClient: WSClient, uri: String, map: Map[String, Seq[String]]): Future[String] = {
         wsClient.url(uri).post(map).map { response =>
             val json: JsValue = response.json
             (json \ "result").asOpt[String].getOrElse("No")
