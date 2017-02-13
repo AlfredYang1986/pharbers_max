@@ -4,20 +4,20 @@ $(function(){
 })
 
 function excelCheck(file, type) {
-	var dataMap = {
+	var dataMap = JSON.stringify({
         "filename" : file,
 		"company" : $.cookie("token"),
 		"filetype": type
-    }
+    })
+
     $.ajax({
-        type : "get",
+        type : "post",
         data : dataMap,
         async : false,
-        url :"http://59.110.31.215:5000/checkExcel",
+        contentType: "application/json,charset=utf-8",
+        url :"/callcheckexcel",
         cache : false,
-        dataType : "jsonp",
-        jsonp: "callbackparam",
-        jsonpCallback:"jsonpCallback1",
+        dataType : "json",
         success : function(json){
             $.cookie("filename", file)
             $.cookie("filetype", type)
@@ -56,7 +56,7 @@ $("#file-1").fileinput({
 			success: function(data) {
 				if (data.status == "ok") {
                     loader.show();
-                    excelCheck(query_object.uuid, "0")
+                    setTimeout(excelCheck(query_object.uuid, "0"), 1000)
 		    		console.info("CPA产品上传成功");
 				}
 			}

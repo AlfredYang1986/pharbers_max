@@ -36,6 +36,6 @@ object GetProperties {
     def Manage_Upload_ProductMatch_FilePath = loadConf("File.conf").getString("Files.UpManage_ProductMatch_FilePath")
     def Manage_Upload_MarketMatch_FilePath = loadConf("File.conf").getString("Files.UpManage_MarketMatch_FilePath")
 
-    def Akka_Http_IP = loadConf("File.conf").getString("Akka.Http.IP")
+    def Akka_Http_IP = loadConf("File.conf").getString("Akka.Http.ip")
     def Akka_Http_Port = loadConf("File.conf").getInt("Akka.Http.port")
 }

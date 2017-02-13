@@ -7,7 +7,7 @@ import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.util.GetProperties
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import play.api.libs.ws.WSClient
+import play.api.libs.ws._
 import play.api.libs.ws.ahc.AhcWSClient
 
 import scala.concurrent.duration._
@@ -37,10 +37,10 @@ object CallAkkaHttpModule extends ModuleTrait{
 
             implicit val system = ActorSystem()
             implicit val materializer = ActorMaterializer()
-            implicit val timeout = Timeout(10 second)
+            implicit val timeout = Timeout(3 minute)
             val wsClient = AhcWSClient()
 
-            val c = call(wsClient, GetProperties.Akka_Http_IP+":"+GetProperties.Akka_Http_Port+"/checkExcels", null)
+            val c = call(wsClient, GetProperties.Akka_Http_IP+":"+GetProperties.Akka_Http_Port+"/checkExcel", data)
                 .andThen { case _ => wsClient.close() }
                 .andThen { case _ => system.terminate() }
             val r = Await.result(c.mapTo[String], timeout.duration)
@@ -69,8 +69,11 @@ object CallAkkaHttpModule extends ModuleTrait{
         }
     }
 
-    def call(wsClient: WSClient, uri: String, map: Map[String, Seq[String]]): Future[String] = {
-        wsClient.url(uri).post(map).map { response =>
+    def call(wsClient: WSClient, uri: String, data: JsValue): Future[String] = {
+        val filename = (data \ "filename").asOpt[String].getOrElse("")
+        val company = (data \ "company").asOpt[String].getOrElse("")
+        val filetype = (data \ "filetype").asOpt[String].getOrElse("")
+        wsClient.url(uri).withQueryString("filename" -> filename, "company" -> company, "filetype" -> filetype).get().map { response =>
             val json: JsValue = response.json
             (json \ "result").asOpt[String].getOrElse("No")
         }

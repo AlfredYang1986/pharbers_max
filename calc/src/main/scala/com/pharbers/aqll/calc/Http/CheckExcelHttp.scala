@@ -54,24 +54,23 @@ trait OrderService {
         }
     }
 
-    def getCheck = post {
+    def getCheck = get {
         path("checkExcel") {
             parameters(("filename", "company", "filetype")) { (filename, company, filetype) =>
-                import java.io.File
                 val system = ActorSystem(filename)
                 val act = system.actorOf(CheckReception.props)
                 val r = filetype match  {
                     case "0" => {
-                        act ? excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, cpaProductJob, company, 0)
+                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaProductJob, company, 0)
                     }
                     case "1" => {
-                        act ? excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
+                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
                     }
                     case "2" => {
-                        act ? excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
+                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
                     }
                     case "3" => {
-                        act ? excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
+                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
                     }
                 }
                 val result = Await.result(r.mapTo[String], requestTimeout.duration)
@@ -82,33 +81,33 @@ trait OrderService {
                 }else{
                     system.terminate()
                     System.gc()
-                    complete("""jsonpCallback1({"result":"No"})""")
+                    complete("""{"result":"No"}""")
                 }
-
+//                complete("""{"result":"Ok"}""")
             }
         }
     }
 
-    def getCalc = post {
+    def getCalc = get {
         path("calc") {
             parameters(("filename", "company", "filetype")) { (filename, company, filetype) =>
                 val system = ActorSystem("calc")
                 val calc = system.actorOf(Props[SplitReception], "splitreception")
                 filetype match  {
                     case "0" => {
-                        calc ! excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, cpaProductJob, company, 0)
+                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaProductJob, company, 0)
                     }
                     case "1" => {
-                        calc ! excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
+                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
                     }
                     case "2" => {
-                        calc ! excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
+                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
                     }
                     case "3" => {
-                        calc ! excelJobStart(GetProperties loadConf("File.conf") getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
+                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
                     }
                 }
-                complete("""{"result":"Ok"}""")
+                complete("""({"result":"Ok"})""")
             }
         }
     }

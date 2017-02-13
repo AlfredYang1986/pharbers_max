@@ -10,7 +10,7 @@ object DefaultData {
         val hospdata_ch_file = "config/admin/HospDataStruct.xml"
         val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
         val hospdatabase = hospdatainteractparser(hospdata_en_file, hospdata_ch_file)
-        hospdatabase.startParse(FileFirst(GetProperties loadConf("File.conf") getString("SCP.Upload_HospitalData_File")), 1)
+        hospdatabase.startParse(FileFirst(GetProperties.loadConf("File.conf").getString("SCP.Upload_HospitalData_File")), 1)
         hospdatabase.resultlist
     }
     
@@ -18,7 +18,7 @@ object DefaultData {
         val hosp_mathc_ch_file = """config/admin/HospDataMatchStruct.xml"""
         val hosp_match_en_file = """config/admin/FieldNamesHospMatchStruct.xml"""
         val hospmatchdata = hospmatchinteractparser(hosp_match_en_file, hosp_mathc_ch_file)
-        hospmatchdata.startParse(FileFirst(GetProperties loadConf("File.conf") getString("SCP.Upload_HospitalMatch_File")), 1)
+        hospmatchdata.startParse(FileFirst(GetProperties.loadConf("File.conf").getString("SCP.Upload_HospitalMatch_File")), 1)
         hospmatchdata.resultlist
     }
     
@@ -26,7 +26,7 @@ object DefaultData {
         val market_ch_file = """config/admin/MarketDataStruct.xml"""
         val market_en_file = """config/admin/FieldNamesMarketDataStruct.xml"""
         val adminmarketdata = marketinteractparser(market_en_file, market_ch_file)
-        adminmarketdata.startParse(FileFirst(GetProperties loadConf("File.conf") getString("SCP.Upload_MarketMatch_File")), 1)
+        adminmarketdata.startParse(FileFirst(GetProperties.loadConf("File.conf").getString("SCP.Upload_MarketMatch_File")), 1)
         adminmarketdata.resultlist
     }
     
@@ -34,7 +34,7 @@ object DefaultData {
         val product_ch_file = """config/admin/ProductDataStruct.xml"""
         val product_en_file = """config/admin/FieldNamesProductDataStruct.xml"""
         val adminproductdata = productinteractparser(product_en_file, product_ch_file)
-        adminproductdata.startParse(FileFirst(GetProperties loadConf("File.conf") getString("SCP.Upload_ProductMatch_File")), 1)
+        adminproductdata.startParse(FileFirst(GetProperties.loadConf("File.conf").getString("SCP.Upload_ProductMatch_File")), 1)
         adminproductdata.resultlist
     }
     
