@@ -24,7 +24,6 @@ $(function() {
 		autoclose: true,
 		todayHighlight: true
 	});
-
 	pageResult(3);
 });
 
@@ -60,7 +59,6 @@ function pageResult(page){
 	query_object['Timestamp'] = [startdate, enddate];
 	query_object['currentPage'] = page;
     query_object['company'] = $.cookie("token");
-    console.info($.cookie("token"))
 
 	$.ajax({
 		url: "/resultquery/search",
@@ -70,7 +68,6 @@ function pageResult(page){
 		data: JSON.stringify(query_object),
 		cache: false,
 		success: function(data) {
-			console.info(data)
 			if (data.status == "ok") {
 				var result = data.result.finalResult;
 				var thead = "<tr>";
@@ -114,14 +111,12 @@ function pageResult(page){
 						thead += "<th>Volume（数量）</th>";
 					thead += "</tr>";
 				$('thead[id="thead"]').html(thead);
-
                 var page = data.result.page[0];
-
 				var tbody = "";
 				if (result.length != 0) {
 					for (var i in result) {
 						tbody += "<tr class='gradeX'>";
-                        	tbody += "<td>" + (page.serial+parseInt(i)) + "</td>";
+                        	tbody += "<td>" + (page.SERIAL+parseInt(i)) + "</td>";
 							tbody += "<td>" + result[i].Year + "</td>";
 							tbody += "<td>" + result[i].Month + "</td>";
 							tbody += "<td>" + result[i].Region_Name + "</td>";
@@ -165,11 +160,10 @@ function pageResult(page){
 					}
 				} else {
 					tbody += "<tr class='gradeX'><td valign='top' colspan='32'>没有匹配的记录</td></tr>";
-                    loader.hide();
 				}
 				$('tbody[id="tbody"]').html(tbody);
-				pageshow(data);
-			} else {
+				Page(data);
+            } else {
 				alert("请求超时。");
 			}
             loader.hide();

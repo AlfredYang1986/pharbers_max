@@ -12,6 +12,7 @@ import play.api.libs.json.JsObject
 import com.pharbers.aqll.util.dao.from
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.util.dao._data_connection_cores
+import com.pharbers.aqll.util.dao.Page._
 
 object ResultQueryModuleMessage {
 	sealed class msg_resultqueryBase extends CommonMessage
@@ -64,15 +65,12 @@ object ResultQueryModule extends ModuleTrait {
 	    }
 	    
 	    val currentPage = (data \ "currentPage").asOpt[Int].map (x => x).getOrElse(3)
-	    val take = 10
-        val skip = ((currentPage-1)*take)
         val order = "Timestamp"
-
 		val connectionName = (data \ "company").asOpt[String].get
 		try {
-            val r = (from db() in connectionName where $and(conditions)).selectSkipTop(skip)(take)(order)(finalResultJsValue(_))(_data_connection_cores).toList
-            val n = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
-            (Some(Map("finalResult" -> toJson(r), "page" -> toJson(page(currentPage,take,skip,n)))), None)
+            val result = (from db() in connectionName where $and(conditions)).selectSkipTop(SKIP(currentPage))(TAKE)(order)(finalResultJsValue(_))(_data_connection_cores).toList
+            val total = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
+            (Some(Map("finalResult" -> toJson(result), "page" -> toJson(Page(currentPage,total)))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
@@ -108,25 +106,7 @@ object ResultQueryModule extends ModuleTrait {
           case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
         }
 	}
-	
-	def page(currentPage : Int, take : Int, skip : Int, total : Int) : List[Map[String,JsValue]] = {
-		var startrow = (currentPage-1)*take+1
-		var endrow = currentPage*take
-		if(total == 0){
-			startrow = 0
-			endrow = 0
-		}
 
-	    Map(
-	         "startrow" -> toJson(startrow),
-	         "endrow" -> toJson(endrow),
-	         "currentpage" -> toJson(currentPage),
-	         "totlepage" -> toJson(if(total%take==0)(total/take)else(total/take+1)),
-	         "total" -> toJson(total),
-			 "serial" -> toJson(skip+1)
-	    ):: Nil
-	}
-	
 	def finalResultJsValue(x : MongoDBObject) : Map[String,JsValue] = {
 	    val timeDate = Calendar.getInstance
         timeDate.setTimeInMillis(x.getAs[Number]("Timestamp").get.longValue)
