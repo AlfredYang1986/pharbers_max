@@ -5,27 +5,12 @@ import com.pharbers.aqll.calc.util.StringOption
 
 abstract class modelRunData(
              val company :String,
-             val uploadYear :Int,
-             val uploadMonth :Int,
+             val yearAndmonth: Int,
              var sumValue :Double,
              var volumeUnit :Double,
              val minimumUnit :String,
              val minimumUnitCh :String,
              val minimumUnitEn :String,
-             val manufacturerCh :String,
-             val manufacturerEn :String,
-             val generalnameCh :String,
-             val generalnameEn :String,
-             val tradenameCh :String,
-             val tradenameEn :String,
-             val dosageformsCh :String,
-             val dosageformsEn :String,
-             val drugspecificationsCh :String,
-             val drugspecificationsEn :String,
-             val numberPackagingCh :String,
-             val numberPackagingEn :String,
-             val skuCh :String,
-             val skuEn :String,
              val market1Ch :String,
              val market1En :String,
              val segment :String,
@@ -87,7 +72,7 @@ abstract class modelRunData(
 //                                     finalResultsValue.toString()+ "===" +finalResultsUnit.toString()
         ////                             "uploadYear = "+uploadYear.toString()+"，uploadMonth = "+uploadMonth.toString()+"，minimumUnitCh = "+minimumUnitCh+"，hospId = "+hospId
             
-            lazy val sortConditions1 : String = uploadYear.toString + uploadMonth.toString + hospId.toString + StringOption.takeStringSpace(minimumUnitCh.toString)
+            lazy val sortConditions1 : String = yearAndmonth.toString + hospId.toString + StringOption.takeStringSpace(minimumUnitCh.toString)
         //    MD5.md5(uploadYear.toString + uploadMonth.toString + hospId.toString + StringOption.takeStringSpace(minimumUnitCh.toString))
         //    def equals(other : modelRunData) : Boolean =
         //    	this.uploadYear	== other.uploadYear &&

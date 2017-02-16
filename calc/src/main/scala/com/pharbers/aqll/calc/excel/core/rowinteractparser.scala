@@ -1,6 +1,7 @@
 package com.pharbers.aqll.calc.excel.core
 
 import akka.actor.ActorRef
+import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 import com.pharbers.aqll.calc.excel.CPA._
 import com.pharbers.aqll.calc.excel.PharmaTrust._
 import com.pharbers.aqll.excel.core.interactparser
@@ -9,6 +10,7 @@ case class cparesult(t : CpaProduct)
 case class cpamarketresult(t : CpaMarket)
 case class pharesult(t : PharmaTrustPorduct)
 case class phamarketresult(t : PharmaTrustMarket)
+case class integratedresult(t: IntegratedData)
 
 trait rowinteractparser extends interactparser {
 	override def handleOneTarget(target : target_type) = a ! target
@@ -36,4 +38,10 @@ case class  row_phamarketinteractparser(xml_file_name : String, xml_file_name_ch
     type target_type = PharmaTrustMarket
     override def targetInstance = new PharmaTrustMarket
 	override def handleOneTarget(target : target_type) = a ! phamarketresult(target)
+}
+
+case class row_integrateddataparser(xml_file_name : String, xml_file_name_ch : String, a : ActorRef) extends rowinteractparser {
+    type target_type = IntegratedData
+  override def targetInstance = new IntegratedData
+  override def handleOneTarget(target : target_type) = a ! integratedresult(target)
 }

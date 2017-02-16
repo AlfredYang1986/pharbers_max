@@ -15,6 +15,7 @@ import akka.agent.Agent
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.ArrayBuffer
 import com.pharbers.aqll.calc.excel.model.integratedData
+import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 import com.typesafe.config.ConfigFactory
 import akka.cluster.routing.ClusterRouterPool
 import akka.cluster.routing.ClusterRouterPoolSettings
@@ -26,7 +27,7 @@ import com.pharbers.aqll.calc.excel.PharmaTrust._
 object SplitAggregator {
     def props(bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(bus, master))
 
-    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))])
+    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)]))])
     case class excelResult(exd: (Double, Double, Int, List[(String)], List[(String)]))
     case class aggsubcribe(a : ActorRef)
     case class aggmapsubscrbe(a : ActorRef)
@@ -36,13 +37,14 @@ object SplitAggregator {
     val mapping_nr_of_instance_in_node = 10
     val mapping_nr_of_node = 1
     val mapping_nr_total_instance = mapping_nr_of_instance_in_node * mapping_nr_of_node
-    case class msg_container(group : (Int, Int, String), lst : List[integratedData])
+    case class msg_container(group : (Integer, String), lst : List[IntegratedData])
+//    case class msg_container(lst : List[IntegratedData])
 }
 
 class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with CreateMappingActor with CreateMaxBroadcastingActor {
 	
 	val unionSum = Ref(List[(String, (Double, Double, Double))]())
-	val mrResult = Ref(Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String)]())
+	val mrResult = Ref(Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)])]())
 	val excelcheckdata = Ref(List[(Double, Double, Long, String)]())
 	
 	val mapping_master_router = CreateMappingActor
@@ -67,34 +69,37 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 
 			println(s"average ${avgsize.single.get} whith sender $sender")
 			if (avgsize.single.get == mapshouldsize.single.get) {
-			    val sumAll = unionSum.single.get.groupBy(_._1) map { x => 
+			    val sumAll = unionSum.single.get.groupBy(_._1) map { x =>
 			        (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
 			    }
 			    
 				lazy val mapAvg = sumAll map { x =>
         	        (x._1, (x._2._1 / x._2._3),(x._2._2 / x._2._3))
         	    }
+        println(s"mapAvg = ${mapAvg}")
         	    bus.publish(SplitEventBus.average(mapAvg.toList))
 			}
 			
 		}
 		
 		case postresult(mr) => {
-			atomic { implicit thx => 
+			atomic { implicit thx =>
+        println(s"postresult = ${mr.size}")
 				rltsize() = rltsize() + 1
-				mr.foreach { kvs => 
-					val (t, v, u, h, p, m, s) = mrResult().get(kvs._1).map { x =>
+				mr.foreach { kvs =>
+					val (t, v, u, h, p, m, s, city, toall, touse, segment) = mrResult().get(kvs._1).map { x =>
 						kvs._2._4.foreach(x._4.distinct.append(_))
 						kvs._2._5 foreach(x._5.distinct.append(_))
 						kvs._2._6.foreach(x._6.distinct.append(_))
-					    (x._1, x._2 + kvs._2._2, x._3 + kvs._2._3, x._4 , x._5, x._6, kvs._2._7)
-					}.getOrElse(kvs._2._1, kvs._2._2, kvs._2._3, kvs._2._4, kvs._2._5, kvs._2._6, kvs._2._7)
-					mrResult() = mrResult() + (kvs._1 -> (t, v, u, h, p, m, s))
+					    (x._1, x._2 + kvs._2._2, x._3 + kvs._2._3, x._4 , x._5, x._6, kvs._2._7, kvs._2._8, kvs._2._9, kvs._2._10, kvs._2._11)
+					}.getOrElse(kvs._2._1, kvs._2._2, kvs._2._3, kvs._2._4, kvs._2._5, kvs._2._6, kvs._2._7, kvs._2._8, kvs._2._9, kvs._2._10, kvs._2._11)
+					mrResult() = mrResult() + (kvs._1 -> (t, v, u, h, p, m, s, city, toall, touse, segment))
 				}
 			}
 			
 			if (rltsize.single.get == mapshouldsize.single.get) {
 				val result = mrResult.single.get
+        println(s"result = ${result.size}")
 				master ! SplitAggregator.aggregatefinalresult(result.toList)
 			}
 		}
@@ -124,9 +129,17 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 				broadcasting_actor ! SplitMaxBroadcasting.startmapping(n)
 			}
 		}
-		case SplitWorker.integratedataresult(m) => m map { tmp =>
-			broadcasting_actor ! SplitMaxBroadcasting.premapping((tmp._1, tmp._2.head))
-			mapping_master_router ! SplitAggregator.msg_container(tmp._1, tmp._2)
+		case SplitWorker.integratedataresult(m) =>
+//      broadcasting_actor ! SplitMaxBroadcasting.premapping(m)
+//      mapping_master_router ! SplitAggregator.msg_container(m)
+      m map { tmp =>
+//        val size = tmp._2.size
+//        val a = tmp._2.map(x => x.getSumValue.toDouble).sum / size
+//        val b = tmp._2.map(x => x.getVolumeUnit.toDouble).sum / size
+//        tmp._2.head.setSumValue(a)
+//        tmp._2.head.setVolumeUnit(b)
+        broadcasting_actor ! SplitMaxBroadcasting.premapping((tmp._1, tmp._2.head))
+        mapping_master_router ! SplitAggregator.msg_container(tmp._1, tmp._2)
 		}
 		case SplitMaxBroadcasting.mappingiteratornext() => {
 			broadcasting_actor ! SplitMaxBroadcasting.mappingiteratornext()
@@ -148,10 +161,10 @@ import com.pharbers.aqll.calc.common.DefaultData
 trait CreateMappingActor { this : Actor =>
 	
 	def AggregateHashMapping : ConsistentHashMapping = {
-		case SplitAggregator.msg_container(group, lst) => group._1 + group._2 + group._3
-		case SplitMaxBroadcasting.mappingiteratorhashed(mrd) => mrd.uploadYear + mrd.uploadMonth + mrd.minimumUnitCh 
+		case SplitAggregator.msg_container(group ,lst) => group._1 + group._2
+		case SplitMaxBroadcasting.mappingiteratorhashed(mrd) => mrd.yearAndmonth + mrd.minimumUnitCh
 	} 
-	
+
 	def CreateMappingActor = {
 //		context.actorOf(
 //			ClusterRouterPool(ConsistentHashingPool(SplitAggregator.mapping_nr_total_instance, hashMapping = AggregateHashMapping), ClusterRouterPoolSettings(    

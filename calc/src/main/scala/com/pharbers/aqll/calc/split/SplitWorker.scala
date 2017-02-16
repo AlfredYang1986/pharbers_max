@@ -8,7 +8,9 @@ import com.pharbers.aqll.calc.excel.core.cparesult
 import com.pharbers.aqll.calc.excel.core.phamarketresult
 import com.pharbers.aqll.calc.excel.core.pharesult
 import com.pharbers.aqll.calc.excel.model.integratedData
+import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 import com.pharbers.aqll.calc.excel.model.modelRunData
+import com.pharbers.aqll.calc.excel.core.integratedresult
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.ActorRef
@@ -30,9 +32,10 @@ object SplitWorker {
 	def props(a : ActorRef) = Props(new SplitWorker(a))
 	
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
-	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String)])
+	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String])])
 	
-	case class integratedataresult(integrated : Map[(Int, Int, String), List[integratedData]])
+	case class integratedataresult(integrated : Map[(Integer, String), List[IntegratedData]])
+//	case class integratedataresult(integrated : List[IntegratedData])
 	case class integratedataended(n: Int)
 	
 	case class exceluniondata(e: List[(Double, Double, Long, String)])
@@ -47,7 +50,8 @@ object adminData {
 
 class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
     val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
-    
+    val data2: ArrayBuffer[IntegratedData] = ArrayBuffer.empty
+
     val excelunion: ArrayBuffer[(Double, Double, Long, String)] = ArrayBuffer.empty
     val subFun = aggregator ! SplitAggregator.aggsubcribe(self)
     
@@ -77,20 +81,30 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
 	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 	    }
+      case integratedresult(target) => {
+          data2 ++= (target :: Nil)
+      }
 	    case SplitEventBus.excelEnded(n) =>  {
 	    	println(s"read ended at $self")
+
+//        data2.toList.foreach{ x =>
+//          val hsp = DefaultData.hospdatabase.find(y =>x.getPhaid.equals(y.getPhaid))
+//          hsp match {
+//            case None => Unit
+//            case _ => x.setSegment(hsp.get.getSegment)
+//          }
+//        }
+	    	val tmp = data2.toList.groupBy (x => (x.getYearAndmonth, x.getMinimumUnitCh))
+			  aggregator ! SplitWorker.integratedataresult(tmp)
 	    	
-	    	val tmp = data.toList.groupBy (x => (x.getUploadYear, x.getUploadMonth, x.getMinimumUnitCh))
-			aggregator ! SplitWorker.integratedataresult(tmp)
-	    	
-			aggregator ! SplitWorker.integratedataended(n)
+			  aggregator ! SplitWorker.integratedataended(n)
 	    }
 	    case _ => Unit
 	}
 	
 	val working : Receive = {
 	    case cpamarketresult(target) => {}
-	    
+
 	    case _ => ???
 	}
 

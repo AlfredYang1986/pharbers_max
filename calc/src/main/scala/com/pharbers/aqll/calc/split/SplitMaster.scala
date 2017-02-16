@@ -1,11 +1,11 @@
 package com.pharbers.aqll.calc.split
 
-import com.pharbers.aqll.calc.common.DefaultData.capLoadXmlPath
-import com.pharbers.aqll.calc.common.DefaultData.phaLoadXmlPath
+import com.pharbers.aqll.calc.common.DefaultData.{capLoadXmlPath, phaLoadXmlPath, integratedXmlPath}
 import com.pharbers.aqll.calc.excel.core.row_cpamarketinteractparser
 import com.pharbers.aqll.calc.excel.core.row_cpaproductinteractparser
 import com.pharbers.aqll.calc.excel.core.row_phamarketinteractparser
 import com.pharbers.aqll.calc.excel.core.row_phaproductinteractparser
+import com.pharbers.aqll.calc.excel.core.row_integrateddataparser
 import com.pharbers.aqll.calc.maxmessages.end
 import com.pharbers.aqll.calc.maxmessages.startReadExcel
 import com.pharbers.aqll.calc.excel.model.modelRunData
@@ -76,10 +76,15 @@ class SplitMaster extends Actor with ActorLogging
 		                                           router)
 		        }
 		        case 3 => {
-		            row_phaproductinteractparser(phaLoadXmlPath.phaproductxmlpath_en, 
+		            row_phaproductinteractparser(phaLoadXmlPath.phaproductxmlpath_en,
 		                                            phaLoadXmlPath.phaproductxmlpath_ch, 
 		                                            router)
 		        }
+				case _ => {
+                row_integrateddataparser(integratedXmlPath.integratedxmlpath_en,
+                                                integratedXmlPath.integratedxmlpath_ch,
+													                      router)
+				}
 		    }).startParse(filename, 1)
 		    bus.publish(SplitEventBus.excelEnded(n))
 		}

@@ -52,6 +52,11 @@ object DefaultData {
         lazy val phaproductxmlpath_en = """config/consumer/FieldNamesPhaProductDataStruct.xml"""
     }
 
+    object integratedXmlPath {
+        lazy val integratedxmlpath_ch = "config/consumer/IntegratedDataStruct.xml"
+        lazy val integratedxmlpath_en = "config/consumer/FieldNamesIntegratedDataStruct.xml"
+    }
+
     def FileFirst(path: String): String = {
         new File(path).listFiles().head.getPath
     }

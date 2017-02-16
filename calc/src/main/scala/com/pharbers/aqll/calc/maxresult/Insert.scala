@@ -13,7 +13,7 @@ import com.pharbers.util.dao.MongoDBCollManager
 
 class Insert {
     
-    def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String))]) (m: (String, String, String, Long)) = {
+    def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String]))]) (m: (String, String, String, Long)) = {
         def maxInser() = {
             _data_connection.getCollection(m._2).createIndex(MongoDBObject("Hospital" -> 1))
             _data_connection.getCollection(m._2).createIndex(MongoDBObject("ProductMinunt" -> 1))
@@ -22,17 +22,27 @@ class Insert {
 
             val bulk = _data_connection.getCollection(m._2).initializeUnorderedBulkOperation
 
-            mr.toList.foreach { x =>
-                bulk.insert(Map("ID"-> m._3,
-                                "Units" -> x._2._3,
-                                "Sales" -> x._2._2,
-                                "Hospital" -> x._2._4.head,
-                                "ProductMinunt" -> x._2._5.head,
-                                "Market" -> x._2._6.head,
-                                "Timestamp" -> x._2._1,
-                                "Createtime" -> m._4,
-                                "Filepath" -> m._1,
-                                "Rtype" -> x._2._7))
+//            mr.toList.foreach { x =>
+//                bulk.insert(Map("ID"-> m._3,
+//                                "Units" -> x._2._3,
+//                                "Sales" -> x._2._2,
+//                                "Hospital" -> x._2._4.head,
+//                                "ProductMinunt" -> x._2._5.head,
+//                                "Market" -> x._2._6.head,
+//                                "Timestamp" -> x._2._1,
+//                                "Createtime" -> m._4,
+//                                "Filepath" -> m._1,
+//                                "Rtype" -> x._2._7))
+//            }
+
+            mr.toList.filterNot(x => x._2._2 == 0 && x._2._3 == 0).foreach { x =>
+              bulk.insert(Map("ID"-> m._3,
+                "f_units" -> x._2._2,
+                "f_sales" -> x._2._3,
+                "Panel_ID" -> x._2._4.head,
+                "Product" -> x._2._5.head,
+                "City" -> x._2._8.head,
+                "Date" -> x._2._1))
             }
             bulk.execute()
 //            mr.toList map { x =>
@@ -52,9 +62,16 @@ class Insert {
 //             }
         }
         //2727265
-         println(s"mr.toList.size = ${mr.toList.size}")
-         println(s"mr.toList.map(_._2._1).sum = ${mr.toList.map(_._2._2).sum}")
-         println(s"mr.toList.map(_._2._2).sum = ${mr.toList.map(_._2._3).sum}")
+         println(s"mr.toList.size = ${mr.toList.filterNot(x => x._2._2 == 0 && x._2._3 == 0).size}")
+
+         println(s"aaa111.sum = ${mr.toList.filter(_._2._9.head.equals("1")).map(_._2._2).sum}")
+         println(s"bbb111.sum = ${mr.toList.filter(_._2._9.head.equals("1")).map(_._2._3).sum}")
+
+      println(s"aaa000.sum = ${mr.toList.filter(_._2._9.head.equals("0")).map(_._2._2).sum}")
+      println(s"bbb000.sum = ${mr.toList.filter(_._2._9.head.equals("0")).map(_._2._3).sum}")
+
+        println(s"mr.toList.map(_._2._1).sum = ${mr.toList.map(_._2._2).sum}")
+        println(s"mr.toList.map(_._2._2).sum = ${mr.toList.map(_._2._3).sum}")
          println(s"m._2 = ${m._2}")
          
          val conditions = ("ID" -> m._3)

@@ -19,6 +19,7 @@ public class DateUtil {
     public static final String PATTERN_CLASSICAL = "yyyy-MM-dd HH:mm:ss";
     public static final String PATTERN_CLASSICAL_NORMAL = "yyyy-MM-dd HH:mm";
     public static final String PATTERN_CLASSICAL_SIMPLE = "yyyy-MM-dd";
+    public static final String PATTERN_CLASSICAL_SIMPLE2 = "yyyy-MM";
     
     private DateUtil() {
         // Cannot be instantiated
@@ -26,7 +27,7 @@ public class DateUtil {
     
     /***
      * long
-     * @param str
+     * @param
      * @return
      */
     public static long getDateLong(int year, int month) {
@@ -39,6 +40,20 @@ public class DateUtil {
     	time.set(Calendar.SECOND, 0);
     	time.set(Calendar.MILLISECOND, 0);
     	return time.getTime().getTime();
+    }
+
+    public static long getDateLong(String str) {
+        int year = Integer.parseInt(str.replaceAll("\\s*","").substring(0,4));
+        int month = Integer.parseInt(str.replaceAll("\\s*","").substring(4));
+        Calendar time=Calendar.getInstance();
+        time.set(Calendar.YEAR, year);
+        time.set(Calendar.MONTH, month-1);
+        time.set(Calendar.DATE, 1);
+        time.set(Calendar.HOUR_OF_DAY, 0);
+        time.set(Calendar.MINUTE, 0);
+        time.set(Calendar.SECOND, 0);
+        time.set(Calendar.MILLISECOND, 0);
+        return time.getTime().getTime();
     }
  
     /**
