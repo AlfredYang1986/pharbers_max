@@ -38,7 +38,6 @@ object SplitAggregator {
     val mapping_nr_of_node = 1
     val mapping_nr_total_instance = mapping_nr_of_instance_in_node * mapping_nr_of_node
     case class msg_container(group : (Integer, String), lst : List[IntegratedData])
-//    case class msg_container(lst : List[IntegratedData])
 }
 
 class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with CreateMappingActor with CreateMaxBroadcastingActor {
@@ -130,14 +129,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			}
 		}
 		case SplitWorker.integratedataresult(m) =>
-//      broadcasting_actor ! SplitMaxBroadcasting.premapping(m)
-//      mapping_master_router ! SplitAggregator.msg_container(m)
       m map { tmp =>
-//        val size = tmp._2.size
-//        val a = tmp._2.map(x => x.getSumValue.toDouble).sum / size
-//        val b = tmp._2.map(x => x.getVolumeUnit.toDouble).sum / size
-//        tmp._2.head.setSumValue(a)
-//        tmp._2.head.setVolumeUnit(b)
         broadcasting_actor ! SplitMaxBroadcasting.premapping((tmp._1, tmp._2.head))
         mapping_master_router ! SplitAggregator.msg_container(tmp._1, tmp._2)
 		}

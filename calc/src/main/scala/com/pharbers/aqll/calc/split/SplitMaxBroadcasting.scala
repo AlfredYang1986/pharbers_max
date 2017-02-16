@@ -19,7 +19,6 @@ object SplitMaxBroadcasting {
 
 	case class startmapping(n: Int) // broadcast to all hash actor
 	case class premapping(m : ((Integer, String), IntegratedData))	// send group mapping from aggregator
-//	case class premapping(m : List[IntegratedData])	// send group mapping from aggregator
 	case class mappingiterator(d : modelRunData) extends broadcastingDefines	// send to hash mapping actor
 	case class mappingiteratornext() // can perform next round of iterator
 	case class mappingeof() extends broadcastingDefines
@@ -43,16 +42,7 @@ class SplitMaxBroadcasting(bus : SplitEventBus, hash : ActorRef) extends Actor w
 		}
 		
 		case SplitMaxBroadcasting.startmapping(n) => {
-//      val tmp = group2.flatten.filterNot(_.getSegment == null).groupBy (x => (x.getYearAndmonth, x.getSegment)).map { x =>
-//        (x._1, x._2.toList)
-//      }
-//
-//      println(s"group2 list size: ${group2.flatten.size}")
-//
-//      println(s"group list size: ${tmp.size}")
-
       println(s"group list size: ${group.size}")
-
 			s = new ModelRunFactory().apply(n, group.toStream)
 	        nextiterator
 		}

@@ -38,7 +38,6 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 	val inte_lst : ArrayBuffer[IntegratedData] = ArrayBuffer.empty
   	val subFun = aggregator ! SplitAggregator.aggmapsubscrbe(self)
   	val maxSum : scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
-//  	val r : ArrayBuffer[List[(String, Double, Double)] => Option[(Int, Int, (Double, Double))]] = ArrayBuffer.empty
   	val r : ArrayBuffer[List[(String, Double, Double)] => Option[(Integer, (Double, Double), String, String, String, String, String, String, String, String)]] = ArrayBuffer.empty
 	
   	def receive = {
@@ -71,20 +70,6 @@ class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
 
 		tmp match {
 			case Some(x) => {
-//        if(mrd.ifPanelAll.equals("1")) {
-//          x.getSumValue < 0 match {
-//            case true =>
-//              mrd.sumValue = 0
-//              mrd.volumeUnit = 0
-//            case _ =>
-//              mrd.sumValue = x.getSumValue
-//              mrd.volumeUnit = x.getVolumeUnit
-//          }
-//        }else {
-//          mrd.sumValue = x.getSumValue
-//          mrd.volumeUnit = x.getVolumeUnit
-//        }
-
         mrd.sumValue = x.getSumValue
         mrd.volumeUnit = x.getVolumeUnit
 			}

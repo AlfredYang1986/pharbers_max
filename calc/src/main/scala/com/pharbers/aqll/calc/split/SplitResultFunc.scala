@@ -5,7 +5,6 @@ import com.pharbers.aqll.calc.excel.model.integratedData
 
 object SplitResultFunc {
 	def apply(mrd : modelRunData)(avg : List[(String, Double, Double)]) = {
-//    var i = 0
 		avg.find (p => p._1 == mrd.segment).map { x =>
 			if (mrd.ifPanelAll.equals("1")) {
             	  mrd.finalResultsValue = mrd.sumValue

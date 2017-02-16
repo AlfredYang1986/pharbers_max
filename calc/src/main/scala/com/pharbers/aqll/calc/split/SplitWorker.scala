@@ -35,7 +35,6 @@ object SplitWorker {
 	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String])])
 	
 	case class integratedataresult(integrated : Map[(Integer, String), List[IntegratedData]])
-//	case class integratedataresult(integrated : List[IntegratedData])
 	case class integratedataended(n: Int)
 	
 	case class exceluniondata(e: List[(Double, Double, Long, String)])
@@ -87,13 +86,6 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 	    case SplitEventBus.excelEnded(n) =>  {
 	    	println(s"read ended at $self")
 
-//        data2.toList.foreach{ x =>
-//          val hsp = DefaultData.hospdatabase.find(y =>x.getPhaid.equals(y.getPhaid))
-//          hsp match {
-//            case None => Unit
-//            case _ => x.setSegment(hsp.get.getSegment)
-//          }
-//        }
 	    	val tmp = data2.toList.groupBy (x => (x.getYearAndmonth, x.getMinimumUnitCh))
 			  aggregator ! SplitWorker.integratedataresult(tmp)
 	    	
