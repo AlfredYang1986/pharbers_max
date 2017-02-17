@@ -8,7 +8,7 @@ $("#file-1").fileinput({
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-    if(data.response){
+    /*if(data.response){
         var query_object = new Object();
         query_object['uuid'] = data.response.result[0];
         query_object['company'] = $.cookie("token");
@@ -24,6 +24,27 @@ $("#file-1").fileinput({
                 if (data.status == "ok") {
                     console.info("医院数据入库成功");
                     alert(data.result.result);
+                }
+            }
+        });
+    }*/
+    if(data.response){
+        var query_object = new Object();
+        query_object['uuid'] = data.response.result[0];
+        query_object['company'] = $.cookie("token");
+        query_object['Datasource_Type'] = "Manage";
+        $.ajax({
+            url: "/uploadfiles",
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json, charset=utf-8',
+            data: JSON.stringify(query_object),
+            cache: false,
+            success: function(data) {
+                if (data.status == "ok") {
+                    loader.show();
+                    setTimeout(excelCheck(query_object.uuid, "0"), 1000)
+                    console.info("医院数据写入成功");
                 }
             }
         });
