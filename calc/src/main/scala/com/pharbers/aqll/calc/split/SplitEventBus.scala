@@ -8,8 +8,9 @@ import akka.event.ActorEventBus
 class broadcastingDefines
 
 object SplitEventBus {
-	case class excelEnded(n: Int) extends broadcastingDefines
-	case class average(avg : List[(String, Double, Double)]) extends broadcastingDefines 
+//	case class excelEnded(n: Int) extends broadcastingDefines
+	case class excelEnded(map: Map[String, Any]) extends broadcastingDefines
+	case class average(avg : List[(String, Double, Double)]) extends broadcastingDefines
 }
 
 class SplitEventBus(s : Int) extends EventBus with LookupClassification with ActorEventBus with Serializable {

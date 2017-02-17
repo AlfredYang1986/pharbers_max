@@ -5,7 +5,7 @@ import akka.cluster.Cluster
 import com.pharbers.aqll.calc.maxmessages.{excelJobEnd, excelJobStart}
 import com.pharbers.aqll.calc.maxmessages.startReadExcel
 import com.pharbers.aqll.calc.excel.CPA.CpaMarket
-import com.pharbers.aqll.calc.util.ListQueue
+import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -30,14 +30,17 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	var masters = Seq[ActorRef]()     // supervisor
 
 	var begin : Long = 0
-	var end : Long = 0 
-	
+	var end : Long = 0
+  val ip = GetProperties.loadConf("cluster-listener").getString("cluster-listener.ip")
+  val sendnode = GetProperties.loadConf("cluster-listener").getString("cluster-listener.sendnode")
 	def receive = {
-		case excelJobStart(filename, cat, company, n) => {
+//		case excelJobStart(filename, cat, company, n) => {
+		case excelJobStart(map) => {
 		    val act = context.actorOf(SplitMaster.props)
 		    masters = masters :+ act
 		    context.watch(act)
-			act ! startReadExcel(filename, cat, company, n)
+//			act ! startReadExcel(filename, cat, company, n)
+			act ! startReadExcel(map)
 			begin = System.currentTimeMillis
 		}
 		case excelJobEnd(filename) => {
@@ -45,17 +48,18 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 		}
 		case Terminated(a) => {
 		    println("-*-*-*-*-*-*-*-")
-            println(s"self = $self")
+        println(s"self = $self")
 		    context.unwatch(a)
 		    masters = masters.filterNot (_ == a)
-            context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/cluster-listener") ! FreeListQueue(context.actorOf(SplitReception.props), self)
+
+        context.actorSelection(ip + sendnode) ! FreeListQueue(context.actorOf(SplitReception.props), self)
 		    // job完成，提醒用户
-			end = System.currentTimeMillis() - begin
+			  end = System.currentTimeMillis() - begin
 		    println(s"执行时间为 : ${end / 1000} 秒")
 		}
-        case Registration(member) => {
-            context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/cluster-listener") ! Registration(member)
-        }
+    case Registration(member) => {
+        context.actorSelection(ip + sendnode) ! Registration(member)
+    }
 		case _ => ???
 	}
 }

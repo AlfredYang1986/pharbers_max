@@ -35,17 +35,18 @@ object SplitWorker {
 	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String])])
 	
 	case class integratedataresult(integrated : Map[(Integer, String), List[IntegratedData]])
-	case class integratedataended(n: Int)
-	
+//	case class integratedataended(n: Int)
+	case class integratedataended(map: Map[String, Any])
+
 	case class exceluniondata(e: List[(Double, Double, Long, String)])
 }
 
-object adminData {
-    lazy val hospbasedata = DefaultData.hospdatabase
-	lazy val hospmatchdata = DefaultData.hospmatchdata
-	lazy val market = DefaultData.marketdata
-	lazy val product = DefaultData.productdata
-}
+//object adminData {
+//    lazy val hospbasedata = DefaultData.hospdatabase
+//	lazy val hospmatchdata = DefaultData.hospmatchdata
+//	lazy val market = DefaultData.marketdata
+//	lazy val product = DefaultData.productdata
+//}
 
 class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
     val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
@@ -60,36 +61,36 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
     val phamarexcel: ArrayBuffer[PharmaTrustMarket] = ArrayBuffer.empty
     
 	val idle : Receive = {
-	    case cparesult(target) => {
-	        val listCpaProdcut = (target :: Nil)
-	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut)))
-	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
-	    }
-	    case cpamarketresult(target) => {
-	        val listCpaMarket = (target :: Nil)
-	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserMarketDataArgs(listCpaMarket)))
-	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
-	    }
-	    case pharesult(target) => {
-            val listPhaProdcut = (target :: Nil)
-            val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaProductDataArgs(listPhaProdcut)))
-	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
-	    }
-	    case phamarketresult(target) => {
-	        val listPhaMarket = (target :: Nil)
-	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
-	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
-	    }
+//	    case cparesult(target) => {
+//	        val listCpaProdcut = (target :: Nil)
+//	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut)))
+//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
+//	    }
+//	    case cpamarketresult(target) => {
+//	        val listCpaMarket = (target :: Nil)
+//	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserMarketDataArgs(listCpaMarket)))
+//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
+//	    }
+//	    case pharesult(target) => {
+//            val listPhaProdcut = (target :: Nil)
+//            val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaProductDataArgs(listPhaProdcut)))
+//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
+//	    }
+//	    case phamarketresult(target) => {
+//	        val listPhaMarket = (target :: Nil)
+//	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
+//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
+//	    }
       case integratedresult(target) => {
           data2 ++= (target :: Nil)
       }
-	    case SplitEventBus.excelEnded(n) =>  {
+	    case SplitEventBus.excelEnded(map) =>  {
 	    	println(s"read ended at $self")
 
 	    	val tmp = data2.toList.groupBy (x => (x.getYearAndmonth, x.getMinimumUnitCh))
 			  aggregator ! SplitWorker.integratedataresult(tmp)
 	    	
-			  aggregator ! SplitWorker.integratedataended(n)
+			  aggregator ! SplitWorker.integratedataended(map)
 	    }
 	    case _ => Unit
 	}

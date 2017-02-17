@@ -8,7 +8,7 @@ import com.pharbers.aqll.calc.common.DefaultData.{capLoadXmlPath, phaLoadXmlPath
 import com.pharbers.aqll.calc.excel.core.{row_cpamarketinteractparser, row_cpaproductinteractparser, row_phamarketinteractparser, row_phaproductinteractparser}
 import com.pharbers.aqll.calc.maxmessages.{cancel, checkResult, end, startReadExcel}
 import com.pharbers.aqll.calc.maxresult.{InserAdapter, Insert}
-import com.pharbers.aqll.calc.split.SplitEventBus
+import com.pharbers.aqll.calc.split.{JobDefines, SplitEventBus}
 import com.pharbers.aqll.calc.util.DateUtil
 
 /**
@@ -30,11 +30,12 @@ class CheckMaster(originSender : ActorRef) extends Actor with ActorLogging with 
 
     import CheckMaster._
     val check: Receive = {
-        case startReadExcel(filename, cat, company, n) => {
-            getcompany = company
-            fileName = filename
+//        case startReadExcel(filename, cat, company, n) => {
+        case startReadExcel(map) => {
+            getcompany = map.get("company").get.toString
+            fileName = map.get("filename").get.toString
             context.become(checking)
-            (cat.t match {
+            (map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
                 case 0 => {
                     row_cpamarketinteractparser(capLoadXmlPath.cpamarketxmlpath_en,
                         capLoadXmlPath.cpamarketxmlpath_ch,
@@ -55,15 +56,16 @@ class CheckMaster(originSender : ActorRef) extends Actor with ActorLogging with 
                         phaLoadXmlPath.phaproductxmlpath_ch,
                         router)
                 }
-            }).startParse(filename, 1)
-            bus.publish(SplitEventBus.excelEnded(n))
+            }).startParse(map.get("filename").get.toString, 1)
+            bus.publish(SplitEventBus.excelEnded(map))
         }
         case _ => {
             println("exception")
         }
     }
     val checking : Receive = {
-        case startReadExcel(filename, cat, company, n) => println("one master only start one cal process at one time")
+//        case startReadExcel(filename, cat, company, n) => println("one master only start one cal process at one time")
+        case startReadExcel(map) => println("one master only start one cal process at one time")
         case CheckAggregator.excelResult(exd) => {
             println(s"last end originSender = $originSender")
             val time = DateUtil.getIntegralStartTime(new Date()).getTime

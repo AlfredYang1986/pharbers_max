@@ -55,11 +55,13 @@ class SplitMaster extends Actor with ActorLogging
 	var getcompany = ""
 
 	val ready : Receive = {
-		case startReadExcel(filename, cat, company, n) => {
-		    getcompany = company
-		    fileName = filename//.substring(filename.lastIndexOf("""/""") + 1, filename.length())
+//		case startReadExcel(filename, cat, company, n) => {
+		case startReadExcel(map) => {
+		   //.substring(filename.lastIndexOf("""/""") + 1, filename.length())
+      getcompany = map.get("company").get.toString
+      fileName = map.get("filename").get.toString
 	        context.become(spliting)
-		    (cat.t match {
+		    (map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
 		        case 0 => {
 		            row_cpamarketinteractparser(capLoadXmlPath.cpamarketxmlpath_en, 
 		                                           capLoadXmlPath.cpamarketxmlpath_ch, 
@@ -80,13 +82,13 @@ class SplitMaster extends Actor with ActorLogging
 		                                            phaLoadXmlPath.phaproductxmlpath_ch, 
 		                                            router)
 		        }
-				case _ => {
+            case _ => {
                 row_integrateddataparser(integratedXmlPath.integratedxmlpath_en,
                                                 integratedXmlPath.integratedxmlpath_ch,
-													                      router)
-				}
-		    }).startParse(filename, 1)
-		    bus.publish(SplitEventBus.excelEnded(n))
+                                                router)
+            }
+		    }).startParse(map.get("filename").get.toString, 1)
+		    bus.publish(SplitEventBus.excelEnded(map))
 		}
 		case _ => {
 		    println("exception")
@@ -94,8 +96,9 @@ class SplitMaster extends Actor with ActorLogging
 	}
 
 	val spliting : Receive = {
-	    case startReadExcel(filename, cat, company, n) => println("one master only start one cal process at one time")
-	    
+//	    case startReadExcel(filename, cat, company, n) => println("one master only start one cal process at one time")
+	    case startReadExcel(map) => println("one master only start one cal process at one time")
+
 	    case SplitAggregator.aggregatefinalresult(mr) => {
 	        val time = DateUtil.getIntegralStartTime(new Date()).getTime
 	    	new Insert().maxResultInsert(mr)(new InserAdapter().apply(fileName, getcompany, time))
