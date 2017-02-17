@@ -48,15 +48,16 @@ for (var selector in config) {
 
 function pageResult(page){
     loader.show();
-	var datatype = $('select[data-name="search-result-datatype"]').val();
-	var market = $('select[data-name="search-result-market"]').val();
+	//var datatype = $('select[data-name="search-result-datatype"]').val();
+	//var market = $('select[data-name="search-result-market"]').val();
 	var startdate = $('input[name="startdate"]').val();
 	var enddate = $('input[name="enddate"]').val();
 
 	var query_object = new Object();
-	query_object['datatype'] = datatype;
-	query_object['market'] = market;
-	query_object['Timestamp'] = [startdate, enddate];
+	//query_object['datatype'] = datatype;
+	//query_object['market'] = market;
+    //query_object['Timestamp'] = [startdate, enddate];
+	query_object['Date'] = [startdate, enddate];
 	query_object['currentPage'] = page;
     query_object['company'] = $.cookie("token");
 
@@ -68,10 +69,19 @@ function pageResult(page){
 		data: JSON.stringify(query_object),
 		cache: false,
 		success: function(data) {
+			console.info(data)
 			if (data.status == "ok") {
 				var result = data.result.finalResult;
+				console.info(result)
 				var thead = "<tr>";
-						thead += "<th>序号</th>"
+					thead += "<th>序号</th>";
+					thead += "<th>Panel_ID</th>";
+					thead += "<th>Date</th>";
+					thead += "<th>City</th>";
+					thead += "<th>Product</th>";
+					thead += "<th>Sales</th>";
+                	thead += "<th>Units</th>";
+						/*thead += "<th>序号</th>"
 						thead += "<th>年</th>";
 						thead += "<th>月</th>";
 						thead += "<th>区域</th>";
@@ -108,7 +118,7 @@ function pageResult(page){
 						thead += "<th>市场III（标准_中文）</th>";
 						thead += "<th>市场III（标准_英文）</th>";
 						thead += "<th>Value（金额）</th>";
-						thead += "<th>Volume（数量）</th>";
+						thead += "<th>Volume（数量）</th>";*/
 					thead += "</tr>";
 				$('thead[id="thead"]').html(thead);
                 var page = data.result.page[0];
@@ -117,6 +127,13 @@ function pageResult(page){
 					for (var i in result) {
 						tbody += "<tr class='gradeX'>";
                         	tbody += "<td>" + (page.SERIAL+parseInt(i)) + "</td>";
+                        	tbody += "<td>" + result[i].Panel_ID + "</td>";
+                        	tbody += "<td>" + result[i].Date + "</td>";
+							tbody += "<td>" + result[i].City + "</td>";
+							tbody += "<td>" + result[i].Product + "</td>";
+							tbody += "<td>" + result[i].Sales + "</td>";
+							tbody += "<td>" + result[i].Units + "</td>";
+                        	/*tbody += "<td>" + (page.SERIAL+parseInt(i)) + "</td>";
 							tbody += "<td>" + result[i].Year + "</td>";
 							tbody += "<td>" + result[i].Month + "</td>";
 							tbody += "<td>" + result[i].Region_Name + "</td>";
@@ -155,11 +172,13 @@ function pageResult(page){
 							tbody += "<td>" + result[i].Market_Code3_Ch + "</td>";
 							tbody += "<td>" + result[i].Market_Code3_En + "</td>";
 							tbody += "<td>" + result[i].Sales + "</td>";
-							tbody += "<td>" + result[i].Units + "</td>";
+							tbody += "<td>" + result[i].Units + "</td>";*/
 						tbody += "</tr>";
 					}
+                    loader.hide();
 				} else {
 					tbody += "<tr class='gradeX'><td valign='top' colspan='32'>没有匹配的记录</td></tr>";
+                    loader.hide();
 				}
 				$('tbody[id="tbody"]').html(tbody);
 				Page(data);
@@ -195,9 +214,9 @@ function fileExport(type) {
     var enddate = $('input[name="enddate"]').val();
 
     var query_object = new Object();
-    query_object['datatype'] = datatype;
-    query_object['market'] = market;
-    query_object['Timestamp'] = [startdate, enddate];
+    //query_object['datatype'] = datatype;
+    //query_object['market'] = market;
+    query_object['Date'] = [startdate, enddate];
     query_object['company'] = $.cookie("token");
     query_object['filetype'] = filetype;
 
