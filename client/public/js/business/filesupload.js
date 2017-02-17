@@ -45,7 +45,7 @@ $("#file-1").fileinput({
 		var query_object = new Object();
 		query_object['uuid'] = data.response.result[0];
         query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "CPA产品";
+		query_object['Datasource_Type'] = "Client";
 		$.ajax({
 			url: "/uploadfiles",
 			type: 'POST',
@@ -79,7 +79,7 @@ $("#file-2").fileinput({
 		var query_object = new Object();
 		query_object['uuid'] = data.response.result[0];
         query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "CPA市场";
+		query_object['Datasource_Type'] = "Client";
 		$.ajax({
 			url: "/uploadfiles",
 			type: 'POST',
@@ -113,7 +113,7 @@ $("#file-3").fileinput({
 		var query_object = new Object();
 		query_object['uuid'] = data.response.result[0];
         query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "PharmaTrust产品";
+		query_object['Datasource_Type'] = "Client";
 		$.ajax({
 			url: "/uploadfiles",
 			type: 'POST',
@@ -147,7 +147,7 @@ $("#file-4").fileinput({
 		var query_object = new Object();
 		query_object['uuid'] = data.response.result[0];
         query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "PharmaTrust市场";
+		query_object['Datasource_Type'] = "Client";
 		$.ajax({
 			url: "/uploadfiles",
 			type: 'POST',
