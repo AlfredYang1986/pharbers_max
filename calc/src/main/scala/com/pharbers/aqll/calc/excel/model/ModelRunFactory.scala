@@ -2,31 +2,6 @@ package com.pharbers.aqll.calc.excel.model
 
 import com.pharbers.aqll.calc.common.DefaultData
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
-import com.pharbers.aqll.calc.excel.Manage.AdminHospitalDataBase
-
-//trait ModelRunTrait {
-//    def modelrun(element: AdminHospitalDataBase, element2: integratedData): modelRunData = null
-//    
-//    def modelrundata(output: Stream[((Int, Int, String), integratedData)]): Stream[modelRunData]
-//}
-//
-//abstract class ModelRunAbstract extends ModelRunTrait
-
-//case class ModelRunDefines() extends ModelRunAbstract {
-//    
-//    override def modelrundata(output: Stream[((Int, Int, String), integratedData)]): Stream[modelRunData] = {
-//        var index = 0
-//        (output.map { x =>
-//        	index = index + 1
-//        	println(s"current precentage : ${index} / ${output.size}")
-//        	val element2 = x._2
-//        	DefaultData.hospdatabase map { element =>
-//        	    modelrun(element, element2)
-//        	}
-//        }).flatten
-//    }
-//    
-//}
 
 class ModelRunFactory() {
 	def apply(map: Map[String, Any], output: Stream[((Integer, String), IntegratedData)]) = {
