@@ -21,6 +21,10 @@ object fop {
   	      	var lst : List[JsValue] = Nil
       	    data.files.foreach { x =>
       	        val uuid = UUID.randomUUID
+				val file = new File(GetProperties.Client_Upload_FilePath)
+				if(!file.exists()) {
+					file.mkdir()
+				}
 				new TemporaryFile(x.ref.file).moveTo(new File(GetProperties.Client_Upload_FilePath + uuid), true)
       	  	  	lst = lst :+ toJson(uuid.toString)
       	  	}
