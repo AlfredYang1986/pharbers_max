@@ -34,7 +34,6 @@ class CheckReception extends Actor with ActorLogging{
             println("-*-*-*-*-*-*-*-")
             context.stop(self)
             context.unwatch(a)
-            // job完成，提醒用户
         }
         case str => println(str)
         case _ => ???

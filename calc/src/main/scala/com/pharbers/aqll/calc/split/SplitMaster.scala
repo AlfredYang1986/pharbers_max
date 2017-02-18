@@ -34,10 +34,7 @@ object SplitVarPramary {
 
 object SplitMaster {
 	def props = Props[SplitMaster]
-	
-	val num_count = 10
-	
-
+	val num_count = 10 // magic number
 }
 
 class SplitMaster extends Actor with ActorLogging 

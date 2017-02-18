@@ -17,7 +17,7 @@ import com.pharbers.aqll.calc.util.DateUtil
 
 object CheckMaster {
     def props(originSender : ActorRef) = Props(new CheckMaster(originSender))
-    val num_count = 10
+    val num_count = 10 // 魔法数字，改成const int 或者 define
 }
 
 class CheckMaster(originSender : ActorRef) extends Actor with ActorLogging with CreateCheckWorker with CreateCheckEventBus with CreateCheckAggregator{

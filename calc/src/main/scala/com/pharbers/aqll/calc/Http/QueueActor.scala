@@ -34,7 +34,7 @@ class QueueActor extends Actor with ActorLogging {
 //							println(s"local = $local")
 //							val from = GetProperties loadConf("File.conf") getString("SCP.Upload_Calc_File_Path").toString
 //							println(s"from = $from")
-//							val filename = "123456.doc"//(ListQueue.msgtmp.get).apply(0).asInstanceOf[excelJobStart].filename
+//							val filename = (ListQueue.msgtmp.get).apply(0).asInstanceOf[excelJobStart].filename
 //							val map = Map("local" -> (local+filename), "from" -> from)
 //							val atc = context.actorOf(ScpCopyActor.props)
 //							context.watch(atc)

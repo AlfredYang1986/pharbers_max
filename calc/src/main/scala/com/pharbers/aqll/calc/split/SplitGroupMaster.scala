@@ -32,9 +32,6 @@ trait CalcPramMaster {
 }
 
 class SplitGroupMaster(aggregator : ActorRef) extends Actor with ActorLogging {
-    
-    
-    
 	val inte_lst : ArrayBuffer[IntegratedData] = ArrayBuffer.empty
   	val subFun = aggregator ! SplitAggregator.aggmapsubscrbe(self)
   	val maxSum : scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
