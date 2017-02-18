@@ -20,13 +20,11 @@ class QueueActor extends Actor with ActorLogging {
 	val queue: Receive = {
 		case ThreadQueue() => {
 			atomic { implicit thx =>
-				//println(s"listmq2 ==========${ListQueue.msgtmp.get}")
 				if(ListQueue.msgtmp.get.size != 0){
 					val node = ListQueue.listnode.find(x => x._1 == 0)
 					node match {
 						case None => Unit
 						case Some(n) => {
-							println(n._2)
 //							val address = n._2.path.address.toString
 //							val serverIP = address.substring((address lastIndexOf("@"))+1,address lastIndexOf(":"))
 //							println(s"serverIP = $serverIP")
