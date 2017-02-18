@@ -16,17 +16,5 @@ class foptController extends Controller {
 		uploadRequestArgs(request)(fop.uploadHospitalDataFile(_)(request.cookies.get("user_token").head.value))
 	}
 
-	def uploadProductMatchFile = Action { request =>
-		uploadRequestArgs(request)(fop.uploadProductMatchFile(_)(request.cookies.get("user_token").head.value))
-	}
-
-	def uploadMarketMatchFile = Action { request =>
-		uploadRequestArgs(request)(fop.uploadMarketMatchFile(_)(request.cookies.get("user_token").head.value))
-	}
-
-	def uploadHospitalMatchFile = Action { request =>
-		uploadRequestArgs(request)(fop.uploadHospitalMatchFile(_)(request.cookies.get("user_token").head.value))
-	}
-
 	def exportFile(name : String) = Action (Ok(fop.exportFile(name)).as("excel/csv"))
 }

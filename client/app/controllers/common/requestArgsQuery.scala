@@ -36,9 +36,9 @@ object requestArgsQuery extends Controller {
 	
 	def uploadRequestArgs(request : Request[AnyContent])(func : MultipartFormData[TemporaryFile] => JsValue) : Result = {
   		try {
-   			request.body.asMultipartFormData.map { x => 
+   			request.body.asMultipartFormData.map { x =>
    				Ok(func(x))
-  			}.getOrElse (BadRequest("Bad Request for input")) 			  
+  			}.getOrElse (BadRequest("Bad Request for input"))
   		} catch {
   			case _ : Exception => BadRequest("Bad Request for input")
   		}

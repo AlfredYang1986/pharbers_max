@@ -11,8 +11,6 @@ import play.api.Application
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import module.ExampleModuleMessage._
-import module.ExampleModule
 import module.business.CallAkkaHttpModuleMessage.msg_CallHttp
 import module.business.ResultQueryModuleMessage._
 import module.business._
@@ -67,7 +65,6 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 		case cmd : msg_resultqueryBase => dispatchImpl(cmd, ResultQueryModule)
 		case cmd : msg_fileexportBase => dispatchImpl(cmd, FileExportModule)
 		case cmd : msg_managefilesuploadBase => dispatchImpl(cmd, ManageFilesUploadModule)
-		case cmd : msg_exampleBase => dispatchImpl(cmd, ExampleModule)
 		case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
 		case cmd : msg_LogCommand => dispatchImpl(cmd, LogModule)
 		case cmd : ParallelMessage => {

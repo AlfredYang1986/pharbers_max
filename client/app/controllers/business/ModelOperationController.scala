@@ -13,7 +13,6 @@ class ModelOperationController extends Controller{
     def mondelOperationAjaxCall = Action (request => requestArgs(request) { jv =>
 			import pattern.ResultMessage.common_result
 			import pattern.LogMessage.common_log
-			println("测试成功")
 			MessageRoutes(msg_log(toJson(Map("method" -> toJson("mondelOperationAjaxCall"))), jv) :: msg_operation(jv) :: msg_CommonResultMessage() :: Nil, None)
 		})
 }

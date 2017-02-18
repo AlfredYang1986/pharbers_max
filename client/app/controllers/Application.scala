@@ -109,11 +109,11 @@ class Application extends Controller {
 
   //结果查询
   def manageUploadFile = Action { request =>
-    val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
-    if(token.equals("")){
-      Ok(views.html.login("Your new application is ready."))
-    }else{
-      Ok(views.html.manageUpload("Your new application is ready."))
-    }
+      val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
+      if(token.equals("")){
+          Ok(views.html.login("Your new application is ready."))
+      }else{
+          Ok(views.html.manageUpload("Your new application is ready."))
+      }
   }
 }
