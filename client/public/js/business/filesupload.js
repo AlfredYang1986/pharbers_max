@@ -30,6 +30,41 @@ function excelCheck(file, type) {
     });
 }
 
+$("#file-0").fileinput({
+    //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
+    uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
+    allowedFileExtensions : ['xlsx', 'xls'],
+    overwriteInitial: false,
+    maxFileSize: 50000,
+    maxFilesNum: 1,
+    slugCallback: function(filename) {
+        return filename.replace('(', '_').replace(']', '_');
+    }
+}).on("fileuploaded", function(event, data) {
+    if(data.response){
+        var query_object = new Object();
+        query_object['uuid'] = data.response.result[0];
+        query_object['company'] = $.cookie("token");
+        query_object['Datasource_Type'] = "Client";
+        $.ajax({
+            url: "/uploadfiles",
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json, charset=utf-8',
+            data: JSON.stringify(query_object),
+            cache: false,
+            success: function(data) {
+                if (data.status == "ok") {
+                    loader.show();
+                    setTimeout(excelCheck(query_object.uuid, "0"), 1000)
+                    console.info("Panel文件上传");
+                }
+            }
+        });
+    }
+});
+
+
 $("#file-1").fileinput({
     //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
