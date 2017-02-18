@@ -75,23 +75,25 @@ object TempExportModule  extends ModuleTrait{
         var first = 0
         var step = 10000
         val sum = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
-        var temp: List[Map[String,JsValue]] = List.empty
+        //var temp: List[Map[String,JsValue]] = List.empty
         while (first < sum) {
-            val r = (from db() in connectionName where $and(conditions)).selectSkipTop(first)(step)("Date")(finalResultTempJsValue(_))(_data_connection_cores).toList
-            temp = groupBy4(r)(temp)
-            println(temp.size)
+            val result = (from db() in connectionName where $and(conditions)).selectSkipTop(first)(step)("Date")(finalResultTempJsValue(_))(_data_connection_cores).toList
+            writeConFunc(result,writer)
+            //temp = groupBy4(r)(temp)
+            //println(temp.size)
             if(sum - first < step){
                 step = sum - first
             }
             first += step
+            println(first)
         }
-        writeConFunc(temp : List[Map[String,JsValue]], writer : CSVWriter)
+        //writeConFunc(temp : List[Map[String,JsValue]], writer : CSVWriter)
         writer.close()
         fileName
     }
 
-    def writeConFunc(temp : List[Map[String,JsValue]],writer : CSVWriter) {
-        temp.foreach {x =>
+    def writeConFunc(result : List[Map[String,JsValue]],writer : CSVWriter) {
+        result.foreach { x =>
             val lb : ListBuffer[AnyRef] = ListBuffer[AnyRef]()
             lb.append(x.get("Panel_ID").get)
             lb.append(x.get("Date").get)
@@ -118,7 +120,7 @@ object TempExportModule  extends ModuleTrait{
         )
     }
 
-    def groupBy4(results : List[Map[String,JsValue]])(lst: List[Map[String,JsValue]]): List[Map[String, JsValue]] ={
+    /*def groupBy4(results : List[Map[String,JsValue]])(lst: List[Map[String,JsValue]]): List[Map[String, JsValue]] ={
         ((results ::: lst).groupBy{ x =>
             (x.get("Panel_ID").get,x.get("Date").get,x.get("City").get,x.get("Product"))
         }.map{ y =>
@@ -133,5 +135,5 @@ object TempExportModule  extends ModuleTrait{
                 "Units" -> toJson(Unitssum)
             )
         }) toList
-    }
+    }*/
 }
