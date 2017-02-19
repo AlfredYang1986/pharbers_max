@@ -4,23 +4,22 @@
 $(function(){
     $('#operation').click(function(){
         if($.cookie("filename") != null) {
-            var dataMap = {
+            var dataMap = JSON.stringify({
                 "filename" : $.cookie("filename"),
                 "company" : $.cookie("token"),
                 "filetype":  $.cookie("filetype")
-            }
+            })
+            //098f6bcd4621d373cade4e832627b4f6
             $.ajax({
-                type : "get",
+                type : "post",
                 data : dataMap,
                 async : false,
-                url :"http://59.110.31.215:5000/calc",
+                url :"/callrunmodel",
+                contentType: 'application/json, charset=utf-8',
                 cache : false,
-                dataType : "jsonp",
-                jsonp: "callbackparam",
-                jsonpCallback:"jsonpCallback1",
+                dataType : "json",
                 success : function(json){
-                    alert("正在运算,大约5-6分左右")
-                    console.info(json);
+                    alert("正在运算")
                 },
                 error:function(e){
                     alert("Error")
@@ -29,20 +28,5 @@ $(function(){
         }else{
             alert("您还没上传文件")
         }
-        // var query_object = new Object();
-        // query_object['company'] = $.cookie("token");
-        // $.ajax({
-        //     url: "/modeloperation/operation",
-        //     type: 'POST',
-        //     dataType: 'json',
-        //     contentType: 'application/json, charset=utf-8',
-        //     data: JSON.stringify(query_object),
-        //     cache: false,
-        //     success: function(data) {
-        //         if (data.status == "ok") {
-        //             console.info("测试成功");
-        //         }
-        //     }
-        // });
     });
 });
