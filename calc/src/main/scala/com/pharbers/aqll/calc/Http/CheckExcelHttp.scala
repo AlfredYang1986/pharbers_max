@@ -7,6 +7,8 @@ import akka.http.scaladsl.server.Directives._
 
 import scala.concurrent.duration._
 import akka.actor.{ActorSystem, Props}
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
 import akka.pattern.ask
 import com.pharbers.aqll.calc.Http.{QueueActor, ThreadQueue}
@@ -17,7 +19,7 @@ import com.pharbers.aqll.calc.split.JobCategories.{integratedJob, _}
 import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitReception}
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 import com.pharbers.aqll.calc.check.CheckReception
-
+import spray.json.DefaultJsonProtocol
 
 
 /**
@@ -26,101 +28,120 @@ import com.pharbers.aqll.calc.check.CheckReception
 
 
 class OrderServiceApi(system: ActorSystem, timeout: Timeout) extends OrderService {
-    implicit val requestTimeout = timeout
-    implicit def executionContext = system.dispatcher
+	implicit val requestTimeout = timeout
+
+	implicit def executionContext = system.dispatcher
 }
 
-trait OrderService {
-    implicit def executionContext: ExecutionContext
+case class Item(filename: String, company: String, hospdatapath: String, filetype: String)
 
-    implicit def requestTimeout: Timeout
+trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
+	implicit val itemFormat = jsonFormat4(Item)
+}
 
-    val routes = getCheck ~ getCalc ~ Test
+trait OrderService extends Directives with JsonSupport {
+	implicit def executionContext: ExecutionContext
 
-    def Test = get {
-        path("Test") {
-            val map = Map("filename" -> """config/test/BMS客户上传/CPA_GYCX_panel_160111INF.xlsx""",
-                          "hospdatapath" -> """20000家pfizer医院数据库表.xlsx""",
-                          "JobDefines" -> integratedJob,
-                          "company" -> "BMS",
-                          "calcvariable" -> 0)
-            val ref: AnyRef = excelJobStart(map)
-            ListQueue.ListMq_Queue(ref)
-            complete("""jsonpCallback1({"result":"Ok"})""")
-        }
-    }
+	implicit def requestTimeout: Timeout
 
-    def getCheck = get {
-        path("checkExcel") {
-            parameters(("filename", "company", "filetype")) { (filename, company, filetype) =>
-              val map = Map("filename" -> (GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename),
-                            "hospdatapath" -> """20000家pfizer医院数据库表.xlsx""",
-                            "JobDefines" -> integratedJob,
-                            "company" -> company,
-                            "calcvariable" -> 0)
-                val system = ActorSystem(filename)
-                val act = system.actorOf(CheckReception.props)
-                val r = filetype match  {
-//                    case "0" => {
-//                        act ? excelJobStart(, cpaProductJob, company, 0)
-//                    }
-//                    case "1" => {
-//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
-//                    }
-//                    case "2" => {
-//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
-//                    }
-//                    case "3" => {
-//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
-//                    }
-                    case "4" => {
-                        act ? excelJobStart(map)
-                    }
-                }
-                val result = Await.result(r.mapTo[String], requestTimeout.duration)
-                if(result.equals("is ok")){
-                    system.terminate()
-                    System.gc()
-                    complete("""{"result":"Ok"}""")
-                }else{
-                    system.terminate()
-                    System.gc()
-                    complete("""{"result":"No"}""")
-                }
-//                complete("""{"result":"Ok"}""")
-            }
-        }
-    }
+	val routes = getCheck ~ getCalc ~ Test ~ Test2
 
-    def getCalc = get {
-        path("calc") {
-            parameters(("filename", "company", "filetype")) { (filename, company, filetype) =>
-              val map = Map("filename" -> (GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename),
-                            "hospdatapath" -> """20000家pfizer医院数据库表.xlsx""",
-                            "JobDefines" -> integratedJob,
-                            "company" -> company,
-                            "calcvariable" -> 0)
-                val system = ActorSystem("calc")
-                val calc = system.actorOf(Props[SplitReception], "splitreception")
-                filetype match  {
-//                    case "0" => {
-//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaProductJob, company, 0)
-//                    }
-//                    case "1" => {
-//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
-//                    }
-//                    case "2" => {
-//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
-//                    }
-//                    case "3" => {
-//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
-//                    }
-                  case "4" => {
-                      calc ! excelJobStart(map)
-                  }
-                }
-                complete("""({"result":"Ok"})""")
-            }
-        }
-    }
+	def Test = get {
+		path("Test") {
+			val map = Map("filename" -> """config/test/BMS客户上传/CPA_GYCX_panel_160111INF.xlsx""",
+				"hospdatapath" -> """20000家pfizer医院数据库表.xlsx""",
+				"JobDefines" -> integratedJob,
+				"company" -> "BMS",
+				"calcvariable" -> 0)
+			val ref: AnyRef = excelJobStart(map)
+			ListQueue.ListMq_Queue(ref)
+			complete("""jsonpCallback1({"result":"Ok"})""")
+		}
+	}
+
+	def Test2 = post {
+		path("Test2") {
+			entity(as[Item]) { item =>
+				println(item.filename)
+				complete("""{"result":"Ok"}""")
+			}
+		}
+	}
+
+	def getCheck = post {
+		path("checkExcel") {
+			entity(as[Item]) { item =>
+				val map = Map("filename" -> (GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + item.filename),
+					"hospdatapath" -> """20000家pfizer医院数据库表.xlsx""",
+					"JobDefines" -> integratedJob,
+					"company" -> item.company,
+					"calcvariable" -> 0)
+				val system = ActorSystem(item.filename)
+				val act = system.actorOf(CheckReception.props)
+				val r = item.filetype match {
+					//                    case "0" => {
+					//                        act ? excelJobStart(, cpaProductJob, company, 0)
+					//                    }
+					//                    case "1" => {
+					//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
+					//                    }
+					//                    case "2" => {
+					//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
+					//                    }
+					//                    case "3" => {
+					//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
+					//                    }
+					case "4" => {
+						act ? excelJobStart(map)
+					}
+				}
+				val result = Await.result(r.mapTo[String], requestTimeout.duration)
+				if (result.equals("is ok")) {
+					system.terminate()
+					System.gc()
+					complete("""{"result":"Ok"}""")
+				} else {
+					system.terminate()
+					System.gc()
+					complete("""{"result":"No"}""")
+				}
+				//                complete("""{"result":"Ok"}""")
+			}
+
+		}
+	}
+
+	def getCalc = post {
+		path("calc") {
+			entity(as[Item]) { item =>
+				val map = Map("filename" -> (GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + item.filename),
+					"hospdatapath" -> (item.company + "/" + item.hospdatapath),
+					"JobDefines" -> integratedJob,
+					"company" -> item.company,
+					"calcvariable" -> 0)
+//				val system = ActorSystem("calc")
+//				val calc = system.actorOf(Props[SplitReception], "splitreception")
+//				item.filetype match {
+//					//                    case "0" => {
+//					//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaProductJob, company, 0)
+//					//                    }
+//					//                    case "1" => {
+//					//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
+//					//                    }
+//					//                    case "2" => {
+//					//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
+//					//                    }
+//					//                    case "3" => {
+//					//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
+//					//                    }
+//					case "4" => {
+//						calc ! excelJobStart(map)
+//					}
+//				}
+				val ref: AnyRef = excelJobStart(map)
+				ListQueue.ListMq_Queue(ref)
+				complete("""{"result":"Ok"}""")
+			}
+		}
+	}
 }
