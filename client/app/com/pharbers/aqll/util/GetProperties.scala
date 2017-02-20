@@ -31,10 +31,7 @@ object GetProperties {
     def Client_Upload_FilePath = loadConf("File.conf").getString("Files.UpClient_File_Path")
     def Client_Download_FilePath = loadConf("File.conf").getString("Files.DownClient_Temp_FilePath")
     def Client_Export_FilePath = loadConf("File.conf").getString("Files.DownClient_Export_FilePath")
-    def Manage_Upload_HospitalData_FilePath = loadConf("File.conf").getString("Files.UpManage_HospitalData_FilePath")
-    def Manage_Upload_HospitalMatch_FilePath = loadConf("File.conf").getString("Files.UpManage_HospitalMatch_FilePath")
-    def Manage_Upload_ProductMatch_FilePath = loadConf("File.conf").getString("Files.UpManage_ProductMatch_FilePath")
-    def Manage_Upload_MarketMatch_FilePath = loadConf("File.conf").getString("Files.UpManage_MarketMatch_FilePath")
+    def UpManage_Upload_FilePath = loadConf("File.conf").getString("Files.UpManage_Upload_FilePath")
 
     def Akka_Http_IP = loadConf("File.conf").getString("Akka.Http.ip")
     def Akka_Http_Port = loadConf("File.conf").getInt("Akka.Http.port")

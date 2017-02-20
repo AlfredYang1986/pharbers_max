@@ -36,7 +36,7 @@ GET     /pharbers/files/:name       controllers.foptController.downloadFile(name
 POST	/pharbers/files/upload		controllers.foptController.uploadFile
 
 GET     /manage                     controllers.Application.manageUploadFile
-POST	/manage/uploadHospitalData	controllers.foptController.uploadHospitalDataFile
+POST	/manage/uploadHospitalFile	controllers.foptController.uploadHospitalFile
 POST	/manage/writedata			controllers.manage.FilesUploadController.filesUploadAjaxCall
 
 # Map static resources from the /public folder to the /assets URL path

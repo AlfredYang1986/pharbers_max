@@ -16,6 +16,7 @@ import com.pharbers.aqll.util.GetProperties
 import scala.collection.immutable.List
 import com.pharbers.aqll.util.file.csv.scala._
 import scala.collection.mutable.ListBuffer
+import com.pharbers.aqll.util.Superglobals._
 
 /**
   * Created by Wli on 2017/2/13 0013.
@@ -67,27 +68,21 @@ object TempExportModule  extends ModuleTrait{
 
     def write_CsvFile(data : JsValue,conditions : List[DBObject]) : String = {
         val connectionName = (data \ "company").asOpt[String].get
-        val fileName = UUID.randomUUID + ".csv"
+        val fileName = UUID.randomUUID + SUFFIX_CSV
         val file : File = new File(GetProperties.Client_Export_FilePath+fileName)
         if(!file.exists()){file.createNewFile()}
         val writer = CSVWriter.open(file,"GBK")
         writer.writeRow(List("Panel_ID","Date","City","Product","Sales","Units"))
-        var first = 0
-        var step = 10000
+        var first = ZERO
+        var step = TEN_THOUSAND
         val sum = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
-        //var temp: List[Map[String,JsValue]] = List.empty
         while (first < sum) {
             val result = (from db() in connectionName where $and(conditions)).selectSkipTop(first)(step)("Date")(finalResultTempJsValue(_))(_data_connection_cores).toList
             writeConFunc(result,writer)
-            //temp = groupBy4(r)(temp)
-            //println(temp.size)
-            if(sum - first < step){
-                step = sum - first
-            }
+            if(sum - first < step){step = sum - first}
             first += step
             println(first)
         }
-        //writeConFunc(temp : List[Map[String,JsValue]], writer : CSVWriter)
         writer.close()
         fileName
     }
@@ -119,21 +114,4 @@ object TempExportModule  extends ModuleTrait{
             "Units" -> toJson(x.getAs[Number]("f_units").get.doubleValue)
         )
     }
-
-    /*def groupBy4(results : List[Map[String,JsValue]])(lst: List[Map[String,JsValue]]): List[Map[String, JsValue]] ={
-        ((results ::: lst).groupBy{ x =>
-            (x.get("Panel_ID").get,x.get("Date").get,x.get("City").get,x.get("Product"))
-        }.map{ y =>
-            val Salessum = y._2.map(z => z.get("Sales").get.as[Double]).sum
-            val Unitssum = y._2.map(x => x.get("Units").get.as[Double]).sum
-            Map(
-                "Panel_ID" -> toJson(y._1._1),
-                "Date" ->toJson(y._1._2),
-                "City" -> toJson(y._1._3),
-                "Product" -> toJson(y._1._4),
-                "Sales" -> toJson(Salessum),
-                "Units" -> toJson(Unitssum)
-            )
-        }) toList
-    }*/
 }
