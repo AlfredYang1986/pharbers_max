@@ -3,22 +3,26 @@ package com.pharbers.aqll.calc.split
 import com.pharbers.aqll.calc.util.DateUtil
 import com.pharbers.aqll.calc.common.DefaultData.{capLoadXmlPath, integratedXmlPath, phaLoadXmlPath}
 import com.pharbers.aqll.calc.excel.core._
-import com.pharbers.aqll.calc.maxmessages.{ cancel, end, startReadExcel, canHandling, masterBusy }
+import com.pharbers.aqll.calc.maxmessages._
 import com.pharbers.aqll.calc.excel.model.modelRunData
-
 import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.cluster.routing.ClusterRouterPool
 import akka.cluster.routing.ClusterRouterPoolSettings
 import akka.routing.ConsistentHashingRouter._
 import akka.routing.ConsistentHashingPool
 import akka.routing.RoundRobinPool
-
 import com.pharbers.aqll.calc.maxresult.Insert
 import com.pharbers.aqll.calc.maxresult.InserAdapter
-
 import java.util.Date
 
+import akka.actor.SupervisorStrategy.Restart
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.collection.mutable.ArrayBuffer
+
+case class processing_excel(map: Map[String, Any])
+case class processing_data(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)]))])
 
 object SplitMaster {
 	def props = Props[SplitMaster]
@@ -34,7 +38,7 @@ case object MsaterPrecessingData extends MsaterState        // 数据计算结�
 
 case object MsaterCalcing extends MsaterState               // 计算中，以后细化
 
-case class MsaterStateData(var fileName : String, var getcompany : String)
+case class MsaterStateData(var fileName : String, var getcompany : String, var subFileName : String)
 
 class SplitMaster extends Actor with ActorLogging
 	with CreateSplitWorker 
@@ -42,16 +46,21 @@ class SplitMaster extends Actor with ActorLogging
 	with CreateSplitAggregator
     with FSM[MsaterState, MsaterStateData] {
 
-    startWith(MsaterIdleing, new MsaterStateData("", ""))
+    startWith(MsaterIdleing, new MsaterStateData("", "", ""))
 
     when(MsaterIdleing) {
         case Event(startReadExcel(map), data) => {
             data.getcompany = map.get("company").get.toString
             data.fileName = map.get("filename").get.toString
 
+            context.system.scheduler.scheduleOnce(0 second, self, processing_excel(map))
+            sender ! new canHandling()
             goto(MsaterPreAggCalcing) using data
-            sender ! canHandling()
+        }
+    }
 
+    when(MsaterCalcing) {
+        case Event(processing_excel(map), data) => {
             (map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
                 case 0 => {
                     row_cpamarketinteractparser(capLoadXmlPath.cpamarketxmlpath_en,
@@ -80,22 +89,29 @@ class SplitMaster extends Actor with ActorLogging
                 }
             }).startParse(map.get("filename").get.toString, 1)
             bus.publish(SplitEventBus.excelEnded(map))
+            stay
         }
-    }
 
-    when(MsaterCalcing) {
-        case Event(startReadExcel(_), _) =>{
-            sender ! masterBusy()
+        case Event(startReadExcel(_), _) => {
+            sender ! new masterBusy()
             stay
         }
 
         case Event(SplitAggregator.aggregatefinalresult(mr), data) => {
+            context.system.scheduler.scheduleOnce(0 second, self, processing_data(mr))
             goto(MsaterPrecessingData) using data
+        }
+    }
 
+    when(MsaterPrecessingData) {
+        case Event(processing_data(mr), data) => {
             val time = DateUtil.getIntegralStartTime(new Date()).getTime
             new Insert().maxResultInsert(mr)(new InserAdapter().apply(data.fileName, data.getcompany, time))
-            context.stop(self)
-            System.gc()
+            goto(MsaterIdleing) using data.copy(fileName = "", getcompany = "", subFileName = "")
+            // TODO: clean or restart
+            // Restart
+
+//            context.actorSelection("akka.tcp://backend@127.0.0.1:2551/user/splitreception") ! freeMaster()
         }
     }
 
@@ -116,11 +132,6 @@ class SplitMaster extends Actor with ActorLogging
 
 trait CreateSplitWorker { this : Actor =>
 	def CreateSplitWorker(a : ActorRef) = {
-//	    context.actorOf(
-//            ClusterRouterPool(RoundRobinPool(10), ClusterRouterPoolSettings(    
-//                totalInstances = 10, maxInstancesPerNode = SplitMaster.num_count,
-//                allowLocalRoutees = true, useRole = None)).props(SplitWorker.props(a)),
-//              name = "worker-router")
 		context.actorOf(RoundRobinPool(10).props(SplitWorker.props(a)), name = "worker-router")
 	}
 }

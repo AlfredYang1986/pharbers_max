@@ -14,8 +14,9 @@ object _data_connection {
 	def conn_name : String = DB1
 	
 	val server = new ServerAddress(DBHost,DBPort)
-    val credentials = MongoCredential.createScramSha1Credential(username, conn_name ,password.toCharArray)
-    val _conn = MongoClient(server, List(credentials))
+//    val credentials = MongoCredential.createScramSha1Credential(username, conn_name ,password.toCharArray)
+//    val _conn = MongoClient(server, List(credentials))
+	val _conn = MongoClient()
 
 	var _conntion : Map[String, MongoCollection] = Map.empty
 	def getCollection(coll_name : String) : MongoCollection = {

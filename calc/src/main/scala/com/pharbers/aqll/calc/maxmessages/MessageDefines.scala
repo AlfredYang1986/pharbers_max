@@ -13,10 +13,15 @@ case class startReadExcel(map: Map[String, Any])
 
 case class checkResult(msg: String)
 
+case class timeout()
 case class cancel()
 case class end()
 
 case class error()
 
-case class canHandling()
-case class masterBusy()
+case class registerMaster()
+case class freeMaster()
+
+abstract class signJobsResult
+case class canHandling() extends signJobsResult
+case class masterBusy() extends signJobsResult

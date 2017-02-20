@@ -75,7 +75,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 				lazy val mapAvg = sumAll map { x =>
         	        (x._1, (x._2._1 / x._2._3),(x._2._2 / x._2._3))
         	    }
-        println(s"mapAvg = ${mapAvg}")
+                println(s"mapAvg = ${mapAvg}")
         	    bus.publish(SplitEventBus.average(mapAvg.toList))
 			}
 			
@@ -83,7 +83,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 		
 		case postresult(mr) => {
 			atomic { implicit thx =>
-        println(s"postresult = ${mr.size}")
+				println(s"postresult = ${mr.size}")
 				rltsize() = rltsize() + 1
 				mr.foreach { kvs =>
 					val (t, v, u, h, p, m, s, city, toall, touse, segment) = mrResult().get(kvs._1).map { x =>
@@ -98,7 +98,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			
 			if (rltsize.single.get == mapshouldsize.single.get) {
 				val result = mrResult.single.get
-        println(s"result = ${result.size}")
+                println(s"result = ${result.size}")
 				master ! SplitAggregator.aggregatefinalresult(result.toList)
 			}
 		}
