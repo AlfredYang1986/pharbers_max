@@ -84,7 +84,7 @@ class Insert {
 		}
 	}
 
-	def maxFactResultInsert(model: (Double, Double, Int, List[String], List[String]))(m: (String, String, String, Long)) = {
+	def maxFactResultInsert(model: (Double, Double, Int, List[String], List[String], List[String]))(m: (String, String, String, Long)) = {
 		def maxInser() = {
 			val builder = MongoDBObject.newBuilder
 			builder += "ID" -> m._3
@@ -92,11 +92,11 @@ class Insert {
 			builder += "Units" -> model._2
 			builder += "Sales" -> model._1
 			builder += "HospitalNum" -> model._3
-			builder += "ProductMinuntNum" -> model._5.size
+			builder += "ProductMinuntNum" -> model._4.size
 			val lsth_builder = MongoDBList.newBuilder
-			model._4 foreach (lsth_builder += _)
+			model._6 foreach (lsth_builder += _)
 			val lstm_builder = MongoDBList.newBuilder
-			model._5 foreach (lstm_builder += _)
+			model._4 foreach (lstm_builder += _)
 
 			builder += "Condition" -> Map("Hospital" -> lsth_builder.result, "ProductMinunt" -> lstm_builder.result)
 			builder += "Timestamp" -> m._4

@@ -19,9 +19,7 @@ object ListQueue {
 
     def ListMq_Queue(anyref: AnyRef) = {
         atomic { implicit  thx =>
-            //msgtmp() = msgtmp() ++: ListBuffer(anyref)
             msgtmp().append(anyref)
-//            println(s"msgtmp.get == ==== == ${msgtmp.get}")
         }
         listmq.append(anyref)
     }
