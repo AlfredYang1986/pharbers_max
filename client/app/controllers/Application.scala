@@ -103,7 +103,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.resultQuery(MarketsModule.pushMarkets(token)))
+          Ok(views.html.resultQuery(MarketsModule.pushMarkets))
       }
   }
 
@@ -113,7 +113,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.manageUpload("Your new application is ready."))
+          Ok(views.html.manageUpload(MarketsModule.pushMarkets))
       }
   }
 }

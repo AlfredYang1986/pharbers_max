@@ -1,4 +1,4 @@
-@(message: String)
+@(markets : List[String])
 @main("Max | Manage") {
 <body>
     <div id="wrapper">
@@ -49,114 +49,96 @@
             </div>
         </nav>
         <div id="page-wrapper" class="gray-bg">
-        <div class="row border-bottom">
-	        <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
-		        <div class="navbar-header">
-		            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
-<!-- 		            <form role="search" class="navbar-form-custom" action="search_results.html"> -->
-<!-- 		                <div class="form-group"> -->
-<!-- 		                    <input type="text" placeholder="搜索..." class="form-control" name="top-search" id="top-search"> -->
-<!-- 		                </div> -->
-<!-- 		            </form> -->
-		        </div>
-	            <ul class="nav navbar-top-links navbar-right">
-	                <li>
-	                    <span class="m-r-sm text-muted welcome-message">欢迎访问MAX系统</span>
-	                </li>
-	                <li>
-	                    <a href="javaScript:void();" onclick="logout()">
-	                        <i class="fa fa-sign-out"></i> 退出系统
-	                    </a>
-	                </li>
-	            </ul>
-	        </nav>
-        </div>
-        <div class="row wrapper border-bottom white-bg page-heading">
-            <div class="col-lg-10">
-                <h2>文件上传</h2>
-                <ol class="breadcrumb">
-                    <li>
-                        <a href="index.html">首页</a>
-                    </li>
-                    <li class="active">
-                        <strong>文件上传</strong>
-                    </li>
-                </ol>
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+    <!-- 		            <form role="search" class="navbar-form-custom" action="search_results.html"> -->
+    <!-- 		                <div class="form-group"> -->
+    <!-- 		                    <input type="text" placeholder="搜索..." class="form-control" name="top-search" id="top-search"> -->
+    <!-- 		                </div> -->
+    <!-- 		            </form> -->
+                    </div>
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li>
+                            <span class="m-r-sm text-muted welcome-message">欢迎访问MAX系统</span>
+                        </li>
+                        <li>
+                            <a href="javaScript:void();" onclick="logout()">
+                                <i class="fa fa-sign-out"></i> 退出系统
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
-            <div class="col-lg-2">
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-10">
+                    <h2>文件上传</h2>
+                    <ol class="breadcrumb">
+                        <li>
+                            <a href="index.html">首页</a>
+                        </li>
+                        <li class="active">
+                            <strong>文件上传</strong>
+                        </li>
+                    </ol>
+                </div>
+                <div class="col-lg-2">
 
+                </div>
             </div>
-        </div>
-        <div class="wrapper wrapper-content animated fadeInRight" >
-            <div class="row">
-            	<div class="col-lg-12">
-	                <div class="ibox float-e-margins">
-	                    <div class="ibox-title">
-                            <h5>医院数据</h5>
-			                </div>
-		                    <div class="ibox-content">
-		                        <form enctype="multipart/form-data">
+            <div class="wrapper wrapper-content animated fadeInRight" >
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <h5>医院数据</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <div class="row">
+                                    <div class="col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="status">数据类型</label>
+                                            <select data-name="search-result-market" class="form-control">
+                                                @{markets map { x => <option>{x}</option> }};
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3 col-md-3">
+                                        <div class="form-group" id="data_5">
+                                            <label class="control-label">时间范围</label>
+                                            <div class="input-daterange input-group" id="datepicker">
+                                                <input type="text" class="input-md form-control" name="timestamp" value="01/2016" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ibox-content">
+                                <form enctype="multipart/form-data">
                                     <div class="form-group">
-                                        <input id="file-1" type="file" multiple class="file" data-overwrite-initial="false" data-min-file-count="1">
+                                        <input id="hospital-data" type="file" multiple class="file" data-overwrite-initial="false" data-min-file-count="1">
                                     </div>
                                 </form>
-		                    </div>
-		                </div>
-		        </div>
-                @*<div class="col-lg-6">
-                    <div class="ibox float-e-margins">
-                        <div class="ibox-title">
-                            <h5>产品匹配</h5>
-                        </div>
-                        <div class="ibox-content">
-                            <form enctype="multipart/form-data">
-                                <div class="form-group">
-                                    <input id="file-2" type="file" multiple class="file" data-overwrite-initial="false" data-min-file-count="1">
-                                </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
-                </div>*@
-            </div>
-			@*<div class="row">
-				<div class="col-lg-6">
-	                <div class="ibox float-e-margins">
-	                    <div class="ibox-title">
-                            <h5>市场匹配</h5>
-		                </div>
-	                    <div class="ibox-content">
-	                        <form enctype="multipart/form-data">
-                                <div class="form-group">
-                                    <input id="file-3" type="file" multiple class="file" data-overwrite-initial="false" data-min-file-count="1">
-                                </div>
-                            </form>
-	                    </div>
-	                </div>
-	            </div>
-                <div class="col-lg-6">
-                    <div class="ibox float-e-margins">
-                        <div class="ibox-title">
-                            <h5>医院匹配</h5>
-                        </div>
-                        <div class="ibox-content">
-                           <form enctype="multipart/form-data">
-                                <div class="form-group">
-                                    <input id="file-4" type="file" multiple class="file" data-overwrite-initial="false" data-min-file-count="1">
-                                </div>
-                           </form>
+                    <div class="col-lg-12">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <h5>医院匹配</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <form enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <input id="hospital-match" type="file" multiple class="file" data-overwrite-initial="false" data-min-file-count="1">
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-	         </div>
-        </div>*@
-        @*<div class="footer">
-            <div class="pull-right">
-                10GB of <strong>250GB</strong> Free.
             </div>
-            <div>
-                <strong>Copyright</strong> Pharbers Company &copy; 2008-2016
-            </div>
-        </div>*@
         </div>
     </div>
     <!-- FileUpload -->
