@@ -8,7 +8,7 @@ package com.pharbers.aqll.calc.excel.Manage;
 public class AdminHospitalDataBase {
 	private String company;
 
-    private Integer uploadYear;
+    private Integer uploadYear = 0;
 
     private String market;
 
@@ -20,7 +20,7 @@ public class AdminHospitalDataBase {
 
     private String ifPanelTouse;
 
-    private Long hospId;
+    private Long hospId = 0L;
 
     private String hospName;
 
@@ -46,65 +46,63 @@ public class AdminHospitalDataBase {
 
     private String specialty3;
 
-    private Double westMedicineIncome;
+    private Double westMedicineIncome = 0.0;
 
-    private Long doctorNum;
+    private Long doctorNum = 0L;
 
-    private Long bedNum;
+    private Long bedNum = 0L;
 
-    private Long generalBedNum;
+    private Long generalBedNum = 0L;
 
-    private Long medicineBedNum;
+    private Long medicineBedNum = 0L;
 
-    private Long surgeryBedNum;
+    private Long surgeryBedNum = 0L;
 
-    private Long ophthalmologyBedNum;
+    private Long ophthalmologyBedNum = 0L;
 
-    private Long yearDiagnosisNum;
+    private Long yearDiagnosisNum = 0L;
 
-    private Long clinicNum;
+    private Long clinicNum = 0L;
 
-    private Long medicineNum;
+    private Long medicineNum = 0L;
 
-    private Long surgeryNum;
+    private Long surgeryNum = 0L;
 
-    private Long hospitalizedNum;
+    private Long hospitalizedNum = 0L;
 
-    private Long hospitalizedOpsNum;
+    private Long hospitalizedOpsNum = 0L;
 
-    private Double income;
+    private Double income = 0.0;
 
-    private Double clinicIncome;
+    private Double clinicIncome = 0.0;
 
-    private Double climicCureIncome;
+    private Double climicCureIncome = 0.0;
     
-    private Double climicSurgicalIncome;
+    private Double climicSurgicalIncome = 0.0;
 
-    private Double hospitalizedIncome;
+    private Double hospitalizedIncome = 0.0;
 
-    private Double hospitalizedBeiIncome;
+    private Double hospitalizedBeiIncome = 0.0;
 
-    private Double hospitalizedCireIncom;
+    private Double hospitalizedCireIncom = 0.0;
 
-    private Double hospitalizedOpsIncome;
+    private Double hospitalizedOpsIncome = 0.0;
 
-    private Double drugIncome;
+    private Double drugIncome = 0.0;
 
-    private Double climicDrugIncome;
+    private Double climicDrugIncome = 0.0;
 
-    private Double climicWestenIncome;
+    private Double climicWestenIncome = 0.0;
 
-    private Double hospitalizedDrugIncome;
+    private Double hospitalizedDrugIncome = 0.0;
 
-    private Double hospitalizedWestenIncome;
+    private Double hospitalizedWestenIncome = 0.0;
 
 	public String getCompany() {
 		return company;
 	}
 
-	public void setCompany(String company) {
-		this.company = company;
-	}
+	public void setCompany(String company) {if(!company.equals("#N/A")){this.company = company;} else {this.company = "";}}
 
 	public Integer getUploadYear() {
 		return uploadYear;
@@ -119,7 +117,8 @@ public class AdminHospitalDataBase {
 	}
 
 	public void setMarket(String market) {
-		this.market = market;
+		if(!market.equals("#N/A")){this.market = market;} else {this.market = "";}
+
 	}
 
 	public String getSegment() {
@@ -127,32 +126,27 @@ public class AdminHospitalDataBase {
 	}
 
 	public void setSegment(String segment) {
-		this.segment = segment;
+		if(!segment.equals("#N/A")){this.segment = segment;} else {this.segment = "";}
+
 	}
 
 	public String getFactor() {
 		return factor;
 	}
 
-	public void setFactor(String factor) {
-		this.factor = factor;
-	}
+	public void setFactor(String factor) {if(!factor.equals("#N/A")){this.factor = factor;} else {this.factor = "";}}
 
 	public String getIfPanelAll() {
 		return ifPanelAll;
 	}
 
-	public void setIfPanelAll(String ifPanelAll) {
-		this.ifPanelAll = ifPanelAll;
-	}
+	public void setIfPanelAll(String ifPanelAll) {if(!ifPanelAll.equals("#N/A")){this.ifPanelAll = ifPanelAll;} else {this.ifPanelAll = "";}}
 
 	public String getIfPanelTouse() {
 		return ifPanelTouse;
 	}
 
-	public void setIfPanelTouse(String ifPanelTouse) {
-		this.ifPanelTouse = ifPanelTouse;
-	}
+	public void setIfPanelTouse(String ifPanelTouse) {if(!ifPanelTouse.equals("#N/A")){this.ifPanelTouse = ifPanelTouse;} else {this.ifPanelTouse = "";}}
 
 	public Long getHospId() {
 		return hospId;
@@ -166,105 +160,79 @@ public class AdminHospitalDataBase {
 		return hospName;
 	}
 
-	public void setHospName(String hospName) {
-		this.hospName = hospName;
-	}
+	public void setHospName(String hospName) {if(!hospName.equals("#N/A")){this.hospName = hospName;} else {this.hospName = "";}}
 
 	public String getPhaid() {
 		return phaid;
 	}
 
-	public void setPhaid(String phaid) {
-		this.phaid = phaid;
-	}
+	public void setPhaid(String phaid) {if(!phaid.equals("#N/A")){this.phaid = phaid;} else {this.phaid = "";}}
 
 	public String getIfCounty() {
 		return ifCounty;
 	}
 
-	public void setIfCounty(String ifCounty) {
-		this.ifCounty = ifCounty;
-	}
+	public void setIfCounty(String ifCounty) {if(!ifCounty.equals("#N/A")){this.ifCounty = ifCounty;} else {this.ifCounty = "";}}
 
 	public String getHospLevel() {
 		return hospLevel;
 	}
 
-	public void setHospLevel(String hospLevel) {
-		this.hospLevel = hospLevel;
-	}
+	public void setHospLevel(String hospLevel) {if(!hospLevel.equals("#N/A")){this.hospLevel = hospLevel;} else {this.hospLevel = "";}}
 
 	public String getRegion() {
 		return region;
 	}
 
-	public void setRegion(String region) {
-		this.region = region;
-	}
+	public void setRegion(String region) {if(!region.equals("#N/A")){this.region = region;} else {this.region = "";}}
 
 	public String getProvince() {
 		return province;
 	}
 
-	public void setProvince(String province) {
-		this.province = province;
-	}
+	public void setProvince(String province) {if(!province.equals("#N/A")){this.province = province;} else {this.province = "";}}
 
 	public String getPrefecture() {
 		return prefecture;
 	}
 
-	public void setPrefecture(String prefecture) {
-		this.prefecture = prefecture;
-	}
+	public void setPrefecture(String prefecture) {if(!prefecture.equals("#N/A")){this.prefecture = prefecture;} else {this.prefecture = "";}}
 
 	public String getCityTier() {
 		return cityTier;
 	}
 
-	public void setCityTier(String cityTier) {
-		this.cityTier = cityTier;
-	}
+	public void setCityTier(String cityTier) {if(!cityTier.equals("#N/A")){this.cityTier = cityTier;} else {this.cityTier = "";}}
 
 	public String getSpecialty1() {
 		return specialty1;
 	}
 
-	public void setSpecialty1(String specialty1) {
-		this.specialty1 = specialty1;
-	}
+	public void setSpecialty1(String specialty1) {if(!specialty1.equals("#N/A")){this.specialty1 = specialty1;} else {this.specialty1 = "";}}
 
 	public String getSpecialty2() {
 		return specialty2;
 	}
 
-	public void setSpecialty2(String specialty2) {
-		this.specialty2 = specialty2;
-	}
+	public void setSpecialty2(String specialty2) {if(!specialty2.equals("#N/A")){this.specialty2 = specialty2;} else {this.specialty2 = "";}}
 
 	public String getReSpecialty() {
 		return reSpecialty;
 	}
 
-	public void setReSpecialty(String reSpecialty) {
-		this.reSpecialty = reSpecialty;
-	}
+	public void setReSpecialty(String reSpecialty) {if(!reSpecialty.equals("#N/A")){this.reSpecialty = reSpecialty;} else {this.reSpecialty = "";}}
 
 	public String getSpecialty3() {
 		return specialty3;
 	}
 
-	public void setSpecialty3(String specialty3) {
-		this.specialty3 = specialty3;
-	}
+	public void setSpecialty3(String specialty3) {if(!specialty3.equals("#N/A")){this.specialty3 = specialty3;} else {this.specialty3 = "";}}
 
 	public Double getWestMedicineIncome() {
 		return westMedicineIncome;
 	}
 
-	public void setWestMedicineIncome(Double westMedicineIncome) {
-		this.westMedicineIncome = westMedicineIncome;
-	}
+	public void setWestMedicineIncome(Double westMedicineIncome) {this.westMedicineIncome = westMedicineIncome;}
 
 	public Long getDoctorNum() {
 		return doctorNum;

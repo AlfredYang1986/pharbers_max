@@ -55,8 +55,11 @@ $("#file-0").fileinput({
             cache: false,
             success: function(data) {
                 if (data.status == "ok") {
-                    loader.show();
-                    setTimeout(excelCheck(query_object.uuid, "0"), 1000)
+                    //loader.show();
+                    //setTimeout(excelCheck(query_object.uuid, "0"), 1000)
+                    $.cookie("filename", query_object.uuid)
+                    $.cookie("filetype", "0")
+                    alert("上传完成！")
                     console.info("Panel文件上传");
                 }
             }
