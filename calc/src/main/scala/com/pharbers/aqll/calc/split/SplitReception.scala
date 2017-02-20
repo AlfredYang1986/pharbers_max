@@ -31,8 +31,9 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 
 	var begin : Long = 0
 	var end : Long = 0
-  val ip = GetProperties.loadConf("cluster-listener").getString("cluster-listener.ip")
-  val sendnode = GetProperties.loadConf("cluster-listener").getString("cluster-listener.sendnode")
+	val ip = GetProperties.loadConf("cluster-listener").getString("cluster-listener.ip")
+	val sendnode = GetProperties.loadConf("cluster-listener").getString("cluster-listener.sendnode")
+
 	def receive = {
 //		case excelJobStart(filename, cat, company, n) => {
 		case excelJobStart(map) => {
