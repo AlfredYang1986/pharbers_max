@@ -1,15 +1,12 @@
 package com.pharbers.aqll.calc.maxresult
 
-import com.pharbers.aqll.calc.util.MD5
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
 import com.pharbers.aqll.calc.util.dao._data_connection
-import java.util.Date
 
 import com.pharbers.aqll.calc.util.dao.from
 
 import scala.collection.mutable.ArrayBuffer
 import com.mongodb.casbah.Imports._
-import com.pharbers.util.dao.MongoDBCollManager
 
 class Insert {
 
@@ -19,34 +16,10 @@ class Insert {
 
 			val bulk = _data_connection.getCollection(m._2).initializeUnorderedBulkOperation
 
-			//            mr.toList.foreach { x =>
-			//                bulk.insert(Map("ID"-> m._3,
-			//                                "Units" -> x._2._3,
-			//                                "Sales" -> x._2._2,
-			//                                "Hospital" -> x._2._4.head,
-			//                                "ProductMinunt" -> x._2._5.head,
-			//                                "Market" -> x._2._6.head,
-			//                                "Timestamp" -> x._2._1,
-			//                                "Createtime" -> m._4,
-			//                                "Filepath" -> m._1,
-			//                                "Rtype" -> x._2._7))
-			//            }
-
-			//            mr.toList.filterNot(x => x._2._2 == 0 && x._2._3 == 0).foreach { x =>
-			//              bulk.insert(Map("ID"-> m._3,
-			//                "f_units" -> x._2._2,
-			//                "f_sales" -> x._2._3,
-			//                "Panel_ID" -> x._2._4.head,
-			//                "Product" -> x._2._5.head,
-			//                "City" -> x._2._8.head,
-			//                "Date" -> x._2._1))
-			//            }
-			//            bulk.execute()
-
 			mr.toList.filterNot(x => x._2._2 == 0 && x._2._3 == 0).groupBy(z => (z._2._4.head, z._2._8.head, z._2._5.head, z._2._1)).foreach { x =>
 				bulk.insert(Map("ID" -> m._3,
-					"f_units" -> x._2.map(_._2._2).sum,
-					"f_sales" -> x._2.map(_._2._3).sum,
+					"f_units" -> x._2.map(_._2._3).sum,
+					"f_sales" -> x._2.map(_._2._2).sum,
 					"Panel_ID" -> x._1._1,
 					"Product" -> x._1._3,
 					"City" -> x._1._2,
@@ -55,7 +28,6 @@ class Insert {
 			bulk.execute()
 		}
 
-		//2727265
 		//      println(s"mr.toList.size = ${mr.toList.filterNot(x => x._2._2 == 0 && x._2._3 == 0).size}")
 		//
 		//      println(s"aaa111.sum = ${mr.toList.filter(_._2._9.head.equals("1")).map(_._2._2).sum}")
@@ -64,8 +36,8 @@ class Insert {
 		//      println(s"aaa000.sum = ${mr.toList.filter(_._2._9.head.equals("0")).map(_._2._2).sum}")
 		//      println(s"bbb000.sum = ${mr.toList.filter(_._2._9.head.equals("0")).map(_._2._3).sum}")
 		//
-		//      println(s"mr.toList.map(_._2._1).sum = ${mr.toList.map(_._2._2).sum}")
-		//      println(s"mr.toList.map(_._2._2).sum = ${mr.toList.map(_._2._3).sum}")
+		      println(s"mr.toList.map(_._2._1).sum = ${mr.toList.map(_._2._2).sum}")
+		      println(s"mr.toList.map(_._2._2).sum = ${mr.toList.map(_._2._3).sum}")
 		println(s"m._2 = ${m._2}")
 
 		val conditions = ("ID" -> m._3)
