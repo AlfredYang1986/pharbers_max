@@ -26,7 +26,6 @@ public class DateUtil {
     
     /***
      * long
-     * @param str
      * @return
      */
     public static long getDateLong(int year, int month) {
