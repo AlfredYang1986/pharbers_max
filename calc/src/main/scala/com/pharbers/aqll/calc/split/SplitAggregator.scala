@@ -129,10 +129,10 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			}
 		}
 		case SplitWorker.integratedataresult(m) =>
-      m map { tmp =>
-        broadcasting_actor ! SplitMaxBroadcasting.premapping((tmp._1, tmp._2.head))
-        mapping_master_router ! SplitAggregator.msg_container(tmp._1, tmp._2)
-		}
+	        m map { tmp =>
+	            broadcasting_actor ! SplitMaxBroadcasting.premapping((tmp._1, tmp._2.head))
+	            mapping_master_router ! SplitAggregator.msg_container(tmp._1, tmp._2)
+			}
 		case SplitMaxBroadcasting.mappingiteratornext() => {
 			broadcasting_actor ! SplitMaxBroadcasting.mappingiteratornext()
 		}

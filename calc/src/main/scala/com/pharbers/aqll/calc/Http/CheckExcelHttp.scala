@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Directives._
 
 import scala.concurrent.duration._
 import akka.actor.{ActorSystem, Props}
+import akka.cluster.Cluster
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
@@ -14,9 +15,9 @@ import akka.pattern.ask
 import com.pharbers.aqll.calc.Http.{QueueActor, ThreadQueue}
 
 import scala.concurrent.Await
-import com.pharbers.aqll.calc.maxmessages.excelJobStart
+import com.pharbers.aqll.calc.maxmessages.{excelJobStart, registerMaster}
 import com.pharbers.aqll.calc.split.JobCategories.{integratedJob, _}
-import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitReception}
+import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitMaster, SplitReception, SplitReceptionSingleton}
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 import com.pharbers.aqll.calc.check.CheckReception
 import spray.json.DefaultJsonProtocol
@@ -53,8 +54,12 @@ trait OrderService extends Directives with JsonSupport {
 				"JobDefines" -> integratedJob,
 				"company" -> "BMS",
 				"calcvariable" -> 0)
-			val ref: AnyRef = excelJobStart(map)
-			ListQueue.ListMq_Queue(ref)
+//			val ref: AnyRef = excelJobStart(map)
+			val system = CheckGloble.system
+			val reception = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
+			println(s"reception = $reception")
+			reception ! excelJobStart(map)
+//			ListQueue.ListMq_Queue(ref)
 			complete("""jsonpCallback1({"result":"Ok"})""")
 		}
 	}

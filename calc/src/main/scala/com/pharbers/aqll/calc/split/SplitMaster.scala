@@ -49,18 +49,21 @@ class SplitMaster extends Actor with ActorLogging
     startWith(MsaterIdleing, new MsaterStateData("", "", ""))
 
     when(MsaterIdleing) {
-        case Event(startReadExcel(map), data) => {
+        //case Event(startReadExcel(map), data) => {
+	    case Event(excelJobStart(map), data) => {
+	        println("fuck running")
             data.getcompany = map.get("company").get.toString
             data.fileName = map.get("filename").get.toString
 
-            context.system.scheduler.scheduleOnce(0 second, self, processing_excel(map))
+		    self ! processing_excel(map)
+//            context.system.scheduler.scheduleOnce(1 second, self, processing_excel(map))
             sender ! new canHandling()
-            goto(MsaterPreAggCalcing) using data
+            goto(MsaterCalcing) using data
         }
     }
 
     when(MsaterCalcing) {
-        case Event(processing_excel(map), data) => {
+        case Event(processing_excel(map), _) => {
             (map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
                 case 0 => {
                     row_cpamarketinteractparser(capLoadXmlPath.cpamarketxmlpath_en,
@@ -98,8 +101,9 @@ class SplitMaster extends Actor with ActorLogging
         }
 
         case Event(SplitAggregator.aggregatefinalresult(mr), data) => {
-            context.system.scheduler.scheduleOnce(0 second, self, processing_data(mr))
-            goto(MsaterPrecessingData) using data
+	        self ! processing_data(mr)
+//	        context.system.scheduler.scheduleOnce(1 second, self, processing_data(mr))
+	        goto(MsaterPrecessingData) using data
         }
     }
 
@@ -117,7 +121,7 @@ class SplitMaster extends Actor with ActorLogging
 
     whenUnhandled {
         case Event(e, s) => {
-            println(s"cannot handle message $e")
+            println(s"cannot handle message $e  state is ${this.stateName}")
             stay
         }
     }

@@ -44,7 +44,9 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 
 	def receive = {
         case registerMaster() => {
+	        println("-*-*-*-*-*-*-*-")
             masters = (sender() :: masters).distinct
+	        println(s"masters $masters")
         }
 
 		case excelJobStart(map) => {
@@ -52,7 +54,7 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 //		    masters = masters :+ act
 //		    context.watch(act)
 //			act ! startReadExcel(map)
-
+			println("-*-*-*-*-*-*-*-")
             if (signJobs(map)) {
                 tc.start
             } else {
@@ -85,7 +87,8 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	}
 
     def signJobs(map : Map[String, Any]) : Boolean = {
-        signJobsAcc(map, masters)
+        println(s"masters========${masters}")
+	    signJobsAcc(map, masters)
     }
 
     def signJobsAcc(map : Map[String, Any], cur : List[ActorRef]) : Boolean = {
@@ -96,10 +99,14 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
         } else {
             implicit val t = Timeout(2 seconds)
             val f = cur.head ? new excelJobStart(map)
-            Await.result(f.mapTo[signJobsResult], t.duration) match {
-                case c : canHandling => println("sign jobs success"); true
-                case k : masterBusy => signJobsAcc(map, cur.tail)
-            }
+	        try {
+		        Await.result(f.mapTo[signJobsResult], t.duration) match {
+			        case c : canHandling => println("sign jobs success"); true
+			        case k : masterBusy => signJobsAcc(map, cur.tail)
+		        }
+	        } catch {
+		        case ex : Exception => println("timeout"); false
+	        }
         }
     }
 
