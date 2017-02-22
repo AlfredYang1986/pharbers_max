@@ -29,13 +29,7 @@ class SplitExcelWorker(bus: SplitEventBus, m: Map[String, Any]) extends Actor wi
 		case integratedresult(target) => {
 			data ++= (target :: Nil)
 			num += 1
-			num match {
-				case Const.SPLITEXCEL => {
-					creatFile
-					num = 0
-				}
-				case _ => Unit
-			}
+			num match {case Const.SPLITEXCEL => {creatFile; num = 0} case _ => Unit}
 		}
 
 		case SplitEventBus.excelEnded(map) => {
