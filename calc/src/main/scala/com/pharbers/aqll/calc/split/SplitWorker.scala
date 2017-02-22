@@ -29,16 +29,19 @@ import com.pharbers.aqll.calc.excel.PharmaTrust.PharmaTrustPorduct
 import com.pharbers.aqll.calc.excel.PharmaTrust.PharmaTrustMarket
 
 object SplitWorker {
-	def props(a : ActorRef) = Props(new SplitWorker(a))
-	
+	def props(a: ActorRef) = Props(new SplitWorker(a))
+
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
+
 	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String])])
-	
-	case class integratedataresult(integrated : Map[(Integer, String), List[IntegratedData]])
-//	case class integratedataended(n: Int)
+
+	case class integratedataresult(integrated: Map[(Integer, String), List[IntegratedData]])
+
+	//	case class integratedataended(n: Int)
 	case class integratedataended(map: Map[String, Any])
 
 	case class exceluniondata(e: List[(Double, Double, Long, String)])
+
 }
 
 //object adminData {
@@ -49,60 +52,60 @@ object SplitWorker {
 //}
 
 class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with CreateSplitWorker {
-    val data : ArrayBuffer[integratedData] = ArrayBuffer.empty
-    val data2: ArrayBuffer[IntegratedData] = ArrayBuffer.empty
+	val data: ArrayBuffer[integratedData] = ArrayBuffer.empty
+	val data2: ArrayBuffer[IntegratedData] = ArrayBuffer.empty
 
-    val excelunion: ArrayBuffer[(Double, Double, Long, String)] = ArrayBuffer.empty
-    val subFun = aggregator ! SplitAggregator.aggsubcribe(self)
-    
-    val cpaproexcel: ArrayBuffer[CpaProduct] = ArrayBuffer.empty
-    val cpomarexcel: ArrayBuffer[CpaMarket] = ArrayBuffer.empty
-    val phaproexcel: ArrayBuffer[PharmaTrustPorduct] = ArrayBuffer.empty
-    val phamarexcel: ArrayBuffer[PharmaTrustMarket] = ArrayBuffer.empty
-    
-	val idle : Receive = {
-//	    case cparesult(target) => {
-//	        val listCpaProdcut = (target :: Nil)
-//	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut)))
-//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
-//	    }
-//	    case cpamarketresult(target) => {
-//	        val listCpaMarket = (target :: Nil)
-//	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserMarketDataArgs(listCpaMarket)))
-//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
-//	    }
-//	    case pharesult(target) => {
-//            val listPhaProdcut = (target :: Nil)
-//            val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaProductDataArgs(listPhaProdcut)))
-//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
-//	    }
-//	    case phamarketresult(target) => {
-//	        val listPhaMarket = (target :: Nil)
-//	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
-//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
-//	    }
-      case integratedresult(target) => {
-          data2 ++= (target :: Nil)
-      }
-	    case SplitEventBus.excelEnded(map) =>  {
-	    	println(s"read ended at $self")
+	val excelunion: ArrayBuffer[(Double, Double, Long, String)] = ArrayBuffer.empty
+	val subFun = aggregator ! SplitAggregator.aggsubcribe(self)
 
-	    	val tmp = data2.toList.groupBy (x => (x.getYearAndmonth, x.getMinimumUnitCh))
-			  aggregator ! SplitWorker.integratedataresult(tmp)
-	    	
-			  aggregator ! SplitWorker.integratedataended(map)
-	    }
-	    case _ => Unit
+	val cpaproexcel: ArrayBuffer[CpaProduct] = ArrayBuffer.empty
+	val cpomarexcel: ArrayBuffer[CpaMarket] = ArrayBuffer.empty
+	val phaproexcel: ArrayBuffer[PharmaTrustPorduct] = ArrayBuffer.empty
+	val phamarexcel: ArrayBuffer[PharmaTrustMarket] = ArrayBuffer.empty
+
+	val idle: Receive = {
+		//	    case cparesult(target) => {
+		//	        val listCpaProdcut = (target :: Nil)
+		//	        val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserProductDataArgs(listCpaProdcut)))
+		//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
+		//	    }
+		//	    case cpamarketresult(target) => {
+		//	        val listCpaMarket = (target :: Nil)
+		//	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserMarketDataArgs(listCpaMarket)))
+		//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
+		//	    }
+		//	    case pharesult(target) => {
+		//            val listPhaProdcut = (target :: Nil)
+		//            val integratedDataArgs = new BaseArgs((new AdminProductDataArgs(adminData.product), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaProductDataArgs(listPhaProdcut)))
+		//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
+		//	    }
+		//	    case phamarketresult(target) => {
+		//	        val listPhaMarket = (target :: Nil)
+		//	        val integratedDataArgs = new BaseArgs((new AdminMarkeDataArgs(adminData.market), new AdminHospMatchDataArgs(adminData.hospmatchdata), new UserPhaMarketDataArgs(listPhaMarket)))
+		//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
+		//	    }
+		case integratedresult(target) => {
+			data2 ++= (target :: Nil)
+		}
+		case SplitEventBus.excelEnded(map) => {
+			println(s"read ended at $self")
+
+			val tmp = data2.toList.groupBy(x => (x.getYearAndmonth, x.getMinimumUnitCh))
+			aggregator ! SplitWorker.integratedataresult(tmp)
+
+			aggregator ! SplitWorker.integratedataended(map)
+		}
+		case _ => Unit
 	}
-	
-	val working : Receive = {
-	    case cpamarketresult(target) => {}
 
-	    case _ => ???
+	val working: Receive = {
+		case cpamarketresult(target) => {}
+
+		case _ => ???
 	}
 
 	def receive = idle
-	
+
 	def cancelActor = {
 		context.stop(self)
 	}

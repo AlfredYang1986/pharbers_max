@@ -1,33 +1,45 @@
 package com.pharbers.aqll.calc.excel.IntegratedData;
 
 import com.pharbers.aqll.calc.util.StringOption;
+import com.pharbers.aqll.calc.util.export.Excel;
 
 import java.io.Serializable;
 
 public class IntegratedData implements Serializable {
+    @Excel(name = "ID", width = 10)
     private Long hospNum = 0L;
 
+    @Excel(name = "Hosp_name", width = 10)
     private String hospName;
 
+    @Excel(name = "Date", width = 10)
     private Integer yearAndmonth = 0;
 
+    @Excel(name = "Prod_Name", width = 10)
     private String minimumUnit;
 
+    @Excel(name = "Prod_CNAME", width = 10)
     private String minimumUnitCh;
 
     private String minimumUnitEn = "无";
 
+    @Excel(name = "HOSP_ID", width = 10)
     private String phaid;
 
+    @Excel(name = "Strength", width = 10)
     private String strength;
 
-    private String market1Ch;
+    @Excel(name = "DOI", width = 10)
+    private String market1Ch = "无";
 
+    @Excel(name = "DOIE", width = 10)
     private String market1En = "无";
 
-    private Double sumValue = 0.0;
-
+    @Excel(name = "Units", width = 10)
     private Double volumeUnit = 0.0;
+
+    @Excel(name = "Sales", width = 10)
+    private Double sumValue = 0.0;
 
     private String segment;
 

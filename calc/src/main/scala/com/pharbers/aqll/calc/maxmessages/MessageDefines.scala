@@ -9,6 +9,8 @@ abstract class CommonMessage extends MaxMessageTrait
 case class excelJobStart(map: Map[String, Any])
 case class excelJobEnd(filename : String)
 
+case class excelSplitStart(map: Map[String, Any])
+
 case class startReadExcel(map: Map[String, Any])
 
 case class checkResult(msg: String)
