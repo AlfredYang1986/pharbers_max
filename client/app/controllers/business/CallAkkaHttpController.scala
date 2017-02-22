@@ -19,10 +19,10 @@ class CallAkkaHttpController extends Controller{
     import pattern.LogMessage.common_log
 
     def callHttpCheckExcelAjaxCall = Action (request => requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpCheckExcelAjaxCall"))), jv) :: msg_CallCheckExcel(jv) :: msg_CommonResultMessage() :: Nil, None)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpCheckExcelAjaxCall"))), jv, request) :: msg_CallCheckExcel(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
     def callHttpRunModelAjaxCall = Action (request => requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpRunModelAjaxCall"))), jv) :: msg_CallRunModel(jv) :: msg_CommonResultMessage() :: Nil, None)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpRunModelAjaxCall"))), jv, request) :: msg_CallRunModel(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 }
