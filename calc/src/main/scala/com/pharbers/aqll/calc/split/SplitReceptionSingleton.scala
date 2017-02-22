@@ -5,7 +5,7 @@ import akka.cluster.singleton.ClusterSingletonManager
 import akka.cluster.singleton.ClusterSingletonManagerSettings
 import akka.cluster.singleton.ClusterSingletonProxy
 import akka.cluster.singleton.ClusterSingletonProxySettings
-import com.pharbers.aqll.calc.maxmessages.{excelJobStart, freeMaster, registerMaster}
+import com.pharbers.aqll.calc.maxmessages.{excelJobStart, excelSplitStart, freeMaster, registerMaster}
 
 object SplitReceptionSingleton {
 	def props = Props(new SplitReceptionSingleton)
@@ -37,6 +37,7 @@ class SplitReceptionSingleton extends Actor {
 	)
 
 	def receive = {
+		case cmd: excelSplitStart => reception forward cmd
 		case cmd: excelJobStart => reception forward cmd
 		case cmd: freeMaster => reception forward cmd
 		case cmd: registerMaster => reception forward cmd

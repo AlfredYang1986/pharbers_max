@@ -15,7 +15,7 @@ import akka.pattern.ask
 import com.pharbers.aqll.calc.Http.{QueueActor, ThreadQueue}
 
 import scala.concurrent.Await
-import com.pharbers.aqll.calc.maxmessages.{excelJobStart, registerMaster}
+import com.pharbers.aqll.calc.maxmessages.{excelJobStart, excelSplitStart, registerMaster}
 import com.pharbers.aqll.calc.split.JobCategories.{integratedJob, _}
 import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitMaster, SplitReception, SplitReceptionSingleton}
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
@@ -48,18 +48,16 @@ trait OrderService extends Directives with JsonSupport {
 	val routes = getCheck ~ getCalc ~ Test ~ Test2
 
 	def Test = get {
-		path("Test") {
+		path("Test") {///Users/qianpeng/Desktop/CPA_GYCX_panel_160111INF.xlsx
 			val map = Map("filename" -> """config/test/BMS客户上传/CPA_GYCX_panel_160111INF.xlsx""",
 				"hospdatapath" -> """20000家pfizer医院数据库表.xlsx""",
 				"JobDefines" -> integratedJob,
 				"company" -> "BMS",
 				"calcvariable" -> 0)
-//			val ref: AnyRef = excelJobStart(map)
 			val system = CheckGloble.system
 			val reception = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
 			println(s"reception = $reception")
-			reception ! excelJobStart(map)
-//			ListQueue.ListMq_Queue(ref)
+			reception ! excelSplitStart(map)
 			complete("""jsonpCallback1({"result":"Ok"})""")
 		}
 	}

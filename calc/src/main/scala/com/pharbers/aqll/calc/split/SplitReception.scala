@@ -1,12 +1,10 @@
 package com.pharbers.aqll.calc.split
 
 import com.pharbers.aqll.calc.common.CalcTimeHelper
-import com.pharbers.aqll.calc.maxmessages.{excelJobEnd, excelJobStart, registerMaster, signJobsResult, canHandling, masterBusy}
-import com.pharbers.aqll.calc.maxmessages.startReadExcel
+import com.pharbers.aqll.calc.maxmessages.{excelJobStart, _}
 import com.pharbers.aqll.calc.excel.CPA.CpaMarket
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 import com.typesafe.config.ConfigFactory
-
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Terminated}
 import akka.cluster.Cluster
 import akka.util.Timeout
@@ -45,9 +43,15 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	def receive = {
         case registerMaster() => {
 	        println("-*-*-*-*-*-*-*-")
+	        println("join registerMaster")
             masters = (sender() :: masters).distinct
 	        println(s"masters $masters")
         }
+
+		case excelSplitStart(map) =>{
+			val act = context.actorOf(SplitExcel.props)
+			act ! excelJobStart(map)
+		}
 
 		case excelJobStart(map) => {
 //		    val act = context.actorOf(SplitMaster.props)
@@ -55,6 +59,7 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 //		    context.watch(act)
 //			act ! startReadExcel(map)
 			println("-*-*-*-*-*-*-*-")
+			println("join excelJobStart")
             if (signJobs(map)) {
                 tc.start
             } else {
@@ -69,25 +74,14 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 		    println("-*-*-*-*-*-*-*-")
             println(s"self = $self")
 
-            /**
-              * 以下代码感觉都有问题
-              */
-
-            masters = masters.filterNot (_ == a)
-
-            context.actorSelection(ip + sendnode) ! FreeListQueue(context.actorOf(SplitReception.props), self)
 		    // job完成，提醒用户
 			val end = tc.lastTimes
 		    println(s"执行时间为 : ${end / 1000} 秒")
 		}
-        case Registration(member) => {
-            context.actorSelection(ip + sendnode) ! Registration(member)
-        }
-		case _ => ???
+		case x => println(s"x = ${x}");???
 	}
 
     def signJobs(map : Map[String, Any]) : Boolean = {
-        println(s"masters========${masters}")
 	    signJobsAcc(map, masters)
     }
 
@@ -97,6 +91,7 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
             println("not enough calc to do the jobs")
             false
         } else {
+	        println(s"cur.head.path = ${cur.head.path}")
             implicit val t = Timeout(2 seconds)
             val f = cur.head ? new excelJobStart(map)
 	        try {

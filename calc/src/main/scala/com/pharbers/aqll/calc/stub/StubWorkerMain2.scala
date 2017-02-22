@@ -16,7 +16,6 @@ object StubWorkerMain2 extends App{
 		Cluster(system).registerOnMemberUp {
 			println("register begin")
 			val reception = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
-			println(reception)
 			val master = system.actorOf(SplitMaster.props, "split-master")
 
 			reception.tell(new registerMaster(), master)
