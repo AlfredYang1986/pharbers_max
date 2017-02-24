@@ -32,6 +32,7 @@ object SplitWorker {
 	def props(a: ActorRef) = Props(new SplitWorker(a))
 
 	case class requestaverage(sum: List[(String, (Double, Double, Double))])
+	case class responseaverage(sum: List[(String, Double, Double)])
 
 	case class postresult(mr: Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String])])
 

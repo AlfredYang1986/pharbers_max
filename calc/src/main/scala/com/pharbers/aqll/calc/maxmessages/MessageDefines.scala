@@ -27,3 +27,8 @@ case class freeMaster()
 abstract class signJobsResult
 case class canHandling() extends signJobsResult
 case class masterBusy() extends signJobsResult
+
+// TODO: 注意重构
+case class requestMasterAverage_sub(sum : List[(String, (Double, Double, Double))])
+case class requestMasterAverage(fileName : String, subFileName : String, sum : List[(String, (Double, Double, Double))])
+case class responseMasterAverage(fileName : String, sum : List[(String, Double, Double)])

@@ -1,7 +1,7 @@
 package com.pharbers.aqll.calc.split
 
 import com.pharbers.aqll.calc.util.DateUtil
-import com.pharbers.aqll.calc.common.DefaultData.{integratedXmlPath}
+import com.pharbers.aqll.calc.common.DefaultData.integratedXmlPath
 import com.pharbers.aqll.calc.excel.core._
 import com.pharbers.aqll.calc.maxmessages._
 import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
@@ -11,6 +11,7 @@ import com.pharbers.aqll.calc.maxresult.InserAdapter
 import java.util.Date
 
 import akka.actor.SupervisorStrategy.Restart
+import com.pharbers.aqll.calc.split.SplitWorker.responseaverage
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -78,6 +79,19 @@ class SplitMaster extends Actor with ActorLogging
 			self ! processing_data(mr)
 			goto(MsaterPrecessingData) using data
 		}
+
+		case Event(requestMasterAverage_sub(sum), data) => {
+            val reception = context.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
+            reception ! requestMasterAverage(data.fileName, data.subFileName, sum)
+            stay
+        }
+
+        case Event(responseMasterAverage(f, average), data) => {
+            if (f == data.fileName) {
+                agg ! responseaverage(average)
+            }
+            stay
+        }
 	}
 
 	when(MsaterPrecessingData) {
