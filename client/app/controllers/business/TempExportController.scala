@@ -17,6 +17,6 @@ class TempExportController extends Controller{
     def tempExportAjaxCall = Action (request => requestArgs(request) { jv =>
         import pattern.ResultMessage.common_result
         import pattern.LogMessage.common_log
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("tempExportAjaxCall"))), jv) :: msg_finalresult1(jv) :: msg_CommonResultMessage() :: Nil, None)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("tempExportAjaxCall"))), jv, request) :: msg_finalresult1(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 }

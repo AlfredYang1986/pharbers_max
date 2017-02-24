@@ -1,119 +1,158 @@
-var sampleCheckFun = function sampleCheck(company, filename) {
-	var dataMap = JSON.stringify({
-			"company" : company,
-			"filename" : filename
-	});
-	$.ajax({
-		type: "POST",
-		url: "/samplecheck/check",
-		dataType: "json",
-		data: dataMap,
-		contentType: 'application/json,charset=utf-8',
-		success: function(r){
-			if(r.result.FinalResult == "is null"){
-				$("#hospitalList").empty();
-			}else{
-				$("#chospNum").text(r.result.FinalResult.hospNum);
-				$("#cproductNum").text(r.result.FinalResult.miniProNum);
-				$("#csales").text(r.result.FinalResult.sales);
-				$("#hospitalList").empty();
-				$.each(r.result.FinalResult.hospList,function(i, v){
-					$("#hospitalList").append("<tr><td>"+(i+1)+"</td><td>"+v+"</td><td>2016</td><td>1</td><td>2016-12-12</td><td><a href=\"#\"><i class=\"fa fa-times text-danger text\"></i></a></td></tr>")
-				});
-			}
-			dataTableAjax();
-		},
-		error: function(XMLHttpRequest, textStatus, errorThrown){
-			console.info("Error")
-		}
-	});
+var sampleCheckFun = function(company, filename) {
+    var dataMap = JSON.stringify({
+        "company": company,
+        "filename": filename
+    });
+    $.ajax({
+        type: "POST",
+        url: "/samplecheck/check",
+        dataType: "json",
+        data: dataMap,
+        contentType: 'application/json,charset=utf-8',
+        success: function (r) {
+            topThreeCurrent(r.result.FinalResult);
+            noMatchHosp(r.result.FinalResult.CurResult.hospList);
+            dataTableAjax();
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            console.info("Error")
+        }
+    });
 }
-window.onload = function() {
-	sampleCheckFun($.cookie("token"), $.cookie("filename"))
+
+var sampleCheckChartsLineFun = function(company, filename) {
+    var dataMap = JSON.stringify({
+        "company": company,
+        "filename": filename
+    });
+    $.ajax({
+        type: "POST",
+        url: "/samplecheck/line",
+        dataType: "json",
+        data: dataMap,
+        cache: true,
+        contentType: 'application/json,charset=utf-8',
+        success: function (r) {
+            topThreeCharts(r.result.TopChartResult)
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            console.info("Error")
+        }
+    });
 }
-$(document).ready(
-		function() {
-			var sparklineCharts = function() {
-				$("#sparkline1").sparkline(
-						[ 3400, 4300, 4300, 3500, 4400, 3200, 4400, 5200, 3400,
-								4200, 5400, 3200 ], {
-							type : 'line',
-							width : '100%',
-							height : '50',
-							lineColor : '#1ab394',
-							fillColor : "transparent"
-						});
 
-				$("#sparkline2").sparkline(
-						[ 1260100, 1160100, 1560100, 1760100, 1160100, 2260100,
-								2460100, 3260100, 1360100, 2360100, 3460100,
-								4260100 ], {
-							type : 'line',
-							width : '100%',
-							height : '50',
-							lineColor : '#1ab394',
-							fillColor : "transparent"
-						});
+var sampleCheckChartsPlotFun = function(company, filename) {
+    var dataMap = JSON.stringify({
+        "company": company,
+        "filename": filename
+    });
+    $.ajax({
+        type: "POST",
+        url: "/samplecheck/plot",
+        dataType: "json",
+        data: dataMap,
+        cache: true,
+        contentType: 'application/json,charset=utf-8',
+        success: function (r) {
+            salesChartsPlot(r.result.TopChartResult)
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            console.info("Error")
+        }
+    });
+}
 
-				$("#sparkline3").sparkline(
-						[ 35608100, 11608100, 25608100, 37608100, 41608100,
-								32608100, 34608100, 48608100, 31608100,
-								42608100, 44608100, 58608100 ], {
-							type : 'line',
-							width : '100%',
-							height : '50',
-							lineColor : '#1ab394',
-							fillColor : "transparent"
-						});
-			};
+var topThreeCurrent = function (topdata) {
+    var yesterYearFlag = topdata.YesterYear
+    var agoMonth = topdata.AgoMonth
+    var cur = topdata.CurResult
+    if(yesterYearFlag != "not data") {
+        $("#yesterYearHospNum").text(yesterYearFlag.yesterYearHospNum);
+        $("#yesterYearProdNum").text(yesterYearFlag.yesterYearMiniProNum);
+        $("#yesterYearMarkNum").text(yesterYearFlag.yesterYearMarketNum);
+    }
+    if(agoMonth != "not data") {
+        $("#agoHospNum").text(agoMonth.agoHospNum);
+        $("#agoProductNum").text(agoMonth.agoMiniProNum);
+        $("#agoMarketNum").text(agoMonth.agoMarketNum);
+    }
+    if(cur != "not data") {
+        $("#curHospNum").text(cur.hospNum);
+        $("#curProductNum").text(cur.miniProNum);
+        $("#curMarketNum").text(cur.marketNum);
+    }
+}
 
-			var sparkResize;
+var noMatchHosp = function (hosplist) {
+    $.each(hosplist, function (i, v) {
+        $("#hospitalList").append("<tr><td>" + (i + 1) + "</td><td>" + v + "</td><td><a href=\"javascript:;\"><i class=\"fa fa-times text-danger text\"></i></a></td></tr>")
+    })
+}
 
-			$(window).resize(function(e) {
-				clearTimeout(sparkResize);
-				sparkResize = setTimeout(sparklineCharts, 500);
-			});
+var topThreeCharts = function(data) {
+    var linechart = function(id, d) {
+        $(id).sparkline(d, {type: 'line', width: '100%', height: '50', lineColor: '#1ab394', fillColor: "transparent"})
+    }
+    var hospArray = [], productArray = [], marketArray = []
+    $.each(data, function(i, v){hospArray.push(v.hospNum);productArray.push(v.miniProNum);marketArray.push(v.marketNum);});
+    linechart("#sparkline1", hospArray)
+    linechart("#sparkline2", productArray)
+    linechart("#sparkline3", marketArray)
+}
 
-			sparklineCharts();
+var salesChartsPlot = function(data) {
+    var plotchart = function(id, d1, d2) {
+        $(id).length && $.plot($(id), [d1, d2], {
+            series: {
+                lines: {show: false, fill: true},
+                splines: {show: true, tension: 0.4, lineWidth: 1, fill: 0.4},
+                points: {radius: 1, show: true},
+                shadowSize: 2
+            },
+            grid: {hoverable: true, clickable: true, borderWidth: 2, color: 'transparent'},
+            colors: ["#23c6c8", "#1ab394"],
+            yaxis: {
+                // axisLabel: "支付金额",
+                // axisLabelUseCanvas: true,
+                // axisLabelFontSizePixels: 12,
+                // axisLabelFontFamily: 'Verdana, Arial',
+                // axisLabelPadding: 3
+            },
+            tooltip: true
+        });
+    }
+    // [1,2]1.X轴 2.Y轴
+    var cur = [] , ago =[]
+    var t;
+    var tmp = []
+    $.each(data, function(i, v) {
+        if(v.time.split("-")[0] != t){tmp.push(v.time.split("-")[0])}
+        t = v.time.split("-")[0]
+    })
 
-			var data1 = [ [ 0, 4 ], [ 1, 8 ], [ 2, 5 ], [ 3, 10 ], [ 4, 4 ],
-					[ 5, 16 ], [ 6, 5 ], [ 7, 11 ], [ 8, 6 ], [ 9, 11 ],
-					[ 10, 20 ], [ 11, 10 ], [ 12, 13 ], [ 13, 4 ], [ 14, 7 ],
-					[ 15, 8 ], [ 16, 12 ] ];
-			var data2 = [ [ 0, 0 ], [ 1, 2 ], [ 2, 7 ], [ 3, 4 ], [ 4, 11 ],
-					[ 5, 4 ], [ 6, 2 ], [ 7, 5 ], [ 8, 11 ], [ 9, 5 ],
-					[ 10, 4 ], [ 11, 1 ], [ 12, 5 ], [ 13, 2 ], [ 14, 5 ],
-					[ 15, 2 ], [ 16, 0 ] ];
-			$("#flot-dashboard5-chart").length
-					&& $.plot($("#flot-dashboard5-chart"), [ data1, data2 ], {
-						series : {
-							lines : {
-								show : false,
-								fill : true
-							},
-							splines : {
-								show : true,
-								tension : 0.4,
-								lineWidth : 1,
-								fill : 0.4
-							},
-							points : {
-								radius : 0,
-								show : true
-							},
-							shadowSize : 2
-						},
-						grid : {
-							hoverable : true,
-							clickable : true,
+    $.each(data, function(i, v) {
+        if(v.time.split("-")[0] == tmp[0]){
+            ago.push([v.time.split("-")[1], v.sales / 100000000])
+        }else{
+            cur.push([v.time.split("-")[1], v.sales / 100000000])
+        }
+    })
 
-							borderWidth : 2,
-							color : 'transparent'
-						},
-						colors : [ "#23c6c8", "#1ab394" ],
-						xaxis : {},
-						yaxis : {},
-						tooltip : false
-					});
+    plotchart("#flot-dashboard5-chart", ago, cur)
 
-		});
+}
+
+window.onload = function () {
+    sampleCheckFun($.cookie("token"), $.cookie("filename"))
+    sampleCheckChartsLineFun($.cookie("token"), $.cookie("filename"))
+    sampleCheckChartsPlotFun($.cookie("token"), $.cookie("filename"))
+
+}
+
+$(document).ready(function () {
+    // var sparkResize;
+    // $(window).resize(function (e) {
+    //     clearTimeout(sparkResize);
+    //     sparkResize = setTimeout(sampleCheckChartsLineFun($.cookie("token"), $.cookie("filename")), 500);
+    // });
+});
