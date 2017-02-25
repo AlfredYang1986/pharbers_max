@@ -6,8 +6,8 @@ import com.pharbers.aqll.calc.util.export.Excel;
 import java.io.Serializable;
 
 public class IntegratedData implements Serializable {
-    @Excel(name = "ID", width = 10)
-    private Long hospNum = 0L;
+    @Excel(name = "ID", width = 10, precision = 1)
+    private Integer hospNum = 0;
 
     @Excel(name = "Hosp_name", width = 10)
     private String hospName;
@@ -21,6 +21,7 @@ public class IntegratedData implements Serializable {
     @Excel(name = "Prod_CNAME", width = 10)
     private String minimumUnitCh;
 
+    @Excel(skip = true)
     private String minimumUnitEn = "无";
 
     @Excel(name = "HOSP_ID", width = 10)
@@ -35,21 +36,22 @@ public class IntegratedData implements Serializable {
     @Excel(name = "DOIE", width = 10)
     private String market1En = "无";
 
-    @Excel(name = "Units", width = 10)
+    @Excel(name = "Units", width = 10, precision = 2)
     private Double volumeUnit = 0.0;
 
-    @Excel(name = "Sales", width = 10)
+    @Excel(name = "Sales", width = 10, precision = 2)
     private Double sumValue = 0.0;
 
+    @Excel(skip = true)
     private String segment;
 
     public Integer getYearAndmonth() {return yearAndmonth;}
 
     public void setYearAndmonth(Integer yearAndmonth) {this.yearAndmonth = yearAndmonth;}
 
-    public Long getHospNum() {return hospNum;}
+    public Integer getHospNum() {return hospNum;}
 
-    public void setHospNum(Long hospNum) {this.hospNum = hospNum;}
+    public void setHospNum(Integer hospNum) {this.hospNum = hospNum;}
 
     public String getHospName() {return hospName;}
 

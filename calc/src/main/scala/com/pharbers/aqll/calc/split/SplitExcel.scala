@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.routing.RoundRobinPool
 import com.pharbers.aqll.calc.common.DefaultData.integratedXmlPath
 import com.pharbers.aqll.calc.excel.core.row_integrateddataparser
-import com.pharbers.aqll.calc.maxmessages.excelJobStart
+import com.pharbers.aqll.calc.maxmessages.{excelJobStart, excelSplitStart}
 
 sealed trait MsaterSplitState
 
@@ -22,9 +22,11 @@ case class MsaterSplitStateData(var fileName: String, var getcompany: String, va
 
 case class split_excel_start(map: Map[String, Any])
 
-case class split_excel_end(map: Map[String, Any])
+case class split_excel_end()//map: Map[String, Any]
 
 case class split_excel_processing(map: Map[String, Any])
+
+case class split_excel_resultdata(result: List[(String, List[String])])
 
 /**
   * Created by qianpeng on 2017/2/21.
@@ -38,14 +40,15 @@ object SplitExcel {
 class SplitExcel extends Actor with ActorLogging
 	with CreateSplitExcelWorker
 	with CreateSplitExcelEventBus
-//	with CreateSplitExcelAggregator
 	with FSM[MsaterSplitState, MsaterSplitStateData] {
+	var originSender : ActorRef = null
 	startWith(MsaterSplitExcelIdel, new MsaterSplitStateData("", "", ""))
 
 	when(MsaterSplitExcelIdel) {
-		case Event(excelJobStart(map), data) => {
+		case Event(excelSplitStart(map), data) => {
 			data.getcompany = map.get("company").get.toString
 			data.fileName = map.get("filename").get.toString
+			originSender = sender()
 			self ! split_excel_start(map)
 			goto(MsaterSplitExcelStart) using data
 		}
@@ -53,13 +56,7 @@ class SplitExcel extends Actor with ActorLogging
 
 	when(MsaterSplitExcelStart) {
 		case Event(split_excel_start(map), data) => {
-			//			map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
-			//				case 4 => {
-			//					val act = context.actorOf(SplitExcelWorker.props)
-			//					act ! splitfile(map)
-			//				}
-			//			}
-			val router = CreateSplitExcelWorker(bus, map)
+			val router = CreateSplitExcelWorker(bus, map, self)
 			(map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
 				case 4 => {
 					row_integrateddataparser(integratedXmlPath.integratedxmlpath_en,
@@ -68,14 +65,17 @@ class SplitExcel extends Actor with ActorLogging
 				}
 			}).startParse(map.get("filename").get.toString, 1)
 			bus.publish(SplitEventBus.excelEnded(map))
-			self ! split_excel_end(map)
+			stay
+		}
+		case Event(split_excel_resultdata(result), data) => {
+			originSender ! result
+			self ! split_excel_end()
 			goto(MsaterSplitExcelEnd) using data
-
 		}
 	}
 
 	when(MsaterSplitExcelEnd) {
-		case Event(split_excel_end(map), data) => {
+		case Event(split_excel_end(), data) => {
 			goto(MsaterSplitExcelIdel) using data.copy(fileName = "", getcompany = "", subFileName = "")
 		}
 	}
@@ -93,8 +93,8 @@ class SplitExcel extends Actor with ActorLogging
 
 trait CreateSplitExcelWorker {
 	this: Actor =>
-	def CreateSplitExcelWorker(a: SplitEventBus, map: Map[String, Any]) = {
-		context.actorOf(RoundRobinPool(1).props(SplitExcelWorker.props(a, map)), name = "worker-split-router")
+	def CreateSplitExcelWorker(a: SplitEventBus, map: Map[String, Any], master: ActorRef) = {
+		context.actorOf(RoundRobinPool(1).props(SplitExcelWorker.props(a, map, master)), name = "worker-split-router")
 	}
 }
 

@@ -45,7 +45,7 @@ class CheckWorker(aggregator: ActorRef) extends Actor with ActorLogging{
 //        }
         case integratedresult(target) => {
             val datatime = DateUtil.getDateLong(target.getYearAndmonth.toString)
-            excelunion.append((target.getSumValue, target.getVolumeUnit, datatime, target.getMarket1Ch, target.getMinimumUnit, target.getHospNum))
+            excelunion.append((target.getSumValue, target.getVolumeUnit, datatime, target.getMarket1Ch, target.getMinimumUnit, target.getHospNum.longValue()))
         }
         case SplitEventBus.excelEnded(n) =>  {
             println(s"read ended at $self")

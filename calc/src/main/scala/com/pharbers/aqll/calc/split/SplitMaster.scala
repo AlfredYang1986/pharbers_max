@@ -48,9 +48,11 @@ class SplitMaster extends Actor with ActorLogging
 
 
 	when(MsaterIdleing) {
-		case Event(excelJobStart(map), data) => {
+		case Event(startReadExcel(map), data) => {
 			data.getcompany = map.get("company").get.toString
-			data.fileName = map.get("filename").get.toString
+			data.fileName = map.get("filename").get.asInstanceOf[(String, List[String])]._1
+			data.subFileName = map.get("filename").get.asInstanceOf[(String, List[String])]._2.head
+			println(s"subFileName = ${data.subFileName}")
 			self ! processing_excel(map)
 			sender ! new canHandling()
 			goto(MsaterCalcing) using data
@@ -58,19 +60,19 @@ class SplitMaster extends Actor with ActorLogging
 	}
 
 	when(MsaterCalcing) {
-		case Event(processing_excel(map), _) => {
+		case Event(processing_excel(map), data) => {
 			(map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
 				case 4 => {
 					row_integrateddataparser(integratedXmlPath.integratedxmlpath_en,
 						integratedXmlPath.integratedxmlpath_ch,
 						router)
 				}
-			}).startParse(map.get("filename").get.toString, 1)
+			}).startParse(data.subFileName, 1)
 			bus.publish(SplitEventBus.excelEnded(map))
 			stay
 		}
 
-		case Event(excelJobStart(_), _) => {
+		case Event(startReadExcel(_), _) => {
 			sender ! new masterBusy()
 			stay
 		}
@@ -82,7 +84,7 @@ class SplitMaster extends Actor with ActorLogging
 
 		case Event(requestMasterAverage_sub(sum), data) => {
             val reception = context.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
-            reception ! requestMasterAverage(data.fileName, data.subFileName, sum)
+			reception ! requestMasterAverage(data.fileName, data.subFileName, sum)
             stay
         }
 

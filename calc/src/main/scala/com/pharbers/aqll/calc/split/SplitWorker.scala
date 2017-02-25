@@ -86,6 +86,7 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 		//	        data ++= new splitdata(new SplitAdapter(), integratedDataArgs).d
 		//	    }
 		case integratedresult(target) => {
+			println(target)
 			data2 ++= (target :: Nil)
 		}
 		case SplitEventBus.excelEnded(map) => {

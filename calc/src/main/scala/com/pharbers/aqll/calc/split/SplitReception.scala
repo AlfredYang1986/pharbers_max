@@ -50,26 +50,25 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 
 		case excelSplitStart(map) =>{
 			val act = context.actorOf(SplitExcel.props)
-			act ! excelJobStart(map)
-			// TODO: 这个地方需要返回文件名，返回的格式为
-            // TODO: (原始文件名, List(分解后文件名))
-            // TODO: SplitJobsContainer.pushJobs(完善参数，将返回值放到这里)
-            // TODO: 记得每一个Master要维护一个文件名和子文件名，在data中
+			implicit val t = Timeout(10 second)
+			val r = act ? excelSplitStart(map)
+			val result = Await.result(r.mapTo[List[(String, List[String])]], t.duration)
+			result match {
+				case Nil => println("file is null or error")
+				case _ =>
+					SplitJobsContainer.pushJobs(result.head._1,result.head._2)
+					self ! excelJobStart(map, result.head)
+			}
 		}
 
-		case excelJobStart(map) => {
-            // TODO: 这个地方需要添加一个参数就是你分拆用户数据后的列表，参数为下（同分拆文件的返回值）
-            // TODO: (原始文件名, List(分解后文件名))
-            // TODO: SplitJobsContainer.queryJobSubNamesWithName(完善参数，将返回值放到这里))
-            // TODO: 对每一个Subname分配算能，在分配算能钱，先发送一分拆的文件
-            // TODO: 以下代码为，小文件分配的算能，理论上没有大改动
-//		    val act = context.actorOf(SplitMaster.props)
-//		    masters = masters :+ act
-//		    context.watch(act)
-//			act ! startReadExcel(map)
+		case excelJobStart(mapdata, data) => {
+			val subfile = SplitJobsContainer.queryJobSubNamesWithName(data._1)
+			val m = mapdata.map(x => x._1 match { case "filename" => ("filename", (data._1, subfile)) case _ => x}).toMap
+			println(s"m = $m")
+			println(s"subfile = $subfile")
 			println("-*-*-*-*-*-*-*-")
 			println("join excelJobStart")
-            if (signJobs(map)) {
+            if (signJobs(m)) {
                 tc.start
             } else {
                 // TODO: 记录下来，隔一段时间分配一次jobs
@@ -78,8 +77,14 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 		}
 
         case requestMasterAverage(f, s, sum) => {
+	        println("join requestMasterAverage ===========")
+	        println(s"f = $f")
+	        println(s"s = $s")
+//	        println(s"sum = $sum")
             val result = SplitJobsContainer.pushRequestAverage(f, s, sum)
+	        println(s"result $result")
             if (result._1) {
+	            println(s"masters = $masters")
                 masters.foreach(x => x ! responseMasterAverage(f, result._2))
             }
         }
@@ -108,9 +113,9 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
             println("not enough calc to do the jobs")
             false
         } else {
-	        println(s"cur.head.path = ${cur.head.path}")
+	        println(s"cur = ${cur}")
             implicit val t = Timeout(2 seconds)
-            val f = cur.head ? new excelJobStart(map)
+            val f = cur.head ? new startReadExcel(map)
 	        try {
 		        Await.result(f.mapTo[signJobsResult], t.duration) match {
 			        case c : canHandling => println("sign jobs success"); true
