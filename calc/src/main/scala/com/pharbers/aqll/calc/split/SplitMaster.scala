@@ -1,6 +1,8 @@
 package com.pharbers.aqll.calc.split
 
-import com.pharbers.aqll.calc.util.DateUtil
+import java.io.File
+
+import com.pharbers.aqll.calc.util.{DateUtil, StringOption}
 import com.pharbers.aqll.calc.common.DefaultData.integratedXmlPath
 import com.pharbers.aqll.calc.excel.core._
 import com.pharbers.aqll.calc.maxmessages._
@@ -11,7 +13,9 @@ import com.pharbers.aqll.calc.maxresult.InserAdapter
 import java.util.Date
 
 import akka.actor.SupervisorStrategy.Restart
-import com.pharbers.aqll.calc.split.SplitWorker.responseaverage
+import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
+import com.pharbers.aqll.calc.split.SplitWorker.{integratedresultext, responseaverage}
+import com.pharbers.aqll.calc.util.text.FileOperation
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -50,9 +54,8 @@ class SplitMaster extends Actor with ActorLogging
 	when(MsaterIdleing) {
 		case Event(startReadExcel(map), data) => {
 			data.getcompany = map.get("company").get.toString
-			data.fileName = map.get("filename").get.asInstanceOf[(String, List[String])]._1
-			data.subFileName = map.get("filename").get.asInstanceOf[(String, List[String])]._2.head
-			println(s"subFileName = ${data.subFileName}")
+			data.fileName = map.get("filename").get.asInstanceOf[(String, String)]._1
+			data.subFileName = map.get("filename").get.asInstanceOf[(String, String)]._2
 			self ! processing_excel(map)
 			sender ! new canHandling()
 			goto(MsaterCalcing) using data
@@ -61,13 +64,36 @@ class SplitMaster extends Actor with ActorLogging
 
 	when(MsaterCalcing) {
 		case Event(processing_excel(map), data) => {
-			(map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
+//			(map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
+//				case 4 => {
+//					row_integrateddataparser(integratedXmlPath.integratedxmlpath_en,
+//						integratedXmlPath.integratedxmlpath_ch,
+//						router)
+//				}
+//			}).startParse(data.fileName, 1)
+			import collection.JavaConversions._
+			map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
 				case 4 => {
-					row_integrateddataparser(integratedXmlPath.integratedxmlpath_en,
-						integratedXmlPath.integratedxmlpath_ch,
-						router)
+					val txt = FileOperation.readTxtFile(new File(data.subFileName)).toList
+					val temp = txt.map(_.split(",")).map { x =>
+						val t = new IntegratedData()
+						t.setHospNum(StringOption.takeStringSpace(x(0)).toInt)
+						t.setHospName(StringOption.takeStringSpace(x(1)))
+						t.setYearAndmonth(StringOption.takeStringSpace(x(2)).toInt)
+						t.setMinimumUnit(StringOption.takeStringSpace(x(3)))
+						t.setMinimumUnitCh(StringOption.takeStringSpace(x(4)))
+						t.setMinimumUnitEn(StringOption.takeStringSpace(x(5)))
+						t.setPhaid(StringOption.takeStringSpace(x(6)))
+						t.setStrength(StringOption.takeStringSpace(x(7)))
+						t.setMarket1Ch(StringOption.takeStringSpace(x(8)))
+						t.setMarket1En(StringOption.takeStringSpace(x(9)))
+						t.setSumValue(StringOption.takeStringSpace(x(10)).toDouble)
+						t.setVolumeUnit(StringOption.takeStringSpace(x(11)).toDouble)
+						t
+					}
+					router ! integratedresultext(temp)
 				}
-			}).startParse(data.subFileName, 1)
+			}
 			bus.publish(SplitEventBus.excelEnded(map))
 			stay
 		}
@@ -100,11 +126,8 @@ class SplitMaster extends Actor with ActorLogging
 		case Event(processing_data(mr), data) => {
 			val time = DateUtil.getIntegralStartTime(new Date()).getTime
 			new Insert().maxResultInsert(mr)(new InserAdapter().apply(data.fileName, data.getcompany, time))
+			//context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception") ! freeMaster()
 			goto(MsaterIdleing) using data.copy(fileName = "", getcompany = "", subFileName = "")
-			// TODO: clean or restart
-			// Restart
-
-			//context.actorSelection("akka.tcp://backend@127.0.0.1:2551/user/splitreception") ! freeMaster()
 		}
 	}
 

@@ -69,9 +69,10 @@ object TempExportModule  extends ModuleTrait{
     def write_CsvFile(data : JsValue,conditions : List[DBObject]) : String = {
         val connectionName = (data \ "company").asOpt[String].get
         val fileName = UUID.randomUUID + SUFFIX_CSV
-        val file : File = new File(GetProperties.Client_Export_FilePath+fileName)
-        if(!file.exists()){file.createNewFile()}
-        val writer = CSVWriter.open(file,"GBK")
+        val file : File = new File(GetProperties.Client_Export_FilePath)
+        if(!file.exists()) file.mkdir()
+        val file1 : File = new File(GetProperties.Client_Export_FilePath+fileName)
+        val writer = CSVWriter.open(file1,"GBK")
         writer.writeRow(List("Panel_ID","Date","City","Product","Sales","Units"))
         var first = ZERO
         var step = TEN_THOUSAND

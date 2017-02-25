@@ -16,7 +16,7 @@ class FilesUploadController extends Controller{
     def filesUploadAjaxCall = Action (request => requestArgs(request) { jv => 
 		import pattern.ResultMessage.common_result
 		import pattern.LogMessage.common_log
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("filesUploadAjaxCall"))), jv) :: msg_filesupload(jv) :: msg_CommonResultMessage() :: Nil, None)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("filesUploadAjaxCall"))), jv, request) :: msg_filesupload(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 	
 }

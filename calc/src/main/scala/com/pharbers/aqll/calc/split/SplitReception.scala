@@ -1,7 +1,7 @@
 package com.pharbers.aqll.calc.split
 
 import com.pharbers.aqll.calc.common.CalcTimeHelper
-import com.pharbers.aqll.calc.maxmessages.{excelJobStart, _}
+import com.pharbers.aqll.calc.maxmessages.{excelJobStart, freeMaster, _}
 import com.pharbers.aqll.calc.excel.CPA.CpaMarket
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 import com.typesafe.config.ConfigFactory
@@ -13,6 +13,7 @@ import akka.pattern.ask
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.concurrent.Await
+import scala.concurrent.stm.{Ref, atomic}
 
 /**
  * enum
@@ -34,7 +35,8 @@ object SplitReception {
 
 class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	import SplitReception._
-	var masters = List[ActorRef]()     // round robin // TODO: 多线程，修改成STM的线程安全模式，交给你了
+	var masters = Ref(List[ActorRef]())     // round robin // TODO: 多线程，修改成STM的线程安全模式，交给你了
+	var jobs = Ref(List[(String, List[String])]())
 
     val tc = new CalcTimeHelper(0)
 	val ip = GetProperties.loadConf("cluster-listener").getString("cluster-listener.ip")
@@ -44,7 +46,9 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
         case registerMaster() => {
 	        println("-*-*-*-*-*-*-*-")
 	        println("join registerMaster")
-            masters = (sender() :: masters).distinct
+	        atomic { implicit thx =>
+		        masters() = (sender() :: masters()).distinct
+	        }
 	        println(s"masters $masters")
         }
 
@@ -56,14 +60,18 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 			result match {
 				case Nil => println("file is null or error")
 				case _ =>
+					println(result)
 					SplitJobsContainer.pushJobs(result.head._1,result.head._2)
-					self ! excelJobStart(map, result.head)
+					result.head._2.foreach { x =>
+						self ! excelJobStart(map, (result.head._1, x))
+					}
+					//self ! excelJobStart(map, result.head)
 			}
 		}
 
 		case excelJobStart(mapdata, data) => {
 			val subfile = SplitJobsContainer.queryJobSubNamesWithName(data._1)
-			val m = mapdata.map(x => x._1 match { case "filename" => ("filename", (data._1, subfile)) case _ => x}).toMap
+			val m = mapdata.map(x => x._1 match { case "filename" => ("filename", (data._1, subfile.find(_ == data._2).get)) case _ => x}).toMap
 			println(s"m = $m")
 			println(s"subfile = $subfile")
 			println("-*-*-*-*-*-*-*-")
@@ -77,16 +85,13 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 		}
 
         case requestMasterAverage(f, s, sum) => {
-	        println("join requestMasterAverage ===========")
-	        println(s"f = $f")
-	        println(s"s = $s")
-//	        println(s"sum = $sum")
-            val result = SplitJobsContainer.pushRequestAverage(f, s, sum)
-	        println(s"result $result")
-            if (result._1) {
-	            println(s"masters = $masters")
-                masters.foreach(x => x ! responseMasterAverage(f, result._2))
-            }
+	        atomic { implicit thx =>
+		        val result = SplitJobsContainer.pushRequestAverage(f, s, sum)
+		        if (result._1) {
+			        println(s"masters = $masters")
+			        masters.single.get.foreach(x => x ! responseMasterAverage(f, result._2))
+		        }
+	        }
         }
 
 		case excelJobEnd(filename) => {
@@ -104,7 +109,9 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	}
 
     def signJobs(map : Map[String, Any]) : Boolean = {
-	    signJobsAcc(map, masters)
+	    atomic { implicit thx =>
+		    signJobsAcc(map, masters.single.get)
+	    }
     }
 
     def signJobsAcc(map : Map[String, Any], cur : List[ActorRef]) : Boolean = {
@@ -113,7 +120,6 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
             println("not enough calc to do the jobs")
             false
         } else {
-	        println(s"cur = ${cur}")
             implicit val t = Timeout(2 seconds)
             val f = cur.head ? new startReadExcel(map)
 	        try {

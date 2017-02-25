@@ -19,6 +19,9 @@ public class DateUtil {
     public static final String PATTERN_CLASSICAL = "yyyy-MM-dd HH:mm:ss";
     public static final String PATTERN_CLASSICAL_NORMAL = "yyyy-MM-dd HH:mm";
     public static final String PATTERN_CLASSICAL_SIMPLE = "yyyy-MM-dd";
+    public static final String PATTERN_CLASSICAL_SIMPLE2 = "yyyy-MM";
+    public static final String PATTERN_CLASSICAL_SIMPLE3 = "yyyyMM";
+
     
     private DateUtil() {
         // Cannot be instantiated
@@ -39,6 +42,59 @@ public class DateUtil {
     	time.set(Calendar.MILLISECOND, 0);
     	return time.getTime().getTime();
     }
+
+    public static String getDateLongForString(long time) {
+        return format(new Date(time), PATTERN_CLASSICAL_SIMPLE2);
+    }
+
+	/**
+	 * 根据字符串拆分获取指定日期
+	 * @param str
+	 * @return
+	 */
+	public static long getDateLong(String str) {
+        int year = Integer.parseInt(str.replaceAll("\\s*","").substring(0,4));
+        int month = Integer.parseInt(str.replaceAll("\\s*","").substring(4));
+        Calendar time=Calendar.getInstance();
+        time.set(Calendar.YEAR, year);
+        time.set(Calendar.MONTH, month-1);
+        time.set(Calendar.DATE, 1);
+        time.set(Calendar.HOUR_OF_DAY, 0);
+        time.set(Calendar.MINUTE, 0);
+        time.set(Calendar.SECOND, 0);
+        time.set(Calendar.MILLISECOND, 0);
+        return time.getTime().getTime();
+    }
+
+    /**
+     * 获取指定数字的前几个月的longtime
+     * @return
+     */
+    public static long getAgoMonthTime(long time, int agomonth) {
+        int year = Integer.parseInt(getDateLongForString(time).split("-")[0]);
+        Calendar ctime=Calendar.getInstance();
+        ctime.set(Calendar.YEAR, year);
+        ctime.set(Calendar.MONTH, -agomonth);
+        ctime.set(Calendar.DATE, 1);
+        ctime.set(Calendar.HOUR_OF_DAY, 0);
+        ctime.set(Calendar.MINUTE, 0);
+        ctime.set(Calendar.SECOND, 0);
+        ctime.set(Calendar.MILLISECOND, 0);
+        return ctime.getTime().getTime();
+    }
+
+	public static long getDateByYesterYear(long time) {
+    	int year = Integer.parseInt(getDateLongForString(time).split("-")[0]) - 1;
+		Calendar ctime=Calendar.getInstance();
+		ctime.set(Calendar.YEAR, year);
+		ctime.set(Calendar.MONTH, 0);
+		ctime.set(Calendar.DATE, 1);
+		ctime.set(Calendar.HOUR_OF_DAY, 0);
+		ctime.set(Calendar.MINUTE, 0);
+		ctime.set(Calendar.SECOND, 0);
+		ctime.set(Calendar.MILLISECOND, 0);
+		return ctime.getTime().getTime();
+	}
  
     /**
      * 根据默认格式将指定字符串解析成日期

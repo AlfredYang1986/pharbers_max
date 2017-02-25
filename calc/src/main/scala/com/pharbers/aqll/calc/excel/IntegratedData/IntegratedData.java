@@ -6,29 +6,30 @@ import com.pharbers.aqll.calc.util.export.Excel;
 import java.io.Serializable;
 
 public class IntegratedData implements Serializable {
+
     @Excel(name = "ID", width = 10, precision = 1)
     private Integer hospNum = 0;
 
     @Excel(name = "Hosp_name", width = 10)
-    private String hospName;
+    private String hospName = "无";
 
     @Excel(name = "Date", width = 10)
     private Integer yearAndmonth = 0;
 
     @Excel(name = "Prod_Name", width = 10)
-    private String minimumUnit;
+    private String minimumUnit = "无";
 
     @Excel(name = "Prod_CNAME", width = 10)
-    private String minimumUnitCh;
+    private String minimumUnitCh = "无";
 
     @Excel(skip = true)
     private String minimumUnitEn = "无";
 
     @Excel(name = "HOSP_ID", width = 10)
-    private String phaid;
+    private String phaid = "无";
 
     @Excel(name = "Strength", width = 10)
-    private String strength;
+    private String strength = "无";
 
     @Excel(name = "DOI", width = 10)
     private String market1Ch = "无";

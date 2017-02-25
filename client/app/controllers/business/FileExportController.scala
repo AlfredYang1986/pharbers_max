@@ -16,7 +16,7 @@ class FileExportController extends Controller{
     def fileExportAjaxCall = Action (request => requestArgs(request) { jv =>
 			import pattern.ResultMessage.common_result
 			import pattern.LogMessage.common_log
-			MessageRoutes(msg_log(toJson(Map("method" -> toJson("fileExportAjaxCall"))), jv) :: msg_finalresult1(jv) :: msg_CommonResultMessage() :: Nil, None)
+			MessageRoutes(msg_log(toJson(Map("method" -> toJson("fileExportAjaxCall"))), jv,request) :: msg_finalresult1(jv) :: msg_CommonResultMessage() :: Nil, None)
 //			MessageRoutes(msg_log(toJson(Map("method" -> toJson("fileExportAjaxCall"))), jv) :: msg_finalresult1(jv) :: msg_finalresult2(jv) :: msg_finalresult3(jv) :: msg_expotresult1(jv) :: msg_CommonResultMessage() :: Nil, None)
 		})
 

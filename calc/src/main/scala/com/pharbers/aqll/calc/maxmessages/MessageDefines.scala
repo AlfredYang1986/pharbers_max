@@ -6,7 +6,7 @@ trait MaxMessageTrait
 
 abstract class CommonMessage extends MaxMessageTrait
 
-case class excelJobStart(map: Map[String, Any], d: (String, List[String]))
+case class excelJobStart(map: Map[String, Any], d: (String, String))
 case class excelJobEnd(filename : String)
 
 case class excelSplitStart(map: Map[String, Any])

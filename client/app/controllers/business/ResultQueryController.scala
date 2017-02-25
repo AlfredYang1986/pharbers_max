@@ -26,7 +26,7 @@ class ResultQueryController extends Controller{
 	def resultQueryAjaxCall = Action (request => requestArgs(request) { jv =>
 		import pattern.ResultMessage.common_result
 		import pattern.LogMessage.common_log
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("resultQueryAjaxCall"))), jv) :: msg_tempResult(jv) :: msg_CommonResultMessage() :: Nil, None)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("resultQueryAjaxCall"))), jv, request) :: msg_tempResult(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 	
 }

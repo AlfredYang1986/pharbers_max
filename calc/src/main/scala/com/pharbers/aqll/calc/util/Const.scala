@@ -6,6 +6,6 @@ package com.pharbers.aqll.calc.util
 object Const {
 	val MANGIC_NUM = 10
 	val ATTEMPT_NUM = 3
-	val SPLITEXCEL = 3000
+	val SPLITEXCEL = 2000
 	val OUTFILE = GetProperties.loadConf("File.conf").getString("SCP.Out_File")
 }
