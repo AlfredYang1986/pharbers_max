@@ -24,6 +24,8 @@ import com.pharbers.aqll.calc.datacala.common._
 import com.pharbers.aqll.calc.excel.CPA._
 import com.pharbers.aqll.calc.excel.PharmaTrust._
 
+import com.pharbers.aqll.calc.maxmessages.requestMasterAverage_sub
+
 object SplitAggregator {
     def props(bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(bus, master))
 
@@ -58,6 +60,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 	val broadcasting_actor = CreateMaxBroadcastingActor(bus, mapping_master_router)
 	
 	import SplitWorker.requestaverage
+    import SplitWorker.responseaverage
 	import SplitWorker.postresult
     def receive = {
 		case requestaverage(sum) => {
@@ -72,18 +75,21 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			        (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
 			    }
 			    
-				lazy val mapAvg = sumAll map { x =>
-        	        (x._1, (x._2._1 / x._2._3),(x._2._2 / x._2._3))
-        	    }
-        println(s"mapAvg = ${mapAvg}")
-        	    bus.publish(SplitEventBus.average(mapAvg.toList))
+//				lazy val mapAvg = sumAll map { x =>
+//        	        (x._1, (x._2._1 / x._2._3),(x._2._2 / x._2._3))
+//        	    }
+//                println(s"mapAvg = ${mapAvg}")
+//        	    bus.publish(SplitEventBus.average(mapAvg.toList))
+                // TODO: 需要调试
+                master ! requestMasterAverage_sub(sumAll.toList)
 			}
-			
 		}
-		
+
+		case responseaverage(average) => bus.publish(SplitEventBus.average(average))
+
 		case postresult(mr) => {
 			atomic { implicit thx =>
-        println(s"postresult = ${mr.size}")
+				println(s"postresult = ${mr.size}")
 				rltsize() = rltsize() + 1
 				mr.foreach { kvs =>
 					val (t, v, u, h, p, m, s, city, toall, touse, segment) = mrResult().get(kvs._1).map { x =>
@@ -98,7 +104,7 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			
 			if (rltsize.single.get == mapshouldsize.single.get) {
 				val result = mrResult.single.get
-        println(s"result = ${result.size}")
+                println(s"result = ${result.size}")
 				master ! SplitAggregator.aggregatefinalresult(result.toList)
 			}
 		}
@@ -129,10 +135,10 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 			}
 		}
 		case SplitWorker.integratedataresult(m) =>
-      m map { tmp =>
-        broadcasting_actor ! SplitMaxBroadcasting.premapping((tmp._1, tmp._2.head))
-        mapping_master_router ! SplitAggregator.msg_container(tmp._1, tmp._2)
-		}
+	        m map { tmp =>
+	            broadcasting_actor ! SplitMaxBroadcasting.premapping((tmp._1, tmp._2.head))
+	            mapping_master_router ! SplitAggregator.msg_container(tmp._1, tmp._2)
+			}
 		case SplitMaxBroadcasting.mappingiteratornext() => {
 			broadcasting_actor ! SplitMaxBroadcasting.mappingiteratornext()
 		}

@@ -1,7 +1,7 @@
 package com.pharbers.aqll.calc.check
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
-import com.pharbers.aqll.calc.maxmessages.{checkResult, excelJobEnd, excelJobStart, startReadExcel}
+import com.pharbers.aqll.calc.maxmessages._
 
 /**
   * Created by Faiz on 2017/1/4.
@@ -15,7 +15,7 @@ class CheckReception extends Actor with ActorLogging{
     var originSender : ActorRef = null
     def receive = {
 //        case excelJobStart(filename, cat, company, n) => {
-        case excelJobStart(map) => {
+        case checkExcelJobStart(map) => {
             originSender = sender()
             println("in excelJobStart")
             val act = context.actorOf(CheckMaster.props(self))
@@ -23,7 +23,7 @@ class CheckReception extends Actor with ActorLogging{
 //            act ! startReadExcel(filename, cat, company, n)
             act ! startReadExcel(map)
         }
-        case excelJobEnd(filename) => {
+        case checkExcelJobEnd(filename) => {
             println(filename)
         }
         case checkResult(msg) => {

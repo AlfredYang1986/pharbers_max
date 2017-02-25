@@ -1,22 +1,23 @@
 package com.pharbers.aqll.calc.Http
 
 import scala.concurrent.Future
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
-import akka.event.Logging
 import akka.util.Timeout
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
-import akka.http.scaladsl.server.Directives._
+
 import akka.stream.ActorMaterializer
-import com.pharbers.aqll.calc.Http.{QueueActor, ThreadQueue}
-import com.pharbers.aqll.calc.split.{ClusterEventListener, EventCollector, SplitReception}
-import com.pharbers.aqll.calc.util.{ListQueue}
+import com.pharbers.aqll.calc.split.{ EventCollector, SplitReceptionSingleton }
 import com.typesafe.config.{Config, ConfigFactory}
 
 /**
   * Created by Faiz on 2017/1/7.
   */
+
+object CheckGloble {
+	var system : akka.actor.ActorSystem = null
+}
 
 object CheckExcelHttpApp extends App with RequestTimeout {
     val config = ConfigFactory.load("application")
@@ -42,12 +43,16 @@ object CheckExcelHttpApp extends App with RequestTimeout {
         import scala.concurrent.duration._
 
         val config = ConfigFactory.load("split-master")
-        val system = ActorSystem("calc", config)
+	    val system = ActorSystem("calc", config)
         ActorSystem("queue").scheduler.schedule(1 seconds, 2 seconds , system.actorOf(QueueActor.props), ThreadQueue())
         val node_ip = system.settings.config.getStringList("akka.cluster.seed-nodes")
+	    val a = system.actorOf(SplitReceptionSingleton.props, SplitReceptionSingleton.name)
+	    println(s"singleton is $a")
         if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
             Cluster(system).registerOnMemberUp {
-                system.actorOf(SplitReception.props, "splitreception")
+//                system.actorOf(SplitReception.props, SplitReception.name)//"splitreception"
+//                system.actorOf(SplitReceptionSingleton.props, SplitReceptionSingleton.name)
+	            CheckGloble.system = system
             }
             system.actorOf(Props(new EventCollector), "cluster-listener")
         }

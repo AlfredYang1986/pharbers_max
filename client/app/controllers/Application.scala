@@ -7,6 +7,10 @@ import module.business.MarketsModule
 
 @Singleton
 class Application extends Controller {
+  def test = Action {
+      Ok(views.html.test("Your new application is ready."))
+  }
+
   //官网
   def landing = Action {
       Ok(views.html.landing("Your new application is ready."))

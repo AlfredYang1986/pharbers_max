@@ -1,43 +1,58 @@
 package com.pharbers.aqll.calc.excel.IntegratedData;
 
 import com.pharbers.aqll.calc.util.StringOption;
+import com.pharbers.aqll.calc.util.export.Excel;
 
 import java.io.Serializable;
 
 public class IntegratedData implements Serializable {
-    private Long hospNum = 0L;
 
-    private String hospName;
+    @Excel(name = "ID", width = 10, precision = 1)
+    private Integer hospNum = 0;
 
+    @Excel(name = "Hosp_name", width = 10)
+    private String hospName = "无";
+
+    @Excel(name = "Date", width = 10)
     private Integer yearAndmonth = 0;
 
-    private String minimumUnit;
+    @Excel(name = "Prod_Name", width = 10)
+    private String minimumUnit = "无";
 
-    private String minimumUnitCh;
+    @Excel(name = "Prod_CNAME", width = 10)
+    private String minimumUnitCh = "无";
 
+    @Excel(skip = true)
     private String minimumUnitEn = "无";
 
-    private String phaid;
+    @Excel(name = "HOSP_ID", width = 10)
+    private String phaid = "无";
 
-    private String strength;
+    @Excel(name = "Strength", width = 10)
+    private String strength = "无";
 
-    private String market1Ch;
+    @Excel(name = "DOI", width = 10)
+    private String market1Ch = "无";
 
+    @Excel(name = "DOIE", width = 10)
     private String market1En = "无";
 
-    private Double sumValue = 0.0;
-
+    @Excel(name = "Units", width = 10, precision = 2)
     private Double volumeUnit = 0.0;
 
+    @Excel(name = "Sales", width = 10, precision = 2)
+    private Double sumValue = 0.0;
+
+    @Excel(skip = true)
     private String segment;
 
     public Integer getYearAndmonth() {return yearAndmonth;}
 
     public void setYearAndmonth(Integer yearAndmonth) {this.yearAndmonth = yearAndmonth;}
 
-    public Long getHospNum() {return hospNum;}
+    public Integer getHospNum() {return hospNum;}
 
-    public void setHospNum(Long hospNum) {this.hospNum = hospNum;}
+    public void setHospNum(Integer hospNum) {this.hospNum = hospNum;}
 
     public String getHospName() {return hospName;}
 

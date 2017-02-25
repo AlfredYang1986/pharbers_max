@@ -13,7 +13,7 @@ class EventCollector extends ClusterEventListener{
     override def receive = {
         case MemberUp(member) =>
             println("====Member is Up: {}", member.address)
-            register(member, getCollectorPath)
+            //register(member, getCollectorPath)
         case MemberExited(member) =>
             println("。。。。=Member is Exited: {}",member.address)
         case UnreachableMember(member) =>

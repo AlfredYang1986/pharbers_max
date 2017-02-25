@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Directives._
 
 import scala.concurrent.duration._
 import akka.actor.{ActorSystem, Props}
+import akka.cluster.Cluster
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
@@ -14,9 +15,9 @@ import akka.pattern.ask
 import com.pharbers.aqll.calc.Http.{QueueActor, ThreadQueue}
 
 import scala.concurrent.Await
-import com.pharbers.aqll.calc.maxmessages.excelJobStart
+import com.pharbers.aqll.calc.maxmessages.{checkExcelJobStart, excelJobStart, excelSplitStart, registerMaster}
 import com.pharbers.aqll.calc.split.JobCategories.{integratedJob, _}
-import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitReception}
+import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitMaster, SplitReception, SplitReceptionSingleton}
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 import com.pharbers.aqll.calc.check.CheckReception
 import spray.json.DefaultJsonProtocol
@@ -47,14 +48,16 @@ trait OrderService extends Directives with JsonSupport {
 	val routes = getCheck ~ getCalc ~ Test ~ Test2
 
 	def Test = get {
-		path("Test") {
+		path("Test") {///Users/qianpeng/Desktop/CPA_GYCX_panel_160111INF.xlsx
 			val map = Map("filename" -> """config/test/BMS客户上传/CPA_GYCX_panel_160111INF.xlsx""",
 				"hospdatapath" -> """20000家pfizer医院数据库表.xlsx""",
 				"JobDefines" -> integratedJob,
 				"company" -> "BMS",
 				"calcvariable" -> 0)
-			val ref: AnyRef = excelJobStart(map)
-			ListQueue.ListMq_Queue(ref)
+			val system = CheckGloble.system
+			val reception = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
+			println(s"reception = $reception")
+			reception ! excelSplitStart(map)
 			complete("""jsonpCallback1({"result":"Ok"})""")
 		}
 	}
@@ -92,7 +95,7 @@ trait OrderService extends Directives with JsonSupport {
 					//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
 					//                    }
 					case "4" => {
-						act ? excelJobStart(map)
+						act ? checkExcelJobStart(map)
 					}
 				}
 				val result = Await.result(r.mapTo[String], requestTimeout.duration)
@@ -138,8 +141,8 @@ trait OrderService extends Directives with JsonSupport {
 //						calc ! excelJobStart(map)
 //					}
 //				}
-				val ref: AnyRef = excelJobStart(map)
-				ListQueue.ListMq_Queue(ref)
+//				val ref: AnyRef = excelJobStart(map)
+//				ListQueue.ListMq_Queue(ref)
 				complete("""{"result":"Ok"}""")
 			}
 		}
