@@ -15,7 +15,7 @@ import akka.pattern.ask
 import com.pharbers.aqll.calc.Http.{QueueActor, ThreadQueue}
 
 import scala.concurrent.Await
-import com.pharbers.aqll.calc.maxmessages.{excelJobStart, excelSplitStart, registerMaster}
+import com.pharbers.aqll.calc.maxmessages.{checkExcelJobStart, excelJobStart, excelSplitStart, registerMaster}
 import com.pharbers.aqll.calc.split.JobCategories.{integratedJob, _}
 import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitMaster, SplitReception, SplitReceptionSingleton}
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
@@ -95,7 +95,7 @@ trait OrderService extends Directives with JsonSupport {
 					//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
 					//                    }
 					case "4" => {
-						act ? excelJobStart(map)
+						act ? checkExcelJobStart(map)
 					}
 				}
 				val result = Await.result(r.mapTo[String], requestTimeout.duration)
@@ -141,8 +141,8 @@ trait OrderService extends Directives with JsonSupport {
 //						calc ! excelJobStart(map)
 //					}
 //				}
-				val ref: AnyRef = excelJobStart(map)
-				ListQueue.ListMq_Queue(ref)
+//				val ref: AnyRef = excelJobStart(map)
+//				ListQueue.ListMq_Queue(ref)
 				complete("""{"result":"Ok"}""")
 			}
 		}
