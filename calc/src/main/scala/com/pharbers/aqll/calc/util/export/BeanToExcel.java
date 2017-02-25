@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
@@ -55,17 +56,16 @@ public class BeanToExcel {
 
 			Field[] fields = ReflectUtils.getClassFieldsAndSuperClassFields(list.get(0).getClass());
 
-			XSSFCellStyle titleStyle = (XSSFCellStyle) wb.createCellStyle();
-			titleStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
-			// 设置前景色
-			titleStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(159, 213, 183)));
-			titleStyle.setAlignment(CellStyle.ALIGN_CENTER);
+//			XSSFCellStyle titleStyle = (XSSFCellStyle) wb.createCellStyle();
+//			titleStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+//			// 设置前景色
+//			titleStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(255, 255, 255)));
+//			titleStyle.setAlignment(CellStyle.ALIGN_CENTER);
 
-			Font font = wb.createFont();
-			font.setColor(HSSFColor.BROWN.index);
-			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-			// 设置字体
-			titleStyle.setFont(font);
+//			Font font = wb.createFont();
+//			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+//			// 设置字体
+//			titleStyle.setFont(font);
 
 			int columnIndex = 0;
 			Excel excel = null;
@@ -79,7 +79,8 @@ public class BeanToExcel {
 				sheet.setColumnWidth(columnIndex, excel.width() * 256);
 				// 写入标题
 				cell = row.createCell(columnIndex);
-				cell.setCellStyle(titleStyle);
+//				cell.setCellStyle(titleStyle);
+				cell.setCellType(XSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(excel.name());
 
 				columnIndex++;
@@ -122,9 +123,9 @@ public class BeanToExcel {
 						cell.setCellStyle(cs);
 						cell.setCellValue((Date) field.get(t));
 					} else if (o instanceof Double || o instanceof Float) {// 浮点数
-						cell.setCellValue(field.get(t).toString());
+						cell.setCellValue(Double.parseDouble(field.get(t).toString()));
 						if (excel.precision() != -1) {
-							cell.setCellValue(new BigDecimal(field.get(t).toString()).setScale(excel.precision(), excel.round() == true ? BigDecimal.ROUND_HALF_UP : BigDecimal.ROUND_FLOOR).toString());
+							cell.setCellValue(new BigDecimal(field.get(t).toString()).setScale(excel.precision(), excel.round() == true ? BigDecimal.ROUND_HALF_UP : BigDecimal.ROUND_FLOOR).doubleValue());
 						}
 					} else if (o instanceof BigDecimal) {// BigDecimal
 						cell.setCellValue((field.get(t).toString()));
@@ -193,6 +194,7 @@ public class BeanToExcel {
 		// 写入到文件
 		FileOutputStream out = new FileOutputStream(filePath);
 		wb.write(out);
+		out.flush();
 		out.close();
 	}
 }
