@@ -22,6 +22,8 @@ GET		/resultcheck				controllers.Application.resultCheck
 GET		/resultquery				controllers.Application.resultQuery
 POST 	/resultquery/search			controllers.business.ResultQueryController.resultQueryAjaxCall
 POST	/samplecheck/check			controllers.business.SampleCheckController.sampleCheckAjaxCall
+POST    /samplecheck/line           controllers.business.SampleCheckController.sampleCheckAjaxChartsLineCall
+POST    /samplecheck/plot           controllers.business.SampleCheckController.sampleCheckAjaxChartsPlotCall
 POST	/modeloperation/operation	controllers.business.ModelOperationController.mondelOperationAjaxCall
 POST	/resultquery/fileexport	    controllers.business.FileExportController.fileExportAjaxCall
 POST    /resultquery/tempexport	    controllers.business.TempExportController.tempExportAjaxCall
