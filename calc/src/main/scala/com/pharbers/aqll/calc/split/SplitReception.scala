@@ -3,7 +3,7 @@ package com.pharbers.aqll.calc.split
 import com.pharbers.aqll.calc.common.CalcTimeHelper
 import com.pharbers.aqll.calc.maxmessages.{excelJobStart, freeMaster, _}
 import com.pharbers.aqll.calc.excel.CPA.CpaMarket
-import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
+import com.pharbers.aqll.calc.util.{GetProperties, ListQueue, ScpCopyFile}
 import com.typesafe.config.ConfigFactory
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Terminated}
 import akka.cluster.Cluster
@@ -60,22 +60,23 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 			result match {
 				case Nil => println("file is null or error")
 				case _ =>
-					println(result)
 					SplitJobsContainer.pushJobs(result.head._1,result.head._2)
 					result.head._2.foreach { x =>
+
 						self ! excelJobStart(map, (result.head._1, x))
 					}
-					//self ! excelJobStart(map, result.head)
 			}
 		}
 
 		case excelJobStart(mapdata, data) => {
-			val subfile = SplitJobsContainer.queryJobSubNamesWithName(data._1)
-			val m = mapdata.map(x => x._1 match { case "filename" => ("filename", (data._1, subfile.find(_ == data._2).get)) case _ => x}).toMap
-			println(s"m = $m")
-			println(s"subfile = $subfile")
+			val sub = SplitJobsContainer.queryJobSubNamesWithName(data._1)
+			val m = mapdata.updated("filename", (data._1, sub.find(_ == data._2).get)) ++
+					Map("local" -> sub.find(_ == data._2).get) ++
+					Map("from" -> "")
+			println(s"m = ${m}")
 			println("-*-*-*-*-*-*-*-")
 			println("join excelJobStart")
+
             if (signJobs(m)) {
                 tc.start
             } else {
@@ -120,16 +121,27 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
             println("not enough calc to do the jobs")
             false
         } else {
-            implicit val t = Timeout(2 seconds)
-            val f = cur.head ? new startReadExcel(map)
-	        try {
-		        Await.result(f.mapTo[signJobsResult], t.duration) match {
-			        case c : canHandling => println("sign jobs success"); true
-			        case k : masterBusy => signJobsAcc(map, cur.tail)
-		        }
-	        } catch {
-		        case ex : Exception => println("timeout"); false
-	        }
+//	        val tmpath = cur.head.path.toString
+//	        val server = tmpath.substring(tmpath.lastIndexOf("@")+1, tmpath.lastIndexOf(":"))
+//	        val m = map.updated("from", ip)
+//	        val user = GetProperties.loadConf("File.conf").getString("SCP.Server.user")
+//	        val pass = GetProperties.loadConf("File.conf").getString("SCP.Server.pass")
+//	        ScpCopyFile(server, user, pass, m) match {
+//		        case false => println("SCP Copy File Exception");false
+//		        case _ => {
+			        implicit val t = Timeout(2 seconds)
+			        val f = cur.head ? new startReadExcel(map)
+			        try {
+				        Await.result(f.mapTo[signJobsResult], t.duration) match {
+					        case c : canHandling => println("sign jobs success"); true
+					        case k : masterBusy => signJobsAcc(map, cur.tail)
+				        }
+			        } catch {
+				        case ex : Exception => println("timeout"); false
+			        }
+//		        }
+//	        }
+
         }
     }
 

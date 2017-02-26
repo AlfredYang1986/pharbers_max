@@ -16,7 +16,7 @@ import akka.event.EventBus
 import scala.collection.mutable.ArrayBuffer
 import com.pharbers.aqll.calc.datacala.algorithm.maxSumData
 import com.pharbers.aqll.calc.datacala.algorithm.maxCalcData
-import com.pharbers.aqll.calc.util.DateUtil
+import com.pharbers.aqll.calc.util.{DateUtil, MD5}
 import com.pharbers.aqll.calc.datacala.module.MaxMessage.msg_IntegratedData
 import com.pharbers.aqll.calc.datacala.module.MaxModule
 import com.pharbers.aqll.calc.adapter.SplitAdapter
@@ -73,11 +73,13 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 		}
 		case SplitEventBus.excelEnded(map) => {
 			println(s"read ended at $self")
-
+			val year = data2.map(_.getYearAndmonth).distinct.head.toString.substring(0, 4)
+			val market = data2.map(_.getMarket1Ch).distinct.head
+			val  m = map.updated("hospdatapath",MD5.md5(map.get("company").get.toString+year+market))
 			val tmp = data2.toList.groupBy(x => (x.getYearAndmonth, x.getMinimumUnitCh))
 			aggregator ! SplitWorker.integratedataresult(tmp)
 
-			aggregator ! SplitWorker.integratedataended(map)
+			aggregator ! SplitWorker.integratedataended(m)
 		}
 		case _ => Unit
 	}

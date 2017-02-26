@@ -14,13 +14,11 @@ object CheckReception {
 class CheckReception extends Actor with ActorLogging{
     var originSender : ActorRef = null
     def receive = {
-//        case excelJobStart(filename, cat, company, n) => {
         case checkExcelJobStart(map) => {
             originSender = sender()
             println("in excelJobStart")
             val act = context.actorOf(CheckMaster.props(self))
             context.watch(act)
-//            act ! startReadExcel(filename, cat, company, n)
             act ! startReadExcel(map)
         }
         case checkExcelJobEnd(filename) => {

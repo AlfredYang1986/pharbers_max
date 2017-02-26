@@ -31,7 +31,7 @@ class CheckAggregator(bus: SplitEventBus, master: ActorRef) extends Actor {
 			}
 			bus.subscribe(a, "AggregorBus")
 		}
-		case CheckWorker.exceluniondata(excel) => {
+		case CheckWorker.exceluniondata(excel, hospmatchpath) => {
 			import com.pharbers.aqll.calc.common.DefaultData
 			atomic { implicit thx =>
 				excelchecksize() = excelchecksize() + 1
@@ -41,10 +41,10 @@ class CheckAggregator(bus: SplitEventBus, master: ActorRef) extends Actor {
 			if (excelchecksize.single.get == 10) {
 				val temp = excelcheckdata.single.get
 				val hospnumdist = temp.map(_._6).distinct.sortBy(x => x)
-				val hospmatch = DefaultData.hospmatchdata.map(x => x.getHospNum.toLong).sortBy(x => x).map { x =>
+				val hospmatch = DefaultData.hospmatchdata(hospmatchpath).map(x => x.getHospNum.toLong).sortBy(x => x).map { x =>
 					if (hospnumdist.exists(z => x == z)) x else None
 				}.filter(_ != None)
-				val hospnomatch = DefaultData.hospmatchdata.map(x => (x.getHospNum.toLong, x.getHospNameCh)).sortBy(x => x._1).map { x =>
+				val hospnomatch = DefaultData.hospmatchdata(hospmatchpath).map(x => (x.getHospNum.toLong, x.getHospNameCh)).sortBy(x => x._1).map { x =>
 					if (!hospmatch.exists(z => x._1 == z)) x._2 else None
 				}.filter(_ != None).asInstanceOf[List[String]]
 				val tmp = (temp.map(_._1).sum,

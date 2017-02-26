@@ -10,15 +10,15 @@ object DefaultData {
         val hospdata_ch_file = "config/admin/HospDataStruct.xml"
         val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
         val hospdatabase = hospdatainteractparser(hospdata_en_file, hospdata_ch_file)
-        hospdatabase.startParse(GetProperties.loadConf("File.conf").getString("SCP.Upload_HospitalData_File") + path, 1)
+        hospdatabase.startParse(GetProperties.loadConf("File.conf").getString("SCP.UpManage_Upload_FilePath") + path, 1)
         hospdatabase.resultlist
     }
     
-    lazy val hospmatchdata = {
+    def hospmatchdata(path: String) = {
         val hosp_mathc_ch_file = """config/admin/HospDataMatchStruct.xml"""
         val hosp_match_en_file = """config/admin/FieldNamesHospMatchStruct.xml"""
         val hospmatchdata = hospmatchinteractparser(hosp_match_en_file, hosp_mathc_ch_file)
-        hospmatchdata.startParse(FileFirst(GetProperties.loadConf("File.conf").getString("SCP.Upload_HospitalMatch_File")), 1)
+        hospmatchdata.startParse(GetProperties.loadConf("File.conf").getString("SCP.UpManage_Upload_FilePath") + path, 1)
         hospmatchdata.resultlist
     }
     

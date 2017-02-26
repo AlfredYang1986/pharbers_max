@@ -28,24 +28,24 @@ $("#hospital-data").fileinput({
     }
 }).on("fileuploaded", function(event, data) {
     if(data.response){
-        var query_object = new Object();
-        query_object['uuid'] = data.response.result[0];
-        query_object['company'] = $.cookie("token");
-        query_object['Datasource_Type'] = "Manage";
-        $.ajax({
-            url: "/uploadfiles",
-            type: 'POST',
-            dataType: 'json',
-            contentType: 'application/json, charset=utf-8',
-            data: JSON.stringify(query_object),
-            cache: false,
-            success: function(data) {
-                if (data.status == "ok") {
-                    loader.show();
-                    setTimeout(excelCheck(query_object.uuid, "0"), 1000)
-                }
-            }
-        });
+        // var query_object = new Object();
+        // query_object['uuid'] = data.response.result[0];
+        // query_object['company'] = $.cookie("token");
+        // query_object['Datasource_Type'] = "Manage";
+        // $.ajax({
+        //     url: "/uploadfiles",
+        //     type: 'POST',
+        //     dataType: 'json',
+        //     contentType: 'application/json, charset=utf-8',
+        //     data: JSON.stringify(query_object),
+        //     cache: false,
+        //     success: function(data) {
+        //         if (data.status == "ok") {
+        //             loader.show();
+        //             setTimeout(excelCheck(query_object.uuid, "0"), 1000)
+        //         }
+        //     }
+        // });
     }
 });
 

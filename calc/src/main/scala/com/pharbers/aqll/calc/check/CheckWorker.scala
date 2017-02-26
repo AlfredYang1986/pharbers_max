@@ -24,32 +24,21 @@ object CheckWorker {
       * String  miniproduct
       * Long    hospNum
       */
-    case class exceluniondata(e: List[(Double, Double, Long, String, String, Long)])
+    case class exceluniondata(e: List[(Double, Double, Long, String, String, Long)], hospmatchpath: String)
 }
 
 class CheckWorker(aggregator: ActorRef) extends Actor with ActorLogging{
     val excelunion: ArrayBuffer[(Double, Double, Long, String, String, Long)] = ArrayBuffer.empty
     val subFun = aggregator ! CheckAggregator.aggsubcribe(self)
     val idle : Receive = {
-//        case cparesult(target) => {
-//            excelunion.append((target.getSumValue, target.getVolumeUnit, target.getHospNum, target.commonObjectCondition()))
-//        }
-//        case cpamarketresult(target) => {
-//            excelunion.append((target.getSumValue, target.getVolumeUnit, target.getHospNum, target.getMarketname))
-//        }
-//        case pharesult(target) => {
-//            excelunion.append((target.getSumValue, target.getVolumeUnit, target.getHospNum, target.commonObjectCondition()))
-//        }
-//        case phamarketresult(target) => {
-//            excelunion.append((target.getSumValue, target.getVolumeUnit, target.getHospNum, target.getMarketname))
-//        }
         case integratedresult(target) => {
             val datatime = DateUtil.getDateLong(target.getYearAndmonth.toString)
             excelunion.append((target.getSumValue, target.getVolumeUnit, datatime, target.getMarket1Ch, target.getMinimumUnit, target.getHospNum.longValue()))
         }
-        case SplitEventBus.excelEnded(n) =>  {
+        case SplitEventBus.excelEnded(map) =>  {
             println(s"read ended at $self")
-            aggregator ! CheckWorker.exceluniondata(excelunion.toList)
+            val hospmatchpath = map.get("hospmatchpath").get.toString
+            aggregator ! CheckWorker.exceluniondata(excelunion.toList, hospmatchpath)
         }
         case _ => Unit
     }

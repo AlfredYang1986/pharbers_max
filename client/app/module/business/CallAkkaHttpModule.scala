@@ -38,15 +38,24 @@ object CallAkkaHttpModule extends ModuleTrait {
 
 	def checkExcel(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-
 			implicit val timeout = Timeout(3 minute)
 
-			val c = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/checkExcel", data)
-			val r = Await.result(c.mapTo[String], timeout.duration)
-			if (r.equals("Ok")) {
-				(Some(Map("FinalResult" -> toJson("ok"))), None)
-			} else {
-				(Some(Map("FinalResult" -> toJson("no"))), None)
+			val company = (data \ "company").asOpt[String].getOrElse("")
+			val filetype = (data \ "filetype").asOpt[String].getOrElse("")
+			val filename = (data \ "filename").asOpt[String].getOrElse("")
+			val conditions = List("Company" $eq company, "Datasource_Type" $eq "Manage")
+
+			val d = (from db() in "DataSources" where $and(conditions)).select(managedp(_)(filetype, filename))(_data_connection_basic).toList
+			d.size match {
+				case 0 => (Some(Map("FinalResult" -> toJson("no"))), None)
+				case _ =>
+					val c = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/checkExcel", d.head)
+					val r = Await.result(c.mapTo[String], timeout.duration)
+					if (r.equals("Ok")) {
+						(Some(Map("FinalResult" -> toJson("ok"))), None)
+					} else {
+						(Some(Map("FinalResult" -> toJson("no"))), None)
+					}
 			}
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -56,17 +65,18 @@ object CallAkkaHttpModule extends ModuleTrait {
 	def runModel(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 
 		try {
-			val company = (data \ "company").asOpt[String].getOrElse("")
-			val filetype = (data \ "filetype").asOpt[String].getOrElse("")
-			val filename = (data \ "filename").asOpt[String].getOrElse("")
-			val conditions = List("Company" $eq company, "Datasource_Type" $eq "Manage")
-			val d = (from db() in "DataSources" where $and(conditions)).select(managedp(_)(filetype, filename))(_data_connection_basic).toList
-			d.size match {
-				case 0 => (Some(Map("FinalResult" -> toJson("is null"))), None)
-				case _ =>
-					println(s"d.head = ${d.head}")
-					call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/calc", d.head)
-			}
+//			val company = (data \ "company").asOpt[String].getOrElse("")
+//			val filetype = (data \ "filetype").asOpt[String].getOrElse("")
+//			val filename = (data \ "filename").asOpt[String].getOrElse("")
+//			val conditions = List("Company" $eq company, "Datasource_Type" $eq "Manage")
+//			val d = (from db() in "DataSources" where $and(conditions)).select(managedp(_)(filetype, filename))(_data_connection_basic).toList
+//			d.size match {
+//				case 0 => (Some(Map("FinalResult" -> toJson("is null"))), None)
+//				case _ =>
+//					println(s"d.head = ${d.head}")
+//					call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/calc", d.head)
+//			}
+			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/calc", data)
 			(Some(Map("FinalResult" -> toJson("ok"))), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -75,10 +85,10 @@ object CallAkkaHttpModule extends ModuleTrait {
 
 	def managedp(d: MongoDBObject)(filetype: String, filename: String): JsValue = {
 		val company = d.getAs[String]("Company").get
-		val hospdatapath = d.getAs[String]("File_Path").get
+		val hospmatchpath = d.getAs[String]("File_Path").get
 		toJson(Map("filename" -> filename,
 				   "company" -> company,
-			       "hospdatapath" -> hospdatapath,
+			       "hospmatchpath" -> hospmatchpath,
 		           "filetype" -> filetype
 				))
 	}

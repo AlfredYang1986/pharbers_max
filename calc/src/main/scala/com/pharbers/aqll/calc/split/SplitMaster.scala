@@ -64,13 +64,6 @@ class SplitMaster extends Actor with ActorLogging
 
 	when(MsaterCalcing) {
 		case Event(processing_excel(map), data) => {
-//			(map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
-//				case 4 => {
-//					row_integrateddataparser(integratedXmlPath.integratedxmlpath_en,
-//						integratedXmlPath.integratedxmlpath_ch,
-//						router)
-//				}
-//			}).startParse(data.fileName, 1)
 			import collection.JavaConversions._
 			map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
 				case 4 => {

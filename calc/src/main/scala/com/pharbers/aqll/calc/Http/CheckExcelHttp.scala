@@ -34,7 +34,7 @@ class OrderServiceApi(system: ActorSystem, timeout: Timeout) extends OrderServic
 	implicit def executionContext = system.dispatcher
 }
 
-case class Item(filename: String, company: String, hospdatapath: String, filetype: String)
+case class Item(filename: String, company: String, hospmatchpath: String, filetype: String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 	implicit val itemFormat = jsonFormat4(Item)
@@ -75,25 +75,13 @@ trait OrderService extends Directives with JsonSupport {
 		path("checkExcel") {
 			entity(as[Item]) { item =>
 				val map = Map("filename" -> (GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + item.filename),
-					"hospdatapath" -> """20000家pfizer医院数据库表.xlsx""",
+					"hospmatchpath" -> (item.company + "/" + item.hospmatchpath),
 					"JobDefines" -> integratedJob,
 					"company" -> item.company,
 					"calcvariable" -> 0)
 				val system = ActorSystem(item.filename)
 				val act = system.actorOf(CheckReception.props)
 				val r = item.filetype match {
-					//                    case "0" => {
-					//                        act ? excelJobStart(, cpaProductJob, company, 0)
-					//                    }
-					//                    case "1" => {
-					//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
-					//                    }
-					//                    case "2" => {
-					//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
-					//                    }
-					//                    case "3" => {
-					//                        act ? excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
-					//                    }
 					case "4" => {
 						act ? checkExcelJobStart(map)
 					}
@@ -118,31 +106,14 @@ trait OrderService extends Directives with JsonSupport {
 		path("calc") {
 			entity(as[Item]) { item =>
 				val map = Map("filename" -> (GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + item.filename),
-					"hospdatapath" -> (item.company + "/" + item.hospdatapath),
+					"hospdatapath" -> "",
 					"JobDefines" -> integratedJob,
 					"company" -> item.company,
 					"calcvariable" -> 0)
-//				val system = ActorSystem("calc")
-//				val calc = system.actorOf(Props[SplitReception], "splitreception")
-//				item.filetype match {
-//					//                    case "0" => {
-//					//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaProductJob, company, 0)
-//					//                    }
-//					//                    case "1" => {
-//					//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, cpaMarketJob, company, 0)
-//					//                    }
-//					//                    case "2" => {
-//					//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaProductJob, company, 0)
-//					//                    }
-//					//                    case "3" => {
-//					//                        calc ! excelJobStart(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + filename, phaMarketJob, company, 0)
-//					//                    }
-//					case "4" => {
-//						calc ! excelJobStart(map)
-//					}
-//				}
-//				val ref: AnyRef = excelJobStart(map)
-//				ListQueue.ListMq_Queue(ref)
+				val system = CheckGloble.system
+				val reception = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
+				println(s"reception = $reception")
+				reception ! excelSplitStart(map)
 				complete("""{"result":"Ok"}""")
 			}
 		}

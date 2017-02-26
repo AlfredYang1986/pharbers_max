@@ -51,7 +51,7 @@ object LoginModule extends ModuleTrait {
         }
 
         def conditions: List[DBObject] = {
-            var con = conditionsAcc(Nil, "Account" :: "Password" :: Nil, userConditions(x => x.asOpt[String]))
+            val con = conditionsAcc(Nil, "Account" :: "Password" :: Nil, userConditions(x => x.asOpt[String]))
             con
         }
 
