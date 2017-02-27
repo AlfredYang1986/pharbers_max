@@ -28,11 +28,9 @@ object ManageFilesUploadModule extends ModuleTrait {
       try {
         filetype match {
           case "医院数据" => {
-            //println("D:\\SourceData\\Manage\\"+filetype+"\\"+uuid)
             WriteInData.insertHospitalCoresInfo("D:\\SourceData\\Manage\\"+filetype+"\\"+uuid)
           }
           case "产品匹配" => {
-            //println("D:\\SourceData\\Manage\\"+filetype+"\\"+uuid)
             WriteInData.insertProductsCoresInfo("D:\\SourceData\\Manage\\"+filetype+"\\"+uuid)
           }
           case _ => println("upload file succeed.")

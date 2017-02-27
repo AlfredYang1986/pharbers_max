@@ -1,14 +1,3 @@
-
-$(function() {
-    $('#data_5 .input-daterange').datepicker({
-        minViewMode: 1,
-        keyboardNavigation: false,
-        forceParse: false,
-        autoclose: true,
-        todayHighlight: true
-    });
-});
-
 $("#hospital-data").fileinput({
     uploadUrl: '/manage/uploadHospitalFile', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],

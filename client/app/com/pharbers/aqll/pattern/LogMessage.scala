@@ -15,8 +15,12 @@ object LogMessage {
             val logger = Logger.getRootLogger
             val user_id = (data \ "token").asOpt[String].map (x => x).getOrElse((data \ "company").asOpt[String].map (x => x).getOrElse("unknown user"))
             val method = (ls \ "method").asOpt[String].map (x => x).getOrElse(throw new Exception("log struct error"))
-            // TODO: 下面这段代码有问题 用户在没有登录的情况下哪里来的 cookie呢，周一修改Bug @李伟
-            //logger.info(s"${request} User-Agent: ${request.headers.toMap.get("User-Agent").get.head} Host: ${request.host} User: ${request.cookies.get("user_token").get.value} Company: ${request.cookies.get("company_name_ch").get.value} Method: ${method} Args: ${data.toString()}")
+            var user,company = "Unknown"
+            if(request.cookies.toList.size != 0){
+                user = request.cookies.get("user_token").get.value
+                company = request.cookies.get("company_name_ch").get.value
+            }
+            logger.info(s"${request} User-Agent: ${request.headers.toMap.get("User-Agent").get.head} Host: ${request.host} User: ${user} Company: ${company} Method: ${method} Args: ${data.toString()}")
             (Some(Map("status" -> toJson("ok"))), None)
         } catch {
             case ex : Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
