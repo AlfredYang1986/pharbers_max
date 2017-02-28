@@ -15,7 +15,7 @@ import akka.pattern.ask
 import com.pharbers.aqll.calc.Http.{QueueActor, ThreadQueue}
 
 import scala.concurrent.Await
-import com.pharbers.aqll.calc.maxmessages.{checkExcelJobStart, excelJobStart, excelSplitStart, registerMaster}
+import com.pharbers.aqll.calc.maxmessages._
 import com.pharbers.aqll.calc.split.JobCategories.{integratedJob, _}
 import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitMaster, SplitReception, SplitReceptionSingleton}
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
@@ -34,10 +34,10 @@ class OrderServiceApi(system: ActorSystem, timeout: Timeout) extends OrderServic
 	implicit def executionContext = system.dispatcher
 }
 
-case class Item(filename: String, company: String, hospmatchpath: String, filetype: String)
+case class Item(filename: String, company: String, hospmatchpath: String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-	implicit val itemFormat = jsonFormat4(Item)
+	implicit val itemFormat = jsonFormat3(Item)
 }
 
 trait OrderService extends Directives with JsonSupport {
@@ -81,11 +81,7 @@ trait OrderService extends Directives with JsonSupport {
 					"calcvariable" -> 0)
 				val system = ActorSystem(item.filename)
 				val act = system.actorOf(CheckReception.props)
-				val r = item.filetype match {
-					case "4" => {
-						act ? checkExcelJobStart(map)
-					}
-				}
+				val r = act ? checkExcelJobStart(map)
 				val result = Await.result(r.mapTo[String], requestTimeout.duration)
 				if (result.equals("is ok")) {
 					system.terminate()

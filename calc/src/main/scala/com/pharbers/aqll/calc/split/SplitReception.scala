@@ -1,11 +1,12 @@
 package com.pharbers.aqll.calc.split
 
+import akka.actor.SupervisorStrategy.{Escalate, Restart, Resume, Stop}
 import com.pharbers.aqll.calc.common.CalcTimeHelper
-import com.pharbers.aqll.calc.maxmessages.{excelJobStart, freeMaster, _}
+import com.pharbers.aqll.calc.maxmessages.{excelJobStart, freeMaster, groupByResults, _}
 import com.pharbers.aqll.calc.excel.CPA.CpaMarket
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue, ScpCopyFile}
 import com.typesafe.config.ConfigFactory
-import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Terminated}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, OneForOneStrategy, Props, Terminated}
 import akka.cluster.Cluster
 import akka.util.Timeout
 import akka.pattern.ask
@@ -31,6 +32,7 @@ sealed case class JobDefines(t : Int, des : String)
 object SplitReception {
 	def props = Props[SplitReception]
     def name = "reception-actor"
+	case class ForcRestart(msg: String) extends Exception
 }
 
 class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
@@ -42,6 +44,25 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	val ip = GetProperties.loadConf("cluster-listener").getString("cluster-listener.ip")
 	val sendnode = GetProperties.loadConf("cluster-listener").getString("cluster-listener.sendnode")
 
+	override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+		log.info(s"preRestart. Reason: $reason when handling message: $message")
+		super.preRestart(reason, message)
+	}
+
+	override def postRestart(reason: Throwable): Unit = {
+		log.info("postRestart")
+		super.postRestart(reason)
+
+	}
+
+	override val supervisorStrategy =
+		OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+			case _: ForcRestart => Restart
+			case _: IllegalArgumentException => Stop
+			case _ => Escalate
+
+		}
+
 	def receive = {
         case registerMaster() => {
 	        println("-*-*-*-*-*-*-*-")
@@ -50,6 +71,9 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 		        masters() = (sender() :: masters()).distinct
 	        }
 	        println(s"masters $masters")
+        }
+        case freeMaster(master) => {
+	        master ! freeMaster(master)
         }
 
 		case excelSplitStart(map) =>{
@@ -89,9 +113,14 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	        atomic { implicit thx =>
 		        val result = SplitJobsContainer.pushRequestAverage(f, s, sum)
 		        if (result._1) {
-			        println(s"masters = $masters")
 			        masters.single.get.foreach(x => x ! responseMasterAverage(f, result._2))
 		        }
+	        }
+        }
+
+        case groupByResults(f, s, id, company) => {
+	        atomic { implicit thx =>
+		        SplitJobsContainer.handleProcesedDataMessage(f, s, id, company)
 	        }
         }
 

@@ -121,6 +121,11 @@ class AMongoDBLINQ extends IDatabaseContext {
 		nc
 	}
 
+	def selectOneByOne[U](o: String)(cr: (MongoDBObject) => U): MongoCursor = {
+		val mongoColl = openConnection
+		mongoColl.find(w).sort(MongoDBObject(o -> -1))
+	}
+
 	def selectSkipTop[U](skip : Int)(take : Int)(o : String)(cr : (MongoDBObject) => U) : IQueryable[U] = {
 		val mongoColl = openConnection
 		val ct = mongoColl.find(w).sort(MongoDBObject(o -> -1)).skip(skip).limit(take)

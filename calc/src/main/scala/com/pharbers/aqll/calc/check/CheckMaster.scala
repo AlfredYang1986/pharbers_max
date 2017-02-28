@@ -38,27 +38,7 @@ class CheckMaster(originSender: ActorRef) extends Actor with ActorLogging with C
 			fileName = map.get("filename").get.toString
 			context.become(checking)
 			(map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
-//				case 0 => {
-//					row_cpamarketinteractparser(capLoadXmlPath.cpamarketxmlpath_en,
-//						capLoadXmlPath.cpamarketxmlpath_ch,
-//						router)
-//				}
-//				case 1 => {
-//					row_cpaproductinteractparser(capLoadXmlPath.cpaproductxmlpath_en,
-//						capLoadXmlPath.cpaproductxmlpath_ch,
-//						router)
-//				}
-//				case 2 => {
-//					row_phamarketinteractparser(phaLoadXmlPath.phamarketxmlpath_en,
-//						phaLoadXmlPath.phamarketxmlpath_ch,
-//						router)
-//				}
-//				case 3 => {
-//					row_phaproductinteractparser(phaLoadXmlPath.phaproductxmlpath_en,
-//						phaLoadXmlPath.phaproductxmlpath_ch,
-//						router)
-//				}
-				case _ => {
+				case 4 => {
 					row_integrateddataparser(integratedXmlPath.integratedxmlpath_en,
 						integratedXmlPath.integratedxmlpath_ch,
 						router)

@@ -15,7 +15,7 @@ object CheckAggregator {
 
 	case class aggsubcribe(a: ActorRef)
 
-	case class excelResult(exd: (Double, Double, Int, List[(String)], List[(String)], List[(String)]))
+	case class excelResult(exd: (Double, Double, Int, List[(String)], List[(String)], List[(String)], Long))
 
 }
 
@@ -52,7 +52,8 @@ class CheckAggregator(bus: SplitEventBus, master: ActorRef) extends Actor {
 					hospnumdist.size,
 					temp.map(_._5).distinct,
 					temp.map(_._4).distinct,
-					hospnomatch)
+					hospnomatch,
+					temp.head._3)
 				master ! CheckAggregator.excelResult(tmp)
 			}
 		}

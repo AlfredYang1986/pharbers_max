@@ -8,7 +8,7 @@ $("#hospital-data").fileinput({
         var obj = {};
         obj.filetype = "hd";
         obj.company = $.cookie("token");
-        obj.timestamp = $('input[name="timestamp"]').val();
+        obj.timestamp = $('select[name="timestamp"]').val();
         obj.market = $('select[data-name="search-result-market"]').val();
         return obj;
     },

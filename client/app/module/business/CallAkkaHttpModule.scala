@@ -45,12 +45,13 @@ object CallAkkaHttpModule extends ModuleTrait {
 			val filename = (data \ "filename").asOpt[String].getOrElse("")
 			val conditions = List("Company" $eq company, "Datasource_Type" $eq "Manage")
 
-			val d = (from db() in "DataSources" where $and(conditions)).select(managedp(_)(filetype, filename))(_data_connection_basic).toList
+			val d = (from db() in "DataSources" where $and(conditions)).select(managedp(_)(filename))(_data_connection_basic).toList
 			d.size match {
 				case 0 => (Some(Map("FinalResult" -> toJson("no"))), None)
 				case _ =>
 					val c = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/checkExcel", d.head)
 					val r = Await.result(c.mapTo[String], timeout.duration)
+					println(r)
 					if (r.equals("Ok")) {
 						(Some(Map("FinalResult" -> toJson("ok"))), None)
 					} else {
@@ -83,13 +84,12 @@ object CallAkkaHttpModule extends ModuleTrait {
 		}
 	}
 
-	def managedp(d: MongoDBObject)(filetype: String, filename: String): JsValue = {
+	def managedp(d: MongoDBObject)(filename: String): JsValue = {
 		val company = d.getAs[String]("Company").get
 		val hospmatchpath = d.getAs[String]("File_Path").get
 		toJson(Map("filename" -> filename,
 				   "company" -> company,
-			       "hospmatchpath" -> hospmatchpath,
-		           "filetype" -> filetype
+			       "hospmatchpath" -> hospmatchpath
 				))
 	}
 

@@ -1,16 +1,19 @@
 package com.pharbers.aqll.module.fopModule
 
 import java.io.File
+
 import play.api.libs.Files
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
+
 import play.api.mvc.MultipartFormData
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
 import java.util.UUID
-import com.pharbers.aqll.util.{GetProperties, MD5}
+
+import com.pharbers.aqll.util.{GetProperties, MD5, StringOption}
 
 object fop {
 
@@ -73,8 +76,7 @@ object fop {
 			case "hd" => {
 				val timestamp = data.dataParts.get("timestamp").get.head
 				val market = data.dataParts.get("market").get.head
-				val timelongval = (new SimpleDateFormat("MM/yyyy")).parse(timestamp).getTime
-				val filename = MD5.md5(company+timelongval+market)
+				val filename = MD5.md5(company+timestamp+StringOption.takeStringSpace(market))
 				val file = new File(path)
 				if(!file.exists()) { file.mkdir() }else{
 					val file1 : File = new File(path + filename)

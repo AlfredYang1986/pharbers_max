@@ -5,8 +5,8 @@ import java.io.File
 import com.pharbers.aqll.calc.util.{DateUtil, StringOption}
 import com.pharbers.aqll.calc.common.DefaultData.integratedXmlPath
 import com.pharbers.aqll.calc.excel.core._
-import com.pharbers.aqll.calc.maxmessages._
-import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
+import com.pharbers.aqll.calc.maxmessages.{freeMaster, groupByResults, _}
+import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, FSM, Props}
 import akka.routing.RoundRobinPool
 import com.pharbers.aqll.calc.maxresult.Insert
 import com.pharbers.aqll.calc.maxresult.InserAdapter
@@ -14,6 +14,7 @@ import java.util.Date
 
 import akka.actor.SupervisorStrategy.Restart
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
+import com.pharbers.aqll.calc.split.SplitReception.ForcRestart
 import com.pharbers.aqll.calc.split.SplitWorker.{integratedresultext, responseaverage}
 import com.pharbers.aqll.calc.util.text.FileOperation
 
@@ -59,6 +60,10 @@ class SplitMaster extends Actor with ActorLogging
 			self ! processing_excel(map)
 			sender ! new canHandling()
 			goto(MsaterCalcing) using data
+		}
+		case Event(freeMaster(master), data) => {
+			throw new ForcRestart("node restart")
+			stay()
 		}
 	}
 
@@ -118,8 +123,9 @@ class SplitMaster extends Actor with ActorLogging
 	when(MsaterPrecessingData) {
 		case Event(processing_data(mr), data) => {
 			val time = DateUtil.getIntegralStartTime(new Date()).getTime
-			new Insert().maxResultInsert(mr)(new InserAdapter().apply(data.fileName, data.getcompany, time))
-			//context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception") ! freeMaster()
+			val pre = new Insert().maxResultInsert(mr)(new InserAdapter().apply(data.fileName, data.getcompany, time))
+			context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception") ! groupByResults(data.fileName, data.subFileName, pre._1, pre._2)
+			context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception") ! freeMaster(self)
 			goto(MsaterIdleing) using data.copy(fileName = "", getcompany = "", subFileName = "")
 		}
 	}

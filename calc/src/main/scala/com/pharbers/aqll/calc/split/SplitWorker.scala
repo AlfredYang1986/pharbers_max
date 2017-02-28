@@ -75,6 +75,7 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 			println(s"read ended at $self")
 			val year = data2.map(_.getYearAndmonth).distinct.head.toString.substring(0, 4)
 			val market = data2.map(_.getMarket1Ch).distinct.head
+			//"HospitalData/20000家pfizer医院数据库表.xlsx"
 			val  m = map.updated("hospdatapath",MD5.md5(map.get("company").get.toString+year+market))
 			val tmp = data2.toList.groupBy(x => (x.getYearAndmonth, x.getMinimumUnitCh))
 			aggregator ! SplitWorker.integratedataresult(tmp)

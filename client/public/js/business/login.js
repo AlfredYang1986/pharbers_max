@@ -26,7 +26,6 @@ function login() {
 		data: d,
 		contentType: "application/json,charset=utf-8",
 		success: function(r){
-			console.info(r)
 			if(r.result.FinalResult == "input is null") {
 				$("#loginSub").click();
 			}else if(r.result.FinalResult == "is null") {

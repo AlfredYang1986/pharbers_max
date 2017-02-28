@@ -3,11 +3,10 @@ $(function(){
 
 })
 
-function excelCheck(file, type) {
+function excelCheck(file) {
 	var dataMap = JSON.stringify({
         "filename" : file,
-		"company" : $.cookie("token"),
-		"filetype": type
+		"company" : $.cookie("token")
     })
 
     $.ajax({
@@ -20,7 +19,6 @@ function excelCheck(file, type) {
         dataType : "json",
         success : function(json){
             $.cookie("filename", file)
-            $.cookie("filetype", type)
             loader.hide();
             document.getElementById("ybjc").click()
         },
@@ -55,10 +53,9 @@ $("#file-0").fileinput({
             cache: false,
             success: function(data) {
                 if (data.status == "ok") {
-                    //loader.show();
-                    //setTimeout(excelCheck(query_object.uuid, "0"), 1000)
+                    loader.show();
+                    setTimeout(excelCheck(query_object.uuid), 1000)
                     $.cookie("filename", query_object.uuid)
-                    $.cookie("filetype", "0")
                     alert("上传完成！")
                     console.info("Panel文件上传");
                 }

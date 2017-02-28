@@ -111,7 +111,7 @@ class Application extends Controller {
       }
   }
 
-  //结果查询
+  //管理员
   def manageUploadFile = Action { request =>
       val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
       if(token.equals("")){
