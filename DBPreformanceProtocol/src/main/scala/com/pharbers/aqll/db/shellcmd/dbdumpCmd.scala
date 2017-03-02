@@ -1,5 +1,6 @@
 package com.pharbers.aqll.db.shellcmd
 
 case class dbdumpCmd(val db : String, val coll : String) extends shellCmdExce {
-    val cmd = "/usr/local/mongodb/bin/mongodump " + DBConfig(db, coll, "/Users/BM/Desktop/test").toArgs
+    val cmd = "/usr/local/bin/mongodump " +
+        DBConfig(db, coll, "/Users/qianpeng/Desktop/test", Some("127.0.0.1"), Some(2017), Some("Pharbers"), Some("Pharbers2017.")).toArgs
 }
