@@ -48,6 +48,7 @@ class SplitExcel extends Actor with ActorLogging
 		case Event(excelSplitStart(map), data) => {
 			data.getcompany = map.get("company").get.toString
 			data.fileName = map.get("filename").get.toString
+			println("join splitExcel")
 			originSender = sender()
 			self ! split_excel_start(map)
 			goto(MsaterSplitExcelStart) using data
@@ -57,6 +58,7 @@ class SplitExcel extends Actor with ActorLogging
 	when(MsaterSplitExcelStart) {
 		case Event(split_excel_start(map), data) => {
 			val router = CreateSplitExcelWorker(bus, map, self)
+			println("join splitStartExcel")
 			(map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
 				case 4 => {
 					row_integrateddataparser(integratedXmlPath.integratedxmlpath_en,

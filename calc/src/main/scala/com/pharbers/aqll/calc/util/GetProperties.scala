@@ -19,4 +19,6 @@ object GetProperties {
 	def loadConf(filename: String): Config = {
 		ConfigFactory.load(filename)
 	}
+
+	def singletonPaht = loadConf("cluster-listener.conf").getString("cluster-listener.node.main")
 }

@@ -20,18 +20,16 @@ class SplitReceptionSingleton extends Actor {
 			SplitReception.props,
 			PoisonPill,
 			ClusterSingletonManagerSettings(context.system)
-				.withRole(None)
+				.withRole(Some("splitmaster"))
 				.withSingletonName(SplitReception.name)
 		), name = "singleton-master"
 	)
 
 	val reception = context.system.actorOf(
 		ClusterSingletonProxy.props(
-//			singletonManager.path.child(SplitReception.name)
-//				.toStringWithoutAddress,
-			"/user/singleton-master",
+			singletonManager.path.toStringWithoutAddress,
 			ClusterSingletonProxySettings(context.system)
-				.withRole(None)
+				.withRole(Some("splitmaster"))
 				.withSingletonName("reception-actor")
 		), "reception-actor"
 	)

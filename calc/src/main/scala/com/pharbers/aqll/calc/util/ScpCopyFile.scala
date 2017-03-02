@@ -6,7 +6,7 @@ import org.apache.tools.ant.taskdefs.optional.ssh.Scp
 /**
   * Created by faiz on 17-2-5.
   */
-object ScpCopyFile {
+class ScpCopyFile {
 
 	def apply(server: String, user: String, pass: String, map: Map[String, Any], port: Int = 22) =
 		copyfrom(server, port, user, pass, map)

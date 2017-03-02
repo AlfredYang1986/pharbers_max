@@ -118,7 +118,7 @@ class Insert {
 						"Panel_ID" -> temp.get("Panel_ID").toString,
 						"Product" -> temp.get("Product").toString,
 						"City" -> temp.get("City").toString,
-						"Date" -> temp.get("Date").toString,
+						"Date" -> temp.get("Date").asInstanceOf[Number].longValue(),
 						"Index" -> temp.get("Index").toString))
 				}else{
 					bulk.insert(Map("ID" -> id,
@@ -127,7 +127,7 @@ class Insert {
 						"Panel_ID" -> x.get("Panel_ID").toString,
 						"Product" -> x.get("Product").toString,
 						"City" -> x.get("City").toString,
-						"Date" -> x.get("Date").toString,
+						"Date" -> x.get("Date").asInstanceOf[Number].longValue(),
 						"Index" -> x.get("Index").toString))
 				}
 				f_units = 0.0

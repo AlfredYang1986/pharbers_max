@@ -1,5 +1,7 @@
 package com.pharbers.aqll.calc.stub
 
+import com.pharbers.aqll.calc.util.MD5
+
 object Test extends App{
     
 //    def mydef(fn: Int => Int): Int = {
@@ -37,8 +39,9 @@ object Test extends App{
 //    
 //    println(sum(list,funsum))
     
-    val aa = ((12,"北京协和医院","三级甲等") :: (13,"上海华山医院","三级甲等") :: Nil)
-    
-    println(aa)
-    
+//    val aa = ((12,"北京协和医院","三级甲等") :: (13,"上海华山医院","三级甲等") :: Nil)
+//
+//    println(aa)
+
+//    println(MD5.md5("INF Market"))
 }

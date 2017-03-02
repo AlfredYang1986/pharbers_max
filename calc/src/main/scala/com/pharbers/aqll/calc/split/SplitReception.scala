@@ -41,8 +41,8 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	var jobs = Ref(List[(String, List[String])]())
 
     val tc = new CalcTimeHelper(0)
-	val ip = GetProperties.loadConf("cluster-listener").getString("cluster-listener.ip")
-	val sendnode = GetProperties.loadConf("cluster-listener").getString("cluster-listener.sendnode")
+	val ip = GetProperties.loadConf("cluster-listener.conf").getString("cluster-listener.ip")
+	val sendnode = GetProperties.loadConf("cluster-listener.conf").getString("cluster-listener.sendnode")
 
 	override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
 		log.info(s"preRestart. Reason: $reason when handling message: $message")
@@ -150,14 +150,15 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
             println("not enough calc to do the jobs")
             false
         } else {
-//	        val tmpath = cur.head.path.toString
-//	        val server = tmpath.substring(tmpath.lastIndexOf("@")+1, tmpath.lastIndexOf(":"))
-//	        val m = map.updated("from", ip)
-//	        val user = GetProperties.loadConf("File.conf").getString("SCP.Server.user")
-//	        val pass = GetProperties.loadConf("File.conf").getString("SCP.Server.pass")
-//	        ScpCopyFile(server, user, pass, m) match {
-//		        case false => println("SCP Copy File Exception");false
-//		        case _ => {
+	        val tmpath = cur.head.path.toString
+	        val server = tmpath.substring(tmpath.lastIndexOf("@")+1, tmpath.lastIndexOf(":"))
+	        val from = GetProperties loadConf("File.conf") getString("SCP.Upload_Calc_File_Path").toString
+	        val m = map.updated("from", from)
+	        val user = GetProperties.loadConf("File.conf").getString("SCP.Server.user")
+	        val pass = GetProperties.loadConf("File.conf").getString("SCP.Server.pass")
+	        new ScpCopyFile().apply(server, user, pass, m) match {
+		        case false => println("SCP Copy File Exception");false
+		        case _ => {
 			        implicit val t = Timeout(2 seconds)
 			        val f = cur.head ? new startReadExcel(map)
 			        try {
@@ -168,12 +169,10 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 			        } catch {
 				        case ex : Exception => println("timeout"); false
 			        }
-//		        }
-//	        }
-
+		        }
+	        }
         }
     }
-
 }
 
 trait CreateSplitMaster { this : Actor => 

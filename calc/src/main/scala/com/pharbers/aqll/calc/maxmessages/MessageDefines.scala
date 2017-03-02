@@ -25,7 +25,7 @@ case class end()
 
 case class error()
 
-case class registerMaster()
+case class registerMaster() extends Serializable
 case class freeMaster(act: ActorRef)
 
 abstract class signJobsResult

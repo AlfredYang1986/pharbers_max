@@ -41,8 +41,8 @@ object TempExportModule  extends ModuleTrait{
             case None => None
             case Some(x) => {
                 val fm = new SimpleDateFormat("MM/yyyy")
-                val start = fm.parse(x.asInstanceOf[List[String]].head).getTime
-                val end = fm.parse(x.asInstanceOf[List[String]].last).getTime
+                val start = fm.parse(x.asInstanceOf[List[String]].head).getTime.toString
+                val end = fm.parse(x.asInstanceOf[List[String]].last).getTime.toString
                 Some("Date" $gte start $lte end)
             }
         }
@@ -103,7 +103,7 @@ object TempExportModule  extends ModuleTrait{
 
     def finalResultTempJsValue(x : MongoDBObject) : Map[String,JsValue] = {
         val timeDate = Calendar.getInstance
-        timeDate.setTimeInMillis(x.getAs[Number]("Date").get.longValue)
+        timeDate.setTimeInMillis(x.getAs[String]("Date").get.toLong)
         var year = timeDate.get(Calendar.YEAR).toString
         var month = (timeDate.get(Calendar.MONTH)+1).toString
         Map(

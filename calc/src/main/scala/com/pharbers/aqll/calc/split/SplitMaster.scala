@@ -2,7 +2,7 @@ package com.pharbers.aqll.calc.split
 
 import java.io.File
 
-import com.pharbers.aqll.calc.util.{DateUtil, StringOption}
+import com.pharbers.aqll.calc.util.{DateUtil, GetProperties, StringOption}
 import com.pharbers.aqll.calc.common.DefaultData.integratedXmlPath
 import com.pharbers.aqll.calc.excel.core._
 import com.pharbers.aqll.calc.maxmessages.{freeMaster, groupByResults, _}
@@ -43,6 +43,8 @@ case object MsaterCalcing extends MsaterState     // 计算中，以后细化
 
 case class MsaterStateData(var fileName: String, var getcompany: String, var subFileName: String)
 
+case class register()
+
 class SplitMaster extends Actor with ActorLogging
 	with CreateSplitWorker
 	with CreateSplitEventBus
@@ -65,6 +67,10 @@ class SplitMaster extends Actor with ActorLogging
 			throw new ForcRestart("node restart")
 			stay()
 		}
+		case Event(register(), data) => {
+			context.actorSelection(GetProperties.singletonPaht) ! new registerMaster()
+			stay()
+		}
 	}
 
 	when(MsaterCalcing) {
@@ -73,7 +79,7 @@ class SplitMaster extends Actor with ActorLogging
 			map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
 				case 4 => {
 					val txt = FileOperation.readTxtFile(new File(data.subFileName)).toList
-					val temp = txt.map(_.split(",")).map { x =>
+					txt.map(_.split(",")).foreach { x =>
 						val t = new IntegratedData()
 						t.setHospNum(StringOption.takeStringSpace(x(0)).toInt)
 						t.setHospName(StringOption.takeStringSpace(x(1)))
@@ -88,8 +94,8 @@ class SplitMaster extends Actor with ActorLogging
 						t.setSumValue(StringOption.takeStringSpace(x(10)).toDouble)
 						t.setVolumeUnit(StringOption.takeStringSpace(x(11)).toDouble)
 						t
+						router ! integratedresultext(t)
 					}
-					router ! integratedresultext(temp)
 				}
 			}
 			bus.publish(SplitEventBus.excelEnded(map))
@@ -107,7 +113,7 @@ class SplitMaster extends Actor with ActorLogging
 		}
 
 		case Event(requestMasterAverage_sub(sum), data) => {
-            val reception = context.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
+            val reception = context.system.actorSelection(GetProperties.singletonPaht)
 			reception ! requestMasterAverage(data.fileName, data.subFileName, sum)
             stay
         }
@@ -124,8 +130,8 @@ class SplitMaster extends Actor with ActorLogging
 		case Event(processing_data(mr), data) => {
 			val time = DateUtil.getIntegralStartTime(new Date()).getTime
 			val pre = new Insert().maxResultInsert(mr)(new InserAdapter().apply(data.fileName, data.getcompany, time))
-			context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception") ! groupByResults(data.fileName, data.subFileName, pre._1, pre._2)
-			context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception") ! freeMaster(self)
+			context.actorSelection(GetProperties.singletonPaht) ! groupByResults(data.fileName, data.subFileName, pre._1, pre._2)
+			context.actorSelection(GetProperties.singletonPaht) ! freeMaster(self)
 			goto(MsaterIdleing) using data.copy(fileName = "", getcompany = "", subFileName = "")
 		}
 	}

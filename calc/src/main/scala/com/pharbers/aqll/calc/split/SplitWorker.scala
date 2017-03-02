@@ -41,7 +41,7 @@ object SplitWorker {
 
 	case class exceluniondata(e: List[(Double, Double, Long, String)])
 
-	case class integratedresultext(d: List[IntegratedData])
+	case class integratedresultext(d: IntegratedData)
 
 }
 
@@ -69,14 +69,14 @@ class SplitWorker(aggregator: ActorRef) extends Actor with ActorLogging with Cre
 			data2 ++= (target :: Nil)
 		}
 		case integratedresultext(target) => {
-			data2 ++= target
+			data2 ++= (target :: Nil)
 		}
 		case SplitEventBus.excelEnded(map) => {
 			println(s"read ended at $self")
 			val year = data2.map(_.getYearAndmonth).distinct.head.toString.substring(0, 4)
 			val market = data2.map(_.getMarket1Ch).distinct.head
 			//"HospitalData/20000家pfizer医院数据库表.xlsx"
-			val  m = map.updated("hospdatapath",MD5.md5(map.get("company").get.toString+year+market))
+			val m = map.updated("hospdatapath",MD5.md5(map.get("company").get.toString+year+market))
 			val tmp = data2.toList.groupBy(x => (x.getYearAndmonth, x.getMinimumUnitCh))
 			aggregator ! SplitWorker.integratedataresult(tmp)
 
