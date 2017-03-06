@@ -1,4 +1,4 @@
-assemblyJarName in assembly := "DBPreformanceProtocol_0.1.jar"
+assemblyJarName in assembly := "db_2.11-1.0.jar"
 
 test in assembly := {}
 

@@ -8,10 +8,11 @@ package com.pharbers.aqll.calc.util.dao
 import com.mongodb.casbah.query.dsl.QueryExpressionObject
 import com.mongodb.casbah.Imports._
 import com.mongodb.MongoCredential._
+import com.pharbers.aqll.calc.util.Const
 import com.pharbers.aqll.calc.util.dao.Msd._
 
 object _data_connection {
-	def conn_name : String = DB1
+	def conn_name : String = Const.DB
 
 	val server = new ServerAddress(DBHost,DBPort)
 	val credentials = MongoCredential.createScramSha1Credential(username, conn_name ,password.toCharArray)

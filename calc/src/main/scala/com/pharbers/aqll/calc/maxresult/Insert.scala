@@ -13,13 +13,6 @@ class Insert {
 	def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String]))])
 	                   (m: (String, String, String, Long)): (String, String) = {
 		def maxInser(): (String, String) = {
-			_data_connection.getCollection(m._2).createIndex(MongoDBObject("Date" -> 1))
-			_data_connection.getCollection(m._2).createIndex(MongoDBObject("Index" -> 1))
-			_data_connection.getCollection(m._2 + "temp").createIndex(MongoDBObject("Index" -> 1))
-			_data_connection.getCollection(m._2 + "temp").createIndex(MongoDBObject("ID" -> 1))
-//			_data_connection.getCollection(m._2 + "Indextemp").createIndex(MongoDBObject("Index" -> 1))
-//			_data_connection.getCollection(m._2 + "Indextemp").createIndex(MongoDBObject("ID" -> 1))
-
 			val bulk = _data_connection.getCollection(m._2 + "temp").initializeUnorderedBulkOperation
 //			val bulk2 = _data_connection.getCollection(m._2 + "Indextemp").initializeUnorderedBulkOperation
 			mr.toList.filterNot(x => x._2._2 == 0 && x._2._3 == 0).groupBy(z => (z._2._4.head, z._2._8.head, z._2._5.head, z._2._1)).foreach { x =>
@@ -85,8 +78,12 @@ class Insert {
 
 	def groupByResutInsert(id: String, company: String) = {
 		val conditions = ("ID" -> id)
+		_data_connection.getCollection(company).remove(MongoDBObject(("ID" -> id)))
 //		val list = (from db() in company + "Indextemp" where conditions).selectOneByOne("Index")(x => x)
 		val list = (from db() in company + "temp"  where conditions).selectOneByOne("Index")(x => x)
+		_data_connection.getCollection(company).createIndex(MongoDBObject("Date" -> 1))
+		_data_connection.getCollection(company).createIndex(MongoDBObject("Index" -> 1))
+		_data_connection.getCollection(company + "temp").createIndex(MongoDBObject("Index" -> 1))
 		var temp: DBObject = DBObject.empty
 		val bulk = _data_connection.getCollection(company).initializeUnorderedBulkOperation
 		var n = 0
@@ -174,5 +171,9 @@ class Insert {
 				maxInser()
 			}
 		}
+	}
+
+	def nodeMongoCollectionDrop(coll: String): Unit = {
+		_data_connection.getCollection(coll).drop()
 	}
 }

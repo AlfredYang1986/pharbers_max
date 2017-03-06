@@ -40,6 +40,6 @@ case class DBInputConfig(val db : String,
             else s"--username=${username.get} ") +
             (if (password.isEmpty) ""
             else s"--password=${password.get} ") +
-            s"--db=$db --collection=$coll --gzip --dir=$out/$coll.bson.gz"
+            s"--db=$db --collection=$coll --gzip --noIndexRestore --dir=$out/$coll.bson.gz"
     }
 }

@@ -118,9 +118,9 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	        }
         }
 
-        case groupByResults(f, s, id, company) => {
+        case groupByResults(f, s, id, company, ip, dbname) => {
 	        atomic { implicit thx =>
-		        SplitJobsContainer.handleProcesedDataMessage(f, s, id, company)
+		        SplitJobsContainer.handleProcesedDataMessage(f, s, id, company, ip, dbname)
 	        }
         }
 
@@ -170,7 +170,7 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 				        case ex : Exception => println("timeout"); false
 			        }
 		        }
-	        }
+    }
         }
     }
 }

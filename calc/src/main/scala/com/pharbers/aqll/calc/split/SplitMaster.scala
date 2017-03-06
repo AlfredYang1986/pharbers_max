@@ -1,8 +1,9 @@
 package com.pharbers.aqll.calc.split
 
 import java.io.File
+import java.net.InetAddress
 
-import com.pharbers.aqll.calc.util.{DateUtil, GetProperties, StringOption}
+import com.pharbers.aqll.calc.util._
 import com.pharbers.aqll.calc.common.DefaultData.integratedXmlPath
 import com.pharbers.aqll.calc.excel.core._
 import com.pharbers.aqll.calc.maxmessages.{freeMaster, groupByResults, _}
@@ -17,6 +18,7 @@ import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 import com.pharbers.aqll.calc.split.SplitReception.ForcRestart
 import com.pharbers.aqll.calc.split.SplitWorker.{integratedresultext, responseaverage}
 import com.pharbers.aqll.calc.util.text.FileOperation
+import com.pharbers.aqll.db.shellcmd.dbdumpCmd
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -130,8 +132,24 @@ class SplitMaster extends Actor with ActorLogging
 		case Event(processing_data(mr), data) => {
 			val time = DateUtil.getIntegralStartTime(new Date()).getTime
 			val pre = new Insert().maxResultInsert(mr)(new InserAdapter().apply(data.fileName, data.getcompany, time))
-			context.actorSelection(GetProperties.singletonPaht) ! groupByResults(data.fileName, data.subFileName, pre._1, pre._2)
-			context.actorSelection(GetProperties.singletonPaht) ! freeMaster(self)
+			// TODO 在入库结束后  我会调用 备份MongoDB文件 等待备份结束后 会启动SCP命令 Copy过去
+			val t = dbdumpCmd(Const.DB, data.getcompany+"temp")
+			t.excute
+
+			val server = GetLocalHostIP.isLinuxOS("eth1")
+
+			println(s"server $server")
+			val map = Map("local" -> ("/root/program/scpdb/"+Const.DB+"/"+data.getcompany+"temp"+".bson.gz"), "from" -> ("/root/program/scpdb/Max_Cores_"+server+"/"+Const.DB))
+			val user = GetProperties.loadConf("File.conf").getString("SCP.Server.user")
+			val pass = GetProperties.loadConf("File.conf").getString("SCP.Server.pass")
+			new ScpCopyFile().apply("59.110.31.215", user, pass, map) match {
+				case false => println("SCP Copy File Exception")
+				case _ => {
+					context.actorSelection(GetProperties.singletonPaht) ! groupByResults(data.fileName, data.subFileName, pre._1, pre._2, server, Const.DB)
+					new Insert().nodeMongoCollectionDrop(data.getcompany+"temp")
+					context.actorSelection(GetProperties.singletonPaht) ! freeMaster(self)
+				}
+			}
 			goto(MsaterIdleing) using data.copy(fileName = "", getcompany = "", subFileName = "")
 		}
 	}
