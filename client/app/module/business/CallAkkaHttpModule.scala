@@ -77,6 +77,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 //					println(s"d.head = ${d.head}")
 //					call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/calc", d.head)
 //			}
+			println(data)
 			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/calc", data)
 			(Some(Map("FinalResult" -> toJson("ok"))), None)
 		} catch {

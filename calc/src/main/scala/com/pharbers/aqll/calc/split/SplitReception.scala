@@ -41,8 +41,8 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	var jobs = Ref(List[(String, List[String])]())
 
     val tc = new CalcTimeHelper(0)
-	val ip = GetProperties.loadConf("cluster-listener").getString("cluster-listener.ip")
-	val sendnode = GetProperties.loadConf("cluster-listener").getString("cluster-listener.sendnode")
+	val ip = GetProperties.loadConf("cluster-listener.conf").getString("cluster-listener.ip")
+	val sendnode = GetProperties.loadConf("cluster-listener.conf").getString("cluster-listener.sendnode")
 
 	override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
 		log.info(s"preRestart. Reason: $reason when handling message: $message")
@@ -78,13 +78,14 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 
 		case excelSplitStart(map) =>{
 			val act = context.actorOf(SplitExcel.props)
-			implicit val t = Timeout(10 second)
+			implicit val t = Timeout(20 minutes)
 			val r = act ? excelSplitStart(map)
 			val result = Await.result(r.mapTo[List[(String, List[String])]], t.duration)
 			result match {
 				case Nil => println("file is null or error")
 				case _ =>
 					SplitJobsContainer.pushJobs(result.head._1,result.head._2)
+					println(s"split ${result.head._2}")
 					result.head._2.foreach { x =>
 
 						self ! excelJobStart(map, (result.head._1, x))
@@ -97,7 +98,6 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 			val m = mapdata.updated("filename", (data._1, sub.find(_ == data._2).get)) ++
 					Map("local" -> sub.find(_ == data._2).get) ++
 					Map("from" -> "")
-			println(s"m = ${m}")
 			println("-*-*-*-*-*-*-*-")
 			println("join excelJobStart")
 
@@ -118,9 +118,9 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 	        }
         }
 
-        case groupByResults(f, s, id, company) => {
+        case groupByResults(f, s, id, company, ip, dbname) => {
 	        atomic { implicit thx =>
-		        SplitJobsContainer.handleProcesedDataMessage(f, s, id, company)
+		        SplitJobsContainer.handleProcesedDataMessage(f, s, id, company, ip, dbname)
 	        }
         }
 
@@ -150,14 +150,15 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
             println("not enough calc to do the jobs")
             false
         } else {
-//	        val tmpath = cur.head.path.toString
-//	        val server = tmpath.substring(tmpath.lastIndexOf("@")+1, tmpath.lastIndexOf(":"))
-//	        val m = map.updated("from", ip)
-//	        val user = GetProperties.loadConf("File.conf").getString("SCP.Server.user")
-//	        val pass = GetProperties.loadConf("File.conf").getString("SCP.Server.pass")
-//	        ScpCopyFile(server, user, pass, m) match {
-//		        case false => println("SCP Copy File Exception");false
-//		        case _ => {
+	        val tmpath = cur.head.path.toString
+	        val server = tmpath.substring(tmpath.lastIndexOf("@")+1, tmpath.lastIndexOf(":"))
+	        val from = GetProperties loadConf("File.conf") getString("SCP.Upload_Calc_File_Path").toString
+	        val m = map.updated("from", from)
+	        val user = GetProperties.loadConf("File.conf").getString("SCP.Server.user")
+	        val pass = GetProperties.loadConf("File.conf").getString("SCP.Server.pass")
+	        new ScpCopyFile().apply(server, user, pass, m) match {
+		        case false => println("SCP Copy File Exception");false
+		        case _ => {
 			        implicit val t = Timeout(2 seconds)
 			        val f = cur.head ? new startReadExcel(map)
 			        try {
@@ -168,12 +169,10 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 			        } catch {
 				        case ex : Exception => println("timeout"); false
 			        }
-//		        }
-//	        }
-
+		        }
+    }
         }
     }
-
 }
 
 trait CreateSplitMaster { this : Actor => 

@@ -13,7 +13,7 @@ import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
 import java.util.UUID
 
-import com.pharbers.aqll.util.{GetProperties, MD5, StringOption}
+import com.pharbers.aqll.util.{GetProperties, MD5, ScpCopyFile, StringOption}
 
 object fop {
 
@@ -85,6 +85,11 @@ object fop {
 				data.files.foreach { x =>
 					Files.TemporaryFile(x.ref.file).moveTo(new File(path + filename) , true)
 					lst = lst :+ toJson(filename.toString)
+				}
+				List("59.110.31.106", "59.110.31.50").foreach{ x =>
+					println(x)
+					val map = Map("local" -> (path + filename), "from" -> "/root/program/File/manage/upload/")
+					new ScpCopyFile().apply(x, "root", "Pharbers2017.",map)
 				}
 			}
 		}

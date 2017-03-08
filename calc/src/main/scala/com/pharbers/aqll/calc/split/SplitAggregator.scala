@@ -29,7 +29,7 @@ import com.pharbers.aqll.calc.maxmessages.requestMasterAverage_sub
 object SplitAggregator {
     def props(bus : SplitEventBus, master : ActorRef) = Props(new SplitAggregator(bus, master))
 
-    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)]))])
+    case class aggregatefinalresult(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)]))])
     case class excelResult(exd: (Double, Double, Int, List[(String)], List[(String)]))
     case class aggsubcribe(a : ActorRef)
     case class aggmapsubscrbe(a : ActorRef)
@@ -45,7 +45,7 @@ object SplitAggregator {
 class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with CreateMappingActor with CreateMaxBroadcastingActor {
 	
 	val unionSum = Ref(List[(String, (Double, Double, Double))]())
-	val mrResult = Ref(Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)])]())
+	val mrResult = Ref(Map[String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)])]())
 	val excelcheckdata = Ref(List[(Double, Double, Long, String)]())
 	
 	val mapping_master_router = CreateMappingActor
@@ -92,13 +92,13 @@ class SplitAggregator(bus : SplitEventBus, master : ActorRef) extends Actor with
 				println(s"postresult = ${mr.size}")
 				rltsize() = rltsize() + 1
 				mr.foreach { kvs =>
-					val (t, v, u, h, p, m, s, city, toall, touse, segment) = mrResult().get(kvs._1).map { x =>
+					val (t, v, u, h, p, m, s, province, city, toall, touse, segment) = mrResult().get(kvs._1).map { x =>
 						kvs._2._4.foreach(x._4.distinct.append(_))
 						kvs._2._5 foreach(x._5.distinct.append(_))
 						kvs._2._6.foreach(x._6.distinct.append(_))
-					    (x._1, x._2 + kvs._2._2, x._3 + kvs._2._3, x._4 , x._5, x._6, kvs._2._7, kvs._2._8, kvs._2._9, kvs._2._10, kvs._2._11)
-					}.getOrElse(kvs._2._1, kvs._2._2, kvs._2._3, kvs._2._4, kvs._2._5, kvs._2._6, kvs._2._7, kvs._2._8, kvs._2._9, kvs._2._10, kvs._2._11)
-					mrResult() = mrResult() + (kvs._1 -> (t, v, u, h, p, m, s, city, toall, touse, segment))
+					    (x._1, x._2 + kvs._2._2, x._3 + kvs._2._3, x._4 , x._5, x._6, kvs._2._7, kvs._2._8, kvs._2._9, kvs._2._10, kvs._2._11, kvs._2._12)
+					}.getOrElse(kvs._2._1, kvs._2._2, kvs._2._3, kvs._2._4, kvs._2._5, kvs._2._6, kvs._2._7, kvs._2._8, kvs._2._9, kvs._2._10, kvs._2._11, kvs._2._12)
+					mrResult() = mrResult() + (kvs._1 -> (t, v, u, h, p, m, s, province, city, toall, touse, segment))
 				}
 			}
 			

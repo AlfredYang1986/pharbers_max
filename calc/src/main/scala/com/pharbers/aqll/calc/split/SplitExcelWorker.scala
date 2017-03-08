@@ -32,7 +32,8 @@ class SplitExcelWorker(bus: SplitEventBus, m: Map[String, Any], master: ActorRef
 		case integratedresult(target) => {
 			data ++= (target :: Nil)
 			num += 1
-			num match {
+			num match
+			{
 				case Const.SPLITEXCEL =>
 					creatFile
 					//val r = creatFile
@@ -45,7 +46,6 @@ class SplitExcelWorker(bus: SplitEventBus, m: Map[String, Any], master: ActorRef
 			println(s"read split ended at $self")
 //			val r = creatFile
 //			master ! split_excel_resultdata(r)
-
 			atomic { implicit thx =>
 				creatFile
 				val data = List((filedata.single.get.map(_._1).distinct.head, filedata.single.get.map(_._2).flatten))
@@ -59,23 +59,27 @@ class SplitExcelWorker(bus: SplitEventBus, m: Map[String, Any], master: ActorRef
 
 	def receive = split
 
-	def creatFile: List[(String, List[String])] = {
+	def creatFile = {
 		atomic{ implicit thx =>
 			val f = m.get("filename")
 			num = 0
-			val path = Const.OUTFILE + UUID.randomUUID
+
 			try {
-				val fileName: File = new File(path)
-				var content : StringBuffer = new StringBuffer()
-				data.foreach(x => content.append(x.toString).append("\t\n"))
-				if(createFile(fileName)) writeTxtFile(content.toString, fileName)
+				data.isEmpty match {
+					case true => println("Is Null")
+					case _ => {
+						val path = Const.OUTFILE + UUID.randomUUID
+						val fileName: File = new File(path)
+						var content : StringBuffer = new StringBuffer()
+						data.foreach(x => content.append(x.toString).append("\t\n"))
+						if(createFile(fileName)) writeTxtFile(content.toString, fileName)
+						filedata() = filedata() ++: List((f.get.toString, List(path)))
+					}
+				}
 			}catch {
 				case ex: Exception => println(ex)
 			}
 			data.clear()
-			filedata() = filedata() ++: List((f.get.toString, List(path)))
-			List((f.get.toString, List(path)))
 		}
-		//context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception") ! excelJobStart(map)
 	}
 }

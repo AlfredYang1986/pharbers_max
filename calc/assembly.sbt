@@ -1,4 +1,4 @@
-assemblyJarName in assembly := "maxCalc_0.1.1.jar"
+assemblyJarName in assembly := "maxCalc_0.1.2.jar"
 
 test in assembly := {}
 

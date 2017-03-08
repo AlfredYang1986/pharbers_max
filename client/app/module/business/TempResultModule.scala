@@ -55,6 +55,8 @@ object TempResultModule extends ModuleTrait {
         val order = "Date"
 		val connectionName = (data \ "company").asOpt[String].get
 		try {
+			println(s"company = ${connectionName}")
+			println(s"p == ${conditions}")
             val result = (from db() in connectionName where $and(conditions)).selectSkipTop(SKIP(currentPage))(TAKE)(order)(finalResultTempJsValue(_))(_data_connection_cores).toList
             val total = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
 			(Some(Map("finalResult" -> toJson(result), "page" -> toJson(Page(currentPage,total)))), None)
@@ -65,7 +67,7 @@ object TempResultModule extends ModuleTrait {
 
 	def finalResultTempJsValue(x : MongoDBObject) : Map[String,JsValue] = {
 		val timeDate = Calendar.getInstance
-		timeDate.setTimeInMillis(x.getAs[Number]("Date").get.longValue)
+		timeDate.setTimeInMillis(x.getAs[Number]("Date").get.longValue())
 		var year = timeDate.get(Calendar.YEAR).toString
 		var month = (timeDate.get(Calendar.MONTH)+1).toString
 		Map(

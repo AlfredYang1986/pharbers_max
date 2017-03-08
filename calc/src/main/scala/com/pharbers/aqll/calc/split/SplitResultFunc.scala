@@ -10,13 +10,12 @@ object SplitResultFunc {
             	  mrd.finalResultsValue = mrd.sumValue
                 mrd.finalResultsUnit = mrd.volumeUnit
             }else{
-
                 mrd.finalResultsValue = x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
                 mrd.finalResultsUnit = x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
             }
 			Some(mrd.yearAndmonth.asInstanceOf[Integer],
 			        (mrd.finalResultsValue, mrd.finalResultsUnit), 
-			        (mrd.phaid), (mrd.minimumUnitCh), (mrd.market1Ch), mrd.selectvariablecalculation().get._1, mrd.prefecture, mrd.ifPanelAll, mrd.ifPanelTouse, mrd.segment)
+			        (mrd.phaid), (mrd.minimumUnitCh), (mrd.market1Ch), mrd.selectvariablecalculation().get._1, mrd.province ,mrd.prefecture, mrd.ifPanelAll, mrd.ifPanelTouse, mrd.segment)
 		}.getOrElse (None)
 	}
 }

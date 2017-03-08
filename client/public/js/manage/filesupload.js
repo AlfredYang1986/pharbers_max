@@ -17,6 +17,7 @@ $("#hospital-data").fileinput({
     }
 }).on("fileuploaded", function(event, data) {
     if(data.response){
+        alert("上传成功！")
         // var query_object = new Object();
         // query_object['uuid'] = data.response.result[0];
         // query_object['company'] = $.cookie("token");

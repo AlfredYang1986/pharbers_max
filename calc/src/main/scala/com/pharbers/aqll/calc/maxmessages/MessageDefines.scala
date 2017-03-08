@@ -25,7 +25,7 @@ case class end()
 
 case class error()
 
-case class registerMaster()
+case class registerMaster() extends Serializable
 case class freeMaster(act: ActorRef)
 
 abstract class signJobsResult
@@ -37,4 +37,4 @@ case class requestMasterAverage_sub(sum : List[(String, (Double, Double, Double)
 case class requestMasterAverage(fileName : String, subFileName : String, sum : List[(String, (Double, Double, Double))])
 case class responseMasterAverage(fileName : String, sum : List[(String, Double, Double)])
 
-case class groupByResults(fileNale: String, subFileName: String,id: String, company: String)
+case class groupByResults(fileNale: String, subFileName: String,id: String, company: String, ip: String, dbname: String)

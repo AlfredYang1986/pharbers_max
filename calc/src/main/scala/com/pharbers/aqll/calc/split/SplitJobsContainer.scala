@@ -3,6 +3,7 @@ package com.pharbers.aqll.calc.split
 import akka.actor.ActorRef
 import com.pharbers.aqll.calc.maxmessages.freeMaster
 import com.pharbers.aqll.calc.maxresult.Insert
+import com.pharbers.aqll.db.shellcmd.dbrestoreCmd
 
 import scala.concurrent.stm.Ref
 import scala.concurrent.stm.atomic
@@ -64,7 +65,7 @@ object SplitJobsContainer {
 		}
 	}
 
-	def handleProcesedDataMessage(f: String, s: String, id: String, company: String): Boolean = {
+	def handleProcesedDataMessage(f: String, s: String, id: String, company: String, ip: String, dbname: String): Boolean = {
 		jobs.single.get.find(x => x.filename == f && x.sub_name == s) match {
 			case None => false // error
 			case Some(x) => {
@@ -74,6 +75,12 @@ object SplitJobsContainer {
 						jobs() = jobs().filterNot(y => y.filename == f && y.sub_name == s) :+ n
 					}
 
+//					val out = "/root/program/scpdb/Max_Cores_"+ip + "/"
+//					val coll = company + ".bson.gz"
+
+					// TODO 获取到路径后 立即启动还原 这里调用还原Func 还原是同步的
+					val t = dbrestoreCmd("Max_Cores", company+"temp", "Max_Cores_"+ip+"/"+dbname)
+					t.excute
 
 					if (jobs.single.get.filter(x => x.filename == f && x.isProsscedData == false) == Nil) {
 						new Insert().groupByResutInsert(id, company)

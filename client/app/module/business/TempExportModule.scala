@@ -103,7 +103,7 @@ object TempExportModule  extends ModuleTrait{
 
     def finalResultTempJsValue(x : MongoDBObject) : Map[String,JsValue] = {
         val timeDate = Calendar.getInstance
-        timeDate.setTimeInMillis(x.getAs[Number]("Date").get.longValue)
+        timeDate.setTimeInMillis(x.getAs[Number]("Date").get.longValue())
         var year = timeDate.get(Calendar.YEAR).toString
         var month = (timeDate.get(Calendar.MONTH)+1).toString
         Map(
