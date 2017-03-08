@@ -86,6 +86,7 @@ class Insert {
 		val list = (from db() in company + "temp"  where conditions).selectOneByOne("Index")(x => x)
 		_data_connection.getCollection(company).createIndex(MongoDBObject("Date" -> 1))
 		_data_connection.getCollection(company).createIndex(MongoDBObject("Index" -> 1))
+		_data_connection.getCollection(company).createIndex(MongoDBObject("Market" -> 1))
 		_data_connection.getCollection(company + "temp").createIndex(MongoDBObject("Index" -> 1))
 		var temp: DBObject = DBObject.empty
 		val bulk = _data_connection.getCollection(company).initializeUnorderedBulkOperation
