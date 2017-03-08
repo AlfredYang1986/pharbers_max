@@ -6,15 +6,19 @@ import com.pharbers.aqll.pattern.ModuleTrait
 import com.pharbers.aqll.pattern.MessageDefines
 import com.pharbers.aqll.pattern.CommonMessage
 import java.io.File
+
 import com.pharbers.aqll.util.dao.from
-import com.mongodb.casbah.Imports.{$and, _}
+import com.mongodb.casbah.Imports.{$and, DBObject, _}
 import com.pharbers.aqll.util.dao._data_connection_cores
 import java.text.SimpleDateFormat
 import java.util.{Calendar, UUID}
-import com.mongodb.{DBObject}
+
+import com.mongodb.DBObject
 import com.pharbers.aqll.util.GetProperties
+
 import scala.collection.immutable.List
 import com.pharbers.aqll.util.file.csv.scala._
+
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.util.Superglobals._
 
@@ -47,6 +51,14 @@ object TempExportModule  extends ModuleTrait{
             }
         }
 
+        def marketListConditions(getter : JsValue => Any)(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
+            case None => None
+            case Some(x) => {
+                val lst = x.asInstanceOf[List[String]].map { str => str }
+                Some("Market" $in lst)
+            }
+        }
+
         def conditionsAcc(o : List[DBObject], keys : List[String], func : (String, JsValue) => Option[DBObject]) : List[DBObject] = keys match {
             case Nil => o
             case head :: lst => func(head, (data \ head).as[JsValue]) match {
@@ -57,6 +69,7 @@ object TempExportModule  extends ModuleTrait{
 
         def conditions : List[DBObject] = {
             var con = conditionsAcc(Nil, "Date" :: Nil, dateListConditions(x => x.asOpt[List[String]]))
+            con = conditionsAcc(con, "market" :: Nil, marketListConditions(x => x.asOpt[List[String]]))
             con
         }
         try {
@@ -107,12 +120,14 @@ object TempExportModule  extends ModuleTrait{
         var year = timeDate.get(Calendar.YEAR).toString
         var month = (timeDate.get(Calendar.MONTH)+1).toString
         Map(
-            "Panel_ID" -> toJson(x.getAs[String]("Panel_ID").get),
             "Date" -> toJson(year + (if(month.length<2){"0"+month}else{month})),
+            "Provice" -> toJson(x.getAs[String]("Provice").get),
             "City" -> toJson(x.getAs[String]("City").get),
+            "Panel_ID" -> toJson(x.getAs[String]("Panel_ID").get),
+            "Market" -> toJson(x.getAs[String]("Market").get),
             "Product" -> toJson(x.getAs[String]("Product").get),
-            "Sales" -> toJson(x.getAs[Number]("f_sales").get.doubleValue),
-            "Units" -> toJson(x.getAs[Number]("f_units").get.doubleValue)
+            "Sales" -> toJson(f"${x.getAs[Number]("f_sales").get.doubleValue}%1.2f"),
+            "Units" -> toJson(f"${x.getAs[Number]("f_units").get.doubleValue}%1.2f")
         )
     }
 }

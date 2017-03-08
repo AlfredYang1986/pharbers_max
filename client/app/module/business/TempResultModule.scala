@@ -13,6 +13,7 @@ import com.pharbers.aqll.util.dao.from
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.util.dao._data_connection_cores
 import com.pharbers.aqll.util.dao.Page._
+import scala.math.Pi
 
 object TempResultModuleMessage {
 	sealed class msg_tempResultBase extends CommonMessage
@@ -64,8 +65,6 @@ object TempResultModule extends ModuleTrait {
         val order = "Date"
 		val connectionName = (data \ "company").asOpt[String].get
 		try {
-			println(s"company = ${connectionName}")
-			println(s"p == ${conditions}")
             val result = (from db() in connectionName where $and(conditions)).selectSkipTop(SKIP(currentPage))(TAKE)(order)(finalResultTempJsValue(_))(_data_connection_cores).toList
             val total = (from db() in connectionName where $and(conditions)).count(_data_connection_cores)
 			(Some(Map("finalResult" -> toJson(result), "page" -> toJson(Page(currentPage,total)))), None)
@@ -86,8 +85,8 @@ object TempResultModule extends ModuleTrait {
 			"Panel_ID" -> toJson(x.getAs[String]("Panel_ID").get),
 			"Market" -> toJson(x.getAs[String]("Market").get),
 			"Product" -> toJson(x.getAs[String]("Product").get),
-			"Sales" -> toJson(x.getAs[Number]("f_sales").get.doubleValue),
-			"Units" -> toJson(x.getAs[Number]("f_units").get.doubleValue)
+			"Sales" -> toJson(f"${x.getAs[Number]("f_sales").get.doubleValue}%1.2f"),
+			"Units" -> toJson(f"${x.getAs[Number]("f_units").get.doubleValue}%1.2f")
 		)
 	}
 

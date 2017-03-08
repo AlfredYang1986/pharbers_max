@@ -2,7 +2,7 @@ var loader = new SVGLoader( document.getElementById( 'loader' ), { speedIn : 0, 
 
 function fileExport(type) {
     loader.show();
-    var datatype = $('select[data-name="search-result-datatype"]').val();
+    /*var datatype = $('select[data-name="search-result-datatype"]').val();
     var market = $('select[data-name="search-result-market"]').val();
     var startdate = $('input[name="startdate"]').val();
     var enddate = $('input[name="enddate"]').val();
@@ -11,7 +11,18 @@ function fileExport(type) {
     query_object['market'] = market;
     query_object['staend'] = [startdate, enddate];
     query_object['company'] = $.cookie("token");
-    query_object['filetype'] = type;
+    query_object['filetype'] = type;*/
+    var datatype = $('select[data-name="search-result-datatype"]').val();
+    var market = $('select[data-name="search-result-market"]').val();
+    var startdate = $('input[name="startdate"]').val();
+    var enddate = $('input[name="enddate"]').val();
+
+    var query_object = new Object();
+    //query_object['datatype'] = datatype;
+    query_object['market'] = market;
+    query_object['Date'] = [startdate, enddate];
+    query_object['currentPage'] = page;
+    query_object['company'] = $.cookie("token");
 
     $.ajax({
         //url :"/callfileexport",
