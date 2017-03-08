@@ -23,7 +23,7 @@ object CallAkkaHttpModuleMessage {
 
 	case class msg_CallRunModel(data: JsValue) extends msg_CallHttp
 
-	case class msg_CallFileExport(data: JsValue) extends msg_CallHttp
+	//case class msg_CallFileExport(data: JsValue) extends msg_CallHttp
 
 }
 
@@ -35,7 +35,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_CallCheckExcel(data) => checkExcel(data)
 		case msg_CallRunModel(data) => runModel(data)
-		case msg_CallFileExport(data) => fileExport(data)
+		//case msg_CallFileExport(data) => fileExport(data)
 		case _ => println("Error---------------"); ???
 	}
 
