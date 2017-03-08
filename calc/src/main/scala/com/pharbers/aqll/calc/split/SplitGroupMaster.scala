@@ -37,7 +37,7 @@ class SplitGroupMaster(aggregator: ActorRef) extends Actor with ActorLogging {
 	val inte_lst: ArrayBuffer[IntegratedData] = ArrayBuffer.empty
 	val subFun = aggregator ! SplitAggregator.aggmapsubscrbe(self)
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
-	val r: ArrayBuffer[List[(String, Double, Double)] => Option[(Integer, (Double, Double), String, String, String, String, String, String, String, String)]] = ArrayBuffer.empty
+	val r: ArrayBuffer[List[(String, Double, Double)] => Option[(Integer, (Double, Double), String, String, String, String, String, String, String, String, String)]] = ArrayBuffer.empty
 
 	def receive = {
 		case SplitAggregator.msg_container(group, lst) => {
@@ -55,7 +55,7 @@ class SplitGroupMaster(aggregator: ActorRef) extends Actor with ActorLogging {
 				(x._1, x._3, x._4)
 			}.map { x =>
 				(MD5.md5(x._1._1.toString + x._1._2 + x._1._3),
-					(DateUtil.getDateLong(x._1._1.toString), x._2.map(_._2._1).sum, x._2.map(_._2._2).sum, x._2.map(_._3).distinct, x._2.map(_._4).distinct, x._2.map(_._5).distinct, x._2.map(_._6).head, x._2.map(_._7).distinct, x._2.map(_._8).distinct, x._2.map(_._9).distinct, x._2.map(_._10).distinct))
+					(DateUtil.getDateLong(x._1._1.toString), x._2.map(_._2._1).sum, x._2.map(_._2._2).sum, x._2.map(_._3).distinct, x._2.map(_._4).distinct, x._2.map(_._5).distinct, x._2.map(_._6).head, x._2.map(_._7).distinct, x._2.map(_._8).distinct, x._2.map(_._9).distinct, x._2.map(_._10).distinct, x._2.map(_._11).distinct))
 			}
 
 			aggregator ! SplitWorker.postresult(result)

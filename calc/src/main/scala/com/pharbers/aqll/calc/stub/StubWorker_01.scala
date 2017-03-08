@@ -18,7 +18,6 @@ object StubWorker_01 extends App {
 	if (system.settings.config.getStringList("akka.cluster.roles").contains("splitworker")) {
 		Cluster(system).registerOnMemberUp {
 			println("register begin")
-			val reception = system.actorSelection(GetProperties.singletonPaht)
 			val master = system.actorOf(SplitMaster.props, "split-master")
 			system.scheduler.scheduleOnce(2 seconds, master, register())
 		}

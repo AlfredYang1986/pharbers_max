@@ -78,13 +78,14 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 
 		case excelSplitStart(map) =>{
 			val act = context.actorOf(SplitExcel.props)
-			implicit val t = Timeout(10 second)
+			implicit val t = Timeout(20 minutes)
 			val r = act ? excelSplitStart(map)
 			val result = Await.result(r.mapTo[List[(String, List[String])]], t.duration)
 			result match {
 				case Nil => println("file is null or error")
 				case _ =>
 					SplitJobsContainer.pushJobs(result.head._1,result.head._2)
+					println(s"split ${result.head._2}")
 					result.head._2.foreach { x =>
 
 						self ! excelJobStart(map, (result.head._1, x))
@@ -97,7 +98,6 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 			val m = mapdata.updated("filename", (data._1, sub.find(_ == data._2).get)) ++
 					Map("local" -> sub.find(_ == data._2).get) ++
 					Map("from" -> "")
-			println(s"m = ${m}")
 			println("-*-*-*-*-*-*-*-")
 			println("join excelJobStart")
 

@@ -26,7 +26,7 @@ import scala.collection.mutable.ArrayBuffer
 
 case class processing_excel(map: Map[String, Any])
 
-case class processing_data(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)]))])
+case class processing_data(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)]))])
 
 object SplitMaster {
 	def props = Props[SplitMaster]
@@ -81,6 +81,7 @@ class SplitMaster extends Actor with ActorLogging
 			map.get("JobDefines").get.asInstanceOf[JobDefines].t match {
 				case 4 => {
 					val txt = FileOperation.readTxtFile(new File(data.subFileName)).toList
+					println(s"txt size = ${txt.size}")
 					txt.map(_.split(",")).foreach { x =>
 						val t = new IntegratedData()
 						t.setHospNum(StringOption.takeStringSpace(x(0)).toInt)

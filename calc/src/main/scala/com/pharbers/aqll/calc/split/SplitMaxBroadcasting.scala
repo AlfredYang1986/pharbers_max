@@ -15,43 +15,53 @@ import com.pharbers.aqll.calc.excel.model.ModelRunFactory
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 
 object SplitMaxBroadcasting {
-	def props(bus : SplitEventBus, hash : ActorRef) = Props(new SplitMaxBroadcasting(bus, hash))
+	def props(bus: SplitEventBus, hash: ActorRef) = Props(new SplitMaxBroadcasting(bus, hash))
 
-//	case class startmapping(n: Int) // broadcast to all hash actor
-	case class startmapping(map: Map[String, Any]) // broadcast to all hash actor
-	case class premapping(m : ((Integer, String), IntegratedData))	// send group mapping from aggregator
-	case class mappingiterator(d : modelRunData) extends broadcastingDefines	// send to hash mapping actor
-	case class mappingiteratornext() // can perform next round of iterator
+	//	case class startmapping(n: Int) // broadcast to all hash actor
+	case class startmapping(map: Map[String, Any])
+
+	// broadcast to all hash actor
+	case class premapping(m: ((Integer, String), IntegratedData))
+
+	// send group mapping from aggregator
+	case class mappingiterator(d: modelRunData) extends broadcastingDefines
+
+	// send to hash mapping actor
+	case class mappingiteratornext()
+
+	// can perform next round of iterator
 	case class mappingeof() extends broadcastingDefines
-	case class mappingiteratorhashed(mrd : modelRunData)
+
+	case class mappingiteratorhashed(mrd: modelRunData)
+
 }
 
-class SplitMaxBroadcasting(bus : SplitEventBus, hash : ActorRef) extends Actor with ActorLogging {
-	
+class SplitMaxBroadcasting(bus: SplitEventBus, hash: ActorRef) extends Actor with ActorLogging {
+
 	val group = ArrayBuffer[((Integer, String), IntegratedData)]()
 	val group2 = ArrayBuffer[List[IntegratedData]]()
-	var s : Stream[modelRunData] = Stream.Empty
+	var s: Stream[modelRunData] = Stream.Empty
 
 	def receive = {
 		case SplitMaxBroadcasting.premapping(m) => {
-//      group2 += m
+			//      group2 += m
 
-			group.find (p => p._1._1 == m._1._1 && p._1._2 == m._1._2 ) match {
+			group.find(p => p._1._1 == m._1._1 && p._1._2 == m._1._2) match {
 				case Some(x) => Unit
 				case None => group += m
 			}
 		}
-		
+
 		case SplitMaxBroadcasting.startmapping(map) => {
-      println(s"group list size: ${group.size}")
+			println(s"group list size: ${group.size}")
 			s = new ModelRunFactory().apply(map, group.toStream)
-	        nextiterator
+			nextiterator
 		}
 		case SplitMaxBroadcasting.mappingiteratornext() => nextiterator
-		
-		case x : AnyRef => println(s"message $x"); ???
+
+		case x: AnyRef => println(s"message $x"); ???
 	}
-	
+
 	def nextiterator = {
 		if (!s.isEmpty) {
 			hash ! SplitMaxBroadcasting.mappingiteratorhashed(s.head)

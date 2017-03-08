@@ -20,7 +20,10 @@ public class DateUtil {
     public static final String PATTERN_CLASSICAL_NORMAL = "yyyy-MM-dd HH:mm";
     public static final String PATTERN_CLASSICAL_SIMPLE = "yyyy-MM-dd";
     public static final String PATTERN_CLASSICAL_SIMPLE2 = "yyyy-MM";
-    
+    public static final String PATTERN_CLASSICAL_YEAR = "yyyy";
+    public static final String PATTERN_CLASSICAL_MONTH = "MM";
+    public static final String PATTERN_CLASSICAL_DAY = "dd";
+
     private DateUtil() {
         // Cannot be instantiated
     }
@@ -54,6 +57,10 @@ public class DateUtil {
         time.set(Calendar.SECOND, 0);
         time.set(Calendar.MILLISECOND, 0);
         return time.getTime().getTime();
+    }
+
+    public static String getFormatYear(long d) {
+    	return format(new Date(d), PATTERN_CLASSICAL_YEAR);
     }
  
     /**

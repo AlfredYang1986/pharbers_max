@@ -73,8 +73,10 @@ object Test extends App {
 //	println(t)
 //	override val args: Array[String] = Array.empty
 //	println(args)
-	println(Const.DB)
-	val property = System.getProperty("dbname")
-	Const.DB = Some(property).getOrElse("Max_Cores")
-	println(Const.DB)
+//	println(Const.DB)
+//	val property = System.getProperty("dbname")
+//	Const.DB = Some(property).getOrElse("Max_Cores")
+//	println(Const.DB)
+
+	println(MD5.md5("AI_R"))
 }

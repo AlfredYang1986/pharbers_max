@@ -20,7 +20,6 @@ class ScpCopyFile {
 		scp.setProject(new Project)
 		scp.setTrust(true)
 		scp.execute
-		println(scp.getFailonerror)
 		scp.getFailonerror
 	}
 }
