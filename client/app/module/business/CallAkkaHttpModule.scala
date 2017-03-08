@@ -87,7 +87,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 		}
 	}
 
-	def fileExport(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	/*def fileExport(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			var datatype = (data \ "datatype").asOpt[String].map (x => x).getOrElse("")
 			var market = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(List())
@@ -109,7 +109,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
-	}
+	}*/
 
 	def managedp(d: MongoDBObject)(filename: String): JsValue = {
 		val company = d.getAs[String]("Company").get

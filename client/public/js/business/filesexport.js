@@ -14,7 +14,8 @@ function fileExport(type) {
     query_object['filetype'] = type;
 
     $.ajax({
-        url :"/callfileexport",
+        //url :"/callfileexport",
+        url :"/resultquery/tempexport",
         type : "POST",
         dataType : "json",
         contentType: "application/json,charset=utf-8",
@@ -22,8 +23,8 @@ function fileExport(type) {
         cache : false,
         success : function(data){
             if (data.status == "ok") {
-                alert("导出成功");
-                //location.href = "/resultquery/files/"+data.result.finalResult;
+                //alert("导出成功");
+                location.href = "/resultquery/files/"+data.result.finalResult;
             }
             loader.hide();
         },

@@ -26,8 +26,8 @@ class CallAkkaHttpController extends Controller{
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpRunModelAjaxCall"))), jv, request) :: msg_CallRunModel(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
-    def callHttpFileExportAjaxCall = Action (request => requestArgs(request) { jv =>
+    /*def callHttpFileExportAjaxCall = Action (request => requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpFileExportAjaxCall"))), jv, request) :: msg_CallFileExport(jv) :: msg_CommonResultMessage() :: Nil, None)
-    })
+    })*/
 
 }
