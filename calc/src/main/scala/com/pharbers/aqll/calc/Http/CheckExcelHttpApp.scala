@@ -44,14 +44,10 @@ object CheckExcelHttpApp extends App with RequestTimeout {
 
         val config = ConfigFactory.load("split-master")
 	    val system = ActorSystem("calc", config)
-//        ActorSystem("queue").scheduler.schedule(1 seconds, 2 seconds , system.actorOf(QueueActor.props), ThreadQueue())
         val node_ip = system.settings.config.getStringList("akka.cluster.seed-nodes")
 	    val a = system.actorOf(SplitReceptionSingleton.props, SplitReceptionSingleton.name)
-	    println(s"singleton is $a")
         if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
             Cluster(system).registerOnMemberUp {
-//                system.actorOf(SplitReception.props, SplitReception.name)//"splitreception"
-//                system.actorOf(SplitReceptionSingleton.props, SplitReceptionSingleton.name)
 	            CheckGloble.system = system
             }
             system.actorOf(Props(new EventCollector), "cluster-listener")

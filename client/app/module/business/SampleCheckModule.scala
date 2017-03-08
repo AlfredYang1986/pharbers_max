@@ -42,6 +42,7 @@ object SampleCheckModule extends ModuleTrait {
 
 	def msg_check_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val company = (data \ "company").asOpt[String].getOrElse("")
+		//"a7bff92f-0947-454d-b79f-e9b291edb220"
 		val filename = (data \ "filename").asOpt[String].getOrElse("")
 		//"123456"
 		val id = MD5.md5(GetProperties.loadConf("File.conf").getString("Files.UpClient_File_Path")+filename+company+DateUtil.getIntegralStartTime(new Date()).getTime.toString)
@@ -90,10 +91,16 @@ object SampleCheckModule extends ModuleTrait {
 			case Some(x) => x.get("YesterYearResult").get.as[Map[String, JsValue]].get("CurResult").get
 			case _ => ???
 		}
+
 		val time = (prJson \ "date").as[Long]
+		println(s"time  = ${DateUtil.getDateLongForString(time)}")
 		val year = DateUtil.getDateLongForString(time).split("-")(0)
 		val month = (DateUtil.getDateLongForString(time).split("-")(1).toInt - 1).toString
+		println(s"year  = ${year}")
+		println(s"month  = ${month}")
+		println(s"year + month  = ${year + month}")
 		val timelong = DateUtil.getDateLong(year + month)
+		println(s"timelong = $timelong")
 		val conditions = List("Company" $eq company, "Date" $eq timelong)
 		val d = (from db() in "SampleCheckResult" where $and(conditions)).select(resultAgoMonthTimeFuncData(_)(pr))(_data_connection_cores).toList
 		d.size match {

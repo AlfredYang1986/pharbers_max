@@ -10,19 +10,12 @@ import com.pharbers.aqll.calc.util.MD5
 
 class Insert {
 
-	def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String]))])
+	def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String]))])
 	                   (m: (String, String, String, Long)): (String, String) = {
 		def maxInser(): (String, String) = {
-			_data_connection.getCollection(m._2).createIndex(MongoDBObject("Date" -> 1))
-			_data_connection.getCollection(m._2).createIndex(MongoDBObject("Index" -> 1))
-			_data_connection.getCollection(m._2 + "temp").createIndex(MongoDBObject("Index" -> 1))
-			_data_connection.getCollection(m._2 + "temp").createIndex(MongoDBObject("ID" -> 1))
-//			_data_connection.getCollection(m._2 + "Indextemp").createIndex(MongoDBObject("Index" -> 1))
-//			_data_connection.getCollection(m._2 + "Indextemp").createIndex(MongoDBObject("ID" -> 1))
-
 			val bulk = _data_connection.getCollection(m._2 + "temp").initializeUnorderedBulkOperation
 //			val bulk2 = _data_connection.getCollection(m._2 + "Indextemp").initializeUnorderedBulkOperation
-			mr.toList.filterNot(x => x._2._2 == 0 && x._2._3 == 0).groupBy(z => (z._2._4.head, z._2._8.head, z._2._5.head, z._2._1)).foreach { x =>
+			mr.toList.filterNot(x => x._2._2 == 0 && x._2._3 == 0).groupBy(z => (z._2._4.head, z._2._8.head, z._2._9.head, z._2._5.head, z._2._6.head, z._2._1)).foreach { x =>
 				//				val conditions = List("Panel_ID" $eq x._1._1, "Date" $eq x._1._4, "Product" $eq x._1._3, "City" $eq x._1._2)
 				//				val conditions = List("Index" $eq MD5.md5(x._1._1 + x._1._4 + x._1._3 + x._1._2))
 				//				(from db() in m._2 where $and(conditions)).select(x => x).toList match {
@@ -52,11 +45,13 @@ class Insert {
 					"f_units" -> x._2.map(_._2._3).sum,
 					"f_sales" -> x._2.map(_._2._2).sum,
 					"Panel_ID" -> x._1._1,
-					"Product" -> x._1._3,
-					"City" -> x._1._2,
-					"Date" -> x._1._4,
-					"Index" -> MD5.md5(x._1._1 + x._1._4 + x._1._3 + x._1._2)))
-				//bulk2.insert(Map("ID" -> m._3, "Index" -> MD5.md5(x._1._1 + x._1._4 + x._1._3 + x._1._2)))
+					"Product" -> x._1._4,
+					"Market" -> x._1._5,
+					"Provice" -> x._1._2,
+					"City" -> x._1._3,
+					"Date" -> x._1._6,
+					"Index" -> MD5.md5(x._1._1 + x._1._2 + x._1._3 + x._1._4 + x._1._5 + x._1._6)))
+				//bulk2.insert(Map("ID" -> m._3, "Index" -> MD5.md5(x._1._1 + x._1._2 + x._1._3 + x._1._4 + x._1._5 + x._1._6)))
 			}
 			bulk.execute()
 			//bulk2.execute()
@@ -84,9 +79,14 @@ class Insert {
 	}
 
 	def groupByResutInsert(id: String, company: String) = {
+		println(s"in fuck groupByResutInsert")
 		val conditions = ("ID" -> id)
+		_data_connection.getCollection(company).remove(MongoDBObject(("ID" -> id)))
 //		val list = (from db() in company + "Indextemp" where conditions).selectOneByOne("Index")(x => x)
 		val list = (from db() in company + "temp"  where conditions).selectOneByOne("Index")(x => x)
+		_data_connection.getCollection(company).createIndex(MongoDBObject("Date" -> 1))
+		_data_connection.getCollection(company).createIndex(MongoDBObject("Index" -> 1))
+		_data_connection.getCollection(company + "temp").createIndex(MongoDBObject("Index" -> 1))
 		var temp: DBObject = DBObject.empty
 		val bulk = _data_connection.getCollection(company).initializeUnorderedBulkOperation
 		var n = 0
@@ -117,8 +117,10 @@ class Insert {
 						"f_sales" -> f_sales,
 						"Panel_ID" -> temp.get("Panel_ID").toString,
 						"Product" -> temp.get("Product").toString,
+						"Market" -> temp.get("Market").toString,
+						"Provice" -> temp.get("Provice").toString,
 						"City" -> temp.get("City").toString,
-						"Date" -> temp.get("Date").toString,
+						"Date" -> temp.get("Date").asInstanceOf[Number].longValue(),
 						"Index" -> temp.get("Index").toString))
 				}else{
 					bulk.insert(Map("ID" -> id,
@@ -126,8 +128,10 @@ class Insert {
 						"f_sales" -> x.get("f_sales").asInstanceOf[Number].doubleValue(),
 						"Panel_ID" -> x.get("Panel_ID").toString,
 						"Product" -> x.get("Product").toString,
+						"Market" -> x.get("Market").toString,
+						"Provice" -> x.get("Provice").toString,
 						"City" -> x.get("City").toString,
-						"Date" -> x.get("Date").toString,
+						"Date" -> x.get("Date").asInstanceOf[Number].longValue(),
 						"Index" -> x.get("Index").toString))
 				}
 				f_units = 0.0
@@ -174,5 +178,9 @@ class Insert {
 				maxInser()
 			}
 		}
+	}
+
+	def nodeMongoCollectionDrop(coll: String): Unit = {
+		_data_connection.getCollection(coll).drop()
 	}
 }

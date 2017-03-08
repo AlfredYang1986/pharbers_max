@@ -55,7 +55,7 @@ trait OrderService extends Directives with JsonSupport {
 				"company" -> "BMS",
 				"calcvariable" -> 0)
 			val system = CheckGloble.system
-			val reception = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
+			val reception = system.actorSelection(GetProperties.singletonPaht)
 			println(s"reception = $reception")
 			reception ! excelSplitStart(map)
 			complete("""jsonpCallback1({"result":"Ok"})""")
@@ -101,13 +101,14 @@ trait OrderService extends Directives with JsonSupport {
 	def getCalc = post {
 		path("calc") {
 			entity(as[Item]) { item =>
+				println(s"join calc ${(GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + item.filename)}")
 				val map = Map("filename" -> (GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + item.filename),
-					"hospdatapath" -> "",
+					"hospdatapath" -> "null",
 					"JobDefines" -> integratedJob,
 					"company" -> item.company,
 					"calcvariable" -> 0)
 				val system = CheckGloble.system
-				val reception = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
+				val reception = system.actorSelection(GetProperties.singletonPaht)
 				println(s"reception = $reception")
 				reception ! excelSplitStart(map)
 				complete("""{"result":"Ok"}""")

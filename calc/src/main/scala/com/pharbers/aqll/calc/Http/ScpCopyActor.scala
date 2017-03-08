@@ -16,7 +16,7 @@ class ScpCopyActor extends Actor with ActorLogging{
 		case SCPServerInfo(server, map, actorRef, anyRef) => {
 			val user = GetProperties.loadConf("File.conf").getString("SCP.Server.user")
 			val pass = GetProperties.loadConf("File.conf").getString("SCP.Server.pass")
-			ScpCopyFile(server, user, pass, map) match {
+			new ScpCopyFile().apply(server, user, pass, map) match {
 				case false => println("SCP Copy File Exception")
 				case _ => {
 					println(s"actorRef = $actorRef")
