@@ -23,6 +23,8 @@ object CallAkkaHttpModuleMessage {
 
 	case class msg_CallRunModel(data: JsValue) extends msg_CallHttp
 
+	case class msg_CallFileExport(data: JsValue) extends msg_CallHttp
+
 }
 
 object CallAkkaHttpModule extends ModuleTrait {
@@ -33,6 +35,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_CallCheckExcel(data) => checkExcel(data)
 		case msg_CallRunModel(data) => runModel(data)
+		case msg_CallFileExport(data) => fileExport(data)
 		case _ => println("Error---------------"); ???
 	}
 
@@ -77,8 +80,31 @@ object CallAkkaHttpModule extends ModuleTrait {
 //					println(s"d.head = ${d.head}")
 //					call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/calc", d.head)
 //			}
-			println(data)
 			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/calc", data)
+			(Some(Map("FinalResult" -> toJson("ok"))), None)
+		} catch {
+			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+		}
+	}
+
+	def fileExport(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			var datatype = (data \ "datatype").asOpt[String].map (x => x).getOrElse("")
+			var market = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(List())
+			var staend = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(List())
+			var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
+			var filetype = (data \ "filetype").asOpt[String].map (x => x).getOrElse("")
+
+			var marketmap,staendmap = ""
+			if(market.size != 0){
+				market.foreach(x => marketmap += (x + "_"))
+			}
+			if(staend.size != 0){
+				staend.foreach(x => staendmap += (x + "_"))
+			}
+			println(s"datatype=${datatype} market=${marketmap} staend=${staendmap} company=${company} filetype=${filetype}")
+			var datajson  = toJson(Map("datatype" -> datatype, "marketmap" -> marketmap, "staendmap" -> staendmap, "company" -> company, "filetype" -> filetype))
+			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/export", datajson)
 			(Some(Map("FinalResult" -> toJson("ok"))), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))

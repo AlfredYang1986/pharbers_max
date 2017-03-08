@@ -38,6 +38,14 @@ object TempResultModule extends ModuleTrait {
           }
         }
 
+		def marketListConditions(getter : JsValue => Any)(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
+			case None => None
+			case Some(x) => {
+				val lst = x.asInstanceOf[List[String]].map { str => str }
+				Some("Market" $in lst)
+			}
+		}
+
 	    def conditionsAcc(o : List[DBObject], keys : List[String], func : (String, JsValue) => Option[DBObject]) : List[DBObject] = keys match {
           case Nil => o
           case head :: lst => func(head, (data \ head).as[JsValue]) match {
@@ -48,6 +56,7 @@ object TempResultModule extends ModuleTrait {
 	    
 	    def conditions : List[DBObject] = {
 	        var con = conditionsAcc(Nil, "Date" :: Nil, dateListConditions(x => x.asOpt[List[String]]))
+			con = conditionsAcc(con, "market" :: Nil, marketListConditions(x => x.asOpt[List[String]]))
 	        con
 	    }
 	    
@@ -71,9 +80,11 @@ object TempResultModule extends ModuleTrait {
 		var year = timeDate.get(Calendar.YEAR).toString
 		var month = (timeDate.get(Calendar.MONTH)+1).toString
 		Map(
-			"Panel_ID" -> toJson(x.getAs[String]("Panel_ID").get),
 			"Date" -> toJson(year + (if(month.length<2){"0"+month}else{month})),
+			"Provice" -> toJson(x.getAs[String]("Provice").get),
 			"City" -> toJson(x.getAs[String]("City").get),
+			"Panel_ID" -> toJson(x.getAs[String]("Panel_ID").get),
+			"Market" -> toJson(x.getAs[String]("Market").get),
 			"Product" -> toJson(x.getAs[String]("Product").get),
 			"Sales" -> toJson(x.getAs[Number]("f_sales").get.doubleValue),
 			"Units" -> toJson(x.getAs[Number]("f_units").get.doubleValue)

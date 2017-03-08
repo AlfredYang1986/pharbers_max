@@ -47,11 +47,6 @@
 					<div class="navbar-header">
 						<a class="navbar-minimalize minimalize-styl-2 btn btn-primary "
 							href="#"><i class="fa fa-bars"></i> </a>
-						<!-- 		            <form role="search" class="navbar-form-custom" action="search_results.html"> -->
-						<!-- 		                <div class="form-group"> -->
-						<!-- 		                    <input type="text" placeholder="搜索..." class="form-control" name="top-search" id="top-search"> -->
-						<!-- 		                </div> -->
-						<!-- 		            </form> -->
 					</div>
 					<ul class="nav navbar-top-links navbar-right">
 						<li><span class="m-r-sm text-muted welcome-message">欢迎访问MAX系统</span>
@@ -121,9 +116,7 @@
 										<div class="btn-group">
 											<button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle"> 导出 <span class="caret"></span></button>
 											<ul class="dropdown-menu">
-												<li><a href="javascript:fileExport('csv');">csv</a></li>
-												@*<li><a href="javascript:fileExport('excel');">excel</a></li>
-												<li><a href="javascript:fileExport('xlsb');">xlsb</a></li>*@
+												<li><a href="javascript:fileExport('csv');">CSV</a></li>
 											</ul>
 										</div>
 									</div>
@@ -169,6 +162,7 @@
 	</div>
 	<link href="@routes.Assets.versioned("css/plugins/loader/svgloader.css")" rel="stylesheet">
 	<script src="@routes.Assets.versioned("js/business/resultquery.js")"></script>
+	<script src="@routes.Assets.versioned("js/business/filesexport.js")"></script>
 	<script src="@routes.Assets.versioned("js/business/page/bootstrap-paginator.js")"></script>
 	<script src="@routes.Assets.versioned("js/business/page/page.js")"></script>
 </body>
