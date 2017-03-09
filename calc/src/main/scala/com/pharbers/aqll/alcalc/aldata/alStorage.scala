@@ -36,6 +36,9 @@ abstract class alStorage(val parents : List[alStorage], val f : Any => Any) {
 
     // 计算
     def doCalc
+
+    // 升级， Protion 升级成Storage
+    def upgrade : List[alStorage] = this :: Nil
 }
 
 abstract class alInitStorage(fc : Any => Any) extends alStorage(Nil, fc) {
@@ -75,6 +78,8 @@ class alPortionedStorage(p : List[alStorage], fc : Any => Any) extends alStorage
             isCalc = true
         }
     }
+
+    override def upgrade : List[alStorage] = portions.map (x => alStorage(x.data))
 }
 
 class alNormalStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p, fc) {

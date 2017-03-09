@@ -2,6 +2,9 @@ package com.pharbers.aqll.alcalc.alFileHandler.altext
 
 import com.pharbers.aqll.alcalc.alFileHandler.alFileHandler
 import com.pharbers.aqll.alcalc.aldata.{alMemoryPortion, alStorage, alPersisportion}
+import com.pharbers.aqll.calc.util.MD5
+
+import java.util.Date
 
 /**
   * Created by BM on 09/03/2017.
@@ -16,12 +19,13 @@ class alTextSync extends alFileHandler with CreateInnerSync {
     override def sync(path : String, s : alStorage) = {
         s.doCalc
         if (s.isPortions) {
-            s.portions.foreach { p => p match {
-                case x : alMemoryPortion => parser.startSync(path + "/po", x.data)
-                case x : alPersisportion => ???
-            }}
+            s.portions.foreach { p =>
+                val file = MD5.md5(new Date().getTime.toString)
+                parser.startSync(path + "/" + file , p.data)
+            }
         } else {
-            parser.startSync(path + "/po", s.data)
+            val file = MD5.md5(new Date().getTime.toString)
+            parser.startSync(path + "/" + file, s.data)
         }
         Unit
     }

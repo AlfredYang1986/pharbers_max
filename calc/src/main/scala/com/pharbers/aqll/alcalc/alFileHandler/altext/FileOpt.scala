@@ -12,7 +12,7 @@ object FileOpt {
 }
 
 class FileOpt(val file : String) {
-    def isExist : Boolean = new File("test.txt").exists()
+    def isExist : Boolean = new File(file).exists()
 
     def pushData2File(lst : List[Any]) = {
         val writer = new PrintWriter(new File(file))
