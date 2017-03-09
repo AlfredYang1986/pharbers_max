@@ -9,7 +9,7 @@ import scala.collection.mutable.ListBuffer
   * Created by Alfred on 09/03/2017.
   */
 trait alFileHandler {
-    def prase(path : String)(x : AnyRef) : alFileHandler
+    def prase(path : String)(x : Any) : Any
 
-    var data : ListBuffer[AnyRef] = ListBuffer()
+    var data : ListBuffer[Any] = ListBuffer()
 }

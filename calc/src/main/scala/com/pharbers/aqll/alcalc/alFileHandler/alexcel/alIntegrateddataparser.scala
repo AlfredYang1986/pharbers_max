@@ -12,7 +12,7 @@ import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 class alIntegrateddataparser extends alFileHandler with CreateInnerParser {
     val parser = CreateInnerParser
 
-    override def prase(path : String)(x : AnyRef) : alFileHandler = {
+    override def prase(path : String)(x : Any) : Any = {
         parser.startParse(path, 1)
         this
     }

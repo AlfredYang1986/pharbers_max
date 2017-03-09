@@ -7,18 +7,16 @@ import com.pharbers.aqll.alcalc.alFileHandler.alFileHandler
   */
 object alStorage {
     def apply(path : String, rf : alFileHandler) : alStorage = new alFileInitStorage(rf.prase(path))
-    def apply(lst : List[AnyRef]) : alStorage = new alMemoryInitStorage(lst)
-
-//    def apply(p : List[alStorage], f : AnyRef => AnyRef) : alStorage = new alStorage(p, f)      // storage 递归
+    def apply(lst : List[Any]) : alStorage = new alMemoryInitStorage(lst)
 }
 
-abstract class alStorage(val parents : List[alStorage], val f : AnyRef => AnyRef) {
-    var data : List[AnyRef] = Nil
+abstract class alStorage(val parents : List[alStorage], val f : Any => Any) {
+    var data : List[Any] = Nil
     var portions : List[alPortion] = Nil
     var isCalc = false
     val isPortions = false
 
-    def portion(ps : List[AnyRef] => List[alPortion]) : alPortionedStorage = {
+    def portion(ps : List[Any] => List[alPortion]) : alPortionedStorage = {
         if (!isCalc) {
             doCalc
             portion(ps)
@@ -31,7 +29,7 @@ abstract class alStorage(val parents : List[alStorage], val f : AnyRef => AnyRef
     }
 
     // Map 计算
-    def map(f : AnyRef => AnyRef) : alStorage = {
+    def map(f : Any => Any) : alStorage = {
         if (isPortions) new alPortionedStorage(this :: Nil, f)
         else new alNormalStorage(this :: Nil, f)
     }
@@ -40,11 +38,11 @@ abstract class alStorage(val parents : List[alStorage], val f : AnyRef => AnyRef
     def doCalc
 }
 
-abstract class alInitStorage(fc : AnyRef => AnyRef) extends alStorage(Nil, fc) {
+abstract class alInitStorage(fc : Any => Any) extends alStorage(Nil, fc) {
     override def doCalc
 }
 
-case class alFileInitStorage(fc : AnyRef => AnyRef) extends alInitStorage(fc) {
+case class alFileInitStorage(fc : Any => Any) extends alInitStorage(fc) {
     override def doCalc {
         if (!isCalc) {
             data = f("0").asInstanceOf[alFileHandler].data.toList
@@ -53,16 +51,16 @@ case class alFileInitStorage(fc : AnyRef => AnyRef) extends alInitStorage(fc) {
     }
 }
 
-class alMemoryInitStorage(d : List[AnyRef]) extends alInitStorage(x => x) {
+class alMemoryInitStorage(d : List[Any]) extends alInitStorage(null) {
     override def doCalc = {
         if (!isCalc) {
-            data = d.map(f)
+            data = d
             isCalc = true
         }
     }
 }
 
-class alPortionedStorage(p : List[alStorage], fc : AnyRef => AnyRef) extends alStorage(p, fc) {
+class alPortionedStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p, fc) {
     override val isPortions = true
 
     override def doCalc = {
@@ -79,7 +77,7 @@ class alPortionedStorage(p : List[alStorage], fc : AnyRef => AnyRef) extends alS
     }
 }
 
-class alNormalStorage(p : List[alStorage], fc : AnyRef => AnyRef) extends alStorage(p, fc) {
+class alNormalStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p, fc) {
     override def doCalc {
         if (!isCalc) {
             p.foreach(_.doCalc)

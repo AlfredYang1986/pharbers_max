@@ -5,23 +5,23 @@ package com.pharbers.aqll.alcalc.aldata
   */
 
 object alPortion {
-    def apply(data : List[AnyRef]) : alMemoryPortion = new alMemoryPortion(data)
+    def apply(data : List[Any]) : alMemoryPortion = new alMemoryPortion(data)
 }
 
 trait alPortion {
     def isPersis : Boolean
 
-    def map(f : AnyRef => AnyRef) : alPortion
+    def map(f : Any => Any) : alPortion
 }
 
-case class alMemoryPortion(val data : List[AnyRef]) extends alPortion {
+case class alMemoryPortion(val data : List[Any]) extends alPortion {
     override def isPersis = false
 
-    def map(f : AnyRef => AnyRef) : alPortion = new alMemoryPortion(data.map(f))
+    def map(f : Any => Any) : alPortion = new alMemoryPortion(data.map(f))
 }
 case class alPersisportion(path : String) extends  alPortion {
     override def isPersis = true
 
-    def map(f : AnyRef => AnyRef) : alPortion = ???
+    def map(f : Any => Any) : alPortion = ???
 }
 
