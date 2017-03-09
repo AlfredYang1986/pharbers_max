@@ -87,7 +87,6 @@ class SplitReception extends Actor with ActorLogging with CreateSplitMaster {
 					SplitJobsContainer.pushJobs(result.head._1,result.head._2)
 					println(s"split ${result.head._2}")
 					result.head._2.foreach { x =>
-
 						self ! excelJobStart(map, (result.head._1, x))
 					}
 			}
