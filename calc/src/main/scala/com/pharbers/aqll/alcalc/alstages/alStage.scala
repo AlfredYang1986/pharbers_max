@@ -30,7 +30,6 @@ object alStage {
 }
 
 trait alStage {
-    val uuid = UUID.randomUUID
     var storages : List[AnyRef] = Nil
     def isCalc = false
 
