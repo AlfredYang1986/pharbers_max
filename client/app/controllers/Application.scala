@@ -99,10 +99,11 @@ class Application extends Controller {
   //管理员
   def manageUploadFile = Action { request =>
       val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
-      if(token.equals("")){
+      val is_administrator = enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt)
+      if(token.equals("") || is_administrator.equals("No")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.manageUpload(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),MarketsModule.pushMarkets))
+          Ok(views.html.manageUpload(is_administrator,MarketsModule.pushMarkets))
       }
   }
 
