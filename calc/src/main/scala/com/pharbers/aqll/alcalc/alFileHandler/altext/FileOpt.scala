@@ -22,6 +22,7 @@ class FileOpt(val file : String) {
 
     def requestDataFromFile(f : String => Any) : List[Any] = Source.fromFile(file).getLines().map(f(_)).toList
 
+
     def createDir = new File(file).mkdir()
     def lstFiles : List[String] = (new File(file)).listFiles.filter(x => x.isFile && !x.isHidden).map(x => x.getPath).toList
 }

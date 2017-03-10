@@ -27,7 +27,7 @@ class alTextParser extends alFileHandler with CreateInnerParser {
 }
 
 case class inner_parser(h : alFileHandler) {
-    def startParse(file : String) = h.data.append(FileOpt(file).requestDataFromFile(x => x))
+    def startParse(file : String) = h.data.appendAll(FileOpt(file).requestDataFromFile(x => x))
 }
 
 trait CreateInnerParser { this : alFileHandler =>

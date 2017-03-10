@@ -66,10 +66,26 @@ object stub_test_2 extends App {
 //        val p_presist = presist_data()
 //        val s3 = p_presist.precess(s2)
 //        println(s3)
+//        println(p_presist.result)
     }
 
     {
         // test case 4 : restore data
-        
+        val s = alStage("""config/new_test/2016-01.xlsx""")
+        val p = read_excel()
+        val s1 = p.precess(s).head
+
+        val p_do = do_calc()
+        val s2 = p_do.precess(s1).head
+        val ss = s2.storages.head.asInstanceOf[alStorage]
+
+        val p_presist = presist_data()
+        val s3 = p_presist.precess(s2)
+
+        val p_restoe = restore_data()
+        val s4 = alStage(p_presist.result.get.asInstanceOf[(String, List[String])]._2.head)
+        val s5 = p_restoe.precess(s4).head
+        val s6 = p_do.precess(s5).head
+        println(s6.length)
     }
 }

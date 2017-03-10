@@ -11,9 +11,11 @@ import com.pharbers.aqll.alcalc.alstages.{alInitStage, alMemoryStage, alPresisSt
   * Created by Alfred on 10/03/2017.
   */
 class alPresistStagePrecess extends alPrecess {
+    var reVal : Option[(String, List[String])] = None  // (dir, files)
+
     def precess(j : alStage) : List[alStage] = {
 
-        val dir = UUID.randomUUID
+        val dir = UUID.randomUUID.toString
 
         val f = FileOpt(s"""config/sync/$dir""")
         f.createDir
@@ -23,11 +25,15 @@ class alPresistStagePrecess extends alPrecess {
         //val ss = f.lstFiles.map(alPortion(_))
         //alStage(alStorage(ss) :: Nil) :: Nil
 
-        alStage(f.lstFiles) :: Nil
+        val files = f.lstFiles
+        reVal = Some((dir, files))
+        alStage(files) :: Nil
     }
 
     def action(j : alStage) = {
         println("presist stage is map precess")
         throw new Exception("read excel is map precess")
     }
+
+    override def result: Option[Any] = reVal
 }

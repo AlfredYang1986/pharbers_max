@@ -14,6 +14,10 @@ object alPrecessDefines {
         def apply() : alPrecess = new alPresistStagePrecess
     }
 
+    object restore_data extends precess_defines(2, "restore data") {
+        def apply() : alPrecess = new alRestorePrecess
+    }
+
     object do_calc extends precess_defines(9, "do calc") {
         def apply() : alPrecess = new alCalcPrecess
     }
