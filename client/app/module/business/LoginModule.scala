@@ -51,7 +51,7 @@ object LoginModule extends ModuleTrait {
         }
 
         def conditions: List[DBObject] = {
-            val con = conditionsAcc(Nil, "Account" :: "Password" :: Nil, userConditions(x => x.asOpt[String]))
+            var con = conditionsAcc(Nil, "Account" :: "Password" :: Nil, userConditions(x => x.asOpt[String]))
             con
         }
 
@@ -87,7 +87,7 @@ object LoginModule extends ModuleTrait {
         val UserId = User_lst.getAs[String]("ID").getOrElse("无")
         val UserTimestamp = User_lst.as[Number]("Timestamp").longValue()
         val UserAuth = User_lst.as[Number]("auth").intValue()
-
+        val IsAdministrator = User_lst.as[Number]("isadministrator").intValue()
         val CompanyNameCh = Company.head.asInstanceOf[BasicDBObject].get("Ch").toString
         val CompanyNameEn = Company.head.asInstanceOf[BasicDBObject].get("En").toString
 
@@ -95,6 +95,7 @@ object LoginModule extends ModuleTrait {
             "Token" -> toJson(Company_Id),
             "UserTimestamp" -> toJson(UserTimestamp),
             "UserAuth" -> toJson(UserAuth),
+            "IsAdministrator" -> toJson(IsAdministrator),
             "User_Token" -> toJson(UserId),
             "CompanyNameCh" -> toJson(CompanyNameCh),
             "CompanyNameEn" -> toJson(CompanyNameEn),

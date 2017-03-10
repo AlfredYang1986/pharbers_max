@@ -34,6 +34,7 @@ function login() {
                 $.cookie("user_token",r.result.FinalResult.User_Token)
 				$.cookie("user_name",r.result.FinalResult.UserName)
                 $.cookie("user_auth",r.result.FinalResult.UserAuth)
+                $.cookie("is_administrator",r.result.FinalResult.IsAdministrator)
                 $.cookie("token",r.result.FinalResult.Token)
                 $.cookie("company_name_ch",r.result.FinalResult.CompanyNameCh)
                 $.cookie("company_name_en",r.result.FinalResult.CompanyNameEn)
@@ -50,6 +51,7 @@ function logout() {
 	$.cookie("user_token", "", {"path": "/", "expires": -1 });
     $.cookie("user_name", "", {"path": "/", "expires": -1 });
     $.cookie("user_auth", "", {"path": "/", "expires": -1 });
+    $.cookie("is_administrator", "", {"path": "/", "expires": -1 });
     $.cookie("token", "", {"path": "/", "expires": -1 });
     $.cookie("company_name_ch", "", {"path": "/", "expires": -1 });
     $.cookie("company_name_en", "", {"path": "/", "expires": -1 });

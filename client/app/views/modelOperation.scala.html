@@ -1,4 +1,4 @@
-@(markets : List[String])
+@(is_administrator: String,markets : List[String])
 @main("Max | Home") {
 <body>
     <div id="wrapper">
@@ -6,9 +6,8 @@
             <div class="sidebar-collapse">
                 <ul class="nav metismenu" id="side-menu">
                     <li class="nav-header">
-                        <div class="dropdown profile-element"> <span>
-                            <img alt="image" class="img-circle" src="@routes.Assets.versioned("images/pfizer.png")" />
-                             </span>
+                        <div class="dropdown profile-element">
+                            <span><img alt="image" width="48" height="48" style="background-color: #ffffff;" class="img-circle" src="@routes.Assets.versioned("images/boy-4.png")" /></span>
                             <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                                 <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold" id="company"></strong>
                                 </span> <span class="text-muted text-xs block"><span id="Name"></span> Staff<b class="caret"></b></span> </span> </a>
@@ -37,11 +36,20 @@
                     <li>
                         <a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">结果查询</span></a>
                     </li>
+                    @if(is_administrator.equals("Yes")){
+                        <li>
+                            <a><i class="fa fa-gears"></i> <span class="nav-label">管理页面</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active"><a href="manage">文件上传</a></li>
+                                <li><a href="#">用户管理</a></li>
+                                <li><a href="#">市场管理</a></li>
+                            </ul>
+                        </li>
+                    }
                     <li class="landing_link">
                         <a target="_blank" href="http://www.pharbers.com/"><i class="fa fa-star"></i> <span class="nav-label">官方网站</span> <span class="label label-warning pull-right">NEW</span></a>
                     </li>
                 </ul>
-
             </div>
         </nav>
         <div id="page-wrapper" class="gray-bg">
