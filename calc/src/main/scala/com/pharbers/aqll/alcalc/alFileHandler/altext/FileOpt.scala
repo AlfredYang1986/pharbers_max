@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alcalc.alFileHandler.altext
+package com.pharbers.aqll.alcalc.alfilehandler.altext
 
 import java.io.{File, PrintWriter}
 
@@ -21,4 +21,7 @@ class FileOpt(val file : String) {
     }
 
     def requestDataFromFile(f : String => Any) : List[Any] = Source.fromFile(file).getLines().map(f(_)).toList
+
+    def createDir = new File(file).mkdir()
+    def lstFiles : List[String] = (new File(file)).listFiles.filter(x => x.isFile && !x.isHidden).map(x => x.getPath).toList
 }

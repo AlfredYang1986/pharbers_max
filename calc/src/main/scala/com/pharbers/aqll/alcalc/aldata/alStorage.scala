@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.aldata
 
-import com.pharbers.aqll.alcalc.alFileHandler.alFileHandler
+import com.pharbers.aqll.alcalc.alfilehandler.alFileHandler
 
 /**
   * Created by Alfred on 09/03/2017.
@@ -8,6 +8,16 @@ import com.pharbers.aqll.alcalc.alFileHandler.alFileHandler
 object alStorage {
     def apply(path : String, rf : alFileHandler) : alStorage = new alFileInitStorage(rf.prase(path))
     def apply(lst : List[Any]) : alStorage = new alMemoryInitStorage(lst)
+    def apply(ps : List[alPortion]) : alPortionedStorage = {
+        val tmp = new alPortionedStorage(Nil, x => x)
+        tmp.portions = ps
+        tmp
+    }
+
+    def union(lst : List[alStorage]) : alStorage = alStorage(lst map { x =>
+            if (x.isInstanceOf[alPortionedStorage]) ???
+            else alPortion(x.data)
+        })
 }
 
 abstract class alStorage(val parents : List[alStorage], val f : Any => Any) {
@@ -39,6 +49,9 @@ abstract class alStorage(val parents : List[alStorage], val f : Any => Any) {
 
     // 升级， Protion 升级成Storage
     def upgrade : List[alStorage] = this :: Nil
+
+    // 属性计算
+    def length : Int = data.length
 }
 
 abstract class alInitStorage(fc : Any => Any) extends alStorage(Nil, fc) {
@@ -80,6 +93,8 @@ class alPortionedStorage(p : List[alStorage], fc : Any => Any) extends alStorage
     }
 
     override def upgrade : List[alStorage] = portions.map (x => alStorage(x.data))
+
+    override def length : Int = portions.map(x => x.asInstanceOf[alPortion].length).sum
 }
 
 class alNormalStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p, fc) {

@@ -2,8 +2,8 @@ package com.pharbers.aqll.stub
 
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.aldata.alPortion
-import com.pharbers.aqll.alcalc.alFileHandler.alexcel.alIntegrateddataparser
-import com.pharbers.aqll.alcalc.alFileHandler.altext.{alTextParser, alTextSync}
+import com.pharbers.aqll.alcalc.alfilehandler.alexcel.alIntegrateddataparser
+import com.pharbers.aqll.alcalc.alfilehandler.altext.{alTextParser, alTextSync}
 import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.alcalc.alcmd.scpcmd.{cpCmd, scpCmd}
 

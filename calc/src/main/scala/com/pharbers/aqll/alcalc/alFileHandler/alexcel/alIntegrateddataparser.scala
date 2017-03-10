@@ -1,8 +1,8 @@
-package com.pharbers.aqll.alcalc.alFileHandler.alexcel
+package com.pharbers.aqll.alcalc.alfilehandler.alexcel
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import com.pharbers.aqll.calc.excel.core.{integratedresult, row_integrateddataparser, rowinteractparser}
-import com.pharbers.aqll.alcalc.alFileHandler.alFileHandler
+import com.pharbers.aqll.alcalc.alfilehandler.alFileHandler
 import com.pharbers.aqll.calc.common.DefaultData.integratedXmlPath
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 

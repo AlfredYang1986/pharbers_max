@@ -1,10 +1,9 @@
-package com.pharbers.aqll.alcalc.alFileHandler.altext
+package com.pharbers.aqll.alcalc.alfilehandler.altext
 
-import com.pharbers.aqll.alcalc.alFileHandler.alFileHandler
-import com.pharbers.aqll.alcalc.aldata.{alMemoryPortion, alStorage, alPersisportion}
+import com.pharbers.aqll.alcalc.alfilehandler.alFileHandler
+import com.pharbers.aqll.alcalc.aldata.{alMemoryPortion, alPersisportion, alStorage}
 import com.pharbers.aqll.calc.util.MD5
-
-import java.util.Date
+import java.util.{Date, UUID}
 
 /**
   * Created by BM on 09/03/2017.
@@ -20,11 +19,11 @@ class alTextSync extends alFileHandler with CreateInnerSync {
         s.doCalc
         if (s.isPortions) {
             s.portions.foreach { p =>
-                val file = MD5.md5(new Date().getTime.toString)
+                val file = UUID.randomUUID
                 parser.startSync(path + "/" + file , p.data)
             }
         } else {
-            val file = MD5.md5(new Date().getTime.toString)
+            val file = UUID.randomUUID
             parser.startSync(path + "/" + file, s.data)
         }
         Unit

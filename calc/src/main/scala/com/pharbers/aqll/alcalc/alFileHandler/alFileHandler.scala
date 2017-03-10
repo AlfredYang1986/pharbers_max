@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alcalc.alFileHandler
+package com.pharbers.aqll.alcalc.alfilehandler
 
 import akka.actor.Actor
 import com.pharbers.aqll.alcalc.aldata.alStorage

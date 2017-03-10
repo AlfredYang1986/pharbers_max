@@ -1,7 +1,7 @@
-package com.pharbers.aqll.alcalc.alFileHandler.altext
+package com.pharbers.aqll.alcalc.alfilehandler.altext
 
 import akka.actor.ActorRef
-import com.pharbers.aqll.alcalc.alFileHandler.alFileHandler
+import com.pharbers.aqll.alcalc.alfilehandler.alFileHandler
 import com.pharbers.aqll.calc.common.DefaultData.integratedXmlPath
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 import com.pharbers.aqll.calc.excel.core.rowinteractparser
