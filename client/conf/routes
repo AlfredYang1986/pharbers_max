@@ -3,7 +3,6 @@
 # ~~~~
 GET     /test                       controllers.Application.test
 GET     /                           controllers.Application.login
-GET     /landing                    controllers.Application.landing
 GET		/login						controllers.Application.login
 POST	/login						controllers.Application.login
 GET		/index						controllers.Application.index
@@ -18,7 +17,6 @@ GET		/emptypage					controllers.Application.emptyPage
 GET		/filesupload				controllers.Application.filesUpload
 GET		/samplecheck				controllers.Application.sampleCheck
 GET		/modeloperation				controllers.Application.modelOperation
-GET		/resultcheck				controllers.Application.resultCheck
 GET		/resultquery				controllers.Application.resultQuery
 POST 	/resultquery/search			controllers.business.ResultQueryController.resultQueryAjaxCall
 POST	/samplecheck/check			controllers.business.SampleCheckController.sampleCheckAjaxCall
@@ -32,7 +30,7 @@ POST	/uploadfiles				controllers.business.FilesUploadController.filesUploadAjaxC
 GET     /resultquery/files/:name    controllers.foptController.exportFile(name)
 POST    /callcheckexcel             controllers.business.CallAkkaHttpController.callHttpCheckExcelAjaxCall
 POST    /callrunmodel               controllers.business.CallAkkaHttpController.callHttpRunModelAjaxCall
-#POST    /callfileexport             controllers.business.CallAkkaHttpController.callHttpFileExportAjaxCall
+POST    /callfileexport             controllers.business.CallAkkaHttpController.callHttpFileExportAjaxCall
 
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)

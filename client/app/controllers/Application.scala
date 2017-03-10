@@ -11,10 +11,6 @@ class Application extends Controller {
       Ok(views.html.test("Your new application is ready."))
   }
 
-  //官网
-  def landing = Action {
-      Ok(views.html.landing("Your new application is ready."))
-  }
   //登录
   def login = Action { request =>
       Ok(views.html.login("Your new application is ready."))
@@ -86,20 +82,9 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.modelOperation("Your new application is ready."))
+          Ok(views.html.modelOperation(MarketsModule.pushMarkets))
       }
   }
-
-  //结果检查
-  def resultCheck = Action { request =>
-      val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
-      if(token.equals("")){
-          Ok(views.html.login("Your new application is ready."))
-      }else{
-          Ok(views.html.resultCheck("Your new application is ready."))
-      }
-  }
-
 
   //结果查询
   def resultQuery = Action { request =>
