@@ -85,7 +85,7 @@ var topThreeCurrent = function (topdata) {
 
 var noMatchHosp = function (hosplist) {
     $.each(hosplist, function (i, v) {
-        $("#hospitalList").append("<tr><td>" + (i + 1) + "</td><td>" + v + "</td><td><a href=\"javascript:;\"><i class=\"fa fa-times text-danger text\"></i></a></td></tr>")
+        $("#hospitalList").append("<tr><td>" + (i + 1) + "</td><td>" + v + "</td><td>undefined</td><td>undefined</td><td>undefined</td><td><a href=\"javascript:;\"><i class=\"fa fa-times text-danger text\"></i></a></td></tr>")
     })
 }
 
