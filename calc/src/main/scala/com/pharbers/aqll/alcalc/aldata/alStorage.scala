@@ -92,6 +92,8 @@ class alPortionedStorage(p : List[alStorage], fc : Any => Any) extends alStorage
         }
     }
 
+    override def portion(ps : List[Any] => List[alPortion]) : alPortionedStorage = this
+
     override def upgrade : List[alStorage] = portions.map (x => alStorage(x.data))
 
     override def length : Int = portions.map(x => x.asInstanceOf[alPortion].length).sum
