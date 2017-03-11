@@ -1,11 +1,15 @@
 package com.pharbers.aqll.alcalc.almain
 
-import akka.actor.{Actor, ActorContext, ActorLogging, ActorSystem, Props, Scheduler}
+import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSystem, Props, Scheduler}
+import akka.routing.RoundRobinPool
+import akka.pattern.ask
+import akka.util.Timeout
 import com.pharbers.aqll.alcalc.aljobs.alJob
 import com.pharbers.aqll.alcalc.aljobs.alJob.max_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{finish_max_job, push_max_job, schedule_jobs}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{spliting_busy, _}
 
+import scala.concurrent.Await
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
 import scala.concurrent.duration._
@@ -20,7 +24,8 @@ object alMaxDriver {
 
 class alMaxDriver extends Actor
                      with ActorLogging
-                     with alMaxJobsSchedule {
+                     with alMaxJobsSchedule
+                     with alCreateExcelSplitRouter {
 
     override def receive = {
         case push_max_job(file_path) => {
@@ -31,21 +36,19 @@ class alMaxDriver extends Actor
         }
 
         case schedule_jobs() => {
-//            println("schedule a job")
-            var j : Option[alJob] = None
+            implicit val t = Timeout(0.5 second)
             atomic { implicit txn =>
                 jobs() match {
                     case head :: lst => {
-                        j = Some(head)
-                        jobs() = lst
+                        val f = excel_split_router ? split_job(head)
+                        Await.result(f, 0.5 seconds) match {
+                            case spliting_busy() => Unit
+                            case spliting_job(_) => jobs() = jobs().tail
+                        }
                     }
-                    case Nil => {
-                        j = None
-                    }
+                    case Nil => Unit
                 }
             }
-            val result = j.map (x => x.result).getOrElse(None)
-            println(result)
         }
 
         case finish_max_job(uuid) => {
@@ -54,9 +57,16 @@ class alMaxDriver extends Actor
 
         case _ => ???
     }
+
+    val excel_split_router = CreateExcelSplitRouter
 }
 
 trait alMaxJobsSchedule { this : Actor =>
     val jobs = Ref(List[alJob]())
     val timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_jobs)
+}
+
+trait alCreateExcelSplitRouter { this : Actor =>
+    def CreateExcelSplitRouter =
+        context.actorOf(RoundRobinPool(1).props(alExcelSplitActor.props), name = "excel-split-router")
 }

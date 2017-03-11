@@ -1,0 +1,45 @@
+package com.pharbers.aqll.alcalc.almain
+
+import akka.actor.{Actor, ActorLogging, FSM, Props}
+import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
+import com.pharbers.aqll.alcalc.aljobs.aljobstates.alExcelSplitJobStates._
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+
+/**
+  * Created by Alfred on 11/03/2017.
+  */
+object alExcelSplitActor {
+    def props : Props = Props[alExcelSplitActor]
+}
+
+class alExcelSplitActor extends Actor
+                        with ActorLogging
+                        with FSM[alPointState, String] {
+
+    startWith(alMasterJobIdle, "")
+
+    when(alMasterJobIdle) {
+        case Event(split_job(s), _) => {
+            sender() ! spliting_job(s)
+            context.system.scheduler.scheduleOnce(0 seconds, self, spliting_job(s))
+            goto(spliting_data) using ""
+        }
+    }
+
+    when(spliting_data) {
+        case Event(split_job(s), _) => {
+            sender() ! spliting_busy()
+            stay()
+        }
+
+        case Event(spliting_job(s), _) => {
+            val result = s.result
+            println(result)
+            // fire finish_split_excel_job to driver
+            goto(alMasterJobIdle) using ""
+        }
+    }
+}

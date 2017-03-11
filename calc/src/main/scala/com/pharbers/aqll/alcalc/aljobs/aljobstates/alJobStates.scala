@@ -14,7 +14,7 @@ trait alMaxJobStates extends alJobStates {
     case object max_calcing extends alPointState    // 数据计算结果写入数据库中
 }
 
-trait alExcelSplitJobStates extends alJobStates {
+object alExcelSplitJobStates extends alJobStates {
     case object excel_split_idleing extends alPointState
     case object spliting_data extends alPointState
 }
