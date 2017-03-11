@@ -27,7 +27,6 @@ class alReadExcelSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy
         import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.read_excel_split
         val t = constraints.get(read_excel_split.section_number).map (x => x.asInstanceOf[Int]).getOrElse(1)
         val sn = lst.length / t + 1
-        lst.grouped(sn).map(iter => alPortion(iter)).toList
+        lst.grouped(sn).map(alPortion(_)).toList
     }
-
 }

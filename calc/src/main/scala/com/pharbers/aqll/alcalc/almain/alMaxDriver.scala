@@ -20,6 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
   */
 object alMaxDriver {
     def props = Props[alMaxDriver]
+    def name = "driver-actor"
 }
 
 class alMaxDriver extends Actor
@@ -28,6 +29,11 @@ class alMaxDriver extends Actor
                      with alCreateExcelSplitRouter {
 
     override def receive = {
+
+        case worker_register(map) => {
+            println(s"map = $map")
+        }
+
         case push_max_job(file_path) => {
             println(s"sign a job with file name $file_path")
             atomic { implicit txn =>
