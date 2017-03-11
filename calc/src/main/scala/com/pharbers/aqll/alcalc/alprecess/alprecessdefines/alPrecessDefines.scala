@@ -23,6 +23,10 @@ object alPrecessDefines {
         def apply(s : alSplitStrategy) : alPrecess = new alSplitPrecess(s)
     }
 
+    object  do_map extends precess_defines(4, "map data") {
+        def apply(s : Any => Any) : alPrecess = new alMapPrecess(s)
+    }
+
     object do_calc extends precess_defines(9, "do calc") {
         def apply() : alPrecess = new alCalcPrecess
     }

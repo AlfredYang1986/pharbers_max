@@ -28,6 +28,17 @@ object alJob {
             tmp
         }
     }
+    object concert_calculation_jobs extends job_defines(2, "concert calc go") {
+        val max_uuid = "max_uuid"
+        val calc_uuid = "calc_uuid"
+        def apply(m : Map[String, String]) : alConcretCalcJob = {
+            val uuid = m.get(calc_uuid).map (x => x).getOrElse(throw new Exception("need one uuid"))
+            val parent = m.get(max_uuid).map (x => x).getOrElse(throw new Exception("need one parent"))
+            val tmp = new alConcretCalcJob(uuid, parent)
+            tmp.init(m)
+            tmp
+        }
+    }
 }
 
 sealed class job_defines(val t : Int, val d : String)

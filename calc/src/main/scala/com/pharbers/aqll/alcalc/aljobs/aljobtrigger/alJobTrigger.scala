@@ -40,4 +40,11 @@ object alJobTrigger {
     case class calcing_accept()
     case class calcing_busy()
     case class calcing_can_accept()
+
+    /**
+      * for concert calc
+      */
+    case class concert_adjust()
+    case class concert_adjust_result(index : Int)
+    case class concert_calc(p : alMaxProperty)
 }

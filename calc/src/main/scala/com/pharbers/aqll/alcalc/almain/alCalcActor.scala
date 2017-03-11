@@ -1,8 +1,9 @@
 package com.pharbers.aqll.alcalc.almain
 
-import akka.actor.{Actor, ActorLogging, FSM, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
+import akka.routing.BroadcastPool
 import com.pharbers.aqll.alcalc.aljobs.alJob.calculation_jobs
-import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates.calc_coreing
+import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates.{calc_coreing, calc_doing}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
@@ -21,7 +22,8 @@ object alCalcActor {
 
 class alCalcActor extends Actor
                      with ActorLogging
-                     with FSM[alPointState, String] {
+                     with FSM[alPointState, String]
+                     with alCreateConcretCalcRouter {
 
     startWith(alMasterJobIdle, "")
 
@@ -33,7 +35,7 @@ class alCalcActor extends Actor
 
         case Event(calc_job(p), _) => {
             atomic { implicit tnx =>
-                result_ref() = Some(p)
+                concert_ref() = Some(p)
             }
 //            sender() ! calcing_accept()
 
@@ -45,6 +47,39 @@ class alCalcActor extends Actor
     }
 
     when(calc_coreing) {
+        case Event(calcing_job(cj), _) => {
+            println(s"开始根据CPU核数拆分线程")
+            println(cj)
+
+            val result = cj.result
+            val (p, sb) = result.get.asInstanceOf[(String, List[String])]
+
+            val q = sb.map (x => alMaxProperty(p, x, Nil))
+            atomic { implicit tnx =>
+                result_ref() = Some(alMaxProperty(concert_ref.single.get.get.uuid, p, q))
+                adjust_index() = -1
+            }
+            println(result_ref.single.get)
+
+            concert_router ! concert_adjust()
+
+            goto(calc_doing) using ""
+        }
+    }
+
+    when(calc_doing) {
+        case Event(calc_can_job(), _) => {
+            sender() ! calcing_busy()
+            stay()
+        }
+
+        case Event(calc_job(p), _) => {
+            sender() ! calcing_busy()
+            stay()
+        }
+    }
+
+    whenUnhandled {
         case Event(calc_can_job(), _) => {
             sender() ! calcing_busy()
             stay()
@@ -55,16 +90,26 @@ class alCalcActor extends Actor
             stay()
         }
 
-        case Event(calcing_job(cj), _) => {
-            println(s"开始根据CPU核数拆分线程")
-            println(cj)
+        case Event(concert_adjust_result(_), _) => {
+            atomic { implicit tnx =>
+                adjust_index() = adjust_index() + 1
+                sender() ! concert_adjust_result(adjust_index())
+            }
 
-            val result = cj.result
-            println(result)
-
+            if (adjust_index.single.get == 3) {
+                concert_router ! concert_calc(result_ref.single.get.get)
+            }
             stay()
         }
     }
 
+    val concert_ref : Ref[Option[alMaxProperty]] = Ref(None)
     val result_ref : Ref[Option[alMaxProperty]] = Ref(None)
+    val adjust_index = Ref(-1)
+    val concert_router = CreateConcretCalcRouter
+}
+
+trait alCreateConcretCalcRouter { this : Actor =>
+    def CreateConcretCalcRouter =
+        context.actorOf(BroadcastPool(4).props(alConcertCalcActor.props), name = "concret-router")
 }

@@ -1,14 +1,12 @@
 package com.pharbers.aqll.alcalc.alprecess
 
-import com.pharbers.aqll.alcalc.aldata.{alInitStorage, alStorage}
-import com.pharbers.aqll.alcalc.alfilehandler.alexcel.alIntegrateddataparser
-import com.pharbers.aqll.alcalc.alfilehandler.altext.{FileOpt, alTextSync}
+import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alstages.{alInitStage, alMemoryStage, alPresisStage, alStage}
 
 /**
-  * Created by Alfred on 10/03/2017.
+  * Created by BM on 11/03/2017.
   */
-class alCalcPrecess extends alPrecess {
+class alMapPrecess(f : Any => Any) extends alPrecess {
     def precess(j : alStage) : List[alStage] = {
 
         try {
@@ -17,15 +15,7 @@ class alCalcPrecess extends alPrecess {
                 case _ : alPresisStage => ???
                 case _ : alMemoryStage => {
                     val ns = j.storages.map { x =>
-                        val tmp = x.asInstanceOf[alStorage]
-                        tmp.doCalc
-
-                        if (tmp.isInstanceOf[alInitStorage]) {
-                            val t = alStorage(tmp.data)
-                            t.doCalc
-                            t
-                        }
-                        else tmp
+                        x.asInstanceOf[alStorage].map(f)
                     }
                     alStage(ns) :: Nil
                 }
@@ -33,7 +23,8 @@ class alCalcPrecess extends alPrecess {
 
         } catch {
             case ex : OutOfMemoryError => println("not enough memory"); throw ex
-            case ex : Exception => println("unknow error"); throw ex
+//            case ex : Exception => println("unknow error"); throw ex
+            case ex : Exception => ex.printStackTrace; throw ex
         }
     }
 

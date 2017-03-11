@@ -14,7 +14,7 @@ class alMaxJob extends alJob {
     def init(args : Map[String, Any]) = {
         val excel_file = args.get(max_excel_path).map (x => x.toString).getOrElse(throw new Exception("have to provide excel file"))
         cur = Some(alStage(excel_file))
-        process = read_excel() :: split_data(read_excel_split(Map(read_excel_split.section_number -> 1))) :: do_calc() :: ps :: Nil
+        process = read_excel() :: split_data(read_excel_split(Map(read_excel_split.section_number -> 1))) :: ps :: Nil
     }
     def result : Option[Any] =  {
         if (!process.isEmpty)

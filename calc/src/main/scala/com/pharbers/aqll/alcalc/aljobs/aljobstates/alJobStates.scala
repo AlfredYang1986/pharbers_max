@@ -25,4 +25,5 @@ object alMaxCalcJobStates extends alJobStates {
 //    case object calc_average extends alPointState
 //    case object calc_lasting extends alPointState
     case object calc_coreing extends alPointState
+    case object calc_doing extends alPointState
 }
