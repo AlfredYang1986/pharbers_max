@@ -15,13 +15,14 @@ trait alMaxJobStates extends alJobStates {
 }
 
 object alExcelSplitJobStates extends alJobStates {
-    case object excel_split_idleing extends alPointState
+//    case object excel_split_idleing extends alPointState
     case object spliting_data extends alPointState
 }
 
-trait alMaxCalcJobStates extends alJobStates {
-    case object calc_idleing extends alPointState
-    case object calc_maxing extends alPointState
-    case object calc_average extends alPointState
-    case object calc_lasting extends alPointState
+object alMaxCalcJobStates extends alJobStates {
+//    case object calc_idleing extends alPointState
+//    case object calc_maxing extends alPointState
+//    case object calc_average extends alPointState
+//    case object calc_lasting extends alPointState
+    case object calc_coreing extends alPointState
 }

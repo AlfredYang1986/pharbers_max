@@ -17,7 +17,7 @@ object alJob {
             tmp
         }
     }
-    object calc_jobs extends job_defines(1, "calc go") {
+    object calculation_jobs extends job_defines(1, "calc go") {
         val max_uuid = "max_uuid"
         val calc_uuid = "calc_uuid"
         def apply(m : Map[String, String]) : alCalcJob = {

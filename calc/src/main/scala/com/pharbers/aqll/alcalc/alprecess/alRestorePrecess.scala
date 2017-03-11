@@ -9,7 +9,8 @@ import com.pharbers.aqll.alcalc.alstages.{alInitStage, alMemoryStage, alPresisSt
   */
 class alRestorePrecess extends alPrecess {
     def precess(j : alStage) : List[alStage] = {
-        def precessAcc(path : String) : alStorage = alStorage(path, new alTextParser)
+        val path_preffix = """config/sync/"""
+        def precessAcc(path : String) : alStorage = alStorage(path_preffix + path, new alTextParser)
 
         try {
             j match {

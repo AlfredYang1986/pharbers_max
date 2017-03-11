@@ -22,8 +22,7 @@ object stub_test_3 extends App {
             val a = system.actorOf(alDriverSingleton.props, "splitreception")
             println(s"a = $a")
             println("cluster ready")
-            val driver = system.actorOf(alMaxDriver.props, "split-master")
-            driver ! push_max_job("""config/new_test/2016-01.xlsx""")
+            a ! push_max_job("""config/new_test/2016-01.xlsx""")
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.aljobs
 
-import com.pharbers.aqll.alcalc.aljobs.alJob.calc_jobs._
+import com.pharbers.aqll.alcalc.aljobs.alJob.calculation_jobs._
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.core_split
 import com.pharbers.aqll.alcalc.alstages.alStage

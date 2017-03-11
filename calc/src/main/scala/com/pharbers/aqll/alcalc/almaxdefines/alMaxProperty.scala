@@ -6,6 +6,7 @@ package com.pharbers.aqll.alcalc.almaxdefines
 case class alMaxProperty(val parent : String,
                          val uuid : String,
                          val subs : List[alMaxProperty],
-                         val sum1 : Double,
-                         val sum2 : Double,
-                         val sum3 : Double)
+                         var signed : Boolean = false,
+                         var sum1 : Double = 0.0,
+                         var sum2 : Double = 0.0,
+                         var sum3 : Double = 0.0)

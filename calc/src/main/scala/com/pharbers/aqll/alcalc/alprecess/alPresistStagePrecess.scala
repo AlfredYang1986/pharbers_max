@@ -25,7 +25,7 @@ class alPresistStagePrecess(val dirOpt : Option[String]) extends alPrecess {
         //val ss = f.lstFiles.map(alPortion(_))
         //alStage(alStorage(ss) :: Nil) :: Nil
 
-        val files = f.lstFiles
+        val files = f.lstFiles.map (x => x.drop(x.lastIndexOf("/") + 1))
         reVal = Some((dir, files))
         alStage(files) :: Nil
     }
