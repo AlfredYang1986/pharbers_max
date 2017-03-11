@@ -2,7 +2,7 @@ package com.pharbers.aqll.alcalc.almain
 
 import akka.actor.{Actor, ActorLogging, PoisonPill, Props}
 import akka.cluster.singleton.{ClusterSingletonManager, ClusterSingletonManagerSettings, ClusterSingletonProxy, ClusterSingletonProxySettings}
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{finish_split_excel_job, push_max_job, worker_register}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, finish_split_excel_job, push_max_job, worker_register}
 import com.pharbers.aqll.calc.split.SplitReception
 
 /**
@@ -37,6 +37,7 @@ class alDriverSingleton extends Actor with ActorLogging{
 	def receive = {
 		case cmd : finish_split_excel_job => driver forward cmd
 		case cmd : push_max_job => driver forward cmd
+        case cmd : calc_register => driver forward cmd
 		case _ => ???
 	}
 }

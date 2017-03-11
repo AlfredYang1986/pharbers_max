@@ -1,5 +1,6 @@
 package com.pharbers.aqll.alcalc.aljobs.aljobtrigger
 
+import akka.actor.ActorRef
 import com.pharbers.aqll.alcalc.aljobs.alJob
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 
@@ -20,6 +21,8 @@ object alJobTrigger {
     case class schedule_jobs()
     case class schedule_calc()
 
+    case class calc_register(a : ActorRef)
+
     /**
       * for split excel
       */
@@ -31,10 +34,10 @@ object alJobTrigger {
     /**
       * for calc
       */
-    case class clac_can_job()
-    case class clac_job(j : alMaxProperty)
-    case class clacing_job(j : alJob)
-    case class clacing_accept()
-    case class clacing_busy()
-    case class clacing_can_accept()
+    case class calc_can_job()
+    case class calc_job(j : alMaxProperty)
+    case class calcing_job(j : alJob)
+    case class calcing_accept()
+    case class calcing_busy()
+    case class calcing_can_accept()
 }

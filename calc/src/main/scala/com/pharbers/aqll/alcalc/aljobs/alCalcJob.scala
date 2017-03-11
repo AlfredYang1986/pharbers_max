@@ -16,6 +16,7 @@ class alCalcJob(u : String, val parent : String) extends alJob {
         val restore_path = """config/sync/""" + parent + "/" + uuid
         cur = Some(alStage(restore_path))
         process = restore_data() :: split_data(core_split(Map(core_split.core_number -> 4))) :: do_calc() :: ps :: Nil
+//        process = restore_data() :: do_calc() :: Nil
     }
     def result : Option[Any] =  {
         if (!process.isEmpty)

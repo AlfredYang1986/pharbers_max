@@ -22,7 +22,7 @@ object alJob {
         val calc_uuid = "calc_uuid"
         def apply(m : Map[String, String]) : alCalcJob = {
             val uuid = m.get(calc_uuid).map (x => x).getOrElse(throw new Exception("need one uuid"))
-            val parent = m.get(calc_uuid).map (x => x).getOrElse(throw new Exception("need one parent"))
+            val parent = m.get(max_uuid).map (x => x).getOrElse(throw new Exception("need one parent"))
             val tmp = new alCalcJob(uuid, parent)
             tmp.init(m)
             tmp

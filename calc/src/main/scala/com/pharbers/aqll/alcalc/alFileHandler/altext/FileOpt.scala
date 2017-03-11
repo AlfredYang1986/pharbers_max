@@ -20,7 +20,10 @@ class FileOpt(val file : String) {
         writer.close()
     }
 
-    def requestDataFromFile(f : String => Any) : List[Any] = Source.fromFile(file).getLines().map(f(_)).toList
+    def requestDataFromFile(f : String => Any) : List[Any] = {
+        println(file)
+        Source.fromFile(file).getLines().map(f(_)).toList
+    }
 
 
     def createDir = new File(file).mkdir()

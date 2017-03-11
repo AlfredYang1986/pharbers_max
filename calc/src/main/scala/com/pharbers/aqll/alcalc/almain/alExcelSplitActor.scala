@@ -38,8 +38,11 @@ class alExcelSplitActor extends Actor
         case Event(spliting_job(s), _) => {
             val result = s.result
             println(result)
-            val singleton = context.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/splitreception")
+            val singleton = context.actorSelection("akka://calc/user/splitreception")
+            println(singleton)
             val (p, sb) = result.map (x => x).getOrElse(throw new Exception("cal error"))
+            println(p)
+            println(sb)
             singleton ! finish_split_excel_job(p.toString, sb.asInstanceOf[List[String]])
             goto(alMasterJobIdle) using ""
         }

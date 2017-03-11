@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, FSM, Props}
 import com.pharbers.aqll.alcalc.aljobs.alJob.calculation_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates.calc_coreing
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{clac_job, clacing_accept, clacing_busy, clacing_job}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 
 import scala.concurrent.stm.atomic
@@ -26,26 +26,42 @@ class alCalcActor extends Actor
     startWith(alMasterJobIdle, "")
 
     when(alMasterJobIdle) {
-        case Event(clac_job(p), _) => {
+        case Event(calc_can_job(), _) => {
+            sender() ! calcing_can_accept()
+            stay()
+        }
+
+        case Event(calc_job(p), _) => {
             atomic { implicit tnx =>
                 result_ref() = Some(p)
             }
-            sender() ! clacing_accept()
+//            sender() ! calcing_accept()
 
             println(Map(calculation_jobs.max_uuid -> p.uuid, calculation_jobs.calc_uuid -> p.subs.head.uuid))
-            calculation_jobs(Map(calculation_jobs.max_uuid -> p.uuid, calculation_jobs.calc_uuid -> p.subs.head.uuid))
-            context.system.scheduler.scheduleOnce(0 seconds, self, clacing_job(null))
+            val cj = calculation_jobs(Map(calculation_jobs.max_uuid -> p.uuid, calculation_jobs.calc_uuid -> p.subs.head.uuid))
+            context.system.scheduler.scheduleOnce(0 seconds, self, calcing_job(cj))
             goto(calc_coreing) using ""
         }
     }
 
     when(calc_coreing) {
-        case Event(clac_job(p), _) => {
-            sender() ! clacing_busy()
+        case Event(calc_can_job(), _) => {
+            sender() ! calcing_busy()
             stay()
         }
 
-        case Event(clacing_job(j), _) => {
+        case Event(calc_job(p), _) => {
+            sender() ! calcing_busy()
+            stay()
+        }
+
+        case Event(calcing_job(cj), _) => {
+            println(s"开始根据CPU核数拆分线程")
+            println(cj)
+
+            val result = cj.result
+            println(result)
+
             stay()
         }
     }

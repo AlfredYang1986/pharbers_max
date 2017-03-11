@@ -40,6 +40,12 @@ class alMaxDriver extends Actor
             println(s"map = $map")
         }
 
+        case calc_register(a) => {
+            atomic { implicit txn =>
+                calc_router() = calc_router() :+ a
+            }
+        }
+
         case push_max_job(file_path) => {
             println(s"sign a job with file name $file_path")
             atomic { implicit txn =>
@@ -76,19 +82,12 @@ class alMaxDriver extends Actor
         }
 
         case schedule_calc() => {
-            // TODO: 需要添加算能管理
-//            println(s"${self.path} current time table : ${calcing_jobs.single.get}")
             atomic { implicit txn =>
                 waiting_jobs() match {
                     case head :: lst => {
-                        val f = calc_router ? clac_job(head)
-                        Await.result(f, 0.5 seconds) match {
-                            case clacing_busy() => Unit
-                            case clacing_accept() => {
-                                waiting_jobs() = waiting_jobs().tail
-                                calcing_jobs() = calcing_jobs() :+ head
-                            }
-                        }
+                        println(head)
+                        if (canSignJob(head))
+                            signJob(head)
                     }
                     case Nil => Unit
                 }
@@ -99,7 +98,7 @@ class alMaxDriver extends Actor
     }
 
     val excel_split_router = CreateExcelSplitRouter
-    val calc_router = alCreateCalcRouter
+//    val calc_router = alCreateCalcRouter
 }
 
 trait alMaxJobsSchedule { this : Actor =>
@@ -118,15 +117,24 @@ trait alCreateExcelSplitRouter { this : Actor =>
         context.actorOf(RoundRobinPool(1).props(alExcelSplitActor.props), name = "excel-split-router")
 }
 
-trait alCreateCalcRouter { this : Actor =>
-//    def alCreateCalcRouter =
-//        context.actorOf(RoundRobinPool(1).props(alCalcActor.props), name = "calc-router")
+trait alCreateCalcRouter { this : Actor with alCalcJobsSchedule =>
+    val calc_router = Ref(List[ActorRef]())
 
-    // TODO : 由于是有状态的需要改成注册机制, 不能用router
-    def alCreateCalcRouter =
-        context.actorOf(
-            ClusterRouterPool(RoundRobinPool(1), ClusterRouterPoolSettings(
-                totalInstances = 1, maxInstancesPerNode = 1,
-                allowLocalRoutees = true, useRole = None)).props(alCalcActor.props), name = "calc-router")
+    def canSignJob(p : alMaxProperty) : Boolean = {
+        implicit val t = Timeout(0.5 second)
+        val f = calc_router.single.get map (x => x ? calc_can_job())
+        p.subs.length <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[calcing_can_accept]))
+    }
+
+    def signJob(p : alMaxProperty) = {
+        // TODO: 需要添加算能管理
+        // TODO: 多机器分配
+        calc_router.single.get.head ! calc_job(p)
+
+        atomic { implicit tnx =>
+            waiting_jobs() = waiting_jobs().tail
+            calcing_jobs() = calcing_jobs() :+ p
+        }
+    }
 }
 
