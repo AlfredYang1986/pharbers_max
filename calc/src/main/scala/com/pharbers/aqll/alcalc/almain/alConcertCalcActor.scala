@@ -10,6 +10,8 @@ import scala.concurrent.stm.atomic
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
+import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
+
 /**
   * Created by Alfred on 11/03/2017.
   */
@@ -30,7 +32,8 @@ class alConcertCalcActor extends Actor
         case concert_calc(p) => {
             val cj = concert_calculation_jobs(Map(concert_calculation_jobs.max_uuid -> p.uuid, concert_calculation_jobs.calc_uuid -> p.subs(index.single.get).uuid))
             val result = cj.result
-            println(cj.cur.get.storages.head.asInstanceOf[alStorage].data)
+            println(cj.cur.get.storages.head.asInstanceOf[alStorage].data.head.getClass)
+            println(cj.cur.get.storages.head.asInstanceOf[alStorage].data.head.asInstanceOf[IntegratedData].getHospName)
         }
     }
 }
