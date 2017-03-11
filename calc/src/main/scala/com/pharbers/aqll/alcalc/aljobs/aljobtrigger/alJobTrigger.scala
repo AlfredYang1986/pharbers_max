@@ -24,5 +24,5 @@ object alJobTrigger {
     case class split_job(j : alJob)
     case class spliting_job(j : alJob)
     case class spliting_busy()
-    case class finish_split_excel_job(j : alJob)
+    case class finish_split_excel_job(p : String, j : List[String])
 }

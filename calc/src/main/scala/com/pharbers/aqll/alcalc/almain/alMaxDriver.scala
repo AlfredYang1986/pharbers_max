@@ -8,6 +8,7 @@ import com.pharbers.aqll.alcalc.aljobs.alJob
 import com.pharbers.aqll.alcalc.aljobs.alJob.max_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{spliting_busy, _}
+import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic
@@ -61,6 +62,10 @@ class alMaxDriver extends Actor
             println(s"finish a job with uuid $uuid")
         }
 
+        case finish_split_excel_job(p, j) => {
+            println(s"split excel $p and sub calc $j")
+        }
+
         case _ => ???
     }
 
@@ -68,7 +73,8 @@ class alMaxDriver extends Actor
 }
 
 trait alMaxJobsSchedule { this : Actor =>
-    val jobs = Ref(List[alJob]())
+    val jobs = Ref(List[alJob]())       // only unhandled jobs
+    val calcing_jobs = Ref(List[alMaxProperty]())     // only for calcing jobs
     val timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_jobs)
 }
 
