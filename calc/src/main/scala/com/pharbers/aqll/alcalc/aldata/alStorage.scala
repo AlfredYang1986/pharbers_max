@@ -52,6 +52,9 @@ abstract class alStorage(val parents : List[alStorage], val f : Any => Any) {
 
     // 属性计算
     def length : Int = data.length
+
+    // 去掉所有的parent, 方便释放内存
+//    def clean = parents = Nil
 }
 
 abstract class alInitStorage(fc : Any => Any) extends alStorage(Nil, fc) {

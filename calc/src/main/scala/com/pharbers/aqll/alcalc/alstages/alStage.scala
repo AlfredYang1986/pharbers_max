@@ -33,6 +33,7 @@ trait alStage {
     var storages : List[AnyRef] = Nil
     def isCalc = false
 
+    def canLength : Boolean = false
     def length : Int = {
         println("only Memory can calc length")
         ???
@@ -41,6 +42,7 @@ trait alStage {
 
 class alInitStage extends alStage
 class alMemoryStage extends alStage {
+    override def canLength : Boolean = true
     override def isCalc: Boolean = storages.find (x => !x.asInstanceOf[alStorage].isCalc) == None
     override def length: Int = storages.map (x => x.asInstanceOf[alStorage].length).sum
 }

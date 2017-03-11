@@ -12,7 +12,7 @@ object alPrecessDefines {
     }
 
     object presist_data extends precess_defines(1, "presist data") {
-        def apply() : alPrecess = new alPresistStagePrecess
+        def apply(uuidOpt : Option[String] = None) : alPrecess = new alPresistStagePrecess(uuidOpt)
     }
 
     object restore_data extends precess_defines(2, "restore data") {

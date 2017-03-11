@@ -10,12 +10,12 @@ import com.pharbers.aqll.alcalc.alstages.{alInitStage, alMemoryStage, alPresisSt
 /**
   * Created by Alfred on 10/03/2017.
   */
-class alPresistStagePrecess extends alPrecess {
+class alPresistStagePrecess(val dirOpt : Option[String]) extends alPrecess {
     var reVal : Option[(String, List[String])] = None  // (dir, files)
 
     def precess(j : alStage) : List[alStage] = {
 
-        val dir = UUID.randomUUID.toString
+        val dir = dirOpt.map (x => x).getOrElse(UUID.randomUUID.toString)
 
         val f = FileOpt(s"""config/sync/$dir""")
         f.createDir
