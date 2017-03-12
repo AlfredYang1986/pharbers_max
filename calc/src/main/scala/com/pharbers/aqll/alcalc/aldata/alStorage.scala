@@ -14,6 +14,25 @@ object alStorage {
         tmp
     }
 
+    def groupBy(f : Any => Any)(s : alStorage) : Map[Any, alStorage] = {
+        val ss = if (s.isPortions) union(s.upgrade)
+                 else s
+                 
+        if (!ss.isCalc) 
+            ss.doCalc
+            
+        ss.data.groupBy(f).map { x =>
+            val s = alStorage(x._2)
+            s.doCalc
+            x._1 -> s
+        }
+    }
+   
+    def combine(lst : List[alStorage]) : alStorage = {
+        val s = alStorage.union(lst)
+        alStorage(alPortion.union(s.portions).data)
+    }
+    
     def union(lst : List[alStorage]) : alStorage = alStorage(lst map { x =>
             if (x.isInstanceOf[alPortionedStorage]) ???
             else alPortion(x.data)
@@ -43,7 +62,18 @@ abstract class alStorage(val parents : List[alStorage], val f : Any => Any) {
         if (isPortions) new alPortionedStorage(this :: Nil, f)
         else new alNormalStorage(this :: Nil, f)
     }
-
+    
+    // 去重复
+    def distinct : alStorage = {
+        if (!isCalc) {
+            doCalc
+            distinct
+        } else {
+            if (isPortions) alStorage.union(this.upgrade).distinct
+            else alStorage(this.data.distinct)
+        }
+    }
+    
     // 计算
     def doCalc
 

@@ -3,7 +3,7 @@ package com.pharbers.aqll.stub
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, push_max_job, worker_register}
-import com.pharbers.aqll.alcalc.almain.{alCalcActor, alDriverSingleton, alMaxDriver}
+import com.pharbers.aqll.alcalc.almain.{alGroupActor, alDriverSingleton, alMaxDriver}
 import com.pharbers.aqll.calc.split.{EventCollector, SplitReceptionSingleton}
 import com.typesafe.config.ConfigFactory
 
@@ -20,7 +20,7 @@ object stub_test_3 extends App {
     if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
         Cluster(system).registerOnMemberUp {
             println("cluster ready")
-            val w = system.actorOf(alCalcActor.props)
+            val w = system.actorOf(alGroupActor.props)
             val a = system.actorOf(alDriverSingleton.props, "splitreception")
             println(a)
             println(a.path)

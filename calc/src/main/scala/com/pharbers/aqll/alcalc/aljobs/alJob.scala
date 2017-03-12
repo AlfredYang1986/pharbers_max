@@ -9,6 +9,10 @@ import com.pharbers.aqll.alcalc.alstages.alStage
   * Created by Alfred on 10/03/2017.
   */
 object alJob {
+    object common_jobs extends job_defines(99, "common jobs") {
+         def apply() : alCommonJob = new alCommonJob
+    }
+    
     object max_jobs extends job_defines(0, "max calc") {
         val max_excel_path = "max_excel_path"
         def apply(path : String) : alMaxJob = {
@@ -17,22 +21,22 @@ object alJob {
             tmp
         }
     }
-    object calculation_jobs extends job_defines(1, "calc go") {
+    object grouping_jobs extends job_defines(1, "calc go") {
         val max_uuid = "max_uuid"
-        val calc_uuid = "calc_uuid"
+        val group_uuid = "calc_uuid"
         def apply(m : Map[String, String]) : alCalcJob = {
-            val uuid = m.get(calc_uuid).map (x => x).getOrElse(throw new Exception("need one uuid"))
+            val uuid = m.get(group_uuid).map (x => x).getOrElse(throw new Exception("need one uuid"))
             val parent = m.get(max_uuid).map (x => x).getOrElse(throw new Exception("need one parent"))
             val tmp = new alCalcJob(uuid, parent)
             tmp.init(m)
             tmp
         }
     }
-    object concert_calculation_jobs extends job_defines(2, "concert calc go") {
+    object concert_grouping_jobs extends job_defines(2, "concert calc go") {
         val max_uuid = "max_uuid"
-        val calc_uuid = "calc_uuid"
+        val group_uuid = "calc_uuid"
         def apply(m : Map[String, String]) : alConcretCalcJob = {
-            val uuid = m.get(calc_uuid).map (x => x).getOrElse(throw new Exception("need one uuid"))
+            val uuid = m.get(group_uuid).map (x => x).getOrElse(throw new Exception("need one uuid"))
             val parent = m.get(max_uuid).map (x => x).getOrElse(throw new Exception("need one parent"))
             val tmp = new alConcretCalcJob(uuid, parent)
             tmp.init(m)
@@ -50,8 +54,13 @@ trait alJob {
     var process : List[alPrecess] = Nil
 
     def init(args : Map[String, Any])
-    def result : Option[Any]
     def clean = Unit
+    
+    def result : Option[Any] =  {
+        if (!process.isEmpty)
+            nextAcc
+        None
+    }
 
     def nextAcc : Unit = {             // 递归实现next
         if (!process.isEmpty) {

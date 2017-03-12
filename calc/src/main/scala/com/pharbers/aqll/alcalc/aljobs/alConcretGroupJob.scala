@@ -17,7 +17,7 @@ class alConcretCalcJob(u : String, val parent : String) extends alJob {
     def init(args : Map[String, Any]) = {
         val restore_path = """config/sync/""" + parent + "/" + uuid
         cur = Some(alStage(restore_path))
-        process = restore_data() :: do_calc() :: do_map { txt => 
+        process = restore_data() :: do_map { txt => 
             val t = new IntegratedData()
             val x = txt.asInstanceOf[String].split(",")
 			t.setHospNum(StringOption.takeStringSpace(x(0)).toInt)
@@ -35,9 +35,8 @@ class alConcretCalcJob(u : String, val parent : String) extends alJob {
 			t
         } :: do_calc() :: Nil
     }
-    def result : Option[Any] =  {
-        if (!process.isEmpty)
-            nextAcc
+    override def result : Option[Any] =  {
+        super.result
         ps.result
     }
 }

@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.aljobs
 
-import com.pharbers.aqll.alcalc.aljobs.alJob.calculation_jobs._
+import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs._
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.core_split
 import com.pharbers.aqll.alcalc.alstages.alStage
@@ -17,9 +17,8 @@ class alCalcJob(u : String, val parent : String) extends alJob {
         cur = Some(alStage(restore_path))
         process = restore_data() :: split_data(core_split(Map(core_split.core_number -> 4))) :: ps :: Nil
     }
-    def result : Option[Any] =  {
-        if (!process.isEmpty)
-            nextAcc
+    override def result : Option[Any] =  {
+        super.result
         ps.result
     }
 }

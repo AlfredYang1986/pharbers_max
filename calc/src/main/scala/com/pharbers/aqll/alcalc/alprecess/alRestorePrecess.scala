@@ -8,8 +8,10 @@ import com.pharbers.aqll.alcalc.alstages.{alInitStage, alMemoryStage, alPresisSt
   * Created by Alfred on 10/03/2017.
   */
 class alRestorePrecess extends alPrecess {
+    def pathProxy(path : String) : String = path
+    
     def precess(j : alStage) : List[alStage] = {
-        def precessAcc(path : String) : alStorage = alStorage(path, new alTextParser)
+        def precessAcc(path : String) : alStorage = alStorage(pathProxy(path), new alTextParser)
 
         try {
             j match {

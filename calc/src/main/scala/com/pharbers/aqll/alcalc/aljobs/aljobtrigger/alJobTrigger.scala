@@ -13,7 +13,6 @@ object alJobTrigger {
       * for drivers
       *
       */
-
     case class worker_register(map: Map[String, String])
     case class push_max_job(path : String)
     case class finish_max_job(uuid : String)
@@ -32,19 +31,30 @@ object alJobTrigger {
     case class finish_split_excel_job(p : String, j : List[String])
 
     /**
-      * for calc
-      */
-    case class calc_can_job()
-    case class calc_job(j : alMaxProperty)
-    case class calcing_job(j : alJob)
-    case class calcing_accept()
-    case class calcing_busy()
-    case class calcing_can_accept()
-
-    /**
-      * for concert calc
-      */
+     * nomal concert
+     */
     case class concert_adjust()
     case class concert_adjust_result(index : Int)
-    case class concert_calc(p : alMaxProperty)
+    
+    /**
+     * for sign jobs
+     */
+    case class can_sign_job()
+    case class sign_job_accept()
+    case class service_is_busy()
+    case class sign_job_can_accept()
+    
+    /**
+      * for group
+      */
+    case class group_job(j : alMaxProperty)
+    case class grouping_job(j : alJob)
+   
+    case class group_result(uuid : String, sub_uuid : String)
+
+    /**
+      * for concert group
+      */
+    case class concert_group(p : alMaxProperty)
+    case class concert_group_result(sub_uuid : String)
 }

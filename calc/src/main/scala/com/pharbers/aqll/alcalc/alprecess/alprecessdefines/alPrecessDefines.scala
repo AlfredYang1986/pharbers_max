@@ -12,19 +12,32 @@ object alPrecessDefines {
     }
 
     object presist_data extends precess_defines(1, "presist data") {
-        def apply(uuidOpt : Option[String] = None) : alPrecess = new alPresistStagePrecess(uuidOpt)
+        def apply(uuidOpt : Option[String] = None, prefix : Option[String] = None) : alPrecess = 
+            new alPresistStagePrecess(uuidOpt, prefix)
     }
 
     object restore_data extends precess_defines(2, "restore data") {
         def apply() : alPrecess = new alRestorePrecess
     }
 
-    object split_data extends precess_defines(3, "split data") {
+    object restore_grouped_data extends precess_defines(3, "restore data") {
+        def apply() : alPrecess = new alRestoreGroupedPrecess
+    }
+
+    object split_data extends precess_defines(4, "split data") {
         def apply(s : alSplitStrategy) : alPrecess = new alSplitPrecess(s)
     }
 
-    object  do_map extends precess_defines(4, "map data") {
+    object  do_map extends precess_defines(5, "map data") {
         def apply(s : Any => Any) : alPrecess = new alMapPrecess(s)
+    }
+    
+    object do_distinct extends precess_defines(6, "distinct data") {
+        def apply() : alPrecess = new alDistinctPrecess
+    }
+    
+    object do_union extends precess_defines(7, "union data") {
+        def apply() : alPrecess = new alUnionPrecess
     }
 
     object do_calc extends precess_defines(9, "do calc") {

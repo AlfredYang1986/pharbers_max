@@ -16,10 +16,8 @@ class alMaxJob extends alJob {
         cur = Some(alStage(excel_file))
         process = read_excel() :: split_data(read_excel_split(Map(read_excel_split.section_number -> 1))) :: ps :: Nil
     }
-    def result : Option[Any] =  {
-        if (!process.isEmpty)
-            nextAcc
+    override def result : Option[Any] =  {
+        super.result
         ps.result
     }
-
 }

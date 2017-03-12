@@ -9,6 +9,17 @@ import com.pharbers.aqll.alcalc.alfilehandler.altext.alTextParser
 object alPortion {
     def apply(data : List[Any]) : alMemoryPortion = new alMemoryPortion(data)
     def apply(path : String) : alPortion = new alPersisportion(path)
+    
+    def union(lst : List[alPortion]) : alPortion = {
+        def unionAcc(cur : List[alPortion]) : List[Any] = {
+            cur match {
+                case Nil => Nil
+                case head :: tail => head.data ::: unionAcc(tail)
+            }
+        }
+        
+        alPortion(unionAcc(lst))
+    }
 }
 
 trait alPortion {

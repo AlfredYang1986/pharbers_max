@@ -6,11 +6,14 @@ import akka.routing.{RoundRobinPool}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alcalc.aljobs.alJob
+import com.pharbers.aqll.alcalc.aljobs.alJob.common_jobs
 import com.pharbers.aqll.alcalc.aljobs.alJob.max_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{spliting_busy, _}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 import com.pharbers.aqll.calc.split.{SplitAggregator, SplitGroupMaster}
+import com.pharbers.aqll.alcalc.alstages.alStage
+import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic
@@ -94,6 +97,30 @@ class alMaxDriver extends Actor
             }
         }
 
+        // one mechine group success
+        case group_result(uuid, sub_uuid) => {
+            println("fuck")
+            println("grouping uuid is $uuid")
+            calcing_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
+                case None => Unit
+                case Some(r) => {
+                    println(s"current group end is $r")
+                    r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
+            
+                    if (r.subs.filterNot (x => x.grouped).isEmpty) {
+                        val common = common_jobs()
+                        common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
+                        common.process = restore_grouped_data() :: do_distinct() :: 
+                                            do_calc() :: do_union() :: do_calc() :: 
+                                            presist_data(Some(r.uuid), Some("group")) :: Nil
+                        common.result
+           
+                        println("done for grouping")
+                    }
+                }
+            }
+        }
+        
         case _ => ???
     }
 
@@ -122,14 +149,14 @@ trait alCreateCalcRouter { this : Actor with alCalcJobsSchedule =>
 
     def canSignJob(p : alMaxProperty) : Boolean = {
         implicit val t = Timeout(0.5 second)
-        val f = calc_router.single.get map (x => x ? calc_can_job())
-        p.subs.length <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[calcing_can_accept]))
+        val f = calc_router.single.get map (x => x ? can_sign_job())
+        p.subs.length <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
     }
 
     def signJob(p : alMaxProperty) = {
         // TODO: 需要添加算能管理
         // TODO: 多机器分配
-        calc_router.single.get.head ! calc_job(p)
+        calc_router.single.get.head ! group_job(p)
 
         atomic { implicit tnx =>
             waiting_jobs() = waiting_jobs().tail
