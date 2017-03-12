@@ -149,7 +149,6 @@ trait alGroupJobsManager { this : Actor with alGroupJobsSchedule =>
                     grouping_jobs() = grouping_jobs().tail
                 }
                 // 分拆计算文件
-                println(s"group done jobs is $r")
                 val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> r.uuid))
                 val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
                 val subs = sb map (x => alMaxProperty(p, x, Nil))
