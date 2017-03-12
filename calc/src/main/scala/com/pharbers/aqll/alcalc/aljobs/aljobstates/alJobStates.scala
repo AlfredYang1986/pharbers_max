@@ -19,11 +19,16 @@ object alExcelSplitJobStates extends alJobStates {
     case object spliting_data extends alPointState
 }
 
-object alMaxCalcJobStates extends alJobStates {
+object alMaxGroupJobStates extends alJobStates {
 //    case object calc_idleing extends alPointState
 //    case object calc_maxing extends alPointState
 //    case object calc_average extends alPointState
 //    case object calc_lasting extends alPointState
+    case object group_coreing extends alPointState
+    case object group_doing extends alPointState
+}
+
+object alMaxCalcJobStates extends alJobStates {
     case object calc_coreing extends alPointState
-    case object calc_doing extends alPointState
+    case object calc_maxing extends alPointState
 }

@@ -2,8 +2,8 @@ package com.pharbers.aqll.stub
 
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, push_max_job, worker_register}
-import com.pharbers.aqll.alcalc.almain.{alGroupActor, alDriverSingleton, alMaxDriver}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register, push_max_job, worker_register}
+import com.pharbers.aqll.alcalc.almain.{alCalcActor, alGroupActor, alDriverSingleton, alMaxDriver}
 import com.pharbers.aqll.calc.split.{EventCollector, SplitReceptionSingleton}
 import com.typesafe.config.ConfigFactory
 
@@ -21,11 +21,13 @@ object stub_test_3 extends App {
         Cluster(system).registerOnMemberUp {
             println("cluster ready")
             val w = system.actorOf(alGroupActor.props)
+            val c = system.actorOf(alCalcActor.props)
             val a = system.actorOf(alDriverSingleton.props, "splitreception")
             println(a)
             println(a.path)
 
-            a ! calc_register(w)
+            a ! group_register(w)
+            a ! calc_register(c)
             a ! push_max_job("""config/new_test/2016-01.xlsx""")
         }
     }

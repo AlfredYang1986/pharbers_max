@@ -6,8 +6,7 @@ import akka.routing.{RoundRobinPool}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alcalc.aljobs.alJob
-import com.pharbers.aqll.alcalc.aljobs.alJob.common_jobs
-import com.pharbers.aqll.alcalc.aljobs.alJob.max_jobs
+import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
@@ -32,30 +31,21 @@ object alMaxDriver {
 class alMaxDriver extends Actor
                      with ActorLogging
                      with alMaxJobsSchedule
-                     with alCalcJobsSchedule
+                     with alGroupJobsSchedule
                      with alCreateExcelSplitRouter
-                     with alCreateCalcRouter {
+                     with alGroupJobsManager 
+                     with alCalcJobsSchedule
+                     with alCalcJobsManager {
 
     implicit val t = Timeout(0.5 second)
     override def receive = {
-
-        case worker_register(map) => {
-            println(s"map = $map")
-        }
-
-        case calc_register(a) => {
-            atomic { implicit txn =>
-                calc_router() = calc_router() :+ a
-            }
-        }
-
+        case group_register(a) => registerGroupRouter(a)
         case push_max_job(file_path) => {
             println(s"sign a job with file name $file_path")
             atomic { implicit txn =>
                 jobs() = jobs() :+ max_jobs(file_path)
             }
         }
-
         case schedule_jobs() => {
             atomic { implicit txn =>
                 jobs() match {
@@ -70,62 +60,27 @@ class alMaxDriver extends Actor
                 }
             }
         }
-
         case finish_max_job(uuid) => {
             println(s"finish a job with uuid $uuid")
         }
-
         case finish_split_excel_job(p, j) => {
-            println(s"split excel $p and sub calc $j")
             val subs = j map (x => alMaxProperty(p, x, Nil))
-            val cur = alMaxProperty(null, p, subs)
-            atomic { implicit txn =>
-                waiting_jobs() = waiting_jobs() :+ cur
-            }
+            pushGroupJobs(alMaxProperty(null, p, subs))
         }
-
-        case schedule_calc() => {
-            atomic { implicit txn =>
-                waiting_jobs() match {
-                    case head :: lst => {
-                        println(head)
-                        if (canSignJob(head))
-                            signJob(head)
-                    }
-                    case Nil => Unit
-                }
-            }
-        }
-
-        // one mechine group success
-        case group_result(uuid, sub_uuid) => {
-            println("fuck")
-            println("grouping uuid is $uuid")
-            calcing_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
-                case None => Unit
-                case Some(r) => {
-                    println(s"current group end is $r")
-                    r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
-            
-                    if (r.subs.filterNot (x => x.grouped).isEmpty) {
-                        val common = common_jobs()
-                        common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
-                        common.process = restore_grouped_data() :: do_distinct() :: 
-                                            do_calc() :: do_union() :: do_calc() :: 
-                                            presist_data(Some(r.uuid), Some("group")) :: Nil
-                        common.result
-           
-                        println("done for grouping")
-                    }
-                }
-            }
-        }
+        case schedule_group() => scheduleOneGroupJob
+        case group_result(uuid, sub_uuid) => successWithGroup(uuid, sub_uuid)
+       
+        case calc_register(a) => registerCalcRouter(a)
+        case push_calc_job(p) => pushCalcJobs(p)
+        case schedule_calc() => scheduleOneCalcJob
         
-        case _ => ???
+        case x : Any => {
+            println(x)
+            ???
+        }
     }
 
     val excel_split_router = CreateExcelSplitRouter
-//    val calc_router = alCreateCalcRouter
 }
 
 trait alMaxJobsSchedule { this : Actor =>
@@ -133,10 +88,10 @@ trait alMaxJobsSchedule { this : Actor =>
     val timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_jobs)
 }
 
-trait alCalcJobsSchedule { this : Actor =>
-    val waiting_jobs = Ref(List[alMaxProperty]())     // only for waiting jobs
-    val calcing_jobs = Ref(List[alMaxProperty]())     // only for calcing jobs
-    val calc_timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_calc)
+trait alGroupJobsSchedule { this : Actor =>
+    val waiting_grouping = Ref(List[alMaxProperty]())     // only for waiting jobs
+    val grouping_jobs = Ref(List[alMaxProperty]())     // only for calcing jobs
+    val group_timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_group)
 }
 
 trait alCreateExcelSplitRouter { this : Actor =>
@@ -144,24 +99,126 @@ trait alCreateExcelSplitRouter { this : Actor =>
         context.actorOf(RoundRobinPool(1).props(alExcelSplitActor.props), name = "excel-split-router")
 }
 
-trait alCreateCalcRouter { this : Actor with alCalcJobsSchedule =>
+trait alGroupJobsManager { this : Actor with alGroupJobsSchedule =>
+    val group_router = Ref(List[ActorRef]())
+
+    def registerGroupRouter(a : ActorRef) = atomic { implicit txn =>
+            group_router() = group_router() :+ a
+        }
+    
+    def pushGroupJobs(cur : alMaxProperty) = atomic { implicit txn =>
+            waiting_grouping() = waiting_grouping() :+ cur
+        }
+   
+    def scheduleOneGroupJob = atomic { implicit txn =>
+            waiting_grouping() match {
+                case head :: lst => {
+                    if (canSignGroupJob(head))
+                        signGroupJob(head)
+                    }
+                case Nil => Unit
+            }
+        }
+    
+    def successWithGroup(uuid : String, sub_uuid : String) = {
+        grouping_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
+            case None => Unit
+            case Some(r) => {
+                r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
+                    
+                if (r.subs.filterNot (x => x.grouped).isEmpty) {
+                    val common = common_jobs()
+                    common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
+                    common.process = restore_grouped_data() :: do_distinct() :: 
+                                        do_calc() :: do_union() :: do_calc() :: 
+                                        presist_data(Some(r.uuid), Some("group")) :: Nil
+                    common.result
+           
+                    println("done for grouping")
+                    groupJobSuccess(uuid)
+                }
+            }
+        } 
+    }
+    
+    def groupJobSuccess(uuid : String) = {
+        grouping_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
+            case None => Unit
+            case Some(r) => {
+                atomic { implicit tnx => 
+                    grouping_jobs() = grouping_jobs().tail
+                }
+                // 分拆计算文件
+                println(s"group done jobs is $r")
+                val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> r.uuid))
+                val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
+                val subs = sb map (x => alMaxProperty(p, x, Nil))
+                self ! push_calc_job(alMaxProperty(null, p, subs))
+            }
+        }
+    }
+       
+    def groupJobFailed(uuid : String) = {
+        
+    }
+    
+    def canSignGroupJob(p : alMaxProperty): Boolean = {
+        implicit val t = Timeout(0.5 second)
+        val f = group_router.single.get map (x => x ? can_sign_job())
+        p.subs.length <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
+    }
+
+    def signGroupJob(p : alMaxProperty) = {
+        // TODO: sign with 递归
+        group_router.single.get.head ! group_job(p)
+
+        atomic { implicit tnx =>
+            waiting_grouping() = waiting_grouping().tail
+            grouping_jobs() = grouping_jobs() :+ p
+        }
+    }
+}
+
+trait alCalcJobsSchedule { this : Actor =>
+    val waiting_calc = Ref(List[alMaxProperty]())     // only for waiting jobs
+    val calcing_jobs = Ref(List[alMaxProperty]())     // only for calcing jobs
+    val calc_timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_calc)
+}
+
+trait alCalcJobsManager { this : Actor with alCalcJobsSchedule =>
     val calc_router = Ref(List[ActorRef]())
 
-    def canSignJob(p : alMaxProperty) : Boolean = {
+    def registerCalcRouter(a : ActorRef) = atomic { implicit txn =>
+            calc_router() = calc_router() :+ a
+        }
+    
+    def pushCalcJobs(cur : alMaxProperty) = atomic { implicit txn =>
+            waiting_calc() = waiting_calc() :+ cur
+        }
+   
+    def scheduleOneCalcJob = atomic { implicit txn =>
+            waiting_calc() match {
+                case head :: lst => {
+                    if (canSignCalcJob(head))
+                        signCalcJob(head)
+                    }
+                case Nil => Unit
+            }
+        }
+
+    def canSignCalcJob(p : alMaxProperty): Boolean = {
         implicit val t = Timeout(0.5 second)
         val f = calc_router.single.get map (x => x ? can_sign_job())
         p.subs.length <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
     }
 
-    def signJob(p : alMaxProperty) = {
-        // TODO: 需要添加算能管理
-        // TODO: 多机器分配
-        calc_router.single.get.head ! group_job(p)
+    def signCalcJob(p : alMaxProperty) = {
+        // TODO: sign with 递归
+        calc_router.single.get.head ! calc_job(p)
 
         atomic { implicit tnx =>
-            waiting_jobs() = waiting_jobs().tail
+            waiting_calc() = waiting_calc().tail
             calcing_jobs() = calcing_jobs() :+ p
         }
     }
 }
-

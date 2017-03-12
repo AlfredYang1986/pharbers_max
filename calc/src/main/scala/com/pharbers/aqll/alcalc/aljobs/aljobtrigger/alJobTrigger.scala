@@ -18,8 +18,12 @@ object alJobTrigger {
     case class finish_max_job(uuid : String)
 
     case class schedule_jobs()
+    case class schedule_group()
     case class schedule_calc()
 
+    case class push_calc_job(p : alMaxProperty)
+
+    case class group_register(a : ActorRef)
     case class calc_register(a : ActorRef)
 
     /**
@@ -57,4 +61,10 @@ object alJobTrigger {
       */
     case class concert_group(p : alMaxProperty)
     case class concert_group_result(sub_uuid : String)
+    
+    /**
+     * for calc
+     */
+    case class calc_job(j : alMaxProperty)
+    case class calcing_job(j : alJob)
 }

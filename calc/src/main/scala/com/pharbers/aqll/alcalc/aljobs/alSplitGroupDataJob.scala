@@ -2,23 +2,21 @@ package com.pharbers.aqll.alcalc.aljobs
 
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs._
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.core_split
+import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy._
 import com.pharbers.aqll.alcalc.alstages.alStage
 
-/**
-  * Created by BM on 11/03/2017.
-  */
-class alGroupJob(u : String, val parent : String) extends alJob {
+
+class alSplitGroupDataJob(u : String) extends alJob {
     override val uuid: String = u
-    val ps = presist_data(Some(uuid))
+    val ps = presist_data(Some(uuid), Some("calc"))
 
     def init(args : Map[String, Any]) = {
-        val restore_path = """config/sync/""" + parent + "/" + uuid
+        val restore_path = """config/group/""" + uuid
         cur = Some(alStage(restore_path))
-        process = restore_data() :: split_data(core_split(Map(core_split.core_number -> 4))) :: ps :: Nil
+        process = restore_grouped_data() :: split_data(read_excel_split(Map(read_excel_split.section_number -> 1))) :: ps :: Nil
     }
     override def result : Option[Any] =  {
         super.result
         ps.result
-    }
+    }  
 }

@@ -3,7 +3,7 @@ package com.pharbers.aqll.alcalc.almain
 import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
-import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates.{calc_coreing, calc_doing}
+import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
@@ -26,7 +26,7 @@ object alGroupActor {
 class alGroupActor extends Actor
                      with ActorLogging
                      with FSM[alPointState, String]
-                     with alCreateConcretCalcRouter {
+                     with alCreateConcretGroupRouter {
 
     startWith(alMasterJobIdle, "")
 
@@ -41,14 +41,13 @@ class alGroupActor extends Actor
                 concert_ref() = Some(p)
             }
 
-            println(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs.head.uuid))
             val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs.head.uuid))
             context.system.scheduler.scheduleOnce(0 seconds, self, grouping_job(cj))
-            goto(calc_coreing) using ""
+            goto(group_coreing) using ""
         }
     }
 
-    when(calc_coreing) {
+    when(group_coreing) {
         case Event(grouping_job(cj), _) => {
             println(s"开始根据CPU核数拆分线程")
             println(cj)
@@ -65,21 +64,11 @@ class alGroupActor extends Actor
 
             concert_router ! concert_adjust()
 
-            goto(calc_doing) using ""
+            goto(group_doing) using ""
         }
     }
 
-    when(calc_doing) {
-        case Event(can_sign_job(), _) => {
-            sender() ! service_is_busy()
-            stay()
-        }
-
-        case Event(group_job(p), _) => {
-            sender() ! service_is_busy()
-            stay()
-        }
-        
+    when(group_doing) {
         case Event(concert_group_result(sub_uuid), _) => {
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
             
@@ -97,7 +86,6 @@ class alGroupActor extends Actor
                 println(s"post group result ${r.parent} && ${r.uuid}")
             
                 val st = context.actorSelection("akka://calc/user/splitreception")
-                println(st)
                 st ! group_result(r.parent, r.uuid)
                 goto(alMasterJobIdle) using ""
             } else stay()
@@ -131,10 +119,10 @@ class alGroupActor extends Actor
     val concert_ref : Ref[Option[alMaxProperty]] = Ref(None)            // 向上传递的，返回master的，相当于parent
     val result_ref : Ref[Option[alMaxProperty]] = Ref(None)             // 当前节点上计算的东西，相当于result
     val adjust_index = Ref(-1)
-    val concert_router = CreateConcretCalcRouter
+    val concert_router = CreateConcretGroupRouter
 }
 
-trait alCreateConcretCalcRouter { this : Actor =>
-    def CreateConcretCalcRouter =
+trait alCreateConcretGroupRouter { this : Actor =>
+    def CreateConcretGroupRouter =
         context.actorOf(BroadcastPool(4).props(alConcertGroupActor.props), name = "concret-router")
 }

@@ -10,7 +10,7 @@ import com.pharbers.aqll.calc.util.StringOption
 /**
   * Created by Alfred on 11/03/2017.
   */
-class alConcretCalcJob(u : String, val parent : String) extends alJob {
+class alConcretGroupJob(u : String, val parent : String) extends alJob {
     override val uuid: String = u
     val ps = presist_data(Some(uuid))
 

@@ -24,10 +24,10 @@ object alJob {
     object grouping_jobs extends job_defines(1, "calc go") {
         val max_uuid = "max_uuid"
         val group_uuid = "calc_uuid"
-        def apply(m : Map[String, String]) : alCalcJob = {
+        def apply(m : Map[String, String]) : alGroupJob = {
             val uuid = m.get(group_uuid).map (x => x).getOrElse(throw new Exception("need one uuid"))
             val parent = m.get(max_uuid).map (x => x).getOrElse(throw new Exception("need one parent"))
-            val tmp = new alCalcJob(uuid, parent)
+            val tmp = new alGroupJob(uuid, parent)
             tmp.init(m)
             tmp
         }
@@ -35,10 +35,19 @@ object alJob {
     object concert_grouping_jobs extends job_defines(2, "concert calc go") {
         val max_uuid = "max_uuid"
         val group_uuid = "calc_uuid"
-        def apply(m : Map[String, String]) : alConcretCalcJob = {
+        def apply(m : Map[String, String]) : alConcretGroupJob = {
             val uuid = m.get(group_uuid).map (x => x).getOrElse(throw new Exception("need one uuid"))
             val parent = m.get(max_uuid).map (x => x).getOrElse(throw new Exception("need one parent"))
-            val tmp = new alConcretCalcJob(uuid, parent)
+            val tmp = new alConcretGroupJob(uuid, parent)
+            tmp.init(m)
+            tmp
+        }
+    }
+    object split_group_jobs extends job_defines(3, "split group go") {
+        val max_uuid = "max_uuid"
+        def apply(m : Map[String, String]) : alSplitGroupDataJob = {
+            val uuid = m.get(max_uuid).map (x => x).getOrElse(throw new Exception("need one uuid"))
+            val tmp = new alSplitGroupDataJob(uuid)
             tmp.init(m)
             tmp
         }
