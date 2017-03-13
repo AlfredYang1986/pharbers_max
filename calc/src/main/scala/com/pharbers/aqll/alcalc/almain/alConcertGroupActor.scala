@@ -34,7 +34,7 @@ class alConcertGroupActor extends Actor
         }
         case concert_group(p) => {
             val cj = concert_grouping_jobs(Map(concert_grouping_jobs.max_uuid -> p.uuid, concert_grouping_jobs.group_uuid -> p.subs(index.single.get).uuid))
-            val result = cj.result
+            cj.result
             
             val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
             val m = alStorage.groupBy (x => 

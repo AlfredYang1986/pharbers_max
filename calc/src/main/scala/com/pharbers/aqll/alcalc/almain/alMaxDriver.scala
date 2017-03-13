@@ -5,6 +5,7 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.RoundRobinPool
 import akka.pattern.ask
 import akka.util.Timeout
+import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.aljobs.alJob
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
@@ -13,6 +14,7 @@ import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 import com.pharbers.aqll.calc.split.{SplitAggregator, SplitGroupMaster}
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
+import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic
@@ -131,10 +133,22 @@ trait alGroupJobsManager { this : Actor with alGroupJobsSchedule =>
                 if (r.subs.filterNot (x => x.grouped).isEmpty) {
                     val common = common_jobs()
                     common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
-                    common.process = restore_grouped_data() :: do_distinct() :: 
-                                        do_calc() :: do_union() :: do_calc() :: 
-                                        presist_data(Some(r.uuid), Some("group")) :: Nil
+                    common.process = restore_grouped_data() ::
+                        do_calc() :: do_union() :: do_calc() ::
+                        do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil
+
                     common.result
+
+                    val concert = common.cur.get.storages.head.asInstanceOf[alStorage]
+                    val m = alStorage.groupBy (x =>
+                        (x.asInstanceOf[IntegratedData].getYearAndmonth, x.asInstanceOf[IntegratedData].getMinimumUnitCh)
+                    )(concert)
+
+                    val g = alStorage(m.values.map (x => x.asInstanceOf[alStorage].data.head.toString).toList)
+                    g.doCalc
+                    val sg = alStage(g :: Nil)
+                    val pp = presist_data(Some(r.uuid), Some("group"))
+                    pp.precess(sg)
            
                     println("done for grouping")
                     groupJobSuccess(uuid)

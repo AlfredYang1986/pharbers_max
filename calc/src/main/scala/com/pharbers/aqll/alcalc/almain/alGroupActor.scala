@@ -2,6 +2,7 @@ package com.pharbers.aqll.alcalc.almain
 
 import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.routing.BroadcastPool
+import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
@@ -10,6 +11,7 @@ import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
+import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -70,14 +72,26 @@ class alGroupActor extends Actor
             r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
             
             if (r.subs.filterNot (x => x.grouped).isEmpty) {
-                // group 4 to 1 and distinct
+
                 val common = common_jobs()
                 common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
-                common.process = restore_grouped_data() :: do_distinct() :: 
-                                    do_calc() :: do_union() :: do_calc() :: 
-                                    presist_data(Some(r.uuid), Some("group")) :: Nil
+                common.process = restore_grouped_data() ::
+                                    do_calc() :: do_union() :: do_calc() ::
+                                    do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil
+//                                    presist_data(Some(r.uuid), Some("group")) :: Nil
                 common.result
-                
+
+                val concert = common.cur.get.storages.head.asInstanceOf[alStorage]
+                val m = alStorage.groupBy (x =>
+                    (x.asInstanceOf[IntegratedData].getYearAndmonth, x.asInstanceOf[IntegratedData].getMinimumUnitCh)
+                )(concert)
+
+                val g = alStorage(m.values.map (x => x.asInstanceOf[alStorage].data.head.toString).toList)
+                g.doCalc
+                val sg = alStage(g :: Nil)
+                val pp = presist_data(Some(r.uuid), Some("group"))
+                pp.precess(sg)
+
                 println(s"post group result ${r.parent} && ${r.uuid}")
             
                 val st = context.actorSelection("akka://calc/user/splitreception")
