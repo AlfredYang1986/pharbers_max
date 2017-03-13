@@ -21,9 +21,17 @@ class FileOpt(val file : String) {
         writer.close()
     }
 
+    def appendData2File(lst : List[Any]): Unit = {
+        val writer = new PrintWriter(tf)
+        lst foreach (x => writer.append(x.toString + "\n"))
+        writer.flush()
+        writer.close()
+    }
+
     def requestDataFromFile(f : String => Any) : List[Any] = Source.fromFile(file).getLines().map(f(_)).toList
 
     def isDir : Boolean = tf.isDirectory()
     def createDir = tf.mkdir()
+    def createFile = tf.createNewFile
     def lstFiles : List[String] = tf.listFiles.filter(x => x.isFile && !x.isHidden).map(x => x.getPath).toList
 }

@@ -52,8 +52,6 @@ class alCalcActor extends Actor
 
             val result = cj.result
             val (p, sb) = result.get.asInstanceOf[(String, List[String])]
-            println(p)
-            println(sb)
 
             val q = sb.map (x => alMaxProperty(p, x, Nil))
             atomic { implicit tnx =>

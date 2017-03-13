@@ -113,4 +113,59 @@ class westMedicineIncome(
 	override def selectvariablecalculation(): Option[(String, Double)] = {
 		Some("西药收入", westMedicineIncome)
 	}
+
+	override def toString: String =
+		company + "," +
+		yearAadmonth + "," +
+		sumValue + "," +
+		volumeUnit + "," +
+		minimumUnit + "," +
+    	minimumUnitCh + "," +
+    	minimumUnitEn + "," +
+	    market1Ch + "," +
+    	market1En + "," +
+    	segment + "," +
+    	factor + "," +
+	    ifPanelAll + "," +
+    	ifPanelTouse + "," +
+    	hospId + "," +
+    	hospName + "," +
+    	phaid + "," +
+    	ifCounty + "," +
+    	hospLevel + "," +
+    	region + "," +
+    	province + "," +
+    	prefecture + "," +
+    	cityTier + "," +
+    	specialty1 + "," +
+    	specialty2 + "," +
+    	reSpecialty + "," +
+    	specialty3 + "," +
+    	westMedicineIncome + "," +
+    	doctorNum + "," +
+    	bedNum + "," +
+    	generalBedNum + "," +
+        medicineBedNum + "," +
+        surgeryBedNum + "," +
+        ophthalmologyBedNum + "," +
+        yearDiagnosisNum + "," +
+        clinicNum + "," +
+        medicineNum + "," +
+        surgeryNum + "," +
+        hospitalizedNum + "," +
+        hospitalizedOpsNum + "," +
+        income + "," +
+        clinicIncome + "," +
+        climicCureIncome + "," +
+        hospitalizedIncome + "," +
+        hospitalizedBeiIncome + "," +
+        hospitalizedCireIncom + "," +
+        hospitalizedOpsIncome + "," +
+        drugIncome + "," +
+        climicDrugIncome + "," +
+        climicWestenIncome + "," +
+        hospitalizedDrugIncome + "," +
+        hospitalizedWestenIncome + "," +
+        finalResultsValue + "," +
+        finalResultsUnit
 }

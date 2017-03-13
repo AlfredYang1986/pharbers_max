@@ -10,9 +10,8 @@ import com.pharbers.aqll.calc.util.StringOption
 /**
   * Created by Alfred on 11/03/2017.
   */
-class alConcretGroupJob(u : String, val parent : String) extends alJob {
+class alConcertGroupJob(u : String, val parent : String) extends alJob {
     override val uuid: String = u
-    val ps = presist_data(Some(uuid))
 
     def init(args : Map[String, Any]) = {
         val restore_path = """config/sync/""" + parent + "/" + uuid
@@ -34,9 +33,5 @@ class alConcretGroupJob(u : String, val parent : String) extends alJob {
 			t.setVolumeUnit(StringOption.takeStringSpace(x(11)).toDouble)
 			t
         } :: do_calc() :: Nil
-    }
-    override def result : Option[Any] =  {
-        super.result
-        ps.result
     }
 }
