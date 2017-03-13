@@ -67,4 +67,10 @@ object alJobTrigger {
      */
     case class calc_job(j : alMaxProperty)
     case class calcing_job(j : alJob)
+
+    /**
+      * for concert calc
+      */
+    case class concert_calc(p : alMaxProperty)
+    case class concert_calc_result(sub_uuid : String)
 }

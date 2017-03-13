@@ -124,5 +124,5 @@ class alGroupActor extends Actor
 
 trait alCreateConcretGroupRouter { this : Actor =>
     def CreateConcretGroupRouter =
-        context.actorOf(BroadcastPool(4).props(alConcertGroupActor.props), name = "concret-router")
+        context.actorOf(BroadcastPool(4).props(alConcertGroupActor.props), name = "concert-group-router")
 }

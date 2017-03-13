@@ -39,8 +39,8 @@ class alCalcActor extends Actor
                 println(s"calc finally $p")
             }
 
-//            val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs.head.uuid))
-//            context.system.scheduler.scheduleOnce(0 seconds, self, calcing_job(cj))
+            val cj = worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> p.uuid, worker_calc_core_split_jobs.calc_uuid -> p.subs.head.uuid))
+            context.system.scheduler.scheduleOnce(0 seconds, self, calcing_job(cj))
             goto(calc_coreing) using ""
         }
     }
@@ -50,9 +50,11 @@ class alCalcActor extends Actor
             println(s"开始根据CPU核数拆分线程")
             println(cj)
 
-//            val result = cj.result
-//            val (p, sb) = result.get.asInstanceOf[(String, List[String])]
-//
+            val result = cj.result
+            val (p, sb) = result.get.asInstanceOf[(String, List[String])]
+            println(p)
+            println(sb)
+
 //            val q = sb.map (x => alMaxProperty(p, x, Nil))
 //            atomic { implicit tnx =>
 //                result_ref() = Some(alMaxProperty(concert_ref.single.get.get.uuid, p, q))
@@ -123,5 +125,5 @@ class alCalcActor extends Actor
 
 trait alCreateConcretCalcRouter { this : Actor =>
     def CreateConcretCalcRouter =
-        context.actorOf(BroadcastPool(4).props(alConcertGroupActor.props), name = "concret-router")
+        context.actorOf(BroadcastPool(4).props(alConcertGroupActor.props), name = "concert-calc-router")
 }
