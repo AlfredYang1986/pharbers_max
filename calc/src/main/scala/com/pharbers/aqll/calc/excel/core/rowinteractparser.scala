@@ -4,6 +4,7 @@ import akka.actor.ActorRef
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 import com.pharbers.aqll.calc.excel.CPA._
 import com.pharbers.aqll.calc.excel.PharmaTrust._
+import com.pharbers.aqll.excel.core.interactparser
 
 case class cparesult(t : CpaProduct)
 case class cpamarketresult(t : CpaMarket)

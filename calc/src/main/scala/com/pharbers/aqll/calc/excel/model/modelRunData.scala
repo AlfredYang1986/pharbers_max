@@ -57,7 +57,7 @@ abstract class modelRunData(
 	                           val hospitalizedWestenIncome: Double,
 	                           var finalResultsValue: Double,
 	                           var finalResultsUnit: Double
-                           ) { //extends java.io.Serializable {
+                           ) extends java.io.Serializable {
 
 	def selectvariablecalculation(): Option[(String, Double)] = None
 
