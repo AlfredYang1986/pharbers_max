@@ -1,4 +1,4 @@
-@(message: String)
+@(is_administrator: String)
 @main("Max | Home") {
 <body>
     <div id="wrapper">
@@ -35,13 +35,20 @@
                         <a href="modeloperation"><i class="fa fa-globe"></i> <span class="nav-label">模型运算</span></a>
                     </li>
                     <li>
-                        <a href="resultcheck"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">结果检查</span>  </a>
-                    </li>
-                    <li>
                         <a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">结果查询</span></a>
                     </li>
+                    @if(is_administrator.equals("Yes")){
+                        <li>
+                            <a><i class="fa fa-gears"></i> <span class="nav-label">管理页面</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active"><a href="manage">文件上传</a></li>
+                                <li><a href="#">用户管理</a></li>
+                                <li><a href="#">市场管理</a></li>
+                            </ul>
+                        </li>
+                    }
                     <li class="landing_link">
-                        <a target="_blank" href="landing"><i class="fa fa-star"></i> <span class="nav-label">官方网站</span> <span class="label label-warning pull-right">NEW</span></a>
+                        <a target="_blank" href="http://www.pharbers.com/"><i class="fa fa-star"></i> <span class="nav-label">官方网站</span> <span class="label label-warning pull-right">NEW</span></a>
                     </li>
                 </ul>
 
@@ -52,11 +59,6 @@
 	        	<nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
 			        <div class="navbar-header">
 			            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
-<!-- 			            <form role="search" class="navbar-form-custom" action="search_results.html"> -->
-<!-- 			                <div class="form-group"> -->
-<!-- 			                    <input type="text" placeholder="搜索..." class="form-control" name="top-search" id="top-search"> -->
-<!-- 			                </div> -->
-<!-- 			            </form> -->
 			        </div>
 		            <ul class="nav navbar-top-links navbar-right">
 		                <li>

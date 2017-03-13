@@ -11,10 +11,6 @@ class Application extends Controller {
       Ok(views.html.test("Your new application is ready."))
   }
 
-  //官网
-  def landing = Action {
-      Ok(views.html.landing("Your new application is ready."))
-  }
   //登录
   def login = Action { request =>
       Ok(views.html.login("Your new application is ready."))
@@ -26,7 +22,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.index("Your new application is ready."))
+          Ok(views.html.index(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt)))
       }
   }
 
@@ -66,7 +62,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.filesUpload("Your new application is ready."))
+          Ok(views.html.filesUpload(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt)))
       }
   }
 
@@ -76,7 +72,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.sampleCheck("Your new application is ready."))
+          Ok(views.html.sampleCheck(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt)))
       }
   }
 
@@ -86,20 +82,9 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.modelOperation("Your new application is ready."))
+          Ok(views.html.modelOperation(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),MarketsModule.pushMarkets))
       }
   }
-
-  //结果检查
-  def resultCheck = Action { request =>
-      val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
-      if(token.equals("")){
-          Ok(views.html.login("Your new application is ready."))
-      }else{
-          Ok(views.html.resultCheck("Your new application is ready."))
-      }
-  }
-
 
   //结果查询
   def resultQuery = Action { request =>
@@ -107,17 +92,23 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.resultQuery(MarketsModule.pushMarkets))
+          Ok(views.html.resultQuery(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),MarketsModule.pushMarkets))
       }
   }
 
   //管理员
   def manageUploadFile = Action { request =>
       val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
-      if(token.equals("")){
+      val is_administrator = enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt)
+      if(token.equals("") || is_administrator.equals("No")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.manageUpload(MarketsModule.pushMarkets))
+          Ok(views.html.manageUpload(is_administrator,MarketsModule.pushMarkets))
       }
+  }
+
+  def enumAdministrator(is_administrator : Int) = is_administrator match {
+        case 0 => "No"
+        case 1 => "Yes"
   }
 }

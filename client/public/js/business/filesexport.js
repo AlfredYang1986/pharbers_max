@@ -2,7 +2,7 @@ var loader = new SVGLoader( document.getElementById( 'loader' ), { speedIn : 0, 
 
 function fileExport(type) {
     loader.show();
-    /*var datatype = $('select[data-name="search-result-datatype"]').val();
+    var datatype = $('select[data-name="search-result-datatype"]').val();
     var market = $('select[data-name="search-result-market"]').val();
     var startdate = $('input[name="startdate"]').val();
     var enddate = $('input[name="enddate"]').val();
@@ -11,8 +11,8 @@ function fileExport(type) {
     query_object['market'] = market;
     query_object['staend'] = [startdate, enddate];
     query_object['company'] = $.cookie("token");
-    query_object['filetype'] = type;*/
-    var datatype = $('select[data-name="search-result-datatype"]').val();
+    query_object['filetype'] = type;
+    /*var datatype = $('select[data-name="search-result-datatype"]').val();
     var market = $('select[data-name="search-result-market"]').val();
     var startdate = $('input[name="startdate"]').val();
     var enddate = $('input[name="enddate"]').val();
@@ -22,11 +22,11 @@ function fileExport(type) {
     query_object['market'] = market;
     query_object['Date'] = [startdate, enddate];
     query_object['currentPage'] = page;
-    query_object['company'] = $.cookie("token");
+    query_object['company'] = $.cookie("token");*/
 
     $.ajax({
-        //url :"/callfileexport",
-        url :"/resultquery/tempexport",
+        url :"/callfileexport",
+        //url :"/resultquery/tempexport",
         type : "POST",
         dataType : "json",
         contentType: "application/json,charset=utf-8",
@@ -34,8 +34,8 @@ function fileExport(type) {
         cache : false,
         success : function(data){
             if (data.status == "ok") {
-                //alert("导出成功");
-                location.href = "/resultquery/files/"+data.result.finalResult;
+                alert("导出成功");
+                //location.href = "/resultquery/files/"+data.result.finalResult;
             }
             loader.hide();
         },

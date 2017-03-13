@@ -13,7 +13,7 @@ import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
 import java.util.UUID
 
-import com.pharbers.aqll.util.{GetProperties, MD5, ScpCopyFile, StringOption}
+import com.pharbers.aqll.util.{GetProperties, MD5, StringOption}
 
 object fop {
 
@@ -60,38 +60,18 @@ object fop {
     def moveToFile(data : MultipartFormData[TemporaryFile]) : List[JsValue] = {
         var lst : List[JsValue] = Nil
 		var path = GetProperties.UpManage_Upload_FilePath
-		val filetype = data.dataParts.get("filetype").get.head
 		val company = data.dataParts.get("company").get.head
-		filetype match {
-			case "hmd" =>{
-				path += company +"/"
-				data.files.foreach { x =>
-					val uuid = UUID.randomUUID
-					val file = new File(path)
-					if(!file.exists()) file.mkdir()
-					Files.TemporaryFile(x.ref.file).moveTo(new File(path + uuid) , true)
-					lst = lst :+ toJson(uuid.toString)
-				}
-			}
-			case "hd" => {
-				val timestamp = data.dataParts.get("timestamp").get.head
-				val market = data.dataParts.get("market").get.head
-				val filename = MD5.md5(company+timestamp+StringOption.takeStringSpace(market))
-				val file = new File(path)
-				if(!file.exists()) { file.mkdir() }else{
-					val file1 : File = new File(path + filename)
-					if(file1.exists()) file1.delete()
-				}
-				data.files.foreach { x =>
-					Files.TemporaryFile(x.ref.file).moveTo(new File(path + filename) , true)
-					lst = lst :+ toJson(filename.toString)
-				}
-				List("59.110.31.106", "59.110.31.50").foreach{ x =>
-					println(x)
-					val map = Map("local" -> (path + filename), "from" -> "/root/program/File/manage/upload/")
-					new ScpCopyFile().apply(x, "root", "Pharbers2017.",map)
-				}
-			}
+		val timestamp = data.dataParts.get("timestamp").get.head
+		val market = data.dataParts.get("market").get.head
+		val filename = MD5.md5(company+timestamp+StringOption.takeStringSpace(market))
+		val file = new File(path)
+		if(!file.exists()) { file.mkdir() }else{
+			val file1 : File = new File(path + filename)
+			if(file1.exists()) file1.delete()
+		}
+		data.files.foreach { x =>
+			Files.TemporaryFile(x.ref.file).moveTo(new File(path + filename) , true)
+			lst = lst :+ toJson(filename.toString)
 		}
         lst
     }

@@ -7,7 +7,7 @@ $(function(){
             var dataMap = JSON.stringify({
                 "filename" : $.cookie("filename"),
                 "company" : $.cookie("token"),
-                "hospmatchpath" : ""
+                "filetype":  $.cookie("filetype")
             })
             //098f6bcd4621d373cade4e832627b4f6
             $.ajax({
@@ -28,5 +28,9 @@ $(function(){
         }else{
             alert("您还没上传文件")
         }
+    });
+
+    $('#commitresult').click(function(){
+        alert("操作成功")
     });
 });
