@@ -78,5 +78,79 @@ object Test extends App {
 //	Const.DB = Some(property).getOrElse("Max_Cores")
 //	println(Const.DB)
 
-	println(MD5.md5("AI_R"))
+//	println(MD5.md5("AI_R"))
+
+//	val a = "bb" -> "cc"
+//	println(a)
+
+//	def t(str: String) = {
+//		println("fuck in t")
+//		str
+//	}
+//	def tt(str: => String) = {
+//		println("fuck in tt")
+//		println(s"asdsadasd $str")
+//	}
+//	tt(t("aaa"))
+
+//	case class myclass(map: Map[String, String]) {
+//		println("啊哈")
+//	}
+//    type T = myclass
+//	val name= new T(Map("name" -> "cQian"))
+//	println(name.map.get("name").getOrElse("no"))
+
+//	def listFirst[T](x: List[T]) = {
+//		x(0)
+//	}
+//	println(listFirst(List(1,2,3,4,5)))
+
+//	val f = (name: String) => {
+//		println(s"my name is $name")
+//		name
+//	}
+//	f("钱鹏")
+//
+//	def getName(func: String => String, name: String) = {
+//		println(s"is name $name")
+//		func(name)
+//	}
+//
+//	getName(f, "啊哈")
+
+
+//	val lst =  List(1,2,3,4,5,6,7,8,9,10)
+//	val grouplst = lst.grouped(2)
+//	grouplst foreach{ x =>
+//		x foreach (println _)
+//	}
+//	trait da{
+//		val a: String => String
+//	}
+//
+//	def aa(b: String => String, str: String) = {
+//		println(b(""))
+//		println(str)
+//	}
+//
+//	object cc extends da {
+//		override val a: String => String = { str =>
+//			str + "Hello"
+//		}
+//	}
+//
+//	aa(cc.a, "你好")
+
+	val t = new test
+	t.aha("你好")
+
+}
+
+class test {
+	val ps = "aa"
+	println(ps)
+
+	def aha(str: => String) = {
+		println(str)
+	}
 }
