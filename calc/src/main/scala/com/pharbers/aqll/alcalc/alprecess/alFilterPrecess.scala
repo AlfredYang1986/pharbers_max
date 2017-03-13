@@ -4,9 +4,9 @@ import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alstages.{alInitStage, alMemoryStage, alPresisStage, alStage}
 
 /**
-  * Created by Alfred on 11/03/2017.
+  * Created by Alfred on 13/03/2017.
   */
-class alMapPrecess(f : Any => Any) extends alPrecess {
+class alFilterPrecess(f : Any => Boolean) extends alPrecess {
     def precess(j : alStage) : List[alStage] = {
 
         try {
@@ -15,7 +15,7 @@ class alMapPrecess(f : Any => Any) extends alPrecess {
                 case _ : alPresisStage => ???
                 case _ : alMemoryStage => {
                     val ns = j.storages.map { x =>
-                        x.asInstanceOf[alStorage].map(f)
+                        x.asInstanceOf[alStorage].filter(f)
                     }
                     alStage(ns) :: Nil
                 }
@@ -23,7 +23,7 @@ class alMapPrecess(f : Any => Any) extends alPrecess {
 
         } catch {
             case ex : OutOfMemoryError => println("not enough memory"); throw ex
-//            case ex : Exception => println("unknow error"); throw ex
+            //            case ex : Exception => println("unknow error"); throw ex
             case ex : Exception => ex.printStackTrace; throw ex
         }
     }

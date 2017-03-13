@@ -73,6 +73,18 @@ abstract class alStorage(val parents : List[alStorage], val f : Any => Any) {
             else alStorage(this.data.distinct)
         }
     }
+
+    // 过滤
+    def filter(f : Any => Boolean) : alStorage = {
+        if (!isCalc) {
+            doCalc
+            filter(f)
+        } else {
+            if (isPortions) alStorage.union(this.upgrade).filter(f)
+            else alStorage(this.data.filter(f))
+        }
+    }
+
     
     // 计算
     def doCalc

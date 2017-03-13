@@ -40,6 +40,10 @@ object alPrecessDefines {
         def apply() : alPrecess = new alUnionPrecess
     }
 
+    object do_filter extends precess_defines(8, "filter data") {
+        def apply(f : Any => Boolean) = new alFilterPrecess(f)
+    }
+
     object do_calc extends precess_defines(9, "do calc") {
         def apply() : alPrecess = new alCalcPrecess
     }
