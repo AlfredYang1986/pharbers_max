@@ -91,6 +91,7 @@ class alCalcActor extends Actor
             stay()
         }
         case Event(concert_calc_result(sub_uuid, v, u), _) => {
+            println(sub_uuid, v, u)
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
 
             r.subs.find (x => x.uuid == sub_uuid).map { x =>
@@ -100,6 +101,11 @@ class alCalcActor extends Actor
             }.getOrElse(Unit)
 
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
+                r.subs.map(_.finalValue).foreach (println)
+                r.subs.map(_.finalUnit).foreach (println)
+//                println(s"result calc $r")
+                println(sub_uuid)
+
                 r.finalValue = r.subs.map(_.finalValue).sum
                 r.finalUnit = r.subs.map(_.finalUnit).sum
                 r.isCalc = true

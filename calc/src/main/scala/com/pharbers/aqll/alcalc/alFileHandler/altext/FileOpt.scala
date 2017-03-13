@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.alfilehandler.altext
 
-import java.io.{File, PrintWriter}
+import java.io.{File, FileWriter, PrintWriter}
 
 import scala.io.Source
 
@@ -22,8 +22,8 @@ class FileOpt(val file : String) {
     }
 
     def appendData2File(lst : List[Any]): Unit = {
-        val writer = new PrintWriter(tf)
-        lst foreach (x => writer.append(x.toString + "\n"))
+        val writer = new FileWriter(file, true);
+        lst foreach (x => writer.write(x.toString + "\n"))
         writer.flush()
         writer.close()
     }

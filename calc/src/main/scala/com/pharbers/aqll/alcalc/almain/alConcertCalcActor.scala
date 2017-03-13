@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.almain
 
-import java.io.PrintWriter
+import java.io.{FileWriter, PrintWriter}
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alcalc.aldata.alStorage
@@ -54,7 +54,8 @@ class alConcertCalcActor extends Actor
             sender() ! concert_calc_sum_result(p.subs(index.single.get).uuid, maxSum.toList)
         }
         case concert_calc_avg(p, avg) => {
-            println(s"avg at ${index.single.get} is $avg")
+//            println(s"avg at ${index.single.get} is $avg")
+            println(s"avg at ${index.single.get}")
 
             val sub_uuid = p.subs(index.single.get).uuid
             val path = s"config/calc/$sub_uuid"
@@ -63,9 +64,9 @@ class alConcertCalcActor extends Actor
                 dir.createDir
 
             val source = FileOpt(path + "/" + "data")
-            val target = FileOpt(path + "/" + "result")
+            val target = (path + "/" + "result")
 
-            val writer = new PrintWriter(target.tf)
+            val writer = new FileWriter(target, true);
             source.enumDataWithFunc { line =>
                 val mrd = alShareData.txt2WestMedicineIncome(line)
 
@@ -81,11 +82,11 @@ class alConcertCalcActor extends Actor
                 }.getOrElse (Unit)
 
                 if (mrd.finalResultsValue > 0) {
-                    println(s"calcing at ${index.single.get} value: ${mrd.finalResultsValue} unit: ${mrd.finalResultsUnit}")
+//                    println(s"calcing at ${index.single.get} value: ${mrd.finalResultsValue} unit: ${mrd.finalResultsUnit}")
                     unit = unit + mrd.finalResultsUnit
                     value = value + mrd.finalResultsValue
                 }
-                writer.append(mrd.toString + "\n")
+                writer.write(mrd.toString + "\n")
             }
             writer.flush()
             writer.close()
@@ -100,9 +101,9 @@ class alConcertCalcActor extends Actor
     def max_precess(element2 : IntegratedData, sub_uuid : String, log : Option[String] = None)(recall : List[IntegratedData]) = {
         if (!log.isEmpty)
             println(s"concert index ${index.single.get} calc in $log")
-        val tmp =
-        alShareData.hospdata map { element =>
-            backfireData(new westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0, 0, element2.getMinimumUnit,
+            val tmp =
+                alShareData.hospdata map { element =>
+                    backfireData(new westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0, 0, element2.getMinimumUnit,
                             element2.getMinimumUnitCh, element2.getMinimumUnitEn, element2.getMarket1Ch,
                             element2.getMarket1En, element.getSegment, element.getFactor, element.getIfPanelAll,
                             element.getIfPanelTouse, element.getHospId, element.getHospName, element.getPhaid,
