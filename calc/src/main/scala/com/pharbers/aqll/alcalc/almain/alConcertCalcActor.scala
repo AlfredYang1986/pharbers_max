@@ -54,8 +54,7 @@ class alConcertCalcActor extends Actor
             sender() ! concert_calc_sum_result(p.subs(index.single.get).uuid, maxSum.toList)
         }
         case concert_calc_avg(p, avg) => {
-//            println(s"avg at ${index.single.get} is $avg")
-            println(s"avg at ${index.single.get}")
+            println(s"avg at ${index.single.get} is $avg")
 
             val sub_uuid = p.subs(index.single.get).uuid
             val path = s"config/calc/$sub_uuid"
@@ -64,34 +63,35 @@ class alConcertCalcActor extends Actor
                 dir.createDir
 
             val source = FileOpt(path + "/" + "data")
-            val target = (path + "/" + "result")
+            if (source.isExist) {
+                val target = (path + "/" + "result")
 
-            val writer = new FileWriter(target, true);
-            source.enumDataWithFunc { line =>
-                val mrd = alShareData.txt2WestMedicineIncome(line)
+                val writer = new FileWriter(target, true);
+                source.enumDataWithFunc { line =>
+                    val mrd = alShareData.txt2WestMedicineIncome(line)
 
-                avg.find (p => p._1 == mrd.segment).map { x =>
-                    if (mrd.ifPanelAll.equals("1")) {
-                        mrd.finalResultsValue = mrd.sumValue
-                        mrd.finalResultsUnit = mrd.volumeUnit
-                    }else{
-                        mrd.finalResultsValue = x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
-                        mrd.finalResultsUnit = x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
+                    avg.find (p => p._1 == mrd.segment).map { x =>
+                        if (mrd.ifPanelAll.equals("1")) {
+                            mrd.finalResultsValue = mrd.sumValue
+                            mrd.finalResultsUnit = mrd.volumeUnit
+                        }else{
+                            mrd.finalResultsValue = x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
+                            mrd.finalResultsUnit = x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
+                        }
+
+                    }.getOrElse (Unit)
+
+                    if (mrd.finalResultsValue > 0) {
+                        unit = unit + mrd.finalResultsUnit
+                        value = value + mrd.finalResultsValue
                     }
-
-                }.getOrElse (Unit)
-
-                if (mrd.finalResultsValue > 0) {
-//                    println(s"calcing at ${index.single.get} value: ${mrd.finalResultsValue} unit: ${mrd.finalResultsUnit}")
-                    unit = unit + mrd.finalResultsUnit
-                    value = value + mrd.finalResultsValue
+                    writer.write(mrd.toString + "\n")
                 }
-                writer.write(mrd.toString + "\n")
-            }
-            writer.flush()
-            writer.close()
+                writer.flush()
+                writer.close()
 
-            println(s"calc done at ${index.single.get}")
+                println(s"calc done at ${index.single.get}")
+            }
 
             sender() ! concert_calc_result(sub_uuid, value, unit)
         }
@@ -103,20 +103,21 @@ class alConcertCalcActor extends Actor
             println(s"concert index ${index.single.get} calc in $log")
             val tmp =
                 alShareData.hospdata map { element =>
-                    backfireData(new westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0, 0, element2.getMinimumUnit,
-                            element2.getMinimumUnitCh, element2.getMinimumUnitEn, element2.getMarket1Ch,
-                            element2.getMarket1En, element.getSegment, element.getFactor, element.getIfPanelAll,
-                            element.getIfPanelTouse, element.getHospId, element.getHospName, element.getPhaid,
-                            element.getIfCounty, element.getHospLevel, element.getRegion, element.getProvince,
-                            element.getPrefecture, element.getCityTier, element.getSpecialty1, element.getSpecialty2,
-                            element.getReSpecialty, element.getSpecialty3, element.getWestMedicineIncome, element.getDoctorNum,
-                            element.getBedNum, element.getGeneralBedNum, element.getMedicineBedNum, element.getSurgeryBedNum,
-                            element.getOphthalmologyBedNum, element.getYearDiagnosisNum, element.getClinicNum, element.getMedicineNum,
-                            element.getSurgeryNum, element.getHospitalizedNum, element.getHospitalizedOpsNum, element.getIncome,
-                            element.getClinicIncome, element.getClimicCureIncome, element.getHospitalizedIncome,
-                            element.getHospitalizedBeiIncome, element.getHospitalizedCireIncom, element.getHospitalizedOpsIncome,
-                            element.getDrugIncome, element.getClimicDrugIncome, element.getClimicWestenIncome,
-                            element.getHospitalizedDrugIncome, element.getHospitalizedWestenIncome, 0.0, 0.0))(recall)
+                    val mrd = new westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0, 0, element2.getMinimumUnit,
+                        element2.getMinimumUnitCh, element2.getMinimumUnitEn, element2.getMarket1Ch,
+                        element2.getMarket1En, element.getSegment, element.getFactor, element.getIfPanelAll,
+                        element.getIfPanelTouse, element.getHospId, element.getHospName, element.getPhaid,
+                        element.getIfCounty, element.getHospLevel, element.getRegion, element.getProvince,
+                        element.getPrefecture, element.getCityTier, element.getSpecialty1, element.getSpecialty2,
+                        element.getReSpecialty, element.getSpecialty3, element.getWestMedicineIncome, element.getDoctorNum,
+                        element.getBedNum, element.getGeneralBedNum, element.getMedicineBedNum, element.getSurgeryBedNum,
+                        element.getOphthalmologyBedNum, element.getYearDiagnosisNum, element.getClinicNum, element.getMedicineNum,
+                        element.getSurgeryNum, element.getHospitalizedNum, element.getHospitalizedOpsNum, element.getIncome,
+                        element.getClinicIncome, element.getClimicCureIncome, element.getHospitalizedIncome,
+                        element.getHospitalizedBeiIncome, element.getHospitalizedCireIncom, element.getHospitalizedOpsIncome,
+                        element.getDrugIncome, element.getClimicDrugIncome, element.getClimicWestenIncome,
+                        element.getHospitalizedDrugIncome, element.getHospitalizedWestenIncome, 0.0, 0.0)
+                    backfireData(mrd)(recall)
         }
 
         val path = s"config/calc/$sub_uuid"
@@ -149,6 +150,7 @@ class alConcertCalcActor extends Actor
     }
 
     def backfireData(mrd : westMedicineIncome)(inte_lst : List[IntegratedData]) : westMedicineIncome = {
+        var t = mrd
         val tmp = inte_lst.find(iter => mrd.yearAndmonth == iter.getYearAndmonth
                                     && mrd.minimumUnitCh == iter.getMinimumUnitCh
                                     && mrd.phaid == iter.getPhaid)
@@ -169,6 +171,6 @@ class alConcertCalcActor extends Actor
                     }
                     .getOrElse((mrd.sumValue, mrd.volumeUnit, mrd.selectvariablecalculation.get._2))
         }
-        mrd
+        mrd.copy()
     }
 }

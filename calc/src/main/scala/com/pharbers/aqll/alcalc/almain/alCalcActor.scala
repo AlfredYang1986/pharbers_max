@@ -71,6 +71,8 @@ class alCalcActor extends Actor
                 r.sum = r.sum ++: sum
             }.getOrElse(Unit)
 
+            println(r.sum)
+
             if (r.subs.filterNot (x => x.isSumed).isEmpty) {
                 r.sum = (r.sum.groupBy(_._1) map { x =>
                     (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
@@ -103,7 +105,6 @@ class alCalcActor extends Actor
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
                 r.subs.map(_.finalValue).foreach (println)
                 r.subs.map(_.finalUnit).foreach (println)
-//                println(s"result calc $r")
                 println(sub_uuid)
 
                 r.finalValue = r.subs.map(_.finalValue).sum

@@ -1,9 +1,14 @@
 package com.pharbers.aqll.calc.excel.model
 
 
+/**
+  * 这里是老子见过最稀烂的Scala代码
+  * Alfred
+  */
+
 class westMedicineIncome(
 	                        company: String,
-	                        yearAadmonth: Int,
+	                        yearAndmonth: Int,
 	                        sumValue: Double,
 	                        volumeUnit: Double,
 	                        minimumUnit: String,
@@ -57,7 +62,7 @@ class westMedicineIncome(
 	                        finalResultsUnit: Double
                         ) extends modelRunData(
 	company: String,
-	yearAadmonth: Int,
+	yearAndmonth: Int,
 	sumValue: Double,
 	volumeUnit: Double,
 	minimumUnit: String,
@@ -110,13 +115,32 @@ class westMedicineIncome(
 	finalResultsValue: Double,
 	finalResultsUnit: Double
 ) {
+
+    def copy() : westMedicineIncome = {
+        val m : westMedicineIncome = this
+        new westMedicineIncome(m.company , m.yearAndmonth , m.sumValue, m.volumeUnit, m.minimumUnit,
+            m.minimumUnitCh , m.market1En, m.market1Ch,
+            m.market1En , m.segment , m.factor , m.ifPanelAll,
+            m.ifPanelTouse , m.hospId, m.hospName, m.phaid,
+            m.ifCounty , m.hospLevel, m.region, m.province,
+            m.prefecture , m.cityTier , m.specialty1 , m.specialty2,
+            m.reSpecialty , m.specialty3, m.westMedicineIncome , m.doctorNum,
+            m.bedNum, m.generalBedNum, m.medicineBedNum, m.surgeryBedNum,
+            m.ophthalmologyBedNum, m.yearDiagnosisNum, m.clinicNum, m.medicineNum,
+            m.surgeryNum, m.hospitalizedNum, m.hospitalizedOpsNum, m.income,
+            m.clinicIncome, m.climicCureIncome, m.hospitalizedIncome,
+            m.hospitalizedBeiIncome, m.hospitalizedCireIncom, m.hospitalizedOpsIncome,
+            m.drugIncome, m.climicDrugIncome, m.climicWestenIncome,
+            m.hospitalizedDrugIncome, m.hospitalizedWestenIncome, m.finalResultsValue, m.finalResultsUnit)
+    }
+
 	override def selectvariablecalculation(): Option[(String, Double)] = {
 		Some("西药收入", westMedicineIncome)
 	}
 
 	override def toString: String = {
         company + "#" +
-            yearAadmonth + "#" +
+        	yearAndmonth + "#" +
             sumValue + "#" +
             volumeUnit + "#" +
             minimumUnit + "#" +
