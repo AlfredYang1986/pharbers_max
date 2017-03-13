@@ -30,6 +30,8 @@ class FileOpt(val file : String) {
 
     def requestDataFromFile(f : String => Any) : List[Any] = Source.fromFile(file).getLines().map(f(_)).toList
 
+    def enumDataWithFunc(f : String => Unit) = Source.fromFile(file).getLines().foreach(f(_))
+
     def isDir : Boolean = tf.isDirectory()
     def createDir = tf.mkdir()
     def createFile = tf.createNewFile

@@ -8,7 +8,7 @@ import akka.util.Timeout
 import com.pharbers.aqll.alcalc.aljobs.alJob
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, _}
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 import com.pharbers.aqll.calc.split.{SplitAggregator, SplitGroupMaster}
 import com.pharbers.aqll.alcalc.alstages.alStage
@@ -74,6 +74,7 @@ class alMaxDriver extends Actor
         case push_calc_job(p) => pushCalcJobs(p)
         case schedule_calc() => scheduleOneCalcJob
         case calc_sum_result(uuid, sub_uuid, sum) => sumSuccessWithWork(uuid, sub_uuid, sum)
+        case calc_final_result(uuid, sub_uuid, v, u) => finalSuccessWithWork(uuid, sub_uuid, v, u)
         
         case x : Any => {
             println(x)
@@ -236,9 +237,41 @@ trait alCalcJobsManager { this : Actor with alCalcJobsSchedule =>
                     r.sum = (r.sum.groupBy(_._1) map { x =>
                         (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
                     }).toList
+                    r.isSumed = true
                     println(s"done for suming ${r.sum}")
 
-                    // TODO : 开始计算平均值
+                    val mapAvg = r.sum.map { x =>
+                        (x._1, (x._2._1 / x._2._3),(x._2._2 / x._2._3))
+                    }
+
+                    calc_router.single.get foreach ( x => x ! calc_avg_job(r.uuid, mapAvg))
+                }
+            }
+        }
+    }
+
+    def finalSuccessWithWork(uuid : String, sub_uuid : String, v : Double, u : Double) = {
+        // TODO : 计算完啦，钱鹏核对一下数
+
+        calcing_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
+            case None => Unit
+            case Some(r) => {
+                r.subs.find (x => x.uuid == sub_uuid).map { x =>
+                    x.isCalc = true
+                    x.finalValue = v
+                    x.finalUnit = u
+                }.getOrElse(Unit)
+
+                if (r.subs.filterNot (x => x.isCalc).isEmpty) {
+                    r.finalValue = r.subs.map(_.finalValue).sum
+                    r.finalUnit = r.subs.map(_.finalUnit).sum
+                    r.isCalc = true
+
+                    println(s"done calc job with uuid ${r.uuid}, final value : ${r.finalValue} and final unit : ${r.finalUnit}")
+
+                    atomic { implicit tnx =>
+                        calcing_jobs() = calcing_jobs().tail
+                    }
                 }
             }
         }

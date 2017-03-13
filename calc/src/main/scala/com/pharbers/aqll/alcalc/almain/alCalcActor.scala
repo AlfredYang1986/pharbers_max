@@ -5,7 +5,7 @@ import akka.routing.BroadcastPool
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates._
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_avg_job, concert_calc_result, _}
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
@@ -75,11 +75,40 @@ class alCalcActor extends Actor
                 r.sum = (r.sum.groupBy(_._1) map { x =>
                     (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
                 }).toList
+                r.isSumed = true
 
                 val st = context.actorSelection("akka://calc/user/splitreception")
                 st ! calc_sum_result(r.parent, r.uuid, r.sum)
             }
             stay()
+        }
+        case Event(calc_avg_job(uuid, avg), _) => {
+            val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
+
+            if (r.parent == uuid)
+                concert_router ! concert_calc_avg(r, avg)
+
+            stay()
+        }
+        case Event(concert_calc_result(sub_uuid, v, u), _) => {
+            val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
+
+            r.subs.find (x => x.uuid == sub_uuid).map { x =>
+                x.isCalc = true
+                x.finalValue = v
+                x.finalUnit = u
+            }.getOrElse(Unit)
+
+            if (r.subs.filterNot (x => x.isCalc).isEmpty) {
+                r.finalValue = r.subs.map(_.finalValue).sum
+                r.finalUnit = r.subs.map(_.finalUnit).sum
+                r.isCalc = true
+
+                val st = context.actorSelection("akka://calc/user/splitreception")
+                st ! calc_final_result(r.parent, r.uuid, r.finalValue, r.finalUnit)
+                goto(alMasterJobIdle) using ""
+
+            } else stay()
         }
     }
 
@@ -91,6 +120,11 @@ class alCalcActor extends Actor
 
         case Event(group_job(p), _) => {
             sender() ! service_is_busy()
+            stay()
+        }
+
+        case Event(calc_avg_job(_, _), _) => {
+            // do nothing
             stay()
         }
 

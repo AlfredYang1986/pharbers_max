@@ -1,10 +1,12 @@
 package com.pharbers.aqll.alcalc.almain
 
+import java.io.PrintWriter
+
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alfilehandler.altext.FileOpt
 import com.pharbers.aqll.alcalc.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{concert_calc_avg, _}
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.calc.common.DefaultData
@@ -23,6 +25,8 @@ object alConcertCalcActor {
 class alConcertCalcActor extends Actor
                             with ActorLogging {
 
+    var unit = 0.0.toDouble
+    var value = 0.0.toDouble
     val index = Ref(-1)
     val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
 
@@ -48,6 +52,47 @@ class alConcertCalcActor extends Actor
             println(s"concert index ${index.single.get} end")
 
             sender() ! concert_calc_sum_result(p.subs(index.single.get).uuid, maxSum.toList)
+        }
+        case concert_calc_avg(p, avg) => {
+            println(s"avg at ${index.single.get} is $avg")
+
+            val sub_uuid = p.subs(index.single.get).uuid
+            val path = s"config/calc/$sub_uuid"
+            val dir = FileOpt(path)
+            if (!dir.isExist)
+                dir.createDir
+
+            val source = FileOpt(path + "/" + "data")
+            val target = FileOpt(path + "/" + "result")
+
+            val writer = new PrintWriter(target.tf)
+            source.enumDataWithFunc { line =>
+                val mrd = alShareData.txt2WestMedicineIncome(line)
+
+                avg.find (p => p._1 == mrd.segment).map { x =>
+                    if (mrd.ifPanelAll.equals("1")) {
+                        mrd.finalResultsValue = mrd.sumValue
+                        mrd.finalResultsUnit = mrd.volumeUnit
+                    }else{
+                        mrd.finalResultsValue = x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
+                        mrd.finalResultsUnit = x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
+                    }
+
+                }.getOrElse (Unit)
+
+                if (mrd.finalResultsValue > 0) {
+                    println(s"calcing at ${index.single.get} value: ${mrd.finalResultsValue} unit: ${mrd.finalResultsUnit}")
+                    unit = unit + mrd.finalResultsUnit
+                    value = value + mrd.finalResultsValue
+                }
+                writer.append(mrd.toString + "\n")
+            }
+            writer.flush()
+            writer.close()
+
+            println(s"calc done at ${index.single.get}")
+
+            sender() ! concert_calc_result(sub_uuid, value, unit)
         }
         case _ => ???
     }
