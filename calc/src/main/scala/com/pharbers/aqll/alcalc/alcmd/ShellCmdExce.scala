@@ -1,4 +1,4 @@
-package com.pharbers.aqll.calc.util.mongo.shellcmd
+package com.pharbers.aqll.alcalc.alcmd
 
 import java.io._
 import java.nio.ByteBuffer

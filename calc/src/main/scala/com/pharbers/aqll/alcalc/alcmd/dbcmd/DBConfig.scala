@@ -1,4 +1,4 @@
-package com.pharbers.aqll.calc.util.mongo.shellcmd
+package com.pharbers.aqll.alcalc.alcmd.dbcmd
 
 case class DBConfig(val db : String,
                     val coll : String,

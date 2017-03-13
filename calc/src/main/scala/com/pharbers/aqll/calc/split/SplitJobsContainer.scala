@@ -3,7 +3,7 @@ package com.pharbers.aqll.calc.split
 import akka.actor.ActorRef
 import com.pharbers.aqll.calc.maxmessages.freeMaster
 import com.pharbers.aqll.calc.maxresult.Insert
-import com.pharbers.aqll.calc.util.mongo.shellcmd.dbrestoreCmd
+import com.pharbers.aqll.alcalc.alcmd.dbcmd.dbrestoreCmd
 
 import scala.concurrent.stm.Ref
 import scala.concurrent.stm.atomic
