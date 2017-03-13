@@ -67,10 +67,11 @@ object alJobTrigger {
      */
     case class calc_job(j : alMaxProperty)
     case class calcing_job(j : alJob)
+    case class calc_sum_result(uuid : String, sub_uuid : String, sum : List[(String, (Double, Double, Double))])
 
     /**
       * for concert calc
       */
     case class concert_calc(p : alMaxProperty)
-    case class concert_calc_result(sub_uuid : String)
+    case class concert_calc_sum_result(sub_uuid : String, sum : List[(String, (Double, Double, Double))])
 }

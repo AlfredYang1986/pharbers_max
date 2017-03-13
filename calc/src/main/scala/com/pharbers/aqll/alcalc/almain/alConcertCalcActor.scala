@@ -47,16 +47,7 @@ class alConcertCalcActor extends Actor
 
             println(s"concert index ${index.single.get} end")
 
-//            val m = alStorage.groupBy (x =>
-//                (x.asInstanceOf[IntegratedData].getYearAndmonth, x.asInstanceOf[IntegratedData].getMinimumUnitCh)
-//            )(concert)
-
-//            val g = alStorage(m.values.map (x => x.asInstanceOf[alStorage].data.head.toString).toList)
-//            g.doCalc
-//            val sg = alStage(g :: Nil)
-//            val pp = presist_data(Some(p.subs(index.single.get).uuid), Some("group"))
-//            pp.precess(sg)
-//            sender() ! concert_group_result(p.subs(index.single.get).uuid)
+            sender() ! concert_calc_sum_result(p.subs(index.single.get).uuid, maxSum.toList)
         }
         case _ => ???
     }

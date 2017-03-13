@@ -24,7 +24,7 @@ class alCalcActor extends Actor
                      with ActorLogging 
                      with FSM[alPointState, String] 
                      with alCreateConcretCalcRouter {
-  
+
     startWith(alMasterJobIdle, "")
 
     when(alMasterJobIdle) {
@@ -47,9 +47,6 @@ class alCalcActor extends Actor
 
     when(calc_coreing) {
         case Event(calcing_job(cj), _) => {
-            println(s"开始根据CPU核数拆分线程")
-            println(cj)
-
             val result = cj.result
             val (p, sb) = result.get.asInstanceOf[(String, List[String])]
 
@@ -58,7 +55,6 @@ class alCalcActor extends Actor
                 result_ref() = Some(alMaxProperty(concert_ref.single.get.get.uuid, p, q))
                 adjust_index() = -1
             }
-            println(result_ref.single.get)
             concert_router ! concert_adjust()
 
             goto(calc_maxing) using ""
@@ -66,27 +62,23 @@ class alCalcActor extends Actor
     }
 
     when(calc_maxing) {
-        // will change
-        case Event(concert_group_result(sub_uuid), _) => {
-//            val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
-//            
-//            r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
-//            
-//            if (r.subs.filterNot (x => x.grouped).isEmpty) {
-//                // group 4 to 1 and distinct
-//                val common = common_jobs()
-//                common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
-//                common.process = restore_grouped_data() :: do_distinct() :: 
-//                                    do_calc() :: do_union() :: do_calc() :: 
-//                                    presist_data(Some(r.uuid), Some("group")) :: Nil
-//                common.result
-//                
-//                println(s"post group result ${r.parent} && ${r.uuid}")
-//            
-//                val st = context.actorSelection("akka://calc/user/splitreception")
-//                st ! group_result(r.parent, r.uuid)
-//                goto(alMasterJobIdle) using ""
-//            } else 
+        case Event(concert_calc_sum_result(sub_uuid, sum), _) => {
+            val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
+
+            r.subs.find (x => x.uuid == sub_uuid).map { x =>
+                x.isSumed = true
+                x.sum = sum
+                r.sum = r.sum ++: sum
+            }.getOrElse(Unit)
+
+            if (r.subs.filterNot (x => x.isSumed).isEmpty) {
+                r.sum = (r.sum.groupBy(_._1) map { x =>
+                    (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+                }).toList
+
+                val st = context.actorSelection("akka://calc/user/splitreception")
+                st ! calc_sum_result(r.parent, r.uuid, r.sum)
+            }
             stay()
         }
     }

@@ -49,9 +49,6 @@ class alGroupActor extends Actor
 
     when(group_coreing) {
         case Event(grouping_job(cj), _) => {
-            println(s"开始根据CPU核数拆分线程")
-            println(cj)
-
             val result = cj.result
             val (p, sb) = result.get.asInstanceOf[(String, List[String])]
 
@@ -60,8 +57,6 @@ class alGroupActor extends Actor
                 result_ref() = Some(alMaxProperty(concert_ref.single.get.get.uuid, p, q))
                 adjust_index() = -1
             }
-            println(result_ref.single.get)
-
             concert_router ! concert_adjust()
 
             goto(group_doing) using ""

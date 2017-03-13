@@ -2,7 +2,7 @@ package com.pharbers.aqll.alcalc.almain
 
 import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSystem, Props, Scheduler}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import akka.routing.{RoundRobinPool}
+import akka.routing.RoundRobinPool
 import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alcalc.aljobs.alJob
@@ -73,6 +73,7 @@ class alMaxDriver extends Actor
         case calc_register(a) => registerCalcRouter(a)
         case push_calc_job(p) => pushCalcJobs(p)
         case schedule_calc() => scheduleOneCalcJob
+        case calc_sum_result(uuid, sub_uuid, sum) => sumSuccessWithWork(uuid, sub_uuid, sum)
         
         case x : Any => {
             println(x)
@@ -218,6 +219,28 @@ trait alCalcJobsManager { this : Actor with alCalcJobsSchedule =>
         atomic { implicit tnx =>
             waiting_calc() = waiting_calc().tail
             calcing_jobs() = calcing_jobs() :+ p
+        }
+    }
+
+    def sumSuccessWithWork(uuid : String, sub_uuid : String, sum : List[(String, (Double, Double, Double))]) = {
+        calcing_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
+            case None => Unit
+            case Some(r) => {
+                r.subs.find (x => x.uuid == sub_uuid).map { x =>
+                    x.isSumed = true
+                    x.sum = sum
+                    r.sum = sum ++: sum
+                }.getOrElse(Unit)
+
+                if (r.subs.filterNot (x => x.isSumed).isEmpty) {
+                    r.sum = (r.sum.groupBy(_._1) map { x =>
+                        (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+                    }).toList
+                    println(s"done for suming ${r.sum}")
+
+                    // TODO : 开始计算平均值
+                }
+            }
         }
     }
 }

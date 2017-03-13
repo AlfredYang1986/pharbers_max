@@ -8,6 +8,5 @@ case class alMaxProperty(val parent : String,
                          val subs : List[alMaxProperty],
                          var signed : Boolean = false,
                          var grouped : Boolean = false,
-                         var sum1 : Double = 0.0,
-                         var sum2 : Double = 0.0,
-                         var sum3 : Double = 0.0)
+                         var isSumed : Boolean = false,
+                         var sum : List[(String, (Double, Double, Double))] = Nil)
