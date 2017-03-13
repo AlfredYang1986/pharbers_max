@@ -86,5 +86,6 @@ calc/src/main/scala/com/pharbers/aqll/calc/stub/Test.scala
 calc/src/test/test/MainTest1.scala
 calc/src/test/test/MainTest2Call.scala
 calc/manage/upload
+calc/manage/Project
 *.bat
 *.jar
