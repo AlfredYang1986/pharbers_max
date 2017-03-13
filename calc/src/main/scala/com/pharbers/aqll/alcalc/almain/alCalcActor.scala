@@ -55,13 +55,13 @@ class alCalcActor extends Actor
             println(p)
             println(sb)
 
-//            val q = sb.map (x => alMaxProperty(p, x, Nil))
-//            atomic { implicit tnx =>
-//                result_ref() = Some(alMaxProperty(concert_ref.single.get.get.uuid, p, q))
-//                adjust_index() = -1
-//            }
-//            println(result_ref.single.get)
-//            concert_router ! concert_adjust()
+            val q = sb.map (x => alMaxProperty(p, x, Nil))
+            atomic { implicit tnx =>
+                result_ref() = Some(alMaxProperty(concert_ref.single.get.get.uuid, p, q))
+                adjust_index() = -1
+            }
+            println(result_ref.single.get)
+            concert_router ! concert_adjust()
 
             goto(calc_maxing) using ""
         }
@@ -111,7 +111,7 @@ class alCalcActor extends Actor
             }
 
             if (adjust_index.single.get == 3) {
-                concert_router ! concert_group(result_ref.single.get.get)
+                concert_router ! concert_calc(result_ref.single.get.get)
             }
             stay()
         }
@@ -125,5 +125,5 @@ class alCalcActor extends Actor
 
 trait alCreateConcretCalcRouter { this : Actor =>
     def CreateConcretCalcRouter =
-        context.actorOf(BroadcastPool(4).props(alConcertGroupActor.props), name = "concert-calc-router")
+        context.actorOf(BroadcastPool(4).props(alConcertCalcActor.props), name = "concert-calc-router")
 }

@@ -30,5 +30,6 @@ class alConcertCalcActor extends Actor
         case concert_calc(p) => {
             println(p)
         }
+        case _ => ???
     }
 }
