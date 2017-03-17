@@ -2,6 +2,9 @@ package com.pharbers.aqll.alcalc.almain
 
 import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.routing.BroadcastPool
+import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
+import com.pharbers.aqll.alcalc.alcmd.scpcmd.cpCmd
+import com.pharbers.aqll.alcalc.alfilehandler.altext.FileOpt
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates._
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
@@ -10,6 +13,7 @@ import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
+import com.pharbers.aqll.calc.util.GetProperties
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -42,6 +46,15 @@ class alCalcActor extends Actor
             val cj = worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> p.uuid, worker_calc_core_split_jobs.calc_uuid -> p.subs.head.uuid))
             context.system.scheduler.scheduleOnce(0 seconds, self, calcing_job(cj))
             goto(calc_coreing) using ""
+        }
+
+        case Event(calc_need_files(uuid_file_path), _) => {
+            println(s"fucking in my jobs = $uuid_file_path")
+            new unPkgCmd(s"/Users/qianpeng/Desktop/scp/$uuid_file_path", "/Users/qianpeng/Desktop/scp").excute
+            FileOpt(s"/Users/qianpeng/Desktop/scp/config/compress/$uuid_file_path").lstFiles foreach { x =>
+                new unPkgCmd(s"${x.substring(0, x.lastIndexOf("tar")-1)}", "/Users/qianpeng/Desktop/").excute
+            }
+            stay()
         }
     }
 
@@ -78,8 +91,9 @@ class alCalcActor extends Actor
                     (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
                 }).toList
                 r.isSumed = true
-
-                val st = context.actorSelection("akka://calc/user/splitreception")
+                //"akka.tcp://calc@127.0.0.1:2551/user/splitreception"
+                val st = context.actorSelection(GetProperties.singletonPaht)
+                    //context.actorSelection("akka://calc/user/splitreception")
                 st ! calc_sum_result(r.parent, r.uuid, r.sum)
             }
             stay()
@@ -111,7 +125,9 @@ class alCalcActor extends Actor
                 r.finalUnit = r.subs.map(_.finalUnit).sum
                 r.isCalc = true
 
-                val st = context.actorSelection("akka://calc/user/splitreception")
+                    //"akka.tcp://calc@127.0.0.1:2551/user/splitreception"
+                val st = context.actorSelection(GetProperties.singletonPaht)
+                    //context.actorSelection("akka://calc/user/splitreception")
                 st ! calc_final_result(r.parent, r.uuid, r.finalValue, r.finalUnit)
                 goto(alMasterJobIdle) using ""
 

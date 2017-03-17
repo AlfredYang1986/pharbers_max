@@ -13,7 +13,7 @@ object alJobTrigger {
       * for drivers
       *
       */
-    case class worker_register(map: Map[String, String])
+    case class worker_register(map: Map[String, Any])
     case class push_max_job(path : String)
     case class finish_max_job(uuid : String)
 
@@ -65,6 +65,7 @@ object alJobTrigger {
     /**
      * for calc
      */
+    case class calc_need_files(uuid_file_path: String)
     case class calc_job(j : alMaxProperty)
     case class calcing_job(j : alJob)
     case class calc_sum_result(uuid : String, sub_uuid : String, sum : List[(String, (Double, Double, Double))])

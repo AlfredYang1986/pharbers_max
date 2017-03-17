@@ -8,6 +8,10 @@ import scala.collection.mutable.ArrayBuffer
   * Created by BM on 10/03/2017.
   */
 
+object server_info {
+    val cpu: Int = Runtime.getRuntime.availableProcessors
+    val memory: Long = Runtime.getRuntime.maxMemory
+}
 
 object alSplitStrategy {
     object read_excel_split extends strategy_defines(0, "read excel split strategy") {
@@ -27,6 +31,12 @@ object alSplitStrategy {
     }
 }
 
+object alServerHardware extends alHardware{
+    def strategy_hardware(c: Map[String, Any])(func: Map[String, Any] => Any) = {
+        func(c)
+    }
+}
+
 sealed class strategy_defines(val t : Int, val d : String)
 
 trait alSplitStrategy {
@@ -34,12 +44,32 @@ trait alSplitStrategy {
     val constraints : Map[String, Any]
 }
 
+trait alHardware {
+    val server_memory = "server_memory"
+    val core_number = "core_number"
+    val strategy_memeory: Map[String, Any] => Long = { c =>
+        c.get(server_memory).get.asInstanceOf[Long]
+    }
+
+    val strategy_core: Map[String, Any] => Int = { c =>
+        c.get(core_number).get.asInstanceOf[Int]
+    }
+}
+
 class alReadExcelSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy {
     override val constraints: Map[String, Any] = c
     override val strategy : List[Any] => List[alPortion] = { lst =>
         import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.read_excel_split
         // TODO: 需要一个根据内存分配的stratege去划分整体数据
-        lst.grouped(lst.length).map(iter => alPortion(iter)).toList
+        // TODO: 目前Size先写死，稍后会更改到配置文件中去
+        println(s"握草")
+        val memory = constraints.get(read_excel_split.section_number).get.asInstanceOf[Long]
+        println(s"memory = $memory")
+        val size = 2 * 80 * 53 * 100
+        println(s"size = $size")
+        val number = (memory / size).toInt
+        println(s"number = $number")
+        lst.grouped(number).map(iter => alPortion(iter)).toList
     }
 }
 

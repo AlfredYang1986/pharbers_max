@@ -47,6 +47,10 @@ object alPrecessDefines {
     object do_calc extends precess_defines(9, "do calc") {
         def apply() : alPrecess = new alCalcPrecess
     }
+
+    object do_pkg extends precess_defines(10, "do pkg") {
+        def apply(): alFilePrecess = new alPkgPrecess
+    }
 }
 
 sealed class precess_defines(val t : Int, val d : String)

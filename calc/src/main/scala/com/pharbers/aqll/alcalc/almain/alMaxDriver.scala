@@ -5,11 +5,14 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.RoundRobinPool
 import akka.pattern.ask
 import akka.util.Timeout
+import com.pharbers.aqll.alcalc.alcmd.pkgcmd.pkgCmd
+import com.pharbers.aqll.alcalc.alcmd.scpcmd.{cpCmd, scpCmd}
 import com.pharbers.aqll.alcalc.aldata.alStorage
-import com.pharbers.aqll.alcalc.aljobs.alJob
+import com.pharbers.aqll.alcalc.alfilehandler.altext.FileOpt
+import com.pharbers.aqll.alcalc.aljobs.{alJob, alPkgJob}
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, _}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, calc_need_files, _}
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 import com.pharbers.aqll.calc.split.{SplitAggregator, SplitGroupMaster}
 import com.pharbers.aqll.alcalc.alstages.alStage
@@ -37,10 +40,12 @@ class alMaxDriver extends Actor
                      with alCreateExcelSplitRouter
                      with alGroupJobsManager 
                      with alCalcJobsSchedule
-                     with alCalcJobsManager {
+                     with alCalcJobsManager
+                     with alPkgJob {
 
     implicit val t = Timeout(0.5 second)
     override def receive = {
+
         case group_register(a) => registerGroupRouter(a)
         case push_max_job(file_path) => {
             println(s"sign a job with file name $file_path")
@@ -68,6 +73,15 @@ class alMaxDriver extends Actor
         case finish_split_excel_job(p, j) => {
             val subs = j map (x => alMaxProperty(p, x, Nil))
             pushGroupJobs(alMaxProperty(null, p, subs))
+
+            val path = s"config/compress/$p"
+            if(!FileOpt(path).isDir) FileOpt(path).createDir
+
+            // TODO : 待会封装
+
+            cur = Some(new pkgCmd(s"config/sync/$p" :: Nil, s"config/compress/$p/sync$p") :: Nil)
+            process = do_pkg() :: Nil
+            super.excute()
         }
         case schedule_group() => scheduleOneGroupJob
         case group_result(uuid, sub_uuid) => successWithGroup(uuid, sub_uuid)
@@ -103,7 +117,7 @@ trait alCreateExcelSplitRouter { this : Actor =>
         context.actorOf(RoundRobinPool(1).props(alExcelSplitActor.props), name = "excel-split-router")
 }
 
-trait alGroupJobsManager { this : Actor with alGroupJobsSchedule =>
+trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedule =>
     val group_router = Ref(List[ActorRef]())
 
     def registerGroupRouter(a : ActorRef) = atomic { implicit txn =>
@@ -129,7 +143,6 @@ trait alGroupJobsManager { this : Actor with alGroupJobsSchedule =>
             case None => Unit
             case Some(r) => {
                 r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
-                    
                 if (r.subs.filterNot (x => x.grouped).isEmpty) {
                     val common = common_jobs()
                     common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
@@ -149,25 +162,38 @@ trait alGroupJobsManager { this : Actor with alGroupJobsSchedule =>
                     val sg = alStage(g :: Nil)
                     val pp = presist_data(Some(r.uuid), Some("group"))
                     pp.precess(sg)
-           
+
                     println("done for grouping")
+
+                    // TODO : 稍后封装
+                    cur = Some(new pkgCmd(s"config/group/$sub_uuid" :: Nil, s"config/compress/$uuid/group$sub_uuid")
+                            :: new pkgCmd(s"config/group/$uuid" :: Nil, s"config/compress/$uuid/group$uuid")
+                            :: Nil)
+                    process = do_pkg() :: Nil
+                    super.excute()
                     groupJobSuccess(uuid)
                 }
             }
-        } 
+        }
     }
     
     def groupJobSuccess(uuid : String) = {
         grouping_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
             case None => Unit
             case Some(r) => {
-                atomic { implicit tnx => 
+                atomic { implicit tnx =>
                     grouping_jobs() = grouping_jobs().tail
                 }
                 // 分拆计算文件
                 val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> r.uuid))
                 val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
                 val subs = sb map (x => alMaxProperty(p, x, Nil))
+
+                // TODO : 稍后封装
+                cur = Some(new pkgCmd(s"config/calc/$uuid" :: Nil, s"config/compress/$uuid/calc$uuid") :: Nil)
+                process = do_pkg() :: Nil
+                super.excute()
+
                 self ! push_calc_job(alMaxProperty(null, p, subs))
             }
         }
@@ -185,11 +211,22 @@ trait alGroupJobsManager { this : Actor with alGroupJobsSchedule =>
 
     def signGroupJob(p : alMaxProperty) = {
         // TODO: sign with 递归
-        group_router.single.get.head ! group_job(p)
-
+        //group_router.single.get.head ! group_job(p)
+        siginEach(group_router.single.get)
         atomic { implicit tnx =>
             waiting_grouping() = waiting_grouping().tail
             grouping_jobs() = grouping_jobs() :+ p
+        }
+
+        def siginEach(lst: List[ActorRef]): Unit = {
+            lst match {
+                case Nil => println("not enough group to do the jobs")
+                case node => {
+                    lst.head ! group_job(p)
+                    siginEach(lst.tail)
+                }
+                case _ => ???
+            }
         }
     }
 }
@@ -200,7 +237,7 @@ trait alCalcJobsSchedule { this : Actor =>
     val calc_timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_calc)
 }
 
-trait alCalcJobsManager { this : Actor with alCalcJobsSchedule =>
+trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule =>
     val calc_router = Ref(List[ActorRef]())
 
     def registerCalcRouter(a : ActorRef) = atomic { implicit txn =>
@@ -229,11 +266,30 @@ trait alCalcJobsManager { this : Actor with alCalcJobsSchedule =>
 
     def signCalcJob(p : alMaxProperty) = {
         // TODO: sign with 递归
-        calc_router.single.get.head ! calc_job(p)
+        siginEach(calc_router.single.get)
 
         atomic { implicit tnx =>
             waiting_calc() = waiting_calc().tail
             calcing_jobs() = calcing_jobs() :+ p
+        }
+
+        def siginEach(lst: List[ActorRef]): Unit = {
+            lst match {
+                case Nil => println("not enough calc to do the jobs")
+                case node => {
+                    //TODO:路径
+                    val path = s"/Users/qianpeng/Desktop/${p.uuid}"
+                    cur = Some(new pkgCmd(s"config/compress/${p.uuid}" :: Nil, s"config/compress/${p.uuid}")
+                        :: new cpCmd(s"config/compress/${p.uuid}.tar.gz", "/Users/qianpeng/Desktop/scp")
+                        :: Nil)
+                    process = do_pkg() :: Nil
+                    super.excute()
+                    lst.head ! calc_need_files(p.uuid)
+                    lst.head ! calc_job(p)
+                    siginEach(lst.tail)
+                }
+                case _ => ???
+            }
         }
     }
 

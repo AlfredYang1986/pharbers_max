@@ -18,7 +18,6 @@ class alPresistStagePrecess(val dirOpt : Option[String], val prefix : Option[Str
         val dir = dirOpt.map (x => x).getOrElse(UUID.randomUUID.toString)
         val sync = prefix.map (x => x).getOrElse("sync")
         val path = s"config/$sync/$dir"
-
         val f = FileOpt(path)
         f.createDir
         j.storages map { x =>

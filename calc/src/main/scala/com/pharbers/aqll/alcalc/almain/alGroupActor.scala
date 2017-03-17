@@ -2,6 +2,7 @@ package com.pharbers.aqll.alcalc.almain
 
 import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.routing.BroadcastPool
+import com.pharbers.aqll.alcalc.alcmd.pkgcmd.pkgCmd
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
@@ -11,7 +12,10 @@ import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
+import com.pharbers.aqll.alcalc.aljobs.alPkgJob
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
+import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.stub.stub_test_1.process
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -21,16 +25,20 @@ import scala.concurrent.duration._
 /**
   * Created by BM on 11/03/2017.
   */
+
+case class FileParentUuid(var uuid: String)
+
 object alGroupActor {
     def props : Props = Props[alGroupActor]
 }
 
 class alGroupActor extends Actor
                      with ActorLogging
-                     with FSM[alPointState, String]
-                     with alCreateConcretGroupRouter {
+                     with FSM[alPointState, FileParentUuid]
+                     with alCreateConcretGroupRouter
+					 with alPkgJob{
 
-    startWith(alMasterJobIdle, "")
+    startWith(alMasterJobIdle, new FileParentUuid(""))
 
     when(alMasterJobIdle) {
         case Event(can_sign_job(), _) => {
@@ -38,39 +46,50 @@ class alGroupActor extends Actor
             stay()
         }
 
-        case Event(group_job(p), _) => {
+        case Event(group_job(p), data) => {
             atomic { implicit tnx =>
                 concert_ref() = Some(p)
             }
-
+	        data.uuid = p.uuid
             val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs.head.uuid))
             context.system.scheduler.scheduleOnce(0 seconds, self, grouping_job(cj))
-            goto(group_coreing) using ""
+            goto(group_coreing) using data
         }
     }
 
     when(group_coreing) {
-        case Event(grouping_job(cj), _) => {
+        case Event(grouping_job(cj), data) => {
             val result = cj.result
             val (p, sb) = result.get.asInstanceOf[(String, List[String])]
-
             val q = sb.map (x => alMaxProperty(p, x, Nil))
             atomic { implicit tnx =>
                 result_ref() = Some(alMaxProperty(concert_ref.single.get.get.uuid, p, q))
                 adjust_index() = -1
             }
-            concert_router ! concert_adjust()
 
-            goto(group_doing) using ""
+	        // TODO : 稍后封装
+
+	        cur = Some(new pkgCmd(s"config/sync/$p" :: Nil, s"config/compress/${data.uuid}/sync$p") :: Nil)
+	        process = do_pkg() :: Nil
+	        super.excute()
+
+	        concert_router ! concert_adjust()
+            goto(group_doing) using data
         }
     }
 
     when(group_doing) {
-        case Event(concert_group_result(sub_uuid), _) => {
+        case Event(concert_group_result(sub_uuid), data) => {
+
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
             
             r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
-            
+
+            // TODO : 稍后封装
+            cur = Some(new pkgCmd(s"config/group/$sub_uuid" :: Nil, s"config/compress/${r.parent}/group$sub_uuid") :: Nil)
+	        process = do_pkg() :: Nil
+	        super.excute()
+
             if (r.subs.filterNot (x => x.grouped).isEmpty) {
 
                 val common = common_jobs()
@@ -93,10 +112,12 @@ class alGroupActor extends Actor
                 pp.precess(sg)
 
                 println(s"post group result ${r.parent} && ${r.uuid}")
-            
-                val st = context.actorSelection("akka://calc/user/splitreception")
+
+                    //"akka.tcp://calc@127.0.0.1:2551/user/splitreception"
+                val st = context.actorSelection(GetProperties.singletonPaht)
+                    //context.actorSelection("akka://calc/user/splitreception")
                 st ! group_result(r.parent, r.uuid)
-                goto(alMasterJobIdle) using ""
+                goto(alMasterJobIdle) using data
             } else stay()
         }
     }

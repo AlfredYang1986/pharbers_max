@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.alprecess
 
-import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines.read_excel
+import com.pharbers.aqll.alcalc.alcmd.shellCmdExce
 import com.pharbers.aqll.alcalc.alstages.alStage
 
 /**
@@ -12,4 +12,8 @@ trait alPrecess {
     def action(j : alStage)
 
     def result : Option[Any] = None
+}
+
+trait alFilePrecess {
+    def precess(s: shellCmdExce)
 }
