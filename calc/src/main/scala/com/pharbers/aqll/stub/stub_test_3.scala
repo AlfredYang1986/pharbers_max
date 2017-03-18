@@ -23,13 +23,13 @@ object stub_test_3 extends App {
         Cluster(system).registerOnMemberUp {
             println("cluster ready")
             val w = system.actorOf(alGroupActor.props)
-//            val c = system.actorOf(alCalcActor.props)
+            val c = system.actorOf(alCalcActor.props)
             val a = system.actorOf(alDriverSingleton.props, "splitreception")
             println(a)
             println(a.path)
 
             a ! group_register(w)
-//            a ! calc_register(c)
+            a ! calc_register(c)
 //            a ! push_max_job("""config/new_test/2016-01.xlsx""")
         }
     }

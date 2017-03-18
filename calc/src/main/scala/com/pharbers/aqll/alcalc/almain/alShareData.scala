@@ -9,7 +9,7 @@ import com.pharbers.aqll.calc.util.StringOption
   * Created by Alfred on 13/03/2017.
   */
 object alShareData {
-    lazy val hospdata = DefaultData.hospdatabase("20000家pfizer医院数据库表.xlsx")
+    lazy val hospdata = DefaultData.hospdatabase("universe_ot_SPE_ljx.xlsx")
 
     val txt2IntegratedData : Any => IntegratedData = { txt =>
         val t = new IntegratedData()

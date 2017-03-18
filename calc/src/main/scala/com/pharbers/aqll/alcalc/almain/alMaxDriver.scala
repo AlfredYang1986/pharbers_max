@@ -12,7 +12,7 @@ import com.pharbers.aqll.alcalc.alfilehandler.altext.FileOpt
 import com.pharbers.aqll.alcalc.aljobs.{alJob, alPkgJob}
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, calc_need_files, _}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, calc_need_files, concert_groupjust_result, _}
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 import com.pharbers.aqll.calc.split.{SplitAggregator, SplitGroupMaster}
 import com.pharbers.aqll.alcalc.alstages.alStage
@@ -45,7 +45,7 @@ class alMaxDriver extends Actor
 
     implicit val t = Timeout(0.5 second)
     override def receive = {
-
+        case concert_groupjust_result(i) => println("fucking group_nodenumber"); group_nodenumber = i
         case group_register(a) => registerGroupRouter(a)
         case push_max_job(file_path) => {
             println(s"sign a job with file name $file_path")
@@ -119,6 +119,7 @@ trait alCreateExcelSplitRouter { this : Actor =>
 
 trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedule =>
     val group_router = Ref(List[ActorRef]())
+    var group_nodenumber: Int = -1
 
     def registerGroupRouter(a : ActorRef) = atomic { implicit txn =>
             group_router() = group_router() :+ a
@@ -139,11 +140,14 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
         }
     
     def successWithGroup(uuid : String, sub_uuid : String) = {
+        println(s"fucking1")
         grouping_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
             case None => Unit
             case Some(r) => {
+                println(s"fucking2")
                 r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
                 if (r.subs.filterNot (x => x.grouped).isEmpty) {
+                    println(s"fucking3")
                     val common = common_jobs()
                     common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
                     common.process = restore_grouped_data() ::
@@ -206,12 +210,15 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
     def canSignGroupJob(p : alMaxProperty): Boolean = {
         implicit val t = Timeout(0.5 second)
         val f = group_router.single.get map (x => x ? can_sign_job())
+        group_nodenumber = p.subs.length-1
         p.subs.length <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
     }
 
+
+
     def signGroupJob(p : alMaxProperty) = {
         // TODO: sign with 递归
-        //group_router.single.get.head ! group_job(p)
+//        group_router.single.get(2) ! group_job(p)
         siginEach(group_router.single.get)
         atomic { implicit tnx =>
             waiting_grouping() = waiting_grouping().tail
@@ -222,7 +229,10 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
             lst match {
                 case Nil => println("not enough group to do the jobs")
                 case node => {
+                    println(s"group_nodenumber = ${group_nodenumber}")
+                    lst.head ! concert_groupjust_result(group_nodenumber)
                     lst.head ! group_job(p)
+                    group_nodenumber = group_nodenumber - 1
                     siginEach(lst.tail)
                 }
                 case _ => ???
@@ -267,7 +277,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
     def signCalcJob(p : alMaxProperty) = {
         // TODO: sign with 递归
         siginEach(calc_router.single.get)
-
+        println(s"fucking calc s = ${calc_router.single.get}")
         atomic { implicit tnx =>
             waiting_calc() = waiting_calc().tail
             calcing_jobs() = calcing_jobs() :+ p

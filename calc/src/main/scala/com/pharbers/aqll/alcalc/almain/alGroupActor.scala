@@ -7,7 +7,7 @@ import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{concert_groupjust_result, _}
 import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
@@ -47,13 +47,21 @@ class alGroupActor extends Actor
         }
 
         case Event(group_job(p), data) => {
+
             atomic { implicit tnx =>
                 concert_ref() = Some(p)
             }
+
 	        data.uuid = p.uuid
-            val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs.head.uuid))
+            val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs(groupjust_index.single.get).uuid))
             context.system.scheduler.scheduleOnce(0 seconds, self, grouping_job(cj))
             goto(group_coreing) using data
+        }
+        case Event(concert_groupjust_result(i), _) => {
+            atomic { implicit tnx =>
+                groupjust_index() = i
+            }
+            stay()
         }
     }
 
@@ -69,9 +77,9 @@ class alGroupActor extends Actor
 
 	        // TODO : 稍后封装
 
-	        cur = Some(new pkgCmd(s"config/sync/$p" :: Nil, s"config/compress/${data.uuid}/sync$p") :: Nil)
-	        process = do_pkg() :: Nil
-	        super.excute()
+//	        cur = Some(new pkgCmd(s"config/sync/$p" :: Nil, s"config/compress/${data.uuid}/sync$p") :: Nil)
+//	        process = do_pkg() :: Nil
+//	        super.excute()
 
 	        concert_router ! concert_adjust()
             goto(group_doing) using data
@@ -86,9 +94,9 @@ class alGroupActor extends Actor
             r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
 
             // TODO : 稍后封装
-            cur = Some(new pkgCmd(s"config/group/$sub_uuid" :: Nil, s"config/compress/${r.parent}/group$sub_uuid") :: Nil)
-	        process = do_pkg() :: Nil
-	        super.excute()
+//            cur = Some(new pkgCmd(s"config/group/$sub_uuid" :: Nil, s"config/compress/${r.parent}/group$sub_uuid") :: Nil)
+//	        process = do_pkg() :: Nil
+//	        super.excute()
 
             if (r.subs.filterNot (x => x.grouped).isEmpty) {
 
@@ -117,7 +125,7 @@ class alGroupActor extends Actor
                 val st = context.actorSelection(GetProperties.singletonPaht)
                     //context.actorSelection("akka://calc/user/splitreception")
                 st ! group_result(r.parent, r.uuid)
-                goto(alMasterJobIdle) using data
+                goto(alMasterJobIdle) using new FileParentUuid("")
             } else stay()
         }
     }
@@ -149,6 +157,7 @@ class alGroupActor extends Actor
     val concert_ref : Ref[Option[alMaxProperty]] = Ref(None)            // 向上传递的，返回master的，相当于parent
     val result_ref : Ref[Option[alMaxProperty]] = Ref(None)             // 当前节点上计算的东西，相当于result
     val adjust_index = Ref(-1)
+    val groupjust_index = Ref(-1)
     val concert_router = CreateConcretGroupRouter
 }
 
