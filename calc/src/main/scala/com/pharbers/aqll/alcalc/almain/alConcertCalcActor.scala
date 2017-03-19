@@ -11,7 +11,7 @@ import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.calc.common.DefaultData
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
-import com.pharbers.aqll.calc.excel.model.{ModelRunFactory, modelRunData, westMedicineIncome}
+import com.pharbers.aqll.calc.excel.model.{ModelRunFactory, modelRunData, westMedicineIncome2}
 
 import scala.concurrent.stm.{Ref, atomic}
 
@@ -68,15 +68,19 @@ class alConcertCalcActor extends Actor
 
                 val writer = new FileWriter(target, true);
                 source.enumDataWithFunc { line =>
-                    val mrd = alShareData.txt2WestMedicineIncome(line)
+                    val mrd = alShareData.txt2WestMedicineIncome2(line)
 
                     avg.find (p => p._1 == mrd.segment).map { x =>
                         if (mrd.ifPanelAll.equals("1")) {
-                            mrd.finalResultsValue = mrd.sumValue
-                            mrd.finalResultsUnit = mrd.volumeUnit
+                            mrd.set_finalResultsValue(mrd.sumValue)
+                            mrd.set_finalResultsUnit(mrd.volumeUnit)
+                            // mrd.finalResultsValue = mrd.sumValue
+                            // mrd.finalResultsUnit = mrd.volumeUnit
                         }else{
-                            mrd.finalResultsValue = x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
-                            mrd.finalResultsUnit = x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
+                            mrd.set_finalResultsValue(x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble)
+                            mrd.set_finalResultsUnit(x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble)
+                            // mrd.finalResultsValue = x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
+                            // mrd.finalResultsUnit = x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
                         }
 
                     }.getOrElse (Unit)
@@ -103,7 +107,8 @@ class alConcertCalcActor extends Actor
             println(s"concert index ${index.single.get} calc in $log")
             val tmp =
                 alShareData.hospdata map { element =>
-                    val mrd = new westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0, 0, element2.getMinimumUnit,
+                    // val mrd = new westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0, 0, element2.getMinimumUnit,
+                    val mrd = westMedicineIncome2(element.getCompany, element2.getYearAndmonth, 0.0, 0.0, element2.getMinimumUnit,
                         element2.getMinimumUnitCh, element2.getMinimumUnitEn, element2.getMarket1Ch,
                         element2.getMarket1En, element.getSegment, element.getFactor, element.getIfPanelAll,
                         element.getIfPanelTouse, element.getHospId, element.getHospName, element.getPhaid,
@@ -149,7 +154,7 @@ class alConcertCalcActor extends Actor
         recall.cur.get.storages.head.asInstanceOf[alStorage].data.asInstanceOf[List[IntegratedData]]
     }
 
-    def backfireData(mrd : westMedicineIncome)(inte_lst : List[IntegratedData]) : westMedicineIncome = {
+    def backfireData(mrd : westMedicineIncome2)(inte_lst : List[IntegratedData]) : westMedicineIncome2 = {
         var t = mrd
         val tmp = inte_lst.find(iter => mrd.yearAndmonth == iter.getYearAndmonth
                                     && mrd.minimumUnitCh == iter.getMinimumUnitCh
@@ -157,8 +162,10 @@ class alConcertCalcActor extends Actor
 
         tmp match {
             case Some(x) => {
-                mrd.sumValue = x.getSumValue
-                mrd.volumeUnit = x.getVolumeUnit
+                // mrd.sumValue = x.getSumValue
+                // mrd.volumeUnit = x.getVolumeUnit
+                mrd.set_sumValue(x.getSumValue)
+                mrd.set_volumeUnit(x.getVolumeUnit)
             }
             case None => Unit
         }

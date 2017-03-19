@@ -30,7 +30,7 @@ object stub_test_3 extends App {
 
             a ! group_register(w)
             a ! calc_register(c)
-//            a ! push_max_job("""config/new_test/2016-01.xlsx""")
+           a ! push_max_job("""config/new_test/2016-01.xlsx""")
         }
     }
 }

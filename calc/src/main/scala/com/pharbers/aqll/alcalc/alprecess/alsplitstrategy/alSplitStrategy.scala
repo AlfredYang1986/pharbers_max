@@ -65,7 +65,8 @@ class alReadExcelSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy
         println(s"握草")
         val memory = constraints.get(read_excel_split.section_number).get.asInstanceOf[Long]
         println(s"memory = $memory")
-        val size = 2 * 80 * 53 * 200
+        // val size = 2 * 80 * 53 * 100
+        val size = 2 * 80 * 53 * 100
         println(s"size = $size")
         val number = (memory / size).toInt
         println(s"number = $number")

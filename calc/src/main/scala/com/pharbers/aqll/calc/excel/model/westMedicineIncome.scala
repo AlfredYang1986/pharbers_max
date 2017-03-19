@@ -4,6 +4,9 @@ package com.pharbers.aqll.calc.excel.model
 /**
   * 这里是老子见过最稀烂的Scala代码
   * Alfred
+  * Indeed,
+  * Agreed,
+  * By Qian
   */
 
 class westMedicineIncome(
