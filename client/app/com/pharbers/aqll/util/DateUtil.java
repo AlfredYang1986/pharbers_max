@@ -43,6 +43,14 @@ public class DateUtil {
     	return time.getTime().getTime();
     }
 
+    public static String polishMonth(String month) {
+        if(month.length() == 1){
+            return "0"+month;
+        }else{
+            return month;
+        }
+    }
+
     public static String getDateLongForString(long time) {
         return format(new Date(time), PATTERN_CLASSICAL_SIMPLE2);
     }

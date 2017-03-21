@@ -25,8 +25,8 @@ function fileExport(type) {
     query_object['company'] = $.cookie("token");*/
 
     $.ajax({
-        url :"/callfileexport",
-        //url :"/resultquery/tempexport",
+        //url :"/callfileexport",
+        url :"/resultquery/tempexport",
         type : "POST",
         dataType : "json",
         contentType: "application/json,charset=utf-8",
@@ -35,7 +35,7 @@ function fileExport(type) {
         success : function(data){
             if (data.status == "ok") {
                 alert("导出成功");
-                //location.href = "/resultquery/files/"+data.result.finalResult;
+                location.href = "/resultquery/files/"+data.result.finalResult;
             }
             loader.hide();
         },

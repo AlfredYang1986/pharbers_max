@@ -23,7 +23,7 @@ object CallAkkaHttpModuleMessage {
 
 	case class msg_CallRunModel(data: JsValue) extends msg_CallHttp
 
-	//case class msg_CallFileExport(data: JsValue) extends msg_CallHttp
+	case class msg_CallFileExport(data: JsValue) extends msg_CallHttp
 
 }
 
@@ -35,7 +35,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_CallCheckExcel(data) => checkExcel(data)
 		case msg_CallRunModel(data) => runModel(data)
-		//case msg_CallFileExport(data) => fileExport(data)
+		case msg_CallFileExport(data) => fileExport(data)
 		case _ => println("Error---------------"); ???
 	}
 
@@ -87,7 +87,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 		}
 	}
 
-	/*def fileExport(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def fileExport(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			var datatype = (data \ "datatype").asOpt[String].map (x => x).getOrElse("")
 			var market = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(List())
@@ -97,10 +97,10 @@ object CallAkkaHttpModule extends ModuleTrait {
 
 			var marketmap,staendmap = ""
 			if(market.size != 0){
-				market.foreach(x => marketmap += (x + "_"))
+				market.foreach(x => marketmap += (x + "#"))
 			}
 			if(staend.size != 0){
-				staend.foreach(x => staendmap += (x + "_"))
+				staend.foreach(x => staendmap += (x + "#"))
 			}
 			println(s"datatype=${datatype} market=${marketmap} staend=${staendmap} company=${company} filetype=${filetype}")
 			var datajson  = toJson(Map("datatype" -> datatype, "marketmap" -> marketmap, "staendmap" -> staendmap, "company" -> company, "filetype" -> filetype))
@@ -109,7 +109,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
-	}*/
+	}
 
 	def managedp(d: MongoDBObject)(filename: String): JsValue = {
 		val company = d.getAs[String]("Company").get

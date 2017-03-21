@@ -6,8 +6,7 @@ import com.pharbers.aqll.pattern.LogMessage.msg_log
 import com.pharbers.aqll.pattern.MessageRoutes
 import com.pharbers.aqll.pattern.ResultMessage.msg_CommonResultMessage
 import controllers.common.requestArgsQuery.requestArgs
-//import module.business.CallAkkaHttpModuleMessage.{msg_CallCheckExcel, msg_CallRunModel, msg_CallFileExport}
-import module.business.CallAkkaHttpModuleMessage.{msg_CallCheckExcel, msg_CallRunModel}
+import module.business.CallAkkaHttpModuleMessage.{msg_CallCheckExcel, msg_CallRunModel, msg_CallFileExport}
 import play.api.libs.json.Json.toJson
 import play.api.mvc.Controller
 
@@ -27,8 +26,8 @@ class CallAkkaHttpController extends Controller{
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpRunModelAjaxCall"))), jv, request) :: msg_CallRunModel(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
-    /*def callHttpFileExportAjaxCall = Action (request => requestArgs(request) { jv =>
+    def callHttpFileExportAjaxCall = Action (request => requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpFileExportAjaxCall"))), jv, request) :: msg_CallFileExport(jv) :: msg_CommonResultMessage() :: Nil, None)
-    })*/
+    })
 
 }
