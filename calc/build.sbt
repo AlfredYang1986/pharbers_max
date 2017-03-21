@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
-  organization := "com.pharbers",
-  version := "1.0",
-  scalaVersion := "2.11.8"
+    organization := "com.pharbers",
+    version := "1.0",
+    scalaVersion := "2.11.8"
 )
 
 libraryDependencies ++= Seq(
@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
 lazy val root = (project in file(".")).
   settings(commonSettings: _*).
   settings(
-	name := "pharber-calc",
-	fork in run := true,
-	javaOptions += "-Xmx4G"
+      name := "pharber-calc",
+      fork in run := true,
+      javaOptions += "-Xmx4G"
   )
