@@ -2,7 +2,8 @@ package com.pharbers.aqll.alcalc.almain
 
 import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alcalc.alcmd.pkgcmd.pkgCmd
+import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
+import com.pharbers.aqll.alcalc.alcmd.scpcmd.{cpCmd, scpCmd}
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
@@ -53,6 +54,11 @@ class alGroupActor extends Actor
             }
 
 	        data.uuid = p.uuid
+//            cur = Some(new unPkgCmd(s"/Users/qianpeng/Desktop/scp/${p.uuid}", "/Users/qianpeng/Desktop/")
+            cur = Some(new unPkgCmd(s"/root/program/scp/${p.uuid}", "/root/program/")
+                        :: Nil)
+            process = do_pkg() :: Nil
+            super.excute()
             val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs(groupjust_index.single.get).uuid))
             context.system.scheduler.scheduleOnce(0 seconds, self, grouping_job(cj))
             goto(group_coreing) using data
@@ -77,7 +83,8 @@ class alGroupActor extends Actor
 
 	        // TODO : 稍后封装
 
-//	        cur = Some(new pkgCmd(s"config/sync/$p" :: Nil, s"config/compress/${data.uuid}/sync$p") :: Nil)
+//	        cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.sync}$p" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${data.uuid}/sync$p")
+//                        :: Nil)
 //	        process = do_pkg() :: Nil
 //	        super.excute()
 
@@ -101,7 +108,8 @@ class alGroupActor extends Actor
             if (r.subs.filterNot (x => x.grouped).isEmpty) {
 
                 val common = common_jobs()
-                common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
+//                common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
+                common.cur = Some(alStage(r.subs map (x => s"${GetProperties.memorySplitFile}${GetProperties.group}${x.uuid}")))
                 common.process = restore_grouped_data() ::
                                     do_calc() :: do_union() :: do_calc() ::
                                     do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil
@@ -120,6 +128,12 @@ class alGroupActor extends Actor
                 pp.precess(sg)
 
                 println(s"post group result ${r.parent} && ${r.uuid}")
+
+                cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.group}${r.uuid}" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}")
+//                    :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}.tar.gz", "program/scp/", "59.110.31.215", "root")
+                    :: Nil)
+                process = do_pkg() :: Nil
+                super.excute()
 
                     //"akka.tcp://calc@127.0.0.1:2551/user/splitreception"
                 val st = context.actorSelection(GetProperties.singletonPaht)

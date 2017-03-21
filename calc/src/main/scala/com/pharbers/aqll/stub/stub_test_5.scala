@@ -22,7 +22,7 @@ object stub_test_5 extends App{
 			if(!FileOpt("/Users/qianpeng/Desktop/scp").isDir) FileOpt("/Users/qianpeng/Desktop/scp").createDir
 			a ! group_register(w)
 			a ! calc_register(c)
-			a ! push_max_job("""config/new_test/2016-01.xlsx""")
+			a ! push_max_job("""config/new_test/AI_R_panel 201501.xlsx""")
 		}
 	}
 }

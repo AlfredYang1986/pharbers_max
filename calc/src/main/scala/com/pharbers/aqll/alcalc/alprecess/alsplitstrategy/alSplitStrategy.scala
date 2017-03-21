@@ -32,7 +32,7 @@ object alSplitStrategy {
 }
 
 object alServerHardware extends alHardware{
-    def strategy_hardware(c: Map[String, Any])(func: Map[String, Any] => Any) = {
+    def strategy_hardware(c: Any)(func: Any => Any) = {
         func(c)
     }
 }
@@ -47,12 +47,12 @@ trait alSplitStrategy {
 trait alHardware {
     val server_memory = "server_memory"
     val core_number = "core_number"
-    val strategy_memeory: Map[String, Any] => Long = { c =>
-        c.get(server_memory).get.asInstanceOf[Long]
+    val strategy_memeory: Any => Long = { c =>
+        c.asInstanceOf[Long]
     }
 
-    val strategy_core: Map[String, Any] => Int = { c =>
-        c.get(core_number).get.asInstanceOf[Int]
+    val strategy_core: Any => Int = { c =>
+        c.asInstanceOf[Int]
     }
 }
 
@@ -60,17 +60,36 @@ class alReadExcelSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy
     override val constraints: Map[String, Any] = c
     override val strategy : List[Any] => List[alPortion] = { lst =>
         import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.read_excel_split
+        import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.hash_split
         // TODO: 需要一个根据内存分配的stratege去划分整体数据
-        // TODO: 目前Size先写死，稍后会更改到配置文件中去
-        println(s"握草")
-        val memory = constraints.get(read_excel_split.section_number).get.asInstanceOf[Long]
-        println(s"memory = $memory")
-        // val size = 2 * 80 * 53 * 100
-        val size = 2 * 80 * 53 * 100
-        println(s"size = $size")
-        val number = (memory / size).toInt
-        println(s"number = $number")
-        lst.grouped(number).map(iter => alPortion(iter)).toList
+        val memory = constraints.get(alServerHardware.server_memory)
+        memory match {
+            case None => {
+                val section_number = constraints.get(read_excel_split.section_number).map(_.asInstanceOf[Int]).getOrElse(1)
+                val hash_func = constraints.get(hash_split.hash_func).map (x => x.asInstanceOf[Any => Int]).getOrElse(throw new Exception("need have func"))
+                val re = (1 to section_number).map(_ => ArrayBuffer[Any]())
+                //val size = (lst.size / section_number) + 1
+                lst foreach { iter =>
+                    val i = hash_func(iter) % section_number
+                    re(i).append(iter)
+                }
+                re.map (x => alPortion(x.toList)).toList
+                //lst.grouped(size).map(iter => alPortion(iter)).toList
+            }
+            case Some(x) => {
+                val size = 2 * 80 * 53 * 300
+                val number = (x.asInstanceOf[Long] / size).toInt
+                lst.grouped(number).map(iter => alPortion(iter)).toList
+            }
+        }
+//        val section_number = constraints.get(read_excel_split.section_number).get.asInstanceOf[Int]
+//        println(s"memory = $memory")
+//        // val size = 2 * 80 * 53 * 100
+//        val size = 2 * 80 * 53 * 300
+//        println(s"size = $size")
+//        val number = (memory / size).toInt
+//        println(s"number = $number")
+//        lst.grouped(number).map(iter => alPortion(iter)).toList
     }
 }
 
@@ -90,13 +109,15 @@ class alHashSplitStrategy(val c : Map[String, Any]) extends  alSplitStrategy {
         import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.hash_split
         val t = constraints.get(hash_split.core_number).map (x => x.asInstanceOf[Int]).getOrElse(1)
         val hash_func = constraints.get(hash_split.hash_func).map (x => x.asInstanceOf[Any => Int]).getOrElse(throw new Exception("should have func"))
-
+        println(s"fucking 啊哈 = $c")
+        println(s"fucking 啊哈 = $hash_func")
+        println(s"fucking 啊哈 = $t")
         val re = (1 to t).map(_ => ArrayBuffer[Any]())
         lst foreach { iter =>
             val i = hash_func(iter) % t
             re(i).append(iter)
         }
-
+        println(s"fucking 啊哈 = ${re.size}")
         re.map (x => alPortion(x.toList)).toList
     }
 }

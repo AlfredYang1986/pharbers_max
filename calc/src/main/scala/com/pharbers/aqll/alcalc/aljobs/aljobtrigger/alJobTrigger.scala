@@ -40,6 +40,7 @@ object alJobTrigger {
     case class concert_adjust()
     case class concert_adjust_result(index : Int)
     case class concert_groupjust_result(index: Int)
+    case class concert_calcjust_result(index: Int)
     
     /**
      * for sign jobs

@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 lazy val commonSettings = Seq(
     organization := "com.pharbers",
     version := "1.0",
@@ -20,3 +21,27 @@ lazy val root = (project in file(".")).
       fork in run := true,
       javaOptions += "-Xmx4G"
   )
+=======
+lazy val commonSettings = Seq(
+  organization := "com.pharbers",
+  version := "1.0",
+  scalaVersion := "2.11.8"
+)
+
+libraryDependencies ++= Seq(
+    "com.typesafe.akka" %% "akka-http-core" % "10.0.1",
+    "com.typesafe.akka" %% "akka-http" % "10.0.1",
+    "com.typesafe.akka" %% "akka-http-testkit" % "10.0.1",
+    "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.1",
+    "com.typesafe.akka" %% "akka-http-jackson" % "10.0.1",
+    "com.typesafe.akka" %% "akka-http-xml" % "10.0.1"
+)
+
+lazy val root = (project in file(".")).
+  settings(commonSettings: _*).
+  settings(
+	name := "pharber-calc",
+	fork in run := true,
+	javaOptions += "-Xmx8G"
+  )
+>>>>>>> Stashed changes

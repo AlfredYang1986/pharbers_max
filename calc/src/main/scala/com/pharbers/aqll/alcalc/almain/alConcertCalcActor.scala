@@ -12,6 +12,7 @@ import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.calc.common.DefaultData
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 import com.pharbers.aqll.calc.excel.model.{ModelRunFactory, modelRunData, westMedicineIncome2}
+import com.pharbers.aqll.calc.util.GetProperties
 
 import scala.concurrent.stm.{Ref, atomic}
 
@@ -57,7 +58,8 @@ class alConcertCalcActor extends Actor
             println(s"avg at ${index.single.get} is $avg")
 
             val sub_uuid = p.subs(index.single.get).uuid
-            val path = s"config/calc/$sub_uuid"
+//            val path = s"config/calc/$sub_uuid"
+            val path = s"${GetProperties.memorySplitFile}${GetProperties.calc}$sub_uuid"
             val dir = FileOpt(path)
             if (!dir.isExist)
                 dir.createDir
@@ -125,7 +127,8 @@ class alConcertCalcActor extends Actor
                     backfireData(mrd)(recall)
         }
 
-        val path = s"config/calc/$sub_uuid"
+//        val path = s"config/calc/$sub_uuid"
+        val path = s"${GetProperties.memorySplitFile}${GetProperties.calc}$sub_uuid"
         val dir = FileOpt(path)
         if (!dir.isExist)
             dir.createDir
@@ -139,7 +142,8 @@ class alConcertCalcActor extends Actor
 
     def resignIntegratedData(parend_uuid : String)(group : alStorage) : List[IntegratedData] = {
         val recall = common_jobs()
-        val path = s"config/sync/$parend_uuid"
+//        val path = s"config/sync/$parend_uuid"
+        val path = s"${GetProperties.memorySplitFile}${GetProperties.sync}$parend_uuid"
         recall.cur = Some(alStage(FileOpt(path).lstFiles))
         recall.process = restore_data() :: do_calc() :: do_union() ::
                             do_map (alShareData.txt2IntegratedData(_)) :: do_filter { iter =>

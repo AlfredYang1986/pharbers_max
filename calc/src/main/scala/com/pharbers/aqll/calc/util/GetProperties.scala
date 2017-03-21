@@ -21,4 +21,15 @@ object GetProperties {
 	}
 
 	def singletonPaht = loadConf("cluster-listener.conf").getString("cluster-listener.node.main")
+
+	def memorySplitFile = loadConf("File.conf").getString("SCP.Memory_Split_File")
+
+	def sync = loadConf("File.conf").getString("SCP.sync")
+
+	def group = loadConf("File.conf").getString("SCP.group")
+
+	def calc =  loadConf("File.conf").getString("SCP.calc")
+
+	def fileTarGz = loadConf("File.conf").getString("SCP.File_Tar_Gz")
+
 }

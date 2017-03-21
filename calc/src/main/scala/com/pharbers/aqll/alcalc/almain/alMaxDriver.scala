@@ -5,7 +5,7 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.RoundRobinPool
 import akka.pattern.ask
 import akka.util.Timeout
-import com.pharbers.aqll.alcalc.alcmd.pkgcmd.pkgCmd
+import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.alcalc.alcmd.scpcmd.{cpCmd, scpCmd}
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alfilehandler.altext.FileOpt
@@ -18,6 +18,7 @@ import com.pharbers.aqll.calc.split.{SplitAggregator, SplitGroupMaster}
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
+import com.pharbers.aqll.calc.util.GetProperties
 
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic
@@ -45,7 +46,6 @@ class alMaxDriver extends Actor
 
     implicit val t = Timeout(0.5 second)
     override def receive = {
-        case concert_groupjust_result(i) => println("fucking group_nodenumber"); group_nodenumber = i
         case group_register(a) => registerGroupRouter(a)
         case push_max_job(file_path) => {
             println(s"sign a job with file name $file_path")
@@ -74,12 +74,11 @@ class alMaxDriver extends Actor
             val subs = j map (x => alMaxProperty(p, x, Nil))
             pushGroupJobs(alMaxProperty(null, p, subs))
 
-            val path = s"config/compress/$p"
-            if(!FileOpt(path).isDir) FileOpt(path).createDir
-
             // TODO : 待会封装
-
-            cur = Some(new pkgCmd(s"config/sync/$p" :: Nil, s"config/compress/$p/sync$p") :: Nil)
+            cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.sync}$p" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$p")
+//                        :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$p.tar.gz", "program/scp/", "59.110.31.106", "root")
+//                        :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$p.tar.gz", "program/scp/", "59.110.31.50", "root")
+                        :: Nil)
             process = do_pkg() :: Nil
             super.excute()
         }
@@ -140,16 +139,24 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
         }
     
     def successWithGroup(uuid : String, sub_uuid : String) = {
-        println(s"fucking1")
         grouping_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
             case None => Unit
             case Some(r) => {
-                println(s"fucking2")
                 r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
                 if (r.subs.filterNot (x => x.grouped).isEmpty) {
-                    println(s"fucking3")
                     val common = common_jobs()
-                    common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
+//                    common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
+                    println(s"沃日 uuid = $uuid")
+                    println(s"沃日 sub_uuid = $sub_uuid")
+                    val a = r.subs map(_.uuid)
+                    println(s"沃日 a = $a")
+
+                    cur = Some(new unPkgCmd(s"/root/program/scp/$sub_uuid", "/root/program/")
+                        :: Nil)
+                    process = do_pkg() :: Nil
+                    super.excute()
+
+                    common.cur = Some(alStage(r.subs map (x => s"${GetProperties.memorySplitFile}${GetProperties.group}${x.uuid}")))
                     common.process = restore_grouped_data() ::
                         do_calc() :: do_union() :: do_calc() ::
                         do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil
@@ -170,11 +177,11 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
                     println("done for grouping")
 
                     // TODO : 稍后封装
-                    cur = Some(new pkgCmd(s"config/group/$sub_uuid" :: Nil, s"config/compress/$uuid/group$sub_uuid")
-                            :: new pkgCmd(s"config/group/$uuid" :: Nil, s"config/compress/$uuid/group$uuid")
-                            :: Nil)
-                    process = do_pkg() :: Nil
-                    super.excute()
+//                    cur = Some(new pkgCmd(s"config/group/$sub_uuid" :: Nil, s"config/compress/$uuid/group$sub_uuid")
+//                            :: new pkgCmd(s"config/group/$uuid" :: Nil, s"config/compress/$uuid/group$uuid")
+//                            :: Nil)
+//                    process = do_pkg() :: Nil
+//                    super.excute()
                     groupJobSuccess(uuid)
                 }
             }
@@ -194,9 +201,9 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
                 val subs = sb map (x => alMaxProperty(p, x, Nil))
 
                 // TODO : 稍后封装
-                cur = Some(new pkgCmd(s"config/calc/$uuid" :: Nil, s"config/compress/$uuid/calc$uuid") :: Nil)
-                process = do_pkg() :: Nil
-                super.excute()
+//                cur = Some(new pkgCmd(s"config/calc/$uuid" :: Nil, s"config/compress/$uuid/calc$uuid") :: Nil)
+//                process = do_pkg() :: Nil
+//                super.excute()
 
                 self ! push_calc_job(alMaxProperty(null, p, subs))
             }
@@ -210,7 +217,6 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
     def canSignGroupJob(p : alMaxProperty): Boolean = {
         implicit val t = Timeout(0.5 second)
         val f = group_router.single.get map (x => x ? can_sign_job())
-        group_nodenumber = p.subs.length-1
         p.subs.length <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
     }
 
@@ -218,7 +224,6 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
 
     def signGroupJob(p : alMaxProperty) = {
         // TODO: sign with 递归
-//        group_router.single.get(2) ! group_job(p)
         siginEach(group_router.single.get)
         atomic { implicit tnx =>
             waiting_grouping() = waiting_grouping().tail
@@ -229,10 +234,9 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
             lst match {
                 case Nil => println("not enough group to do the jobs")
                 case node => {
-                    println(s"group_nodenumber = ${group_nodenumber}")
+                    group_nodenumber = group_nodenumber + 1
                     lst.head ! concert_groupjust_result(group_nodenumber)
                     lst.head ! group_job(p)
-                    group_nodenumber = group_nodenumber - 1
                     siginEach(lst.tail)
                 }
                 case _ => ???
@@ -249,6 +253,7 @@ trait alCalcJobsSchedule { this : Actor =>
 
 trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule =>
     val calc_router = Ref(List[ActorRef]())
+    var calc_nodenumber: Int = -1
 
     def registerCalcRouter(a : ActorRef) = atomic { implicit txn =>
             calc_router() = calc_router() :+ a
@@ -277,7 +282,6 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
     def signCalcJob(p : alMaxProperty) = {
         // TODO: sign with 递归
         siginEach(calc_router.single.get)
-        println(s"fucking calc s = ${calc_router.single.get}")
         atomic { implicit tnx =>
             waiting_calc() = waiting_calc().tail
             calcing_jobs() = calcing_jobs() :+ p
@@ -288,13 +292,8 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                 case Nil => println("not enough calc to do the jobs")
                 case node => {
                     //TODO:路径
-                    val path = s"/Users/qianpeng/Desktop/${p.uuid}"
-                    cur = Some(new pkgCmd(s"config/compress/${p.uuid}" :: Nil, s"config/compress/${p.uuid}")
-                        :: new cpCmd(s"config/compress/${p.uuid}.tar.gz", "/Users/qianpeng/Desktop/scp")
-                        :: Nil)
-                    process = do_pkg() :: Nil
-                    super.excute()
-                    lst.head ! calc_need_files(p.uuid)
+                    calc_nodenumber = calc_nodenumber + 1
+                    lst.head ! concert_calcjust_result(calc_nodenumber)
                     lst.head ! calc_job(p)
                     siginEach(lst.tail)
                 }

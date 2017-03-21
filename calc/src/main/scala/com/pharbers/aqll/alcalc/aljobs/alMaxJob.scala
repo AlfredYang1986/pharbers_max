@@ -15,8 +15,8 @@ class alMaxJob extends alJob {
     def init(args : Map[String, Any]) = {
         val excel_file = args.get(max_excel_path).map (x => x.toString).getOrElse(throw new Exception("have to provide excel file"))
         cur = Some(alStage(excel_file))
-        val number = alServerHardware.strategy_hardware(Map(alServerHardware.server_memory -> server_info.memory))(alServerHardware.strategy_memeory)
-        process = read_excel() :: split_data(read_excel_split(Map(read_excel_split.section_number -> number))) :: ps :: Nil
+        val number = alServerHardware.strategy_hardware(server_info.memory)(alServerHardware.strategy_memeory)
+        process = read_excel() :: split_data(read_excel_split(Map(alServerHardware.server_memory -> number))) :: ps :: Nil
     }
     override def result : Option[Any] =  {
         super.result

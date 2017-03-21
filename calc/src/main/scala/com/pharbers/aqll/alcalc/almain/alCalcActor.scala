@@ -43,17 +43,24 @@ class alCalcActor extends Actor
                 println(s"calc finally $p")
             }
 
-            val cj = worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> p.uuid, worker_calc_core_split_jobs.calc_uuid -> p.subs.head.uuid))
+            val cj = worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> p.uuid, worker_calc_core_split_jobs.calc_uuid -> p.subs(calcjust_index.single.get).uuid))
             context.system.scheduler.scheduleOnce(0 seconds, self, calcing_job(cj))
             goto(calc_coreing) using ""
         }
 
+        case Event(concert_calcjust_result(i), _) => {
+            atomic { implicit tnx =>
+                calcjust_index() = i
+            }
+            stay()
+        }
+
         case Event(calc_need_files(uuid_file_path), _) => {
             println(s"fucking in my jobs = $uuid_file_path")
-            new unPkgCmd(s"/Users/qianpeng/Desktop/scp/$uuid_file_path", "/Users/qianpeng/Desktop/scp").excute
-            FileOpt(s"/Users/qianpeng/Desktop/scp/config/compress/$uuid_file_path").lstFiles foreach { x =>
-                new unPkgCmd(s"${x.substring(0, x.lastIndexOf("tar")-1)}", "/Users/qianpeng/Desktop/").excute
-            }
+//            new unPkgCmd(s"/Users/qianpeng/Desktop/scp/$uuid_file_path", "/Users/qianpeng/Desktop/scp").excute
+//            FileOpt(s"/Users/qianpeng/Desktop/scp/config/compress/$uuid_file_path").lstFiles foreach { x =>
+//                new unPkgCmd(s"${x.substring(0, x.lastIndexOf("tar")-1)}", "/Users/qianpeng/Desktop/").excute
+//            }
             stay()
         }
     }
@@ -167,6 +174,7 @@ class alCalcActor extends Actor
     val concert_ref : Ref[Option[alMaxProperty]] = Ref(None)            // 向上传递的，返回master的，相当于parent
     val result_ref : Ref[Option[alMaxProperty]] = Ref(None)             // 当前节点上计算的东西，相当于result
     val adjust_index = Ref(-1)
+    val calcjust_index = Ref(-1)
     val concert_router = CreateConcretCalcRouter
 }
 

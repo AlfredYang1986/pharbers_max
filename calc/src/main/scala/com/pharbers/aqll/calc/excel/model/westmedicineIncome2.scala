@@ -55,14 +55,6 @@ class westMedicineIncome2 {
 
 	def selectvariablecalculation(): Option[(String, Double)] = {
 		val t = map.get("westMedicineIncome").map { x => 
-			
-			// if (!x.isInstanceOf[Double]) {
-			// 	println(x.toString)
-			// 	println(x.toString.toDouble)
-			// 	println(x.getClass)
-			// } 
-
-			// if (x.isInstanceOf[String]) 
 			if (!x.isInstanceOf[Double])
 				x.toString.toDouble
 			else
