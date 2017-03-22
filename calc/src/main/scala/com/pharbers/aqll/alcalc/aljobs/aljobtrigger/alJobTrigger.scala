@@ -69,7 +69,7 @@ object alJobTrigger {
      */
     case class calc_need_files(uuid_file_path: String)
     case class calc_job(j : alMaxProperty)
-    case class calcing_job(j : alJob)
+    case class calcing_job(j : List[alJob], r : String)
     case class calc_sum_result(uuid : String, sub_uuid : String, sum : List[(String, (Double, Double, Double))])
     case class calc_avg_job(uuid : String, avg : List[(String, Double, Double)])
     case class calc_final_result(uuid : String, sub_uuid : String, v : Double, u : Double)

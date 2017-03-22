@@ -55,10 +55,12 @@ object alJob {
     object worker_calc_core_split_jobs extends job_defines(4, "split calc to core") {
         val max_uuid = "max_uuid"
         val calc_uuid = "calc_uuid"
+        val mid_uuid = "mid_uuid"
         def apply(m : Map[String, String]) : alCalcSplitJob = {
             val uuid = m.get(calc_uuid).map (x => x).getOrElse(throw new Exception("need one uuid"))
             val parent = m.get(max_uuid).map (x => x).getOrElse(throw new Exception("need one parent"))
-            val tmp = new alCalcSplitJob(uuid, parent)
+            val mid = m.get(mid_uuid).map (x => x).getOrElse(throw new Exception("need one parent"))
+            val tmp = new alCalcSplitJob(uuid, parent, mid)
             tmp.init(m)
             tmp
         }

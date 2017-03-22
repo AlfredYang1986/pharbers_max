@@ -51,8 +51,11 @@ class alConcertCalcActor extends Actor
             )
 
             println(s"concert index ${index.single.get} end")
+            val s = (maxSum.toList.groupBy(_._1) map { x =>
+                (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+            }).toList
 
-            sender() ! concert_calc_sum_result(p.subs(index.single.get).uuid, maxSum.toList)
+            sender() ! concert_calc_sum_result(p.subs(index.single.get).uuid, s)
         }
         case concert_calc_avg(p, avg) => {
             println(s"avg at ${index.single.get} is $avg")
@@ -76,13 +79,9 @@ class alConcertCalcActor extends Actor
                         if (mrd.ifPanelAll.equals("1")) {
                             mrd.set_finalResultsValue(mrd.sumValue)
                             mrd.set_finalResultsUnit(mrd.volumeUnit)
-                            // mrd.finalResultsValue = mrd.sumValue
-                            // mrd.finalResultsUnit = mrd.volumeUnit
                         }else{
                             mrd.set_finalResultsValue(x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble)
                             mrd.set_finalResultsUnit(x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble)
-                            // mrd.finalResultsValue = x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
-                            // mrd.finalResultsUnit = x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble
                         }
 
                     }.getOrElse (Unit)
@@ -148,7 +147,7 @@ class alConcertCalcActor extends Actor
         recall.process = restore_data() :: do_calc() :: do_union() ::
                             do_map (alShareData.txt2IntegratedData(_)) :: do_filter { iter =>
                                 val t = iter.asInstanceOf[IntegratedData]
-                                group.data.exists { g =>
+                                group.data.exists { g => true
                                     val x = g.asInstanceOf[IntegratedData]
                                     (x.getYearAndmonth == t.getYearAndmonth) && (x.getMinimumUnitCh == t.getMinimumUnitCh)
                                 }
@@ -166,8 +165,6 @@ class alConcertCalcActor extends Actor
 
         tmp match {
             case Some(x) => {
-                // mrd.sumValue = x.getSumValue
-                // mrd.volumeUnit = x.getVolumeUnit
                 mrd.set_sumValue(x.getSumValue)
                 mrd.set_volumeUnit(x.getVolumeUnit)
             }

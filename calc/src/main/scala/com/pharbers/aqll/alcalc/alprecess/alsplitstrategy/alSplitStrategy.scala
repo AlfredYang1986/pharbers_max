@@ -26,6 +26,7 @@ object alSplitStrategy {
 
     object hash_split extends strategy_defines(2, "hash split for cores") {
         val core_number = "core_number"
+        val mechine_number = "mechine_number"
         val hash_func = "hash_func"
         def apply(c : Map[String, Any]) : alHashSplitStrategy = new alHashSplitStrategy(c)
     }
@@ -107,17 +108,14 @@ class alHashSplitStrategy(val c : Map[String, Any]) extends  alSplitStrategy {
     override val constraints: Map[String, Any] = c
     override val strategy : List[Any] => List[alPortion] = { lst =>
         import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.hash_split
-        val t = constraints.get(hash_split.core_number).map (x => x.asInstanceOf[Int]).getOrElse(1)
+        val t = constraints.get(hash_split.core_number).map (x => x.asInstanceOf[Int]).getOrElse(1) *
+                    constraints.get(hash_split.mechine_number).map (x => x.asInstanceOf[Int]).getOrElse(1)
         val hash_func = constraints.get(hash_split.hash_func).map (x => x.asInstanceOf[Any => Int]).getOrElse(throw new Exception("should have func"))
-        println(s"fucking 啊哈 = $c")
-        println(s"fucking 啊哈 = $hash_func")
-        println(s"fucking 啊哈 = $t")
         val re = (1 to t).map(_ => ArrayBuffer[Any]())
         lst foreach { iter =>
             val i = hash_func(iter) % t
             re(i).append(iter)
         }
-        println(s"fucking 啊哈 = ${re.size}")
         re.map (x => alPortion(x.toList)).toList
     }
 }

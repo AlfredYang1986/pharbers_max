@@ -1,5 +1,7 @@
 package com.pharbers.aqll.alcalc.almain
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
@@ -22,12 +24,16 @@ import scala.concurrent.duration._
 
 object alCalcActor {
     def props : Props = Props[alCalcActor]
+
+    val core_number = 4
 }
 
 class alCalcActor extends Actor 
                      with ActorLogging 
                      with FSM[alPointState, String] 
                      with alCreateConcretCalcRouter {
+
+    import alCalcActor.core_number
 
     startWith(alMasterJobIdle, "")
 
@@ -43,8 +49,13 @@ class alCalcActor extends Actor
                 println(s"calc finally $p")
             }
 
-            val cj = worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> p.uuid, worker_calc_core_split_jobs.calc_uuid -> p.subs(calcjust_index.single.get).uuid))
-            context.system.scheduler.scheduleOnce(0 seconds, self, calcing_job(cj))
+            val mid = UUID.randomUUID.toString
+            val lst = (1 to core_number).map (x => worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> p.uuid,
+                                            worker_calc_core_split_jobs.calc_uuid -> p.subs(calcjust_index.single.get * core_number + x - 1).uuid,
+                                            worker_calc_core_split_jobs.mid_uuid -> mid))).toList
+
+//            val cj = worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> p.uuid, worker_calc_core_split_jobs.calc_uuid -> p.subs(calcjust_index.single.get).uuid))
+            context.system.scheduler.scheduleOnce(0 seconds, self, calcing_job(lst, mid))
             goto(calc_coreing) using ""
         }
 
@@ -66,11 +77,14 @@ class alCalcActor extends Actor
     }
 
     when(calc_coreing) {
-        case Event(calcing_job(cj), _) => {
-            val result = cj.result
-            val (p, sb) = result.get.asInstanceOf[(String, List[String])]
+        case Event(calcing_job(lst, p), _) => {
 
-            val q = sb.map (x => alMaxProperty(p, x, Nil))
+            val m = lst.map (_.result.get.asInstanceOf[(String, List[String])]._2).flatten.distinct
+
+//            val result = cj.result
+//            val (p, sb) = result.get.asInstanceOf[(String, List[String])]
+
+            val q = m.map (x => alMaxProperty(p, x, Nil))
             atomic { implicit tnx =>
                 result_ref() = Some(alMaxProperty(concert_ref.single.get.get.uuid, p, q))
                 adjust_index() = -1
@@ -88,26 +102,33 @@ class alCalcActor extends Actor
             r.subs.find (x => x.uuid == sub_uuid).map { x =>
                 x.isSumed = true
                 x.sum = sum
-                r.sum = r.sum ++: sum
+//                r.sum = r.sum ++: sum
             }.getOrElse(Unit)
 
-            println(r.sum)
+            println(s"sub_uuid done $sub_uuid")
 
             if (r.subs.filterNot (x => x.isSumed).isEmpty) {
-                r.sum = (r.sum.groupBy(_._1) map { x =>
-                    (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
-                }).toList
+//                r.sum = (r.sum.groupBy(_._1) map { x =>
+//                    (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+//                }).toList
                 r.isSumed = true
                 //"akka.tcp://calc@127.0.0.1:2551/user/splitreception"
                 val st = context.actorSelection(GetProperties.singletonPaht)
                     //context.actorSelection("akka://calc/user/splitreception")
-                st ! calc_sum_result(r.parent, r.uuid, r.sum)
+//                st ! calc_sum_result(r.parent, r.uuid, r.sum)
+
+                r.subs.foreach { x =>
+
+
+                    st ! calc_sum_result(r.parent, x.uuid, x.sum)
+                }
             }
             stay()
         }
         case Event(calc_avg_job(uuid, avg), _) => {
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
 
+            println(s"avg")
             if (r.parent == uuid)
                 concert_router ! concert_calc_avg(r, avg)
 
@@ -124,18 +145,22 @@ class alCalcActor extends Actor
             }.getOrElse(Unit)
 
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
-                r.subs.map(_.finalValue).foreach (println)
-                r.subs.map(_.finalUnit).foreach (println)
                 println(sub_uuid)
 
-                r.finalValue = r.subs.map(_.finalValue).sum
-                r.finalUnit = r.subs.map(_.finalUnit).sum
+//                r.finalValue = r.subs.map(_.finalValue).sum
+//                r.finalUnit = r.subs.map(_.finalUnit).sum
                 r.isCalc = true
 
                     //"akka.tcp://calc@127.0.0.1:2551/user/splitreception"
                 val st = context.actorSelection(GetProperties.singletonPaht)
                     //context.actorSelection("akka://calc/user/splitreception")
-                st ! calc_final_result(r.parent, r.uuid, r.finalValue, r.finalUnit)
+//                st ! calc_final_result(r.parent, r.uuid, r.finalValue, r.finalUnit)
+
+                r.subs.foreach { x =>
+                    st ! calc_final_result(r.parent, x.uuid, x.finalValue, x.finalUnit)
+                }
+
+//                st ! calc_final_result(r.parent, r.uuid, r.finalValue, r.finalUnit)
                 goto(alMasterJobIdle) using ""
 
             } else stay()
@@ -164,7 +189,7 @@ class alCalcActor extends Actor
                 sender() ! concert_adjust_result(adjust_index())
             }
 
-            if (adjust_index.single.get == 3) {
+            if (adjust_index.single.get == core_number - 1) {
                 concert_router ! concert_calc(result_ref.single.get.get)
             }
             stay()
@@ -179,6 +204,7 @@ class alCalcActor extends Actor
 }
 
 trait alCreateConcretCalcRouter { this : Actor =>
+    import alCalcActor.core_number
     def CreateConcretCalcRouter =
-        context.actorOf(BroadcastPool(4).props(alConcertCalcActor.props), name = "concert-calc-router")
+        context.actorOf(BroadcastPool(core_number).props(alConcertCalcActor.props), name = "concert-calc-router")
 }

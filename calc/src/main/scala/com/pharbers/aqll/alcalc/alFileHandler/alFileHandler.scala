@@ -11,7 +11,7 @@ import scala.collection.mutable.ListBuffer
   */
 trait alFileHandler {
     def prase(path : String)(x : Any) : Any = null
-    def sync(path : String, s : alStorage) = Unit
+    def sync(path : String, s : alStorage, f : Option[String]) = Unit
 
     var data : ListBuffer[Any] = ListBuffer()
 }

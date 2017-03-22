@@ -75,12 +75,12 @@ class alMaxDriver extends Actor
             pushGroupJobs(alMaxProperty(null, p, subs))
 
             // TODO : 待会封装
-            cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.sync}$p" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$p")
+//            cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.sync}$p" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$p")
 //                        :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$p.tar.gz", "program/scp/", "59.110.31.106", "root")
 //                        :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$p.tar.gz", "program/scp/", "59.110.31.50", "root")
-                        :: Nil)
-            process = do_pkg() :: Nil
-            super.excute()
+//                        :: Nil)
+//            process = do_pkg() :: Nil
+//            super.excute()
         }
         case schedule_group() => scheduleOneGroupJob
         case group_result(uuid, sub_uuid) => successWithGroup(uuid, sub_uuid)
@@ -118,7 +118,7 @@ trait alCreateExcelSplitRouter { this : Actor =>
 
 trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedule =>
     val group_router = Ref(List[ActorRef]())
-    var group_nodenumber: Int = -1
+    var group_nodenumber = -1
 
     def registerGroupRouter(a : ActorRef) = atomic { implicit txn =>
             group_router() = group_router() :+ a
@@ -146,15 +146,12 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
                 if (r.subs.filterNot (x => x.grouped).isEmpty) {
                     val common = common_jobs()
 //                    common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
-                    println(s"沃日 uuid = $uuid")
-                    println(s"沃日 sub_uuid = $sub_uuid")
-                    val a = r.subs map(_.uuid)
-                    println(s"沃日 a = $a")
+//                    val a = r.subs map(_.uuid)
 
-                    cur = Some(new unPkgCmd(s"/root/program/scp/$sub_uuid", "/root/program/")
-                        :: Nil)
-                    process = do_pkg() :: Nil
-                    super.excute()
+//                    cur = Some(new unPkgCmd(s"/root/program/scp/$sub_uuid", "/root/program/")
+//                        :: Nil)
+//                    process = do_pkg() :: Nil
+//                    super.excute()
 
                     common.cur = Some(alStage(r.subs map (x => s"${GetProperties.memorySplitFile}${GetProperties.group}${x.uuid}")))
                     common.process = restore_grouped_data() ::
@@ -220,8 +217,6 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
         p.subs.length <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
     }
 
-
-
     def signGroupJob(p : alMaxProperty) = {
         // TODO: sign with 递归
         siginEach(group_router.single.get)
@@ -253,7 +248,7 @@ trait alCalcJobsSchedule { this : Actor =>
 
 trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule =>
     val calc_router = Ref(List[ActorRef]())
-    var calc_nodenumber: Int = -1
+    var calc_nodenumber = -1
 
     def registerCalcRouter(a : ActorRef) = atomic { implicit txn =>
             calc_router() = calc_router() :+ a
@@ -276,7 +271,8 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
     def canSignCalcJob(p : alMaxProperty): Boolean = {
         implicit val t = Timeout(0.5 second)
         val f = calc_router.single.get map (x => x ? can_sign_job())
-        p.subs.length <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
+        p.subs.length / 4 <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
+        // TODO : 每个四核，这里要改
     }
 
     def signCalcJob(p : alMaxProperty) = {
@@ -306,14 +302,18 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
         calcing_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
             case None => Unit
             case Some(r) => {
+
+                println(s"sum in singleton $sum with $sub_uuid")
+
                 r.subs.find (x => x.uuid == sub_uuid).map { x =>
                     x.isSumed = true
                     x.sum = sum
-                    r.sum = sum ++: sum
                 }.getOrElse(Unit)
 
                 if (r.subs.filterNot (x => x.isSumed).isEmpty) {
-                    r.sum = (r.sum.groupBy(_._1) map { x =>
+                    val tmp = r.subs.map (x => x.sum).flatten
+                    println(s"done for suming ${tmp.filter(_._1 == "98")}")
+                    r.sum = (tmp.groupBy(_._1) map { x =>
                         (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
                     }).toList
                     r.isSumed = true
@@ -330,8 +330,6 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
     }
 
     def finalSuccessWithWork(uuid : String, sub_uuid : String, v : Double, u : Double) = {
-        // TODO : 计算完啦，钱鹏核对一下数
-
         calcing_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
             case None => Unit
             case Some(r) => {

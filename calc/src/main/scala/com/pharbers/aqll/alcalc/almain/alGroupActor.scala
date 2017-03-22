@@ -35,11 +35,12 @@ object alGroupActor {
 
 class alGroupActor extends Actor
                      with ActorLogging
-                     with FSM[alPointState, FileParentUuid]
+                     with FSM[alPointState, String]
                      with alCreateConcretGroupRouter
 					 with alPkgJob{
 
-    startWith(alMasterJobIdle, new FileParentUuid(""))
+    // 不要多此一举 @钱鹏
+    startWith(alMasterJobIdle, "")
 
     when(alMasterJobIdle) {
         case Event(can_sign_job(), _) => {
@@ -47,21 +48,21 @@ class alGroupActor extends Actor
             stay()
         }
 
-        case Event(group_job(p), data) => {
+        case Event(group_job(p), _) => {
 
             atomic { implicit tnx =>
                 concert_ref() = Some(p)
             }
 
-	        data.uuid = p.uuid
+//	        data.uuid = p.uuid
 //            cur = Some(new unPkgCmd(s"/Users/qianpeng/Desktop/scp/${p.uuid}", "/Users/qianpeng/Desktop/")
-            cur = Some(new unPkgCmd(s"/root/program/scp/${p.uuid}", "/root/program/")
-                        :: Nil)
-            process = do_pkg() :: Nil
-            super.excute()
+//            cur = Some(new unPkgCmd(s"/root/program/scp/${p.uuid}", "/root/program/")
+//                        :: Nil)
+//            process = do_pkg() :: Nil
+//            super.excute()
             val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs(groupjust_index.single.get).uuid))
             context.system.scheduler.scheduleOnce(0 seconds, self, grouping_job(cj))
-            goto(group_coreing) using data
+            goto(group_coreing) using ""
         }
         case Event(concert_groupjust_result(i), _) => {
             atomic { implicit tnx =>
@@ -72,7 +73,7 @@ class alGroupActor extends Actor
     }
 
     when(group_coreing) {
-        case Event(grouping_job(cj), data) => {
+        case Event(grouping_job(cj), _) => {
             val result = cj.result
             val (p, sb) = result.get.asInstanceOf[(String, List[String])]
             val q = sb.map (x => alMaxProperty(p, x, Nil))
@@ -89,12 +90,12 @@ class alGroupActor extends Actor
 //	        super.excute()
 
 	        concert_router ! concert_adjust()
-            goto(group_doing) using data
+            goto(group_doing) using ""
         }
     }
 
     when(group_doing) {
-        case Event(concert_group_result(sub_uuid), data) => {
+        case Event(concert_group_result(sub_uuid), _) => {
 
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
             
@@ -129,17 +130,17 @@ class alGroupActor extends Actor
 
                 println(s"post group result ${r.parent} && ${r.uuid}")
 
-                cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.group}${r.uuid}" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}")
+//                cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.group}${r.uuid}" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}")
 //                    :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}.tar.gz", "program/scp/", "59.110.31.215", "root")
-                    :: Nil)
-                process = do_pkg() :: Nil
-                super.excute()
+//                    :: Nil)
+//                process = do_pkg() :: Nil
+//                super.excute()
 
                     //"akka.tcp://calc@127.0.0.1:2551/user/splitreception"
                 val st = context.actorSelection(GetProperties.singletonPaht)
                     //context.actorSelection("akka://calc/user/splitreception")
                 st ! group_result(r.parent, r.uuid)
-                goto(alMasterJobIdle) using new FileParentUuid("")
+                goto(alMasterJobIdle) using ""
             } else stay()
         }
     }

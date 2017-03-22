@@ -9,21 +9,23 @@ import java.util.{Date, UUID}
   * Created by BM on 09/03/2017.
   */
 object alTextSync {
-    def apply(path : String, s : alStorage) = (new alTextSync).sync(path, s)
+    def apply(path : String, s : alStorage, f : Option[String]) = (new alTextSync).sync(path, s, f)
 }
 
 class alTextSync extends alFileHandler with CreateInnerSync {
     val parser = CreateInnerSync
 
-    override def sync(path : String, s : alStorage) = {
+    override def sync(path : String, s : alStorage, f : Option[String]) = {
         s.doCalc
         if (s.isPortions) {
             s.portions.foreach { p =>
-                val file = UUID.randomUUID
+                val file = if (f.isEmpty) UUID.randomUUID
+                           else f.get
                 parser.startSync(path + "/" + file , p.data)
             }
         } else {
-            val file = UUID.randomUUID
+            val file = if (f.isEmpty) UUID.randomUUID
+                       else f.get
             parser.startSync(path + "/" + file, s.data)
         }
         Unit

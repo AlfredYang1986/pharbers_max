@@ -11,7 +11,7 @@ import com.pharbers.aqll.calc.util.GetProperties
 /**
   * Created by Alfred on 10/03/2017.
   */
-class alPresistStagePrecess(val dirOpt : Option[String], val prefix : Option[String]) extends alPrecess {
+class alPresistStagePrecess(val dirOpt : Option[String], val prefix : Option[String], val nameOpt : Option[String]) extends alPrecess {
     var reVal : Option[(String, List[String])] = None  // (dir, files)
 
     def precess(j : alStage) : List[alStage] = {
@@ -23,7 +23,7 @@ class alPresistStagePrecess(val dirOpt : Option[String], val prefix : Option[Str
         val f = FileOpt(path)
         f.createDir
         j.storages map { x =>
-            alTextSync(path, x.asInstanceOf[alStorage])
+            alTextSync(path, x.asInstanceOf[alStorage], nameOpt)
         }
         //val ss = f.lstFiles.map(alPortion(_))
         //alStage(alStorage(ss) :: Nil) :: Nil
