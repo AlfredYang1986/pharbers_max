@@ -90,9 +90,30 @@
         <div class="wrapper wrapper-content animated fadeInRight" >
             <div class="row">
                 <div class="col-lg-12">
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-sm-2 col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label" for="status">年份</label>
+                                    <select data-name="search-result-market" name = "year" class="form-control">
+                                        <option>2013</option>
+                                        <option>2014</option>
+                                        <option>2015</option>
+                                        <option>2016</option>
+                                        <option selected>2017</option>
+                                        <option>2018</option>
+                                        <option>2019</option>
+                                        <option>2020</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
                     <div class="ibox float-e-margins">
                         <div class="ibox-title">
-                            @*<span class="label label-primary pull-right" onclick="downloadfile('CPA产品')"  style="cursor:pointer">下载模板</span>*@
+                            <span class="label label-primary pull-right" onclick="downloadfile('CPA产品.xlsx')"  style="cursor:pointer">下载模板</span>
                             <h5>Panel文件上传</h5>
                         </div>
                         <div class="ibox-content">
@@ -104,10 +125,10 @@
                         </div>
                     </div>
                 </div>
-            	@*<div class="col-lg-6">
+            	<div class="col-lg-6">
 	                <div class="ibox float-e-margins">
 	                    <div class="ibox-title">
-	                        <span class="label label-primary pull-right" onclick="downloadfile('CPA产品')"  style="cursor:pointer">下载模板</span>
+	                        <span class="label label-primary pull-right" onclick="downloadfile('CPAProducttemp.xlsx')"  style="cursor:pointer">下载模板</span>
                             <h5>CPA产品</h5>
 			                </div>
 		                    <div class="ibox-content">
@@ -118,11 +139,11 @@
 				                		</form>
 		                    </div>
 		                </div>
-		            </div>*@
-                @*<div class="col-lg-6">
+		            </div>
+                <div class="col-lg-6">
                     <div class="ibox float-e-margins">
                         <div class="ibox-title">
-                            <span class="label label-primary pull-right" onclick="downloadfile('CPA市场')"  style="cursor:pointer">下载模板</span>
+                            <span class="label label-primary pull-right" onclick="downloadfile('PharmaTrust产品.xlsx')"  style="cursor:pointer">下载模板</span>
                             <h5>CPA市场</h5>
                         </div>
                         <div class="ibox-content">
@@ -133,13 +154,13 @@
 			                		</form>
                         </div>
                     </div>
-                </div>*@
+                </div>
             </div>
-						@*<div class="row">
+						<div class="row">
 							<div class="col-lg-6">
 	                <div class="ibox float-e-margins">
 	                    <div class="ibox-title">
-	                        <span class="label label-primary pull-right" onclick="downloadfile('PharmaTrust产品')"  style="cursor:pointer">下载模板</span>
+	                        <span class="label label-primary pull-right" onclick="downloadfile('PharmaTrust市场数据.xlsx')"  style="cursor:pointer">下载模板</span>
                             <h5>PharmaTrust产品</h5>
 		                </div>
 	                    <div class="ibox-content">
@@ -166,7 +187,7 @@
                         </div>
                     </div>
                 </div>
-	         </div>*@
+	         </div>
             <div id="loader" style="z-index:99999;" class="pageload-overlay" data-opening="M 40 -21.875 C 11.356078 -21.875 -11.875 1.3560784 -11.875 30 C -11.875 58.643922 11.356078 81.875 40 81.875 C 68.643922 81.875 91.875 58.643922 91.875 30 C 91.875 1.3560784 68.643922 -21.875 40 -21.875 Z">
                 <svg viewBox="0 0 80 60" preserveAspectRatio="xMidYMid slice">
                     @*<svg>*@

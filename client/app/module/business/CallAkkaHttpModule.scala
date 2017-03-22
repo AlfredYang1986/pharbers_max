@@ -25,6 +25,10 @@ object CallAkkaHttpModuleMessage {
 
 	case class msg_CallFileExport(data: JsValue) extends msg_CallHttp
 
+	case class msg_CallCommitRunData(data: JsValue) extends msg_CallHttp
+
+	case class msg_CallCleaningData(data: JsValue) extends msg_CallHttp
+
 }
 
 object CallAkkaHttpModule extends ModuleTrait {
@@ -36,6 +40,8 @@ object CallAkkaHttpModule extends ModuleTrait {
 		case msg_CallCheckExcel(data) => checkExcel(data)
 		case msg_CallRunModel(data) => runModel(data)
 		case msg_CallFileExport(data) => fileExport(data)
+		case msg_CallCommitRunData(data) => commitrundata(data)
+		case msg_CallCleaningData(data) => cleaningdata(data)
 		case _ => println("Error---------------"); ???
 	}
 
@@ -106,6 +112,33 @@ object CallAkkaHttpModule extends ModuleTrait {
 			var datajson  = toJson(Map("datatype" -> datatype, "marketmap" -> marketmap, "staendmap" -> staendmap, "company" -> company, "filetype" -> filetype))
 			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/export", datajson)
 			(Some(Map("FinalResult" -> toJson("ok"))), None)
+		} catch {
+			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+		}
+	}
+
+	def commitrundata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
+			var datajson  = toJson(Map("company" -> company))
+			println(s"datajson=${datajson}")
+			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/commit", datajson)
+			(Some(Map("result" -> toJson("ok"))), None)
+		} catch {
+			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+		}
+	}
+
+	def cleaningdata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			var filename = (data \ "filename").asOpt[String].map (x => x).getOrElse("")
+			var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
+			var year = (data \ "year").asOpt[String].map (x => x).getOrElse("")
+			var datatype = (data \ "datatype").asOpt[String].map (x => x).getOrElse("")
+			var datajson  = toJson(Map("filename" -> filename, "company" -> company, "year" -> year, "datatype" -> datatype))
+			println(s"datajson=${datajson}")
+			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/cleandata", datajson)
+			(Some(Map("result" -> toJson("ok"))), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}

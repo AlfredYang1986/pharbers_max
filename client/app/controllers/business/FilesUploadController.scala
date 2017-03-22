@@ -13,10 +13,16 @@ import play.api.libs.json.Json.toJson
 	*/
 class FilesUploadController extends Controller{
     
-    def filesUploadAjaxCall = Action (request => requestArgs(request) { jv => 
+	def filesUploadAjaxCall = Action (request => requestArgs(request) { jv =>
 		import pattern.ResultMessage.common_result
 		import pattern.LogMessage.common_log
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("filesUploadAjaxCall"))), jv, request) :: msg_filesupload(jv) :: msg_CommonResultMessage() :: Nil, None)
+	})
+
+	def filesexistsAjaxCall = Action (request => requestArgs(request) { jv =>
+		import pattern.ResultMessage.common_result
+		import pattern.LogMessage.common_log
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("filesexistsAjaxCall"))), jv, request) :: msg_filesexists(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 	
 }

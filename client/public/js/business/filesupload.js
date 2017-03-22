@@ -71,32 +71,12 @@ $("#file-1").fileinput({
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 1,
+    maxFilesNum: 10,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-    if(data.response){
-		var query_object = new Object();
-		query_object['uuid'] = data.response.result[0];
-        query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "Client";
-		$.ajax({
-			url: "/uploadfiles",
-			type: 'POST',
-			dataType: 'json',
-			contentType: 'application/json, charset=utf-8',
-			data: JSON.stringify(query_object),
-			cache: false,
-			success: function(data) {
-				if (data.status == "ok") {
-                    loader.show();
-                    setTimeout(excelCheck(query_object.uuid, "0"), 1000)
-		    		console.info("CPA产品上传成功");
-				}
-			}
-		});
-	}
+    cleandata("CPAP",data)
 });
 
 $("#file-2").fileinput({
@@ -105,32 +85,12 @@ $("#file-2").fileinput({
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 1,
+    maxFilesNum: 10,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-    if(data.response){
-		var query_object = new Object();
-		query_object['uuid'] = data.response.result[0];
-        query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "Client";
-		$.ajax({
-			url: "/uploadfiles",
-			type: 'POST',
-			dataType: 'json',
-			contentType: 'application/json, charset=utf-8',
-			data: JSON.stringify(query_object),
-			cache: false,
-			success: function(data) {
-				if (data.status == "ok") {
-                    loader.show();
-                    excelCheck(query_object.uuid, "1")
-		    		console.info("CPA市场上传成功");
-				}
-			}
-		});
-	}
+    cleandata("CPAM",data)
 });
 
 $("#file-3").fileinput({
@@ -139,32 +99,12 @@ $("#file-3").fileinput({
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 1,
+    maxFilesNum: 10,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-	if(data.response){
-		var query_object = new Object();
-		query_object['uuid'] = data.response.result[0];
-        query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "Client";
-		$.ajax({
-			url: "/uploadfiles",
-			type: 'POST',
-			dataType: 'json',
-			contentType: 'application/json, charset=utf-8',
-			data: JSON.stringify(query_object),
-			cache: false,
-			success: function(data) {
-				if (data.status == "ok") {
-                    loader.show();
-                    excelCheck(query_object.uuid, "2")
-		    		console.info("PharmaTrust产品上传成功");
-				}
-			}
-		});
-	}
+	cleandata("PTP",data)
 });
 
 $("#file-4").fileinput({
@@ -173,18 +113,24 @@ $("#file-4").fileinput({
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 1,
+    maxFilesNum: 10,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-	if(data.response){
+    cleandata("PTM",data)
+});
+
+
+function cleandata(datatype,data){
+    if(data.response){
 		var query_object = new Object();
-		query_object['uuid'] = data.response.result[0];
+		query_object['filename'] = data.response.result[0];
         query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "Client";
+		query_object['year'] = $('select[name="year"]').val();
+		query_object['datatype'] = datatype;
 		$.ajax({
-			url: "/uploadfiles",
+			url: "/cleaningdata",
 			type: 'POST',
 			dataType: 'json',
 			contentType: 'application/json, charset=utf-8',
@@ -192,29 +138,34 @@ $("#file-4").fileinput({
 			cache: false,
 			success: function(data) {
 				if (data.status == "ok") {
-                    loader.show();
-                    excelCheck(query_object.uuid, "3")
-		    		console.info("PharmaTrust市场上传成功");
+				    alert("操作成功")
+                    //loader.show();
+                    //excelCheck(query_object.uuid, "3")
+		    		//console.info("PharmaTrust市场上传成功");
 				}
 			}
 		});
 	}
-});
-function downloadfile(type){
-	var filename;
-	switch (type) {
-		case "CPA产品":
-			filename = "CPA产品.xlsx";
-			break;
-		case "CPA市场":
-			filename = "CPA市场数据.xlsx";
-			break;
-		case "PharmaTrust产品":
-			filename = "PharmaTrust产品.xlsx";
-			break;
-		case "PharmaTrust市场":
-			filename = "PharmaTrust市场数据.xlsx";
-			break;
-	}
-	location.href = "/pharbers/files/"+filename;
+}
+
+function downloadfile(filename){
+	var query_object = new Object();
+    query_object['filename'] = filename;
+    $.ajax({
+        url: "/filesexists",
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json, charset=utf-8',
+        data: JSON.stringify(query_object),
+        cache: false,
+        success: function(data) {
+            if (data.status == "ok") {
+                if(data.result.result){
+                    location.href = "/pharbers/files/"+filename;
+                }else{
+                    alert("template file does not exist.")
+                }
+            }
+        }
+    });
 }
