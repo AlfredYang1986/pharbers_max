@@ -8,6 +8,8 @@ case class PythonConfig(val company : String,val files : List[(String,String)],v
         x => filessb = filessb + " "+ x._1
       }
       (if(company.isEmpty) " " else " /Users/liwei/workspace/calc/src/main/scala/com/pharbers/aqll/alcalc/alcmd/pyshell/python/" +company+".py") +
-      filessb + (if(year.isEmpty) " " else " "+year)
+      filessb +
+        (if(year.isEmpty) " " else " "+year) +
+        (if(company.isEmpty) " " else " "+company)
     }
 }

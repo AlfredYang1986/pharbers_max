@@ -131,11 +131,9 @@ object CallAkkaHttpModule extends ModuleTrait {
 
 	def cleaningdata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			var filename = (data \ "filename").asOpt[String].map (x => x).getOrElse("")
 			var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
 			var year = (data \ "year").asOpt[String].map (x => x).getOrElse("")
-			var datatype = (data \ "datatype").asOpt[String].map (x => x).getOrElse("")
-			var datajson  = toJson(Map("filename" -> filename, "company" -> company, "year" -> year, "datatype" -> datatype))
+			var datajson  = toJson(Map("company" -> company, "year" -> year))
 			println(s"datajson=${datajson}")
 			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/cleandata", datajson)
 			(Some(Map("result" -> toJson("ok"))), None)

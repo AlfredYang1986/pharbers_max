@@ -10,9 +10,9 @@ import com.pharbers.aqll.util.dao._data_connection_basic
 import com.pharbers.aqll.util.{GetProperties, MD5}
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.io.File
-
+import java.io._
 import play.api.libs.Files
+import com.pharbers.aqll.util.CopyFileUtil._
 /**
   * Created by Wli on 2017/2/20.
   */
@@ -20,6 +20,7 @@ object FilesUploadModuleMessage {
       sealed class msg_filesuploadBase extends CommonMessage
 	  case class msg_filesupload(data : JsValue) extends msg_filesuploadBase
     case class msg_filesexists(data : JsValue) extends msg_filesuploadBase
+    case class msg_classifyfiles(data : JsValue) extends msg_filesuploadBase
 }
 
 object FilesUploadModule extends ModuleTrait {
@@ -28,6 +29,7 @@ object FilesUploadModule extends ModuleTrait {
 	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]]) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_filesupload(data) => msg_filesupload_func(data)
     case msg_filesexists(data) => msg_filesexists_func(data)
+    case msg_classifyfiles(data) => msg_classifyfiles_func(data)
 		case _ => ???
 	}
     
@@ -69,6 +71,37 @@ object FilesUploadModule extends ModuleTrait {
             flag = true
         }
         (Some(Map("result" -> toJson(flag))), None)
+      } catch {
+        case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+      }
+    }
+
+    def msg_classifyfiles_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+      try {
+        var filename = (data \ "filename").asOpt[String].map (x => x).getOrElse("")
+        var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
+        var year = (data \ "year").asOpt[String].map (x => x).getOrElse("")
+        var filetype = (data \ "filetype").asOpt[String].map (x => x).getOrElse("")
+
+        println(s"filename=${filename} company=${company} year=${year} datatype=${filetype}")
+
+        var newfilepath = ""
+        filetype match {
+          case "CPAP" => {
+            newfilepath = GetProperties.Upload_CPA_Product_FilePath
+          }
+          case "CPAM" => {
+            newfilepath = GetProperties.Upload_CPA_Market_FilePath
+          }
+          case "PTP" => {
+            newfilepath = GetProperties.Upload_PT_Product_FilePath
+          }
+          case "PTM" => {
+            newfilepath = GetProperties.Upload_PT_Market_FilePath
+          }
+        }
+        copyFile(GetProperties.Client_Upload_FilePath + filename,newfilepath + year+ "/" +company+ "/" + filename,true)
+        (Some(Map("result" -> toJson("ok"))), None)
       } catch {
         case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
       }

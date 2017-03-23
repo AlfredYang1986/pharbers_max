@@ -24,15 +24,16 @@ else:
     os.close(r)
     w = os.fdopen(w, 'w')
 
-    filename_cpa  = sys.argv[1]
-    filename_gycx = sys.argv[2]
-    filename_year = sys.argv[3]
+    f_cpa  = sys.argv[1]
+    f_gycx = sys.argv[2]
+    f_year = sys.argv[3]
+    f_comp = sys.argv[4]
 
 
     #---导入CPA文件---#   #n5则代表从文件列表NO.5
 
     #CPA_Step_6. CPA 2016年11月数据(#8文件 即为201611 mkt+others 不包含 13分子 )
-    xlsx_cpa_n8 = pd.ExcelFile(u"/Users/liwei/Downloads/upload/098f6bcd4621d373cade4e832627b4f6/2016/" + filename_cpa,encoding='GBK')
+    xlsx_cpa_n8 = pd.ExcelFile(u"/Users/liwei/Downloads/upload/CPA/Product/"+f_year+"/"+f_comp+"/"+f_cpa,encoding='GBK')
     cpa_n8 = xlsx_cpa_n8.parse(u'辉瑞1611')
 
 
@@ -40,7 +41,7 @@ else:
 
 
     #GYCX_Step2. GYCX2016.11辉瑞全部数据(#8文件)
-    xlsx_gycx_n8 = pd.ExcelFile(u"/Users/liwei/Downloads/upload/098f6bcd4621d373cade4e832627b4f6/2016/" + filename_gycx,encoding='GBK')
+    xlsx_gycx_n8 = pd.ExcelFile(u"/Users/liwei/Downloads/upload/PT/Product/"+f_year+"/"+f_comp+"/"+f_gycx,encoding='GBK')
     gycx_n8 = xlsx_gycx_n8.parse(u'2016年11月辉瑞337个通用名产品数据',header=0)
 
 
@@ -88,7 +89,7 @@ else:
 
         cpa_131611_touse1 = pd.merge(cpa_131611_touse,others_mapping_touse_cpa1,how='left',on='min1')
         cpa_131611_touse2 = cpa_131611_touse1[~cpa_131611_touse1['marketname'].isnull()]
-        CPA_Others_touse2016 = cpa_131611_touse2.loc[cpa_131611_touse2['YEAR']==int(filename_year)]
+        CPA_Others_touse2016 = cpa_131611_touse2.loc[cpa_131611_touse2['YEAR']==int(f_year)]
 
         #将CPA 2016制作成Panel需要格式
         CPA_Others_touse2016[u'YEAR'] = CPA_Others_touse2016[u'YEAR'].astype(str)
@@ -102,7 +103,7 @@ else:
 
         gycx_131611_touse1 = pd.merge(gycx_131611_touse,others_mapping_touse_gycx1,how='left',on='min1')
         gycx_131611_touse2 = gycx_131611_touse1[~gycx_131611_touse1['marketname'].isnull()]
-        GYCX_Others_touse2016 = gycx_131611_touse2.loc[gycx_131611_touse2[u'年']==int(filename_year)]
+        GYCX_Others_touse2016 = gycx_131611_touse2.loc[gycx_131611_touse2[u'年']==int(f_year)]
 
         #导入Panel医院分市场匹配表
         xlsx_hos_mapping = pd.ExcelFile(u"/Users/liwei/Downloads/manage/098f6bcd4621d373cade4e832627b4f6/2016/Panel_hos.xlsx",encoding='GBK')
@@ -142,10 +143,10 @@ else:
         #调整列序
         CPA_GYCX_Others_panel_16_final = CPA_GYCX_Others_panel_16_final.loc[:,['ID','Hosp_name','Date','Sales','Units','Prod_Name','Prod_CNAME','HOSP_ID','Strength','DOI','DOIE']]
 
-        w.write("CPA_GYCX_Others_panel_"+filename_year+"_"+mkt+".xlsx#")
+        w.write("CPA_GYCX_Others_panel_"+f_year+"_"+mkt+".xlsx#")
 
         #输出当前市场CPA&GYCX合并16年Panel
-        writer=ExcelWriter(u"/Users/liwei/Downloads/upload/panel/CPA_GYCX_Others_panel_"+filename_year+"_"+mkt+".xlsx")
+        writer=ExcelWriter(u"/Users/liwei/Downloads/upload/panel/CPA_GYCX_Others_panel_"+f_year+"_"+mkt+".xlsx")#mkt
         CPA_GYCX_Others_panel_16_final.to_excel(writer,sheet_name='Sheet1',encoding="GBK",index=False)
         writer.save()
 

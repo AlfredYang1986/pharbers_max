@@ -12,6 +12,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
 import akka.pattern.ask
+import com.pharbers.aqll.alcalc.alcmd.pyshell.pyShell
 import com.pharbers.aqll.calc.Http.{QueueActor, ThreadQueue}
 
 import scala.concurrent.Await
@@ -35,9 +36,13 @@ class OrderServiceApi(system: ActorSystem, timeout: Timeout) extends OrderServic
 }
 
 case class Item(filename: String, company: String, hospmatchpath: String)
+case class rItem(company: String)
+case class cItem(company: String, year: String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 	implicit val itemFormat = jsonFormat3(Item)
+	implicit val ritemFormat = jsonFormat1(rItem)
+	implicit val citemFormat = jsonFormat2(cItem)
 }
 
 trait OrderService extends Directives with JsonSupport {
@@ -45,7 +50,7 @@ trait OrderService extends Directives with JsonSupport {
 
 	implicit def requestTimeout: Timeout
 
-	val routes = getCheck ~ getCalc ~ Test ~ Test2
+	val routes = getCheck ~ getCalc ~ Test ~ Test2 ~ getRcommit ~ getCleanData
 
 	def Test = get {
 		path("Test") {///Users/qianpeng/Desktop/CPA_GYCX_panel_160111INF.xlsx
@@ -112,6 +117,33 @@ trait OrderService extends Directives with JsonSupport {
 				println(s"reception = $reception")
 				reception ! excelSplitStart(map)
 				complete("""{"result":"Ok"}""")
+			}
+		}
+	}
+
+	def getRcommit = post {
+		path("commit") {
+			entity(as[rItem]) { item =>
+				println(s"item=${item}")
+				complete("""{"result":"Ok"}""")
+			}
+		}
+	}
+
+	def getCleanData = post {
+		path("cleandata") {
+			entity(as[cItem]) { item =>
+				println(s"company=${item.company} year=${item.year}")
+				val c_file : File = new File(GetProperties.Upload_CPA_Product_FilePath+item.year+"/"+item.company)
+				val g_file : File = new File(GetProperties.Upload_PT_Product_FilePath+item.year+"/"+item.company)
+				println(s"c_file=${c_file.listFiles().tail.head.getName} c_file=${g_file.listFiles().tail.head.getName}")
+				val result = pyShell(item.company,List((c_file.listFiles().tail.head.getName,"CPA"),(g_file.listFiles().tail.head.getName,"GYCX")),item.year).excute
+				println(s"python_result=${result}")
+				if(result._1==0 && result._2.size!=0){
+					complete("""{"result":"succee"}""")
+				}else{
+					complete("""{"result":"error"}""")
+				}
 			}
 		}
 	}

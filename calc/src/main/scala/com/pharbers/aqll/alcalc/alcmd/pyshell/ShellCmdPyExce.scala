@@ -21,8 +21,10 @@ trait ShellCmdPyExce {
             val lst : ListBuffer[String] = new ListBuffer[String]()
             do {
                 line = input.readLine()
-                if(line!=null)
+                if(line!=null){
+                    println(line)
                     line.split("#").asInstanceOf[Array[String]].foreach(x => lst.append(x))
+                }
             } while (line != null)
             lst.remove(lst.length-1)
             println("data standardization finish.")

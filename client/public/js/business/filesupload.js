@@ -66,7 +66,6 @@ $("#file-0").fileinput({
 
 
 $("#file-1").fileinput({
-    //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
@@ -76,11 +75,10 @@ $("#file-1").fileinput({
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-    cleandata("CPAP",data)
+    classifyFiles("CPAP",data)
 });
 
 $("#file-2").fileinput({
-    //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
@@ -90,11 +88,10 @@ $("#file-2").fileinput({
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-    cleandata("CPAM",data)
+    classifyFiles("CPAM",data)
 });
 
 $("#file-3").fileinput({
-    //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
@@ -104,11 +101,10 @@ $("#file-3").fileinput({
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-	cleandata("PTP",data)
+	classifyFiles("PTP",data)
 });
 
 $("#file-4").fileinput({
-    //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
@@ -118,34 +114,51 @@ $("#file-4").fileinput({
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-    cleandata("PTM",data)
+    classifyFiles("PTM",data)
 });
 
+function classifyFiles(filetype,data){
+    var query_object = new Object();
+    query_object['filename'] = data.response.result[0];
+    query_object['company'] = $.cookie("token");
+    query_object['year'] = $('select[name="year"]').val();
+    query_object['filetype'] = filetype;
+    $.ajax({
+        url: "/classifyFiles",
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json, charset=utf-8',
+        data: JSON.stringify(query_object),
+        cache: false,
+        success: function(data) {
+            if (data.status == "ok") {
+                console.info("上传成功")
+            }
+        }
+    });
+}
 
-function cleandata(datatype,data){
-    if(data.response){
-		var query_object = new Object();
-		query_object['filename'] = data.response.result[0];
-        query_object['company'] = $.cookie("token");
-		query_object['year'] = $('select[name="year"]').val();
-		query_object['datatype'] = datatype;
-		$.ajax({
-			url: "/cleaningdata",
-			type: 'POST',
-			dataType: 'json',
-			contentType: 'application/json, charset=utf-8',
-			data: JSON.stringify(query_object),
-			cache: false,
-			success: function(data) {
-				if (data.status == "ok") {
-				    alert("操作成功")
-                    //loader.show();
-                    //excelCheck(query_object.uuid, "3")
-		    		//console.info("PharmaTrust市场上传成功");
-				}
-			}
-		});
-	}
+function commitUp(){
+    loader.show();
+    var query_object = new Object();
+    query_object['company'] = $.cookie("token");
+    query_object['year'] = $('select[name="year"]').val();
+    $.ajax({
+        url: "/cleaningdata",
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json, charset=utf-8',
+        data: JSON.stringify(query_object),
+        cache: false,
+        success: function(data) {
+            if (data.status == "ok") {
+                loader.hide();
+                alert("操作成功")
+                //loader.show();
+                //excelCheck(query_object.uuid, "3");
+            }
+        }
+    });
 }
 
 function downloadfile(filename){

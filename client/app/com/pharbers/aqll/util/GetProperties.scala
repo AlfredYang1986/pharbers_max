@@ -33,6 +33,13 @@ object GetProperties {
     def Client_Export_FilePath = loadConf("File.conf").getString("Files.DownClient_Export_FilePath")
     def UpManage_Upload_FilePath = loadConf("File.conf").getString("Files.UpManage_Upload_FilePath")
 
+
+    /*客户上传*/
+    def Upload_CPA_Product_FilePath = loadConf("File.conf").getString("Files.Upload_CPA_Product_FilePath")
+    def Upload_CPA_Market_FilePath = loadConf("File.conf").getString("Files.Upload_CPA_Market_FilePath")
+    def Upload_PT_Product_FilePath = loadConf("File.conf").getString("Files.Upload_PT_Product_FilePath")
+    def Upload_PT_Market_FilePath = loadConf("File.conf").getString("Files.Upload_PT_Market_FilePath")
+
     def Akka_Http_IP = loadConf("File.conf").getString("Akka.Http.ip")
     def Akka_Http_Port = loadConf("File.conf").getInt("Akka.Http.port")
 }
