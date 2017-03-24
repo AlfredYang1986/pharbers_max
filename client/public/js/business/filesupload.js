@@ -65,32 +65,32 @@ $("#file-0").fileinput({
 });
 
 
-$("#file-1").fileinput({
+$("#cpa").fileinput({
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
-    maxFileSize: 50000,
+    maxFileSize: 1024000,
     maxFilesNum: 10,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-    classifyFiles("CPAP",data)
+    classifyFiles("CPA",data)
 });
 
-$("#file-2").fileinput({
+$("#gycx").fileinput({
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
-    maxFileSize: 50000,
+    maxFileSize: 1024000,
     maxFilesNum: 10,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-    classifyFiles("CPAM",data)
+    classifyFiles("GYCX",data)
 });
-
+/*
 $("#file-3").fileinput({
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
@@ -115,13 +115,25 @@ $("#file-4").fileinput({
     }
 }).on("fileuploaded", function(event, data) {
     classifyFiles("PTM",data)
+});*/
+
+$("#manager").fileinput({
+    uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
+    allowedFileExtensions : ['xlsx', 'xls'],
+    overwriteInitial: false,
+    maxFileSize: 1024000,
+    maxFilesNum: 10,
+    slugCallback: function(filename) {
+        return filename.replace('(', '_').replace(']', '_');
+    }
+}).on("fileuploaded", function(event, data) {
+    classifyFiles("Manage",data)
 });
 
 function classifyFiles(filetype,data){
     var query_object = new Object();
     query_object['filename'] = data.response.result[0];
     query_object['company'] = $.cookie("token");
-    query_object['year'] = $('select[name="year"]').val();
     query_object['filetype'] = filetype;
     $.ajax({
         url: "/classifyFiles",
@@ -142,7 +154,6 @@ function commitUp(){
     loader.show();
     var query_object = new Object();
     query_object['company'] = $.cookie("token");
-    query_object['year'] = $('select[name="year"]').val();
     $.ajax({
         url: "/cleaningdata",
         type: 'POST',
@@ -151,12 +162,20 @@ function commitUp(){
         data: JSON.stringify(query_object),
         cache: false,
         success: function(data) {
+            console.info(data)
             if (data.status == "ok") {
+                if(data.result.result.result.head.status==0){
+                    console.info(data.result.result.result.head.filename)
+                    console.info(data.result.result.result.head.markets)
+                    alert("操作成功")
+                }else{
+                    alert("file standardization failure.")
+                }
                 loader.hide();
-                alert("操作成功")
                 //loader.show();
                 //excelCheck(query_object.uuid, "3");
             }
+            loader.hide();
         }
     });
 }

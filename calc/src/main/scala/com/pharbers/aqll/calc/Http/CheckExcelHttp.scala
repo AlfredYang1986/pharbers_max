@@ -22,8 +22,8 @@ import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitMaster, SplitRec
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 import com.pharbers.aqll.calc.check.CheckReception
 import spray.json.DefaultJsonProtocol
-
-
+import com.alibaba.fastjson.JSON
+import com.google.gson.Gson
 /**
   * Created by Faiz on 2017/1/7.
   */
@@ -36,13 +36,11 @@ class OrderServiceApi(system: ActorSystem, timeout: Timeout) extends OrderServic
 }
 
 case class Item(filename: String, company: String, hospmatchpath: String)
-case class rItem(company: String)
-case class cItem(company: String, year: String)
+case class Item1(company: String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 	implicit val itemFormat = jsonFormat3(Item)
-	implicit val ritemFormat = jsonFormat1(rItem)
-	implicit val citemFormat = jsonFormat2(cItem)
+	implicit val itemFormat1 = jsonFormat1(Item1)
 }
 
 trait OrderService extends Directives with JsonSupport {
@@ -79,7 +77,7 @@ trait OrderService extends Directives with JsonSupport {
 	def getCheck = post {
 		path("checkExcel") {
 			entity(as[Item]) { item =>
-				val map = Map("filename" -> (GetProperties.loadConf("File.conf").getString("SCP.Upload_File_Path").toString + item.filename),
+				val map = Map("filename" -> (GetProperties  + item.filename),
 					"hospmatchpath" -> (item.company + "/" + item.hospmatchpath),
 					"JobDefines" -> integratedJob,
 					"company" -> item.company,
@@ -123,7 +121,7 @@ trait OrderService extends Directives with JsonSupport {
 
 	def getRcommit = post {
 		path("commit") {
-			entity(as[rItem]) { item =>
+			entity(as[Item1]) { item =>
 				println(s"item=${item}")
 				complete("""{"result":"Ok"}""")
 			}
@@ -132,18 +130,12 @@ trait OrderService extends Directives with JsonSupport {
 
 	def getCleanData = post {
 		path("cleandata") {
-			entity(as[cItem]) { item =>
-				println(s"company=${item.company} year=${item.year}")
-				val c_file : File = new File(GetProperties.Upload_CPA_Product_FilePath+item.year+"/"+item.company)
-				val g_file : File = new File(GetProperties.Upload_PT_Product_FilePath+item.year+"/"+item.company)
-				println(s"c_file=${c_file.listFiles().tail.head.getName} c_file=${g_file.listFiles().tail.head.getName}")
-				val result = pyShell(item.company,List((c_file.listFiles().tail.head.getName,"CPA"),(g_file.listFiles().tail.head.getName,"GYCX")),item.year).excute
-				println(s"python_result=${result}")
-				if(result._1==0 && result._2.size!=0){
-					complete("""{"result":"succee"}""")
-				}else{
-					complete("""{"result":"error"}""")
-				}
+			entity(as[Item1]) { item =>
+				println(s"company=${item.company}")
+				val result = pyShell(item.company).excute
+				val gson : Gson = new Gson()
+				println(s"result=${gson.toJson(result)}")
+				complete("""{"result":"""+gson.toJson(result)+"""}""")
 			}
 		}
 	}

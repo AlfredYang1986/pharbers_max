@@ -32,11 +32,4 @@ object GetProperties {
 
 	def fileTarGz = loadConf("File.conf").getString("SCP.File_Tar_Gz")
 
-	/*客户上传*/
-	def Upload_CPA_Product_FilePath = loadConf("File.conf").getString("SCP.Upload_CPA_Product_FilePath")
-	def Upload_CPA_Market_FilePath = loadConf("File.conf").getString("SCP.Upload_CPA_Market_FilePath")
-	def Upload_PT_Product_FilePath = loadConf("File.conf").getString("SCP.Upload_PT_Product_FilePath")
-	def Upload_PT_Market_FilePath = loadConf("File.conf").getString("SCP.Upload_PT_Market_FilePath")
-
-
 }

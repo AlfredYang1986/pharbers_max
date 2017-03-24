@@ -80,27 +80,26 @@ object FilesUploadModule extends ModuleTrait {
       try {
         var filename = (data \ "filename").asOpt[String].map (x => x).getOrElse("")
         var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
-        var year = (data \ "year").asOpt[String].map (x => x).getOrElse("")
         var filetype = (data \ "filetype").asOpt[String].map (x => x).getOrElse("")
 
-        println(s"filename=${filename} company=${company} year=${year} datatype=${filetype}")
+        println(s"参数： filename=${filename} company=${company} datatype=${filetype}")
 
-        var newfilepath = ""
+        var newfilepath = GetProperties.loadConf("File.conf").getString("Files.Upload_FileBase_FilePath")+company
         filetype match {
-          case "CPAP" => {
-            newfilepath = GetProperties.Upload_CPA_Product_FilePath
+          case "CPA" => {
+            newfilepath = newfilepath+"/Client/CPA/"+filename
           }
-          case "CPAM" => {
-            newfilepath = GetProperties.Upload_CPA_Market_FilePath
+          case "GYCX" => {
+            newfilepath = newfilepath+"/Client/GYCX/"+filename
           }
-          case "PTP" => {
-            newfilepath = GetProperties.Upload_PT_Product_FilePath
-          }
-          case "PTM" => {
-            newfilepath = GetProperties.Upload_PT_Market_FilePath
-          }
+          case "Manage" => newfilepath+"/Manage/"+filename
         }
-        copyFile(GetProperties.Client_Upload_FilePath + filename,newfilepath + year+ "/" +company+ "/" + filename,true)
+        val oldfilepath = GetProperties.Client_Upload_FilePath + filename
+
+        println(s"旧路径： oldfilepath=${oldfilepath}")
+        println(s"新路径： newfilepath=${newfilepath}")
+
+        copyFile(oldfilepath,newfilepath,true)
         (Some(Map("result" -> toJson("ok"))), None)
       } catch {
         case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))

@@ -58,14 +58,8 @@ object CallAkkaHttpModule extends ModuleTrait {
 			d.size match {
 				case 0 => (Some(Map("FinalResult" -> toJson("no"))), None)
 				case _ =>
-					val c = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/checkExcel", d.head)
-					val r = Await.result(c.mapTo[String], timeout.duration)
-					println(r)
-					if (r.equals("Ok")) {
-						(Some(Map("FinalResult" -> toJson("ok"))), None)
-					} else {
-						(Some(Map("FinalResult" -> toJson("no"))), None)
-					}
+					val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/checkExcel", d.head)
+					(Some(Map("result" -> result)), None)
 			}
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -132,11 +126,11 @@ object CallAkkaHttpModule extends ModuleTrait {
 	def cleaningdata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
-			var year = (data \ "year").asOpt[String].map (x => x).getOrElse("")
-			var datajson  = toJson(Map("company" -> company, "year" -> year))
+			var datajson  = toJson(Map("company" -> company))
 			println(s"datajson=${datajson}")
-			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/cleandata", datajson)
-			(Some(Map("result" -> toJson("ok"))), None)
+			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/cleandata", datajson)
+			println(s"result=${result}")
+			(Some(Map("result" -> result)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
@@ -151,8 +145,9 @@ object CallAkkaHttpModule extends ModuleTrait {
 				))
 	}
 
-	def call(uri: String, data: JsValue): Future[String] = {
+	def call(uri: String, data: JsValue): JsValue = {
 		val json = (HTTP(uri)).post(data).as[JsValue]
-		Future((json \ "result").asOpt[String].getOrElse("No"))
+		println(s"json=${json}")
+		json
 	}
 }
