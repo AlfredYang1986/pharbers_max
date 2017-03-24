@@ -66,155 +66,119 @@ $("#file-0").fileinput({
 
 
 $("#file-1").fileinput({
-    //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 1,
+    maxFilesNum: 10,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-    if(data.response){
-		var query_object = new Object();
-		query_object['uuid'] = data.response.result[0];
-        query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "Client";
-		$.ajax({
-			url: "/uploadfiles",
-			type: 'POST',
-			dataType: 'json',
-			contentType: 'application/json, charset=utf-8',
-			data: JSON.stringify(query_object),
-			cache: false,
-			success: function(data) {
-				if (data.status == "ok") {
-                    loader.show();
-                    setTimeout(excelCheck(query_object.uuid, "0"), 1000)
-		    		console.info("CPA产品上传成功");
-				}
-			}
-		});
-	}
+    classifyFiles("CPAP",data)
 });
 
 $("#file-2").fileinput({
-    //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 1,
+    maxFilesNum: 10,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-    if(data.response){
-		var query_object = new Object();
-		query_object['uuid'] = data.response.result[0];
-        query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "Client";
-		$.ajax({
-			url: "/uploadfiles",
-			type: 'POST',
-			dataType: 'json',
-			contentType: 'application/json, charset=utf-8',
-			data: JSON.stringify(query_object),
-			cache: false,
-			success: function(data) {
-				if (data.status == "ok") {
-                    loader.show();
-                    excelCheck(query_object.uuid, "1")
-		    		console.info("CPA市场上传成功");
-				}
-			}
-		});
-	}
+    classifyFiles("CPAM",data)
 });
 
 $("#file-3").fileinput({
-    //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 1,
+    maxFilesNum: 10,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-	if(data.response){
-		var query_object = new Object();
-		query_object['uuid'] = data.response.result[0];
-        query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "Client";
-		$.ajax({
-			url: "/uploadfiles",
-			type: 'POST',
-			dataType: 'json',
-			contentType: 'application/json, charset=utf-8',
-			data: JSON.stringify(query_object),
-			cache: false,
-			success: function(data) {
-				if (data.status == "ok") {
-                    loader.show();
-                    excelCheck(query_object.uuid, "2")
-		    		console.info("PharmaTrust产品上传成功");
-				}
-			}
-		});
-	}
+	classifyFiles("PTP",data)
 });
 
 $("#file-4").fileinput({
-    //uploadUrl: 'http://127.0.0.1:9001/pharbers/files/upload', // you must set a valid URL here else you will get an error
     uploadUrl: 'pharbers/files/upload', // you must set a valid URL here else you will get an error
     allowedFileExtensions : ['xlsx', 'xls'],
     overwriteInitial: false,
     maxFileSize: 50000,
-    maxFilesNum: 1,
+    maxFilesNum: 10,
     slugCallback: function(filename) {
         return filename.replace('(', '_').replace(']', '_');
     }
 }).on("fileuploaded", function(event, data) {
-	if(data.response){
-		var query_object = new Object();
-		query_object['uuid'] = data.response.result[0];
-        query_object['company'] = $.cookie("token");
-		query_object['Datasource_Type'] = "Client";
-		$.ajax({
-			url: "/uploadfiles",
-			type: 'POST',
-			dataType: 'json',
-			contentType: 'application/json, charset=utf-8',
-			data: JSON.stringify(query_object),
-			cache: false,
-			success: function(data) {
-				if (data.status == "ok") {
-                    loader.show();
-                    excelCheck(query_object.uuid, "3")
-		    		console.info("PharmaTrust市场上传成功");
-				}
-			}
-		});
-	}
+    classifyFiles("PTM",data)
 });
-function downloadfile(type){
-	var filename;
-	switch (type) {
-		case "CPA产品":
-			filename = "CPA产品.xlsx";
-			break;
-		case "CPA市场":
-			filename = "CPA市场数据.xlsx";
-			break;
-		case "PharmaTrust产品":
-			filename = "PharmaTrust产品.xlsx";
-			break;
-		case "PharmaTrust市场":
-			filename = "PharmaTrust市场数据.xlsx";
-			break;
-	}
-	location.href = "/pharbers/files/"+filename;
+
+function classifyFiles(filetype,data){
+    var query_object = new Object();
+    query_object['filename'] = data.response.result[0];
+    query_object['company'] = $.cookie("token");
+    query_object['year'] = $('select[name="year"]').val();
+    query_object['filetype'] = filetype;
+    $.ajax({
+        url: "/classifyFiles",
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json, charset=utf-8',
+        data: JSON.stringify(query_object),
+        cache: false,
+        success: function(data) {
+            if (data.status == "ok") {
+                console.info("上传成功")
+            }
+        }
+    });
+}
+
+function commitUp(){
+    loader.show();
+    var query_object = new Object();
+    query_object['company'] = $.cookie("token");
+    query_object['year'] = $('select[name="year"]').val();
+    $.ajax({
+        url: "/cleaningdata",
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json, charset=utf-8',
+        data: JSON.stringify(query_object),
+        cache: false,
+        success: function(data) {
+            if (data.status == "ok") {
+                loader.hide();
+                alert("操作成功")
+                //loader.show();
+                //excelCheck(query_object.uuid, "3");
+            }
+        }
+    });
+}
+
+function downloadfile(filename){
+	var query_object = new Object();
+    query_object['filename'] = filename;
+    $.ajax({
+        url: "/filesexists",
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json, charset=utf-8',
+        data: JSON.stringify(query_object),
+        cache: false,
+        success: function(data) {
+            if (data.status == "ok") {
+                if(data.result.result){
+                    location.href = "/pharbers/files/"+filename;
+                }else{
+                    alert("template file does not exist.")
+                }
+            }
+        }
+    });
 }

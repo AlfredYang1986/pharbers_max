@@ -31,6 +31,21 @@ $(function(){
     });
 
     $('#commitresult').click(function(){
-        alert("操作成功")
+        var dataMap = JSON.stringify({"company" : $.cookie("token")})
+        $.ajax({
+            type : "post",
+            data : dataMap,
+            async : false,
+            url :"/commitrunresult",
+            contentType: 'application/json, charset=utf-8',
+            cache : false,
+            dataType : "json",
+            success : function(json){
+                alert("操作成功")
+            },
+            error:function(e){
+                alert("Error")
+            }
+        });
     });
 });

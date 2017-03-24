@@ -31,7 +31,10 @@ GET     /resultquery/files/:name    controllers.foptController.exportFile(name)
 POST    /callcheckexcel             controllers.business.CallAkkaHttpController.callHttpCheckExcelAjaxCall
 POST    /callrunmodel               controllers.business.CallAkkaHttpController.callHttpRunModelAjaxCall
 POST    /callfileexport             controllers.business.CallAkkaHttpController.callHttpFileExportAjaxCall
-
+POST    /commitrunresult            controllers.business.CallAkkaHttpController.callHttpCommitRunResultAjaxCall
+POST    /cleaningdata               controllers.business.CallAkkaHttpController.callHttpCleaningDataAjaxCall
+POST    /filesexists                controllers.business.FilesUploadController.filesexistsAjaxCall
+POST	/classifyFiles				controllers.business.FilesUploadController.classifyFilesAjaxCall
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
 POST	/pharbers/files/upload		controllers.foptController.uploadFile
