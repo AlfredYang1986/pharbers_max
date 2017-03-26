@@ -16,6 +16,7 @@ class alWeightSum(company : String){
 	val lst = (from db() in company+"_temp").selectOneByOne("hosp_Index")(x => x)
 	var b : Option[DBObject] = None
 	var f_units_sum,f_sales_sum = 0.0
+	var f_units_sum2,f_sales_sum2 = 0.0
 	var i = 0
 	val total = lst.size
 	while(lst.hasNext) {
@@ -33,8 +34,8 @@ class alWeightSum(company : String){
 					}
 					// TODO : 还原省份|城市权和索引，其他字段保持不变
 					_data_connection.getCollection(company).insert(Map("ID" -> MD5.md5(UUID.randomUUID().toString) ,"Provice" -> c.get("Provice"),"City" -> c.get("City"),"Panel_ID" -> c.get("Panel_ID"),"Market" -> c.get("Market"),"Product" -> c.get("Product"),"f_units" -> f_units_sum,"f_sales" -> f_sales_sum,"Date" -> c.get("Date"),"hosp_Index" -> c.get("hosp_Index"),
-								"prov_Index" -> MD5.md5(x.get("Provice")+x.get("Market")+x.get("Product")+x.get("Date")),
-								"city_Index" -> MD5.md5(x.get("Provice")+x.get("City")+x.get("Market")+x.get("Product")+x.get("Date"))
+								"prov_Index" -> MD5.md5(c.get("Provice")+c.get("Market").toString+c.get("Product")+c.get("Date")),
+								"city_Index" -> MD5.md5(c.get("Provice")+c.get("City").toString+c.get("Market")+c.get("Product")+c.get("Date"))
 								))
 				}
 			}
@@ -51,8 +52,8 @@ class alWeightSum(company : String){
 							}
 							// TODO : 还原省份|城市权和索引，其他字段保持不变
 							_data_connection.getCollection(company).insert(Map("ID" -> MD5.md5(UUID.randomUUID().toString) ,"Provice" -> x.get("Provice"),"City" -> x.get("City"),"Panel_ID" -> x.get("Panel_ID"),"Market" -> x.get("Market"),"Product" -> x.get("Product"),"f_units" -> f_units_sum,"f_sales" -> f_sales_sum,"Date" -> x.get("Date"),"hosp_Index" -> x.get("hosp_Index"),
-								"prov_Index" -> MD5.md5(x.get("Provice")+x.get("Market")+x.get("Product")+x.get("Date")),
-								"city_Index" -> MD5.md5(x.get("Provice")+x.get("City")+x.get("Market")+x.get("Product")+x.get("Date"))
+								"prov_Index" -> MD5.md5(x.get("Provice")+x.get("Market").toString+x.get("Product")+x.get("Date")),
+								"city_Index" -> MD5.md5(x.get("Provice")+x.get("City").toString+x.get("Market")+x.get("Product")+x.get("Date"))
 								))
 
 						}
@@ -65,10 +66,12 @@ class alWeightSum(company : String){
 							}
 							// TODO : 还原省份|城市权和索引，其他字段保持不变
 							_data_connection.getCollection(company).insert(Map("ID" -> MD5.md5(UUID.randomUUID().toString) ,"Provice" -> x.get("Provice"),"City" -> x.get("City"),"Panel_ID" -> x.get("Panel_ID"),"Market" -> x.get("Market"),"Product" -> x.get("Product"),"f_units" -> f_units_sum,"f_sales" -> f_sales_sum,"Date" -> x.get("Date"),"hosp_Index" -> x.get("hosp_Index"),
-								"prov_Index" -> MD5.md5(x.get("Provice")+x.get("Market")+x.get("Product")+x.get("Date")),
-								"city_Index" -> MD5.md5(x.get("Provice")+x.get("City")+x.get("Market")+x.get("Product")+x.get("Date"))
+								"prov_Index" -> MD5.md5(x.get("Provice")+x.get("Market").toString+x.get("Product")+x.get("Date")),
+								"city_Index" -> MD5.md5(x.get("Provice")+x.get("City").toString+x.get("Market")+x.get("Product")+x.get("Date"))
 								))
 						}
+						f_units_sum2 = f_units_sum2 + f_units_sum
+						f_sales_sum2 = f_sales_sum2 + f_sales_sum
 						b = Some(c)
 						f_units_sum = c.get("f_units").asInstanceOf[Double]
 						f_sales_sum = c.get("f_sales").asInstanceOf[Double]
