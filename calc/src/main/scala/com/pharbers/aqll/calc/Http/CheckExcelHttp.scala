@@ -24,6 +24,7 @@ import com.pharbers.aqll.calc.check.CheckReception
 import spray.json.DefaultJsonProtocol
 import com.alibaba.fastjson.JSON
 import com.google.gson.Gson
+import com.pharbers.aqll.alcalc.alfinaldataprocess.alFileExport._
 /**
   * Created by Faiz on 2017/1/7.
   */
@@ -36,11 +37,13 @@ class OrderServiceApi(system: ActorSystem, timeout: Timeout) extends OrderServic
 }
 
 case class Item(filename: String, company: String, hospmatchpath: String)
-case class Item1(company: String)
+case class ItemUp(company: String)
+case class ItemEx(datatype: String,market : List[String],staend : List[String],company : String,filetype : String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 	implicit val itemFormat = jsonFormat3(Item)
-	implicit val itemFormat1 = jsonFormat1(Item1)
+	implicit val itemFormatUp = jsonFormat1(ItemUp)
+	implicit val itemFormatEx = jsonFormat5(ItemEx)
 }
 
 trait OrderService extends Directives with JsonSupport {
@@ -48,7 +51,7 @@ trait OrderService extends Directives with JsonSupport {
 
 	implicit def requestTimeout: Timeout
 
-	val routes = getCheck ~ getCalc ~ Test ~ Test2 ~ getRcommit ~ getCleanData
+	val routes = getCheck ~ getCalc ~ Test ~ Test2 ~ getRcommit ~ getCleanData ~ getFileEx
 
 	def Test = get {
 		path("Test") {///Users/qianpeng/Desktop/CPA_GYCX_panel_160111INF.xlsx
@@ -121,7 +124,7 @@ trait OrderService extends Directives with JsonSupport {
 
 	def getRcommit = post {
 		path("commit") {
-			entity(as[Item1]) { item =>
+			entity(as[ItemUp]) { item =>
 				println(s"item=${item}")
 				complete("""{"result":"Ok"}""")
 			}
@@ -130,9 +133,20 @@ trait OrderService extends Directives with JsonSupport {
 
 	def getCleanData = post {
 		path("cleandata") {
-			entity(as[Item1]) { item =>
+			entity(as[ItemUp]) { item =>
 				println(s"company=${item.company}")
 				val result = pyShell(item.company).excute
+				val gson : Gson = new Gson()
+				println(s"result=${gson.toJson(result)}")
+				complete("""{"result":"""+gson.toJson(result)+"""}""")
+			}
+		}
+	}
+
+	def getFileEx = post {
+		path("export") {
+			entity(as[ItemEx]) { item =>
+				val result = alFileExport(item.datatype,item.market,item.staend,item.company,item.filetype)
 				val gson : Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":"""+gson.toJson(result)+"""}""")
