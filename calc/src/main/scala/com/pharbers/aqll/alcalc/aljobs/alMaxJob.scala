@@ -3,7 +3,7 @@ package com.pharbers.aqll.alcalc.aljobs
 import com.pharbers.aqll.alcalc.aljobs.alJob.max_jobs._
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.{core_split, read_excel_split}
-import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.{alServerHardware, server_info}
+import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.{alServerHardware, alSplitStrategy, server_info}
 import com.pharbers.aqll.alcalc.alstages.alStage
 
 /**
@@ -17,7 +17,8 @@ class alMaxJob extends alJob {
         cur = Some(alStage(excel_file))
         val number = alServerHardware.strategy_hardware(server_info.memory)(alServerHardware.strategy_memeory)
 //        process = read_excel() :: split_data(read_excel_split(Map(alServerHardware.server_memory -> number))) :: ps :: Nil
-        process = read_excel() :: split_data(core_split(Map(core_split.core_number -> 1))) :: ps :: Nil
+        // TODO: 目前按照机器去分文件，现在按照内存分 在机器不够的情况下 会一直算不了
+        process = read_excel() :: split_data(core_split(Map(core_split.core_number -> 3))) :: ps :: Nil
     }
     override def result : Option[Any] =  {
         super.result

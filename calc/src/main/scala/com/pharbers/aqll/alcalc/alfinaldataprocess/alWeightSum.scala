@@ -13,9 +13,10 @@ object alWeightSum extends App{
 }
 
 class alWeightSum(company : String){
-	val lst = (from db() in company+"_temp").selectOneByOne("Index")(x => x)
+	val lst = (from db() in company+"_temp").selectOneByOne("hosp_Index")(x => x)
 	var b : Option[DBObject] = None
 	var f_units_sum,f_sales_sum = 0.0
+	var f_units_sum2,f_sales_sum2 = 0.0
 	while(lst.hasNext) {
 		var c : DBObject = lst.next()
 		b match {
@@ -25,7 +26,7 @@ class alWeightSum(company : String){
 				f_sales_sum = c.get("f_sales").asInstanceOf[Double]
 			}
 			case Some(x) => {
-				var flag = x.get("Index").equals(c.get("Index"))
+				var flag = x.get("hosp_Index").equals(c.get("hosp_Index"))
 				flag match {
 					case true => {
 						f_units_sum = f_units_sum + c.get("f_units").asInstanceOf[Double]
@@ -33,9 +34,11 @@ class alWeightSum(company : String){
 					}
 					case false => {
 						if(_data_connection.getCollection(company).count()==1){
-							_data_connection.getCollection(company).createIndex(MongoDBObject("Index" -> 1))
+							_data_connection.getCollection(company).createIndex(MongoDBObject("hosp_Index" -> 1))
 						}
-						_data_connection.getCollection(company).insert(Map("ID" -> MD5.md5(UUID.randomUUID().toString) ,"Provice" -> x.get("Provice"),"City" -> x.get("City"),"Panel_ID" -> x.get("Panel_ID"),"Market" -> x.get("Market"),"Product" -> x.get("Product"),"f_units" -> f_units_sum,"f_sales" -> f_sales_sum,"Date" -> x.get("Date"),"Index" -> x.get("Index")))
+						_data_connection.getCollection(company).insert(Map("ID" -> MD5.md5(UUID.randomUUID().toString) ,"Provice" -> x.get("Provice"),"City" -> x.get("City"),"Panel_ID" -> x.get("Panel_ID"),"Market" -> x.get("Market"),"Product" -> x.get("Product"),"f_units" -> f_units_sum,"f_sales" -> f_sales_sum,"Date" -> x.get("Date"),"hosp_Index" -> x.get("hosp_Index")))
+						f_units_sum2 = f_units_sum2 + f_units_sum
+						f_sales_sum2 = f_sales_sum2 + f_sales_sum
 						b = Some(c)
 						f_units_sum = c.get("f_units").asInstanceOf[Double]
 						f_sales_sum = c.get("f_sales").asInstanceOf[Double]

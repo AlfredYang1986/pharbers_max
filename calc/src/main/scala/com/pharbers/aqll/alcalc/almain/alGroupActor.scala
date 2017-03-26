@@ -39,7 +39,6 @@ class alGroupActor extends Actor
                      with alCreateConcretGroupRouter
 					 with alPkgJob{
 
-    // 不要多此一举 @钱鹏
     startWith(alMasterJobIdle, "")
 
     when(alMasterJobIdle) {
@@ -54,15 +53,27 @@ class alGroupActor extends Actor
                 concert_ref() = Some(p)
             }
 
-//	        data.uuid = p.uuid
 //            cur = Some(new unPkgCmd(s"/Users/qianpeng/Desktop/scp/${p.uuid}", "/Users/qianpeng/Desktop/")
-//            cur = Some(new unPkgCmd(s"/root/program/scp/${p.uuid}", "/root/program/")
-//                        :: Nil)
-//            process = do_pkg() :: Nil
-//            super.excute()
-            val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs(groupjust_index.single.get).uuid))
-            context.system.scheduler.scheduleOnce(0 seconds, self, grouping_job(cj))
-            goto(group_coreing) using ""
+
+            // TODO: 接收到Driver的信息后开始在各个机器上解压SCP过来的tar.gz文件，在开始group
+
+            println(s"unPkgSplit uuid = ${p.uuid}")
+            cur = Some(new unPkgCmd(s"/root/program/scp/${p.uuid}", "/root/program/") :: Nil)
+            process = do_pkg() :: Nil
+            super.excute()
+
+            groupjust_index.single.get match {
+                case s: Int if s <= (p.subs.size - 1) =>
+                    val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs(s).uuid))
+                    context.system.scheduler.scheduleOnce(0 seconds, self, grouping_job(cj))
+                    goto(group_coreing) using ""
+                case _ =>
+                    println("group no subs list")
+                    stay()
+            }
+//            val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs(groupjust_index.single.get).uuid))
+//            context.system.scheduler.scheduleOnce(0 seconds, self, grouping_job(cj))
+
         }
         case Event(concert_groupjust_result(i), _) => {
             atomic { implicit tnx =>
@@ -82,13 +93,6 @@ class alGroupActor extends Actor
                 adjust_index() = -1
             }
 
-	        // TODO : 稍后封装
-
-//	        cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.sync}$p" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${data.uuid}/sync$p")
-//                        :: Nil)
-//	        process = do_pkg() :: Nil
-//	        super.excute()
-
 	        concert_router ! concert_adjust()
             goto(group_doing) using ""
         }
@@ -100,11 +104,6 @@ class alGroupActor extends Actor
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
             
             r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
-
-            // TODO : 稍后封装
-//            cur = Some(new pkgCmd(s"config/group/$sub_uuid" :: Nil, s"config/compress/${r.parent}/group$sub_uuid") :: Nil)
-//	        process = do_pkg() :: Nil
-//	        super.excute()
 
             if (r.subs.filterNot (x => x.grouped).isEmpty) {
 
@@ -130,15 +129,17 @@ class alGroupActor extends Actor
 
                 println(s"post group result ${r.parent} && ${r.uuid}")
 
-//                cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.group}${r.uuid}" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}")
-//                    :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}.tar.gz", "program/scp/", "59.110.31.215", "root")
-//                    :: Nil)
-//                process = do_pkg() :: Nil
-//                super.excute()
+                // TODO : 把各个机器上汇总的Group文件再次tar.gz 传输到Driver机器上 进行最终的Group合并
 
-                    //"akka.tcp://calc@127.0.0.1:2551/user/splitreception"
+                println(s"group sum uuid = ${r.uuid}")
+
+                cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.group}${r.uuid}" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}")
+                    :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}.tar.gz", "program/scp/", "aliyun215", "root")
+                    :: Nil)
+                process = do_pkg() :: Nil
+                super.excute()
+
                 val st = context.actorSelection(GetProperties.singletonPaht)
-                    //context.actorSelection("akka://calc/user/splitreception")
                 st ! group_result(r.parent, r.uuid)
                 goto(alMasterJobIdle) using ""
             } else stay()

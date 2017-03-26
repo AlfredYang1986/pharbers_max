@@ -22,7 +22,6 @@ import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitMaster, SplitRec
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 import com.pharbers.aqll.calc.check.CheckReception
 import spray.json.DefaultJsonProtocol
-import com.alibaba.fastjson.JSON
 import com.google.gson.Gson
 /**
   * Created by Faiz on 2017/1/7.

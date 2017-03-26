@@ -6,10 +6,13 @@
 package com.pharbers.aqll.calc.util.dao
 
 import com.mongodb.casbah.query.dsl.QueryExpressionObject
-import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.Imports.{MongoCollection, _}
 import com.mongodb.MongoCredential._
+import com.mongodb.casbah.MongoCollection
 import com.pharbers.aqll.calc.util.Const
 import com.pharbers.aqll.calc.util.dao.Msd._
+
+import scala.concurrent.stm.{Ref, atomic}
 
 object _data_connection {
 	def conn_name : String = Const.DB
@@ -20,8 +23,7 @@ object _data_connection {
 
 	var _conntion : Map[String, MongoCollection] = Map.empty
 	def getCollection(coll_name : String) : MongoCollection = {
-		if (!_conntion.contains(coll_name)) _conntion += (coll_name -> _conn(conn_name)(coll_name))
-
+		if (!_conntion.contains(coll_name)) _conntion += (coll_name -> _conn(conn_name).apply(coll_name))
 		_conntion.get(coll_name).get
 	}
 
@@ -30,6 +32,35 @@ object _data_connection {
 	def isExisted(coll_name : String) : Boolean = !(getCollection(coll_name).isEmpty)
 
 	def releaseConntions = _conntion = Map.empty
+}
+
+object _data_connection_thread {
+	def conn_name : String = Const.DB
+
+	val server = new ServerAddress(DBHost,DBPort)
+	val credentials = MongoCredential.createScramSha1Credential(username, conn_name ,password.toCharArray)
+	val _conn = MongoClient(server, List(credentials))
+	var _conntion  = Ref(Map[String , MongoCollection]().empty)
+
+
+
+	def getCollection(coll_name : String) : MongoCollection = {
+		atomic { implicit thx =>
+			if (!_conntion.single.get.contains(coll_name)){
+				_conntion() = _conntion() + (coll_name -> _conn(conn_name).apply(coll_name))
+			}
+			_conntion.single.get.get(coll_name).get
+		}
+	}
+	def resetCollection(coll_name : String) : Unit = getCollection(coll_name).drop
+
+	def isExisted(coll_name : String) : Boolean = !(getCollection(coll_name).isEmpty)
+
+	def releaseConntions = {
+		atomic { implicit thx =>
+			_conntion() = Map.empty
+		}
+	}
 }
 
 trait IDatabaseContext {

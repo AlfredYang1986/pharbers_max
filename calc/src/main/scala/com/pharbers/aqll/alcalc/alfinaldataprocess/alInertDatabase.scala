@@ -5,29 +5,35 @@ package com.pharbers.aqll.alcalc.alfinaldataprocess
   */
 
 import java.util.UUID
+
 import com.mongodb.casbah.Imports._
-import com.pharbers.aqll.calc.excel.model.westMedicineIncome
-import com.pharbers.aqll.calc.util.MD5
-import com.pharbers.aqll.calc.util.dao._data_connection
+import com.pharbers.aqll.calc.excel.model.westMedicineIncome2
+import com.pharbers.aqll.calc.util.{DateUtil, MD5}
+import com.pharbers.aqll.calc.util.dao._data_connection_thread
 
 object alInertDatabase {
-	def apply(mrd : westMedicineIncome,sub_uuid : String): alInertDatabase = new alInertDatabase(mrd,sub_uuid)
+	def apply(mrd : westMedicineIncome2,sub_uuid : String): alInertDatabase = new alInertDatabase(mrd,sub_uuid)
 }
 
-class alInertDatabase(mrd : westMedicineIncome,sub_uuid : String) {
-	_data_connection.getCollection(sub_uuid).insert(
-		Map("ID" -> MD5.md5(UUID.randomUUID().toString),
-			"Provice" -> mrd.province,
-			"City" -> mrd.prefecture,
-			"Panel_ID" -> mrd.phaid,
-			"Market" -> mrd.market1Ch,
-			"Product" -> mrd.minimumUnitCh,
-			"f_units" -> mrd.finalResultsUnit,
-			"f_sales" -> mrd.finalResultsValue,
-			"Date" -> mrd.yearAndmonth.asInstanceOf[Integer],
-			"prov_Index" -> MD5.md5(mrd.province+mrd.market1Ch+mrd.minimumUnitCh+mrd.yearAndmonth.asInstanceOf[Integer]),
-			"city_Index" -> MD5.md5(mrd.province+mrd.prefecture+mrd.market1Ch+mrd.minimumUnitCh+mrd.yearAndmonth.asInstanceOf[Integer]),
-			"hosp_Index" -> MD5.md5(mrd.province+mrd.prefecture+mrd.phaid+mrd.market1Ch+mrd.minimumUnitCh+mrd.yearAndmonth.asInstanceOf[Integer])
-		)
-	)
+class alInertDatabase(mrd : westMedicineIncome2,sub_uuid : String) {
+	try {
+		val builder = MongoDBObject.newBuilder
+		builder += "ID" -> MD5.md5(UUID.randomUUID().toString)
+		builder += "Provice" -> mrd.getV("province").toString
+		builder += "City" -> mrd.getV("prefecture").toString
+		builder += "Panel_ID" -> mrd.phaid
+		builder += "Market" -> mrd.getV("market1Ch").toString
+		builder += "Product" ->  mrd.minimumUnitCh
+		builder += "f_units" -> mrd.finalResultsUnit
+		builder += "f_sales" -> mrd.finalResultsValue
+		builder += "Date" -> DateUtil.getDateLong(mrd.yearAndmonth.toString)
+		builder += "prov_Index" -> MD5.md5(mrd.getV("province").toString+mrd.getV("market1Ch").toString+mrd.minimumUnitCh+mrd.yearAndmonth)
+		builder += "city_Index" -> MD5.md5(mrd.getV("province").toString+mrd.getV("prefecture").toString+mrd.getV("market1Ch").toString+mrd.minimumUnitCh+mrd.yearAndmonth)
+		builder += "hosp_Index" -> MD5.md5(mrd.getV("province").toString+mrd.getV("prefecture").toString+mrd.phaid+mrd.getV("market1Ch").toString+mrd.minimumUnitCh+mrd.yearAndmonth)
+		_data_connection_thread.getCollection(sub_uuid) += builder.result()
+	} catch {
+		case ex: java.util.NoSuchElementException =>
+			println(s"funcking $sub_uuid \n ex = ${ex}")
+	}
+
 }

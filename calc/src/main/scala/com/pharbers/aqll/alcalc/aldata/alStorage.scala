@@ -85,7 +85,6 @@ abstract class alStorage(val parents : List[alStorage], val f : Any => Any) {
         }
     }
 
-    
     // 计算
     def doCalc
 
