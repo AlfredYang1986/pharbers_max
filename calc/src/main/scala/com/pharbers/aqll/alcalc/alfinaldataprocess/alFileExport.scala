@@ -50,14 +50,14 @@ object alFileExport {
       returnMess(-1,"system internal error,file generation failed.","Unknown")
     }
   }
-
+  // TODO :  创建文件夹
   def createFile(filetype: String): File ={
     val file_f : File = new File(GetProperties.loadConf("File.conf").getString("SCP.FileBase_FilePath") +"/Export/")
     if(!file_f.exists()) file_f.mkdir()
     val file_t : File = new File(GetProperties.loadConf("File.conf").getString("SCP.FileBase_FilePath") +"/Export/"+ UUID.randomUUID + filetype)
     file_t
   }
-
+  // TODO :  写入文件头部部分
   def writeFileHead(datatype: String,writer: CSVWriter) {
     val someXml : String = "config/export/FileExport.xml"
     var fields: List[String] = Nil
@@ -74,7 +74,7 @@ object alFileExport {
     }
     writer.writeRow(fields)
   }
-
+  // TODO :  根据datatype求权和
   def weightSum(lst: MongoCursor,datatype: String, writer : CSVWriter): Unit ={
     var b : Option[DBObject] = None
     var f_units_sum,f_sales_sum = 0.0
@@ -114,7 +114,7 @@ object alFileExport {
       }
     }
   }
-
+  // TODO :  写入文件主体部分
   def writeFileBody(writer: CSVWriter,x:DBObject,datatype:String,f_units_sum:Double,f_sales_sum:Double){
     val timeDate = Calendar.getInstance
     timeDate.setTimeInMillis(x.get("Date").asInstanceOf[Number].longValue())
@@ -131,7 +131,7 @@ object alFileExport {
       }
     }
   }
-
+  // TODO :  返回
   def returnMess(status: Integer,message: String,filename: String): alExport ={
     val alexport : alExport = new alExport()
     alexport.setStatus(status)

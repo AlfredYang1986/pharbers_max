@@ -20,7 +20,7 @@ object GetProperties {
 		ConfigFactory.load(filename)
 	}
 
-	def singletonPaht = loadConf("cluster-listener.conf").getString("cluster-listener.node.main")
+	def singletonPaht = loadConf("cluster-listener.conf").getString("cluster-listener.Node.main")
 
 	def memorySplitFile = loadConf("File.conf").getString("SCP.Memory_Split_File")
 
@@ -31,5 +31,15 @@ object GetProperties {
 	def calc =  loadConf("File.conf").getString("SCP.calc")
 
 	def fileTarGz = loadConf("File.conf").getString("SCP.File_Tar_Gz")
+
+	def scpPath = loadConf("File.conf").getString("SCP.scp_path")
+
+	def dumpdb = loadConf("File.conf").getString("SCP.dumpdb")
+
+	def dumpdb_ip = loadConf("msd.conf").getString("DataBase.dbdump-ip")
+
+	def restoredb_ip = loadConf("msd.conf").getString("DataBase.dbrestore-ip")
+
+	def localrestoredb_ip = loadConf("msd.conf").getString("DataBase.dblocalrestore-ip")
 
 }

@@ -22,7 +22,6 @@ import com.pharbers.aqll.calc.split.{ClusterEventListener, SplitMaster, SplitRec
 import com.pharbers.aqll.calc.util.{GetProperties, ListQueue}
 import com.pharbers.aqll.calc.check.CheckReception
 import spray.json.DefaultJsonProtocol
-import com.alibaba.fastjson.JSON
 import com.google.gson.Gson
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alFileExport._
 /**
@@ -130,7 +129,7 @@ trait OrderService extends Directives with JsonSupport {
 			}
 		}
 	}
-
+	// TODO : 该code需移到alAkkaHttpFunc（最新）
 	def getCleanData = post {
 		path("cleandata") {
 			entity(as[ItemUp]) { item =>
@@ -142,7 +141,7 @@ trait OrderService extends Directives with JsonSupport {
 			}
 		}
 	}
-
+	// TODO : 该code需移到alAkkaHttpFunc（最新）
 	def getFileEx = post {
 		path("export") {
 			entity(as[ItemEx]) { item =>

@@ -4,18 +4,22 @@ package com.pharbers.aqll.calc.excel.model
 object westMedicineIncome2 {
 	def apply(args: Any*) = {
 		val tmp = new westMedicineIncome2
-		tmp.map = (properties zip args) .toMap
+		tmp.map = (properties zip args).toMap
 		tmp
 	}
 
 	def fromString(args : String) = {
-		val sub = args.split("""%%""")
+		val sub = args.split(31.toChar)
 		val tmp = new westMedicineIncome2
 		sub.foreach { iter =>
 			val lst = iter.split("=")
 			if (lst.length == 2) {
 				val a = lst.head
 				val b = lst.tail.head
+				tmp.map = tmp.map + (a -> b)
+			}else {
+				val a = lst.head
+				val b = "无"
 				tmp.map = tmp.map + (a -> b)
 			}
 		}
@@ -67,7 +71,7 @@ class westMedicineIncome2 {
 	override def toString: String = {
 
 		val lst = westMedicineIncome2.properties.map { x =>
-			map.get(x).map(y => s"""$x=$y%%""").getOrElse(s"""$x=%%""")
+			map.get(x).map(y => s"""$x=$y${31.toChar}""").getOrElse(s"""$x=${31.toChar}""")
 		}
 		val buf = new StringBuffer
 		lst foreach ( x => buf.append(x))
@@ -129,6 +133,6 @@ class westMedicineIncome2 {
 
 	def getV(k : String) : Any = {
 		// println(map)
-		map.get(k).map(x => x).getOrElse(???)
+		map.get(k).map(x => x).getOrElse("无")
 	}
 }

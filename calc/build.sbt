@@ -10,7 +10,8 @@ libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-http-testkit" % "10.0.1",
     "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.1",
     "com.typesafe.akka" %% "akka-http-jackson" % "10.0.1",
-    "com.typesafe.akka" %% "akka-http-xml" % "10.0.1"
+    "com.typesafe.akka" %% "akka-http-xml" % "10.0.1",
+	"com.google.code.gson" % "gson" % "2.2.4"
 )
 
 lazy val root = (project in file(".")).

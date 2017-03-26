@@ -98,25 +98,22 @@ public class IntegratedData implements Serializable {
 
     public void setSegment(String segment) {this.segment = segment;}
 
-
-
-    public String sortConditions1() {
-        return yearAndmonth.toString() + hospNum.toString() + StringOption.takeStringSpace(minimumUnitCh.toString());
-    }
+    public String sortConditions1() {return yearAndmonth.toString() + hospNum.toString() + StringOption.takeStringSpace(minimumUnitCh.toString());}
 
     @Override
     public String toString() {
-        return hospNum.toString() + "," +
-                hospName.toString() + "," +
-                yearAndmonth.toString() + "," +
-                minimumUnit.toString() + "," +
-                minimumUnitCh.toString() + "," +
-                minimumUnitEn.toString() + "," +
-                phaid.toString() + "," +
-                strength.toString() + "," +
-                market1Ch.toString() + "," +
-                market1En.toString() + "," +
-                sumValue.toString() + "," +
+        char c = (char)31;
+        return hospNum.toString() + c +
+                hospName.toString() + c +
+                yearAndmonth.toString() + c +
+                minimumUnit.toString() + c +
+                minimumUnitCh.toString() + c +
+                minimumUnitEn.toString() + c +
+                phaid.toString() + c +
+                strength.toString() + c +
+                market1Ch.toString() + c +
+                market1En.toString() + c +
+                sumValue.toString() + c +
                 volumeUnit.toString();
     }
 

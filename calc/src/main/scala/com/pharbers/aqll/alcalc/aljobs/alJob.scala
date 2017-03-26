@@ -2,6 +2,7 @@ package com.pharbers.aqll.alcalc.aljobs
 
 import java.util.UUID
 
+import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
 import com.pharbers.aqll.alcalc.alprecess.alPrecess
 import com.pharbers.aqll.alcalc.alstages.alStage
 
@@ -11,6 +12,15 @@ import com.pharbers.aqll.alcalc.alstages.alStage
 object alJob {
     object common_jobs extends job_defines(99, "common jobs") {
          def apply() : alCommonJob = new alCommonJob
+    }
+
+    object max_filter_excel_jobs extends job_defines(6, "read excel year market") {
+        val filter_excel_path = "excel_path"
+        def apply(path : String) : alFilterExcelJob = {
+            val tmp = new alFilterExcelJob
+            tmp.init(Map(filter_excel_path -> path))
+            tmp
+        }
     }
     
     object max_jobs extends job_defines(0, "max calc") {

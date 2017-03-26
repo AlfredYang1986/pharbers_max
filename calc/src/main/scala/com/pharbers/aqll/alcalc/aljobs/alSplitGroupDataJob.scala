@@ -4,7 +4,6 @@ import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs._
 import com.pharbers.aqll.alcalc.almain.alShareData
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy._
-import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.{alServerHardware, server_info}
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.calc.util.GetProperties
 
@@ -14,11 +13,10 @@ class alSplitGroupDataJob(u : String) extends alJob {
     val ps = presist_data(Some(uuid), Some("calc"))
 
     def init(args : Map[String, Any]) = {
-//        val restore_path = """config/group/""" + uuid
         val restore_path = s"${GetProperties.memorySplitFile}${GetProperties.group}$uuid"
         cur = Some(alStage(restore_path))
         process = restore_grouped_data() :: split_data(hash_split(Map(hash_split.core_number-> 4,
-                                                                      hash_split.mechine_number -> 2,
+                                                                      hash_split.mechine_number -> 3,
                                                                       hash_split.hash_func -> hash_func))) :: ps :: Nil
         // TODO : 假定每个机器都是一样，这里理论上是直接对洗牌后占用的核数编程，然后对计算机核总数分配，这个叫洗牌，也就是简单的hash
         // 我让你想的东西就在这里

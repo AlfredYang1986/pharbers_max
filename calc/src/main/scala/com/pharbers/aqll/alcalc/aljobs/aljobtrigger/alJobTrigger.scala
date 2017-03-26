@@ -1,8 +1,8 @@
 package com.pharbers.aqll.alcalc.aljobs.aljobtrigger
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, ActorSelection}
 import com.pharbers.aqll.alcalc.aljobs.alJob
-import com.pharbers.aqll.alcalc.almaxdefines.alMaxProperty
+import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty}
 
 /**
   * Created by BM on 10/03/2017.
@@ -14,7 +14,7 @@ object alJobTrigger {
       *
       */
     case class worker_register(map: Map[String, Any])
-    case class push_max_job(path : String)
+    case class push_max_job(path : String, p: alCalcParmary)
     case class finish_max_job(uuid : String)
 
     case class schedule_jobs()
@@ -26,13 +26,15 @@ object alJobTrigger {
     case class group_register(a : ActorRef)
     case class calc_register(a : ActorRef)
 
+    case class filter_excel_jobs(file: String, p: alCalcParmary, actorSelection: ActorSelection)
+
     /**
       * for split excel
       */
-    case class split_job(j : alJob)
-    case class spliting_job(j : alJob)
+    case class split_job(j : alJob, p: alCalcParmary)
+    case class spliting_job(j : alJob, p: alCalcParmary)
     case class spliting_busy()
-    case class finish_split_excel_job(p : String, j : List[String])
+    case class finish_split_excel_job(p : String, j : List[String], c: alCalcParmary)
 
     /**
      * nomal concert
@@ -68,16 +70,17 @@ object alJobTrigger {
      * for calc
      */
     case class calc_need_files(uuid_file_path: String)
-    case class calc_job(j : alMaxProperty)
+    case class calc_job(j : alMaxProperty, p: alCalcParmary)
     case class calcing_job(j : List[alJob], r : String)
     case class calc_sum_result(uuid : String, sub_uuid : String, sum : List[(String, (Double, Double, Double))])
     case class calc_avg_job(uuid : String, avg : List[(String, Double, Double)])
     case class calc_final_result(uuid : String, sub_uuid : String, v : Double, u : Double)
+    case class db_final_result(uudi: String, dbuuid: String)
 
     /**
       * for concert calc
       */
-    case class concert_calc(p : alMaxProperty)
+    case class concert_calc(p : alMaxProperty, c: alCalcParmary)
     case class concert_calc_sum_result(sub_uuid : String, sum : List[(String, (Double, Double, Double))])
     case class concert_calc_avg(p : alMaxProperty, avg : List[(String, Double, Double)])
     case class concert_calc_result(sub_uuid : String, v : Double, u : Double)

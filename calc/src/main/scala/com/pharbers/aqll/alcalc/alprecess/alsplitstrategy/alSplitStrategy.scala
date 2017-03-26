@@ -69,28 +69,18 @@ class alReadExcelSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy
                 val section_number = constraints.get(read_excel_split.section_number).map(_.asInstanceOf[Int]).getOrElse(1)
                 val hash_func = constraints.get(hash_split.hash_func).map (x => x.asInstanceOf[Any => Int]).getOrElse(throw new Exception("need have func"))
                 val re = (1 to section_number).map(_ => ArrayBuffer[Any]())
-                //val size = (lst.size / section_number) + 1
                 lst foreach { iter =>
                     val i = hash_func(iter) % section_number
                     re(i).append(iter)
                 }
                 re.map (x => alPortion(x.toList)).toList
-                //lst.grouped(size).map(iter => alPortion(iter)).toList
             }
             case Some(x) => {
-                val size = 2 * 80 * 53 * 300
+                val size = 2 * 80 * 53 * 1000
                 val number = (x.asInstanceOf[Long] / size).toInt
                 lst.grouped(number).map(iter => alPortion(iter)).toList
             }
         }
-//        val section_number = constraints.get(read_excel_split.section_number).get.asInstanceOf[Int]
-//        println(s"memory = $memory")
-//        // val size = 2 * 80 * 53 * 100
-//        val size = 2 * 80 * 53 * 300
-//        println(s"size = $size")
-//        val number = (memory / size).toInt
-//        println(s"number = $number")
-//        lst.grouped(number).map(iter => alPortion(iter)).toList
     }
 }
 
