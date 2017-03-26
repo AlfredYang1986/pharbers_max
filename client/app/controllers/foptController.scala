@@ -10,12 +10,16 @@ class foptController extends Controller {
 	def uploadFile = Action { request =>
 		uploadRequestArgs(request)(fop.uploadFile)
 	}
-	def downloadFile(name : String) = Action (Ok(fop.downloadFile(name)).as("excel/xlsx"))
+	def downloadFile(name : String) = Action{
+		Ok(fop.downloadFile(name)).as("excel/xlsx")
+	}
 
 	def uploadHospitalFile = Action { request =>
 		uploadRequestArgs(request)(fop.uploadHospitalFile)
 	}
 
-	def exportFile(name : String) = Action (Ok(fop.exportFile(name)).as("excel/csv"))
+	def exportFile(name : String) = Action{
+		Ok(fop.exportFile(name)).as("excel/csv")
+	}
 
 }

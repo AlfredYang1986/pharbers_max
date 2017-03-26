@@ -19,12 +19,8 @@ import module.business.LoginModuleMessage.msg_LoginBaseQuery
 import module.business.FilesUploadModuleMessage._
 import module.business.ModelOperationModuleMessage._
 import module.business.ModelOperationModule
-import module.business.FileExportModuleMessage._
-import module.business.FileExportModule
 import module.manage.ManageFilesUploadModuleMessage._
 import module.manage.ManageFilesUploadModule
-import module.business.TempExportModuleMessage._
-import module.business.TempExportModule
 import module.business.TempResultModuleMessage._
 import module.business.TempResultModule
 
@@ -56,18 +52,16 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 	var next : ActorRef = null
 	def receive = {
 		case cmd : msg_tempResultBase => dispatchImpl(cmd, TempResultModule)
-		case cmd : msg_tempexportBase => dispatchImpl(cmd, TempExportModule)
         case cmd : msg_CallHttp => dispatchImpl(cmd, CallAkkaHttpModule)
-		case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, LoginModule)
-		case cmd : msg_filesuploadBase => dispatchImpl(cmd, FilesUploadModule)
-		case cmd : msg_CheckBaseQuery => dispatchImpl(cmd, SampleCheckModule)
-		case cmd : msg_mondelOperationBase => dispatchImpl(cmd, ModelOperationModule)
-		case cmd : msg_resultqueryBase => dispatchImpl(cmd, ResultQueryModule)
-		case cmd : msg_fileexportBase => dispatchImpl(cmd, FileExportModule)
-		case cmd : msg_managefilesuploadBase => dispatchImpl(cmd, ManageFilesUploadModule)
-		case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
-		case cmd : msg_LogCommand => dispatchImpl(cmd, LogModule)
-		case cmd : ParallelMessage => {
+				case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, LoginModule)
+				case cmd : msg_filesuploadBase => dispatchImpl(cmd, FilesUploadModule)
+				case cmd : msg_CheckBaseQuery => dispatchImpl(cmd, SampleCheckModule)
+				case cmd : msg_mondelOperationBase => dispatchImpl(cmd, ModelOperationModule)
+				case cmd : msg_resultqueryBase => dispatchImpl(cmd, ResultQueryModule)
+				case cmd : msg_managefilesuploadBase => dispatchImpl(cmd, ManageFilesUploadModule)
+				case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
+				case cmd : msg_LogCommand => dispatchImpl(cmd, LogModule)
+				case cmd : ParallelMessage => {
 		    cancelActor
 			next = context.actorOf(ScatterGatherActor.prop(originSender, msr), "scat")
 			next ! cmd

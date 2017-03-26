@@ -6,36 +6,26 @@ function fileExport(type) {
     var market = $('select[data-name="search-result-market"]').val();
     var startdate = $('input[name="startdate"]').val();
     var enddate = $('input[name="enddate"]').val();
+
     var query_object = new Object();
     query_object['datatype'] = datatype;
     query_object['market'] = market;
     query_object['staend'] = [startdate, enddate];
     query_object['company'] = $.cookie("token");
     query_object['filetype'] = type;
-    /*var datatype = $('select[data-name="search-result-datatype"]').val();
-    var market = $('select[data-name="search-result-market"]').val();
-    var startdate = $('input[name="startdate"]').val();
-    var enddate = $('input[name="enddate"]').val();
-
-    var query_object = new Object();
-    //query_object['datatype'] = datatype;
-    query_object['market'] = market;
-    query_object['Date'] = [startdate, enddate];
-    query_object['currentPage'] = page;
-    query_object['company'] = $.cookie("token");*/
 
     $.ajax({
-        //url :"/callfileexport",
-        url :"/resultquery/tempexport",
+        url :"/callfileexport",
         type : "POST",
         dataType : "json",
         contentType: "application/json,charset=utf-8",
         data : JSON.stringify(query_object),
         cache : false,
         success : function(data){
-            if (data.status == "ok") {
-                alert("导出成功");
-                location.href = "/resultquery/files/"+data.result.finalResult;
+            if (data.result.result.result.status==0) {
+                location.href = "/resultquery/files/"+data.result.result.result.filename;
+            }else{
+                alert(data.result.result.result.message)
             }
             loader.hide();
         },

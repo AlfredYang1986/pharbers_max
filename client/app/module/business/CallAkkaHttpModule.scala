@@ -94,18 +94,9 @@ object CallAkkaHttpModule extends ModuleTrait {
 			var staend = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(List())
 			var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
 			var filetype = (data \ "filetype").asOpt[String].map (x => x).getOrElse("")
-
-			var marketmap,staendmap = ""
-			if(market.size != 0){
-				market.foreach(x => marketmap += (x + "#"))
-			}
-			if(staend.size != 0){
-				staend.foreach(x => staendmap += (x + "#"))
-			}
-			println(s"datatype=${datatype} market=${marketmap} staend=${staendmap} company=${company} filetype=${filetype}")
-			var datajson  = toJson(Map("datatype" -> datatype, "marketmap" -> marketmap, "staendmap" -> staendmap, "company" -> company, "filetype" -> filetype))
-			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/export", datajson)
-			(Some(Map("FinalResult" -> toJson("ok"))), None)
+			var datajson  = toJson(Map("datatype" -> toJson(datatype), "market" -> toJson(market), "staend" -> toJson(staend), "company" -> toJson(company), "filetype" -> toJson(filetype)))
+			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/export", datajson)
+			(Some(Map("result" -> result)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}

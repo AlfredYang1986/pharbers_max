@@ -63,7 +63,8 @@ object FilesUploadModule extends ModuleTrait {
     def msg_filesexists_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
       try {
         val filename = (data \ "filename").asOpt[String].get
-        val file : File = new File(GetProperties.Client_Download_FilePath)
+        val company = (data \ "company").asOpt[String].get
+        val file : File = new File(GetProperties.loadConf("File.conf").getString("Files.FileBase_FilePath")+company+"/Template/")
         println(filename)
         var flag = false
         file.listFiles().foreach{ x=>
@@ -84,7 +85,7 @@ object FilesUploadModule extends ModuleTrait {
 
         println(s"参数： filename=${filename} company=${company} datatype=${filetype}")
 
-        var newfilepath = GetProperties.loadConf("File.conf").getString("Files.Upload_FileBase_FilePath")+company
+        var newfilepath = GetProperties.loadConf("File.conf").getString("Files.FileBase_FilePath")+company
         filetype match {
           case "CPA" => {
             newfilepath = newfilepath+"/Client/CPA/"+filename
@@ -94,7 +95,7 @@ object FilesUploadModule extends ModuleTrait {
           }
           case "Manage" => newfilepath+"/Manage/"+filename
         }
-        val oldfilepath = GetProperties.Client_Upload_FilePath + filename
+        val oldfilepath = GetProperties.loadConf("File.conf").getString("Files.FileBase_FilePath")+"/Transfer/"+ filename
 
         println(s"旧路径： oldfilepath=${oldfilepath}")
         println(s"新路径： newfilepath=${newfilepath}")

@@ -54,9 +54,8 @@ function pageResult(page){
 	var enddate = $('input[name="enddate"]').val();
 
 	var query_object = new Object();
-	//query_object['datatype'] = datatype;
 	query_object['market'] = market;
-	query_object['Date'] = [startdate, enddate];
+	query_object['staend'] = [startdate, enddate];
 	query_object['currentPage'] = page;
     query_object['company'] = $.cookie("token");
 

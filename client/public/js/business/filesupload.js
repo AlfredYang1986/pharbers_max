@@ -183,6 +183,7 @@ function commitUp(){
 function downloadfile(filename){
 	var query_object = new Object();
     query_object['filename'] = filename;
+    query_object['company'] = $.cookie("token");
     $.ajax({
         url: "/filesexists",
         type: 'POST',
