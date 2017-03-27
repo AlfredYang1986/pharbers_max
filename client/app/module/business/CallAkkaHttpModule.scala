@@ -45,22 +45,23 @@ object CallAkkaHttpModule extends ModuleTrait {
 		case _ => println("Error---------------"); ???
 	}
 
+	def cleaningdata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			println(s"data=$data")
+			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/uploadfile", data)
+			println(s"result=${result}")
+			(Some(Map("result" -> result)), None)
+		} catch {
+			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+		}
+	}
+
 	def checkExcel(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			implicit val timeout = Timeout(3 minute)
-
-			val company = (data \ "company").asOpt[String].getOrElse("")
-			val filetype = (data \ "filetype").asOpt[String].getOrElse("")
-			val filename = (data \ "filename").asOpt[String].getOrElse("")
-			val conditions = List("Company" $eq company, "Datasource_Type" $eq "Manage")
-
-			val d = (from db() in "DataSources" where $and(conditions)).select(managedp(_)(filename))(_data_connection_basic).toList
-			d.size match {
-				case 0 => (Some(Map("FinalResult" -> toJson("no"))), None)
-				case _ =>
-					val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/checkExcel", d.head)
-					(Some(Map("result" -> result)), None)
-			}
+				println(s"data=$data")
+				val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/samplecheck", data)
+				println(s"result=$result")
+				(Some(Map("result" -> result)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
@@ -87,40 +88,21 @@ object CallAkkaHttpModule extends ModuleTrait {
 		}
 	}
 
-	def fileExport(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		try {
-			var datatype = (data \ "datatype").asOpt[String].map (x => x).getOrElse("")
-			var market = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(List())
-			var staend = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(List())
-			var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
-			var filetype = (data \ "filetype").asOpt[String].map (x => x).getOrElse("")
-			var datajson  = toJson(Map("datatype" -> toJson(datatype), "market" -> toJson(market), "staend" -> toJson(staend), "company" -> toJson(company), "filetype" -> toJson(filetype)))
-			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/export", datajson)
-			(Some(Map("result" -> result)), None)
-		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
-		}
-	}
-
 	def commitrundata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
-			var datajson  = toJson(Map("company" -> company))
-			println(s"datajson=${datajson}")
-			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/commit", datajson)
+			println(s"data=$data")
+			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/datacommit", data)
+			println(s"result=${result}")
 			(Some(Map("result" -> toJson("ok"))), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
 	}
 
-	def cleaningdata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def fileExport(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			var company = (data \ "company").asOpt[String].map (x => x).getOrElse("")
-			var datajson  = toJson(Map("company" -> company))
-			println(s"datajson=${datajson}")
-			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/cleandata", datajson)
-			println(s"result=${result}")
+			println(s"data=$data")
+			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/dataexport", data)
 			(Some(Map("result" -> result)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))

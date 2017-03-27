@@ -3,24 +3,20 @@ $(function(){
 
 })
 
-function excelCheck(file) {
-	var dataMap = JSON.stringify({
-        "filename" : file,
-		"company" : $.cookie("token")
-    })
-
+function excelCheck() {
+	var query_object = new Object();
+    query_object['company'] = $.cookie("token");
     $.ajax({
         type : "post",
-        data : dataMap,
-        async : false,
+        data : JSON.stringify(query_object),
         contentType: "application/json,charset=utf-8",
         url :"/callcheckexcel",
         cache : false,
         dataType : "json",
         success : function(json){
-            $.cookie("filename", file)
-            loader.hide();
-            document.getElementById("ybjc").click()
+//            $.cookie("filename", file)
+//            loader.hide();
+//            document.getElementById("ybjc").click()
         },
         error:function(e){
             alert("Error")

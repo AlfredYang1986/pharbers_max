@@ -9,7 +9,11 @@ function fileExport(type) {
 
     var query_object = new Object();
     query_object['datatype'] = datatype;
-    query_object['market'] = market;
+    if(market==null){
+        query_object['market'] = [""];
+    }else{
+        query_object['market'] = market;
+    }
     query_object['staend'] = [startdate, enddate];
     query_object['company'] = $.cookie("token");
     query_object['filetype'] = type;
