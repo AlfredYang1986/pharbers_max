@@ -126,7 +126,7 @@ class alConcertCalcActor extends Actor
 			val universe = MD5.md5(c.company + c.year + c.market)
 //			println(s"universe = $universe")
 			val tmp =
-			alShareData.hospdata(universe) map { element =>
+			alShareData.hospdata(universe, c.company) map { element =>
 				val mrd = westMedicineIncome2(element.getCompany, element2.getYearAndmonth, 0.0, 0.0, element2.getMinimumUnit,
 					element2.getMinimumUnitCh, element2.getMinimumUnitEn, element2.getMarket1Ch,
 					element2.getMarket1En, element.getSegment, element.getFactor, element.getIfPanelAll,

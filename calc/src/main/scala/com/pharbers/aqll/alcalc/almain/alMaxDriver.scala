@@ -19,6 +19,7 @@ import com.pharbers.aqll.calc.split.{SplitAggregator, SplitGroupMaster}
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
+import com.pharbers.aqll.calc.mail.{Mail, MailAgent, MailToEmail}
 import com.pharbers.aqll.calc.util.GetProperties
 
 import scala.collection.mutable.ListBuffer
@@ -435,7 +436,12 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     val tmp = (alWeightSum(company))
                     println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
                     println(s"结束去重数据")
+                    val e_mail = MailToEmail.getEmail(company)
+                    MailAgent(Mail(GetProperties.mail_context, GetProperties.mail_subject, e_mail)).sendMessage()
                     endDate("计算完成",start)
+                    val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(uuid))
+                    alCalcParmary.alParmary.single.get.remove(index)
+                    println(s"delete from alCalcParmary where Index = $index ~ ${alCalcParmary.alParmary.single.get}")
                     atomic { implicit tnx =>
                         calcing_jobs() = calcing_jobs().tail
                     }

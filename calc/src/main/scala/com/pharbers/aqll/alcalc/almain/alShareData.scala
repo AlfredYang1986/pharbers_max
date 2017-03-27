@@ -9,10 +9,10 @@ import com.pharbers.aqll.calc.util.StringOption
   * Created by Alfred on 13/03/2017.
   */
 object alShareData {
-    lazy val hospdata = DefaultData.hospdatabase("universe_ot_SPE_ljx.xlsx")
+    lazy val hospdata = DefaultData.hospdatabase("universe_ot_SPE_ljx.xlsx", "SPE")
 
-    def hospdata(name: String) = {
-        DefaultData.hospdatabase(name)
+    def hospdata(name: String, company: String) = {
+        DefaultData.hospdatabase(name, company)
     }
 
     val txt2IntegratedData : Any => IntegratedData = { txt =>

@@ -20,8 +20,17 @@ object GetProperties {
 		ConfigFactory.load(filename)
 	}
 
+	// TODO : Akka singleton地址
 	def singletonPaht = loadConf("cluster-listener.conf").getString("cluster-listener.Node.main")
 
+	// TODO : Python输出与Manage上传的HospitalData地址
+	def fileBase = GetProperties.loadConf("File.conf").getString("File.FileBase_FilePath")
+
+	def hospitalData = GetProperties.loadConf("File.conf").getString("File.Upload_HospitalData_File")
+
+	def outPut = GetProperties.loadConf("File.conf").getString("File.OutPut_File")
+
+	// TODO : Max计算输出地址
 	def memorySplitFile = loadConf("File.conf").getString("SCP.Memory_Split_File")
 
 	def sync = loadConf("File.conf").getString("SCP.sync")
@@ -36,10 +45,16 @@ object GetProperties {
 
 	def dumpdb = loadConf("File.conf").getString("SCP.dumpdb")
 
+	// TODO : 数据库备份还原IP
 	def dumpdb_ip = loadConf("msd.conf").getString("DataBase.dbdump-ip")
 
 	def restoredb_ip = loadConf("msd.conf").getString("DataBase.dbrestore-ip")
 
 	def localrestoredb_ip = loadConf("msd.conf").getString("DataBase.dblocalrestore-ip")
+
+	// TODO : Mail发送消息
+	def mail_context = loadConf("mail.conf").getString("Mail.context")
+
+	def mail_subject = loadConf("mail.conf").getString("Mail.subject")
 
 }

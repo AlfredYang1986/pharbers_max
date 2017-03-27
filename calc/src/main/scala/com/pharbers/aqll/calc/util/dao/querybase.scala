@@ -14,8 +14,8 @@ import com.pharbers.aqll.calc.util.dao.Msd._
 
 import scala.concurrent.stm.{Ref, atomic}
 
-object _data_connection {
-	def conn_name : String = Const.DB
+trait data_connection {
+	def conn_name : String
 
 	val server = new ServerAddress(DBHost,DBPort)
 	val credentials = MongoCredential.createScramSha1Credential(username, conn_name ,password.toCharArray)
@@ -42,8 +42,6 @@ object _data_connection_thread {
 	val _conn = MongoClient(server, List(credentials))
 	var _conntion  = Ref(Map[String , MongoCollection]().empty)
 
-
-
 	def getCollection(coll_name : String) : MongoCollection = {
 		atomic { implicit thx =>
 			if (!_conntion.single.get.contains(coll_name)){
@@ -63,11 +61,20 @@ object _data_connection_thread {
 	}
 }
 
+object _data_connection_cores extends data_connection {
+	override def conn_name: String = DB1
+}
+
+object _data_connection_basic extends data_connection {
+	override def conn_name: String = DB2
+}
+
 trait IDatabaseContext {
 	var coll_name : String = null
 
-	protected def openConnection : MongoCollection =
-		_data_connection._conn(_data_connection.conn_name)(coll_name)
+	protected def openConnection(implicit dbc: data_connection) : MongoCollection =
+		dbc._conn(dbc.conn_name)(coll_name)
+//		_data_connection._conn(_data_connection.conn_name)(coll_name)
 	protected def closeConnection = null
 }
 
@@ -128,8 +135,7 @@ class AMongoDBLINQ extends IDatabaseContext {
 		this
 	}
 
-	def select[U](cr: (MongoDBObject) => U) : IQueryable[U] = {
-
+	def select[U](cr: (MongoDBObject) => U)(implicit dbc: data_connection) : IQueryable[U] = {
 		val mongoColl = openConnection
 		val ct = mongoColl.find(w)
 		var nc = new Linq_List[U]
@@ -139,11 +145,11 @@ class AMongoDBLINQ extends IDatabaseContext {
 		nc
 	}
 
-	def contains : Boolean = {
+	def contains(implicit dbc: data_connection) : Boolean = {
 		!(select (x => x).empty)
 	}
 
-	def selectTop[U](n : Int)(o : String)(cr : (MongoDBObject) => U) : IQueryable[U] = {
+	def selectTop[U](n : Int)(o : String)(cr : (MongoDBObject) => U)(implicit dbc: data_connection) : IQueryable[U] = {
 		val mongoColl = openConnection
 		val ct = mongoColl.find(w).sort(MongoDBObject(o -> -1)).limit(n)
 		var nc = new Linq_List[U]
@@ -153,12 +159,12 @@ class AMongoDBLINQ extends IDatabaseContext {
 		nc
 	}
 
-	def selectOneByOne[U](o: String)(cr: (MongoDBObject) => U): MongoCursor = {
+	def selectOneByOne[U](o: String)(cr: (MongoDBObject) => U)(implicit dbc: data_connection): MongoCursor = {
 		val mongoColl = openConnection
 		mongoColl.find(w).sort(MongoDBObject(o -> -1))
 	}
 
-	def selectSkipTop[U](skip : Int)(take : Int)(o : String)(cr : (MongoDBObject) => U) : IQueryable[U] = {
+	def selectSkipTop[U](skip : Int)(take : Int)(o : String)(cr : (MongoDBObject) => U)(implicit dbc: data_connection) : IQueryable[U] = {
 		val mongoColl = openConnection
 		val ct = mongoColl.find(w).sort(MongoDBObject(o -> -1)).skip(skip).limit(take)
 		var nc = new Linq_List[U]
@@ -168,5 +174,5 @@ class AMongoDBLINQ extends IDatabaseContext {
 		nc
 	}
 
-	def count : Int = openConnection.count(w)
+	def count(implicit dbc: data_connection) : Int = openConnection.count(w)
 }

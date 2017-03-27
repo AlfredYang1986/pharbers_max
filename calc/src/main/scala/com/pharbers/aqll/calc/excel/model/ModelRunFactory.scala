@@ -14,7 +14,7 @@ class ModelRunFactory() {
 	def westMedicineIncome(hospDataBasePath: String, output: Stream[((Integer, String), IntegratedData)]): Stream[modelRunData] = {
 		var index = 0
 		println(s"output.size = ${output.size}")
-		lazy val hospdata = DefaultData.hospdatabase(hospDataBasePath)
+		lazy val hospdata = DefaultData.hospdatabase(hospDataBasePath, "")
 		//val o = output.sortBy{ x => (x._2.getYearAndmonth.toString.substring(0, 4), x._2.getMarket1Ch)}
 		(output.map { x =>
 			index = index + 1

@@ -19,6 +19,9 @@ object Mail {
     def apply(context: String, subject: String) = {
         new Mail(context, subject)
     }
+    def apply(context: String, subject: String, from: String) = {
+        new Mail(context, subject).setTo(from)
+    }
 }
 
 class Mail() {

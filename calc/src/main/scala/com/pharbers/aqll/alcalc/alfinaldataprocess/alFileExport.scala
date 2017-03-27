@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 
 import com.mongodb.casbah.Imports.{DBObject, MongoCursor}
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.calc.util.dao.from
+import com.pharbers.aqll.calc.util.dao.{_data_connection_cores, from}
 import java.util.{Calendar, UUID}
 import java.io.File
 
@@ -25,10 +25,10 @@ object alFileExport {
         case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> market),"Date" -> MongoDBObject("$gte" -> format_t.format(fmomat_f.parse(staend.head)).toInt,"$lt" -> format_t.format(fmomat_f.parse(staend.tail.head)).toInt))
       }
 
-      var lst = (from db() in company where conditions).selectOneByOne("hosp_Index")(x => x)
+      var lst = (from db() in company where conditions).selectOneByOne("hosp_Index")(x => x)(_data_connection_cores)
       datatype match {
-        case "省份数据" => lst = (from db() in company where conditions).selectOneByOne("prov_Index")(x => x)
-        case "城市数据" => lst = (from db() in company where conditions).selectOneByOne("city_Index")(x => x)
+        case "省份数据" => lst = (from db() in company where conditions).selectOneByOne("prov_Index")(x => x)(_data_connection_cores)
+        case "城市数据" => lst = (from db() in company where conditions).selectOneByOne("city_Index")(x => x)(_data_connection_cores)
         case "医院数据" => lst = lst
       }
 

@@ -4,9 +4,9 @@ package com.pharbers.aqll.calc.mail
   * Created by Wli on 2017/3/13 0013.
   */
 object MailAddress {
-    def mail_to = "850012141@qq.com"
-    def mail_from = "wli@pharbers.com"
-    def mail_password = "123456"
+    def mail_to = "pqian@pharbers.com"
+    def mail_from = "project@pharbers.com"
+    def mail_password = "project"
     def mail_smtpHost = "smtp.ym.163.com"
 }
 

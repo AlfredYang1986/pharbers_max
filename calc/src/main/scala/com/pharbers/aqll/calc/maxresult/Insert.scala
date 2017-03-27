@@ -1,7 +1,7 @@
 package com.pharbers.aqll.calc.maxresult
 
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
-import com.pharbers.aqll.calc.util.dao._data_connection
+import com.pharbers.aqll.calc.util.dao._data_connection_cores
 import com.pharbers.aqll.calc.util.dao.from
 
 import scala.collection.mutable.ArrayBuffer
@@ -13,8 +13,8 @@ class Insert {
 	def maxResultInsert(mr: List[(String, (Long, Double, Double, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[(String)], String, ArrayBuffer[(String)], ArrayBuffer[(String)], ArrayBuffer[String], ArrayBuffer[String], ArrayBuffer[String]))])
 	                   (m: (String, String, String, Long)): (String, String) = {
 		def maxInser(): (String, String) = {
-			val bulk = _data_connection.getCollection(m._2 + "temp").initializeUnorderedBulkOperation
-//			val bulk2 = _data_connection.getCollection(m._2 + "Indextemp").initializeUnorderedBulkOperation
+			val bulk = _data_connection_cores.getCollection(m._2 + "temp").initializeUnorderedBulkOperation
+//			val bulk2 = _data_connection_cores.getCollection(m._2 + "Indextemp").initializeUnorderedBulkOperation
 			mr.toList.filterNot(x => x._2._2 == 0 && x._2._3 == 0).groupBy(z => (z._2._4.head, z._2._8.head, z._2._9.head, z._2._5.head, z._2._6.head, z._2._1)).foreach { x =>
 				//				val conditions = List("Panel_ID" $eq x._1._1, "Date" $eq x._1._4, "Product" $eq x._1._3, "City" $eq x._1._2)
 				//				val conditions = List("Index" $eq MD5.md5(x._1._1 + x._1._4 + x._1._3 + x._1._2))
@@ -24,8 +24,8 @@ class Insert {
 				//						val sales = (x._2.map(_._2._2).sum + head.find(_._1 == "f_sales").get._2.asInstanceOf[Number].doubleValue()).asInstanceOf[Number]
 				//						head += "f_units" -> units
 				//						head += "f_sales" -> sales
-				////						_data_connection.getCollection(m._2).update(DBObject("Panel_ID" -> x._1._1, "Date" -> x._1._4, "Product" -> x._1._3, "City" -> x._1._2), head)
-				//						_data_connection.getCollection(m._2).update(DBObject("Index" -> MD5.md5(x._1._1 + x._1._4 + x._1._3 + x._1._2)), head)
+				////						_data_connection_cores.getCollection(m._2).update(DBObject("Panel_ID" -> x._1._1, "Date" -> x._1._4, "Product" -> x._1._3, "City" -> x._1._2), head)
+				//						_data_connection_cores.getCollection(m._2).update(DBObject("Index" -> MD5.md5(x._1._1 + x._1._4 + x._1._3 + x._1._2)), head)
 				//					}
 				//					case _ => {
 				//						val builder = MongoDBObject.newBuilder
@@ -36,7 +36,7 @@ class Insert {
 				//						builder += "City" -> x._1._2
 				//						builder += "Date" -> x._1._4
 				//						builder += "Index" -> MD5.md5(x._1._1 + x._1._4 + x._1._3 + x._1._2)
-				//						_data_connection.getCollection(m._2) += builder.result()
+				//						_data_connection_cores.getCollection(m._2) += builder.result()
 				//
 				//					}
 				//
@@ -62,7 +62,7 @@ class Insert {
 		println(s"mr.toList.map(_._2._2).sum = ${mr.toList.map(_._2._3).sum}")
 
 		val conditions = ("ID" -> m._3)
-		val count = (from db() in m._2 where conditions count)
+		val count = (from db() in m._2 where conditions count(_data_connection_cores))
 		println(s"count = ${count}")
 		count match {
 			case 0 => {
@@ -71,8 +71,8 @@ class Insert {
 
 			case _ => {
 				val rm = MongoDBObject(conditions)
-				_data_connection.getCollection(m._2).remove(rm)
-				_data_connection.getCollection(m._2 + "temp").remove(rm)
+				_data_connection_cores.getCollection(m._2).remove(rm)
+				_data_connection_cores.getCollection(m._2 + "temp").remove(rm)
 				maxInser()
 			}
 		}
@@ -81,15 +81,15 @@ class Insert {
 	def groupByResutInsert(id: String, company: String) = {
 		println(s"in fuck groupByResutInsert")
 		val conditions = ("ID" -> id)
-		_data_connection.getCollection(company).remove(MongoDBObject(("ID" -> id)))
+		_data_connection_cores.getCollection(company).remove(MongoDBObject(("ID" -> id)))
 //		val list = (from db() in company + "Indextemp" where conditions).selectOneByOne("Index")(x => x)
-		val list = (from db() in company + "temp"  where conditions).selectOneByOne("Index")(x => x)
-		_data_connection.getCollection(company).createIndex(MongoDBObject("Date" -> 1))
-		_data_connection.getCollection(company).createIndex(MongoDBObject("Index" -> 1))
-		_data_connection.getCollection(company).createIndex(MongoDBObject("Market" -> 1))
-		_data_connection.getCollection(company + "temp").createIndex(MongoDBObject("Index" -> 1))
+		val list = (from db() in company + "temp"  where conditions).selectOneByOne("Index")(x => x)(_data_connection_cores)
+		_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Date" -> 1))
+		_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Index" -> 1))
+		_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Market" -> 1))
+		_data_connection_cores.getCollection(company + "temp").createIndex(MongoDBObject("Index" -> 1))
 		var temp: DBObject = DBObject.empty
-		val bulk = _data_connection.getCollection(company).initializeUnorderedBulkOperation
+		val bulk = _data_connection_cores.getCollection(company).initializeUnorderedBulkOperation
 		var n = 0
 		var f_units = 0.0
 		var f_sales = 0.0
@@ -163,11 +163,11 @@ class Insert {
 			builder += "Timestamp" -> m._4
 			builder += "Date" -> model._7
 			builder += "Filepath" -> m._1.substring(m._1.lastIndexOf("\\") + 1, m._1.length)
-			_data_connection.getCollection("FactResult") += builder.result
+			_data_connection_cores.getCollection("FactResult") += builder.result
 		}
 
 		val conditions = ("ID" -> m._3)
-		val count = (from db() in "FactResult" where conditions count)
+		val count = (from db() in "FactResult" where conditions count(_data_connection_cores))
 		count match {
 			case 0 => {
 				maxInser()
@@ -175,13 +175,13 @@ class Insert {
 
 			case _ => {
 				val rm = MongoDBObject(conditions)
-				_data_connection.getCollection("FactResult").remove(rm)
+				_data_connection_cores.getCollection("FactResult").remove(rm)
 				maxInser()
 			}
 		}
 	}
 
 	def nodeMongoCollectionDrop(coll: String): Unit = {
-		_data_connection.getCollection(coll).drop()
+		_data_connection_cores.getCollection(coll).drop()
 	}
 }
