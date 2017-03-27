@@ -377,6 +377,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
         }
     }
 
+    // TODO : 这段暂时没用到，不过在解决入库效率上，可能会用到此方法
     def dbfinalSuccessWithWork(uuid : String, dbuuid: String, start: Long) = {
         println(s"section_number = $section_number")
         // TODO : 数据库高速还原
