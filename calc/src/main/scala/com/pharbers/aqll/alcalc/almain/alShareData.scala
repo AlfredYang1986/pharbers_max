@@ -1,9 +1,9 @@
 package com.pharbers.aqll.alcalc.almain
 
-import com.pharbers.aqll.calc.common.DefaultData
-import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
-import com.pharbers.aqll.calc.excel.model.westMedicineIncome2
-import com.pharbers.aqll.calc.util.StringOption
+import com.pharbers.aqll.alcalc.almodel.westMedicineIncome
+import com.pharbers.aqll.alcalc.alCommon.DefaultData
+import com.pharbers.aqll.alcalc.almodel.IntegratedData
+import com.pharbers.aqll.util.StringOption
 
 /**
   * Created by Alfred on 13/03/2017.
@@ -33,7 +33,7 @@ object alShareData {
         t
     }
 
-    val txt2WestMedicineIncome2 : Any => westMedicineIncome2 = { txt =>
-        westMedicineIncome2.fromString(txt.asInstanceOf[String])
+    val txt2WestMedicineIncome2 : Any => westMedicineIncome = { txt =>
+        westMedicineIncome.fromString(txt.asInstanceOf[String])
     }
 }

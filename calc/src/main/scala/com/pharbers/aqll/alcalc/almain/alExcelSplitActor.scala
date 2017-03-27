@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, FSM, Props}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alExcelSplitJobStates._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.util.GetProperties
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._

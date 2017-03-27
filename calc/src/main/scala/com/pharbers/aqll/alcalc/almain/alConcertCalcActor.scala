@@ -11,10 +11,10 @@ import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{concert_calc_a
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.alstages.alStage
-import com.pharbers.aqll.calc.common.DefaultData
-import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
-import com.pharbers.aqll.calc.excel.model.{ModelRunFactory, modelRunData, westMedicineIncome2}
-import com.pharbers.aqll.calc.util.{GetProperties, MD5}
+import com.pharbers.aqll.alcalc.alCommon.DefaultData
+import com.pharbers.aqll.alcalc.almodel.IntegratedData
+import com.pharbers.aqll.alcalc.almodel.westMedicineIncome
+import com.pharbers.aqll.util.{GetProperties, MD5}
 
 import scala.concurrent.stm.{Ref, atomic}
 
@@ -127,7 +127,7 @@ class alConcertCalcActor extends Actor
 //			println(s"universe = $universe")
 			val tmp =
 			alShareData.hospdata(universe, c.company) map { element =>
-				val mrd = westMedicineIncome2(element.getCompany, element2.getYearAndmonth, 0.0, 0.0, element2.getMinimumUnit,
+				val mrd = westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0.0, 0.0, element2.getMinimumUnit,
 					element2.getMinimumUnitCh, element2.getMinimumUnitEn, element2.getMarket1Ch,
 					element2.getMarket1En, element.getSegment, element.getFactor, element.getIfPanelAll,
 					element.getIfPanelTouse, element.getHospId, element.getHospName, element.getPhaid,
@@ -175,7 +175,7 @@ class alConcertCalcActor extends Actor
 		recall.cur.get.storages.head.asInstanceOf[alStorage].data.asInstanceOf[List[IntegratedData]]
 	}
 
-	def backfireData(mrd: westMedicineIncome2)(inte_lst: List[IntegratedData]): westMedicineIncome2 = {
+	def backfireData(mrd: westMedicineIncome)(inte_lst: List[IntegratedData]): westMedicineIncome = {
 		var t = mrd
 		val tmp = inte_lst.find(iter => mrd.yearAndmonth == iter.getYearAndmonth
 			&& mrd.minimumUnitCh == iter.getMinimumUnitCh

@@ -2,7 +2,7 @@ package com.pharbers.aqll.alcalc.alfinaldataprocess
 
 import com.pharbers.aqll.alcalc.alcmd.dbcmd.dbdumpCmd
 import com.pharbers.aqll.alcalc.alcmd.scpcmd._
-import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.util.GetProperties
 /**
   * Created by Wli on 17-3-17.
   */

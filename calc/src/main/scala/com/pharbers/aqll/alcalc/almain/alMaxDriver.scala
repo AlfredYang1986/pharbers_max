@@ -15,12 +15,11 @@ import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, calc_need_files, concert_groupjust_result, _}
 import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty, endDate, startDate}
-import com.pharbers.aqll.calc.split.{SplitAggregator, SplitGroupMaster}
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
-import com.pharbers.aqll.calc.mail.{Mail, MailAgent, MailToEmail}
-import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.alcalc.almodel.IntegratedData
+import com.pharbers.aqll.alcalc.mail.{Mail, MailAgent, MailToEmail}
+import com.pharbers.aqll.util.GetProperties
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Await

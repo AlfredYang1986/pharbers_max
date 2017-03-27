@@ -1,8 +1,6 @@
 package com.pharbers.aqll.alcalc.alfilehandler
 
-import akka.actor.Actor
 import com.pharbers.aqll.alcalc.aldata.alStorage
-import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
 
 import scala.collection.mutable.ListBuffer
 

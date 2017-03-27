@@ -1,4 +1,4 @@
-package com.pharbers.aqll.calc.mail
+package com.pharbers.aqll.alcalc.mail
 
 /**
   * Created by Wli on 2017/3/13 0013.

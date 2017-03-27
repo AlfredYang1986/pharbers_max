@@ -4,14 +4,9 @@ import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.aljobs.alJob.concert_grouping_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
-
 import scala.concurrent.stm.Ref
 import scala.concurrent.stm.atomic
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-
-import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
-
+import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines.presist_data
 

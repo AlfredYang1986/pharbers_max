@@ -4,11 +4,11 @@ import java.text.SimpleDateFormat
 
 import com.mongodb.casbah.Imports.{DBObject, MongoCursor}
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.calc.util.dao.{_data_connection_cores, from}
+import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
 import java.util.{Calendar, UUID}
 import java.io.File
 
-import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.util.GetProperties
 import com.pharbers.aqll.alcalc.alfinaldataprocess.csv.scala.CSVWriter
 /**
   * Created by liwei on 2017/3/25.

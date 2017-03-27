@@ -4,8 +4,8 @@ import java.util.UUID
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.calc.util.dao.{_data_connection_cores, from}
-import com.pharbers.aqll.calc.util.MD5
+import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
+import com.pharbers.aqll.util.MD5
 /**
   * Created by LIWEI on 17-3-17.
   */

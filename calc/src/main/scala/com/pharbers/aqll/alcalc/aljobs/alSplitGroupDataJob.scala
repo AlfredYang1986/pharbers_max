@@ -5,7 +5,7 @@ import com.pharbers.aqll.alcalc.almain.alShareData
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy._
 import com.pharbers.aqll.alcalc.alstages.alStage
-import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.util.GetProperties
 
 
 class alSplitGroupDataJob(u : String) extends alJob {

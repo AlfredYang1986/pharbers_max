@@ -1,9 +1,8 @@
 package com.pharbers.aqll.alcalc.alfilehandler.altext
 
 import com.pharbers.aqll.alcalc.alfilehandler.alFileHandler
-import com.pharbers.aqll.alcalc.aldata.{alMemoryPortion, alPersisportion, alStorage}
-import com.pharbers.aqll.calc.util.MD5
-import java.util.{Date, UUID}
+import com.pharbers.aqll.alcalc.aldata.alStorage
+import java.util.UUID
 
 /**
   * Created by BM on 09/03/2017.

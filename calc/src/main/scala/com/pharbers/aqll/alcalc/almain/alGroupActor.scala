@@ -1,9 +1,9 @@
 package com.pharbers.aqll.alcalc.almain
 
-import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
+import akka.actor.{Actor, ActorLogging, FSM, Props}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
-import com.pharbers.aqll.alcalc.alcmd.scpcmd.{cpCmd, scpCmd}
+import com.pharbers.aqll.alcalc.alcmd.scpcmd.scpCmd
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
@@ -14,9 +14,8 @@ import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.alPkgJob
-import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
-import com.pharbers.aqll.calc.util.GetProperties
-import com.pharbers.aqll.stub.stub_test_1.process
+import com.pharbers.aqll.alcalc.almodel.IntegratedData
+import com.pharbers.aqll.util.GetProperties
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref

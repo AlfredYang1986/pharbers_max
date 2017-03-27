@@ -3,7 +3,6 @@ package com.pharbers.aqll.alcalc.almain
 import akka.actor.{Actor, ActorLogging, PoisonPill, Props}
 import akka.cluster.singleton.{ClusterSingletonManager, ClusterSingletonManagerSettings, ClusterSingletonProxy, ClusterSingletonProxySettings}
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.calc.split.SplitReception
 
 /**
   * Created by qianpeng on 2017/3/11.

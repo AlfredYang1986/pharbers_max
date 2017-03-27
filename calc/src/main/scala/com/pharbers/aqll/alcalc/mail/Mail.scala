@@ -1,6 +1,6 @@
-package com.pharbers.aqll.calc.mail
+package com.pharbers.aqll.alcalc.mail
 
-import com.pharbers.aqll.calc.mail.MailAddress._
+import com.pharbers.aqll.alcalc.mail.MailAddress._
 
 /**
   * Created by Wli on 2017/3/13 0013.

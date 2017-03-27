@@ -2,11 +2,10 @@ package com.pharbers.aqll.stub
 
 import akka.actor.ActorSystem
 import akka.cluster.Cluster
-import com.pharbers.aqll.alcalc.alfilehandler.altext.FileOpt
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, filter_excel_jobs, group_register, push_max_job}
 import com.pharbers.aqll.alcalc.almain.{alCalcActor, alGroupActor}
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
-import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.util.GetProperties
 import com.typesafe.config.ConfigFactory
 
 /**

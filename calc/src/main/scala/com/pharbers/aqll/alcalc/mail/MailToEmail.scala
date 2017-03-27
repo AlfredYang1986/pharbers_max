@@ -1,9 +1,9 @@
-package com.pharbers.aqll.calc.mail
+package com.pharbers.aqll.alcalc.mail
 
 /**
   * Created by Wli on 2017/3/13 0013.
   */
-import com.pharbers.aqll.calc.util.dao.{_data_connection_basic, from}
+import com.pharbers.aqll.util.dao.{_data_connection_basic, from}
 import com.mongodb.BasicDBObject
 import com.mongodb.DBObject
 

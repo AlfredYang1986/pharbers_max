@@ -1,10 +1,9 @@
 package com.pharbers.aqll.alcalc.aljobs
 
-import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs._
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.core_split
 import com.pharbers.aqll.alcalc.alstages.alStage
-import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.util.GetProperties
 
 /**
   * Created by Alfred on 11/03/2017.

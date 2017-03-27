@@ -2,11 +2,10 @@ package com.pharbers.aqll.alcalc.alprecess
 
 import java.util.UUID
 
-import com.pharbers.aqll.alcalc.aldata.{alPortion, alStorage}
-import com.pharbers.aqll.alcalc.alfilehandler.alexcel.alIntegrateddataparser
+import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alfilehandler.altext.{FileOpt, alTextSync}
-import com.pharbers.aqll.alcalc.alstages.{alInitStage, alMemoryStage, alPresisStage, alStage}
-import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.alcalc.alstages.alStage
+import com.pharbers.aqll.util.GetProperties
 
 /**
   * Created by Alfred on 10/03/2017.

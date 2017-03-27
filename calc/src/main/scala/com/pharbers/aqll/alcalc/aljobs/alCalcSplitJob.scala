@@ -1,11 +1,8 @@
 package com.pharbers.aqll.alcalc.aljobs
 
-import com.pharbers.aqll.alcalc.almain.alShareData
-import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines.{presist_data, restore_data, split_data}
-import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.hash_split
+import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines.{presist_data, restore_data}
 import com.pharbers.aqll.alcalc.alstages.alStage
-import com.pharbers.aqll.calc.excel.IntegratedData.IntegratedData
-import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.util.GetProperties
 
 /**
   * Created by Alfred on 13/03/2017.

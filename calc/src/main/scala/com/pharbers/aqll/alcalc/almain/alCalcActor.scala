@@ -13,7 +13,7 @@ import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.alPkgJob
-import com.pharbers.aqll.calc.util.GetProperties
+import com.pharbers.aqll.util.GetProperties
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
