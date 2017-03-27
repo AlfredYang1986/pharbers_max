@@ -5,7 +5,8 @@ package com.pharbers.aqll.calc.mail
   */
 
 import java.io.IOException
-import com.pharbers.aqll.calc.mail.MailAgent
+import com.pharbers.aqll.alcalc.mail.MailAgent
+import com.pharbers.aqll.alcalc.mail.Mail
 
 object TestMail extends App{
     try {

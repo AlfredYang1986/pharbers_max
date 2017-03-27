@@ -57,4 +57,9 @@ object GetProperties {
 
 	def mail_subject = loadConf("mail.conf").getString("Mail.subject")
 
+	// TODO : 文件导出相关
+	def filebase = loadConf("File.conf").getString("SCP.FileBase_FilePath")
+
+	def python = loadConf("File.conf").getString("SCP.Python_File")
+
 }

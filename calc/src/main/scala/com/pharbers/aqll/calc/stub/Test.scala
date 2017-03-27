@@ -1,12 +1,5 @@
 package com.pharbers.aqll.calc.stub
 
-import java.net.{InetAddress, NetworkInterface}
-import java.util
-
-import com.pharbers.aqll.calc.util.{Const, MD5}
-import org.apache.tools.ant.Project
-import org.apache.tools.ant.taskdefs.optional.ssh.Scp
-
 object Test extends App {
 
 	//    def mydef(fn: Int => Int): Int = {

@@ -11,7 +11,6 @@ import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines.do_p
 import java.math.BigDecimal
 
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
-import com.pharbers.aqll.calc.util.dao._data_connection
 
 import scala.collection.mutable.ListBuffer
 
