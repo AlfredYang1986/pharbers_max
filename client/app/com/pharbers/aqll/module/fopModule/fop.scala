@@ -55,22 +55,22 @@ object fop {
 		}
 	}
 
-    def moveToFile(data : MultipartFormData[TemporaryFile]) : List[JsValue] = {
-			var lst : List[JsValue] = Nil
-			val company = data.dataParts.get("company").get.head
-			val timestamp = data.dataParts.get("timestamp").get.head
-			val market = data.dataParts.get("market").get.head
-			val path = storepath + company + "/Hospital/"+market+"/"
-			val filename = MD5.md5(company+timestamp+StringOption.takeStringSpace(market))
-			val file = new File(path)
-			if(!file.exists()) { file.mkdir() }else{
-				val file1 : File = new File(path + filename)
-				if(file1.exists()) file1.delete()
-			}
-			data.files.foreach { x =>
-				Files.TemporaryFile(x.ref.file).moveTo(new File(path + filename) , true)
-				lst = lst :+ toJson(filename.toString)
-			}
-					lst
-			}
+	def moveToFile(data : MultipartFormData[TemporaryFile]) : List[JsValue] = {
+		var lst : List[JsValue] = Nil
+		val company = data.dataParts.get("company").get.head
+		val timestamp = data.dataParts.get("timestamp").get.head
+		val market = data.dataParts.get("market").get.head
+		val path = storepath + company + "/Hospital/"
+		val filename = MD5.md5(company+timestamp+StringOption.takeStringSpace(market))
+		val file = new File(path)
+		if(!file.exists()) { file.mkdir() }else{
+			val file1 : File = new File(path + filename)
+			if(file1.exists()) file1.delete()
+		}
+		data.files.foreach { x =>
+			Files.TemporaryFile(x.ref.file).moveTo(new File(path + filename) , true)
+			lst = lst :+ toJson(filename.toString)
+		}
+		lst
+	}
 }
