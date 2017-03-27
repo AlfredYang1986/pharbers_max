@@ -29,10 +29,7 @@ public class StringUtil {
 	}
 	
 	public static boolean hasValue(Object o){
-		if(o==null||o.toString().trim().equals("")){
-			return false;
-		}
-		return true;
+		return !(o == null || o.toString().trim().equals(""));
 	}
 
 	/**
@@ -282,7 +279,6 @@ public class StringUtil {
 	/**
 	 * 将指定doubel保留两位小数
 	 * 
-	 * @param d
 	 * 			指定doubel
 	 * @return 返回转换后的doubel
 	 */
@@ -295,7 +291,6 @@ public class StringUtil {
 	/**
 	 * 将指定doubel保留四位小数
 	 * 
-	 * @param d
 	 * 			指定doubel
 	 * @return 返回转换后的doubel
 	 */

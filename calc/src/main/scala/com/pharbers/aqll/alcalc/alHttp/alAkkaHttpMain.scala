@@ -17,8 +17,8 @@ import scala.concurrent.Future
 	* Created by qianpeng on 2017/3/26.
 	*/
 
-object CheckGloble {
-	var system : akka.actor.ActorSystem = null
+object alAkkaSystemGloble {
+	var system : ActorSystem = null
 }
 
 object alAkkaHttpMain extends App with RequestTimeout{
@@ -51,7 +51,7 @@ object alAkkaHttpMain extends App with RequestTimeout{
 		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
 			Cluster(system).registerOnMemberUp {
 				println("cluster ready")
-				CheckGloble.system = system
+				alAkkaSystemGloble.system = system
 				a ! group_register(w)
 				a ! calc_register(c)
 			}

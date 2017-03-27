@@ -205,8 +205,8 @@ public class ReflectUtils {
 	 */
 	public static <T> Object invoke(Class<T> clazz, String method) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
 		Object instance = clazz.newInstance();
-		Method m = clazz.getMethod(method, new Class[] {});
-		return m.invoke(instance, new Object[] {});
+		Method m = clazz.getMethod(method);
+		return m.invoke(instance);
 	}
 
 	/**
@@ -223,8 +223,8 @@ public class ReflectUtils {
 	 * @throws InstantiationException
 	 */
 	public static <T> Object invoke(Object clazzInstance, String method) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
-		Method m = clazzInstance.getClass().getMethod(method, new Class[] {});
-		return m.invoke(clazzInstance, new Object[] {});
+		Method m = clazzInstance.getClass().getMethod(method);
+		return m.invoke(clazzInstance);
 	}
 
 	/**

@@ -1,16 +1,21 @@
-package com.pharbers.aqll.calc.mail
+package com.pharbers.aqll.alcalc.mail
 
 /**
   * Created by Wli on 2017/3/13 0013.
   */
+<<<<<<< Updated upstream
 
 import java.io.IOException
 import com.pharbers.aqll.alcalc.mail.MailAgent
 import com.pharbers.aqll.alcalc.mail.Mail
+=======
+import com.pharbers.aqll.util.GetProperties
+>>>>>>> Stashed changes
 
 object TestMail extends App{
     try {
-        MailAgent(Mail("您好，您本次上传的数据已全部计算完成，请您及时核对确认，有问题可以回复邮件或者电话联系我们。","法伯科技运维支持")).sendMessage()
+        MailAgent(Mail(GetProperties.mail_context, GetProperties.mail_subject, "pqian@pharbers.com")).sendMessage()
+        println("send is ok")
         //throw new IOException()
     } catch {
         case t: Throwable =>

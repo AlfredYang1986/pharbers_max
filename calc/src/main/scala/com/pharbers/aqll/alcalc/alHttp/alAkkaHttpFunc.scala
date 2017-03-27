@@ -7,6 +7,9 @@ import akka.util.Timeout
 import com.google.gson.Gson
 import com.pharbers.aqll.alcalc.alcmd.pyshell.pyShell
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alFileExport.alFileExport
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.filter_excel_jobs
+import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
+import com.pharbers.aqll.util.GetProperties
 import spray.json.DefaultJsonProtocol
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck._
 import scala.concurrent.ExecutionContext
@@ -76,6 +79,10 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			entity(as[alCalcItem]) {item =>
 				println(s"item = ${item.company}")
 				println(s"item = ${item.filename}")
+				println(s"path = ${val path = GetProperties.fileBase + item.company + "/" + GetProperties.outPut + item.filename}")
+//				val a = alAkkaSystemGloble.system.actorSelection(GetProperties.singletonPaht)
+//				val path = GetProperties.fileBase + item.company + "/" + GetProperties.outPut + item.filename
+//				filter_excel_jobs(path, new alCalcParmary(item.company), a)
 				complete("""{"resule" : "Ok"}""")
 			}
 		}
