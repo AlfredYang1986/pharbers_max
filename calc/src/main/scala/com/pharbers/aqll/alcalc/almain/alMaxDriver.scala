@@ -1,5 +1,7 @@
 package com.pharbers.aqll.alcalc.almain
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSystem, Props, Scheduler}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.RoundRobinPool
@@ -20,6 +22,7 @@ import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.mail.{Mail, MailAgent, MailToEmail}
 import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.util.dao._data_connection_cores
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Await
@@ -385,10 +388,11 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
             case None =>
                 println(s"not company")
                 //alRestoreColl("", sub_uuid :: Nil)
-                ""
+                ("", "")
             case Some(x) =>
-                alRestoreColl(x.company, dbuuid :: Nil)
-                x.company
+                val u = x.company+UUID.randomUUID().toString
+                alRestoreColl(u, dbuuid :: Nil)
+                (x.company, u)
         }
 
         section_number = section_number + 1
@@ -398,7 +402,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
             section_number = -1
             // TODO : 数据去重，重新入库
             println(s"开始去重数据")
-            val tmp = (alWeightSum(company))
+            val tmp = (alWeightSum(company._1, company._2))
             println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
             println(s"结束去重数据")
             endDate("入库完成",start)
@@ -420,10 +424,11 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     case None =>
                         println(s"not company")
                         //alRestoreColl("", sub_uuid :: Nil)
-                        ""
+                        ("", "")
                     case Some(x) =>
-                        alRestoreColl(x.company, sub_uuid :: Nil)
-                        x.company
+                        val u = x.company+UUID.randomUUID().toString
+                        alRestoreColl(u, sub_uuid :: Nil)
+                        (x.company, u)
                 }
 
                 if (r.subs.filterNot (x => x.isCalc).isEmpty) {
@@ -433,10 +438,13 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     println(s"done calc job with uuid ${r.uuid}, final value : ${r.finalValue} and final unit : ${r.finalUnit}")
                     // TODO : 数据去重，重新入库
                     println(s"开始去重数据")
-                    val tmp = (alWeightSum(company))
+                    val tmp = (alWeightSum(company._1, company._2))
                     println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
                     println(s"结束去重数据")
-                    val e_mail = MailToEmail.getEmail(company)
+                    println(s"开始删除临时表")
+                    _data_connection_cores.getCollection(company._2).drop()
+                    println(s"结束删除临时表")
+                    val e_mail = MailToEmail.getEmail(company._1)
                     MailAgent(Mail(GetProperties.mail_context, GetProperties.mail_subject, e_mail)).sendMessage()
                     endDate("计算完成",start)
                     val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(uuid))

@@ -10,11 +10,11 @@ import com.pharbers.aqll.util.MD5
   * Created by LIWEI on 17-3-17.
   */
 object alWeightSum extends App{
-	def apply(company : String): alWeightSum = new alWeightSum(company)
+	def apply(company : String, u: String): alWeightSum = new alWeightSum(company, u)
 }
 
-class alWeightSum(company : String){
-	val lst = (from db() in company+"_temp").selectOneByOne("hosp_Index")(x => x)(_data_connection_cores)
+class alWeightSum(company : String, u: String){
+	val lst = (from db() in u).selectOneByOne("hosp_Index")(x => x)(_data_connection_cores)
 	var b : Option[DBObject] = None
 	var f_units_sum,f_sales_sum = 0.0
 	var f_units_sum2,f_sales_sum2 = 0.0

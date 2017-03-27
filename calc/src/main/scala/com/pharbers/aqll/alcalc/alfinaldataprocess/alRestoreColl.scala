@@ -18,7 +18,8 @@ object alRestoreColl {
 class alRestoreColl(company : String, sub_uuids : List[String]){
     var isfirst : Boolean = false
     sub_uuids foreach{ x =>
-        dbrestoreCmd("Max_Cores",company+"_temp",x).excute
+//        dbrestoreCmd("Max_Cores",company+"_temp",x).excute
+        dbrestoreCmd("Max_Cores", company, x).excute
         if(!isfirst){_data_connection_cores.getCollection(company+"_temp").createIndex(MongoDBObject("hosp_Index" -> 1))}
         isfirst = true
     }
