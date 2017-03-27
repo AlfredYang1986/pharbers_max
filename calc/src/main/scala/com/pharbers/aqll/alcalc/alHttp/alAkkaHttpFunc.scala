@@ -8,7 +8,7 @@ import com.google.gson.Gson
 import com.pharbers.aqll.alcalc.alcmd.pyshell.pyShell
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alFileExport.alFileExport
 import spray.json.DefaultJsonProtocol
-
+import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck._
 import scala.concurrent.ExecutionContext
 
 /**
@@ -21,15 +21,17 @@ class alAkkaHttpFuncApi(system: ActorSystem, timeout: Timeout) extends alAkkaHtt
 	implicit def executionContext = system.dispatcher
 }
 
-case class alCalcItem(filename: String, company: String)
-case class alCommitItem(filename: String, company: String, hospmatchpath: String)
 case class alUploadItem(company: String)
+case class alCheckItem(company: String)
+case class alCalcItem(filename: String, company: String)
+case class alCommitItem(company: String)
 case class alExportItem(datatype: String,market : List[String],staend : List[String],company : String,filetype : String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-	implicit val itemFormat = jsonFormat2(alCalcItem)
-	implicit val itemFormatCommit = jsonFormat3(alCommitItem)
 	implicit val itemFormatUpload = jsonFormat1(alUploadItem)
+	implicit val itemFormatCheck = jsonFormat1(alCheckItem)
+	implicit val itemFormatCalc = jsonFormat2(alCalcItem)
+	implicit val itemFormatCommit = jsonFormat1(alCommitItem)
 	implicit val itemFormatExport = jsonFormat5(alExportItem)
 }
 
@@ -39,7 +41,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 
 	implicit def requestTimeout: Timeout
 
-	val routes = alSampleCheckDataFunc ~ alCalcDataFunc ~ alTest ~ getRcommit ~ getCleanData ~ getFileEx
+	val routes = alTest ~ alSampleCheckDataFunc ~ alCalcDataFunc ~ alModelOperationCommitFunc ~ alFileUploadPythonFunc ~ alResultFileExportFunc
 
 	def alTest = post {
 		path("test") {
@@ -47,9 +49,25 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		}
 	}
 
-	def alSampleCheckDataFunc = post {
+	def alFileUploadPythonFunc = post {
+		path("uploadfile") {
+			entity(as[alUploadItem]) { item =>
+				println(s"company=${item.company}")
+				val result = pyShell(item.company).excute
+				val gson: Gson = new Gson()
+				println(s"result=${gson.toJson(result)}")
+				complete("""{"result":""" + gson.toJson(result) +"""}""")
+			}
+		}
+	}
+
+		def alSampleCheckDataFunc = post {
 		path("samplecheck") {
-			complete("""{"result" : "Ok"}""")
+			entity(as[alCheckItem]) {item =>
+				println(s"item = ${item.company}")
+				alSampleCheck(item.company)
+				complete("""{"result" : "Ok"}""")
+			}
 		}
 	}
 
@@ -63,29 +81,17 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		}
 	}
 
-	def getRcommit = post {
-		path("commit") {
+	def alModelOperationCommitFunc = post {
+		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
-				println(s"item=${item}")
+				println(s"item=${item.company}")
 				complete("""{"result":"Ok"}""")
 			}
 		}
 	}
 
-	def getCleanData = post {
-		path("cleandata") {
-			entity(as[alUploadItem]) { item =>
-				println(s"company=${item.company}")
-				val result = pyShell(item.company).excute
-				val gson : Gson = new Gson()
-				println(s"result=${gson.toJson(result)}")
-				complete("""{"result":"""+gson.toJson(result)+"""}""")
-			}
-		}
-	}
-
-	def getFileEx = post {
-		path("export") {
+	def alResultFileExportFunc = post {
+		path("dataexport") {
 			entity(as[alExportItem]) { item =>
 				val result = alFileExport(item.datatype,item.market,item.staend,item.company,item.filetype)
 				val gson : Gson = new Gson()

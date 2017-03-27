@@ -1,8 +1,10 @@
 package com.pharbers.aqll.alcalc.alcmd.pyshell
 
+import com.pharbers.aqll.calc.util.GetProperties
+
 case class PythonConfig(val company : String) {
 
     def toArgs : String = {
-      "/Users/liwei/FileBase/"+company+"/Python/"+company+".py "+company
+      GetProperties.loadConf("File.conf").getString("SCP.FileBase_FilePath") + company + "/Python/" + company + ".py " + company
     }
 }

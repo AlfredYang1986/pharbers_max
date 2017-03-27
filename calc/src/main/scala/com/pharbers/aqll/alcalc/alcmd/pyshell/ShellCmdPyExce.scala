@@ -19,20 +19,19 @@ trait ShellCmdPyExce {
             val input = new LineNumberReader(ir)
             var line : String = null
             process.waitFor()
-            val lst : ListBuffer[String] = new ListBuffer[String]()
+            var filename = ""
             do {
                 line = input.readLine()
                 if(line!=null){
                     println(line)
-                    line.split("#").asInstanceOf[Array[String]].foreach(x => lst.append(x))
+                    filename = line
                 }
             } while (line != null)
-            lst.remove(lst.length-1)
             println("data standardization finish.")
             val python : Python = new Python()
             python.setStatus(0)
-            python.setFilename(lst.head)
-            python.setMarkets(lst)
+            python.setFilename(filename)
+            python.setMarkets(filename :: Nil)
             python :: Nil
         } catch {
             case _ : IOException => {

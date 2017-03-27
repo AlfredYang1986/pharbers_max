@@ -8,7 +8,8 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register}
 import com.pharbers.aqll.alcalc.almain.{alCalcActor, alDriverSingleton, alGroupActor}
-//import com.pharbers.aqll.calc.split.EventCollector
+import com.pharbers.aqll.calc.Http.{OrderServiceApi, RequestTimeout}
+import com.pharbers.aqll.calc.split.{EventCollector, SplitReceptionSingleton}
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.Future
@@ -55,7 +56,7 @@ object alAkkaHttpMain extends App with RequestTimeout{
 				a ! group_register(w)
 				a ! calc_register(c)
 			}
-//			system.actorOf(Props(new EventCollector), "cluster-listener")
+			system.actorOf(Props(new EventCollector), "cluster-listener")
 		}
 	}
 }

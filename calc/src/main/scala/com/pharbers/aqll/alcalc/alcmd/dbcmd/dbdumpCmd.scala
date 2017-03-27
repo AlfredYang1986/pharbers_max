@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alcalc.alcmd.dbcmd
 
 import com.pharbers.aqll.alcalc.alcmd.shellCmdExce
-import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.calc.util.GetProperties
 
 case class dbdumpCmd(val db : String, val coll : String) extends shellCmdExce {
     val cmd = "/usr/bin/mongodump " +
