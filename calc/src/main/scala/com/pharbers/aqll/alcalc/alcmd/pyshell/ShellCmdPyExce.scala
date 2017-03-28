@@ -27,28 +27,32 @@ trait ShellCmdPyExce {
                     filename = line
                 }
             } while (line != null)
-            println("data standardization finish.")
-            val python : Python = new Python()
-            python.setStatus(0)
-            python.setFilename(filename)
-            python.setMarkets(filename :: Nil)
-            python :: Nil
+
+            if(!filename.equals("")){
+                println("Python Code调用成功。")
+                python_func(0,filename,filename :: Nil)
+            }else{
+                println("Python Code调用失败，内部错误。")
+                python_func(-1,"error","error" :: Nil)
+            }
         } catch {
             case _ : IOException => {
                 println("io exception occurs")
-                val python : Python = new Python()
-                python.setStatus(-1)
-                python.setFilename("error")
-                python :: Nil
+                python_func(-1,"error","error" :: Nil)
             }
 
             case ex : Exception => {
                 println(ex.getMessage)
-                val python : Python = new Python()
-                python.setStatus(-1)
-                python.setFilename("error")
-                python :: Nil
+                python_func(-1,"error","error" :: Nil)
             }
         }
+    }
+
+    def python_func(status: Integer,filename: String,markets: List[String]) : List[Python] ={
+        val python : Python = new Python()
+        python.setStatus(status)
+        python.setFilename(filename)
+        python.setMarkets(markets)
+        python :: Nil
     }
 }
