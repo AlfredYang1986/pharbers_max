@@ -9,7 +9,7 @@ import com.pharbers.aqll.util.dao.Page._
 import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-
+import com.pharbers.aqll.util.StringOption
 object ResultQueryModuleMessage {
 	sealed class msg_resultqueryBase extends CommonMessage
 	case class msg_finalresult(data : JsValue) extends msg_resultqueryBase
@@ -26,6 +26,7 @@ object ResultQueryModule extends ModuleTrait {
 	def msg_finalresult_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 
 		var market = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(List())
+		market = market.map(x => StringOption.takeStringSpace(x))
 		var staend = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(List())
 		val fmomat_f = new SimpleDateFormat("MM/yyyy")
 		var conditions = MongoDBObject()
@@ -42,7 +43,6 @@ object ResultQueryModule extends ModuleTrait {
 		try {
 			val result = (from db() in company where conditions).selectSkipTop(SKIP(currentPage))(TAKE)(order)(finalResultTempJsValue(_))(_data_connection_cores).toList
 			val total = (from db() in company where conditions).count(_data_connection_cores)
-			println(s"result=${result} total=${total}")
 			(Some(Map("finalResult" -> toJson(result), "page" -> toJson(Page(currentPage,total)))), None)
 		} catch {
 			case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))

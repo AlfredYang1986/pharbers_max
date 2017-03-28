@@ -2,11 +2,14 @@
  * Created by Wli on 2017/1/5.
  */
 
+ var loader = new SVGLoader( document.getElementById( 'loader' ), { speedIn : 0, easingIn : mina.easeinout } );
+
  function operation(){
-    if($.cookie("calc_panel_file") != null) {
+    $.cookie("filename","CPA_GYCX_Others_panel_2016_INF.xlsx")
+    if($.cookie("filename") != null) {
          var dataMap = JSON.stringify({
           "company" : $.cookie("token"),
-          "filename" : $.cookie("calc_panel_file")
+          "filename" : $.cookie("filename")
           })
          $.ajax({
              type : "post",
@@ -17,8 +20,7 @@
              cache : false,
              dataType : "json",
              success : function(json){
-                 console.info(json)
-                 alert("正在运算")
+                 alert("本次运算可能会耗时半小时以上，稍后我们会以邮件的形式发送给您，请您点击确定按钮安全退出。")
              },
              error:function(e){
                  alert("Error")
@@ -30,7 +32,10 @@
  }
 
  function commitresult(){
-    var dataMap = JSON.stringify({"company" : $.cookie("token")})
+    loader.show();
+    var dataMap = JSON.stringify({
+        "company" : $.cookie("token")
+    })
      $.ajax({
          type : "post",
          data : dataMap,
@@ -40,10 +45,12 @@
          cache : false,
          dataType : "json",
          success : function(json){
-             alert("操作成功")
+             alert("操作成功");
+             loader.hide();
          },
          error:function(e){
-             alert("Error")
+             alert("Error");
+             loader.hide();
          }
      });
  }

@@ -7,8 +7,10 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
 import java.util.{Calendar, UUID}
 import java.io.File
+
 import com.pharbers.aqll.util.GetProperties._
 import com.pharbers.aqll.alcalc.alfinaldataprocess.csv.scala.CSVWriter
+import com.pharbers.aqll.util.StringOption
 /**
   * Created by liwei on 2017/3/25.
   */
@@ -18,9 +20,10 @@ object alFileExport {
     try{
       val fmomat_f = new SimpleDateFormat("MM/yyyy")
       var conditions = MongoDBObject()
-      market.size match {
+      val markets = market.map(x => StringOption.takeStringSpace(x))
+      markets.size match {
         case 0 => conditions = MongoDBObject("Date" -> MongoDBObject("$gte" -> fmomat_f.parse(staend.head).getTime,"$lt" -> fmomat_f.parse(staend.tail.head).getTime))
-        case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> market),"Date" -> MongoDBObject("$gte" -> fmomat_f.parse(staend.head).getTime,"$lt" -> fmomat_f.parse(staend.tail.head).getTime))
+        case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> markets),"Date" -> MongoDBObject("$gte" -> fmomat_f.parse(staend.head).getTime,"$lt" -> fmomat_f.parse(staend.tail.head).getTime))
       }
 
       var lst = (from db() in company where conditions).selectOneByOne("hosp_Index")(x => x)(_data_connection_cores)

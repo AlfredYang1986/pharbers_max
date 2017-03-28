@@ -11,7 +11,8 @@ import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.alcalc.alcmd.scpcmd.{cpCmd, scpCmd}
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alFileHandler.altext.FileOpt
-import com.pharbers.aqll.alcalc.alfinaldataprocess.{alRestoreColl, alWeightSum}
+import com.pharbers.aqll.alcalc.alfinaldataprocess.alRestoreColl
+import com.pharbers.aqll.alcalc.alfinaldataprocess.alWeightSum._
 import com.pharbers.aqll.alcalc.aljobs.{alJob, alPkgJob}
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
@@ -402,7 +403,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
             section_number = -1
             // TODO : 数据去重，重新入库
             println(s"开始去重数据")
-            val tmp = (alWeightSum(company._1, company._2))
+            val tmp = (new alWeightSum(company._1, company._2))
             println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
             println(s"结束去重数据")
             endDate("入库完成",start)
@@ -458,7 +459,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
             case None => println(s"commit_finalresult_jobs_func not company")
             case Some(x) =>
                 println(s"x.uuid = ${x.uuid}")
-                alWeightSum(company, company + x.uuid)
+                new alWeightSum(company, company + x.uuid)
                 println(s"开始删除临时表")
                 _data_connection_cores.getCollection(company + x.uuid).drop()
                 println(s"结束删除临时表")

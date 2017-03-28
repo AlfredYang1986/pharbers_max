@@ -10,7 +10,7 @@ function fileExport(type) {
     var query_object = new Object();
     query_object['datatype'] = datatype;
     if(market==null){
-        query_object['market'] = [""];
+        query_object['market'] = [];
     }else{
         query_object['market'] = market;
     }
