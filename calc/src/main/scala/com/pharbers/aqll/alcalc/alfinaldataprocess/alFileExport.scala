@@ -51,9 +51,9 @@ object alFileExport {
   }
   // TODO :  创建文件夹
   def createFile(filetype: String): File ={
-    val file_f : File = new File(filebase + export_file)
+    val file_f : File = new File(fileBase + export_file)
     if(!file_f.exists()) file_f.mkdir()
-    val file_t : File = new File(filebase + export_file + UUID.randomUUID + filetype)
+    val file_t : File = new File(fileBase + export_file + UUID.randomUUID + filetype)
     file_t
   }
   // TODO :  写入文件头部部分

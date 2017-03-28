@@ -30,6 +30,12 @@ object GetProperties {
 
 	def outPut = GetProperties.loadConf("File.conf").getString("File.OutPut_File")
 
+	def python = loadConf("File.conf").getString("SCP.Python_File")
+
+	def export_file = loadConf("File.conf").getString("SCP.Export_File")
+
+	def export_xml = loadConf("File.conf").getString("SCP.Export_xml")
+
 	// TODO : Max计算输出地址
 	def memorySplitFile = loadConf("File.conf").getString("SCP.Memory_Split_File")
 
@@ -56,14 +62,5 @@ object GetProperties {
 	def mail_context = loadConf("mail.conf").getString("Mail.context")
 
 	def mail_subject = loadConf("mail.conf").getString("Mail.subject")
-
-	// TODO : 文件导出相关
-	def filebase = loadConf("File.conf").getString("SCP.FileBase_FilePath")
-
-	def python = loadConf("File.conf").getString("SCP.Python_File")
-
-	def export_file = loadConf("File.conf").getString("SCP.Export_File")
-
-	def export_xml = loadConf("File.conf").getString("SCP.Export_xml")
 
 }
