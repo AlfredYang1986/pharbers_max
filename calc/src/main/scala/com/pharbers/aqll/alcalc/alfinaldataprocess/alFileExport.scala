@@ -125,7 +125,7 @@ object alFileExport {
         writer.writeRow(date :: x.get("Provice") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: Nil)
       }
       case "城市数据" =>{
-        writer.writeRow(date :: x.get("Provice") :: x.get("City") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: f_sales_sum :: Nil)
+        writer.writeRow(date :: x.get("Provice") :: x.get("City") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: Nil)
       }
       case "医院数据" => {
         writer.writeRow(date :: x.get("Provice") :: x.get("City") :: x.get("Panel_ID") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: Nil)
