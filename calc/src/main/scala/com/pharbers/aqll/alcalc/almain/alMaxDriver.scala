@@ -132,7 +132,7 @@ class alMaxDriver extends Actor
         case calc_sum_result(uuid, sub_uuid, sum) => sumSuccessWithWork(uuid, sub_uuid, sum)
         case calc_final_result(uuid, sub_uuid, v, u) => finalSuccessWithWork(uuid, sub_uuid, v, u, start)
         case db_final_result(uuid, dbuuid) => dbfinalSuccessWithWork(uuid, dbuuid, start)
-        
+        case commit_finalresult_jobs(company) => commit_finalresult_jobs_func(company)
         case x : Any => {
             println(x)
             ???
@@ -438,8 +438,8 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     println(s"done calc job with uuid ${r.uuid}, final value : ${r.finalValue} and final unit : ${r.finalUnit}")
                     // TODO : 数据去重，重新入库
                     println(s"开始去重数据")
-                    val tmp = (alWeightSum(company._1, company._2))
-                    println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
+                    //val tmp = (alWeightSum(company._1, company._2))
+                    //println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
                     println(s"结束去重数据")
                     println(s"开始删除临时表")
                     _data_connection_cores.getCollection(company._2).drop()
@@ -456,5 +456,10 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                 }
             }
         }
+    }
+
+    def commit_finalresult_jobs_func(company: String) = {
+        //alWeightSum(company, "")
+        println(s"company=${company}")
     }
 }

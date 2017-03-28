@@ -38,12 +38,13 @@ class alDriverSingleton extends Actor with ActorLogging{
 		case cmd : filter_excel_jobs => driver forward cmd
 		case cmd : finish_split_excel_job => driver forward cmd
 		case cmd : push_max_job => driver forward cmd
-        case cmd : group_register => driver forward cmd
-        case cmd : group_result => driver forward cmd
-        case cmd : calc_register => driver forward cmd
-        case cmd : push_calc_job => driver forward cmd
+		case cmd : group_register => driver forward cmd
+		case cmd : group_result => driver forward cmd
+		case cmd : calc_register => driver forward cmd
+		case cmd : push_calc_job => driver forward cmd
 		case cmd : calc_sum_result => driver forward cmd
 		case cmd : calc_final_result => driver forward cmd
+		case cmd : commit_finalresult_jobs => driver forward cmd
 		case _ => ???
 	}
 }

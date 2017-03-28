@@ -27,7 +27,7 @@ object alJobTrigger {
     case class calc_register(a : ActorRef)
 
     case class filter_excel_jobs(file: String, p: alCalcParmary, actorSelection: ActorSelection)
-
+    case class commit_finalresult_jobs(company: String)
     /**
       * for split excel
       */

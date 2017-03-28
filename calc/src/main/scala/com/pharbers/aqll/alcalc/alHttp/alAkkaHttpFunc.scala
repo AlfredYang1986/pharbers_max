@@ -82,7 +82,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				println(s"path = ${fileBase + item.company + outPut + item.filename}")
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				val path = fileBase + item.company + outPut + item.filename
-				filter_excel_jobs(path, new alCalcParmary(item.company), a)
+				a ! filter_excel_jobs(path, new alCalcParmary(item.company), a)
 				complete("""{"resule" : "Ok"}""")
 			}
 		}
@@ -92,6 +92,8 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
 				println(s"item=${item.company}")
+				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
+				a ! commit_finalresult_jobs(item.company)
 				complete("""{"result":"Ok"}""")
 			}
 		}
