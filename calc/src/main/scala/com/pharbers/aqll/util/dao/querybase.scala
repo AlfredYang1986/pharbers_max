@@ -33,7 +33,7 @@ trait data_connection {
 }
 
 object _data_connection_thread {
-	def conn_name : String = Const.DB
+	def conn_name : String = "Max_Cores"
 
 	val server = new ServerAddress(DBHost,DBPort)
 	val credentials = MongoCredential.createScramSha1Credential(username, conn_name ,password.toCharArray)

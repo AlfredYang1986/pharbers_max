@@ -10,7 +10,7 @@ import akka.util.Timeout
 import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.alcalc.alcmd.scpcmd.{cpCmd, scpCmd}
 import com.pharbers.aqll.alcalc.aldata.alStorage
-import com.pharbers.aqll.alcalc.alFilehandler.altext.FileOpt
+import com.pharbers.aqll.alcalc.alFileHandler.altext.FileOpt
 import com.pharbers.aqll.alcalc.alfinaldataprocess.{alRestoreColl, alWeightSum}
 import com.pharbers.aqll.alcalc.aljobs.{alJob, alPkgJob}
 import com.pharbers.aqll.alcalc.aljobs.alJob._
@@ -21,7 +21,7 @@ import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.mail.{Mail, MailAgent, MailToEmail}
-import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.util.{GetProperties, StringOption}
 import com.pharbers.aqll.util.dao._data_connection_cores
 
 import scala.collection.mutable.ListBuffer
@@ -66,7 +66,7 @@ class alMaxDriver extends Actor
                         case 0 => println("this is File is None")
                         case 1 =>
                             parmary.year = p.head._1.toInt
-                            parmary.market = p.head._2
+                            parmary.market = StringOption.takeStringSpace(p.head._2)
                             act ! push_max_job(file, parmary)
                         case n if n > 1 => println("需要分拆文件，再次读取")
                         case _ => ???
@@ -426,7 +426,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                         //alRestoreColl("", sub_uuid :: Nil)
                         ("", "")
                     case Some(x) =>
-                        val u = x.company+UUID.randomUUID().toString
+                        val u = x.company+uuid
                         alRestoreColl(u, sub_uuid :: Nil)
                         (x.company, u)
                 }
@@ -437,19 +437,14 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     r.isCalc = true
                     println(s"done calc job with uuid ${r.uuid}, final value : ${r.finalValue} and final unit : ${r.finalUnit}")
                     // TODO : 数据去重，重新入库
-                    println(s"开始去重数据")
-                    //val tmp = (alWeightSum(company._1, company._2))
-                    //println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
-                    println(s"结束去重数据")
-                    println(s"开始删除临时表")
-                    _data_connection_cores.getCollection(company._2).drop()
-                    println(s"结束删除临时表")
+//                    println(s"开始去重数据")
+//                    val tmp = (alWeightSum(company._1, company._2))
+//                    println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
+//                    println(s"结束去重数据")
+
                     val e_mail = MailToEmail.getEmail(company._1)
                     MailAgent(Mail(GetProperties.mail_context, GetProperties.mail_subject, e_mail)).sendMessage()
                     endDate("计算完成",start)
-                    val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(uuid))
-                    alCalcParmary.alParmary.single.get.remove(index)
-                    println(s"delete from alCalcParmary where Index = $index ~ ${alCalcParmary.alParmary.single.get}")
                     atomic { implicit tnx =>
                         calcing_jobs() = calcing_jobs().tail
                     }
@@ -459,7 +454,16 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
     }
 
     def commit_finalresult_jobs_func(company: String) = {
-        //alWeightSum(company, "")
-        println(s"company=${company}")
+        alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
+            case None => println(s"commit_finalresult_jobs_func not company")
+            case Some(x) =>
+                println(s"x.uuid = ${x.uuid}")
+                alWeightSum(company, company + x.uuid)
+                println(s"开始删除临时表")
+                _data_connection_cores.getCollection(company + x.uuid).drop()
+                println(s"结束删除临时表")
+                val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(x.uuid))
+                alCalcParmary.alParmary.single.get.remove(index)
+        }
     }
 }

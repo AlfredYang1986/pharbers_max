@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alcalc.alFilehandler.altext
+package com.pharbers.aqll.alcalc.alFileHandler.altext
 
 import com.pharbers.aqll.alcalc.alFileHandler.alFileHandlers
 

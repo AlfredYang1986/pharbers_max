@@ -1,7 +1,6 @@
 package com.pharbers.aqll.alcalc.alprecess
 
 import com.pharbers.aqll.alcalc.aldata.alStorage
-import com.pharbers.aqll.alcalc.alFilehandler.altext.alTextParser
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy
 import com.pharbers.aqll.alcalc.alstages.{alInitStage, alMemoryStage, alPresisStage, alStage}
 

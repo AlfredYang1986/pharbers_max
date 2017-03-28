@@ -3,10 +3,10 @@
  */
 
  function operation(){
-    if($.cookie("filename") != null) {
+    if($.cookie("calc_panel_file") != null) {
          var dataMap = JSON.stringify({
           "company" : $.cookie("token"),
-          "filename" : $.cookie("filename")
+          "filename" : $.cookie("calc_panel_file")
           })
          $.ajax({
              type : "post",

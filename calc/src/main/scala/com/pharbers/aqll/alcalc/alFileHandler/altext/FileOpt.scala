@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alcalc.alFilehandler.altext
+package com.pharbers.aqll.alcalc.alFileHandler.altext
 
 import java.io.{File, FileWriter, PrintWriter}
 

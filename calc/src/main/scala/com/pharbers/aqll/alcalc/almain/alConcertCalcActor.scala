@@ -4,7 +4,7 @@ import java.io.{FileWriter, PrintWriter}
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alcalc.aldata.alStorage
-import com.pharbers.aqll.alcalc.alFilehandler.altext.FileOpt
+import com.pharbers.aqll.alcalc.alFileHandler.altext.FileOpt
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alInertDatabase
 import com.pharbers.aqll.alcalc.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{concert_calc_avg, _}

@@ -3,7 +3,7 @@ package com.pharbers.aqll.alcalc.alprecess
 import java.util.UUID
 
 import com.pharbers.aqll.alcalc.aldata.alStorage
-import com.pharbers.aqll.alcalc.alFilehandler.altext.{FileOpt, alTextSync}
+import com.pharbers.aqll.alcalc.alFileHandler.altext.{FileOpt, alTextSync}
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.util.GetProperties
 
