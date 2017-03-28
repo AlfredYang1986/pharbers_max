@@ -126,6 +126,8 @@ $("#manager").fileinput({
     classifyFiles("Manage",data)
 });
 
+
+
 function classifyFiles(filetype,data){
     var query_object = new Object();
     query_object['filename'] = data.response.result[0];
@@ -161,15 +163,11 @@ function commitUp(){
             console.info(data)
             if (data.status == "ok") {
                 if(data.result.result.result.head.status==0){
-                    console.info(data.result.result.result.head.filename)
-                    console.info(data.result.result.result.head.markets)
-                    alert("操作成功")
+                    alert("Python Code调用成功。")
                 }else{
-                    alert("file standardization failure.")
+                    alert("Python Code调用失败，文件内部出现错误。")
                 }
                 loader.hide();
-                //loader.show();
-                //excelCheck(query_object.uuid, "3");
             }
             loader.hide();
         }
