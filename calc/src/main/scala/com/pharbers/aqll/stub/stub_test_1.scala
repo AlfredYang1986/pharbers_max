@@ -1,6 +1,6 @@
 package com.pharbers.aqll.stub
 
-import com.pharbers.aqll.alcalc.alFilehandler.altext.FileOpt
+import com.pharbers.aqll.alcalc.alFileHandler.altext.FileOpt
 
 
 /**
@@ -91,6 +91,10 @@ object stub_test_1 extends App {
 	//}
 
 	{
+		//	FileOpt("""/Users/qianpeng/Desktop/scp""").rmAllFiles
+		val a = FileOpt("""/Users/qianpeng/Desktop/scp""").lstFiles
+		println()
+
 		//val a1 = "aaa你好"
 		//val a2 = "aaaaaa你好"
 		//val b1 = "bbb你好啊"
@@ -288,10 +292,6 @@ object stub_test_1 extends App {
 	//println(c.company)
 	//println(c.uuid)
 	//}
-
-	FileOpt("""/Users/qianpeng/Desktop/scp""").rmAllFiles
-
-	implicit def Int2Number(t: java.lang.Integer): Int = t.intValue
 }
 
 //object a {

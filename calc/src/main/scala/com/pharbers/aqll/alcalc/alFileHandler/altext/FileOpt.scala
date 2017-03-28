@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alcalc.alFilehandler.altext
+package com.pharbers.aqll.alcalc.alFileHandler.altext
 
 import java.io.{File, FileWriter, PrintWriter}
 
@@ -36,13 +36,14 @@ class FileOpt(val file : String) {
     def createDir = tf.mkdir()
     def createFile = tf.createNewFile
     def lstFiles : List[String] = tf.listFiles.filter(x => x.isFile && !x.isHidden).map(x => x.getPath).toList
-    def rmAllFiles: Boolean = {
-        if(tf.isDirectory) {
-            lstFiles foreach { x =>
-                val success = FileOpt(x).rmAllFiles
-                if(!success) false
-            }
-        }
-        tf.delete()
-    }
+//    def rmAllFiles: Boolean = {
+//        println(lstFiles)
+//        if(tf.isDirectory) {
+//            lstFiles foreach { x =>
+//                val success = FileOpt(x).rmAllFiles
+//                if(!success) false
+//            }
+//        }
+//        tf.delete()
+//    }
 }
