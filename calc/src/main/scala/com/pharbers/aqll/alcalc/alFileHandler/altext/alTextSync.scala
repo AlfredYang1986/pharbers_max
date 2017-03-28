@@ -1,6 +1,6 @@
-package com.pharbers.aqll.alcalc.alfilehandler.altext
+package com.pharbers.aqll.alcalc.alFilehandler.altext
 
-import com.pharbers.aqll.alcalc.alfilehandler.alFileHandler
+import com.pharbers.aqll.alcalc.alFilehandler.alFileHandler
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import java.util.UUID
 

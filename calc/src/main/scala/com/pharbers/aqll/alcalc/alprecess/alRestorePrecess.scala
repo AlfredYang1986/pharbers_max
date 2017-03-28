@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alcalc.alprecess
 
 import com.pharbers.aqll.alcalc.aldata.alStorage
-import com.pharbers.aqll.alcalc.alfilehandler.altext.{FileOpt, alTextParser, alTextSync}
+import com.pharbers.aqll.alcalc.alFilehandler.altext.{FileOpt, alTextParser, alTextSync}
 import com.pharbers.aqll.alcalc.alstages.{alInitStage, alMemoryStage, alPresisStage, alStage}
 
 /**

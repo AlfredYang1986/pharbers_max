@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.alprecess
 
-import com.pharbers.aqll.alcalc.alfilehandler.alexcel.alIntegrateddataparser
+import com.pharbers.aqll.alcalc.alFilehandler.alexcel.alIntegrateddataparser
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alstages._
 

@@ -1,23 +1,12 @@
 package com.pharbers.aqll.stub
 
-import com.pharbers.aqll.alcalc.aldata.alStorage
-import com.pharbers.aqll.alcalc.aldata.alPortion
-import com.pharbers.aqll.alcalc.alfilehandler.alexcel.alIntegrateddataparser
-import com.pharbers.aqll.alcalc.alfilehandler.altext.{FileOpt, alTextParser, alTextSync}
-import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
-import com.pharbers.aqll.alcalc.alcmd.scpcmd.{cpCmd, scpCmd}
-import com.pharbers.aqll.alcalc.aljobs.alPkgJob
-import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines.do_pkg
-import java.math.BigDecimal
+import com.pharbers.aqll.alcalc.alFilehandler.altext.FileOpt
 
-import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
-
-import scala.collection.mutable.ListBuffer
 
 /**
   * Created by Alfred on 09/03/2017.
   */
-object stub_test_1 extends App with alPkgJob {
+object stub_test_1 extends App {
 
 	//{
 	//// test case 1 : reading excel file and storage and portion
@@ -299,6 +288,9 @@ object stub_test_1 extends App with alPkgJob {
 	//println(c.company)
 	//println(c.uuid)
 	//}
+
+	FileOpt("""/Users/qianpeng/Desktop/scp""").rmAllFiles
+
 	implicit def Int2Number(t: java.lang.Integer): Int = t.intValue
 }
 

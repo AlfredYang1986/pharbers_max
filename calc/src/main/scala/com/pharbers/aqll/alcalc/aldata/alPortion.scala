@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.aldata
 
-import com.pharbers.aqll.alcalc.alfilehandler.altext.alTextParser
+import com.pharbers.aqll.alcalc.alFilehandler.altext.alTextParser
 
 /**
   * Created by BM on 09/03/2017.

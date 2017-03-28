@@ -3,14 +3,11 @@ package com.pharbers.aqll.alcalc.mail
 /**
   * Created by Wli on 2017/3/13 0013.
   */
-<<<<<<< Updated upstream
 
 import java.io.IOException
 import com.pharbers.aqll.alcalc.mail.MailAgent
 import com.pharbers.aqll.alcalc.mail.Mail
-=======
 import com.pharbers.aqll.util.GetProperties
->>>>>>> Stashed changes
 
 object TestMail extends App{
     try {
