@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.alFilehandler.altext
 
-import com.pharbers.aqll.alcalc.alFilehandler.alFileHandler
+import com.pharbers.aqll.alcalc.alFileHandler.alFileHandlers
 
 /**
   * Created by Alfred on 09/03/2017.
@@ -13,7 +13,7 @@ object alTextParser {
     }
 }
 
-class alTextParser extends alFileHandler with CreateInnerParser {
+class alTextParser extends alFileHandlers with CreateInnerParser {
     val parser = CreateInnerParser
 
     override def prase(path : String)(x : Any) : Any = {
@@ -22,10 +22,10 @@ class alTextParser extends alFileHandler with CreateInnerParser {
     }
 }
 
-case class inner_parser(h : alFileHandler) {
+case class inner_parser(h : alFileHandlers) {
     def startParse(file : String) = h.data.appendAll(FileOpt(file).requestDataFromFile(x => x))
 }
 
-trait CreateInnerParser { this : alFileHandler =>
+trait CreateInnerParser { this : alFileHandlers =>
     def CreateInnerParser : inner_parser = new inner_parser(this)
 }

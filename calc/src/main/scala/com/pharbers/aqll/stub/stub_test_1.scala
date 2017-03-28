@@ -1,6 +1,7 @@
 package com.pharbers.aqll.stub
 
 import com.pharbers.aqll.alcalc.alFilehandler.altext.FileOpt
+import com.pharbers.aqll.util.MD5
 
 
 /**
@@ -91,6 +92,10 @@ object stub_test_1 extends App {
 	//}
 
 	{
+//			FileOpt("""/Users/qianpeng/Desktop/scp/098f6bcd4621d373cade4e832627b4f6.py""").rmFiles
+//		val a = FileOpt("""/Users/qianpeng/Desktop/scp2""").rmAllFiles
+//		println(a)
+
 		//val a1 = "aaa你好"
 		//val a2 = "aaaaaa你好"
 		//val b1 = "bbb你好啊"
@@ -277,7 +282,7 @@ object stub_test_1 extends App {
 //		tmp2 foreach { x =>
 //			_data_connection.getCollection(x).drop()
 //		}
-
+//		println(MD5.md5("Pain"))
 	}
 
 	//def t(c: alCalcParmary): Unit = {
