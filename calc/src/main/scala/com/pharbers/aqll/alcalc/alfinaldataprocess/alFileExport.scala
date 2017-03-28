@@ -119,7 +119,7 @@ object alFileExport {
   def writeFileBody(writer: CSVWriter,x:DBObject,datatype:String,f_units_sum:Double,f_sales_sum:Double){
     val timeDate = Calendar.getInstance
     timeDate.setTimeInMillis(x.get("Date").asInstanceOf[Number].longValue())
-    val date = timeDate.get(Calendar.YEAR)+""+(timeDate.get(Calendar.MONTH))+1
+    val date = timeDate.get(Calendar.YEAR)+""+(timeDate.get(Calendar.MONTH)+1)
     datatype match {
       case "省份数据" => {
         writer.writeRow(date :: x.get("Provice") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: Nil)
