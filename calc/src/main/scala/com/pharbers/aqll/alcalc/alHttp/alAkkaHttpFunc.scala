@@ -7,11 +7,12 @@ import akka.util.Timeout
 import com.google.gson.Gson
 import com.pharbers.aqll.alcalc.alcmd.pyshell.pyShell
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alFileExport.alFileExport
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.filter_excel_jobs
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{commit_finalresult_jobs, filter_excel_jobs}
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
 import com.pharbers.aqll.util.GetProperties._
 import spray.json.DefaultJsonProtocol
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck._
+
 import scala.concurrent.ExecutionContext
 
 /**
