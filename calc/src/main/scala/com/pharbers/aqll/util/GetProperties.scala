@@ -62,4 +62,8 @@ object GetProperties {
 
 	def python = loadConf("File.conf").getString("SCP.Python_File")
 
+	def export_file = loadConf("File.conf").getString("SCP.Export_File")
+
+	def export_xml = loadConf("File.conf").getString("SCP.Export_xml")
+
 }

@@ -7,8 +7,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
 import java.util.{Calendar, UUID}
 import java.io.File
-
-import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.util.GetProperties._
 import com.pharbers.aqll.alcalc.alfinaldataprocess.csv.scala.CSVWriter
 /**
   * Created by liwei on 2017/3/25.
@@ -52,14 +51,14 @@ object alFileExport {
   }
   // TODO :  创建文件夹
   def createFile(filetype: String): File ={
-    val file_f : File = new File(GetProperties.loadConf("File.conf").getString("SCP.FileBase_FilePath") +"/Export/")
+    val file_f : File = new File(filebase + export_file)
     if(!file_f.exists()) file_f.mkdir()
-    val file_t : File = new File(GetProperties.loadConf("File.conf").getString("SCP.FileBase_FilePath") +"/Export/"+ UUID.randomUUID + filetype)
+    val file_t : File = new File(filebase + export_file + UUID.randomUUID + filetype)
     file_t
   }
   // TODO :  写入文件头部部分
   def writeFileHead(datatype: String,writer: CSVWriter) {
-    val someXml : String = "config/export/FileExport.xml"
+    val someXml : String = export_xml
     var fields: List[String] = Nil
     datatype match {
       case "省份数据" => {
