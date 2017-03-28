@@ -17,11 +17,10 @@ object alFileExport {
   def alFileExport(datatype: String,market : List[String],staend : List[String],company : String,filetype : String) : alExport = {
     try{
       val fmomat_f = new SimpleDateFormat("MM/yyyy")
-      val format_t = new SimpleDateFormat("yyyyMM")
       var conditions = MongoDBObject()
       market.size match {
-        case 0 => conditions = MongoDBObject("Date" -> MongoDBObject("$gte" -> format_t.format(fmomat_f.parse(staend.head)).toInt,"$lt" -> format_t.format(fmomat_f.parse(staend.tail.head)).toInt))
-        case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> market),"Date" -> MongoDBObject("$gte" -> format_t.format(fmomat_f.parse(staend.head)).toInt,"$lt" -> format_t.format(fmomat_f.parse(staend.tail.head)).toInt))
+        case 0 => conditions = MongoDBObject("Date" -> MongoDBObject("$gte" -> fmomat_f.parse(staend.head).getTime,"$lt" -> fmomat_f.parse(staend.tail.head).getTime))
+        case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> market),"Date" -> MongoDBObject("$gte" -> fmomat_f.parse(staend.head).getTime,"$lt" -> fmomat_f.parse(staend.tail.head).getTime))
       }
 
       var lst = (from db() in company where conditions).selectOneByOne("hosp_Index")(x => x)(_data_connection_cores)
