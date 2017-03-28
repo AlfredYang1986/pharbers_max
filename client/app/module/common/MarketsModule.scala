@@ -1,6 +1,7 @@
-package module.business
+package module.common
 
 import com.pharbers.aqll.util.dao._data_connection_basic
+
 import scala.collection.mutable.ListBuffer
 /**
   * Created by Wli on 2017/1/4.

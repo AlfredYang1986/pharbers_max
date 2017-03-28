@@ -1,18 +1,17 @@
-package module.business
+package module
 
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.pattern.ModuleTrait
-import com.pharbers.aqll.pattern.MessageDefines
-import com.pharbers.aqll.pattern.CommonMessage
-import com.mongodb.casbah.Imports._
-import com.pharbers.aqll.util.dao._data_connection_basic
-import com.pharbers.aqll.util.{GetProperties, MD5}
+import java.io._
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.io._
-import play.api.libs.Files
+
+import com.mongodb.casbah.Imports._
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.util.CopyFileUtil._
+import com.pharbers.aqll.util.GetProperties._
+import com.pharbers.aqll.util.MD5
+import com.pharbers.aqll.util.dao._data_connection_basic
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json.toJson
 /**
   * Created by Wli on 2017/2/20.
   */
@@ -25,7 +24,7 @@ object FilesUploadModuleMessage {
 
 object FilesUploadModule extends ModuleTrait {
     import FilesUploadModuleMessage._
-	import controllers.common.default_error_handler.f
+    import controllers.common.default_error_handler.f
 	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]]) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_filesupload(data) => msg_filesupload_func(data)
     case msg_filesexists(data) => msg_filesexists_func(data)
@@ -64,7 +63,7 @@ object FilesUploadModule extends ModuleTrait {
       try {
         val filename = (data \ "filename").asOpt[String].get
         val company = (data \ "company").asOpt[String].get
-        val file : File = new File(GetProperties.loadConf("File.conf").getString("Files.FileBase_FilePath")+company+"/Template/")
+        val file : File = new File(fileBase+company+template_file)
         println(filename)
         var flag = false
         file.listFiles().foreach{ x=>
@@ -85,17 +84,17 @@ object FilesUploadModule extends ModuleTrait {
 
         println(s"参数： filename=${filename} company=${company} datatype=${filetype}")
 
-        var newfilepath = GetProperties.loadConf("File.conf").getString("Files.FileBase_FilePath")+company
+        var newfilepath = fileBase+company
         filetype match {
           case "CPA" => {
-            newfilepath = newfilepath+"/Client/CPA/"+filename
+            newfilepath = newfilepath+client_cpa_file+filename
           }
           case "GYCX" => {
-            newfilepath = newfilepath+"/Client/GYCX/"+filename
+            newfilepath = newfilepath+client_gycx_file+filename
           }
-          case "Manage" => newfilepath+"/Manage/"+filename
+          case "Manage" => newfilepath+manage_file+filename
         }
-        val oldfilepath = GetProperties.loadConf("File.conf").getString("Files.FileBase_FilePath")+"/Transfer/"+ filename
+        val oldfilepath = fileBase+transfer_file+ filename
 
         println(s"旧路径： oldfilepath=${oldfilepath}")
         println(s"新路径： newfilepath=${newfilepath}")

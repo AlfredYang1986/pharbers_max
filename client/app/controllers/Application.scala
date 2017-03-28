@@ -2,8 +2,9 @@ package controllers
 
 import play.api._
 import javax.inject._
+
+import module.common.MarketsModule
 import play.api.mvc._
-import module.business.MarketsModule
 
 @Singleton
 class Application extends Controller {

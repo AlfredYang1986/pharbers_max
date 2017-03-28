@@ -1,16 +1,10 @@
-package module.business
+package module
 
-import akka.util.Timeout
-import com.mongodb.casbah.Imports.{$and, MongoDBObject}
+import com.mongodb.casbah.Imports.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.util.dao.{_data_connection_basic, from}
-import com.pharbers.aqll.util.{GetProperties, HTTP, MD5}
-import play.api.libs.json.{JsValue, Json}
+import com.pharbers.aqll.util.{GetProperties, HTTP}
+import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.mongodb.casbah.Imports._
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.concurrent.ExecutionContext.Implicits._
 
 /**
   * Created by qianpeng on 2017/2/13.

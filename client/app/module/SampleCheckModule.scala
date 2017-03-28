@@ -1,18 +1,13 @@
-package module.business
+package module
 
 import java.util.Date
 
-import play.api.libs.json._
-import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.pattern.CommonMessage
-import com.pharbers.aqll.pattern.ModuleTrait
-import com.pharbers.aqll.pattern.MessageDefines
-import com.pharbers.aqll.util.dao.from
-import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
-import com.pharbers.aqll.util.dao._data_connection_cores
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
 import com.pharbers.aqll.util.{DateUtil, GetProperties, MD5}
-import com.sun.xml.internal.bind.v2.TODO
+import play.api.libs.json.Json.toJson
+import play.api.libs.json._
 
 // TODO 为了赶时间，暂时先这样写了，后续第一时间做处理 自己都看不下去了(^ ^)
 

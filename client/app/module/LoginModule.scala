@@ -1,16 +1,13 @@
-package module.business
+package module
 
-import com.pharbers.aqll.pattern.CommonMessage
-import play.api.libs.json._
-import play.api.libs.json.Json._
-import com.pharbers.aqll.pattern.ModuleTrait
-import com.pharbers.aqll.pattern.MessageDefines
-import com.pharbers.aqll.util.dao.from
 import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.util.dao._data_connection_basic
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.util.MD5
+import com.pharbers.aqll.util.dao.{_data_connection_basic, from}
+import play.api.libs.json.Json._
+import play.api.libs.json._
 
 object LoginModuleMessage {
     sealed class msg_LoginBaseQuery extends CommonMessage

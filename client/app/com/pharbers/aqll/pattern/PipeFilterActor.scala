@@ -2,27 +2,19 @@ package com.pharbers.aqll.pattern
 
 import scala.concurrent.duration._
 import akka.actor.Actor
-import akka.actor.ActorContext
 import akka.actor.ActorLogging
 import akka.actor.ActorRef
-import akka.actor.ActorSystem
 import akka.actor.Props
-import play.api.Application
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import module.business.CallAkkaHttpModuleMessage.msg_CallHttp
-import module.business.ResultQueryModuleMessage._
-import module.business._
-import module.business.SampleCheckModuleMessage.msg_CheckBaseQuery
-import module.business.LoginModuleMessage.msg_LoginBaseQuery
-import module.business.FilesUploadModuleMessage._
-import module.business.ModelOperationModuleMessage._
-import module.business.ModelOperationModule
-import module.manage.ManageFilesUploadModuleMessage._
-import module.manage.ManageFilesUploadModule
-import module.business.TempResultModuleMessage._
-import module.business.TempResultModule
+import module.CallAkkaHttpModuleMessage.msg_CallHttp
+import module.ResultQueryModuleMessage._
+import module.SampleCheckModuleMessage.msg_CheckBaseQuery
+import module.LoginModuleMessage.msg_LoginBaseQuery
+import module.FilesUploadModuleMessage._
+import module.ModelOperationModule
+import module.ModelOperationModuleMessage._
 
 object PipeFilterActor {
 	def prop(originSender : ActorRef, msr : MessageRoutes) : Props = {
@@ -51,14 +43,12 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 	var rst : Option[Map[String, JsValue]] = msr.rst
 	var next : ActorRef = null
 	def receive = {
-		case cmd : msg_tempResultBase => dispatchImpl(cmd, TempResultModule)
-        case cmd : msg_CallHttp => dispatchImpl(cmd, CallAkkaHttpModule)
-				case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, LoginModule)
-				case cmd : msg_filesuploadBase => dispatchImpl(cmd, FilesUploadModule)
-				case cmd : msg_CheckBaseQuery => dispatchImpl(cmd, SampleCheckModule)
+        case cmd : msg_CallHttp => dispatchImpl(cmd, module.CallAkkaHttpModule)
+				case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, module.LoginModule)
+				case cmd : msg_filesuploadBase => dispatchImpl(cmd, module.FilesUploadModule)
+				case cmd : msg_CheckBaseQuery => dispatchImpl(cmd, module.SampleCheckModule)
 				case cmd : msg_mondelOperationBase => dispatchImpl(cmd, ModelOperationModule)
-				case cmd : msg_resultqueryBase => dispatchImpl(cmd, ResultQueryModule)
-				case cmd : msg_managefilesuploadBase => dispatchImpl(cmd, ManageFilesUploadModule)
+				case cmd : msg_resultqueryBase => dispatchImpl(cmd, module.ResultQueryModule)
 				case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
 				case cmd : msg_LogCommand => dispatchImpl(cmd, LogModule)
 				case cmd : ParallelMessage => {

@@ -1,10 +1,8 @@
-package module.business
+package module
 
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.pattern.ModuleTrait
-import com.pharbers.aqll.pattern.MessageDefines
-import com.pharbers.aqll.pattern.CommonMessage
 
 object ModelOperationModuleMessage {
 	sealed class msg_mondelOperationBase extends CommonMessage

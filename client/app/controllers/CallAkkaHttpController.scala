@@ -1,22 +1,21 @@
-package controllers.business
+package controllers
 
-import play.api.mvc._
 import com.pharbers.aqll.pattern
 import com.pharbers.aqll.pattern.LogMessage.msg_log
 import com.pharbers.aqll.pattern.MessageRoutes
 import com.pharbers.aqll.pattern.ResultMessage.msg_CommonResultMessage
 import controllers.common.requestArgsQuery.requestArgs
-import module.business.CallAkkaHttpModuleMessage.{msg_CallCheckExcel, msg_CallRunModel, msg_CallFileExport,msg_CallCommitRunData,msg_CallCleaningData}
+import module.CallAkkaHttpModuleMessage._
 import play.api.libs.json.Json.toJson
-import play.api.mvc.Controller
+import play.api.mvc.{Controller, _}
 
 /**
   * Created by qianpeng on 2017/2/13.
   */
 class CallAkkaHttpController extends Controller{
 
-    import pattern.ResultMessage.common_result
     import pattern.LogMessage.common_log
+    import pattern.ResultMessage.common_result
 
     def callHttpCheckExcelAjaxCall = Action (request => requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpCheckExcelAjaxCall"))), jv, request) :: msg_CallCheckExcel(jv) :: msg_CommonResultMessage() :: Nil, None)
