@@ -1,14 +1,18 @@
 package com.pharbers.aqll.module.fopModule
 
 import java.io.File
+
 import play.api.libs.Files
 import java.io.FileInputStream
+
 import play.api.mvc.MultipartFormData
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
 import java.util.UUID
+import com.pharbers.aqll.util.alcmd._
+import com.pharbers.aqll.alcalc.alcmd.scpcmd.scpCmd
 import com.pharbers.aqll.util.{MD5, StringOption}
 import com.pharbers.aqll.util.GetProperties._
 
@@ -70,6 +74,8 @@ object fop {
 				Files.TemporaryFile(x.ref.file).moveTo(new File(path + filename) , true)
 				lst = lst :+ toJson(filename.toString)
 			}
-					lst
-			}
+			scpCmd(s"${path + filename}",s"${path}","aliyun106", "root").excute
+			scpCmd(s"${path + filename}", s"${path}", "aliyun50", "root").excute
+			lst
+		}
 }
