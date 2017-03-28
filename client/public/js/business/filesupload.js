@@ -163,8 +163,10 @@ function commitUp(){
             console.info(data)
             if (data.status == "ok") {
                 if(data.result.result.result.head.status==0){
+                    $.cookie("calc_panel_file",data.result.result.result.head.filename)
                     alert("Python Code调用成功。")
                 }else{
+                    $.cookie("calc_panel_file",null)
                     alert("Python Code调用失败，文件内部出现错误。")
                 }
                 loader.hide();

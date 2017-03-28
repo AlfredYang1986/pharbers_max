@@ -1,13 +1,12 @@
 package com.pharbers.aqll.alcalc.aldata
 
-import com.pharbers.aqll.alcalc.alFileHandler.alFileHandlers
-
+import com.pharbers.aqll.alcalc.alFilehandler.alFileHandler
 
 /**
   * Created by Alfred on 09/03/2017.
   */
 object alStorage {
-    def apply(path : String, rf : alFileHandlers) : alStorage = new alFileInitStorage(rf.prase(path))
+    def apply(path : String, rf : alFileHandler) : alStorage = new alFileInitStorage(rf.prase(path))
     def apply(lst : List[Any]) : alStorage = new alMemoryInitStorage(lst)
     def apply(ps : List[alPortion]) : alPortionedStorage = {
         val tmp = new alPortionedStorage(Nil, x => x)
@@ -106,7 +105,7 @@ abstract class alInitStorage(fc : Any => Any) extends alStorage(Nil, fc) {
 case class alFileInitStorage(fc : Any => Any) extends alInitStorage(fc) {
     override def doCalc {
         if (!isCalc) {
-            data = f("0").asInstanceOf[alFileHandlers].data.toList
+            data = f("0").asInstanceOf[alFileHandler].data.toList
             isCalc = true
         }
     }

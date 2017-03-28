@@ -62,21 +62,11 @@ object CallAkkaHttpModule extends ModuleTrait {
 	}
 
 	def runModel(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-
 		try {
-//			val company = (data \ "company").asOpt[String].getOrElse("")
-//			val filetype = (data \ "filetype").asOpt[String].getOrElse("")
-//			val filename = (data \ "filename").asOpt[String].getOrElse("")
-//			val conditions = List("Company" $eq company, "Datasource_Type" $eq "Manage")
-//			val d = (from db() in "DataSources" where $and(conditions)).select(managedp(_)(filetype, filename))(_data_connection_basic).toList
-//			d.size match {
-//				case 0 => (Some(Map("FinalResult" -> toJson("is null"))), None)
-//				case _ =>
-//					println(s"d.head = ${d.head}")
-//					call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/calc", d.head)
-//			}
-			call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/calc", data)
-			(Some(Map("FinalResult" -> toJson("ok"))), None)
+			println(s"data=${data}")
+			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/modelcalc", data)
+			println(s"result=${result}")
+			(Some(Map("result" -> result)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
