@@ -30,11 +30,11 @@ object GetProperties {
 
 	def outPut = GetProperties.loadConf("File.conf").getString("File.OutPut_File")
 
-	def python = loadConf("File.conf").getString("SCP.Python_File")
+	def python = loadConf("File.conf").getString("File.Python_File")
 
-	def export_file = loadConf("File.conf").getString("SCP.Export_File")
+	def export_file = loadConf("File.conf").getString("File.Export_File")
 
-	def export_xml = loadConf("File.conf").getString("SCP.Export_xml")
+	def export_xml = loadConf("File.conf").getString("File.Export_xml")
 
 	// TODO : Max计算输出地址
 	def memorySplitFile = loadConf("File.conf").getString("SCP.Memory_Split_File")
