@@ -73,8 +73,8 @@ object fop {
 				Files.TemporaryFile(x.ref.file).moveTo(new File(path + filename) , true)
 				lst = lst :+ toJson(filename.toString)
 			}
-			scpCmd(s"${path + filename}",s"${path}","aliyun106", "root").excute
-			scpCmd(s"${path + filename}", s"${path}", "aliyun50", "root").excute
+			scpCmd(s"${path + filename}",s"${"program/FileBase/" + company + hospitalData}","aliyun106", "root").excute
+			scpCmd(s"${path + filename}", s"${"program/FileBase/" + company + hospitalData}", "aliyun50", "root").excute
 			lst
 		}
 }
