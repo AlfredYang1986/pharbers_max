@@ -4,8 +4,11 @@ $(function(){
 })
 
 function excelCheck() {
+//	loader.show();
 	var query_object = new Object();
     query_object['company'] = $.cookie("token");
+    $.cookie("calc_panel_file","CPA_GYCX_Others_panel_2016_INF.xlsx");
+    query_object['filename'] = $.cookie("calc_panel_file");
     $.ajax({
         type : "post",
         data : JSON.stringify(query_object),
@@ -14,14 +17,17 @@ function excelCheck() {
         cache : false,
         dataType : "json",
         success : function(json){
-//            $.cookie("filename", file)
-//            loader.hide();
-//            document.getElementById("ybjc").click()
+        alert("操作成功")
+            loader.hide();
+            document.getElementById("ybjc").click()
         },
         error:function(e){
             alert("Error")
         }
     });
+
+//    loader.hide();
+//    document.getElementById("ybjc").click()
 }
 
 $("#file-0").fileinput({

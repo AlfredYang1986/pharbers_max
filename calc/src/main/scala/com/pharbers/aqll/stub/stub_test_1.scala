@@ -1,9 +1,5 @@
 package com.pharbers.aqll.stub
 
-import com.pharbers.aqll.alcalc.alFilehandler.altext.FileOpt
-import com.pharbers.aqll.util.MD5
-
-
 /**
   * Created by Alfred on 09/03/2017.
   */
@@ -294,7 +290,7 @@ object stub_test_1 extends App {
 	//println(c.uuid)
 	//}
 
-	FileOpt("""/Users/qianpeng/Desktop/scp""").rmAllFiles
+//	FileOpt("""/Users/qianpeng/Desktop/scp""").rmAllFiles
 
 	implicit def Int2Number(t: java.lang.Integer): Int = t.intValue
 }

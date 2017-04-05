@@ -1,22 +1,20 @@
 package com.pharbers.aqll.alcalc.almain
 
+import java.io.File
 import java.util.UUID
 
-import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSystem, Props, Scheduler}
-import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.routing.RoundRobinPool
 import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
-import com.pharbers.aqll.alcalc.alcmd.scpcmd.{cpCmd, scpCmd}
+import com.pharbers.aqll.alcalc.alcmd.scpcmd.scpCmd
 import com.pharbers.aqll.alcalc.aldata.alStorage
-import com.pharbers.aqll.alcalc.alFileHandler.altext.FileOpt
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alRestoreColl
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alWeightSum._
 import com.pharbers.aqll.alcalc.aljobs.{alJob, alPkgJob}
 import com.pharbers.aqll.alcalc.aljobs.alJob._
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger._
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, calc_need_files, concert_groupjust_result, _}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, calc_need_files, check_excel_jobs, concert_groupjust_result, _}
 import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
@@ -25,12 +23,13 @@ import com.pharbers.aqll.alcalc.mail.{Mail, MailAgent, MailToEmail}
 import com.pharbers.aqll.util.{GetProperties, StringOption}
 import com.pharbers.aqll.util.dao._data_connection_cores
 
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck
+import com.pharbers.aqll.util.GetProperties._
 
 /**
   * Created by Alfred on 10/03/2017.
@@ -134,6 +133,7 @@ class alMaxDriver extends Actor
         case calc_final_result(uuid, sub_uuid, v, u) => finalSuccessWithWork(uuid, sub_uuid, v, u, start)
         case db_final_result(uuid, dbuuid) => dbfinalSuccessWithWork(uuid, dbuuid, start)
         case commit_finalresult_jobs(company) => commit_finalresult_jobs_func(company)
+        case check_excel_jobs(company,filename) => check_excel_jobs_func(company,filename)
         case x : Any => {
             println(x)
             ???
@@ -466,5 +466,15 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                 val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(x.uuid))
                 alCalcParmary.alParmary.single.get.remove(index)
         }
+    }
+
+    def check_excel_jobs_func(company: String,filename: String) = {
+        alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
+            case None => println(s"commit_finalresult_jobs_func not company")
+            case Some(x) => println(x.company)
+        }
+        //println(s"company=${company} filename=${filename}")
+        //println("11111111111")
+        //alSampleCheck(company,filename)
     }
 }

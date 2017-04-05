@@ -10,22 +10,22 @@ import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
 class SampleCheckController extends Controller{
-    
-    def sampleCheckAjaxCall = Action (request => requestArgs(request) { jv =>
+
+	def sampleCheckAjaxCall = Action (request => requestArgs(request) { jv =>
 		import pattern.LogMessage.common_log
 		import pattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheckAjaxCall"))), jv, request) :: msg_samplecheck(jv) :: msg_samplecheckyesteryear(jv) :: msg_samplecheckyestermonth(jv) :: msg_CommonResultMessage() :: Nil, None)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheckAjaxCall"))), jv, request) :: msg_samplecheck(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 
 	def sampleCheckAjaxChartsLineCall = Action(request => requestArgs(request) { jv =>
 		import pattern.LogMessage.common_log
 		import pattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheckAjaxChartsCall"))), jv, request) :: msg_samplecheck(jv) :: msg_samplechecktopline(jv) :: msg_CommonResultMessage() :: Nil, None)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheckAjaxChartsCall"))), jv, request) :: msg_samplecheck(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 
 	def sampleCheckAjaxChartsPlotCall = Action(request => requestArgs(request) { jv =>
 		import pattern.LogMessage.common_log
 		import pattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheckAjaxChartsPlotCall"))), jv, request) :: msg_samplecheck(jv) :: msg_samplecheckplot(jv) :: msg_CommonResultMessage() :: Nil, None)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheckAjaxChartsPlotCall"))), jv, request) :: msg_samplecheck(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 }

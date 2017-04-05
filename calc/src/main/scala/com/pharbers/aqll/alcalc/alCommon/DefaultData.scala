@@ -19,6 +19,12 @@ object DefaultData {
         lazy val integratedxmlpath_en = "config/consumer/FieldNamesIntegratedDataStruct.xml"
     }
 
+    def integratedbase(filename: String, company: String) = {
+        val integratedbase = integrateddataparser(integratedXmlPath.integratedxmlpath_en, integratedXmlPath.integratedxmlpath_ch)
+        integratedbase.startParse(GetProperties.fileBase + company + GetProperties.outPut + filename, 1)
+        integratedbase.resultlist
+    }
+
     def FileFirst(path: String): String = {
         new File(path).listFiles().head.getPath
     }

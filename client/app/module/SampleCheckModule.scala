@@ -1,24 +1,17 @@
 package module
 
-import java.util.Date
-
 import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
-import com.pharbers.aqll.util.{DateUtil, GetProperties, MD5}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
-
-// TODO 为了赶时间，暂时先这样写了，后续第一时间做处理 自己都看不下去了(^ ^)
+import com.pharbers.aqll.util.DateUtils
+import scala.collection.mutable.ListBuffer
 
 object SampleCheckModuleMessage {
 	sealed class msg_CheckBaseQuery extends CommonMessage
 	case class msg_samplecheck(data: JsValue) extends msg_CheckBaseQuery
-	case class msg_samplecheckyesteryear(data: JsValue) extends msg_CheckBaseQuery
-	case class msg_samplecheckyestermonth(data: JsValue) extends msg_CheckBaseQuery
-
-	case class msg_samplechecktopline(data: JsValue) extends msg_CheckBaseQuery
-	case class msg_samplecheckplot(data: JsValue) extends msg_CheckBaseQuery
 }
 
 object SampleCheckModule extends ModuleTrait {
@@ -28,175 +21,72 @@ object SampleCheckModule extends ModuleTrait {
 
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_samplecheck(data) => msg_check_func(data)
-		case msg_samplecheckyesteryear(data) => msg_check_yesteryear_func(data)(pr)
-		case msg_samplecheckyestermonth(data) => msg_check_yestermonth_func(data)(pr)
-		case msg_samplechecktopline(data) => msg_check_topcline_func(data)(pr)
-		case msg_samplecheckplot(data) => msg_check_chartplot_func(data)(pr)
 		case _ => println("Error---------------"); ???
 	}
 
 	def msg_check_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val company = (data \ "company").asOpt[String].getOrElse("")
-		//"a7bff92f-0947-454d-b79f-e9b291edb220"
-		val filename = (data \ "filename").asOpt[String].getOrElse("")
-		//"123456"
-		val id = MD5.md5(GetProperties.loadConf("File.conf").getString("Files.UpClient_File_Path")+filename+company+DateUtil.getIntegralStartTime(new Date()).getTime.toString)
+		val market = (data \ "market").asOpt[String].getOrElse("")
+		val date = (data \ "date").asOpt[String].getOrElse("")
+
+		val top_query_mismatch = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> DateUtils.MMyyyy2Long(date)))
+		val top_query_early = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> DateUtils.MMyyyy2EarlyLong(date)))
+		val top_query_last = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> DateUtils.MMyyyy2LastLong(date)))
+
+		val early12_date = DateUtils.MMyyyy2Early12Long(date)
+		val top_query_early12 = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$gte" -> early12_date.head,"$lt" -> early12_date.tail.head))
+
+		val last12_date = DateUtils.MMyyyy2Last12Long(date)
+		val top_query_last12 = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$gte" -> last12_date.head,"$lt" -> last12_date.tail.head))
+
 		try {
-			val conditions = ("ID" -> id)
-			val d = (from db() in "FactResult" where $and(conditions)).select(resultCheckFuncData(_))(_data_connection_cores).toList
-			d.size match {
-				case 0 =>
-					(Some(Map("CurResult" -> toJson(Map("flag" -> toJson("not data"))))), None)
-				case _ => (Some(Map("CurResult" -> d.head)), None)
-			}
+			val top_current_mismatch = (from db() in "SampleCheck" where top_query_mismatch).select(Top_Current_Mismatch(_))(_data_connection_cores).toList
+			val top_early = (from db() in "SampleCheck" where top_query_early).select(Top_Early_Last(_))(_data_connection_cores).toList
+			val top_last = (from db() in "SampleCheck" where top_query_last).select(Top_Early_Last(_))(_data_connection_cores).toList
+			val top_early12 = (from db() in "SampleCheck" where top_query_early12).selectSort("Date")(Top_Early12_Last12(_))(_data_connection_cores).toList
+			val top_last12 = (from db() in "SampleCheck" where top_query_last12).selectSort("Date")(Top_Early12_Last12(_))(_data_connection_cores).toList
+
+			(Some(Map(
+				"top_mismatch" -> toJson(top_current_mismatch),
+				"top_early" -> toJson(top_early),
+				"top_last" -> toJson(top_last),
+				"top_early12" -> toJson(top_early12),
+				"top_last12" -> toJson(top_last12)
+			)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
 	}
 
-	def msg_check_yesteryear_func(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		//"098f6bcd4621d373cade4e832627b4f6"
-		val company = (data \ "company").asOpt[String].getOrElse("")
-		val prJson: JsValue = pr match {
-			case Some(x) => x.get("CurResult").get
-			case _ => ???
+	def Top_Current_Mismatch(d: MongoDBObject): JsValue = {
+		val HospNum = d.getAs[Number]("HospNum").get.longValue()
+		val ProductNum = d.getAs[Number]("ProductNum").get.longValue()
+		val MarketNum = d.getAs[Number]("MarketNum").get.longValue()
+		val mismatch = d.getAs[MongoDBList]("Mismatch").get.toList.asInstanceOf[List[BasicDBObject]]
+		val lst = ListBuffer[JsValue]()
+		mismatch.foreach{x =>
+			lst.append(toJson(Map(
+				"Hosp_name" -> toJson(x.getAs[String]("Hosp_name").get),
+				"Province" -> toJson(x.getAs[String]("Province").get),
+				"City" -> toJson(x.getAs[String]("City").get),
+				"City_level" -> toJson(x.getAs[String]("City_level").get)
+			)))
 		}
-		val time = (prJson \ "date").as[Long]
-		val year = (DateUtil.getDateLongForString(time).split("-")(0).toInt - 1).toString
-		val month = DateUtil.getDateLongForString(time).split("-")(1)
-		val timelong = DateUtil.getDateLong(year + month)
-		try {
-			val conditions = List("Company" $eq company, "Date" $eq timelong)
-			val d = (from db() in "SampleCheckResult" where $and(conditions)).select(resultYesterYearTimeFuncData(_)(pr))(_data_connection_cores).toList
-			d.size match {
-				case 0 =>
-					val flag = Map("YesterYear" -> toJson("not data"))
-					(Some(Map("YesterYearResult" -> toJson(flag ++ pr.get))), None)
-				case _ => (Some(Map("YesterYearResult" -> d.head)), None)
-			}
-		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
-		}
+		println(lst.size)
+		toJson(Map("HospNum" -> toJson(HospNum),"ProductNum" -> toJson(ProductNum),"MarketNum" -> toJson(MarketNum),"MisMatch" -> toJson(lst.toList)))
 	}
 
-	def msg_check_yestermonth_func(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit error_handel: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		//"098f6bcd4621d373cade4e832627b4f6"
-		val company = (data \ "company").asOpt[String].getOrElse("")
-		val prJson: JsValue = pr match {
-			case Some(x) => x.get("YesterYearResult").get.as[Map[String, JsValue]].get("CurResult").get
-			case _ => ???
-		}
-
-		val time = (prJson \ "date").as[Long]
-		println(s"time  = ${DateUtil.getDateLongForString(time)}")
-		val year = DateUtil.getDateLongForString(time).split("-")(0)
-		val month = (DateUtil.getDateLongForString(time).split("-")(1).toInt - 1).toString
-		println(s"year  = ${year}")
-		println(s"month  = ${month}")
-		println(s"year + month  = ${year + month}")
-		val timelong = DateUtil.getDateLong(year + month)
-		println(s"timelong = $timelong")
-		val conditions = List("Company" $eq company, "Date" $eq timelong)
-		val d = (from db() in "SampleCheckResult" where $and(conditions)).select(resultAgoMonthTimeFuncData(_)(pr))(_data_connection_cores).toList
-		d.size match {
-			case 0 =>
-				val flag = Map("AgoMonth" -> toJson("not data"))
-				(Some(Map("FinalResult" -> toJson(flag ++ pr.get.get("YesterYearResult").get.as[Map[String, JsValue]]))), None)
-			case _ => (Some(Map("FinalResult" -> d.head)), None)
-		}
+	def Top_Early_Last(d: MongoDBObject): JsValue = {
+		val HospNum = d.getAs[Number]("HospNum").get.longValue()
+		val ProductNum = d.getAs[Number]("ProductNum").get.longValue()
+		val MarketNum = d.getAs[Number]("MarketNum").get.longValue()
+		toJson(Map("HospNum" -> toJson(HospNum),"ProductNum" -> toJson(ProductNum),"MarketNum" -> toJson(MarketNum)))
 	}
 
-	def msg_check_topcline_func(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		//"098f6bcd4621d373cade4e832627b4f6"
-		val company = (data \ "company").asOpt[String].getOrElse("")
-		val prJson: JsValue = pr match {
-			case Some(x) => x.get("CurResult").get
-			case _ => ???
-		}
-		val time = (prJson \ "date").as[Long]
-		val agotime = DateUtil.getAgoMonthTime(time, 12)
-//		println(s"time = $time , ${DateUtil.getDateLongForString(time)}")
-//		println(s"agotime = $agotime , ${DateUtil.getDateLongForString(agotime)}")
-		try {
-			val conditions = List("Company" $eq company, "Date" $gte agotime $lte time)
-			val d = (from db() in "SampleCheckResult" where $and(conditions)).select(resulrTopChartsFuncData(_))(_data_connection_cores).toList.sortBy{x => (x \ "Date").as[Long]}
-			d.size match {
-				case 0 => (Some(Map("TopChartResult" -> toJson(Map("flag" -> toJson("not data"))))), None)
-				case _ => (Some(Map("TopChartResult" -> toJson(d))), None)
-			}
-		}catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage.toInt)))
-		}
-	}
-
-	def msg_check_chartplot_func(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		//"098f6bcd4621d373cade4e832627b4f6"
-		val company = (data \ "company").asOpt[String].getOrElse("")
-		val prJson: JsValue = pr match {
-			case Some(x) => x.get("CurResult").get
-			case _ => ???
-		}
-		val time = new Date().getTime
-		val yester = DateUtil.getDateByYesterYear(time)
-		val conditions = List("Company" $eq company, "Date" $gte yester $lte time)
-		val d = (from db() in "SampleCheckResult" where $and(conditions)).select(resultChartsPlot(_))(_data_connection_cores).toList
-		d.size match {
-			case 0 => (Some(Map("PlotChartsResult" -> toJson(Map("flag" -> toJson("not data"))))), None)
-			case _ => (Some(Map("TopChartResult" -> toJson(d))), None)
-		}
-	}
-
-	def resultCheckFuncData(d: MongoDBObject): JsValue = {
-		val t = d.getAs[MongoDBObject]("Condition").get
-		val hospNum = d.getAs[Number]("HospitalNum").get.longValue
-		val miniProNum = d.getAs[Number]("ProductMinuntNum").get.intValue
-		val marketNum = d.getAs[Number]("MarketNum").get.intValue
-		val sales = d.getAs[Number]("Sales").get.doubleValue
-		val hospList = t.getAs[MongoDBList]("Hospital").get.toList.asInstanceOf[List[String]]
-		val date = d.getAs[Number]("Date").get.longValue()
-		//val miniPorList = t.getAs[MongoDBList]("ProductMinunt").toList.asInstanceOf[List[String]]
-		toJson(Map("hospNum" -> toJson(hospNum),
-			"miniProNum" -> toJson(miniProNum),
-			"marketNum" -> toJson(marketNum),
-			"sales" -> toJson(sales),
-			"hospList" -> toJson(hospList),
-			"date" -> toJson(date)
-		))
-	}
-
-	def resultAgoMonthTimeFuncData(d: MongoDBObject)(pr: Option[Map[String, JsValue]]): JsValue = {
-		val agoHospNum = d.getAs[Number]("HospNum").get.longValue()
-		val agoMiniProNum = d.getAs[Number]("ProductNum").get.longValue()
-		val agoMarketNum = d.getAs[Number]("MarketNum").get.longValue()
-		val prmap = pr match {case Some(x) => x case _ => null}
-		val map: Map[String, JsValue] = Map("agoHospNum" -> toJson(agoHospNum),
-			"agoMiniProNum" -> toJson(agoMiniProNum),
-			"agoMarketNum" -> toJson(agoMarketNum))
-		toJson(Map("AgoMonth" -> toJson(map)) ++ prmap.get("YesterYearResult").get.as[Map[String, JsValue]])
-	}
-
-	def resultYesterYearTimeFuncData(d: MongoDBObject)(pr: Option[Map[String, JsValue]]): JsValue = {
-		val yesterYearHospNum = d.getAs[Number]("HospNum").get.longValue()
-		val yesterYearMiniProNum = d.getAs[Number]("ProductNum").get.longValue()
-		val yesterYearMarketNum = d.getAs[Number]("MarketNum").get.longValue()
-		val prmap = pr match {case Some(x) => x case _ => null}
-		val map: Map[String, JsValue] = Map("yesterYearHospNum" -> toJson(yesterYearHospNum),
-			"yesterYearMiniProNum" -> toJson(yesterYearMiniProNum),
-			"yesterYearMarketNum" -> toJson(yesterYearMarketNum))
-		toJson(Map("YesterYear" -> toJson(map)) ++ prmap)
-	}
-
-	def resulrTopChartsFuncData(d: MongoDBObject): JsValue = {
-		val hospNum = d.getAs[Number]("HospNum").get.longValue()
-		val miniProNum = d.getAs[Number]("ProductNum").get.longValue()
-		val marketNum = d.getAs[Number]("MarketNum").get.longValue()
-		val date = d.getAs[Number]("Date").get.longValue()
-		toJson(Map("hospNum" -> toJson(hospNum), "miniProNum" -> toJson(miniProNum), "marketNum" -> toJson(marketNum), "Date" -> toJson(date)))
-	}
-
-	def resultChartsPlot(d: MongoDBObject): JsValue = {
-		val time = DateUtil.getDateLongForString(d.getAs[Number]("Date").get.longValue())
-		val sales = d.getAs[Number]("Sales").get.longValue()
-		toJson(Map("time" -> toJson(time), "sales" -> toJson(sales)))
+	def Top_Early12_Last12(d: MongoDBObject): JsValue = {
+		val Sales = d.getAs[Number]("Sales").get.doubleValue()
+		val Units = d.getAs[Number]("Units").get.doubleValue()
+		val date = DateUtils.Timestamp2yyyyMM(d.getAs[Number]("Date").get.longValue())
+		toJson(Map("Sales" -> toJson(Sales),"Units" -> toJson(Units),"Date" -> toJson(date)))
 	}
 }

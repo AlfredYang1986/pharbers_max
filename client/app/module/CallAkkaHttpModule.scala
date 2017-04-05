@@ -53,9 +53,8 @@ object CallAkkaHttpModule extends ModuleTrait {
 	def checkExcel(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 				println(s"data=$data")
-				val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/samplecheck", data)
-				println(s"result=$result")
-				(Some(Map("result" -> result)), None)
+				call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/samplecheck", data)
+				(Some(Map("result" -> toJson("Ok"))), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}

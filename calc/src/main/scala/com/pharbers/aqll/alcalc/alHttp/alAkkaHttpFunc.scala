@@ -7,12 +7,11 @@ import akka.util.Timeout
 import com.google.gson.Gson
 import com.pharbers.aqll.alcalc.alcmd.pyshell.pyShell
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alFileExport.alFileExport
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{commit_finalresult_jobs, filter_excel_jobs}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{commit_finalresult_jobs, filter_excel_jobs, check_excel_jobs}
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
 import com.pharbers.aqll.util.GetProperties._
 import spray.json.DefaultJsonProtocol
-import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck._
-
+import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck
 import scala.concurrent.ExecutionContext
 
 /**
@@ -26,14 +25,14 @@ class alAkkaHttpFuncApi(system: ActorSystem, timeout: Timeout) extends alAkkaHtt
 }
 
 case class alUploadItem(company: String)
-case class alCheckItem(company: String)
+case class alCheckItem(company: String,filename: String)
 case class alCalcItem(filename: String, company: String)
 case class alCommitItem(company: String)
 case class alExportItem(datatype: String,market : List[String],staend : List[String],company : String,filetype : String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 	implicit val itemFormatUpload = jsonFormat1(alUploadItem)
-	implicit val itemFormatCheck = jsonFormat1(alCheckItem)
+	implicit val itemFormatCheck = jsonFormat2(alCheckItem)
 	implicit val itemFormatCalc = jsonFormat2(alCalcItem)
 	implicit val itemFormatCommit = jsonFormat1(alCommitItem)
 	implicit val itemFormatExport = jsonFormat5(alExportItem)
@@ -65,11 +64,14 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		}
 	}
 
-		def alSampleCheckDataFunc = post {
+	def alSampleCheckDataFunc = post {
 		path("samplecheck") {
 			entity(as[alCheckItem]) {item =>
-				println(s"item = ${item.company}")
-				alSampleCheck(item.company)
+				//println(s"company = ${item.company} filename = ${item.filename}")
+				//val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
+				//a ! check_excel_jobs(item.company,item.filename)
+				println(s"company=${item.company} filename=${item.filename}")
+				alSampleCheck(item.company,item.filename)
 				complete("""{"result" : "Ok"}""")
 			}
 		}

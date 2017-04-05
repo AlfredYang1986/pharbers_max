@@ -23,7 +23,7 @@ object LoginModule extends ModuleTrait {
     }
 
     def login(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        
+
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) =>
@@ -36,7 +36,7 @@ object LoginModule extends ModuleTrait {
                       Some("User_lst."+key $eq MD5.md5(x.asInstanceOf[String]))
                   }
               }
-              
+
         }
 
         def conditionsAcc(o: List[DBObject], keys: List[String], func: (String, JsValue) => Option[DBObject]): List[DBObject] = keys match {
@@ -55,9 +55,9 @@ object LoginModule extends ModuleTrait {
         try {
             conditions.size match {
                 case 0 => (Some(Map("FinalResult" -> toJson("input is null"))), None)
-                
+
                 case 1 => (Some(Map("FinalResult" -> toJson("input is null"))), None)
-                
+
                 case 2 => conditions match {
                     case x: List[DBObject] =>
                         val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))

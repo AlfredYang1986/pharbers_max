@@ -2,7 +2,7 @@ package module
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
-
+import com.pharbers.aqll.util.DateUtils
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.util.dao.Page._
@@ -50,12 +50,8 @@ object ResultQueryModule extends ModuleTrait {
 	}
 
 	def finalResultTempJsValue(x : MongoDBObject) : Map[String,JsValue] = {
-		val timeDate = Calendar.getInstance
-		timeDate.setTimeInMillis(x.getAs[Number]("Date").get.longValue())
-		var year = timeDate.get(Calendar.YEAR).toString
-		var month = (timeDate.get(Calendar.MONTH)+1).toString
 		Map(
-			"Date" -> toJson(year + (if(month.length<2){"0"+month}else{month})),
+			"Date" -> toJson(DateUtils.Timestamp2yyyyMM(x.getAs[Number]("Date").get.longValue())),
 			"Provice" -> toJson(x.getAs[String]("Provice").get),
 			"City" -> toJson(x.getAs[String]("City").get),
 			"Panel_ID" -> toJson(x.getAs[String]("Panel_ID").get),
