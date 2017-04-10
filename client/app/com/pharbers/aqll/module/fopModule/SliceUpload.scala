@@ -32,7 +32,6 @@ object SliceUpload {
           }
           case _ => x.filename
         }
-        //println(s"${t_lst.tail.head}$filename")
         MergeSliceFile(s"${t_lst.tail.head}$filename",x.ref.file)
         //lst = lst :+ toJson(filename)
       }
@@ -48,9 +47,7 @@ object SliceUpload {
     var inputStream: BufferedInputStream = null
     try {
       val dirFile = new File(outPath)
-      if(!dirFile.exists()){
-        dirFile.createNewFile()
-      }
+      dirFile.createNewFile()
       // TODO : 以读写的方式打开目标文件(rw)
       raFile = new RandomAccessFile(dirFile, "rw")
       raFile.seek(raFile.length)
@@ -60,7 +57,17 @@ object SliceUpload {
       while ((length = inputStream.read(buf)) != -1) raFile.write(buf, 0, length)
     } catch {
       case ioex: IOException => throw new IOException(ioex.getMessage)
-      case ex: Exception => throw new Exception(ex.getMessage)
+    }finally{
+      try {
+        if (inputStream != null) {
+          inputStream.close()
+        }
+        if (raFile != null) {
+          raFile.close()
+        }
+      }catch {
+        case ex: Exception => throw new Exception(ex.getMessage)
+      }
     }
   }
 

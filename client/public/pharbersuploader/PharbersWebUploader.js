@@ -79,8 +79,8 @@ jQuery(function() {
             disableGlobalDnd: true,                 // TODO 参数说明: {Selector} [可选] [默认值：false] 是否禁掉整个页面的拖拽功能，如果不禁用，图片拖进来的时候会默认被浏览器打开.
             chunked: true,                          // TODO 参数说明: {Boolean} [可选] [默认值：false] 是否要分片处理大文件上传.
             chunkSize: 5242880,                     // TODO 参数说明: {Boolean} [可选] [默认值：5242880] 如果要分片，分多大一片？ 默认大小为5M.
-            chunkRetry: 2,                          // TODO 参数说明: {Boolean} [可选] [默认值：2] 如果某个分片由于网络问题出错，允许自动重传多少次？
-            threads: 3,                             // TODO 参数说明: {Boolean} [可选] [默认值：3] 上传并发数。允许同时最大上传进程数.
+            chunkRetry: 3,                          // TODO 参数说明: {Boolean} [可选] [默认值：2] 如果某个分片由于网络问题出错，允许自动重传多少次？
+            threads: 1,                             // TODO 参数说明: {Boolean} [可选] [默认值：3] 上传并发数。允许同时最大上传进程数.
             server: 'pharbers/files/upload',        // TODO 参数说明: {String} [必选] 文件接收服务端.
             fileVal: 'file',                        // TODO 参数说明: {Object} [可选] [默认值：'file'] 设置文件上传域的name.
             method: 'POST',                         // TODO 参数说明: {Object} [可选] [默认值：'POST'] 文件上传方式，POST或者GET.
@@ -94,7 +94,8 @@ jQuery(function() {
                 company: '',                        // TODO: 公司名称
                 date: '',                           // TODO: 文件日期
                 market: ''                          // TODO: 所属市场
-            }
+            },
+            compress: false                         // TODO 参数说明: {Object} [可选] 配置压缩的图片的选项。如果此选项为false, 则图片在上传前不进行压缩
         });
 
         // TODO : 添加“添加文件”的按钮
