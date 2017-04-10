@@ -60,10 +60,11 @@ class Application extends Controller {
   //文件上传
   def filesUpload = Action { request =>
       val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
+      val is_administrator = enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt)
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.filesUpload(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt)))
+          Ok(views.html.filesUpload(is_administrator,MarketsModule.pushMarkets))
       }
   }
 

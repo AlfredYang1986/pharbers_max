@@ -132,8 +132,6 @@ $("#manager").fileinput({
     classifyFiles("Manage",data)
 });
 
-
-
 function classifyFiles(filetype,data){
     var query_object = new Object();
     query_object['filename'] = data.response.result[0];

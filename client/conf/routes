@@ -24,19 +24,17 @@ POST    /samplecheck/line           controllers.SampleCheckController.sampleChec
 POST    /samplecheck/plot           controllers.SampleCheckController.sampleCheckAjaxChartsPlotCall
 POST	/modeloperation/operation	controllers.ModelOperationController.mondelOperationAjaxCall
 POST	/login/start			    controllers.LoginController.Login
-POST	/uploadfiles				controllers.FilesUploadController.filesUploadAjaxCall
 GET     /resultquery/files/:name    controllers.foptController.exportFile(name)
 POST    /callcheckexcel             controllers.CallAkkaHttpController.callHttpCheckExcelAjaxCall
 POST    /callrunmodel               controllers.CallAkkaHttpController.callHttpRunModelAjaxCall
 POST    /callfileexport             controllers.CallAkkaHttpController.callHttpFileExportAjaxCall
 POST    /commitrunresult            controllers.CallAkkaHttpController.callHttpCommitRunResultAjaxCall
 POST    /cleaningdata               controllers.CallAkkaHttpController.callHttpCleaningDataAjaxCall
-POST    /filesexists                controllers.FilesUploadController.filesexistsAjaxCall
-POST	/classifyFiles				controllers.FilesUploadController.classifyFilesAjaxCall
 
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
 POST	/pharbers/files/upload		controllers.foptController.uploadFile
+POST    /pharbers/files/scp         controllers.FilesUploadController.scpFileAjaxCall
 
 GET     /manage                     controllers.Application.manageUploadFile
 POST	/manage/uploadHospitalFile	controllers.foptController.uploadHospitalFile
