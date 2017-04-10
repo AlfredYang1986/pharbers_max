@@ -13,7 +13,7 @@ object alJobTrigger {
       * for drivers
       *
       */
-    case class worker_register(map: Map[String, Any])
+    case class worker_register()
     case class push_max_job(path : String, p: alCalcParmary)
     case class finish_max_job(uuid : String)
 

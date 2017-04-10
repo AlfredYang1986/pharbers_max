@@ -3,6 +3,7 @@ package com.pharbers.aqll.alcalc.almain
 import akka.actor.{Actor, ActorLogging, PoisonPill, Props}
 import akka.cluster.singleton.{ClusterSingletonManager, ClusterSingletonManagerSettings, ClusterSingletonProxy, ClusterSingletonProxySettings}
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alcalc.log.LogMessage
 
 /**
   * Created by qianpeng on 2017/3/11.
@@ -46,6 +47,9 @@ class alDriverSingleton extends Actor with ActorLogging{
 		case cmd : calc_final_result => driver forward cmd
 		case cmd : commit_finalresult_jobs => driver forward cmd
 		case cmd : check_excel_jobs => driver forward cmd
+		case cmd : worker_register =>
+			LogMessage.info(driver, cmd.getClass.getSimpleName)
+			driver forward cmd
 		case _ => ???
 	}
 }

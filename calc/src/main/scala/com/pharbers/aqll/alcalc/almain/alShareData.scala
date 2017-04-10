@@ -11,9 +11,7 @@ import com.pharbers.aqll.util.StringOption
 object alShareData {
     lazy val hospdata = DefaultData.hospdatabase("universe_ot_SPE_ljx.xlsx", "SPE")
 
-    def hospdata(name: String, company: String) = {
-        DefaultData.hospdatabase(name, company)
-    }
+    def hospdata(name: String, company: String) = DefaultData.hospdatabase(name, company)
 
     val txt2IntegratedData : Any => IntegratedData = { txt =>
         val t = new IntegratedData()

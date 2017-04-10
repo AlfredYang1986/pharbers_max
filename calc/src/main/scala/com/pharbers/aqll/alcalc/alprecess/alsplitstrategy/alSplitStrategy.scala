@@ -3,6 +3,7 @@ package com.pharbers.aqll.alcalc.alprecess.alsplitstrategy
 import com.pharbers.aqll.alcalc.aldata.alPortion
 
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.stm.Ref
 
 /**
   * Created by BM on 10/03/2017.
@@ -11,6 +12,7 @@ import scala.collection.mutable.ArrayBuffer
 object server_info {
     val cpu: Int = Runtime.getRuntime.availableProcessors
     val memory: Long = Runtime.getRuntime.maxMemory
+    val section = Ref(0)
 }
 
 object alSplitStrategy {
@@ -61,19 +63,13 @@ class alReadExcelSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy
     override val constraints: Map[String, Any] = c
     override val strategy : List[Any] => List[alPortion] = { lst =>
         import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.read_excel_split
-        import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.alSplitStrategy.hash_split
         // TODO: 需要一个根据内存分配的stratege去划分整体数据
         val memory = constraints.get(alServerHardware.server_memory)
         memory match {
             case None => {
-                val section_number = constraints.get(read_excel_split.section_number).map(_.asInstanceOf[Int]).getOrElse(1)
-                val hash_func = constraints.get(hash_split.hash_func).map (x => x.asInstanceOf[Any => Int]).getOrElse(throw new Exception("need have func"))
-                val re = (1 to section_number).map(_ => ArrayBuffer[Any]())
-                lst foreach { iter =>
-                    val i = hash_func(iter) % section_number
-                    re(i).append(iter)
-                }
-                re.map (x => alPortion(x.toList)).toList
+                val t = constraints.get(read_excel_split.section_number).map (x => x.asInstanceOf[Int]).getOrElse(1)
+                val sn = lst.length / t + 1
+                lst.grouped(sn).map(alPortion(_)).toList
             }
             case Some(x) => {
                 val size = 2 * 80 * 53 * 1000

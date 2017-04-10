@@ -6,7 +6,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register, worker_register}
 import com.pharbers.aqll.alcalc.almain.{alCalcActor, alDriverSingleton, alGroupActor}
 //import com.pharbers.aqll.calc.split.EventCollector
 import com.typesafe.config.{Config, ConfigFactory}
@@ -54,8 +54,9 @@ object alAkkaHttpMain extends App with RequestTimeout{
 				alAkkaSystemGloble.system = system
 				a ! group_register(w)
 				a ! calc_register(c)
+				a ! worker_register()
 			}
-			//			system.actorOf(Props(new EventCollector), "cluster-listener")
+//			system.actorOf(Props(new EventCollector), "cluster-listener")
 		}
 	}
 }

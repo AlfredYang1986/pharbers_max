@@ -29,6 +29,7 @@ import scala.concurrent.stm.Ref
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck
+import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.util.GetProperties._
 
 /**
@@ -50,7 +51,9 @@ class alMaxDriver extends Actor
                      with alPkgJob {
     val start = startDate()
     implicit val t = Timeout(0.5 second)
+
     override def receive = {
+        case worker_register() => atomic { implicit txn => server_info.section() = server_info.section() + 1 }
         case group_register(a) => registerGroupRouter(a)
         case filter_excel_jobs(file, parmary, act) => {
             val cj = max_filter_excel_jobs(file)
@@ -145,7 +148,7 @@ class alMaxDriver extends Actor
 
 trait alMaxJobsSchedule { this : Actor =>
     val jobs = Ref(List[alJob]())       // only unhandled jobs
-    val jobs2 = Ref(List[(alJob, alCalcParmary)]())       // only unhandled jobs
+    val jobs2 = Ref(List[(alJob, alCalcParmary)]())       // only unhandled jobs 带参数的jobs
     val timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_jobs)
 }
 
@@ -317,7 +320,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
     def canSignCalcJob(p : alMaxProperty): Boolean = {
         implicit val t = Timeout(0.5 second)
         val f = calc_router.single.get map (x => x ? can_sign_job())
-        p.subs.length / 4 <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
+        p.subs.length / server_info.cpu <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
         // TODO : 每个四核，这里要改
     }
 
@@ -430,6 +433,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                         val u = x.company+uuid
                         alRestoreColl(u, sub_uuid :: Nil)
                         (x.company, u)
+                    case _ => ???
                 }
 
                 if (r.subs.filterNot (x => x.isCalc).isEmpty) {
