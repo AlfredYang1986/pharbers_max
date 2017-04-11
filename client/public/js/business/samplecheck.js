@@ -34,9 +34,10 @@ function sampleCheckFun() {
             Top_Current(r.result.top_mismatch);
             Top_Early(r.result.top_early[0]);
             Top_Last(r.result.top_last[0]);
-            Top_Mismatch(r.result.top_mismatch);
+            var data = Top_Mismatch(r.result.top_mismatch);
             salesChartsPlot(r.result.top_early12,r.result.top_last12);
-            dataTableAjax();
+            console.info(data)
+            dataTableAjax(data);
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             console.info("Error")
@@ -83,12 +84,24 @@ function Top_Last(obj){
 
 function Top_Mismatch(obj) {
     var nobj = obj[0]
+    var temp = []
+    var data = []
     if(nobj!=null){
         var mismatch_lst = nobj.MisMatch;
+        console.info(mismatch_lst.length)
         $.each(mismatch_lst, function (i, v) {
-            $("#hospitalList").append("<tr><td>" + (i + 1) + "</td><td>" + v.Hosp_name + "</td><td>" + v.Province + "</td><td>" + v.City + "</td><td>" + v.City_level + "</td><td><a href=\"javascript:;\"><i class=\"fa fa-times text-danger text\"></i></a></td></tr>")
+            temp.push((i + 1));
+            temp.push(v.Hosp_name);
+            temp.push(v.Province);
+            temp.push(v.City);
+            temp.push(v.City_level);
+            temp.push("<a href=\"javascript:;\"><i class=\"fa fa-times text-danger text\"></i></a>");
+            data.push(temp)
+            temp = []
         })
+        return data;
     }
+
 }
 
 function salesChartsPlot(early12,last12) {
