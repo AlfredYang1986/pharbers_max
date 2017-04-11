@@ -3,20 +3,20 @@
     font-size: 12px;
 }
 
-.cxuploder .queueList {
+.phauploder .queueList {
     margin: 20px;
     border: 3px dashed #e6e6e6;
 }
-.cxuploder .queueList.filled {
+.phauploder .queueList.filled {
     padding: 17px;
     margin: 0;
     border: 3px dashed transparent;
 }
-.cxuploder .queueList.webuploader-dnd-over {
+.phauploder .queueList.webuploader-dnd-over {
     border: 3px dashed #999999;
 }
 
-.cxuploder p {margin: 0;}
+.phauploder p {margin: 0;}
 
 .element-invisible {
     position: absolute !important;
@@ -24,7 +24,7 @@
     clip: rect(1px,1px,1px,1px);
 }
 
-.cxuploder .placeholder {
+.phauploder .placeholder {
     min-height: 350px;
     padding-top: 178px;
     text-align: center;
@@ -34,7 +34,7 @@
     position: relative;
 }
 
-.cxuploder .placeholder .webuploader-pick {
+.phauploder .placeholder .webuploader-pick {
     font-size: 18px;
     background: #00b7ee;
     border-radius: 3px;
@@ -48,11 +48,11 @@
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
-.cxuploder .placeholder .webuploader-pick-hover {
+.phauploder .placeholder .webuploader-pick-hover {
     background: #00a2d4;
 }
 
-.cxuploder .placeholder .flashTip {
+.phauploder .placeholder .flashTip {
     color: #666666;
     font-size: 12px;
     position: absolute;
@@ -60,21 +60,21 @@
     text-align: center;
     bottom: 20px;
 }
-.cxuploder .placeholder .flashTip a {
+.phauploder .placeholder .flashTip a {
     color: #0785d1;
     text-decoration: none;
 }
-.cxuploder .placeholder .flashTip a:hover {
+.phauploder .placeholder .flashTip a:hover {
     text-decoration: underline;
 }
 
-.cxuploder .filelist {
+.phauploder .filelist {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.cxuploder .filelist:after {
+.phauploder .filelist:after {
     content: '';
     display: block;
     width: 0;
@@ -83,7 +83,7 @@
     clear: both;
 }
 
-.cxuploder .filelist li {
+.phauploder .filelist li {
     width: 110px;
     height: 110px;
     background: url(images/bg.png) no-repeat;
@@ -96,12 +96,12 @@
     font-size: 12px;
 }
 
-.cxuploder .filelist li p.log {
+.phauploder .filelist li p.log {
     position: relative;
     top: -45px;
 }
 
-.cxuploder .filelist li p.title {
+.phauploder .filelist li p.title {
     position: absolute;
     top: 0;
     left: 0;
@@ -114,7 +114,7 @@
     text-align: left;
 }
 
-.cxuploder .filelist li p.progress {
+.phauploder .filelist li p.progress {
     position: absolute;
     width: 100%;
     bottom: 0;
@@ -127,7 +127,7 @@
     background: none;
     -webkit-box-shadow: 0 0 0;
 }
-.cxuploder .filelist li p.progress span {
+.phauploder .filelist li p.progress span {
     display: none;
     overflow: hidden;
     width: 0;
@@ -174,7 +174,7 @@
     }
 }
 
-.cxuploder .filelist li p.imgWrap {
+.phauploder .filelist li p.imgWrap {
     position: relative;
     z-index: 2;
     line-height: 110px;
@@ -196,11 +196,11 @@
     transition: 200ms ease-out;
 }
 
-.cxuploder .filelist li img {
+.phauploder .filelist li img {
     width: 100%;
 }
 
-.cxuploder .filelist li p.error {
+.phauploder .filelist li p.error {
     background: #f43838;
     color: #fff;
     position: absolute;
@@ -212,7 +212,7 @@
     z-index: 100;
 }
 
-.cxuploder .filelist li .success {
+.phauploder .filelist li .success {
     display: block;
     position: absolute;
     left: 0;
@@ -223,7 +223,7 @@
     background: url(images/success.png) no-repeat right bottom;
 }
 
-.cxuploder .filelist div.file-panel {
+.phauploder .filelist div.file-panel {
     position: absolute;
     height: 0;
     filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#80000000', endColorstr='#80000000')\0;
@@ -235,7 +235,7 @@
     z-index: 300;
 }
 
-.cxuploder .filelist div.file-panel span {
+.phauploder .filelist div.file-panel span {
     width: 24px;
     height: 24px;
     display: inline;
@@ -247,28 +247,28 @@
     cursor: pointer;
 }
 
-.cxuploder .filelist div.file-panel span.rotateLeft {
+.phauploder .filelist div.file-panel span.rotateLeft {
     background-position: 0 -24px;
 }
-.cxuploder .filelist div.file-panel span.rotateLeft:hover {
+.phauploder .filelist div.file-panel span.rotateLeft:hover {
     background-position: 0 0;
 }
 
-.cxuploder .filelist div.file-panel span.rotateRight {
+.phauploder .filelist div.file-panel span.rotateRight {
     background-position: -24px -24px;
 }
-.cxuploder .filelist div.file-panel span.rotateRight:hover {
+.phauploder .filelist div.file-panel span.rotateRight:hover {
     background-position: -24px 0;
 }
 
-.cxuploder .filelist div.file-panel span.cancel {
+.phauploder .filelist div.file-panel span.cancel {
     background-position: -48px -24px;
 }
-.cxuploder .filelist div.file-panel span.cancel:hover {
+.phauploder .filelist div.file-panel span.cancel:hover {
     background-position: -48px 0;
 }
 
-.cxuploder .statusBar {
+.phauploder .statusBar {
     height: 63px;
     border-top: 1px solid #dadada;
     padding: 0 20px;
@@ -277,7 +277,7 @@
     position: relative;
 }
 
-.cxuploder .statusBar .progress {
+.phauploder .statusBar .progress {
     border: 1px solid #1483d8;
     width: 198px;
     background: #fff;
@@ -290,7 +290,7 @@
     position: relative;
     margin: 0 10px 0 0;
 }
-.cxuploder .statusBar .progress span.percentage {
+.phauploder .statusBar .progress span.percentage {
     width: 0;
     height: 100%;
     left: 0;
@@ -298,33 +298,33 @@
     background: #1483d8;
     position: absolute;
 }
-.cxuploder .statusBar .progress span.text {
+.phauploder .statusBar .progress span.text {
     position: relative;
     z-index: 10;
 }
 
-.cxuploder .statusBar .info {
+.phauploder .statusBar .info {
     display: inline-block;
     font-size: 14px;
     color: #666666;
 }
 
-.cxuploder .statusBar .btns {
+.phauploder .statusBar .btns {
     position: absolute;
     top: 10px;
     right: 20px;
     line-height: 40px;
 }
 
-.cxuploder .statusBar .btns .jxfilepicker {
+.phauploder .statusBar .btns .jxfilepicker {
     display: inline-block;
     float: left;
 }
 
-.cxuploder .statusBar .btns .webuploader-pick,
-.cxuploder .statusBar .btns .uploadBtn,
-.cxuploder .statusBar .btns .uploadBtn.state-uploading,
-.cxuploder .statusBar .btns .uploadBtn.state-paused {
+.phauploder .statusBar .btns .webuploader-pick,
+.phauploder .statusBar .btns .uploadBtn,
+.phauploder .statusBar .btns .uploadBtn.state-uploading,
+.phauploder .statusBar .btns .uploadBtn.state-paused {
     background: #ffffff;
     border: 1px solid #cfcfcf;
     color: #565656;
@@ -336,23 +336,23 @@
     font-size: 14px;
     float: left;
 }
-.cxuploder .statusBar .btns .webuploader-pick-hover,
-.cxuploder .statusBar .btns .uploadBtn:hover,
-.cxuploder .statusBar .btns .uploadBtn.state-uploading:hover,
-.cxuploder .statusBar .btns .uploadBtn.state-paused:hover {
+.phauploder .statusBar .btns .webuploader-pick-hover,
+.phauploder .statusBar .btns .uploadBtn:hover,
+.phauploder .statusBar .btns .uploadBtn.state-uploading:hover,
+.phauploder .statusBar .btns .uploadBtn.state-paused:hover {
     background: #f0f0f0;
 }
 
-.cxuploder .statusBar .btns .uploadBtn {
-    background: #00b7ee;
+.phauploder .statusBar .btns .uploadBtn {
+    background: #1ab394;
     color: #fff;
     border-color: transparent;
 }
-.cxuploder .statusBar .btns .uploadBtn:hover {
-    background: #00a2d4;
+.phauploder .statusBar .btns .uploadBtn:hover {
+    background: #1dc5a3;
 }
 
-.cxuploder .statusBar .btns .uploadBtn.disabled {
+.phauploder .statusBar .btns .uploadBtn.disabled {
     pointer-events: none;
     opacity: 0.6;
 }
