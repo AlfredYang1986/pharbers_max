@@ -36,7 +36,7 @@
 
 .phauploder .placeholder .webuploader-pick {
     font-size: 18px;
-    background: #00b7ee;
+    background: #1ab394;
     border-radius: 3px;
     line-height: 44px;
     padding: 0 30px;
@@ -49,7 +49,7 @@
 }
 
 .phauploder .placeholder .webuploader-pick-hover {
-    background: #00a2d4;
+    background: #1dc5a3;
 }
 
 .phauploder .placeholder .flashTip {
@@ -86,7 +86,8 @@
 .phauploder .filelist li {
     width: 110px;
     height: 110px;
-    background: url(images/bg.png) no-repeat;
+    #background: url(images/bg.png) no-repeat;
+    background: url(images/excel.png) no-repeat;
     text-align: center;
     margin: 0 8px 20px 0;
     position: relative;
@@ -112,6 +113,8 @@
     top: 5px;
     text-indent: 5px;
     text-align: left;
+    color: #000000;
+    font-weight: bold;
 }
 
 .phauploder .filelist li p.progress {
@@ -182,7 +185,8 @@
     overflow: hidden;
     width: 110px;
     height: 110px;
-
+    color: #000000;
+    font-weight: bold;
     -webkit-transform-origin: 50% 50%;
     -moz-transform-origin: 50% 50%;
     -o-transform-origin: 50% 50%;
