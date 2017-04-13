@@ -1,14 +1,14 @@
 package com.pharbers.aqll.alcalc.alHttp
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.cluster.Cluster
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+import com.pharbers.aqll.alcalc.alAkkaListener.alAkkaListener
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register, worker_register}
 import com.pharbers.aqll.alcalc.almain.{alCalcActor, alDriverSingleton, alGroupActor}
-//import com.pharbers.aqll.calc.split.EventCollector
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.Future
@@ -21,7 +21,7 @@ object alAkkaSystemGloble {
 	var system : ActorSystem = null
 }
 
-object alAkkaHttpMain extends App with RequestTimeout{
+object alAkkaHttpMain extends App with RequestTimeout {
 	val config = ConfigFactory.load("application")
 	val host = config.getString("http.host")
 	val port = config.getInt("http.port")
@@ -56,7 +56,7 @@ object alAkkaHttpMain extends App with RequestTimeout{
 				a ! calc_register(c)
 				a ! worker_register()
 			}
-//			system.actorOf(Props(new EventCollector), "cluster-listener")
+			system.actorOf(alAkkaListener.props, "akka-listener")
 		}
 	}
 }

@@ -53,7 +53,9 @@ class alMaxDriver extends Actor
     implicit val t = Timeout(0.5 second)
 
     override def receive = {
-        case worker_register() => atomic { implicit txn => server_info.section() = server_info.section() + 1 }
+        case worker_register() =>
+            log.info("worker_register")
+            atomic { implicit txn => server_info.section() = server_info.section() + 1 }
         case group_register(a) => registerGroupRouter(a)
         case filter_excel_jobs(file, parmary, act) => {
             val cj = max_filter_excel_jobs(file)

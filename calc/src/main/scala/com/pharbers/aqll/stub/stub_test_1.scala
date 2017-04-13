@@ -1,9 +1,14 @@
 package com.pharbers.aqll.stub
 
+import com.pharbers.aqll.alcalc.alemchat.sendMessage
+
 /**
   * Created by Alfred on 09/03/2017.
   */
 object stub_test_1 extends App {
+
+	val result = sendMessage.send("60", "test")
+	println(result)
 
 	//{
 	//// test case 1 : reading excel file and storage and portion
@@ -279,6 +284,8 @@ object stub_test_1 extends App {
 //			_data_connection.getCollection(x).drop()
 //		}
 //		println(MD5.md5("Pain"))
+
+//		_data_connection_thread.getCollection("test").drop()
 	}
 
 	//def t(c: alCalcParmary): Unit = {

@@ -63,4 +63,15 @@ object GetProperties {
 
 	def mail_subject = loadConf("mail.conf").getString("Mail.subject")
 
+	// TODO : EmChat的Org
+	def org_name = loadConf("mail.conf").getString("EmChat.org_name")
+
+	def app_name = loadConf("mail.conf").getString("EmChat.app_name")
+
+	def grant_type = loadConf("mail.conf").getString("EmChat.grant_type")
+
+	def client_id = loadConf("mail.conf").getString("EmChat.client_id")
+
+	def client_secret = loadConf("mail.conf").getString("EmChat.client_secret")
+
 }

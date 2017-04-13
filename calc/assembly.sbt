@@ -18,6 +18,7 @@ assemblyMergeStrategy in assembly := {
 	case PathList("scala", "sys", xs @ _*) => MergeStrategy.first
 	case PathList("scala", "text", xs @ _*) => MergeStrategy.first
 	case PathList("scala", "util", xs @ _*) => MergeStrategy.first
+	case PathList("org", "slf4j", xs @ _*) => MergeStrategy.first
 	case "library.properties" => MergeStrategy.concat
 	case PathList(ps @ _*) if ps.last endsWith "Predef$any2stringadd$.class" => MergeStrategy.first
 	case PathList(ps @ _*) if ps.last endsWith "Array$.class" => MergeStrategy.first
@@ -52,6 +53,18 @@ assemblyMergeStrategy in assembly := {
 	case PathList(ps @ _*) if ps.last endsWith "Predef$StringFormat.class" => MergeStrategy.first
 	case PathList(ps @ _*) if ps.last endsWith "Predef$Triple$.class" => MergeStrategy.first
 	case PathList(ps @ _*) if ps.last endsWith "Predef$any2stringadd.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "ILoggerFactory.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "IMarkerFactory.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "Logger.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "LoggerFactory.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "MDC.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "Marker.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "MarkerFactory.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "BasicMDCAdapter.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "BasicMarker.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "BasicMarkerFactory.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "FormattingTuple.class" => MergeStrategy.first
+	case PathList(ps @ _*) if ps.last endsWith "MarkerIgnoringBase.class" => MergeStrategy.first
 
 
 	case x =>
