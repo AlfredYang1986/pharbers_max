@@ -1,0 +1,28 @@
+<!--
+ /* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:0 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:等线;}
+@font-face
+	{font-family:"\@等线";}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	font-size:10.5pt;
+	font-family:等线;}
+.MsoChpDefault
+	{font-size:10.5pt;
+	font-family:等线;}
+ /* Page Definitions */
+@page WordSection1
+	{size:595.3pt 841.9pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;
+	layout-grid:15.6pt;}
+div.WordSection1
+	{page:WordSection1;}
+-->

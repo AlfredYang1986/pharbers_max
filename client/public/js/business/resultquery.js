@@ -79,7 +79,6 @@ $(function() {
                 $.hideLoading();
                 if (data.status == "ok") {
                     var result = data.result.finalResult;
-                    console.info(result)
                     var thead = "<tr>";
                         thead += "<th>序号</th>";
                         thead += "<th>Date</th>";
