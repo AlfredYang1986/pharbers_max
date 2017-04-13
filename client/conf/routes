@@ -16,6 +16,7 @@ GET		/emptypage					controllers.Application.emptyPage
 # Core Function
 GET		/filesupload				controllers.Application.filesUpload
 GET		/samplecheck				controllers.Application.sampleCheck
+GET		/samplereport				controllers.Application.samplereport
 GET		/modeloperation				controllers.Application.modelOperation
 GET		/resultquery				controllers.Application.resultQuery
 POST 	/resultquery/search			controllers.ResultQueryController.resultQueryAjaxCall
@@ -35,9 +36,6 @@ POST    /cleaningdata               controllers.CallAkkaHttpController.callHttpC
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
 POST	/pharbers/files/upload		controllers.foptController.uploadFile
 POST    /pharbers/files/scp         controllers.FilesUploadController.scpFileAjaxCall
-
-GET     /manage                     controllers.Application.manageUploadFile
-POST	/manage/uploadHospitalFile	controllers.foptController.uploadHospitalFile
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

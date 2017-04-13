@@ -25,23 +25,25 @@
                         <a href="index"><i class="fa fa-th-large"></i> <span class="nav-label">首页</span></a>
                     </li>
                     <li>
-                        <a href="filesupload"><i class="fa fa-database"></i> <span class="nav-label">1.文件上传</span></a>
+                        <a href="filesupload"><i class="fa fa-cloud-upload"></i> <span class="nav-label">1.文件上传</span></a>
                     </li>
                     <li>
                         <a href="samplecheck"><i class="fa fa-pie-chart"></i> <span class="nav-label">2.样本检查</span></a>
                     </li>
+                    <li>
+                        <a href="samplereport"><i class="fa fa-file-text"></i> <span class="nav-label">3.样本报告</span></a>
+                    </li>
                     <li class="active">
-                        <a href="modeloperation"><i class="fa fa-globe"></i> <span class="nav-label">3.模型运算</span></a>
+                        <a href="modeloperation"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">4.模型运算</span></a>
                     </li>
                     <li>
-                        <a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">4.结果查询</span></a>
+                        <a id="jgcx" href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">5.结果查询</span></a>
                     </li>
                     @if(is_administrator.equals("Yes")){
                         <li>
                             <a><i class="fa fa-gears"></i> <span class="nav-label">管理页面</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li class="active"><a href="manage">文件上传</a></li>
-                                <li><a href="#">用户管理</a></li>
+                                <li class="active"><a href="#">用户管理</a></li>
                                 <li><a href="#">市场管理</a></li>
                             </ul>
                         </li>
@@ -98,7 +100,7 @@
                     </div>
                     <div class="col-sm-6 col-md-6"></div>
                     <div class="col-sm-3 col-md-3 text-right">
-                        <button type="button" class="btn btn-primary btn-sm" onclick="operation()">运算</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="operationBtn">运算</button>
                     </div>
                 </div>
                 <div class="row">
@@ -168,25 +170,17 @@
                         <div class="ibox-content">
                             <div class="row">
                                 <div class="col-lg-12 text-right">
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="commitresult()">确认</button>
-                                    <button type="button" class="btn btn-primary btn-sm">下一步</button>
+                                    <button type="button" class="btn btn-primary btn-sm" id="nextstepBtm">下一步</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                @*<div id="loader" style="z-index:99999;" class="pageload-overlay" data-opening="M 40 -21.875 C 11.356078 -21.875 -11.875 1.3560784 -11.875 30 C -11.875 58.643922 11.356078 81.875 40 81.875 C 68.643922 81.875 91.875 58.643922 91.875 30 C 91.875 1.3560784 68.643922 -21.875 40 -21.875 Z">*@
-                <div id="loader" style="z-index:99999;" class="pageload-overlay" data-opening="M 40 -21.875 C 11.356078 -21.875 -11.875 1.3560784 -11.875 30 C -11.875 58.643922 11.356078 81.875 40 81.875 C 68.643922 81.875 91.875 58.643922 91.875 30 C 91.875 1.3560784 68.643922 -21.875 40 -21.875 Z">
-                    <svg viewBox="0 0 80 60" preserveAspectRatio="xMidYMid slice">
-                        @*<svg>*@
-                        <path d="M40,30 c 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 Z" />
-                        @*<path/>*@
-                    </svg>
-                </div>
             </div>
         </div>
     </div>
     <script src="@routes.Assets.versioned("js/business/modeloperation.js")"></script>
+    <script src="@routes.Assets.versioned("hDialog/js/jquery.hDialog.js")"></script>
     <script>
             var itemStyleColor = ['#1ab394', '#cacaca'];
             var option1 = {

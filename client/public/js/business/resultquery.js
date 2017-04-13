@@ -1,4 +1,22 @@
-var loader = new SVGLoader( document.getElementById( 'loader' ), { speedIn : 0, easingIn : mina.easeinout } );
+var config = {
+	'.chosen-select': {},
+	'.chosen-select-deselect': {
+		allow_single_deselect: true
+	},
+	'.chosen-select-no-single': {
+		disable_search_threshold: 10
+	},
+	'.chosen-select-no-results': {
+		no_results_text: 'Oops, nothing found!'
+	},
+	'.chosen-select-width': {
+		width: "95%"
+	}
+}
+
+for (var selector in config) {
+	$(selector).chosen(config[selector]);
+}
 
 $(function() {
 	var mySelect = $('#first-disabled2');
@@ -24,106 +42,95 @@ $(function() {
 		autoclose: true,
 		todayHighlight: true
 	});
-	pageResult(3);
-});
 
-var config = {
-	'.chosen-select': {},
-	'.chosen-select-deselect': {
-		allow_single_deselect: true
-	},
-	'.chosen-select-no-single': {
-		disable_search_threshold: 10
-	},
-	'.chosen-select-no-results': {
-		no_results_text: 'Oops, nothing found!'
-	},
-	'.chosen-select-width': {
-		width: "95%"
-	}
-}
-for (var selector in config) {
-	$(selector).chosen(config[selector]);
-}
-
-function pageResult(page){
-    loader.show();
-	var datatype = $('select[data-name="search-result-datatype"]').val();
-	var market = $('select[data-name="search-result-market"]').val();
-	var startdate = $('input[name="startdate"]').val();
-	var enddate = $('input[name="enddate"]').val();
-
-	var query_object = new Object();
-	query_object['market'] = market;
-	query_object['staend'] = [startdate, enddate];
-	query_object['currentPage'] = page;
-    query_object['company'] = $.cookie("token");
-
-	$.ajax({
-		url: "/resultquery/search",
-		type: 'POST',
-		dataType: 'json',
-		contentType: 'application/json, charset=utf-8',
-		data: JSON.stringify(query_object),
-		cache: false,
-		success: function(data) {
-			console.info(data)
-			if (data.status == "ok") {
-				var result = data.result.finalResult;
-				console.info(result)
-				var thead = "<tr>";
-					thead += "<th>序号</th>";
-					thead += "<th>Date</th>";
-					thead += "<th>Provice</th>";
-					if(datatype=="城市数据"){
-                        thead += "<th>City</th>";
-					}
-					if(datatype=="医院数据"){
-                        thead += "<th>City</th>";
-                        thead += "<th>Panel_ID</th>";
-					}
-                	thead += "<th>Market</th>";
-					thead += "<th>Product</th>";
-					thead += "<th>Sales</th>";
-                	thead += "<th>Units</th>";
-					thead += "</tr>";
-				$('thead[id="thead"]').html(thead);
-                var page = data.result.page[0];
-				var tbody = "";
-				if (result.length != 0) {
-					for (var i in result) {
-						tbody += "<tr class='gradeX'>";
-                        	tbody += "<td>" + (page.SERIAL+parseInt(i)) + "</td>";
-                        	tbody += "<td>" + result[i].Date + "</td>";
-                        	tbody += "<td>" + result[i].Provice + "</td>";
-							if(datatype=="城市数据"){
-                                tbody += "<td>" + result[i].City + "</td>";
-							}
-							if(datatype=="医院数据"){
-                                tbody += "<td>" + result[i].City + "</td>";
-                                tbody += "<td>" + result[i].Panel_ID + "</td>";
-							}
-							tbody += "<td>" + result[i].Market + "</td>";
-                        	tbody += "<td>" + result[i].Product + "</td>";
-							tbody += "<td>" + result[i].Sales + "</td>";
-							tbody += "<td>" + result[i].Units + "</td>";
-						tbody += "</tr>";
-					}
-                    loader.hide();
-				} else {
-					tbody += "<tr class='gradeX'><td valign='top' colspan='32'>没有匹配的记录</td></tr>";
-                    loader.hide();
-				}
-				$('tbody[id="tbody"]').html(tbody);
-				Page(data);
-            } else {
-				alert("请求超时。");
-			}
-            loader.hide();
-		},
-		error: function(xhr, status, error) {
-			alert("请检查您的输入");
-            loader.hide();
-		}
+    //*********************************************************************
+    //功能: 查询
+    //时间：20170413
+    //创建：Arthas
+    //说明：根据市场和日期筛选结果数据列表。
+    //*********************************************************************
+	$('#queryBtn').click(function(){
+        pageResult();
 	});
-}
+
+	pageResult(3);
+
+	function pageResult(page){
+	    $.showLoading('数据加载中...',140,40);
+        var datatype = $('select[data-name="search-result-datatype"]').val();
+        var market = $('select[data-name="search-result-market"]').val();
+        var startdate = $('input[name="startdate"]').val();
+        var enddate = $('input[name="enddate"]').val();
+
+        var query_object = new Object();
+        query_object['market'] = market;
+        query_object['staend'] = [startdate, enddate];
+        query_object['currentPage'] = page;
+        query_object['company'] = $.cookie("token");
+
+        $.ajax({
+            url: "/resultquery/search",
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json, charset=utf-8',
+            data: JSON.stringify(query_object),
+            cache: false,
+            success: function(data) {
+                $.hideLoading();
+                if (data.status == "ok") {
+                    var result = data.result.finalResult;
+                    console.info(result)
+                    var thead = "<tr>";
+                        thead += "<th>序号</th>";
+                        thead += "<th>Date</th>";
+                        thead += "<th>Provice</th>";
+                        if(datatype=="城市数据"){
+                            thead += "<th>City</th>";
+                        }
+                        if(datatype=="医院数据"){
+                            thead += "<th>City</th>";
+                            thead += "<th>Panel_ID</th>";
+                        }
+                        thead += "<th>Market</th>";
+                        thead += "<th>Product</th>";
+                        thead += "<th>Sales</th>";
+                        thead += "<th>Units</th>";
+                        thead += "</tr>";
+                    $('thead[id="thead"]').html(thead);
+                    var page = data.result.page[0];
+                    var tbody = "";
+                    if (result.length != 0) {
+                        for (var i in result) {
+                            tbody += "<tr class='gradeX'>";
+                                tbody += "<td>" + (page.SERIAL+parseInt(i)) + "</td>";
+                                tbody += "<td>" + result[i].Date + "</td>";
+                                tbody += "<td>" + result[i].Provice + "</td>";
+                                if(datatype=="城市数据"){
+                                    tbody += "<td>" + result[i].City + "</td>";
+                                }
+                                if(datatype=="医院数据"){
+                                    tbody += "<td>" + result[i].City + "</td>";
+                                    tbody += "<td>" + result[i].Panel_ID + "</td>";
+                                }
+                                tbody += "<td>" + result[i].Market + "</td>";
+                                tbody += "<td>" + result[i].Product + "</td>";
+                                tbody += "<td>" + result[i].Sales + "</td>";
+                                tbody += "<td>" + result[i].Units + "</td>";
+                            tbody += "</tr>";
+                        }
+                    } else {
+                        tbody += "<tr class='gradeX'><td valign='top' colspan='32'>没有匹配的记录</td></tr>";
+                    }
+                    $('tbody[id="tbody"]').html(tbody);
+                    Page(data);
+                } else {
+                    $.tooltip('My God, 请求超时！！！');
+                }
+            },
+            error: function(xhr, status, error) {
+                $.hideLoading();
+                $.tooltip('请检查您的输入！！！');
+            }
+        });
+	}
+});

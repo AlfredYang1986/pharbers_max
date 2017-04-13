@@ -78,6 +78,16 @@ class Application extends Controller {
       }
   }
 
+  //样本报告
+  def samplereport = Action { request =>
+    val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
+    if(token.equals("")){
+      Ok(views.html.login("Your new application is ready."))
+    }else{
+      Ok(views.html.sampleReport(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),MarketsModule.pushMarkets))
+    }
+  }
+
   //模型运算
   def modelOperation = Action { request =>
       val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
@@ -95,17 +105,6 @@ class Application extends Controller {
           Ok(views.html.login("Your new application is ready."))
       }else{
           Ok(views.html.resultQuery(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),MarketsModule.pushMarkets))
-      }
-  }
-
-  //管理员
-  def manageUploadFile = Action { request =>
-      val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
-      val is_administrator = enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt)
-      if(token.equals("") || is_administrator.equals("No")){
-          Ok(views.html.login("Your new application is ready."))
-      }else{
-          Ok(views.html.manageUpload(is_administrator,MarketsModule.pushMarkets))
       }
   }
 

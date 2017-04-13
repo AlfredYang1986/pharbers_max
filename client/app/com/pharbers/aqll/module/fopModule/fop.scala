@@ -48,33 +48,4 @@ object fop {
 		new FileInputStream(file).read(reVal)
 		reVal
 	}
-
-	def uploadHospitalFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
-		try {
-			Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(moveToFile(data))))
-		} catch {
-			case ex : Exception => error_handler(-1)
-		}
-	}
-
-    def moveToFile(data : MultipartFormData[TemporaryFile]) : List[JsValue] = {
-			var lst : List[JsValue] = Nil
-			val company = data.dataParts.get("company").get.head
-			val timestamp = data.dataParts.get("timestamp").get.head
-			val market = data.dataParts.get("market").get.head
-			val path = fileBase + company + hospitalData
-			val filename = MD5.md5(company+timestamp+StringOption.takeStringSpace(market))
-			val file = new File(path)
-			if(!file.exists()) { file.mkdirs() }else{
-				val file1 : File = new File(path + filename)
-				if(file1.exists()) file1.delete()
-			}
-			data.files.foreach { x =>
-				Files.TemporaryFile(x.ref.file).moveTo(new File(path + filename) , true)
-				lst = lst :+ toJson(filename.toString)
-			}
-			scpCmd(s"${path + filename}",s"${"program/FileBase/" + company + hospitalData}","aliyun106", "root").excute
-			scpCmd(s"${path + filename}", s"${"program/FileBase/" + company + hospitalData}", "aliyun50", "root").excute
-			lst
-		}
 }
