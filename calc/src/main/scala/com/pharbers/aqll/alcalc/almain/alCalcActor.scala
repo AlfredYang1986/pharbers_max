@@ -5,6 +5,7 @@ import java.util.UUID
 import akka.actor.{Actor, ActorLogging, FSM, Props}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alcalc.alcmd.pkgcmd.unPkgCmd
+import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.alcalc.alfinaldataprocess.{alDumpcollScp, alLocalRestoreColl, alRestoreColl}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates._
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
@@ -183,6 +184,7 @@ class alCalcActor extends Actor
 
                 val st = context.actorSelection(GetProperties.singletonPaht)
 //                st ! calc_final_result(r.parent, r.uuid, r.finalValue, r.finalUnit)
+                sendMessage.send(data.uuid, data.company, 10, "test")
 
                 r.subs.foreach { x =>
                     st ! calc_final_result(r.parent, x.uuid, x.finalValue, x.finalUnit)

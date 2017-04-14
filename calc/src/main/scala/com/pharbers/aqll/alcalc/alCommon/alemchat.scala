@@ -30,23 +30,23 @@ object ResponseHandler {
 		} catch {
 			case e: ApiException => {
 				e.getCode match {
+					case 400 => "400"
 					case 401 =>
 						TokenUtil.initTokenByProp
 						easemobAPI.invokeEasemobAPI
-					case 429 => println("The api call is too frequent"); "The api call is too frequent"
+					case 429 => "429"
 					case 500 =>
-						println("The server connection failed and is being reconnected")
 						val r = retry(easemobAPI)
-						if(r != null) r
-						println("The server may be faulty. Please try again later"); "The server may be faulty. Please try again later"
+						if(r != null) r else "500"
 					case _ => ???
 				}
 			}
 		}
 	}
 
-	def retry(easemobAPI: EasemobAPI): Any = {
+	def retry(easemobAPI: EasemobAPI): String = {
 		var time = 5
+		var r = ""
 		for(i <- 1 to 2) {
 			try {
 				println(s"Reconnection is in progress... $i")
@@ -57,6 +57,7 @@ object ResponseHandler {
 				case e2: InterruptedException => println(e2.getMessage)
 			}
 		}
+		r
 	}
 }
 

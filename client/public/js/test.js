@@ -1,11 +1,25 @@
 var conn;
 var load;
 $(function(){
+
     conn = load_Web_IM();
     login("test", "1")
     $("#login").click(function(){
 
     });
+    $("#ten").click(function(){
+        load.setPercent(10)
+    });
+    $("#zeor").click(function(){
+        load.setPercent(0)
+    });
+    $("#ten2").click(function(){
+        load.setPercent(20)
+    });
+    $("#haa").click(function(){
+        load.setPercent(100)
+    });
+
     $("#register").click(function(){
         register("BMS", "1")
     });
@@ -55,8 +69,8 @@ var callback = function() {
         },
         onClosed: function ( message ) {},         //连接关闭回调
         onTextMessage: function ( message ) {
-            //$("#msg").append("<p> msg：" + message.data + "，uuid：" + message.ext.uuid + "，company：" + message.ext.gs + "</p>")
-            load.setPercent(message.data)
+            var msg = eval("("+message.data+")")
+            load.setPercent(msg.progress)
         },    //收到文本消息
         onEmojiMessage: function ( message ) {},   //收到表情消息
         onPictureMessage: function ( message ) {}, //收到图片消息
@@ -99,7 +113,7 @@ var loading = function() {
     var outerRadius = (w / 2) - 10;
     var innerRadius = outerRadius - 8;
 
-    var color = ['#ec1561', '#2a3a46', '#202b33'];
+    var color = ['#1AB394', '#2a3a46', '#202b33'];
     var arc = d3.svg.arc()
         .innerRadius(innerRadius)
         .outerRadius(outerRadius)
@@ -119,10 +133,10 @@ var loading = function() {
 
     var svg = d3.select("#chart").append("svg").attr({
         width: w,
-        height: h,
-        class: 'shadow'
+        height: h
     }).append('g').attr({
-        transform: 'translate(' + w / 2 + ',' + h / 2 + ')'
+        // transform: 'translate(' + (w / 2) + ',' + (h / 2) + ')'
+        transform: 'translate(' + 140 + ',' + 140 + ')'
     });
 
 //background
@@ -140,7 +154,7 @@ var loading = function() {
 
     var endCircle = svg.append('circle').attr({
         r: 12,
-        transform: 'translate(0,' + (-outerRadius + 15) + ')'
+        transform: 'translate(0,' + (-outerRadius + 4) + ')'
     }).style({
         stroke: color[0],
         'stroke-width': 8,
@@ -155,11 +169,15 @@ var loading = function() {
         dy: 25,
         dx: 0
     }).style({
-        fill: '#ec1561',
+        fill: '#1AB394',
         'font-size': '80px'
     });
 
     var arcTweenOld = function(transition, percent, oldValue) {
+        if(percent >= 100 || oldValue >= 100) {
+            percent = 100
+            oldValue = 100
+        }
         transition.attrTween("d", function(d) {
 
             var newAngle = (percent / 100) * (2 * Math.PI);
@@ -171,22 +189,36 @@ var loading = function() {
             return function(t) {
                 d.endAngle = interpolate(t);
                 var pathForegroundCircle = arcLine(d);
-                middleTextCount.text(Math.floor(interpolateCount(t)) + '%');
+                middleTextCount.text((Math.floor(interpolateCount(t))) + '%');
                 var pathDummyCircle = arcDummy(d);
-                var coordinate = pathDummyCircle.split("L")[1].split("A")[0];
-                endCircle.attr('transform', 'translate(' + coordinate + ')');
+                try {
+                    var coordinate = pathDummyCircle.split("L")[1].split("A")[0];
+                    endCircle.attr('transform', 'translate(' + coordinate + ')');
+                } catch(e) {
+                    var t = "-0.539510655986597,-135.73163506624493"
+                    endCircle.attr('transform', 'translate(' + t + ')');
+                }
                 return pathForegroundCircle;
             };
         });
     };
 
     var oldValue = 0;
-
     this.setPercent = function(num) {
+        var t = 0
+        if(num > 0 && oldValue < 100) {
+            t = oldValue + num;
+        }else if(oldValue >= 100) {
+            t = num;
+            oldValue = num;
+        }else if(num == 0) {
+            oldValue = 0
+        }
         pathForeground.transition()
             .duration(750)
             .ease('cubic')
-            .call(arcTweenOld, num, oldValue);
-        oldValue = num;
+            .call(arcTweenOld, t, oldValue);
+
+        oldValue = t;
     }
 }

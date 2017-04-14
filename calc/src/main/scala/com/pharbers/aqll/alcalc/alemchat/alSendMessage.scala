@@ -28,14 +28,23 @@ class alSendMessage extends alSendMessageTrait with EasemobAPI {
 }
 
 object sendMessage {
-	def send(content: String, uname: String): String = {
+	def send(uuid: String, company: String, progress: Int, uname: String): String = {
+		val c = s"""{"uuid": "$uuid", "company": "$company", "progress": $progress}"""
 		val msg = new Msg
 		val msgContent = new MsgContent
-		msgContent.`type`(MsgContent.TypeEnum.TXT).msg(content)
+		msgContent.`type`(MsgContent.TypeEnum.TXT).msg(c)
 		val userName = new UserName
 		userName.add(uname)
 		msg.from("project").target(userName).targetType("users").msg(msgContent)
-		val result = alFromJson.formJson(new alSendMessage().sendMsg(msg))
-		result.get("data").asInstanceOf[LinkedTreeMap[String, String]].get(uname)
+		val result = new alSendMessage().sendMsg(msg)
+		result match {
+			case "400" => println("400"); "message is error"
+			case "401" => println("401"); "unkown error"
+			case "429" => println("429"); "unkown error"
+			case "500" => println("500"); "server us error"
+			case x => {
+				alFromJson.formJson(x).get("data").asInstanceOf[LinkedTreeMap[String, String]].get(uname)
+			}
+		}
 	}
 }

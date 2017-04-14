@@ -10,6 +10,7 @@ import akka.util.Timeout
 import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.alcalc.alcmd.scpcmd.scpCmd
 import com.pharbers.aqll.alcalc.aldata.alStorage
+import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alRestoreColl
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alWeightSum._
 import com.pharbers.aqll.alcalc.aljobs.{alJob, alPkgJob}
@@ -439,6 +440,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                 }
 
                 if (r.subs.filterNot (x => x.isCalc).isEmpty) {
+                    sendMessage.send(uuid, company._1, 30, "test")
                     r.finalValue = r.subs.map(_.finalValue).sum
                     r.finalUnit = r.subs.map(_.finalUnit).sum
                     r.isCalc = true
@@ -452,6 +454,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     val e_mail = MailToEmail.getEmail(company._1)
                     MailAgent(Mail(GetProperties.mail_context, GetProperties.mail_subject, e_mail)).sendMessage()
                     endDate("计算完成",start)
+                    sendMessage.send(uuid, company._1, 100, "test")
                     atomic { implicit tnx =>
                         calcing_jobs() = calcing_jobs().tail
                     }
@@ -464,13 +467,16 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
         alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
             case None => println(s"commit_finalresult_jobs_func not company")
             case Some(x) =>
+                sendMessage.send("", company, 30, "test")
                 println(s"x.uuid = ${x.uuid}")
                 new alWeightSum(company, company + x.uuid)
+                sendMessage.send("", company, 20, "test")
                 println(s"开始删除临时表")
                 _data_connection_cores.getCollection(company + x.uuid).drop()
                 println(s"结束删除临时表")
                 val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(x.uuid))
                 alCalcParmary.alParmary.single.get.remove(index)
+                sendMessage.send("", company, 100, "test")
         }
     }
 

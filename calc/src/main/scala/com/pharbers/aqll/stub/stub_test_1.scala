@@ -1,18 +1,22 @@
 package com.pharbers.aqll.stub
 
+import com.google.gson.Gson
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
 
 /**
   * Created by Alfred on 09/03/2017.
   */
 object stub_test_1 extends App {
-
-	val result = sendMessage.send("60", "test")
+	val uuid = "123dsd12s12"
+	val company = "BMS"
+	val progress = 100
+	val c = s"""{"uuid": "$uuid", "company": "$company", "progress": $progress}"""
+	val result = sendMessage.send(uuid, company, progress , "test")
 	println(result)
 
 	//{
 	//// test case 1 : reading excel file and storage and portion
-	//val s = alStorage("""config/new_test/2016-01.xlsx""", new alIntegrateddataparser)
+	//val s = alStorage(config/new_test/2016-01.xlsx""", new alIntegrateddataparser)
 	//val ps = s.portion { lst =>
 	//lst.grouped(10).map(iter => alPortion(iter)).toList
 	//}

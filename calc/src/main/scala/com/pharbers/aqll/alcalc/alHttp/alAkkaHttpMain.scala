@@ -48,6 +48,7 @@ object alAkkaHttpMain extends App with RequestTimeout {
 		val w = system.actorOf(alGroupActor.props)
 		val c = system.actorOf(alCalcActor.props)
 		val a = system.actorOf(alDriverSingleton.props, "splitreception")
+
 		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
 			Cluster(system).registerOnMemberUp {
 				println("cluster ready")
