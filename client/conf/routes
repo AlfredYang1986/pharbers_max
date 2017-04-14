@@ -21,8 +21,7 @@ GET		/modeloperation				controllers.Application.modelOperation
 GET		/resultquery				controllers.Application.resultQuery
 POST 	/resultquery/search			controllers.ResultQueryController.resultQueryAjaxCall
 POST	/samplecheck/check			controllers.SampleCheckController.sampleCheckAjaxCall
-POST    /samplecheck/line           controllers.SampleCheckController.sampleCheckAjaxChartsLineCall
-POST    /samplecheck/plot           controllers.SampleCheckController.sampleCheckAjaxChartsPlotCall
+POST	/samplereport/report		controllers.SampleReportController.sampleReportAjaxCall
 POST	/modeloperation/operation	controllers.ModelOperationController.mondelOperationAjaxCall
 POST	/login/start			    controllers.LoginController.Login
 GET     /resultquery/files/:name    controllers.foptController.exportFile(name)

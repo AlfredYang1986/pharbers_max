@@ -23,7 +23,7 @@ object LoginModule extends ModuleTrait {
     }
 
     def login(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-
+        println(data)
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) =>
@@ -53,6 +53,7 @@ object LoginModule extends ModuleTrait {
         }
 
         try {
+            println(conditions)
             conditions.size match {
                 case 0 => (Some(Map("FinalResult" -> toJson("input is null"))), None)
 
