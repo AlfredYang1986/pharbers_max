@@ -439,8 +439,10 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     case _ => ???
                 }
 
+                sendMessage.send(uuid, company._1, 2, "test")
+
                 if (r.subs.filterNot (x => x.isCalc).isEmpty) {
-                    sendMessage.send(uuid, company._1, 30, "test")
+                    sendMessage.send(uuid, company._1, 10, "test")
                     r.finalValue = r.subs.map(_.finalValue).sum
                     r.finalUnit = r.subs.map(_.finalUnit).sum
                     r.isCalc = true

@@ -24,7 +24,6 @@ $(function(){
     p = new progress2();
     conn = load_Web_IM();
     login_im("test", "1");
-
     // var proto = beget(callback.prototype);
     // proto.constructor = test;
     // test.prototype = proto;
@@ -54,7 +53,7 @@ $(function(){
                 dataType: "json",
                 success: function (json) {
                     $(".progresstier").css("display", "block");
-                    p.setPercent(5);
+                    p.setPercent(4);
                 },
                 error: function (e) {
                     $.tooltip('My God, 出错啦！！！');

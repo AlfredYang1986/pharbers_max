@@ -41,9 +41,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 
 	def cleaningdata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			println(s"data=$data")
 			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/uploadfile", data)
-			println(s"result=${result}")
 			(Some(Map("result" -> result)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -52,7 +50,6 @@ object CallAkkaHttpModule extends ModuleTrait {
 
 	def checkExcel(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-				println(s"data=$data")
 				call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/samplecheck", data)
 				(Some(Map("result" -> toJson("Ok"))), None)
 		} catch {
@@ -62,9 +59,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 
 	def runModel(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			println(s"data=${data}")
 			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/modelcalc", data)
-			println(s"result=${result}")
 			(Some(Map("result" -> result)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -73,9 +68,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 
 	def commitrundata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			println(s"data=$data")
 			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/datacommit", data)
-			println(s"result=${result}")
 			(Some(Map("result" -> toJson("ok"))), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -84,7 +77,6 @@ object CallAkkaHttpModule extends ModuleTrait {
 
 	def fileExport(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			println(s"data=$data")
 			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/dataexport", data)
 			(Some(Map("result" -> result)), None)
 		} catch {
@@ -103,7 +95,6 @@ object CallAkkaHttpModule extends ModuleTrait {
 
 	def call(uri: String, data: JsValue): JsValue = {
 		val json = (HTTP(uri)).post(data).as[JsValue]
-		println(s"json=${json}")
 		json
 	}
 }

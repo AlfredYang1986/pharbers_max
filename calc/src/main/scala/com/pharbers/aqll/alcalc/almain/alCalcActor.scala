@@ -15,6 +15,7 @@ import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.alPkgJob
 import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.util.dao._data_connection_cores
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -160,6 +161,11 @@ class alCalcActor extends Actor
             alDumpcollScp(sub_uuid)
             println(s"单个线程备份传输结束")
 
+            println(s"单个线程开始删除临时表")
+            _data_connection_cores.getCollection(sub_uuid).drop()
+            println(s"单个线程结束删除临时表")
+            sendMessage.send(data.uuid, data.company, 1, "test")
+
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
                 println(sub_uuid)
 //                val uuid = UUID.randomUUID.toString
@@ -184,7 +190,6 @@ class alCalcActor extends Actor
 
                 val st = context.actorSelection(GetProperties.singletonPaht)
 //                st ! calc_final_result(r.parent, r.uuid, r.finalValue, r.finalUnit)
-                sendMessage.send(data.uuid, data.company, 10, "test")
 
                 r.subs.foreach { x =>
                     st ! calc_final_result(r.parent, x.uuid, x.finalValue, x.finalUnit)

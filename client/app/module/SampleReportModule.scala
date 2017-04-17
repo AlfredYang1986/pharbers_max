@@ -62,7 +62,6 @@ object SampleReportModule extends ModuleTrait {
 				}
 				lb.append(toJson(Map("Market" -> toJson(x._1.toString),"date_lst_sb" -> toJson(date_lst_sb.toList),"dhp_lst_sb" -> toJson(dhp_lst_sb.toList))))
 			}
-			println(lb)
 			(Some(Map("result" -> toJson(lb))), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))

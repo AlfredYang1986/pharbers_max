@@ -35,7 +35,6 @@ object ResultQueryModule extends ModuleTrait {
 			case 0 => conditions = MongoDBObject("Date" -> MongoDBObject("$gte" -> fmomat_f.parse(staend.head).getTime,"$lt" -> fmomat_f.parse(staend.tail.head).getTime))
 			case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> market),"Date" -> MongoDBObject("$gte" -> fmomat_f.parse(staend.head).getTime,"$lt" -> fmomat_f.parse(staend.tail.head).getTime))
 		}
-		println(conditions)
 		val currentPage = (data \ "currentPage").asOpt[Int].map (x => x).getOrElse(3)
 		val order = "Date"
 		val company = (data \ "company").asOpt[String].get
