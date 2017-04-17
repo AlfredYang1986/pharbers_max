@@ -1,6 +1,10 @@
-
-
 var conn;
+
+var beget = function(obj) {
+    var F = function(){};
+    F.prototype = obj;
+    return new F();
+}
 
 $(function(){
     conn = load_Web_IM();
@@ -27,7 +31,7 @@ var login_im = function(u, p) {
 }
 
 var callback = function() {
-    conn.listen({
+     conn.listen({
         onOpened: function ( message ) {          //连接成功回调
             // 如果isAutoLogin设置为false，那么必须手动设置上线，否则无法收消息
             // 手动上线指的是调用conn.setPresence(); 如果conn初始化时已将isAutoLogin设置为true
@@ -77,8 +81,4 @@ var callback = function() {
             console.log(list);
         }
     });
-}
-
-var test = function() {
-
 }

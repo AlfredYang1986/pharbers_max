@@ -19,6 +19,7 @@ assemblyMergeStrategy in assembly := {
 	case PathList("scala", "text", xs @ _*) => MergeStrategy.first
 	case PathList("scala", "util", xs @ _*) => MergeStrategy.first
 	case PathList("org", "slf4j", xs @ _*) => MergeStrategy.first
+	case PathList("org", "joda", xs @ _*) => MergeStrategy.first
 	case "library.properties" => MergeStrategy.concat
 	case PathList(ps @ _*) if ps.last endsWith "Predef$any2stringadd$.class" => MergeStrategy.first
 	case PathList(ps @ _*) if ps.last endsWith "Array$.class" => MergeStrategy.first
