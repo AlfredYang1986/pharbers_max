@@ -23,6 +23,8 @@ object CallAkkaHttpModuleMessage {
 
 	case class msg_CallCleaningData(data: JsValue) extends msg_CallHttp
 
+	case class msg_CallUploadBefore(data: JsValue) extends msg_CallHttp
+
 }
 
 object CallAkkaHttpModule extends ModuleTrait {
@@ -36,7 +38,19 @@ object CallAkkaHttpModule extends ModuleTrait {
 		case msg_CallFileExport(data) => fileExport(data)
 		case msg_CallCommitRunData(data) => commitrundata(data)
 		case msg_CallCleaningData(data) => cleaningdata(data)
+		case msg_CallUploadBefore(data) => uploadbefore(data)
 		case _ => println("Error---------------"); ???
+	}
+
+	def uploadbefore(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			println(s"data=$data")
+			val result = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/uploadbefore", data)
+			println(s"result=${result}")
+			(Some(Map("result" -> result)), None)
+		} catch {
+			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+		}
 	}
 
 	def cleaningdata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {

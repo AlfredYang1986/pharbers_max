@@ -30,6 +30,7 @@ POST    /callrunmodel               controllers.CallAkkaHttpController.callHttpR
 POST    /callfileexport             controllers.CallAkkaHttpController.callHttpFileExportAjaxCall
 POST    /commitrunresult            controllers.CallAkkaHttpController.callHttpCommitRunResultAjaxCall
 POST    /cleaningdata               controllers.CallAkkaHttpController.callHttpCleaningDataAjaxCall
+POST    /uploadbefore               controllers.CallAkkaHttpController.callHttpUploadBeforeAjaxCall
 
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)

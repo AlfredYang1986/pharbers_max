@@ -1,8 +1,6 @@
 package com.pharbers.aqll.alcalc.alcmd.pyshell
 
 import java.io._
-import scala.collection.mutable.ListBuffer
-import collection.JavaConversions._
 
 trait ShellCmdPyExce {
 
@@ -19,40 +17,35 @@ trait ShellCmdPyExce {
             val input = new LineNumberReader(ir)
             var line : String = null
             process.waitFor()
-            var filename = ""
+            var result = ""
             do {
                 line = input.readLine()
-                if(line!=null){
-                    println(line)
-                    filename = line
-                }
+                if(line!=null)
+                    result = line
             } while (line != null)
-
-            if(!filename.equals("")){
+            if(!result.equals("")){
                 println("Python Code调用成功。")
-                python_func(0,filename,filename :: Nil)
+                python_func(0,result)
             }else{
                 println("Python Code调用失败，内部错误。")
-                python_func(-1,"error","error" :: Nil)
+                python_func(-1,"error")
             }
         } catch {
             case _ : IOException => {
                 println("io exception occurs")
-                python_func(-1,"error","error" :: Nil)
+                python_func(-1,"error")
             }
-
             case ex : Exception => {
                 println(ex.getMessage)
-                python_func(-1,"error","error" :: Nil)
+                python_func(-1,"error")
             }
         }
     }
 
-    def python_func(status: Integer,filename: String,markets: List[String]) : List[Python] ={
+    def python_func(status: Integer,result: String) : List[Python] ={
         val python : Python = new Python()
         python.setStatus(status)
-        python.setFilename(filename)
-        python.setMarkets(markets)
+        python.setResult(result)
         python :: Nil
     }
 }

@@ -37,4 +37,7 @@ class CallAkkaHttpController extends Controller{
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpCleaningDataAjaxCall"))), jv, request) :: msg_CallCleaningData(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
+    def callHttpUploadBeforeAjaxCall = Action (request => requestArgs(request) { jv =>
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpUploadBeforeAjaxCall"))), jv, request) :: msg_CallUploadBefore(jv) :: msg_CommonResultMessage() :: Nil, None)
+    })
 }

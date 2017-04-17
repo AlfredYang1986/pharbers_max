@@ -6,12 +6,14 @@ import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
 import com.google.gson.Gson
 import com.pharbers.aqll.alcalc.alcmd.pyshell.pyShell
+import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alFileExport.alFileExport
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{commit_finalresult_jobs, filter_excel_jobs, check_excel_jobs}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{check_excel_jobs, commit_finalresult_jobs, filter_excel_jobs}
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
 import com.pharbers.aqll.util.GetProperties._
 import spray.json.DefaultJsonProtocol
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck
+
 import scala.concurrent.ExecutionContext
 
 /**
@@ -24,14 +26,16 @@ class alAkkaHttpFuncApi(system: ActorSystem, timeout: Timeout) extends alAkkaHtt
 	implicit def executionContext = system.dispatcher
 }
 
-case class alUploadItem(company: String)
+case class alUpBeforeItem(company: String)
+case class alUploadItem(company: String,yms: String)
 case class alCheckItem(company: String,filename: String)
 case class alCalcItem(filename: String, company: String)
 case class alCommitItem(company: String)
 case class alExportItem(datatype: String,market : List[String],staend : List[String],company : String,filetype : String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-	implicit val itemFormatUpload = jsonFormat1(alUploadItem)
+	implicit val itemFormatUpBefore = jsonFormat1(alUpBeforeItem)
+	implicit val itemFormatUpload = jsonFormat2(alUploadItem)
 	implicit val itemFormatCheck = jsonFormat2(alCheckItem)
 	implicit val itemFormatCalc = jsonFormat2(alCalcItem)
 	implicit val itemFormatCommit = jsonFormat1(alCommitItem)
@@ -44,7 +48,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 
 	implicit def requestTimeout: Timeout
 
-	val routes = alTest ~ alSampleCheckDataFunc ~ alCalcDataFunc ~ alModelOperationCommitFunc ~ alFileUploadPythonFunc ~ alResultFileExportFunc
+	val routes = alTest ~ alSampleCheckDataFunc ~ alCalcDataFunc ~ alModelOperationCommitFunc ~ alFileUploadPythonFunc ~ alResultFileExportFunc ~ alFileUploadPyBefore
 
 	def alTest = post {
 		path("test") {
@@ -52,11 +56,25 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		}
 	}
 
+	def alFileUploadPyBefore = post {
+		path("uploadbefore") {
+			entity(as[alUpBeforeItem]) { item =>
+				println(s"company=${item.company}")
+				sendMessage.send("", "", 10, "test")
+				val result = pyShell(item.company,"MaximumLikelyMonth.py","").excute
+				sendMessage.send("", "", 100, "test")
+				val gson: Gson = new Gson()
+				println(s"result=${gson.toJson(result)}")
+				complete("""{"result":""" + gson.toJson(result) +"""}""")
+			}
+		}
+	}
+
 	def alFileUploadPythonFunc = post {
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
 				println(s"company=${item.company}")
-				val result = pyShell(item.company).excute
+				val result = pyShell(item.company,"GeneratePanelFile.py",item.yms).excute
 				val gson: Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":""" + gson.toJson(result) +"""}""")
