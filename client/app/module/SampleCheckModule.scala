@@ -40,11 +40,11 @@ object SampleCheckModule extends ModuleTrait {
 		val top_query_last12 = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$gte" -> last12_date.head,"$lt" -> last12_date.tail.head))
 
 		try {
-			val top_current_mismatch = (from db() in "SampleCheck" where top_query_mismatch).select(Top_Current_Mismatch(_))(_data_connection_cores).toList
-			val top_early = (from db() in "SampleCheck" where top_query_early).select(Top_Early_Last(_))(_data_connection_cores).toList
-			val top_last = (from db() in "SampleCheck" where top_query_last).select(Top_Early_Last(_))(_data_connection_cores).toList
-			val top_early12 = (from db() in "SampleCheck" where top_query_early12).selectSort("Date")(Top_Early12_Last12(_))(_data_connection_cores).toList
-			val top_last12 = (from db() in "SampleCheck" where top_query_last12).selectSort("Date")(Top_Early12_Last12(_))(_data_connection_cores).toList
+			val top_current_mismatch = (from db() in "FactResult" where top_query_mismatch).select(Top_Current_Mismatch(_))(_data_connection_cores).toList
+			val top_early = (from db() in "SampleCheckResult" where top_query_early).select(Top_Early_Last(_))(_data_connection_cores).toList
+			val top_last = (from db() in "SampleCheckResult" where top_query_last).select(Top_Early_Last(_))(_data_connection_cores).toList
+			val top_early12 = (from db() in "SampleCheckResult" where top_query_early12).selectSort("Date")(Top_Early12_Last12(_))(_data_connection_cores).toList
+			val top_last12 = (from db() in "SampleCheckResult" where top_query_last12).selectSort("Date")(Top_Early12_Last12(_))(_data_connection_cores).toList
 
 			(Some(Map(
 				"top_mismatch" -> toJson(top_current_mismatch),

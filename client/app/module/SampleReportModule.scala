@@ -34,7 +34,7 @@ object SampleReportModule extends ModuleTrait {
 			val query = MongoDBObject("Company" -> company)
 
 		try {
-			val markets = (from db() in "SampleCheck" where query).selectSort("Date")(MongoDBReport(_))(_data_connection_cores).toList
+			val markets = (from db() in "FactResult" where query).selectSort("Date")(MongoDBReport(_))(_data_connection_cores).toList
 
 			val markets_g = markets.asInstanceOf[List[Map[String,Any]]].groupBy(x => x.get("Market").get)
 			val lb = new ListBuffer[JsValue]()
@@ -46,10 +46,10 @@ object SampleReportModule extends ModuleTrait {
 					date_lst_sb.append(toJson(s"$date"))
 					val e_query = MongoDBObject("Company" -> company,"Market" -> y.get("Market").get,"Date" -> MongoDBObject("$eq" -> DateUtils.yyyyMM2EarlyLong(date.toString)))
 					val l_query = MongoDBObject("Company" -> company,"Market" -> y.get("Market").get,"Date" -> MongoDBObject("$eq" -> DateUtils.yyyyMM2LastLong(y.get("Date").get.toString)))
-					val en_productNum = (from db() in "SampleCheck" where e_query).select(MongoDBProductNum(_))(_data_connection_cores).toList
-					val ln_marketNum = (from db() in "SampleCheck" where e_query).select(MongoDBHospitalNum(_))(_data_connection_cores).toList
-					val el_productNum = (from db() in "SampleCheck" where l_query).select(MongoDBProductNum(_))(_data_connection_cores).toList
-					val ll_marketNum = (from db() in "SampleCheck" where l_query).select(MongoDBHospitalNum(_))(_data_connection_cores).toList
+					val en_productNum = (from db() in "SampleCheckResult" where e_query).select(MongoDBProductNum(_))(_data_connection_cores).toList
+					val ln_marketNum = (from db() in "SampleCheckResult" where e_query).select(MongoDBHospitalNum(_))(_data_connection_cores).toList
+					val el_productNum = (from db() in "SampleCheckResult" where l_query).select(MongoDBProductNum(_))(_data_connection_cores).toList
+					val ll_marketNum = (from db() in "SampleCheckResult" where l_query).select(MongoDBHospitalNum(_))(_data_connection_cores).toList
 					dhp_lst_sb.append(
 					toJson(Map("Date" -> toJson(y.get("Date").get.toString),
 						"c_HospNum" -> toJson(y.get("HospNum").get.toString),
