@@ -13,17 +13,14 @@ trait alSendMessageTrait {
 	def sendMsg(payload: Msg): String
 }
 
-class alSendMessage extends alSendMessageTrait with EasemobAPI {
+class alSendMessage extends alSendMessageTrait {
 	val responseHandler = ResponseHandler
 	val api = new MessagesApi
-	var p: Msg = null
-	override def sendMsg(payload: Msg): String = {
-		p = payload
-		ResponseHandler.handle(this)
-	}
 
-	override def invokeEasemobAPI() = {
-		api.orgNameAppNameMessagesPost(alOrgInfo.alOrgName,alOrgInfo.alAppName,TokenUtil.getAccessToken, p)
+	override def sendMsg(payload: Msg): String = {
+		ResponseHandler.handle(new EasemobAPI {
+			override def invokeEasemobAPI(): String = api.orgNameAppNameMessagesPost(alOrgInfo.alOrgName,alOrgInfo.alAppName,TokenUtil.getAccessToken, payload)
+		})
 	}
 }
 
@@ -37,14 +34,6 @@ object sendMessage {
 		userName.add(uname)
 		msg.from("project").target(userName).targetType("users").msg(msgContent)
 		val result = new alSendMessage().sendMsg(msg)
-		result match {
-			case "400" => println("400"); "message is error"
-			case "401" => println("401"); "unkown error"
-			case "429" => println("429"); "unkown error"
-			case "500" => println("500"); "server us error"
-			case x => {
-				alFromJson.formJson(x).get("data").asInstanceOf[LinkedTreeMap[String, String]].get(uname)
-			}
-		}
+		resultIMException(result)
 	}
 }

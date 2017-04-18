@@ -64,11 +64,11 @@ var setProgress = function() {
     conn.listen({
         onTextMessage: function ( message ) {
             var msg = eval("("+message.data+")")
-            if(msg.progress == 100){
+            msgIdentifying = msg.progress
+            var r = p.setPercent(msg.progress)
+            if(msg.progress >= 100 || r >= 100) {
                 p.setPercent(0)
                 $(".progresstier").css("display", "none");
-            }else{
-                p.setPercent(msg.progress)
             }
         }
     });

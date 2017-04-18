@@ -1,4 +1,5 @@
 var conn;
+var msgIdentifying = 0;
 
 var beget = function(obj) {
     var F = function(){};
@@ -40,11 +41,11 @@ var callback = function() {
         onClosed: function ( message ) {},         //连接关闭回调
         onTextMessage: function ( message ) {
             var msg = eval("("+message.data+")")
-            if(msg.progress == 100){
+            var r = p.setPercent(msg.progress)
+            msgIdentifying = msg.progress
+            if(msg.progress >= 100 || r >= 100) {
                 p.setPercent(0)
                 $(".progresstier").css("display", "none");
-            }else{
-                p.setPercent(msg.progress)
             }
         },    //收到文本消息
         onEmojiMessage: function ( message ) {},   //收到表情消息

@@ -1,7 +1,7 @@
 /**
  * Created by Wli on 2017/1/5.
  */
-var p;
+var p = null;
 
 // var test = function() {
 //     callback.call(this);
@@ -97,12 +97,12 @@ var nextStep = function() {
     conn.listen({
         onTextMessage: function ( message ) {
             var msg = eval("("+message.data+")")
-            if(msg.progress == 100){
+            msgIdentifying = msg.progress
+            var r = p.setPercent(msg.progress)
+            if(msg.progress >= 100 || r >= 100) {
                 p.setPercent(0)
                 $(".progresstier").css("display", "none");
-                document.getElementById("jgcx").click()
-            }else{
-                p.setPercent(msg.progress)
+                setTimeout(function(){document.getElementById("jgcx").click()}, 1000 * 1)
             }
         }
     });

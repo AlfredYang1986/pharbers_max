@@ -1,3 +1,5 @@
+var timeProgressInterval = null;
+
 var progress2 = function() {
     var w = 300, h = 320;
     var outerRadius = (w / 2) - 10;
@@ -55,6 +57,7 @@ var progress2 = function() {
     }).attr({
         class: 'middleText',
         'text-anchor': 'middle',
+        id: "progress",
         dy: 25,
         dx: 0
     }).style({
@@ -63,10 +66,6 @@ var progress2 = function() {
     });
 
     var arcTweenOld = function(transition, percent, oldValue) {
-        if(percent >= 100 || oldValue >= 100) {
-            percent = 100
-            oldValue = 100
-        }
         transition.attrTween("d", function(d) {
 
             var newAngle = (percent / 100) * (2 * Math.PI);
@@ -92,22 +91,45 @@ var progress2 = function() {
         });
     };
 
-    var oldValue = 0;
+    this.oldValue = 0;
     this.setPercent = function(num) {
         var t = 0
-        if(num > 0 && oldValue < 100) {
-            t = oldValue + num;
-        }else if(oldValue >= 100) {
-            t = num;
-            oldValue = num;
-        }else if(num == 0) {
-            oldValue = 0
+        if(num > 0 && this.oldValue < 100) {
+            t = this.oldValue + num;
+        } if(this.oldValue >= 100 || t >= 100) {
+            t = 100;
+            this.oldValue = 100;
+        } if(num == 0) {
+            t = 0
+            this.oldValue = 0
         }
+
         pathForeground.transition()
             .duration(750)
             .ease('cubic')
-            .call(arcTweenOld, t, oldValue);
+            .call(arcTweenOld, t, this.oldValue);
 
-        oldValue = t;
+        this.oldValue = t;
+        return this.oldValue;
+    }
+}
+
+var setProgressStart = function(){
+    var temp = msgIdentifying
+    var setP = function() {
+        if(msgIdentifying == temp) {
+            p.setPercent(1)
+        }else {
+            setTimeout(function(){setProgressStop()}, 1000 * 5);
+        }
+    }
+    timeProgressInterval = setInterval(setP, 1000 * 10);
+}
+
+var setProgressStop = function() {
+    if(timeProgressInterval){
+        clearInterval(timeProgressInterval)
+        timeProgressInterval = null
+        setTimeout(function(){setProgressStart()}, 1000 * 60);
     }
 }

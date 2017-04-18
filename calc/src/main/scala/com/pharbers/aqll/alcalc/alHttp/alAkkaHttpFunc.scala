@@ -7,6 +7,7 @@ import akka.util.Timeout
 import com.google.gson.Gson
 import com.pharbers.aqll.alcalc.alcmd.pyshell.pyShell
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
+import com.pharbers.aqll.alcalc.alemchat.alIMUser
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alFileExport.alFileExport
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{check_excel_jobs, commit_finalresult_jobs, filter_excel_jobs}
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
@@ -32,6 +33,7 @@ case class alCheckItem(company: String,filename: String)
 case class alCalcItem(filename: String, company: String)
 case class alCommitItem(company: String)
 case class alExportItem(datatype: String,market : List[String],staend : List[String],company : String,filetype : String)
+case class alHttpCreateIMUser(name: String, pwd: String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 	implicit val itemFormatUpBefore = jsonFormat1(alUpBeforeItem)
@@ -40,6 +42,7 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 	implicit val itemFormatCalc = jsonFormat2(alCalcItem)
 	implicit val itemFormatCommit = jsonFormat1(alCommitItem)
 	implicit val itemFormatExport = jsonFormat5(alExportItem)
+	implicit val itemFormatUser = jsonFormat2(alHttpCreateIMUser)
 }
 
 trait alAkkaHttpFunc extends Directives with JsonSupport{
@@ -133,6 +136,15 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				val gson : Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":"""+gson.toJson(result)+"""}""")
+			}
+		}
+	}
+
+	def alCreateIMUserFunc = post {
+		path("createimuser") {
+			entity(as[alHttpCreateIMUser]) { item =>
+				alIMUser.createUser(item.name, item.pwd)
+				complete("""{"result": "OK"}""")
 			}
 		}
 	}

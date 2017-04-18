@@ -38,7 +38,7 @@ object ResponseHandler {
 					case 500 =>
 						val r = retry(easemobAPI)
 						if(r != null) r else "500"
-					case _ => ???
+					case x => x.toString
 				}
 			}
 		}
