@@ -74,7 +74,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
 				println(s"company=${item.company}")
+				sendMessage.send("", "", 10, "test")
 				val result = pyShell(item.company,"GeneratePanelFile.py",item.yms).excute
+				sendMessage.send("", "", 100, "test")
 				val gson: Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":""" + gson.toJson(result) +"""}""")
@@ -89,7 +91,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				//val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				//a ! check_excel_jobs(item.company,item.filename)
 				println(s"company=${item.company} filename=${item.filename}")
+				sendMessage.send("", "", 10, "test")
 				alSampleCheck(item.company,item.filename)
+				sendMessage.send("", "", 100, "test")
 				complete("""{"result" : "Ok"}""")
 			}
 		}

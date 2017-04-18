@@ -27,7 +27,6 @@ object SliceUpload {
             val company = data.dataParts.get("company").get.head
             val date = data.dataParts.get("date").get.head
             val market = data.dataParts.get("market").get.head
-            //println(date)
             MD5.md5(company+date+StringOption.takeStringSpace(market))
           }
           case _ => x.filename

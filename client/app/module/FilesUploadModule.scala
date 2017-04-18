@@ -21,16 +21,17 @@ object FilesUploadModule extends ModuleTrait {
 		case _ => ???
 	}
 
-    def msg_scpfile_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-      try {
-        val company = (data \ "company").asOpt[String].get
-        val scp_filename = (data \ "filename").asOpt[String].get
-        val scp_filepath = s"$fileBase$company$hospitalData"
-        scpCmd(s"$scp_filepath$scp_filename",s"$scp_filepath","aliyun106", "root").excute
-        scpCmd(s"$scp_filepath$scp_filename",s"$scp_filepath", "aliyun50", "root").excute
-        (Some(Map("result" -> toJson("OK"))), None)
-      } catch {
-        case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
-      }
+  def msg_scpfile_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+    try {
+      val company = (data \ "company").asOpt[String].get
+      val scp_filename = (data \ "filename").asOpt[String].get
+      val scp_filepath = s"$fileBase$company$hospitalData"
+      //println(company+"-----"+scp_filename)
+      scpCmd(s"$scp_filepath$scp_filename",s"$scp_filepath","aliyun106", "root").excute
+      scpCmd(s"$scp_filepath$scp_filename",s"$scp_filepath", "aliyun50", "root").excute
+      (Some(Map("result" -> toJson("OK"))), None)
+    } catch {
+      case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))
     }
+  }
 }

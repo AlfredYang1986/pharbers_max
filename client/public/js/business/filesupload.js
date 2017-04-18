@@ -65,7 +65,8 @@ $(function(){
             }
         })
         if(checked!=""){
-            $.showLoading('文件确认中...',140,40);
+            $(".progresstier").css("display", "block");
+            p.setPercent(10);
             var query_object = new Object();
             query_object['company'] = $.cookie("token");
             query_object['yms'] = checked;
@@ -78,7 +79,6 @@ $(function(){
                 cache: false,
                 success: function(data) {
                     if (data.status == "ok") {
-                        $.hideLoading();
                         if(data.result.result.result.head.status==0){
                             $.cookie("calc_panel_file",data.result.result.result.head.result)
                             $.tooltip('OK, 操作成功！', 2500, true);
@@ -88,17 +88,15 @@ $(function(){
                             $.tooltip('My God, 出错啦！！！');
                         }
                     }else{
-                        $.hideLoading();
                         $.tooltip('My God, 出错啦！！！');
                     }
                 },
                 error:function(e){
-                    $.hideLoading();
                     $.tooltip('My God, 出错啦！！！');
                 }
             });
         }else{
-            $.tooltip('抱歉，在您进行确认之前，需要先点击文件解析！！！');
+            $.tooltip('抱歉，在您进行确认之前，需要先点击文件解析，并且勾选年月！！！');
         }
     });
     //*********************************************************************
@@ -111,7 +109,8 @@ $(function(){
     $('#nextstepBtm').click(function(){
         var calc_panel_file = $.cookie("calc_panel_file")
         if(calc_panel_file!=null && calc_panel_file!=""){
-            $.showLoading('数据匹配中...',140,40);
+            $(".progresstier").css("display", "block");
+            p.setPercent(10);
             var query_object = new Object();
             query_object['company'] = $.cookie("token");
             query_object['filename'] = $.cookie("calc_panel_file");
@@ -123,12 +122,10 @@ $(function(){
                 cache : false,
                 dataType : "json",
                 success : function(json){
-                    $.hideLoading();
                     $.tooltip('OK, 操作成功！', 2500, true);
                     document.getElementById("ybjc").click();
                 },
                 error:function(e){
-                    $.hideLoading();
                     $.tooltip('My God, 出错啦！！！');
                 }
             });

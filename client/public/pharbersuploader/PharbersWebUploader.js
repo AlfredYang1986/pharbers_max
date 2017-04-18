@@ -444,7 +444,7 @@ jQuery(function() {
                 case 'finish':
                     stats = now_uploader.getStats();
                     if ( stats.successNum ) {
-                        alert( '上传成功' );
+                        $.tooltip('OK, 上传成功！', 2500, true);
                     } else {
                         state[index] = 'done';
                         location.reload();
@@ -522,8 +522,11 @@ jQuery(function() {
         //说明：两万家医院文件上传成功后，就会SCP远程传输到Aliyun服务器。
         //*********************************************************************
         function sendSCPFile(filename){
+            var company = $.cookie("token");
+            var timestamp = $('select[name="timestamp"]').val();
+            var market = $('select[data-name="search-result-market"]').val();
             var query_object = new Object();
-            query_object['filename'] = filename;
+            query_object['filename'] = md5(company+''+timestamp+''+market.replace(/\s/g, ""));
             query_object['company'] = $.cookie("token");
             $.ajax({
                 type : "post",
@@ -537,7 +540,7 @@ jQuery(function() {
                     //console.info("文件："+filename+"上传完成。");
                 },
                 error:function(e){
-                    alert("SCP传输失败。")
+                    $.tooltip('My God, SCP传输失败！！！');
                 }
             });
         }
