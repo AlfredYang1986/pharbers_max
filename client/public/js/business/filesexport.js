@@ -1,4 +1,11 @@
+var p;
+
 $(function(){
+    p = new progress2();
+    conn = load_Web_IM();
+    login_im("test", "1");
+    setProgress();
+
     $("#csvExportBtn").click(function(){
         fileExport('.csv');
     });
@@ -14,7 +21,8 @@ $(function(){
     //说明：文件导出，支持csv、txt文件格式。
     //*********************************************************************
     function fileExport(type) {
-        $.showLoading('文件导出中...',140,40);
+        $(".progresstier").css("display", "block");
+        p.setPercent(0);
         var datatype = $('select[data-name="search-result-datatype"]').val();
         var market = $('select[data-name="search-result-market"]').val();
         var startdate = $('input[name="startdate"]').val();
@@ -36,17 +44,32 @@ $(function(){
             cache : false,
             success : function(data){
                 if (data.result.result.result.status==0) {
-                    $.hideLoading();
+                    $(".progresstier").css("display", "none");
                     location.href = "/resultquery/files/"+data.result.result.result.filename;
                 }else{
-                    $.hideLoading();
+                    $(".progresstier").css("display", "none");
                     $.tooltip(data.result.result.result.message);
                 }
             },
             error : function(e){
-                $.hideLoading();
+                $(".progresstier").css("display", "none");
                 $.tooltip('My God, 出错啦！！！');
             }
         });
     }
 });
+
+
+var setProgress = function() {
+    conn.listen({
+        onTextMessage: function ( message ) {
+            var msg = eval("("+message.data+")")
+            if(msg.progress == 100){
+                p.setPercent(0)
+                $(".progresstier").css("display", "none");
+            }else{
+                p.setPercent(msg.progress)
+            }
+        }
+    });
+}

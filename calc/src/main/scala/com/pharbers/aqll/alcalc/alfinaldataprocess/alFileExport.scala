@@ -8,6 +8,7 @@ import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
 import java.util.{Calendar, UUID}
 import java.io.File
 
+import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.util.GetProperties._
 import com.pharbers.aqll.alcalc.alfinaldataprocess.csv.scala.CSVWriter
 import com.pharbers.aqll.util.StringOption
@@ -84,6 +85,7 @@ object alFileExport {
     while(lst.hasNext) {
       val c : DBObject = lst.next()
       num = num + 1
+      stepVal(num,total)
       b match {
         case None => {
           b = Some(c)
@@ -142,5 +144,15 @@ object alFileExport {
     alexport.setMessage(message)
     alexport.setFilename(filename)
     alexport
+  }
+
+  def stepVal(num: Int,total: Int) {
+    var n = total
+    if(n%100!=0){
+      n=n-(n%100)
+    }
+    if((num % (n/100))==0){
+      sendMessage.send("", "", 1, "test")
+    }
   }
 }

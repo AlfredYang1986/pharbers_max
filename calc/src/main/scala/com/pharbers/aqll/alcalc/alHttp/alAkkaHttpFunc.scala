@@ -112,13 +112,14 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			}
 		}
 	}
-
+	import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheckCommit
 	def alModelOperationCommitFunc = post {
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
 				println(s"item=${item.company}")
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				a ! commit_finalresult_jobs(item.company)
+				alSampleCheckCommit(item.company)
 				complete("""{"result":"Ok"}""")
 			}
 		}
@@ -128,6 +129,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("dataexport") {
 			entity(as[alExportItem]) { item =>
 				val result = alFileExport(item.datatype,item.market,item.staend,item.company,item.filetype)
+				sendMessage.send("", "", 100, "test")
 				val gson : Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":"""+gson.toJson(result)+"""}""")

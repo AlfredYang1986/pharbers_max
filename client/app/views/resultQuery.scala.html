@@ -1,6 +1,14 @@
 @(is_administrator: String,markets : List[String])
 @main("Max | 结果查询") {
 <body>
+	<div style="display: none;" class="progresstier">
+		<div class="progress">&nbsp;</div>
+		<div class="widgets">
+			<div class="shadow">
+				<div id="chart" class="chart-container"> </div>
+			</div>
+		</div>
+	</div>
 	<div id="wrapper">
 		<nav class="navbar-default navbar-static-side" role="navigation">
 			<div class="sidebar-collapse">
@@ -160,6 +168,7 @@
 			</div>
 		</div>
 	</div>
+	<script src="https://cdn.bootcss.com/d3/3.5.5/d3.min.js"></script>
 	<script src="@routes.Assets.versioned("js/business/resultquery.js")"></script>
 	<script src="@routes.Assets.versioned("js/business/filesexport.js")"></script>
 	<script src="@routes.Assets.versioned("js/business/page/bootstrap-paginator.js")"></script>

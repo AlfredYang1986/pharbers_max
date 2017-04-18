@@ -55,8 +55,8 @@ class alSampleCheck(company : String,filename : String) {
         }
         val lsb = new ListBuffer[Map[String,String]]()
         mismatch.toList.foreach(x => lsb.append(Map("Hosp_name" -> x.head,"Province" -> x.tail.head,"City" -> x.tail.tail.head,"City_level" -> x.tail.tail.tail.head)))
-        _data_connection_cores.getCollection("SampleCheck").findAndRemove(new MongoDBObject(MongoDBObject("Company" -> company,"Market" -> mc._1,"Date" -> DateUtils.yyyyMM2Long(date._1.toString))))
-        _data_connection_cores.getCollection("SampleCheck").insert(Map("ID" -> MD5.md5(UUID.randomUUID().toString),"Date" -> DateUtils.yyyyMM2Long(date._1.toString),"Market" -> mc._1,"Company" -> company,"HospNum" -> HospNum.toInt,"ProductNum" -> ProductNum.toInt,"MarketNum" -> Market_Current.size,"Units" -> Units,"Sales" -> Sales,"Mismatch" -> lsb.toList,"CreateDate" -> DateUtils.Date2Long(new Date())))
+        _data_connection_cores.getCollection("FactResult").findAndRemove(new MongoDBObject(MongoDBObject("Company" -> company,"Market" -> mc._1,"Date" -> DateUtils.yyyyMM2Long(date._1.toString))))
+        _data_connection_cores.getCollection("FactResult").insert(Map("ID" -> MD5.md5(UUID.randomUUID().toString),"Date" -> DateUtils.yyyyMM2Long(date._1.toString),"Market" -> mc._1,"Company" -> company,"HospNum" -> HospNum.toInt,"ProductNum" -> ProductNum.toInt,"MarketNum" -> Market_Current.size,"Units" -> Units,"Sales" -> Sales,"Mismatch" -> lsb.toList,"CreateDate" -> DateUtils.Date2Long(new Date())))
         //println(s"日期：${date._1} 市场：${mc._1} 公司：${company} 医院数量：${HospNum.toInt} 产品数量：${ProductNum.toInt} 市场数量：${Market_Current.size} 销售额：${Sales} 销售数量：${Units} 未匹配：${mismatch.toList.size}")
       }
     }
