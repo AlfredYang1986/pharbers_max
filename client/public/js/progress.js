@@ -133,3 +133,10 @@ var setProgressStop = function() {
         setTimeout(function(){setProgressStart()}, 1000 * 60);
     }
 }
+
+var setCloseInterval = function() {
+    if(timeProgressInterval){
+        clearInterval(timeProgressInterval)
+        timeProgressInterval = null
+    }
+}

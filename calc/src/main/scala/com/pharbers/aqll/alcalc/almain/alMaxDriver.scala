@@ -431,18 +431,18 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     case None =>
                         println(s"not company")
                         //alRestoreColl("", sub_uuid :: Nil)
-                        ("", "")
+                        ("", "", "")
                     case Some(x) =>
                         val u = x.company+uuid
                         alRestoreColl(u, sub_uuid :: Nil)
-                        (x.company, u)
+                        (x.company, u, x.uname)
                     case _ => ???
                 }
 
-                sendMessage.send(uuid, company._1, 2, "test")
+                sendMessage.send(uuid, company._1, 2, company._3)
 
                 if (r.subs.filterNot (x => x.isCalc).isEmpty) {
-                    sendMessage.send(uuid, company._1, 10, "test")
+                    sendMessage.send(uuid, company._1, 10, company._3)
                     r.finalValue = r.subs.map(_.finalValue).sum
                     r.finalUnit = r.subs.map(_.finalUnit).sum
                     r.isCalc = true
@@ -456,7 +456,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     val e_mail = MailToEmail.getEmail(company._1)
                     MailAgent(Mail(GetProperties.mail_context, GetProperties.mail_subject, e_mail)).sendMessage()
                     endDate("计算完成",start)
-                    sendMessage.send(uuid, company._1, 100, "test")
+                    sendMessage.send(uuid, company._1, 100, company._3)
                     atomic { implicit tnx =>
                         calcing_jobs() = calcing_jobs().tail
                     }
@@ -469,16 +469,16 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
         alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
             case None => println(s"commit_finalresult_jobs_func not company")
             case Some(x) =>
-                sendMessage.send("", company, 30, "test")
+                sendMessage.send("", company, 30, x.uname)
                 println(s"x.uuid = ${x.uuid}")
                 new alWeightSum(company, company + x.uuid)
-                sendMessage.send("", company, 20, "test")
+                sendMessage.send("", company, 20, x.uname)
                 println(s"开始删除临时表")
                 _data_connection_cores.getCollection(company + x.uuid).drop()
                 println(s"结束删除临时表")
                 val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(x.uuid))
                 alCalcParmary.alParmary.single.get.remove(index)
-                sendMessage.send("", company, 100, "test")
+                sendMessage.send("", company, 100, x.uname)
         }
     }
 

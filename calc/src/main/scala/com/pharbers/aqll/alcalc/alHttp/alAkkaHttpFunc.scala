@@ -13,7 +13,7 @@ import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{check_excel_jo
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
 import com.pharbers.aqll.util.GetProperties._
 import spray.json.DefaultJsonProtocol
-import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck
+import com.pharbers.aqll.alcalc.alfinaldataprocess.{alFilesExport, alSampleCheck}
 
 import scala.concurrent.ExecutionContext
 
@@ -30,18 +30,18 @@ class alAkkaHttpFuncApi(system: ActorSystem, timeout: Timeout) extends alAkkaHtt
 case class alUpBeforeItem(company: String)
 case class alUploadItem(company: String,yms: String)
 case class alCheckItem(company: String,filename: String)
-case class alCalcItem(filename: String, company: String)
+case class alCalcItem(filename: String, company: String, uname: String)
 case class alCommitItem(company: String)
-case class alExportItem(datatype: String,market : List[String],staend : List[String],company : String,filetype : String)
+case class alExportItem(datatype: String,market : List[String],staend : List[String],company : String,filetype : String, uname: String)
 case class alHttpCreateIMUser(name: String, pwd: String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 	implicit val itemFormatUpBefore = jsonFormat1(alUpBeforeItem)
 	implicit val itemFormatUpload = jsonFormat2(alUploadItem)
 	implicit val itemFormatCheck = jsonFormat2(alCheckItem)
-	implicit val itemFormatCalc = jsonFormat2(alCalcItem)
+	implicit val itemFormatCalc = jsonFormat3(alCalcItem)
 	implicit val itemFormatCommit = jsonFormat1(alCommitItem)
-	implicit val itemFormatExport = jsonFormat5(alExportItem)
+	implicit val itemFormatExport = jsonFormat6(alExportItem)
 	implicit val itemFormatUser = jsonFormat2(alHttpCreateIMUser)
 }
 
@@ -110,7 +110,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				println(s"path = ${fileBase + item.company + outPut + item.filename}")
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				val path = fileBase + item.company + outPut + item.filename
-				a ! filter_excel_jobs(path, new alCalcParmary(item.company), a)
+				a ! filter_excel_jobs(path, new alCalcParmary(item.company, item.uname), a)
 				complete("""{"resule" : "Ok"}""")
 			}
 		}
@@ -131,8 +131,14 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alResultFileExportFunc = post {
 		path("dataexport") {
 			entity(as[alExportItem]) { item =>
-				val result = alFileExport(item.datatype,item.market,item.staend,item.company,item.filetype)
-				sendMessage.send("", "", 100, "test")
+				val alExport = new alFilesExport(item.datatype,
+												item.market,
+												item.staend,
+												item.company,
+												item.filetype,
+												item.uname)
+				val result = alFileExport(alExport)
+				sendMessage.send("", "", 100, item.uname)
 				val gson : Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":"""+gson.toJson(result)+"""}""")

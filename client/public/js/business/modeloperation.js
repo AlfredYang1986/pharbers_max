@@ -22,8 +22,11 @@ var p = null;
 
 $(function(){
     p = new progress2();
-    conn = load_Web_IM();
-    login_im("test", "1");
+    load_im()
+    //conn = load_Web_IM();
+    //login_im("test", "1");
+
+
     // var proto = beget(callback.prototype);
     // proto.constructor = test;
     // test.prototype = proto;
@@ -41,7 +44,8 @@ $(function(){
         if ($.cookie("calc_panel_file") != null) {
             var dataMap = JSON.stringify({
                 "company": $.cookie("token"),
-                "filename": $.cookie("calc_panel_file")
+                "filename": $.cookie("calc_panel_file"),
+                "uname": $.cookie('webim_user')
             })
             $.ajax({
                 type: "post",
@@ -100,6 +104,7 @@ var nextStep = function() {
             msgIdentifying = msg.progress
             var r = p.setPercent(msg.progress)
             if(msg.progress >= 100 || r >= 100) {
+                setCloseInterval()
                 p.setPercent(0)
                 $(".progresstier").css("display", "none");
                 setTimeout(function(){document.getElementById("jgcx").click()}, 1000 * 1)

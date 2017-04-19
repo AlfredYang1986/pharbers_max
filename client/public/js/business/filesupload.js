@@ -1,8 +1,7 @@
 var p;
 $(function(){
     p = new progress2();
-    conn = load_Web_IM();
-    login_im("test", "a");
+    load_im()
     setProgress();
     //*********************************************************************
     //功能: 文件解析

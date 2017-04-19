@@ -2,8 +2,9 @@ var p;
 
 $(function(){
     p = new progress2();
-    conn = load_Web_IM();
-    login_im("test", "1");
+    // conn = load_Web_IM();
+    // login_im("test", "1");
+    load_im()
     setProgress();
 
     $("#csvExportBtn").click(function(){
@@ -34,6 +35,7 @@ $(function(){
         query_object['staend'] = [startdate, enddate];
         query_object['company'] = $.cookie("token");
         query_object['filetype'] = type;
+        query_object['uname'] = $.cookie('webim_user');
 
         $.ajax({
             url :"/callfileexport",

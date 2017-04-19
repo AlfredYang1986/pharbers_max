@@ -8,7 +8,7 @@ import scala.concurrent.stm.Ref
   * Created by BM on 11/03/2017.
   */
 
-case class alCalcParmary(var company: String, var uuid: String = "", var market: String = "", var year: Int = 0)
+case class alCalcParmary(var company: String, var uname: String, var uuid: String = "", var market: String = "", var year: Int = 0)
 
 object alCalcParmary {
 	val alParmary = Ref(ListBuffer[alCalcParmary]())

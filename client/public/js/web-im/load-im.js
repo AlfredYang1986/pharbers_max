@@ -20,12 +20,39 @@ var load_Web_IM = function() {
     });
 }
 
+/**
+ * 只针对Max的Login的登录与获取WEB-IM
+ * token
+ * @param u
+ * @param p
+ */
 var login_im = function(u, p) {
     var options = {
         apiUrl: WebIM.config.apiURL,
+        appKey: WebIM.config.appkey,
         user: u,
         pwd: p,
-        appKey: WebIM.config.appkey
+        success: function(token) {
+            $.cookie('webim_token', token.access_token);
+            $.cookie('webim_user', token.user.username);
+        },
+        error: function(m){
+            console.info("Error = " + m)
+        }
+    };
+    conn.open(options);
+}
+
+/***
+ * 每个页面都需要重新加载这个方法
+ * 该方法是通过WEB-IM的token登录
+ */
+var load_im = function() {
+    var options = {
+        apiUrl: WebIM.config.apiURL,
+        appKey: WebIM.config.appkey,
+        user: $.cookie('webim_user'),
+        accessToken: $.cookie('webim_token')
     };
     conn.open(options);
     callback();
@@ -37,6 +64,7 @@ var callback = function() {
             // 如果isAutoLogin设置为false，那么必须手动设置上线，否则无法收消息
             // 手动上线指的是调用conn.setPresence(); 如果conn初始化时已将isAutoLogin设置为true
             // 则无需调用conn.setPresence();
+            conn.setPresence();
         },
         onClosed: function ( message ) {},         //连接关闭回调
         onTextMessage: function ( message ) {

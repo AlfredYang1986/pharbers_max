@@ -36,7 +36,7 @@ class alCalcActor extends Actor
 
     import alCalcActor.core_number
 
-    startWith(alMasterJobIdle, new alCalcParmary(""))
+    startWith(alMasterJobIdle, new alCalcParmary("", ""))
 
     when(alMasterJobIdle) {
         case Event(can_sign_job(), _) => {
@@ -164,7 +164,7 @@ class alCalcActor extends Actor
             println(s"单个线程开始删除临时表")
             _data_connection_cores.getCollection(sub_uuid).drop()
             println(s"单个线程结束删除临时表")
-            sendMessage.send(data.uuid, data.company, 1, "test")
+            sendMessage.send(data.uuid, data.company, 1, data.uname)
 
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
                 println(sub_uuid)
@@ -198,7 +198,7 @@ class alCalcActor extends Actor
 
 
 //                st ! calc_final_result(r.parent, r.uuid, r.finalValue, r.finalUnit)
-                goto(alMasterJobIdle) using new alCalcParmary("")
+                goto(alMasterJobIdle) using new alCalcParmary("", "")
 
             } else stay()
         }

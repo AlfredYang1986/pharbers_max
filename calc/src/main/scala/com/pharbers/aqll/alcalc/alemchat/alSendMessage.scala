@@ -36,4 +36,15 @@ object sendMessage {
 		val result = new alSendMessage().sendMsg(msg)
 		resultIMException(result)
 	}
+
+	def sendMsg(str: String, uname: String): String = {
+		val msg = new Msg
+		val msgContent = new MsgContent
+		msgContent.`type`(MsgContent.TypeEnum.TXT).msg(str)
+		val userName = new UserName
+		userName.add(uname)
+		msg.from("project").target(userName).targetType("users").msg(msgContent)
+		val result = new alSendMessage().sendMsg(msg)
+		resultIMException(result)
+	}
 }

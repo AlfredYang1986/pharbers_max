@@ -16,31 +16,38 @@ import com.pharbers.aqll.util.StringOption
   * Created by liwei on 2017/3/25.
   */
 
+case class alFilesExport(datatype: String,
+                        market : List[String],
+                        staend : List[String],
+                        company : String,
+                        filetype : String,
+                        uname: String)
+
 object alFileExport {
-  def alFileExport(datatype: String,market : List[String],staend : List[String],company : String,filetype : String) : alExport = {
+  def alFileExport(alExport: alFilesExport) : alExport = {
     try{
       val fmomat_f = new SimpleDateFormat("MM/yyyy")
       var conditions = MongoDBObject()
-      val markets = market.map(x => StringOption.takeStringSpace(x))
+      val markets = alExport.market.map(x => StringOption.takeStringSpace(x))
       markets.size match {
-        case 0 => conditions = MongoDBObject("Date" -> MongoDBObject("$gte" -> fmomat_f.parse(staend.head).getTime,"$lt" -> fmomat_f.parse(staend.tail.head).getTime))
-        case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> markets),"Date" -> MongoDBObject("$gte" -> fmomat_f.parse(staend.head).getTime,"$lt" -> fmomat_f.parse(staend.tail.head).getTime))
+        case 0 => conditions = MongoDBObject("Date" -> MongoDBObject("$gte" -> fmomat_f.parse(alExport.staend.head).getTime,"$lt" -> fmomat_f.parse(alExport.staend.tail.head).getTime))
+        case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> markets),"Date" -> MongoDBObject("$gte" -> fmomat_f.parse(alExport.staend.head).getTime,"$lt" -> fmomat_f.parse(alExport.staend.tail.head).getTime))
       }
 
-      var lst = (from db() in company where conditions).selectOneByOne("hosp_Index")(x => x)(_data_connection_cores)
-      datatype match {
-        case "省份数据" => lst = (from db() in company where conditions).selectOneByOne("prov_Index")(x => x)(_data_connection_cores)
-        case "城市数据" => lst = (from db() in company where conditions).selectOneByOne("city_Index")(x => x)(_data_connection_cores)
+      var lst = (from db() in alExport.company where conditions).selectOneByOne("hosp_Index")(x => x)(_data_connection_cores)
+      alExport.datatype match {
+        case "省份数据" => lst = (from db() in alExport.company where conditions).selectOneByOne("prov_Index")(x => x)(_data_connection_cores)
+        case "城市数据" => lst = (from db() in alExport.company where conditions).selectOneByOne("city_Index")(x => x)(_data_connection_cores)
         case "医院数据" => lst = lst
       }
 
       lst.size match {
         case 0 => returnMess(-1,"no matching data.","Unknown")
         case _ => {
-          val file : File = createFile(filetype)
+          val file : File = createFile(alExport.filetype)
           val writer = CSVWriter.open(file,"GBK")
-          writeFileHead(datatype,writer)
-          weightSum(lst, datatype, writer)
+          writeFileHead(alExport.datatype, writer)
+          weightSum(lst, alExport.datatype, writer, alExport.uname)
           writer.close()
           returnMess(0,"file generation success.",file.getName)
         }
@@ -77,7 +84,7 @@ object alFileExport {
     writer.writeRow(fields)
   }
   // TODO :  根据datatype求权和
-  def weightSum(lst: MongoCursor,datatype: String, writer : CSVWriter): Unit ={
+  def weightSum(lst: MongoCursor,datatype: String, writer : CSVWriter, uname: String): Unit ={
     var b : Option[DBObject] = None
     var f_units_sum,f_sales_sum = 0.0
     var num = 0
@@ -85,7 +92,7 @@ object alFileExport {
     while(lst.hasNext) {
       val c : DBObject = lst.next()
       num = num + 1
-      stepVal(num,total)
+      stepVal(num, total, uname)
       b match {
         case None => {
           b = Some(c)
@@ -146,13 +153,13 @@ object alFileExport {
     alexport
   }
 
-  def stepVal(num: Int,total: Int) {
+  def stepVal(num: Int,total: Int, uname: String) {
     var n = total
     if(n%100!=0){
       n=n-(n%100)
     }
     if((num % (n/100))==0){
-      sendMessage.send("", "", 1, "test")
+      sendMessage.send("", "", 1, uname)
     }
   }
 }
