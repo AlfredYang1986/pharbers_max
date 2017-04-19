@@ -2,16 +2,17 @@ package com.pharbers.aqll.alcalc.alfinaldataprocess
 
 import com.pharbers.aqll.alcalc.alCommon.DefaultData
 import com.pharbers.aqll.alcalc.almodel.AdminHospitalDataBase
-import com.pharbers.aqll.util.{MD5, StringOption}
+import com.pharbers.aqll.util.{DateUtils, FileUtils, MD5, StringOption}
 import com.mongodb.casbah.Imports._
 import java.util.UUID
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.util.dao._data_connection_cores
 import scala.collection.immutable.List
-import com.pharbers.aqll.util.DateUtils
 import java.util.Date
 import com.mongodb.casbah.commons.MongoDBObject
-
+import com.pharbers.aqll.alcalc.alemchat.sendMessage
+import com.pharbers.aqll.util.GetProperties._
+import java.io._
 /**
   * Created by liwei on 2017/3/27.
   */
@@ -25,6 +26,7 @@ class alSampleCheck(company : String,filename : String) {
     val dates = panels.groupBy(x => x.getYearAndmonth)
     dates.foreach{date =>
       val Panels_Filter_Ym = panels.filter(x => x.getYearAndmonth.equals(date._1))
+      sendMessage.send("", "", 10, "test")
       val Panels_Group_Pha = Panels_Filter_Ym.groupBy(x => x.getPhaid).map(y => (y._1,y._2.size)).toList
       val Market_Current = Panels_Filter_Ym.groupBy(x => x.getMarket1Ch)
       //println(s"Date =${date._1}")
@@ -60,7 +62,11 @@ class alSampleCheck(company : String,filename : String) {
         //println(s"日期：${date._1} 市场：${mc._1} 公司：${company} 医院数量：${HospNum.toInt} 产品数量：${ProductNum.toInt} 市场数量：${Market_Current.size} 销售额：${Sales} 销售数量：${Units} 未匹配：${mismatch.toList.size}")
       }
     }
+    FileUtils.delFolder(fileBase+company+client_cpa_file)
+    FileUtils.delFolder(fileBase+company+client_gycx_file)
+    FileUtils.delFolder(fileBase+company+manage_file)
   } catch {
-    case e:Exception => println(e.printStackTrace())
+    case e: Exception => println(e.getMessage)
+    case ioe: IOException => println(ioe.getMessage)
   }
 }

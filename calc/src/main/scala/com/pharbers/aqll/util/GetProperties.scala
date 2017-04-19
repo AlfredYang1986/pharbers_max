@@ -36,6 +36,12 @@ object GetProperties {
 
 	def export_xml = loadConf("File.conf").getString("File.Export_xml")
 
+	def client_cpa_file = loadConf("File.conf").getString("File.Client_Cpa")
+
+	def client_gycx_file = loadConf("File.conf").getString("File.Client_Gycx")
+
+	def manage_file = loadConf("File.conf").getString("File.Manage_File")
+
 	// TODO : Max计算输出地址
 	def memorySplitFile = loadConf("File.conf").getString("SCP.Memory_Split_File")
 
