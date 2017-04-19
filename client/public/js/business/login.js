@@ -32,7 +32,7 @@ function login() {
                 }else if(r.result.FinalResult == "is null") {
                     alert("用户名或密码错误！！！")
                 }else if(r != null  && r != ""){
-                    login_im("test2", userPass);
+                    login_im(userName, userPass);
                     $.cookie("user_token",r.result.FinalResult.User_Token);
                     $.cookie("user_name",r.result.FinalResult.UserName);
                     $.cookie("user_auth",r.result.FinalResult.UserAuth);
