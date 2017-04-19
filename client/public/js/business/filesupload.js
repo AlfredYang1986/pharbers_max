@@ -2,7 +2,7 @@ var p;
 $(function(){
     p = new progress2();
     conn = load_Web_IM();
-    login_im("test", "1");
+    login_im("test", "a");
     setProgress();
     //*********************************************************************
     //功能: 文件解析
@@ -11,6 +11,7 @@ $(function(){
     //说明：文件上传前，通过对文件年月占比，进行判断分析，将大于50%得月份返回。
     //*********************************************************************
     $('#upBeforeBtn').click(function(){
+        setProgressStart();
         $(".progresstier").css("display", "block");
         p.setPercent(10);
         var query_object = new Object();
@@ -57,6 +58,7 @@ $(function(){
     //说明：文件上传后，后台Python调用这些文件生成Panel文件。
     //*********************************************************************
     $('#commitBtn').click(function(){
+        setProgressStart();
         var ck = $(':input[type=checkbox]');
         var checked = ""
         ck.each(function(){
@@ -107,6 +109,7 @@ $(function(){
     //将未匹配数据、医院数量、市场数量、产品数量等入MongoDB库。
     //*********************************************************************
     $('#nextstepBtm').click(function(){
+        setProgressStart();
         var calc_panel_file = $.cookie("calc_panel_file")
         if(calc_panel_file!=null && calc_panel_file!=""){
             $(".progresstier").css("display", "block");
@@ -139,11 +142,12 @@ var setProgress = function() {
     conn.listen({
         onTextMessage: function ( message ) {
             var msg = eval("("+message.data+")")
-            if(msg.progress == 100){
+            msgIdentifying = msg.progress
+            var r = p.setPercent(msg.progress)
+            if(msg.progress >= 100 || r >= 100) {
+                setCloseInterval()
                 p.setPercent(0)
                 $(".progresstier").css("display", "none");
-            }else{
-                p.setPercent(msg.progress)
             }
         }
     });
