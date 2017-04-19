@@ -123,14 +123,14 @@ var setProgressStart = function(){
             setTimeout(function(){setProgressStop()}, 1000 * 5);
         }
     }
-    timeProgressInterval = setInterval(setP, 1000 * 10);
+    timeProgressInterval = setInterval(setP, 1000 * 5);
 }
 
 var setProgressStop = function() {
     if(timeProgressInterval){
         clearInterval(timeProgressInterval)
         timeProgressInterval = null
-        setTimeout(function(){setProgressStart()}, 1000 * 60);
+        setTimeout(function(){setProgressStart()}, 1000 * 30);
     }
 }
 
