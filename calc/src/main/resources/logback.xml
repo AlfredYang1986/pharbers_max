@@ -11,7 +11,7 @@
     <appender name="FILE-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>logs/calc_info.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/%d{yyyy-MM-dd}.%i_calc_info.log</fileNamePattern>
+            <fileNamePattern>logs/%d{yyyy-MM-dd}_calc_info.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -28,7 +28,7 @@
     <appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>logs/calc_error.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/%d{yyyy-MM-dd}.%i_calc_error.log</fileNamePattern>
+            <fileNamePattern>logs/%d{yyyy-MM-dd}_calc_error.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>

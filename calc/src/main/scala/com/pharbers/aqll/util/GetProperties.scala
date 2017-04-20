@@ -23,12 +23,16 @@ object GetProperties {
 	// TODO : Akka singleton地址
 	def singletonPaht = loadConf("cluster-listener.conf").getString("cluster-listener.Node.main")
 
+	def root = loadConf("File.conf").getString("SCP.root")
+
+	def program = loadConf("File.conf").getString("SCP.program")
+
 	// TODO : Python输出与Manage上传的HospitalData地址
-	def fileBase = GetProperties.loadConf("File.conf").getString("File.FileBase_FilePath")
+	def fileBase = loadConf("File.conf").getString("File.FileBase_FilePath")
 
-	def hospitalData = GetProperties.loadConf("File.conf").getString("File.Upload_HospitalData_File")
+	def hospitalData = loadConf("File.conf").getString("File.Upload_HospitalData_File")
 
-	def outPut = GetProperties.loadConf("File.conf").getString("File.OutPut_File")
+	def outPut = loadConf("File.conf").getString("File.OutPut_File")
 
 	def python = loadConf("File.conf").getString("File.Python_File")
 
@@ -53,7 +57,7 @@ object GetProperties {
 
 	def fileTarGz = loadConf("File.conf").getString("SCP.File_Tar_Gz")
 
-	def scpPath = loadConf("File.conf").getString("SCP.scp_path")
+	def scpPath = program + loadConf("File.conf").getString("SCP.scp_path")
 
 	def dumpdb = loadConf("File.conf").getString("SCP.dumpdb")
 
@@ -79,5 +83,12 @@ object GetProperties {
 	def client_id = loadConf("mail.conf").getString("EmChat.client_id")
 
 	def client_secret = loadConf("mail.conf").getString("EmChat.client_secret")
+
+	// TODO : 任务删除指定文件的时间 Hours = 3 小时 Minutes = 0 分钟 Seconds = 10 秒
+	def hours = loadConf("File.conf").getInt("SCP.RemoveTime.Hours")
+
+	def minutes = loadConf("File.conf").getInt("SCP.RemoveTime.Minutes")
+
+	def seconds = loadConf("File.conf").getInt("SCP.RemoveTime.Seconds")
 
 }

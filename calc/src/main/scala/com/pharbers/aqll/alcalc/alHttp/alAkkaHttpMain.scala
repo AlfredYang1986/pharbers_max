@@ -48,7 +48,8 @@ object alAkkaHttpMain extends App with RequestTimeout {
 		val w = system.actorOf(alGroupActor.props)
 		val c = system.actorOf(alCalcActor.props)
 		val a = system.actorOf(alDriverSingleton.props, "splitreception")
-
+		import scala.concurrent.duration._
+		import com.pharbers.aqll.alcalc.alSchedulerJobs.{alScheduleRemoveFiles, rmFile}
 		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
 			Cluster(system).registerOnMemberUp {
 				println("cluster ready")
@@ -56,6 +57,8 @@ object alAkkaHttpMain extends App with RequestTimeout {
 				a ! group_register(w)
 				a ! calc_register(c)
 				a ! worker_register()
+				val rm = system.actorOf(alScheduleRemoveFiles.props)
+				system.scheduler.schedule(0 seconds, 10 seconds, rm, new rmFile())
 			}
 			system.actorOf(alAkkaListener.props, "akka-listener")
 		}

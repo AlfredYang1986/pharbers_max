@@ -8,10 +8,10 @@ import scala.io.Source
   * Created by Alfred on 09/03/2017.
   */
 object FileOpt {
-    def apply(path : String) : FileOpt = new FileOpt(path)
+    def apply(path : String) : FileOpt = new FileOpt(path)(path)
 }
 
-class FileOpt(val file : String) {
+class FileOpt(val file : String)(oldPath: String) {
     val tf = new File(file)
     def isExist : Boolean = tf.exists()
 
@@ -36,13 +36,24 @@ class FileOpt(val file : String) {
     def createDir = tf.mkdir()
     def createFile = tf.createNewFile
     def lstFiles : List[String] = tf.listFiles.filter(x => x.isFile && !x.isHidden).map(x => x.getPath).toList
-    def rmAllFiles: Boolean = {
+    def lstFiles2 : List[String] = tf.listFiles.map(x => x.getPath).toList
+    def rmcAllFiles: Boolean = {
         if(tf.isDirectory) {
-            lstFiles foreach { x =>
-                val success = FileOpt(x).rmAllFiles
+            lstFiles2 foreach { x =>
+                val success = new FileOpt(x)(oldPath).rmcAllFiles
                 if(!success) false
             }
         }
-        tf.delete()
+        if(tf.getPath != oldPath) tf.delete else false
+    }
+
+    def rmaAllFiles: Boolean = {
+        if(tf.isDirectory) {
+            lstFiles2 foreach { x =>
+                val success = FileOpt(x).rmaAllFiles
+                if(!success) false
+            }
+        }
+        tf.delete
     }
 }

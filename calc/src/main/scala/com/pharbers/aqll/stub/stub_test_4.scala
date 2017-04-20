@@ -17,13 +17,16 @@ object stub_test_4 extends App{
 	if (system.settings.config.getStringList("akka.cluster.roles").contains("splitworker")) {
 		Cluster(system).registerOnMemberUp {
 //			if(!FileOpt("/Users/qianpeng/Desktop/scp").isDir) FileOpt("/Users/qianpeng/Desktop/scp").createDir
+			import scala.concurrent.duration._
+			import com.pharbers.aqll.alcalc.alSchedulerJobs.{alScheduleRemoveFiles, rmFile}
 			val a = system.actorSelection(GetProperties.singletonPaht)
 			val c = system.actorOf(alCalcActor.props)
 			val w = system.actorOf(alGroupActor.props)
-
 			a ! group_register(w)
 			a ! calc_register(c)
 			a ! worker_register()
+			val rm = system.actorOf(alScheduleRemoveFiles.props)
+			system.scheduler.schedule(0 seconds, 10 seconds, rm, new rmFile())
 //			a ! push_max_job("""config/new_test/2016-01.xlsx""")
 //			a ! push_max_job("""config/new_test/AI_R_panel 201501.xlsx""")
 		}
