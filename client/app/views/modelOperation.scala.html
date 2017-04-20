@@ -99,15 +99,22 @@
                     <div class="col-sm-3 col-md-3">
                         <div class="form-group">
                             <label class="control-label" for="status">市场</label>
-                            <select data-name="search-result-market" class="form-control selectpicker" multiple data-live-search="true"data-live-search-placeholder="搜索" data-actions-box="true">
+                            <select data-name="search-result-market" onchange="ModelOperationEchartFun()" class="form-control">
                                 @{markets map { market =>
-                                    <option>{market}</option>
+                                <option>{market}</option>
                                 }};
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-6"></div>
-                    <div class="col-sm-3 col-md-3 text-right">
+                    <div class="col-sm-4 col-md-4">
+                        <div class="form-group" id="data_5">
+                            <label class="control-label">日期</label>
+                            <div class="input-daterange input-group" id="datepicker">
+                                <input type="text" class="input-md form-control" name="date_5" value="11/2016" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-5 text-right">
                         <button type="button" class="btn btn-primary btn-sm" id="operationBtn">运算</button>
                     </div>
                 </div>
@@ -115,7 +122,7 @@
                     <div class="col-lg-12">
                         <div class="ibox float-e-margins">
                             <div class="ibox-title">
-                                <h5>CHPA By Month</h5>
+                                <h5>sales vs share<small> by date.</small></h5>
                                 <div class="ibox-tools">
                                     <a class="collapse-link">
                                         <i class="fa fa-chevron-up"></i>
@@ -135,7 +142,7 @@
                     <div class="col-lg-6">
                         <div class="ibox float-e-margins">
                             <div class="ibox-title">
-                                <h5>Monopril Size Comparison <small>this month vs last month by city.</small></h5>
+                                <h5>current month vs previous month<small> by city.</small></h5>
                                 <div class="ibox-tools">
                                     <a class="collapse-link">
                                         <i class="fa fa-chevron-up"></i>
@@ -149,14 +156,15 @@
                                 </div>
                             </div>
                             <div class="ibox-content">
-                                <div id="morris-bar1-chart"></div>
+                                <!--<div id="morris-bar1-chart"></div>-->
+                                <div id="bar2" style="height:400px"></div>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="ibox float-e-margins">
                             <div class="ibox-title">
-                                <h5>ACEI Market Size Comparison <small>this month vs last month by city.</small></h5>
+                                <h5>current month vs last year current month<small> by city.</small></h5>
                                 <div class="ibox-tools">
                                     <a class="collapse-link">
                                         <i class="fa fa-chevron-up"></i>
@@ -170,7 +178,8 @@
                                 </div>
                             </div>
                             <div class="ibox-content">
-                                <div id="morris-bar2-chart"></div>
+                                <!--<div id="morris-bar2-chart"></div>-->
+                                <div id="bar3" style="height:400px"></div>
                             </div>
                         </div>
                     </div>
@@ -190,97 +199,5 @@
     <script src="https://cdn.bootcss.com/d3/3.5.5/d3.min.js"></script>
     <script src="@routes.Assets.versioned("js/business/modeloperation.js")"></script>
     <script src="@routes.Assets.versioned("hDialog/js/jquery.hDialog.js")"></script>
-    <script>
-            var itemStyleColor = ['#1ab394', '#cacaca'];
-            var option1 = {
-                tooltip: {
-                    trigger: 'axis'
-                },
-                xAxis: [
-                    {
-                        type: 'category',
-                        data: ['201601','201602','201603','201604','201605','201606','201607','201608','201609','201610','201611','201612']
-                    }
-                ],
-                yAxis: [
-                    {
-                        type: 'value',
-                        name: 'Total Unit (Million)',
-                    },
-                    {
-                        type: 'value',
-                        name: 'Mono Unit Share',
-                        show: false,
-                        spliteLine: {show: false}
-                    }
-                ],
-                series: [
-                    {
-                        name:'MAX',
-                        type:'bar',
-                        barWidth: 35,
-                        data:[ 286695468, 143061223, 222934349, 230669845, 213140786, 204258431, 209272379, 193125119, 248527716, 199463996, 210717399, 256115636 ],
-                        itemStyle: {
-                            normal: {
-                                color: itemStyleColor[0]
-                            }
-                        }
-                    },
-                    {
-                        name:'MAX Mono Share',
-                        type:'line',
-                        yAxisIndex: 1,
-                        data:[ 323642806, 141647829, 217667421, 234941969, 221417607, 204436609, 211745760, 192100083, 245414349, 195106160, 217588674, 264578284 ],
-                        itemStyle: {
-                            normal: {
-                                color: itemStyleColor[1]
-                            }
-                        }
-                    }
-                ]
-            };
-            // 基于准备好的dom，初始化echarts实例
-            var bar1 = echarts.init(document.getElementById('bar1'));
-            // 使用刚指定的配置项和数据显示图表。
-            bar1.setOption(option1);
-            window.addEventListener("resize", function() {
-                bar1.resize();
-            });
-            $(function(){
-                Morris.Bar({
-                    element: 'morris-bar1-chart',
-                    data: [{ y: '北京市', a: 25113856, b: 22752759 },
-                        { y: '上海市', a: 19960668, b: 17687302 },
-                        { y: '广州市', a: 10734366, b: 11097934 },
-                        { y: '杭州市', a: 3400228, b: 3644574 },
-                        { y: '成都市', a: 4756212, b: 4846382 },
-                        { y: '沈阳市', a: 2716265, b: 2552646 },
-                        { y: '武汉市', a: 4928067, b: 4621978 } ],
-                    xkey: 'y',
-                    ykeys: ['a', 'b'],
-                    labels: ['上月', '本月'],
-                    hideHover: 'auto',
-                    resize: true,
-                    barColors: ['#1ab394', '#cacaca'],
-                });
-
-                Morris.Bar({
-                    element: 'morris-bar2-chart',
-                    data: [{ y: '北京市', a: 1063216, b: 1071812 },
-                        { y: '上海市', a: 312844, b: 306829 },
-                        { y: '广州市', a: 153062, b: 122100 },
-                        { y: '杭州市', a: 20160, b: 21755 },
-                        { y: '成都市', a: 82922, b: 59739 },
-                        { y: '沈阳市', a: 134386, b: 137555 },
-                        { y: '武汉市', a: 86576, b: 68406 } ],
-                    xkey: 'y',
-                    ykeys: ['a', 'b'],
-                    labels: ['上月', '本月'],
-                    hideHover: 'auto',
-                    resize: true,
-                    barColors: ['#1ab394', '#cacaca'],
-                });
-            });
-    </script>
 </body>
 }
