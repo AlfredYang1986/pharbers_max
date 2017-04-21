@@ -84,4 +84,9 @@ object DateUtils {
     year + (if(month.length<2){s"0$month"}else{month})
   }
 
+  def MMyyyy2yyyyMM(str: String): String ={
+    val sdf = new SimpleDateFormat("MM/yyyy")
+    Timestamp2yyyyMM(sdf.parse(str).getTime)
+  }
+
 }

@@ -41,11 +41,10 @@ $(function(){
             data: dataMap,
             contentType: 'application/json,charset=utf-8',
             success: function (r) {
-                Top_Current(r.result.top_mismatch);
-                Top_Early(r.result.top_early[0]);
-                Top_Last(r.result.top_last[0]);
-                var data = Top_Mismatch(r.result.top_mismatch);
-                salesChartsPlot(r.result.top_early12,r.result.top_last12);
+                cel_data(r);
+                cur12_data_HPM(r);
+                cur12_las12_data(r);
+                var data = Top_Mismatch(r);
                 dataTableAjax(data);
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -55,85 +54,105 @@ $(function(){
     }
 
     //*********************************************************************
-    //功能: 当期
-    //时间：20170413
-    //创建：Arthas
+    //功能: 当期|上期|去年同期
+    //创建时间：20170413
+    //修改时间：20170421
+    //创建人：Arthas
     //说明：医院数量、产品数量、市场数量。
     //*********************************************************************
-    function Top_Current(obj){
-        var nobj = obj[0]
-        if(nobj != null){
-            $("#Current_Month_HospitalNum").text(nobj.HospNum);
-            $("#Current_Month_ProductNum").text(nobj.ProductNum);
-            $("#Current_Month_MarketNum").text(nobj.MarketNum);
-        }else{
-            $("#Current_Month_HospitalNum").text(0);
-            $("#Current_Month_ProductNum").text(0);
-            $("#Current_Month_MarketNum").text(0);
-        }
+    var cel_data = function(r){
+        var cur_data = r.result.cur_data
+        var ear_data = r.result.ear_data
+        var las_data = r.result.las_data
+        $("#Current_Month_HospitalNum").text(cur_data.HospNum);
+        $("#Current_Month_ProductNum").text(cur_data.ProductNum);
+        $("#Current_Month_MarketNum").text(cur_data.MarketNum);
+        $("#Early_Month_HospitalNum").text(ear_data.HospNum);
+        $("#Early_Month_ProductNum").text(ear_data.ProductNum);
+        $("#Early_Month_marketNum").text(ear_data.MarketNum);
+        $("#Last_Year_HospitalNum").text(las_data.HospNum);
+        $("#Last_Year_ProductNum").text(las_data.ProductNum);
+        $("#Last_Year_MarketNum").text(las_data.MarketNum);
     }
 
-    //*********************************************************************
-    //功能: 上期
-    //时间：20170413
-    //创建：Arthas
-    //说明：医院数量、产品数量、市场数量。
-    //*********************************************************************
-    function Top_Early(obj){
-        if(obj != null){
-            $("#Early_Month_HospitalNum").text(obj.HospNum);
-            $("#Early_Month_ProductNum").text(obj.ProductNum);
-            $("#Early_Month_marketNum").text(obj.MarketNum);
-        }else{
-            $("#Early_Month_HospitalNum").text(0);
-            $("#Early_Month_ProductNum").text(0);
-            $("#Early_Month_marketNum").text(0);
+    var cur12_data_HPM = function(r){
+        var cur12_data_H_arr = [];
+        var cur12_data_P_arr = [];
+        var cur12_data_M_arr = [];
+
+        var cur12_data_H = r.result.cur12_data_H
+        for(var item in cur12_data_H){
+            var obj = cur12_data_H[item];
+            cur12_data_H_arr.push((obj.HospNum));
         }
+
+        var cur12_data_P = r.result.cur12_data_P
+        for(var item in cur12_data_P){
+            var obj = cur12_data_P[item];
+            cur12_data_P_arr.push((obj.ProductNum));
+        }
+
+        var cur12_data_M = r.result.cur12_data_M
+        for(var item in cur12_data_M){
+            var obj = cur12_data_M[item];
+            cur12_data_M_arr.push((obj.MarketNum));
+        }
+
+        $("#sparkline1").sparkline(cur12_data_H_arr, {
+            type: 'line',
+            width: '100%',
+            height: '50',
+            lineColor: '#1ab394',
+            fillColor: "transparent"
+        });
+
+        $("#sparkline2").sparkline(cur12_data_P_arr, {
+            type: 'line',
+            width: '100%',
+            height: '50',
+            lineColor: '#1ab394',
+            fillColor: "transparent"
+        });
+
+        $("#sparkline3").sparkline(cur12_data_M_arr, {
+            type: 'line',
+            width: '100%',
+            height: '50',
+            lineColor: '#1C84C6',
+            fillColor: "transparent"
+        });
     }
 
-    //*********************************************************************
-    //功能: 去年同期
-    //时间：20170413
-    //创建：Arthas
-    //说明：医院数量、产品数量、市场数量。
-    //*********************************************************************
-    function Top_Last(obj){
-        if(obj != null){
-            $("#Last_Year_HospitalNum").text(obj.HospNum);
-            $("#Last_Year_ProductNum").text(obj.ProductNum);
-            $("#Last_Year_MarketNum").text(obj.MarketNum);
-        }else{
-            $("#Last_Year_HospitalNum").text(0);
-            $("#Last_Year_ProductNum").text(0);
-            $("#Last_Year_MarketNum").text(0);
-        }
-    }
 
     //*********************************************************************
     //功能: Echarts图
-    //时间：20170413
-    //创建：Arthas
+    //创建时间：20170413
+    //修改日期：20170421
+    //创建人：Arthas
     //说明：去年vs今年近12月的销售额、销售数量。
     //*********************************************************************
-    function salesChartsPlot(early12,last12) {
+    function cur12_las12_data(r) {
+        var cur12_las12_Sales1 = r.result.cur12_las12_data.cur12_las12_Sales
+        var cur12_las12_Units2 = r.result.cur12_las12_data.cur12_las12_Units
+
         var x_data = [];
         var y_curr12_sales = [];
         var y_last12_sales = [];
         var y_curr12_utils = [];
         var y_last12_utils = [];
 
-        for(var item in early12){
-            var obj = early12[item];
+        for(var item in cur12_las12_Sales1){
+            var obj = cur12_las12_Sales1[item];
             x_data.push(obj.Date);
-            y_curr12_sales.push((obj.Sales).toFixed(2));
-            y_curr12_utils.push((obj.Units).toFixed(2));
+            y_curr12_sales.push((obj.cur_Sales/10000).toFixed(4));
+            y_last12_sales.push((obj.las_Sales/10000).toFixed(4));
         }
 
-        for(var item in last12){
-            var obj = early12[item];
+        for(var item in cur12_las12_Units2){
+            var obj = cur12_las12_Units2[item];
             x_data.push(obj.Date);
-            y_last12_sales.push((obj.Sales).toFixed(2));
-            y_last12_utils.push((obj.Units).toFixed(2));
+            y_curr12_utils.push((obj.cur_Units/10000).toFixed(4));
+            y_last12_utils.push((obj.las_Units/10000).toFixed(4));
         }
 
         var itemStyleColor = ['#23c6c8', '#1ab394'];
@@ -150,6 +169,7 @@ $(function(){
             legend: {right: 20,orient: 'vertical',data: ['今年前12月','去年前12月']},
             xAxis: {
                 type: 'category',
+                name: '日期',
                 data: x_data,
                 boundaryGap: false,
                 splitLine: {show: true,interval: 'auto',lineStyle: {color: [itemStyleColor[0]]}},
@@ -159,6 +179,7 @@ $(function(){
             },
             yAxis: {
                 type: 'value',
+                name: '销售额(万)',
                 splitLine: {lineStyle: {color: [itemStyleColor[1]]}},
                 axisTick: {show: false},
                 axisLine: {lineStyle: {color: itemStyleColor[1]}},
@@ -202,6 +223,7 @@ $(function(){
             legend: {right: 20,orient: 'vertical',data: ['今年前12月','去年前12月']},
             xAxis: {
                 type: 'category',
+                name: '日期',
                 data: x_data,
                 boundaryGap: false,
                 splitLine: {show: true,interval: 'auto',lineStyle: {color: ['#23c6c8']}},
@@ -211,6 +233,7 @@ $(function(){
             },
             yAxis: {
                 type: 'value',
+                name: '销售量(万)',
                 splitLine: {lineStyle: {color: ['#1ab394']}},
                 axisTick: {show: false},
                 axisLine: {lineStyle: {color: '#1ab394'}},
@@ -256,12 +279,12 @@ $(function(){
     //创建：Arthas
     //说明：不匹配医院列表。
     //*********************************************************************
-    function Top_Mismatch(obj) {
-        var nobj = obj[0]
+    function Top_Mismatch(r) {
+        var mismatch_lst = r.result.misMatchHospital
         var temp = []
         var data = []
+        var nobj = mismatch_lst[0]
         if(nobj!=null){
-            var mismatch_lst = nobj.MisMatch;
             $.each(mismatch_lst, function (i, v) {
                 temp.push((i + 1));
                 temp.push(v.Hosp_name);
@@ -274,7 +297,6 @@ $(function(){
             })
             return data;
         }
-
     }
 
     //*********************************************************************
