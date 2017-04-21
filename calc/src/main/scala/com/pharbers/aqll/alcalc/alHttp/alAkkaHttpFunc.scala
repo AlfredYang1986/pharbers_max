@@ -34,6 +34,7 @@ case class alCalcItem(filename: String, company: String, uname: String)
 case class alCommitItem(company: String)
 case class alExportItem(datatype: String,market : List[String],staend : List[String],company : String,filetype : String, uname: String)
 case class alHttpCreateIMUser(name: String, pwd: String)
+case class alQueryUUIDItem(company: String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 	implicit val itemFormatUpBefore = jsonFormat1(alUpBeforeItem)
@@ -43,6 +44,7 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 	implicit val itemFormatCommit = jsonFormat1(alCommitItem)
 	implicit val itemFormatExport = jsonFormat6(alExportItem)
 	implicit val itemFormatUser = jsonFormat2(alHttpCreateIMUser)
+	implicit val itemFormatQueryUUID = jsonFormat1(alQueryUUIDItem)
 }
 
 trait alAkkaHttpFunc extends Directives with JsonSupport{
@@ -51,7 +53,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 
 	implicit def requestTimeout: Timeout
 
-	val routes = alTest ~ alSampleCheckDataFunc ~ alCalcDataFunc ~ alModelOperationCommitFunc ~ alFileUploadPythonFunc ~ alResultFileExportFunc ~ alFileUploadPyBefore
+	val routes = alTest ~ alSampleCheckDataFunc ~ alCalcDataFunc ~ alModelOperationCommitFunc ~ alFileUploadPythonFunc ~ alResultFileExportFunc ~ alFileUploadPyBefore ~ alQueryUUIDFunc
 
 	def alTest = post {
 		path("test") {
@@ -151,6 +153,20 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			entity(as[alHttpCreateIMUser]) { item =>
 				alIMUser.createUser(item.name, item.pwd)
 				complete("""{"result": "OK"}""")
+			}
+		}
+	}
+
+	def alQueryUUIDFunc = post {
+		path("queryUUID") {
+			entity(as[alQueryUUIDItem]) { item =>
+//				val uuid = alCalcParmary.alParmary.single.get.find(_.company.equals(item.company)) match {
+//					case None => ""
+//					case Some(x) => x.uuid.toString
+//				}
+				val uuid = "fb9cb2cd-52ab-4493-b943-24800d85a610"
+				val gson : Gson = new Gson()
+				complete("""{"result": """+gson.toJson(uuid)+"""}""")
 			}
 		}
 	}

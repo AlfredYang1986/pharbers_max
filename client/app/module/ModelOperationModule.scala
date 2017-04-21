@@ -2,7 +2,7 @@ package module
 
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.util.DateUtils
+import com.pharbers.aqll.util.{DateUtils, GetProperties, HTTP}
 import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -29,7 +29,12 @@ object ModelOperationModule extends ModuleTrait {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
-			val uuid = "fb9cb2cd-52ab-4493-b943-24800d85a610"
+
+			//val uuid = "fb9cb2cd-52ab-4493-b943-24800d85a610"
+			val uuidjson = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/queryUUID", toJson(Map("company" -> toJson(company))))
+			println(uuidjson)
+			val uuid = (uuidjson \ "result").asOpt[String].get
+
 			val result = Echart1_Result(company,market,date,uuid)
 			(Some(Map("result" -> result)), None)
 		} catch {
@@ -42,7 +47,12 @@ object ModelOperationModule extends ModuleTrait {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
-			val uuid = "fb9cb2cd-52ab-4493-b943-24800d85a610"
+
+			//val uuid = "fb9cb2cd-52ab-4493-b943-24800d85a610"
+			val uuidjson = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/queryUUID", toJson(Map("company" -> toJson(company))))
+			println(uuidjson)
+			val uuid = (uuidjson \ "result").asOpt[String].get
+
 			val result = Echart2_Result(company,market,date,uuid)
 			(Some(Map("result" -> result)), None)
 		} catch {
@@ -91,7 +101,6 @@ object ModelOperationModule extends ModuleTrait {
 			lastyear_month_i = lastyear_month_i+1
 		}
 		sb12.append(toJson(Map("f_sales" -> toJson(cur_sales_sum),"Date" -> toJson(cur_date))))
-		println(toJson(sb12))
 		toJson(sb12)
 	}
 
@@ -218,5 +227,10 @@ object ModelOperationModule extends ModuleTrait {
 			lastyear_new_sb.append(jsv)
 		}
 		toJson(Map("cur_month_result" -> toJson(cur_new_sb.toList),"ear_month_result" -> toJson(ear_new_sb.toList),"lastyear_month_result" -> toJson(lastyear_new_sb.toList)) )
+	}
+
+	def call(uri: String, data: JsValue): JsValue = {
+		val json = (HTTP(uri)).post(data).as[JsValue]
+		json
 	}
 }

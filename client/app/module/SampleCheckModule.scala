@@ -33,7 +33,6 @@ object SampleCheckModule extends ModuleTrait {
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val market = (data \ "market").asOpt[String].getOrElse("")
 		val date = (data \ "date").asOpt[String].getOrElse("")
-		println(company)
 		try {
 			val cur_data = query_cel_data(query(company,market,date,"cur"))
 			val ear_data = query_cel_data(query(company,market,date,"ear"))
