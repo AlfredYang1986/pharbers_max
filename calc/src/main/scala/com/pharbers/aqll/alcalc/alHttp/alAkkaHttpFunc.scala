@@ -53,7 +53,10 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 
 	implicit def requestTimeout: Timeout
 
-	val routes = alTest ~ alSampleCheckDataFunc ~ alCalcDataFunc ~ alModelOperationCommitFunc ~ alFileUploadPythonFunc ~ alResultFileExportFunc ~ alFileUploadPyBefore ~ alQueryUUIDFunc
+	val routes = alTest ~ alSampleCheckDataFunc ~
+		         alCalcDataFunc ~ alModelOperationCommitFunc ~
+		         alFileUploadPythonFunc ~ alResultFileExportFunc ~
+		         alFileUploadPyBefore ~ alQueryUUIDFunc
 
 	def alTest = post {
 		path("test") {
