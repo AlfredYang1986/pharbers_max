@@ -18,6 +18,7 @@ object stub_test_5 extends App{
 	if (system.settings.config.getStringList("akka.cluster.roles").contains("splitworker")) {
 		Cluster(system).registerOnMemberUp {
 			import scala.concurrent.duration._
+			import scala.concurrent.ExecutionContext.Implicits.global
 			import com.pharbers.aqll.alcalc.alSchedulerJobs.{alScheduleRemoveFiles, rmFile}
 			val a = system.actorSelection(GetProperties.singletonPaht)
 			val c = system.actorOf(alCalcActor.props)

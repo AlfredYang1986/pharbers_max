@@ -18,6 +18,7 @@ object stub_test_4 extends App{
 		Cluster(system).registerOnMemberUp {
 //			if(!FileOpt("/Users/qianpeng/Desktop/scp").isDir) FileOpt("/Users/qianpeng/Desktop/scp").createDir
 			import scala.concurrent.duration._
+			import scala.concurrent.ExecutionContext.Implicits.global
 			import com.pharbers.aqll.alcalc.alSchedulerJobs.{alScheduleRemoveFiles, rmFile}
 			val a = system.actorSelection(GetProperties.singletonPaht)
 			val c = system.actorOf(alCalcActor.props)

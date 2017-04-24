@@ -2,7 +2,8 @@ package com.pharbers.aqll.alcalc.almain
 
 import java.util.UUID
 
-import akka.actor.{Actor, ActorLogging, FSM, Props}
+import akka.actor.SupervisorStrategy.{Escalate, Restart, Resume, Stop}
+import akka.actor.{Actor, ActorLogging, FSM, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alcalc.alcmd.pkgcmd.unPkgCmd
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
@@ -14,6 +15,7 @@ import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.alPkgJob
+import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.util.GetProperties
 import com.pharbers.aqll.util.dao._data_connection_cores
 
@@ -25,7 +27,7 @@ import scala.concurrent.duration._
 object alCalcActor {
     def props : Props = Props[alCalcActor]
 
-    val core_number = 4
+    val core_number = server_info.cpu
 }
 
 class alCalcActor extends Actor 
@@ -143,7 +145,6 @@ class alCalcActor extends Actor
             println(s"avg")
             if (r.parent == uuid)
                 concert_router ! concert_calc_avg(r, avg)
-
             stay()
         }
         case Event(concert_calc_result(sub_uuid, v, u), data) => {
@@ -244,4 +245,11 @@ trait alCreateConcretCalcRouter { this : Actor =>
     import alCalcActor.core_number
     def CreateConcretCalcRouter =
         context.actorOf(BroadcastPool(core_number).props(alConcertCalcActor.props), name = "concert-calc-router")
+    override val supervisorStrategy =
+        OneForOneStrategy(maxNrOfRetries = 3, withinTimeRange = 1 minute) {
+            case _: ArithmeticException      => println("Resume"); Resume
+            case _: NullPointerException     => println("Restart"); Restart
+            case _: IllegalArgumentException => println("Stop"); Stop
+            case _: Exception                => println("Escalate"); Escalate
+        }
 }
