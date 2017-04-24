@@ -29,13 +29,7 @@ object ModelOperationModule extends ModuleTrait {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
-
-			//val uuid = "fb9cb2cd-52ab-4493-b943-24800d85a610"
-			val uuidjson = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/queryUUID", toJson(Map("company" -> toJson(company))))
-			println(uuidjson)
-			val uuid = (uuidjson \ "result").asOpt[String].get
-
-			val result = Echart1_Result(company,market,date,uuid)
+			val result = Echart1_Result(company,market,date,queryUUID(company))
 			(Some(Map("result" -> result)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -47,13 +41,7 @@ object ModelOperationModule extends ModuleTrait {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
-
-			//val uuid = "fb9cb2cd-52ab-4493-b943-24800d85a610"
-			val uuidjson = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/queryUUID", toJson(Map("company" -> toJson(company))))
-			println(uuidjson)
-			val uuid = (uuidjson \ "result").asOpt[String].get
-
-			val result = Echart2_Result(company,market,date,uuid)
+			val result = Echart2_Result(company,market,date,queryUUID(company))
 			(Some(Map("result" -> result)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -227,6 +215,13 @@ object ModelOperationModule extends ModuleTrait {
 			lastyear_new_sb.append(jsv)
 		}
 		toJson(Map("cur_month_result" -> toJson(cur_new_sb.toList),"ear_month_result" -> toJson(ear_new_sb.toList),"lastyear_month_result" -> toJson(lastyear_new_sb.toList)) )
+	}
+
+	def queryUUID(company: String): String = {
+		//val uuid = "fb9cb2cd-52ab-4493-b943-24800d85a610"
+		val uuidjson = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/queryUUID", toJson(Map("company" -> toJson(company))))
+		println(uuidjson)
+		(uuidjson \ "result").asOpt[String].get
 	}
 
 	def call(uri: String, data: JsValue): JsValue = {
