@@ -76,50 +76,210 @@ $(function(){
     }
 
     var cur12_data_HPM = function(r){
-        var cur12_data_H_arr = [];
-        var cur12_data_P_arr = [];
-        var cur12_data_M_arr = [];
+
+        var symbolSize = 4;
+        var hosp_x_data = [];
+        var hosp_s_data = [];
+        var hosp_xs_data = [];
+        var prod_x_data = [];
+        var prod_s_data = [];
+        var mark_x_data = [];
+        var mark_s_data = [];
 
         var cur12_data_H = r.result.cur12_data_H
         for(var item in cur12_data_H){
             var obj = cur12_data_H[item];
-            cur12_data_H_arr.push((obj.HospNum));
+            hosp_x_data.push(obj.Date);
+            hosp_s_data.push(obj.HospNum);
         }
 
         var cur12_data_P = r.result.cur12_data_P
         for(var item in cur12_data_P){
             var obj = cur12_data_P[item];
-            cur12_data_P_arr.push((obj.ProductNum));
+            prod_x_data.push(obj.Date);
+            prod_s_data.push(obj.ProductNum);
         }
 
         var cur12_data_M = r.result.cur12_data_M
         for(var item in cur12_data_M){
             var obj = cur12_data_M[item];
-            cur12_data_M_arr.push((obj.MarketNum));
+            mark_x_data.push(obj.Date);
+            mark_s_data.push(obj.MarketNum);
         }
 
-        $("#sparkline1").sparkline(cur12_data_H_arr, {
-            type: 'line',
-            width: '100%',
-            height: '50',
-            lineColor: '#1ab394',
-            fillColor: "transparent"
-        });
+//        $("#sparkline1").sparkline(hosp_s_data,{
+//            type: 'line',
+//            width: '100%',
+//            height: '50',
+//            lineColor: '#1ab394',
+//            fillColor: "transparent",
+//            tooltipFormat: '{{offset:offset}} : {{y:val}}'
+//        }).bind('sparklineRegionChange', function(ev) {
+//            var sparkline = ev.sparklines[0],
+//            region = sparkline.getCurrentRegionFields(),
+//            value = region.y;
+//            var index = region.x+":"+region.y
+//            console.info(hosp_x_data[region.x]+":"+region.y);
+//            console.info(this.tooltip);
+//        });
 
-        $("#sparkline2").sparkline(cur12_data_P_arr, {
-            type: 'line',
-            width: '100%',
-            height: '50',
-            lineColor: '#1ab394',
-            fillColor: "transparent"
-        });
+        hosp_option = {
+            title: {
+                text: ''
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                   type: 'none'
+                }
+            },
+            legend: {
+                x: 'left',
+                y: 'middle',
+                orient: 'vertical',
+                data: ['数量'],
+                show: false
+            },
+            grid: {
+                bottom: '3%',
+                left: '-11px',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                show: false,
+                boundaryGap: false,
+                data: hosp_x_data
+            },
+            yAxis: {
+                type: 'value',
+                show: false
+            },
+            series: [{
+                name: '数量',
+                type: 'line',
+                smooth: true,
+                symbolSize: symbolSize,
+                itemStyle : {
+                    normal : {
+                        color:'#1068AF',
+                        lineStyle:{
+                            color:'#1068AF'
+                        }
+                    }
+                },
+                data: hosp_s_data
+            }]
+        };
 
-        $("#sparkline3").sparkline(cur12_data_M_arr, {
-            type: 'line',
-            width: '100%',
-            height: '50',
-            lineColor: '#1C84C6',
-            fillColor: "transparent"
+        prod_option = {
+            title: {
+                text: ''
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'none'
+                }
+            },
+            legend: {
+                x: 'left',
+                y: 'middle',
+                orient: 'vertical',
+                data: ['数量'],
+                show: false
+            },
+            grid: {
+                bottom: '3%',
+                left: '-11px',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                show: false,
+                boundaryGap: false,
+                data: prod_x_data
+            },
+            yAxis: {
+                type: 'value',
+                show: false
+            },
+            series: [{
+                name: '数量',
+                type: 'line',
+                smooth: true,
+                symbolSize: symbolSize,
+                itemStyle : {
+                    normal : {
+                        color:'#37892A',
+                        lineStyle:{
+                            color:'#37892A'
+                        }
+                    }
+                },
+                data: prod_s_data
+            }]
+        };
+
+        mark_option = {
+            title: {
+                text: ''
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                   type: 'none'
+                }
+            },
+            legend: {
+                x: 'left',
+                y: 'middle',
+                orient: 'vertical',
+                data: ['数量'],
+                show: false
+            },
+            grid: {
+                bottom: '3%',
+                left: '-11px',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                show: false,
+                boundaryGap: false,
+                data: mark_x_data
+            },
+            yAxis: {
+                type: 'value',
+                show: false
+            },
+            series: [{
+                name: '数量',
+                type: 'line',
+                smooth: true,
+                symbolSize: symbolSize,
+                itemStyle : {
+                    normal : {
+                        color:'#0098D9',
+                        lineStyle:{
+                            color:'#0098D9'
+                        }
+                    }
+                },
+                data: mark_s_data
+            }]
+        };
+
+        var sparkline1 = echarts.init(document.getElementById('sparkline1'));
+        var sparkline2 = echarts.init(document.getElementById('sparkline2'));
+        var sparkline3 = echarts.init(document.getElementById('sparkline3'));
+        sparkline1.setOption(hosp_option);
+        sparkline2.setOption(prod_option);
+        sparkline3.setOption(mark_option);
+        window.addEventListener("resize", function() {
+            sparkline1.resize();
+            sparkline2.resize();
+            sparkline3.resize();
         });
     }
 
