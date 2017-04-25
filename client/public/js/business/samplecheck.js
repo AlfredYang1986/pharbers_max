@@ -41,6 +41,7 @@ $(function(){
             data: dataMap,
             contentType: 'application/json,charset=utf-8',
             success: function (r) {
+                console.info(r)
                 cel_data(r);
                 cur12_data_HPM(r);
                 cur12_las12_data(r);
@@ -78,50 +79,20 @@ $(function(){
     var cur12_data_HPM = function(r){
 
         var symbolSize = 4;
-        var hosp_x_data = [];
-        var hosp_s_data = [];
-        var hosp_xs_data = [];
-        var prod_x_data = [];
-        var prod_s_data = [];
-        var mark_x_data = [];
-        var mark_s_data = [];
+        var x_data = [];
+        var s_hosp_data = [];
+        var s_prod_data = [];
+        var s_mark_data = [];
 
-        var cur12_data_H = r.result.cur12_data_H
-        for(var item in cur12_data_H){
-            var obj = cur12_data_H[item];
-            hosp_x_data.push(obj.Date);
-            hosp_s_data.push(obj.HospNum);
+        var cur12_date = r.result.cur12_date
+
+        for(var item in cur12_date){
+            var obj = cur12_date[item];
+            x_data.push(obj.Date);
+            s_hosp_data.push(obj.HospNum);
+            s_prod_data.push(obj.ProductNum);
+            s_mark_data.push(obj.MarketNum);
         }
-
-        var cur12_data_P = r.result.cur12_data_P
-        for(var item in cur12_data_P){
-            var obj = cur12_data_P[item];
-            prod_x_data.push(obj.Date);
-            prod_s_data.push(obj.ProductNum);
-        }
-
-        var cur12_data_M = r.result.cur12_data_M
-        for(var item in cur12_data_M){
-            var obj = cur12_data_M[item];
-            mark_x_data.push(obj.Date);
-            mark_s_data.push(obj.MarketNum);
-        }
-
-//        $("#sparkline1").sparkline(hosp_s_data,{
-//            type: 'line',
-//            width: '100%',
-//            height: '50',
-//            lineColor: '#1ab394',
-//            fillColor: "transparent",
-//            tooltipFormat: '{{offset:offset}} : {{y:val}}'
-//        }).bind('sparklineRegionChange', function(ev) {
-//            var sparkline = ev.sparklines[0],
-//            region = sparkline.getCurrentRegionFields(),
-//            value = region.y;
-//            var index = region.x+":"+region.y
-//            console.info(hosp_x_data[region.x]+":"+region.y);
-//            console.info(this.tooltip);
-//        });
 
         hosp_option = {
             title: {
@@ -149,7 +120,7 @@ $(function(){
                 type: 'category',
                 show: false,
                 boundaryGap: false,
-                data: hosp_x_data
+                data: x_data
             },
             yAxis: {
                 type: 'value',
@@ -168,7 +139,7 @@ $(function(){
                         }
                     }
                 },
-                data: hosp_s_data
+                data: s_hosp_data
             }]
         };
 
@@ -198,7 +169,7 @@ $(function(){
                 type: 'category',
                 show: false,
                 boundaryGap: false,
-                data: prod_x_data
+                data: x_data
             },
             yAxis: {
                 type: 'value',
@@ -217,7 +188,7 @@ $(function(){
                         }
                     }
                 },
-                data: prod_s_data
+                data: s_prod_data
             }]
         };
 
@@ -247,7 +218,7 @@ $(function(){
                 type: 'category',
                 show: false,
                 boundaryGap: false,
-                data: mark_x_data
+                data: x_data
             },
             yAxis: {
                 type: 'value',
@@ -266,7 +237,7 @@ $(function(){
                         }
                     }
                 },
-                data: mark_s_data
+                data: s_mark_data
             }]
         };
 
@@ -292,8 +263,9 @@ $(function(){
     //说明：去年vs今年近12月的销售额、销售数量。
     //*********************************************************************
     function cur12_las12_data(r) {
-        var cur12_las12_Sales1 = r.result.cur12_las12_data.cur12_las12_Sales
-        var cur12_las12_Units2 = r.result.cur12_las12_data.cur12_las12_Units
+
+        var cur12_date = r.result.cur12_date
+        var las12_date = r.result.las12_date
 
         var x_data = [];
         var y_curr12_sales = [];
@@ -301,18 +273,30 @@ $(function(){
         var y_curr12_utils = [];
         var y_last12_utils = [];
 
-        for(var item in cur12_las12_Sales1){
-            var obj = cur12_las12_Sales1[item];
+        for(var item in cur12_date){
+            var obj = cur12_date[item];
             x_data.push(obj.Date);
-            y_curr12_sales.push((obj.cur_Sales/10000).toFixed(4));
-            y_last12_sales.push((obj.las_Sales/10000).toFixed(4));
+            if(obj.Sales != 0.0){
+                y_curr12_sales.push((obj.Sales/10000).toFixed(4));
+                y_curr12_utils.push((obj.Units/10000).toFixed(4));
+            }else{
+                y_curr12_sales.push(0.0000);
+                y_curr12_utils.push(0.0000);
+
+            }
+
         }
 
-        for(var item in cur12_las12_Units2){
-            var obj = cur12_las12_Units2[item];
-            x_data.push(obj.Date);
-            y_curr12_utils.push((obj.cur_Units/10000).toFixed(4));
-            y_last12_utils.push((obj.las_Units/10000).toFixed(4));
+        for(var item in las12_date){
+            var obj = las12_date[item];
+            //x_data.push(obj.Date);
+            if(obj.Units != 0.0){
+                y_last12_sales.push((obj.Sales/10000).toFixed(4));
+                y_last12_utils.push((obj.Units/10000).toFixed(4));
+            }else{
+                y_last12_sales.push(0.0000);
+                y_last12_utils.push(0.0000);
+            }
         }
 
         var itemStyleColor = ['#23c6c8', '#1ab394'];

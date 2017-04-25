@@ -57,7 +57,6 @@ object DateUtils {
     val sdf = new SimpleDateFormat("yyyyMM")
     sdf.parse(newstr).getTime
   }
-
   //Example 11/2016 to ([11/2015 - 11/2016] to [1446307200000 - 1477929600000])
   def MMyyyy2Early12Long(str: String) : List[Long] = {
     val arr = str.split("/")
@@ -87,6 +86,10 @@ object DateUtils {
   def MMyyyy2yyyyMM(str: String): String ={
     val sdf = new SimpleDateFormat("MM/yyyy")
     Timestamp2yyyyMM(sdf.parse(str).getTime)
+  }
+
+  def ArrayDate2ArrayTimeStamp(arr: Array[String]): Array[Long] = {
+    arr.map(x => DateUtils.yyyyMM2Long(x))
   }
 
 }
