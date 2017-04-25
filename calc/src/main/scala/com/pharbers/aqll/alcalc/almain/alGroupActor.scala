@@ -15,6 +15,7 @@ import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.alPkgJob
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
+import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.util.GetProperties
 
 import scala.concurrent.stm.atomic
@@ -30,6 +31,7 @@ case class FileParentUuid(var uuid: String)
 
 object alGroupActor {
     def props : Props = Props[alGroupActor]
+    val core_number = server_info.cpu
 }
 
 class alGroupActor extends Actor
@@ -176,7 +178,8 @@ class alGroupActor extends Actor
     val concert_router = CreateConcretGroupRouter
 }
 
-trait alCreateConcretGroupRouter { this : Actor =>
+trait alCreateConcretGroupRouter extends alSupervisorStrategy { this : Actor =>
+    import alCalcActor.core_number
     def CreateConcretGroupRouter =
-        context.actorOf(BroadcastPool(4).props(alConcertGroupActor.props), name = "concert-group-router")
+        context.actorOf(BroadcastPool(core_number).props(alConcertGroupActor.props), name = "concert-group-router")
 }

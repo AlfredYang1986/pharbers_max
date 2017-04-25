@@ -163,11 +163,11 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alQueryUUIDFunc = post {
 		path("queryUUID") {
 			entity(as[alQueryUUIDItem]) { item =>
-//				val uuid = alCalcParmary.alParmary.single.get.find(_.company.equals(item.company)) match {
-//					case None => ""
-//					case Some(x) => x.uuid.toString
-//				}
-				val uuid = "fb9cb2cd-52ab-4493-b943-24800d85a610"
+				val uuid = alCalcParmary.alParmary.single.get.find(_.company.equals(item.company)) match {
+					case None => ""
+					case Some(x) => x.uuid.toString
+				}
+//				val uuid = "fb9cb2cd-52ab-4493-b943-24800d85a610"
 				val gson : Gson = new Gson()
 				complete("""{"result": """+gson.toJson(uuid)+"""}""")
 			}

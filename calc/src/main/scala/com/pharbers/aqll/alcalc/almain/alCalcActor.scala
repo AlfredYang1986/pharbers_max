@@ -2,15 +2,15 @@ package com.pharbers.aqll.alcalc.almain
 
 import java.util.UUID
 
-import akka.actor.SupervisorStrategy.{Escalate, Restart, Resume, Stop}
-import akka.actor.{Actor, ActorLogging, FSM, OneForOneStrategy, Props, SupervisorStrategy}
+import akka.actor.SupervisorStrategy.Restart
+import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alcalc.alcmd.pkgcmd.unPkgCmd
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.alcalc.alfinaldataprocess.{alDumpcollScp, alLocalRestoreColl, alRestoreColl}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates._
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_avg_job, concert_calc_result, _}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_avg_job, calc_job, concert_calc_result, _}
 import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
@@ -40,6 +40,8 @@ class alCalcActor extends Actor
 
     startWith(alMasterJobIdle, new alCalcParmary("", ""))
 
+	var maxProperty: alMaxProperty = null
+
     when(alMasterJobIdle) {
         case Event(can_sign_job(), _) => {
             sender() ! sign_job_can_accept()
@@ -47,18 +49,19 @@ class alCalcActor extends Actor
         }
 
         case Event(calc_job(p, parm), data) => {
+	        maxProperty = p
             data.uuid = parm.uuid
             data.company = parm.company
             data.year = parm.year
             data.market = parm.market
             atomic { implicit tnx =>
                 concert_ref() = Some(p)
-                println(s"calc finally $p")
+	            log.info(s"calc finally $p")
             }
 
             // TODO: 接收到Driver的信息后开始在各个机器上解压SCP过来的tar.gz文件，在开始Calc
 
-            println(s"unCalcPkgSplit uuid = ${p.uuid}")
+	        log.info(s"unCalcPkgSplit uuid = ${p.uuid}")
 
             cur = Some(new unPkgCmd(s"/root/program/scp/${p.uuid}", "/root/program/") :: Nil)
             process = do_pkg() :: Nil
@@ -74,7 +77,7 @@ class alCalcActor extends Actor
                     context.system.scheduler.scheduleOnce(0 seconds, self, calcing_job(lst, mid))
                     goto(calc_coreing) using data
                 case _ =>
-                    println("group no subs list")
+	                log.info("group no subs list")
                     stay()
             }
 
@@ -88,7 +91,6 @@ class alCalcActor extends Actor
         }
 
         case Event(calc_need_files(uuid_file_path), _) => {
-            println(s"fucking in my jobs = $uuid_file_path")
             stay()
         }
     }
@@ -122,7 +124,7 @@ class alCalcActor extends Actor
 //                r.sum = r.sum ++: sum
             }.getOrElse(Unit)
 
-            println(s"sub_uuid done $sub_uuid")
+	        log.info(s"sub_uuid done $sub_uuid")
 
             if (r.subs.filterNot (x => x.isSumed).isEmpty) {
 //                r.sum = (r.sum.groupBy(_._1) map { x =>
@@ -142,11 +144,25 @@ class alCalcActor extends Actor
         case Event(calc_avg_job(uuid, avg), _) => {
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
 
-            println(s"avg")
+	        log.info(s"avg")
             if (r.parent == uuid)
                 concert_router ! concert_calc_avg(r, avg)
             stay()
         }
+
+        case Event(Terminated(a), data) => {
+	        data.faultTimes = data.faultTimes + 1
+	        if(data.faultTimes == data.maxTimeTry) {
+		        log.info(s"concert_calc_avg -- 该UUID: ${data.uuid},在尝试性计算3次后，其中的某个线程计算失败，正在结束停止计算！")
+		        // TODO : 这块儿发送消息告诉所有在计算这个文件的Actor停止计算
+		        Restart
+	        }else {
+		        log.info(s"concert_calc_avg -- 尝试${data.faultTimes}次")
+		        self ! calc_job(maxProperty, data)
+	        }
+	        goto(alMasterJobIdle) using new alCalcParmary("", "")
+        }
+
         case Event(concert_calc_result(sub_uuid, v, u), data) => {
             println(sub_uuid, v, u)
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
@@ -158,13 +174,13 @@ class alCalcActor extends Actor
             }.getOrElse(Unit)
 
             // TODO : 根据Sub_uuid备份数据库
-            println(s"单个线程备份传输开始")
+            log.info(s"单个线程备份传输开始")
             alDumpcollScp(sub_uuid)
-            println(s"单个线程备份传输结束")
+	        log.info(s"单个线程备份传输结束")
 
-            println(s"单个线程开始删除临时表")
+	        log.info(s"单个线程开始删除临时表")
             _data_connection_cores.getCollection(sub_uuid).drop()
-            println(s"单个线程结束删除临时表")
+	        log.info(s"单个线程结束删除临时表")
             sendMessage.send(data.uuid, data.company, 1, data.uname)
 
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
@@ -180,10 +196,6 @@ class alCalcActor extends Actor
 //                println(s"集中备份开始")
 //                alDumpcoll(uuid)
 //                println(s"集中备份结束")
-
-
-
-
 
 //                r.finalValue = r.subs.map(_.finalValue).sum
 //                r.finalUnit = r.subs.map(_.finalUnit).sum
@@ -232,6 +244,17 @@ class alCalcActor extends Actor
             }
             stay()
         }
+
+        case Event(Terminated(a), data) => {
+	        data.faultTimes = data.faultTimes + 1
+	        if(data.faultTimes == data.maxTimeTry) {
+		        println(s"concert_calc -- 该UUID: ${data.uuid},在尝试性计算3次后，其中的某个线程计算失败，正在结束停止计算！")
+	        }else {
+		        println(s"concert_calc -- 尝试${data.faultTimes}次")
+		        self ! calc_job(maxProperty, data)
+	        }
+	        goto(alMasterJobIdle) using new alCalcParmary("", "")
+        }
     }
 
     val concert_ref : Ref[Option[alMaxProperty]] = Ref(None)            // 向上传递的，返回master的，相当于parent
@@ -241,15 +264,8 @@ class alCalcActor extends Actor
     val concert_router = CreateConcretCalcRouter
 }
 
-trait alCreateConcretCalcRouter { this : Actor =>
+trait alCreateConcretCalcRouter extends alSupervisorStrategy { this : Actor =>
     import alCalcActor.core_number
     def CreateConcretCalcRouter =
         context.actorOf(BroadcastPool(core_number).props(alConcertCalcActor.props), name = "concert-calc-router")
-    override val supervisorStrategy =
-        OneForOneStrategy(maxNrOfRetries = 3, withinTimeRange = 1 minute) {
-            case _: ArithmeticException      => println("Resume"); Resume
-            case _: NullPointerException     => println("Restart"); Restart
-            case _: IllegalArgumentException => println("Stop"); Stop
-            case _: Exception                => println("Escalate"); Escalate
-        }
 }

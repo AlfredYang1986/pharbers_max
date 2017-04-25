@@ -82,7 +82,7 @@ class alMaxDriver extends Actor
         case push_max_job(file_path, p) => {
             println(s"sign a job with file name $file_path")
             atomic { implicit txn =>
-                //jobs() = jobs() :+ max_jobs(file_path)
+                jobs() = jobs() :+ max_jobs(file_path)
                 jobs2() = jobs2() :+ (max_jobs(file_path), p)
             }
         }
