@@ -10,7 +10,7 @@ import scala.concurrent.duration._
   */
 trait alSupervisorStrategy { this: Actor =>
 	override val supervisorStrategy =
-		AllForOneStrategy {
+		AllForOneStrategy() {
 			case _: Exception => Stop
 		}
 }
