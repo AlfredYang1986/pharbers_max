@@ -50,7 +50,6 @@ $(function(){
             $.ajax({
                 type: "post",
                 data: dataMap,
-                async: false,
                 url: "/callrunmodel",
                 contentType: 'application/json, charset=utf-8',
                 cache: false,
@@ -81,7 +80,6 @@ $(function(){
         $.ajax({
             type: "post",
             data: dataMap,
-            async: false,
             url: "/commitrunresult",
             contentType: 'application/json, charset=utf-8',
             cache: false,
