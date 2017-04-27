@@ -11,6 +11,6 @@ import java.util.Map;
 public class alFromJson {
 	public static Map<String, String> formJson(String resp) {
 		Gson gson = new Gson();
-		return  gson.fromJson(resp, Map.class);
+		return gson.fromJson(resp, Map.class);
 	}
 }

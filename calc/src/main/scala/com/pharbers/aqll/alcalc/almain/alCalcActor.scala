@@ -10,7 +10,7 @@ import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.alcalc.alfinaldataprocess.{alDumpcollScp, alLocalRestoreColl, alRestoreColl}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates._
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_avg_job, calc_job, concert_calc_result, _}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_avg_job, calc_job, concert_calc_result, crash_calc, _}
 import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
@@ -80,7 +80,6 @@ class alCalcActor extends Actor
 	                log.info("group no subs list")
                     stay()
             }
-
         }
 
         case Event(concert_calcjust_result(i), _) => {
@@ -90,8 +89,16 @@ class alCalcActor extends Actor
             stay()
         }
 
-        case Event(calc_need_files(uuid_file_path), _) => {
-            stay()
+        case Event(clean_crash_actor(uuid), data) => {
+            val r = result_ref.single.get.find(x => x.parent == uuid)
+            r match {
+                case None => None
+                case Some(d) =>
+                    sendMessage.sendMsg(s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname)
+                    d.subs.foreach (x => _data_connection_cores.getCollection(x.uuid).drop())
+//                    Restart
+            }
+            goto(alMasterJobIdle) using new alCalcParmary("", "")
         }
     }
 
@@ -109,6 +116,7 @@ class alCalcActor extends Actor
                 adjust_index() = -1
             }
             concert_router ! concert_adjust()
+            context.watch(concert_router)
 
             goto(calc_maxing) using data
         }
@@ -134,8 +142,6 @@ class alCalcActor extends Actor
                 val st = context.actorSelection(GetProperties.singletonPaht)
 
                 r.subs.foreach { x =>
-
-
                     st ! calc_sum_result(r.parent, x.uuid, x.sum)
                 }
             }
@@ -155,12 +161,13 @@ class alCalcActor extends Actor
 	        if(data.faultTimes == data.maxTimeTry) {
 		        log.info(s"concert_calc_avg -- 该UUID: ${data.uuid},在尝试性计算3次后，其中的某个线程计算失败，正在结束停止计算！")
 		        // TODO : 这块儿发送消息告诉所有在计算这个文件的Actor停止计算
-		        Restart
+                context.actorSelection(GetProperties.singletonPaht) ! crash_calc(data.uuid, "concert_calc_avg计算crash")
+                context.unwatch(concert_router)
 	        }else {
 		        log.info(s"concert_calc_avg -- 尝试${data.faultTimes}次")
-		        self ! calc_job(maxProperty, data)
+                self ! calc_job(maxProperty, data)
 	        }
-	        goto(alMasterJobIdle) using new alCalcParmary("", "")
+	        goto(alMasterJobIdle) using data
         }
 
         case Event(concert_calc_result(sub_uuid, v, u), data) => {
@@ -181,6 +188,7 @@ class alCalcActor extends Actor
 	        log.info(s"单个线程开始删除临时表")
             _data_connection_cores.getCollection(sub_uuid).drop()
 	        log.info(s"单个线程结束删除临时表")
+
             sendMessage.send(data.uuid, data.company, 1, data.uname)
 
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
@@ -202,7 +210,6 @@ class alCalcActor extends Actor
                 r.isCalc = true
 
                 val st = context.actorSelection(GetProperties.singletonPaht)
-//                st ! calc_final_result(r.parent, r.uuid, r.finalValue, r.finalUnit)
 
                 r.subs.foreach { x =>
                     st ! calc_final_result(r.parent, x.uuid, x.finalValue, x.finalUnit)
@@ -249,11 +256,13 @@ class alCalcActor extends Actor
 	        data.faultTimes = data.faultTimes + 1
 	        if(data.faultTimes == data.maxTimeTry) {
 		        println(s"concert_calc -- 该UUID: ${data.uuid},在尝试性计算3次后，其中的某个线程计算失败，正在结束停止计算！")
+                context.unwatch(concert_router)
+                context.actorSelection(GetProperties.singletonPaht) ! crash_calc(data.uuid, "concert_calc计算crash")
 	        }else {
 		        println(s"concert_calc -- 尝试${data.faultTimes}次")
 		        self ! calc_job(maxProperty, data)
 	        }
-	        goto(alMasterJobIdle) using new alCalcParmary("", "")
+	        goto(alMasterJobIdle) using data
         }
     }
 

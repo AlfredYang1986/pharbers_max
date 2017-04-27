@@ -2,9 +2,10 @@ package com.pharbers.aqll.stub
 
 import akka.actor.ActorSystem
 import akka.cluster.Cluster
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register, push_max_job, worker_register}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alcalc.almain.{alCalcActor, alDriverSingleton, alGroupActor, alMaxDriver}
-import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
+import com.pharbers.aqll.util.GetProperties._
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -20,7 +21,7 @@ object stub_test_4 extends App{
 			import scala.concurrent.duration._
 			import scala.concurrent.ExecutionContext.Implicits.global
 			import com.pharbers.aqll.alcalc.alSchedulerJobs.{alScheduleRemoveFiles, rmFile}
-			val a = system.actorSelection(GetProperties.singletonPaht)
+			val a = system.actorSelection(singletonPaht)
 			val c = system.actorOf(alCalcActor.props)
 			val w = system.actorOf(alGroupActor.props)
 			a ! group_register(w)
@@ -28,8 +29,13 @@ object stub_test_4 extends App{
 			a ! worker_register()
 			val rm = system.actorOf(alScheduleRemoveFiles.props)
 			system.scheduler.schedule(0 seconds, 10 seconds, rm, new rmFile())
-//			a ! push_max_job("""config/new_test/2016-01.xlsx""")
-//			a ! push_max_job("""config/new_test/AI_R_panel 201501.xlsx""")
+
+//			val company = "098f6bcd4621d373cade4e832627b4f6"
+//			val filename = "CPA_GYCX_Others_panel.xlsx"
+//			val uname = "testaaa"
+//			val path = fileBase + company + outPut + filename
+//			a ! filter_excel_jobs(path, new alCalcParmary(company, uname), a)
+
 		}
 	}
 }

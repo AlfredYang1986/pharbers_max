@@ -57,7 +57,6 @@ class alConcertCalcActor extends Actor
 			val s = (maxSum.toList.groupBy(_._1) map { x =>
 				(x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
 			}).toList
-
 			sender() ! concert_calc_sum_result(p.subs(index.single.get).uuid, s)
 		}
 		case concert_calc_avg(p, avg) => {
@@ -72,7 +71,7 @@ class alConcertCalcActor extends Actor
 
 			val source = FileOpt(path + "/" + "data")
 			if (source.isExist) {
-				val target = (path + "/" + "result")
+//				val target = (path + "/" + "result")
 
 				//val writer = new FileWriter(target, true)
 				source.enumDataWithFunc { line =>
@@ -164,8 +163,7 @@ class alConcertCalcActor extends Actor
 		recall.process = restore_data() :: do_calc() :: do_union() ::
 			do_map(alShareData.txt2IntegratedData(_)) :: do_filter { iter =>
 			val t = iter.asInstanceOf[IntegratedData]
-			group.data.exists { g =>
-				true
+			group.data.exists { g => true
 				val x = g.asInstanceOf[IntegratedData]
 				(x.getYearAndmonth == t.getYearAndmonth) && (x.getMinimumUnitCh == t.getMinimumUnitCh)
 			}

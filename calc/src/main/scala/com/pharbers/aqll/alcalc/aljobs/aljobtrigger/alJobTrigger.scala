@@ -70,7 +70,6 @@ object alJobTrigger {
     /**
      * for calc
      */
-    case class calc_need_files(uuid_file_path: String)
     case class calc_job(j : alMaxProperty, p: alCalcParmary)
     case class calcing_job(j : List[alJob], r : String)
     case class calc_sum_result(uuid : String, sub_uuid : String, sum : List[(String, (Double, Double, Double))])
@@ -85,4 +84,11 @@ object alJobTrigger {
     case class concert_calc_sum_result(sub_uuid : String, sum : List[(String, (Double, Double, Double))])
     case class concert_calc_avg(p : alMaxProperty, avg : List[(String, Double, Double)])
     case class concert_calc_result(sub_uuid : String, v : Double, u : Double)
+
+    /**
+      * for crash calc and group
+      */
+    case class crash_calc(uuid: String, msg: String)
+    case class crash_group(uuid: String, msg: String)
+    case class clean_crash_actor(uuid: String)
 }

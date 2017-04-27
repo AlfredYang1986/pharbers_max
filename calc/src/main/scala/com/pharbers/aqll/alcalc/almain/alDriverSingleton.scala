@@ -47,6 +47,8 @@ class alDriverSingleton extends Actor with ActorLogging{
 		case cmd : commit_finalresult_jobs => driver forward cmd
 		case cmd : check_excel_jobs => driver forward cmd
 		case cmd : worker_register => driver forward cmd
+		case cmd : crash_calc => driver forward cmd
+		case cmd : crash_group => driver forward cmd
 		case _ => ???
 	}
 }

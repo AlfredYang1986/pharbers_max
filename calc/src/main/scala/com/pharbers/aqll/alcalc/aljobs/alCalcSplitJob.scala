@@ -2,7 +2,7 @@ package com.pharbers.aqll.alcalc.aljobs
 
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines.{presist_data, restore_data}
 import com.pharbers.aqll.alcalc.alstages.alStage
-import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.util.GetProperties._
 
 /**
   * Created by Alfred on 13/03/2017.
@@ -13,7 +13,7 @@ class alCalcSplitJob(u : String, val parent : String, val mid : String) extends 
 
     def init(args : Map[String, Any]) = {
 //        val restore_path = """config/calc/""" + parent + "/" + uuid
-        val restore_path = s"${GetProperties.memorySplitFile}${GetProperties.calc}$parent/$u"
+        val restore_path = s"${memorySplitFile}${calc}$parent/$u"
         cur = Some(alStage(restore_path))
 //        process = restore_data() :: split_data(hash_split(Map(hash_split.core_number -> 4,
 //                    hash_split.hash_func -> hash_func))) :: ps :: Nil

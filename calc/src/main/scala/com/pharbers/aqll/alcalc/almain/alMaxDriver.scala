@@ -15,7 +15,7 @@ import com.pharbers.aqll.alcalc.alfinaldataprocess.alRestoreColl
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alWeightSum._
 import com.pharbers.aqll.alcalc.aljobs.{alJob, alPkgJob}
 import com.pharbers.aqll.alcalc.aljobs.alJob._
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, calc_need_files, check_excel_jobs, concert_groupjust_result, _}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, check_excel_jobs, concert_groupjust_result, _}
 import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
@@ -30,6 +30,7 @@ import scala.concurrent.stm.Ref
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck
+import com.pharbers.aqll.alcalc.allog.alLoggerMsgTrait
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.util.GetProperties._
 
@@ -54,6 +55,12 @@ class alMaxDriver extends Actor
     implicit val t = Timeout(0.5 second)
 
     override def receive = {
+        case crash_group(u, m) => {
+            group_router.single.get foreach (x => x ! clean_crash_actor(u))
+        }
+        case crash_calc(u, m) => {
+            calc_router.single.get foreach (x => x ! clean_crash_actor(u))
+        }
         case worker_register() =>
             log.info("worker_register")
             atomic { implicit txn => server_info.section() = server_info.section() + 1 }
@@ -398,7 +405,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                 ("", "")
             case Some(x) =>
                 val u = x.company+UUID.randomUUID().toString
-                alRestoreColl(u, dbuuid :: Nil)
+                //alRestoreColl(u, dbuuid :: Nil)
                 (x.company, u)
         }
 
@@ -430,7 +437,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                 val company = alCalcParmary.alParmary.single.get.find(_.uuid == uuid) match {
                     case None =>
                         println(s"not company")
-                        //alRestoreColl("", sub_uuid :: Nil)
+//                        alRestoreColl("", sub_uuid :: Nil)
                         ("", "", "")
                     case Some(x) =>
                         val u = x.company+uuid
@@ -487,8 +494,5 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
             case None => println(s"commit_finalresult_jobs_func not company")
             case Some(x) => println(x.company)
         }
-        //println(s"company=${company} filename=${filename}")
-        //println("11111111111")
-        //alSampleCheck(company,filename)
     }
 }
