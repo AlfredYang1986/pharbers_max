@@ -3,7 +3,7 @@ package controllers
 import play.api._
 import javax.inject._
 
-import module.common.MarketsModule
+import module.common.alMarkets
 import play.api.mvc._
 
 @Singleton
@@ -64,7 +64,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.filesUpload(is_administrator,MarketsModule.pushMarkets))
+          Ok(views.html.filesUpload(is_administrator,alMarkets.pushMarkets))
       }
   }
 
@@ -74,7 +74,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.sampleCheck(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),MarketsModule.pushMarkets))
+          Ok(views.html.sampleCheck(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.pushMarkets))
       }
   }
 
@@ -84,7 +84,7 @@ class Application extends Controller {
     if(token.equals("")){
       Ok(views.html.login("Your new application is ready."))
     }else{
-      Ok(views.html.sampleReport(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),MarketsModule.pushMarkets))
+      Ok(views.html.sampleReport(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.pushMarkets))
     }
   }
 
@@ -94,7 +94,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.modelOperation(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),MarketsModule.pushMarkets))
+          Ok(views.html.modelOperation(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.pushMarkets))
       }
   }
 
@@ -104,7 +104,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.resultQuery(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),MarketsModule.pushMarkets))
+          Ok(views.html.resultQuery(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.pushMarkets))
       }
   }
 

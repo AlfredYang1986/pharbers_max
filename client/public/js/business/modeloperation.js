@@ -192,8 +192,8 @@ $(function(){
         for(var item in data){
             var obj = data[item];
             x_data.push(obj.Date);
-            s_data1.push((obj.f_sales/10000).toFixed(4));
-            s_data2.push((obj.f_sales/10000).toFixed(4));
+            s_data1.push(obj.f_sales.toFixed(4));
+            s_data2.push(obj.f_sales.toFixed(4));
         }
 
         var itemStyleColor = ['#1ab394', '#cacaca'];
@@ -282,9 +282,9 @@ $(function(){
             }]
         }];
 
-        var cur_data = r.result.result.cur_month_result
-        var ear_data = r.result.result.ear_month_result
-        var las_data = r.result.result.lastyear_month_result
+        var cur_data = r.result.result.cur_top6
+        var ear_data = r.result.result.ear_top6
+        var las_data = r.result.result.las_top6
 
         var x_data = [];
         var echarts2_s_data1 = [];

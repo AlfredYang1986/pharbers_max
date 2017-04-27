@@ -7,8 +7,8 @@ import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
 import com.pharbers.aqll.util.DateUtils
-import module.common.RestructureDate
-import module.common.TwoTectonic
+import module.common.alRestDate
+import module.common.alSampleCheck
 import scala.collection.mutable.ListBuffer
 
 object SampleCheckModuleMessage {
@@ -39,8 +39,8 @@ object SampleCheckModule extends ModuleTrait {
 
 			val cur_date = DateUtils.MMyyyy2yyyyMM(date)
 			val las_date = DateUtils.Timestamp2yyyyMM(DateUtils.MMyyyy2LastLong(date))
-			val cur12_date = TwoTectonic.rich_curr12(RestructureDate.diff12Month(cur_date),queryNear12(company,market,date))
-			val las12_date = TwoTectonic.rich_last12(RestructureDate.diff12Month(las_date),queryLast12(company,market,date))
+			val cur12_date = alSampleCheck.matchThisYearData(alRestDate.diff12Month(cur_date),queryNear12(company,market,date))
+			val las12_date = alSampleCheck.matchLastYearData(alRestDate.diff12Month(las_date),queryLast12(company,market,date))
 			val cur_data = query_cel_data(query(company,market,date,"cur"))
 			val ear_data = query_cel_data(query(company,market,date,"ear"))
 			val las_data = query_cel_data(query(company,market,date,"las"))
@@ -50,8 +50,8 @@ object SampleCheckModule extends ModuleTrait {
 				"cur_data" -> cur_data,
 				"ear_data" -> ear_data,
 				"las_data" -> las_data,
-				"cur12_date" -> TwoTectonic.lst2json(cur12_date),
-				"las12_date" -> TwoTectonic.lst2json(las12_date),
+				"cur12_date" -> alSampleCheck.lst2Json(cur12_date),
+				"las12_date" -> alSampleCheck.lst2Json(las12_date),
 				"misMatchHospital" -> mismatch_lst
 			)), None)
 		} catch {
@@ -106,7 +106,7 @@ object SampleCheckModule extends ModuleTrait {
 		*/
 	def queryNear12(company: String,market: String,date: String): List[List[Map[String,AnyRef]]] = {
 		val cur_date = DateUtils.MMyyyy2yyyyMM(date)
-		val date_lst = DateUtils.ArrayDate2ArrayTimeStamp(RestructureDate.diff12Month(cur_date))
+		val date_lst = DateUtils.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))
 		val query = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$in" -> date_lst))
 		val f_lst = _data_connection_cores.getCollection("FactResult").find(query).sort(MongoDBObject("Date" -> 1))
 		val s_lst = _data_connection_cores.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
@@ -135,7 +135,7 @@ object SampleCheckModule extends ModuleTrait {
 	def queryLast12(company: String,market: String,date: String): List[Map[String,AnyRef]] = {
 		val las_date = DateUtils.MMyyyy2LastLong(date)
 		val cur_date = DateUtils.Timestamp2yyyyMM(las_date)
-		val date_lst = DateUtils.ArrayDate2ArrayTimeStamp(RestructureDate.diff12Month(cur_date))
+		val date_lst = DateUtils.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))
 		val query = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$in" -> date_lst))
 		val lst = _data_connection_cores.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
 		lst map{ x =>

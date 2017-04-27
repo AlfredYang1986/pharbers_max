@@ -5,7 +5,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * Created by liwei on 2017/4/24.
   */
-object RestructureDate {
+object alRestDate {
   /**
     * @author liwei
     * @param date
@@ -17,7 +17,7 @@ object RestructureDate {
     val ear_year = cur_year.toInt-1
     val ear_month = cur_month
     val temp = new ArrayBuffer[String]()
-    val lst = RestructureDate.diffDate(cur_year,cur_month,ear_year,ear_month)(temp)
+    val lst = alRestDate.diffDate(cur_year,cur_month,ear_year,ear_month)(temp)
     lst.sortBy(x => x)
   }
 

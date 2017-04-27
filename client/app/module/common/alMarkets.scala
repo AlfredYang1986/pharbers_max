@@ -6,7 +6,7 @@ import scala.collection.mutable.ListBuffer
 /**
   * Created by Wli on 2017/1/4.
   */
-object MarketsModule {
+object alMarkets {
     def pushMarkets = {
         var markets = _data_connection_basic.getCollection("Market").find()
         var marketlst : ListBuffer[String] = new ListBuffer[String]()

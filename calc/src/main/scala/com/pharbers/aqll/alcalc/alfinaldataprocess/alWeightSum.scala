@@ -64,6 +64,7 @@ object alWeightSum {
 			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Date" -> 1))
 			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Market" -> 1))
 			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1))
+			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1,"City" -> 1))
 		}
 		// TODO : 还原省份|城市权和索引，其他字段保持不变
 		_data_connection_cores.getCollection(company).insert(Map("ID" -> MD5.md5(UUID.randomUUID().toString) ,"Provice" -> x.get("Provice"),"City" -> x.get("City"),"Panel_ID" -> x.get("Panel_ID"),"Market" -> x.get("Market"),"Product" -> x.get("Product"),"f_units" -> f_units_sum,"f_sales" -> f_sales_sum,"Date" -> x.get("Date"),"hosp_Index" -> x.get("hosp_Index"),
