@@ -114,23 +114,23 @@ var progress2 = function() {
     }
 }
 
-var setProgressStart = function(){
+var setProgressStart = function(time){
     var temp = msgIdentifying
     var setP = function() {
         if(msgIdentifying == temp) {
             p.setPercent(1)
         }else {
-            setTimeout(function(){setProgressStop()}, 1000 * 5);
+            setTimeout(function(){setProgressStop(time)}, 1000 * 3);
         }
     }
-    timeProgressInterval = setInterval(setP, 1000 * 5);
+    timeProgressInterval = setInterval(setP, time);
 }
 
-var setProgressStop = function() {
+var setProgressStop = function(time) {
     if(timeProgressInterval){
         clearInterval(timeProgressInterval)
         timeProgressInterval = null
-        setTimeout(function(){setProgressStart()}, 1000 * 30);
+        setTimeout(function(){setProgressStart(time);}, 1000 * 30);
     }
 }
 

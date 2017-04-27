@@ -10,7 +10,7 @@ $(function(){
     //说明：文件上传前，通过对文件年月占比，进行判断分析，将大于50%得月份返回。
     //*********************************************************************
     $('#upBeforeBtn').click(function(){
-        setProgressStart();
+        setProgressStart(1000 * 2);
         $(".progresstier").css("display", "block");
         p.setPercent(10);
         var query_object = new Object();
@@ -57,7 +57,7 @@ $(function(){
     //说明：文件上传后，后台Python调用这些文件生成Panel文件。
     //*********************************************************************
     $('#commitBtn').click(function(){
-        setProgressStart();
+        setProgressStart(1000 * 2);
         var ck = $(':input[type=checkbox]');
         var checked = ""
         ck.each(function(){
@@ -108,7 +108,7 @@ $(function(){
     //将未匹配数据、医院数量、市场数量、产品数量等入MongoDB库。
     //*********************************************************************
     $('#nextstepBtm').click(function(){
-        setProgressStart();
+        setProgressStart(1000 * 2);
         var calc_panel_file = $.cookie("calc_panel_file")
         if(calc_panel_file!=null && calc_panel_file!=""){
             $(".progresstier").css("display", "block");
