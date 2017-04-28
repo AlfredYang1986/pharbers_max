@@ -92,15 +92,57 @@ function getNowFormatDate() {
     var currentdate = year + '年' + month + '月' + strDate + '日';
     return currentdate;
 }
-
+var p = null;
 $(function(){
+    p = new progress2();
+    load_im()
     //*********************************************************************
-    //功能: 下一步
+    //功能: 运算 => 下一步
     //时间：20170413
-    //创建：Arthas
-    //说明：跳转至模型运算页面。
+    //创建：Faiz2
+    //说明：根据公司对应的Panel文件和25000家医院进行模型运算。 => 跳转至结果检查页面。
     //*********************************************************************
     $('#nextstepBtm').click(function(){
-        document.getElementById("mxys").click()
+        if ($.cookie("calc_panel_file") != null) {
+            var dataMap = JSON.stringify({
+                "company": $.cookie("token"),
+                "filename": $.cookie("calc_panel_file"),
+                "uname": $.cookie('webim_user')
+            })
+            $.ajax({
+                type: "post",
+                data: dataMap,
+                url: "/callrunmodel",
+                contentType: 'application/json, charset=utf-8',
+                cache: false,
+                dataType: "json",
+                success: function (json) {
+                    $(".progresstier").css("display", "block");
+                    p.setPercent(4);
+                    document.getElementById("mxys").click()
+                },
+                error: function (e) {
+                    $.tooltip('My God, 出错啦！！！');
+                }
+            });
+        } else {
+            $.tooltip('您生成的panel文件无效，请核对后重新生成！！！');
+        }
     });
 });
+
+var nextStep = function() {
+    conn.listen({
+        onTextMessage: function ( message ) {
+            var msg = eval("("+message.data+")")
+            msgIdentifying = msg.progress
+            var r = p.setPercent(msg.progress)
+            if(msg.progress >= 100 || r >= 100) {
+                setCloseInterval()
+                p.setPercent(0)
+                $(".progresstier").css("display", "none");
+                setTimeout(function(){document.getElementById("jgcx").click()}, 1000 * 1)
+            }
+        }
+    });
+}

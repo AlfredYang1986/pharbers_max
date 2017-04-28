@@ -97,3 +97,7 @@ calc/manage/
 *.conf
 
 *.conf
+
+calc/src/main/scala/com/pharbers/aqll/stub/stub_test_5.scala
+
+calc/src/main/scala/com/pharbers/aqll/stub/stub_test_4.scala

@@ -88,7 +88,7 @@ class Application extends Controller {
     }
   }
 
-  //模型运算
+  //结果检查
   def modelOperation = Action { request =>
       val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
       if(token.equals("")){

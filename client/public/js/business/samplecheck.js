@@ -113,7 +113,7 @@ $(function(){
             },
             grid: {
                 bottom: '3%',
-                left: '-11px',
+                left: '-35px',
                 containLabel: true
             },
             xAxis: {
@@ -133,9 +133,9 @@ $(function(){
                 symbolSize: symbolSize,
                 itemStyle : {
                     normal : {
-                        color:'#1068AF',
+                        color:'#2BB89B',
                         lineStyle:{
-                            color:'#1068AF'
+                            color:'#2BB89B'
                         }
                     }
                 },
@@ -162,7 +162,7 @@ $(function(){
             },
             grid: {
                 bottom: '3%',
-                left: '-11px',
+                left: '-35px',
                 containLabel: true
             },
             xAxis: {
@@ -182,9 +182,9 @@ $(function(){
                 symbolSize: symbolSize,
                 itemStyle : {
                     normal : {
-                        color:'#37892A',
+                        color:'#2BB89B',
                         lineStyle:{
-                            color:'#37892A'
+                            color:'#2BB89B'
                         }
                     }
                 },
@@ -211,7 +211,7 @@ $(function(){
             },
             grid: {
                 bottom: '3%',
-                left: '-11px',
+                left: '-35px',
                 containLabel: true
             },
             xAxis: {
@@ -231,9 +231,9 @@ $(function(){
                 symbolSize: symbolSize,
                 itemStyle : {
                     normal : {
-                        color:'#0098D9',
+                        color:'#2BB89B',
                         lineStyle:{
-                            color:'#0098D9'
+                            color:'#2BB89B'
                         }
                     }
                 },
@@ -241,9 +241,9 @@ $(function(){
             }]
         };
 
-        var sparkline1 = echarts.init(document.getElementById('sparkline1'));
-        var sparkline2 = echarts.init(document.getElementById('sparkline2'));
-        var sparkline3 = echarts.init(document.getElementById('sparkline3'));
+        var sparkline1 = echarts.init(document.getElementById('hospline'));
+        var sparkline2 = echarts.init(document.getElementById('prodline'));
+        var sparkline3 = echarts.init(document.getElementById('markline'));
         sparkline1.setOption(hosp_option);
         sparkline2.setOption(prod_option);
         sparkline3.setOption(mark_option);
@@ -299,7 +299,7 @@ $(function(){
             }
         }
 
-        var itemStyleColor = ['#23c6c8', '#1ab394'];
+        var itemStyleColor = ['#9CDACD', '#9DC7E1'];
         Sales_Opt = {
             title: {text: '今年Vs去年(近12月销售额)',left: '50%',textAlign: 'center'},
             tooltip: {
@@ -316,17 +316,17 @@ $(function(){
                 name: '日期',
                 data: x_data,
                 boundaryGap: false,
-                splitLine: {show: true,interval: 'auto',lineStyle: {color: [itemStyleColor[0]]}},
+                splitLine: {show: false,interval: 'auto',lineStyle: {color: [itemStyleColor[0]]}},
                 axisTick: {show: false},
-                axisLine: {lineStyle: {color: itemStyleColor[0]}},
+                //axisLine: {lineStyle: {color: itemStyleColor[0]}},
                 axisLabel: {margin: 10,textStyle: {fontSize: 14}}
             },
             yAxis: {
                 type: 'value',
                 name: '销售额(万)',
-                splitLine: {lineStyle: {color: [itemStyleColor[1]]}},
+                //splitLine: {lineStyle: {color: [itemStyleColor[1]]}},
                 axisTick: {show: false},
-                axisLine: {lineStyle: {color: itemStyleColor[1]}},
+                //axisLine: {lineStyle: {color: itemStyleColor[1]}},
                 axisLabel: {margin: 10,textStyle: {fontSize: 14}}
             },
             series: [{
@@ -370,17 +370,17 @@ $(function(){
                 name: '日期',
                 data: x_data,
                 boundaryGap: false,
-                splitLine: {show: true,interval: 'auto',lineStyle: {color: ['#23c6c8']}},
+                splitLine: {show: false,interval: 'auto',lineStyle: {color: ['#23c6c8']}},
                 axisTick: {show: false},
-                axisLine: {lineStyle: {color: '#23c6c8'}},
+                //axisLine: {lineStyle: {color: '#23c6c8'}},
                 axisLabel: {margin: 10,textStyle: {fontSize: 14}}
             },
             yAxis: {
                 type: 'value',
                 name: '销售量(万)',
-                splitLine: {lineStyle: {color: ['#1ab394']}},
+                //splitLine: {lineStyle: {color: ['#1ab394']}},
                 axisTick: {show: false},
-                axisLine: {lineStyle: {color: '#1ab394'}},
+                //axisLine: {lineStyle: {color: '#1ab394'}},
                 axisLabel: {margin: 10,textStyle: {fontSize: 14}}
             },
             series: [{
