@@ -17,16 +17,16 @@ import java.io._
   * Created by liwei on 2017/3/27.
   */
 object alSampleCheck {
-  def apply(company: String, filename: String): alSampleCheck = new alSampleCheck(company, filename)
+  def apply(company: String, filename: String, uname: String): alSampleCheck = new alSampleCheck(company, filename, uname)
 }
 
-class alSampleCheck(company : String,filename : String) {
+class alSampleCheck(company : String, filename : String, uname: String) {
   try {
     val panels = DefaultData.integratedbase(filename, company)
     val dates = panels.groupBy(x => x.getYearAndmonth)
     dates.foreach{date =>
       val Panels_Filter_Ym = panels.filter(x => x.getYearAndmonth.equals(date._1))
-      sendMessage.send("", "", 10, "test")
+      sendMessage.send("", "", 10, uname)
       val Panels_Group_Pha = Panels_Filter_Ym.groupBy(x => x.getPhaid).map(y => (y._1,y._2.size)).toList
       val Market_Current = Panels_Filter_Ym.groupBy(x => x.getMarket1Ch)
       //println(s"Date =${date._1}")

@@ -10,11 +10,12 @@ $(function(){
     //说明：文件上传前，通过对文件年月占比，进行判断分析，将大于50%得月份返回。
     //*********************************************************************
     $('#upBeforeBtn').click(function(){
-        setProgressStart(1000 * 2);
+        setProgressStart(1000 * 3);
         $(".progresstier").css("display", "block");
         p.setPercent(10);
         var query_object = new Object();
         query_object['company'] = $.cookie("token");
+        query_object["uname"] = $.cookie('webim_user');
         $.ajax({
             url: "/uploadbefore",
             type: 'POST',
@@ -57,7 +58,7 @@ $(function(){
     //说明：文件上传后，后台Python调用这些文件生成Panel文件。
     //*********************************************************************
     $('#commitBtn').click(function(){
-        setProgressStart(1000 * 2);
+        setProgressStart(1000 * 5);
         var ck = $(':input[type=checkbox]');
         var checked = ""
         ck.each(function(){
@@ -67,10 +68,10 @@ $(function(){
         })
         if(checked!=""){
             $(".progresstier").css("display", "block");
-            p.setPercent(10);
             var query_object = new Object();
             query_object['company'] = $.cookie("token");
             query_object['yms'] = checked;
+            query_object['uname'] = $.cookie('webim_user');
             $.ajax({
                 url: "/cleaningdata",
                 type: 'POST',
@@ -108,7 +109,7 @@ $(function(){
     //将未匹配数据、医院数量、市场数量、产品数量等入MongoDB库。
     //*********************************************************************
     $('#nextstepBtm').click(function(){
-        setProgressStart(1000 * 2);
+        setProgressStart(1000 * 10);
         var calc_panel_file = $.cookie("calc_panel_file")
         if(calc_panel_file!=null && calc_panel_file!=""){
             $(".progresstier").css("display", "block");
@@ -116,6 +117,7 @@ $(function(){
             var query_object = new Object();
             query_object['company'] = $.cookie("token");
             query_object['filename'] = $.cookie("calc_panel_file");
+            query_object["uname"] = $.cookie('webim_user');
             $.ajax({
                 type : "post",
                 data : JSON.stringify(query_object),

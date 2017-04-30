@@ -27,19 +27,21 @@ class alAkkaHttpFuncApi(system: ActorSystem, timeout: Timeout) extends alAkkaHtt
 	implicit def executionContext = system.dispatcher
 }
 
-case class alUpBeforeItem(company: String)
-case class alUploadItem(company: String,yms: String)
-case class alCheckItem(company: String,filename: String)
+case class alUpBeforeItem(company: String, uname: String)
+case class alUploadItem(company: String, yms: String, uname: String)
+case class alCheckItem(company: String, filename: String, uname: String)
 case class alCalcItem(filename: String, company: String, uname: String)
 case class alCommitItem(company: String)
-case class alExportItem(datatype: String,market : List[String],staend : List[String],company : String,filetype : String, uname: String)
+case class alExportItem(datatype: String, market: List[String],
+                        staend: List[String], company: String,
+                        filetype: String, uname: String)
 case class alHttpCreateIMUser(name: String, pwd: String)
 case class alQueryUUIDItem(company: String)
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-	implicit val itemFormatUpBefore = jsonFormat1(alUpBeforeItem)
-	implicit val itemFormatUpload = jsonFormat2(alUploadItem)
-	implicit val itemFormatCheck = jsonFormat2(alCheckItem)
+	implicit val itemFormatUpBefore = jsonFormat2(alUpBeforeItem)
+	implicit val itemFormatUpload = jsonFormat3(alUploadItem)
+	implicit val itemFormatCheck = jsonFormat3(alCheckItem)
 	implicit val itemFormatCalc = jsonFormat3(alCalcItem)
 	implicit val itemFormatCommit = jsonFormat1(alCommitItem)
 	implicit val itemFormatExport = jsonFormat6(alExportItem)
@@ -68,9 +70,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("uploadbefore") {
 			entity(as[alUpBeforeItem]) { item =>
 				println(s"company=${item.company}")
-				sendMessage.send("", "", 10, "test")
+				sendMessage.send("", "", 10, item.uname)
 				val result = pyShell(item.company,"MaximumLikelyMonth.py","").excute
-				sendMessage.send("", "", 100, "test")
+				sendMessage.send("", "", 100, item.uname)
 				val gson: Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":""" + gson.toJson(result) +"""}""")
@@ -82,9 +84,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
 				println(s"company=${item.company}")
-				sendMessage.send("", "", 10, "test")
+				sendMessage.send("", "", 10, item.uname)
 				val result = pyShell(item.company,"GeneratePanelFile.py",item.yms).excute
-				sendMessage.send("", "", 100, "test")
+				sendMessage.send("", "", 100, item.uname)
 				val gson: Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":""" + gson.toJson(result) +"""}""")
@@ -99,9 +101,8 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				//val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				//a ! check_excel_jobs(item.company,item.filename)
 				println(s"company=${item.company} filename=${item.filename}")
-				sendMessage.send("", "", 10, "test")
-				alSampleCheck(item.company,item.filename)
-				sendMessage.send("", "", 100, "test")
+				alSampleCheck(item.company, item.filename, item.uname)
+				sendMessage.send("", "", 100, item.uname)
 				complete("""{"result" : "Ok"}""")
 			}
 		}
