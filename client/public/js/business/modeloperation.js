@@ -42,7 +42,8 @@ $(function(){
     //*********************************************************************
     $('#nextstepBtn').click(function(){
         var dataMap = JSON.stringify({
-            "company": $.cookie("token")
+            "company": $.cookie("token"),
+            "uname": $.cookie('webim_user')
         })
         $.ajax({
             type: "post",
