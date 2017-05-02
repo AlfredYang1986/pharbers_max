@@ -1,18 +1,32 @@
 package module.common
 
-import com.pharbers.aqll.util.dao._data_connection_basic
-
-import scala.collection.mutable.ListBuffer
+import com.pharbers.aqll.util.dao.{_data_connection_basic, _data_connection_cores}
 /**
   * Created by Wli on 2017/1/4.
   */
 object alMarkets {
-    def pushMarkets = {
-        var markets = _data_connection_basic.getCollection("Market").find()
-        var marketlst : ListBuffer[String] = new ListBuffer[String]()
-        while(markets.hasNext){
-            marketlst.append(markets.next().get("Market_Name").asInstanceOf[String])
+    /**
+      * @author liwei
+      * @param str
+      * @return
+      */
+    def alGetMarkets(str: String): List[String] = {
+        try {
+            str match {
+                case "sc" => alSampleCheckMarkets
+                case _ => alOtherMarkets
+            }
+        } catch {
+            case e: Exception => {
+                println(s"$str 获取市场信息失败！")
+                println(e.getMessage)
+                alOtherMarkets
+            }
         }
-        marketlst.toList
     }
+
+    def alSampleCheckMarkets = _data_connection_cores.getCollection("FactResult").find().toList.groupBy(x => x.get("Market")).toList.map(y => y._1.asInstanceOf[String])
+
+    def alOtherMarkets = _data_connection_basic.getCollection("Market").find().toList.map(x => x.get("Market_Name").asInstanceOf[String])
+
 }
