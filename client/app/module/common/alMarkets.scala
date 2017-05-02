@@ -18,9 +18,8 @@ object alMarkets {
             }
         } catch {
             case e: Exception => {
-                println(s"$str 获取市场信息失败！")
-                println(e.getMessage)
-                alOtherMarkets
+                println(s"$str 获取市场信息失败！${e.getMessage}")
+                Nil
             }
         }
     }
