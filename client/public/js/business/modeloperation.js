@@ -159,8 +159,8 @@ var echarts_bar1 = function(r){
     for(var item in data){
         var obj = data[item];
         x_data.push(obj.Date);
-        s_data1.push(obj.f_sales.toFixed(4));
-        s_data2.push(obj.f_sales.toFixed(4));
+        s_data1.push((obj.f_sales/10000).toFixed(4));
+        s_data2.push((obj.f_sales/10000).toFixed(4));
     }
 
     var itemStyleColor = ['#1ab394', '#cacaca'];

@@ -22,7 +22,7 @@ object alOperation {
     * @param lst
     * @return
     */
-  def matchDateData(arr: Array[String],lst: List[List[Map[String,AnyRef]]]): List[Map[String,Any]] = {
+  def matchDateData(arr: Array[String],lst: List[List[Map[String,Any]]]): List[Map[String,Any]] = {
     val date_lst = richDateArr(arr)
 
     val temp_head_lst = date_lst map { x =>

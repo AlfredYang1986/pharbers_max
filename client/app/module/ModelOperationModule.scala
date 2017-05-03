@@ -154,7 +154,7 @@ object ModelOperationModule extends ModuleTrait {
 					Map("Date" -> DateUtils.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 						"f_sales" -> x.get("f_sales")
 					)).toList
-				alOperation.matchDateData(date_lst_str,list_map :: Nil)
+				alOperation.matchDateData(date_lst_str,SumByDate(list_map) :: Nil)
 			}
 			case _ => {
 				val temp_list_map = _data_connection_cores.getCollection(temp_coll).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
@@ -165,7 +165,50 @@ object ModelOperationModule extends ModuleTrait {
 					Map("Date" -> DateUtils.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 						"f_sales" -> x.get("f_sales")
 					)).toList
-				alOperation.matchDateData(date_lst_str,temp_list_map :: fina_list_map :: Nil)
+				alOperation.matchDateData(date_lst_str,SumByDate(temp_list_map) :: SumByDate(fina_list_map) :: Nil)
+			}
+		}
+	}
+
+	/**
+		* @author liwei
+		* @param lst
+		* @return
+		*/
+	def SumByDate(lst: List[Map[String,Any]]): List[Map[String,Any]] ={
+		var date = ""
+		var f_sales_sum = 0.0
+		val n_lst = new ListBuffer[Map[String,Any]]()
+		lst match {
+			case i if i.size.equals(0) => Nil
+			case i if i.size.equals(1) => lst	// TODO : 完善只有一条数据时有可能遗漏Sum和append的情况
+			case _ => {
+				var num = 0
+				lst.foreach{x =>
+					val o_date = x.get("Date").get.asInstanceOf[String]
+					val o_sales = x.get("f_sales").get.asInstanceOf[Number].doubleValue()
+					num = num + 1
+					date match {
+						case "" => {
+							date = o_date
+							f_sales_sum = f_sales_sum + o_sales
+						}
+						case i if i.equals(o_date) => {
+							f_sales_sum = f_sales_sum + o_sales
+						}
+						case i if !i.equals(o_date) => {
+							n_lst.append(Map("Date" -> date, "f_sales" -> f_sales_sum))
+							num match {	// TODO : 完善最后一条数据有可能遗漏Sum和append的情况
+								case n if n.equals(lst.size) => n_lst.append(Map("Date" -> o_date, "f_sales" -> o_sales))
+								case n if !n.equals(lst.size) => {
+									date = o_date
+									f_sales_sum = 0.0
+								}
+							}
+						}
+					}
+				}
+				n_lst.toList
 			}
 		}
 	}
