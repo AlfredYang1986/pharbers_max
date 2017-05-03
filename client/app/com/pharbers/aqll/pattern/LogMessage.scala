@@ -20,7 +20,7 @@ object LogMessage {
                 user = request.cookies.get("user_token").get.value
                 company = request.cookies.get("company_name_ch").get.value
             }
-            logger.info(s"${request} User-Agent: ${request.headers.toMap.get("User-Agent").get.head} Host: ${request.host} User: ${user} Company: ${company} Method: ${method} Args: ${data.toString()}")
+            logger.info(s"${request} User-Agent: ${request.headers.toMap.get("User-Agent").get.head} Host: ${request.remoteAddress} User: ${user} Company: ${company} Method: ${method} Args: ${data.toString()}")
             (Some(Map("status" -> toJson("ok"))), None)
         } catch {
             case ex : Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
