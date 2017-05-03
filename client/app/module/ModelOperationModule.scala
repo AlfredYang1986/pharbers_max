@@ -33,7 +33,7 @@ object ModelOperationModule extends ModuleTrait {
 			val uuid = queryUUID(company)
 			uuid match {
 				case None => (Some(Map("result" -> toJson("None"))), None)
-				case _ => (Some(Map("result" -> alOperation.lst2Json(queryNear12(company,market,date,s"$company$uuid"),1))), None)
+				case _ => (Some(Map("result" -> alOperation.lst2Json(queryNear12(company,market,date,s"$company${uuid.get}"),1))), None)
 			}
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
@@ -49,7 +49,7 @@ object ModelOperationModule extends ModuleTrait {
 			uuid match {
 				case None => (Some(Map("result" -> toJson("None"))), None)
 				case _ => {
-					val temp_coll = s"$company$uuid"
+					val temp_coll = s"$company${uuid.get}"
 					val cur_top6 = queryCELData(company,market,date,temp_coll,"cur")(None,None)
 					val ear_top6 = queryCELData(company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
 					val las_top6 = queryCELData(company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
