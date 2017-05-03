@@ -25,12 +25,12 @@ object alScheduleRemoveFiles extends alFilePath{
 
 	def props = Props[alScheduleRemoveFiles]
 
-	val rmLst = calcPath + convertStr(calc) ::
-				calcPath + convertStr(fileTarGz) ::
-				calcPath + convertStr(group) ::
-				calcPath + convertStr(sync) ::
-				path + convertStr(scpPath) ::
-				path + convertStr(dumpdb) :: Nil
+	val rmLst = calcPath + calc ::
+				calcPath + fileTarGz ::
+				calcPath + group ::
+				calcPath + sync ::
+				path + scpPath ::
+				path + dumpdb :: Nil
 }
 
 class alScheduleRemoveFiles extends Actor with ActorLogging{

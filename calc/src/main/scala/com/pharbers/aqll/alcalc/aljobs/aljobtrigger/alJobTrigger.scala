@@ -16,6 +16,7 @@ object alJobTrigger {
     case class worker_register()
     case class push_max_job(path : String, p: alCalcParmary)
     case class finish_max_job(uuid : String)
+    case class finish_max_group_job(uuid: String)
 
     case class schedule_jobs()
     case class schedule_group()
@@ -56,7 +57,7 @@ object alJobTrigger {
     /**
       * for group
       */
-    case class group_job(j : alMaxProperty)
+    case class group_job(j : alMaxProperty, p: alCalcParmary)
     case class grouping_job(j : alJob)
    
     case class group_result(uuid : String, sub_uuid : String)

@@ -8,7 +8,13 @@ import scala.io.Source
   * Created by Alfred on 09/03/2017.
   */
 object FileOpt {
-    def apply(path : String) : FileOpt = new FileOpt(path)(path)
+    def convertString(str: String): String =
+        str.charAt(str.length - 1).toString match {
+            case "\\" => str.substring(0, str.lastIndexOf("\\"))
+            case "/" => str.substring(0, str.lastIndexOf("/"))
+            case _: String => str
+        }
+    def apply(path : String) : FileOpt = new FileOpt(convertString(path))(convertString(path))
 }
 
 class FileOpt(val file : String)(oldPath: String) {
@@ -37,6 +43,7 @@ class FileOpt(val file : String)(oldPath: String) {
     def createFile = tf.createNewFile
     def lstFiles : List[String] = tf.listFiles.filter(x => x.isFile && !x.isHidden).map(x => x.getPath).toList
     def lstFiles2 : List[String] = tf.listFiles.map(x => x.getPath).toList
+
     def rmcAllFiles: Boolean = {
         if(tf.isDirectory) {
             lstFiles2 foreach { x =>

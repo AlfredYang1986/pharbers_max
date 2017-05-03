@@ -15,7 +15,7 @@ import com.pharbers.aqll.alcalc.alfinaldataprocess.alRestoreColl
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alWeightSum._
 import com.pharbers.aqll.alcalc.aljobs.{alJob, alPkgJob}
 import com.pharbers.aqll.alcalc.aljobs.alJob._
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, check_excel_jobs, concert_groupjust_result, _}
+import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_final_result, check_excel_jobs, concert_groupjust_result, finish_max_group_job, finish_max_job, _}
 import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
@@ -117,7 +117,12 @@ class alMaxDriver extends Actor
 //                }
             }
         }
+        case finish_max_group_job(uuid) => {
+            group_nodenumber = -1
+            println(s"finish a group job with uuid $uuid")
+        }
         case finish_max_job(uuid) => {
+            calc_nodenumber = -1
             println(s"finish a job with uuid $uuid")
         }
         case finish_split_excel_job(p, j, c) => {
@@ -259,7 +264,7 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
                             :: Nil)
                 process = do_pkg() :: Nil
                 super.excute()
-
+                self ! finish_max_group_job(uuid)
                 self ! push_calc_job(alMaxProperty(null, p, subs))
             }
         }
@@ -289,8 +294,12 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
                 case node => {
                     group_nodenumber = group_nodenumber + 1
                     lst.head ! concert_groupjust_result(group_nodenumber)
-                    lst.head ! group_job(p)
-                    siginEach(lst.tail)
+                    alCalcParmary.alParmary.single.get.find(_.uuid == p.uuid) match {
+                        case None => println("not GroupParamry file")
+                        case Some(x) =>
+                            lst.head ! group_job(p, x)
+                            siginEach(lst.tail)
+                    }
                 }
                 case _ => ???
             }
@@ -464,6 +473,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     MailAgent(Mail(GetProperties.mail_context, GetProperties.mail_subject, e_mail)).sendMessage()
                     endDate("计算完成",start)
                     sendMessage.send(uuid, company._1, 100, company._3)
+                    self ! finish_max_job(uuid)
                     atomic { implicit tnx =>
                         calcing_jobs() = calcing_jobs().tail
                     }

@@ -119,7 +119,7 @@ $(function(){
                 success: function (json) {
                     $(".progresstier").css("display", "block");
                     p.setPercent(4);
-                    document.getElementById("mxys").click()
+                    nextStep()
                 },
                 error: function (e) {
                     $.tooltip('My God, 出错啦！！！');
@@ -141,7 +141,8 @@ var nextStep = function() {
                 setCloseInterval()
                 p.setPercent(0)
                 $(".progresstier").css("display", "none");
-                setTimeout(function(){document.getElementById("jgcx").click()}, 1000 * 1)
+                setTimeout(function(){document.getElementById("mxys").click()}, 1000 * 1);
+                //setTimeout(function(){document.getElementById("jgcx").click()}, 1000 * 1);
             }
         }
     });

@@ -54,6 +54,7 @@ class alCalcActor extends Actor
             data.company = parm.company
             data.year = parm.year
             data.market = parm.market
+            data.uname = parm.uname
             atomic { implicit tnx =>
                 concert_ref() = Some(p)
 	            log.info(s"calc finally $p")
@@ -230,7 +231,7 @@ class alCalcActor extends Actor
             stay()
         }
 
-        case Event(group_job(p), _) => {
+        case Event(group_job(p, parm), _) => {
             sender() ! service_is_busy()
             stay()
         }

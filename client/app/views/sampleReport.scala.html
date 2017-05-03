@@ -1,6 +1,14 @@
 @(is_administrator: String,markets : List[String])
 @main("Max | Home") {
 <body>
+    <div style="display: none;" class="progresstier">
+        <div class="progress">&nbsp;</div>
+        <div class="widgets">
+            <div class="shadow">
+                <div id="chart" class="chart-container"> </div>
+            </div>
+        </div>
+    </div>
     <div id="wrapper">
         <nav class="navbar-default navbar-static-side" role="navigation">
             <div class="sidebar-collapse">

@@ -64,7 +64,9 @@ function logout() {
     $.cookie("token", "", {"path": "/", "expires": -1 });
     $.cookie("company_name_ch", "", {"path": "/", "expires": -1 });
     $.cookie("company_name_en", "", {"path": "/", "expires": -1 });
-    $.cookie('webim', "", {"path": "/", "expires": -1 });
+    $.cookie('webim_token', "", {"path": "/", "expires": -1 });
+    $.cookie('webim_user', "", {"path": "/", "expires": -1 });
+    $.cookie('calc_panel_file', "", {"path": "/", "expires": -1 });
 	location = "login"
 }
 

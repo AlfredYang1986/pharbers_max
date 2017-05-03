@@ -52,8 +52,13 @@ class alGroupActor extends Actor
             stay()
         }
 
-        case Event(group_job(p), data) => {
+        case Event(group_job(p, parm), data) => {
             maxProperty = p
+            data.uuid = parm.uuid
+            data.company = parm.company
+            data.year = parm.year
+            data.market = parm.market
+            data.uname = parm.uname
             atomic { implicit tnx =>
                 concert_ref() = Some(p)
             }
@@ -168,7 +173,7 @@ class alGroupActor extends Actor
             stay()
         }
 
-        case Event(group_job(p), _) => {
+        case Event(group_job(p, parm), _) => {
             sender() ! service_is_busy()
             stay()
         }

@@ -64,7 +64,7 @@ class alSampleCheck(company : String, filename : String, uname: String) {
     }
     FileUtils.delFolder(fileBase+company+client_cpa_file)
     FileUtils.delFolder(fileBase+company+client_gycx_file)
-    FileUtils.delFolder(fileBase+company+manage_file)
+//    FileUtils.delFolder(fileBase+company+manage_file)
   } catch {
     case e: Exception => println(e.getMessage)
     case ioe: IOException => println(ioe.getMessage)
