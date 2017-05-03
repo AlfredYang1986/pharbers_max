@@ -1,11 +1,9 @@
 package com.pharbers.aqll.alcalc.alemchat
 
 
-import com.google.gson.internal.LinkedTreeMap
 import com.pharbers.aqll.alcalc.alCommon._
 import io.swagger.client.api.MessagesApi
 import io.swagger.client.model.{Msg, MsgContent, UserName}
-
 /**
   * Created by qianpeng on 2017/4/13.
   */
@@ -25,25 +23,14 @@ class alSendMessage extends alSendMessageTrait {
 }
 
 object sendMessage {
-	def send(uuid: String, company: String, progress: Int, uname: String): String = {
-		val c = s"""{"uuid": "$uuid", "company": "$company", "progress": $progress}"""
-		val msg = new Msg
-		val msgContent = new MsgContent
-		msgContent.`type`(MsgContent.TypeEnum.TXT).msg(c)
-		val userName = new UserName
-		userName.add(uname)
-		msg.from("project").target(userName).targetType("users").msg(msgContent)
-		val result = new alSendMessage().sendMsg(msg)
-		resultIMException(result)
-	}
 
-	def sendMsg(str: String, uname: String): String = {
+	def sendMsg(msgStr: String, uname: String, ext: Map[String, String] = Map.empty): String = {
 		val msg = new Msg
 		val msgContent = new MsgContent
-		msgContent.`type`(MsgContent.TypeEnum.TXT).msg(str)
+		msgContent.`type`(MsgContent.TypeEnum.TXT).msg(msgStr)
 		val userName = new UserName
 		userName.add(uname)
-		msg.from("project").target(userName).targetType("users").msg(msgContent)
+		msg.from("project").target(userName).targetType("users").msg(msgContent).ext(ext)
 		val result = new alSendMessage().sendMsg(msg)
 		resultIMException(result)
 	}

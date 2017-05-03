@@ -26,7 +26,7 @@ class alSampleCheck(company : String, filename : String, uname: String) {
     val dates = panels.groupBy(x => x.getYearAndmonth)
     dates.foreach{date =>
       val Panels_Filter_Ym = panels.filter(x => x.getYearAndmonth.equals(date._1))
-      sendMessage.send("", "", 10, uname)
+      sendMessage.sendMsg("10", uname, Map("uuid" -> "", "company" -> company, "type" -> "progress"))
       val Panels_Group_Pha = Panels_Filter_Ym.groupBy(x => x.getPhaid).map(y => (y._1,y._2.size)).toList
       val Market_Current = Panels_Filter_Ym.groupBy(x => x.getMarket1Ch)
       //println(s"Date =${date._1}")

@@ -70,9 +70,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("uploadbefore") {
 			entity(as[alUpBeforeItem]) { item =>
 				println(s"company=${item.company}")
-				sendMessage.send("", "", 10, item.uname)
+				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyShell(item.company,"MaximumLikelyMonth.py","").excute
-				sendMessage.send("", "", 100, item.uname)
+				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val gson: Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":""" + gson.toJson(result) +"""}""")
@@ -84,9 +84,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
 				println(s"company=${item.company}")
-				sendMessage.send("", "", 10, item.uname)
+				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyShell(item.company,"GeneratePanelFile.py",item.yms).excute
-				sendMessage.send("", "", 100, item.uname)
+				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val gson: Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":""" + gson.toJson(result) +"""}""")
@@ -102,7 +102,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				//a ! check_excel_jobs(item.company,item.filename)
 				println(s"company=${item.company} filename=${item.filename}")
 				alSampleCheck(item.company, item.filename, item.uname)
-				sendMessage.send("", "", 100, item.uname)
+				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result" : "Ok"}""")
 			}
 		}
@@ -144,7 +144,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 												item.filetype,
 												item.uname)
 				val result = alFileExport(alExport)
-				sendMessage.send("", "", 100, item.uname)
+				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val gson : Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":"""+gson.toJson(result)+"""}""")

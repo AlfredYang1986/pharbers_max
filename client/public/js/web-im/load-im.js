@@ -64,16 +64,26 @@ var callback = function() {
             // 如果isAutoLogin设置为false，那么必须手动设置上线，否则无法收消息
             // 手动上线指的是调用conn.setPresence(); 如果conn初始化时已将isAutoLogin设置为true
             // 则无需调用conn.setPresence();
-            conn.setPresence();
+            console.info(message)
         },
         onClosed: function ( message ) {},         //连接关闭回调
         onTextMessage: function ( message ) {
-            var msg = eval("("+message.data+")")
-            var r = p.setPercent(msg.progress)
-            msgIdentifying = msg.progress
-            if(msg.progress >= 100 || r >= 100) {
-                p.setPercent(0)
-                $(".progresstier").css("display", "none");
+            var ext = message.ext
+            if (ext != null) {
+                var result = searchExtJson(ext)("type")
+                if(result == "progress") {
+                    var r = p.setPercent(parseInt(message.data))
+                    msgIdentifying = parseInt(message.data)
+                    if(parseInt(message.data) >= 100 || r >= 100) {
+                        p.setPercent(0)
+                        $(".progresstier").css("display", "none");
+                    }
+                }else if(result == "txt") {
+                    console.info(message.data);
+                }else {
+                    console.info("No Type");
+                    console.info(message.data);
+                }
             }
         },    //收到文本消息
         onEmojiMessage: function ( message ) {},   //收到表情消息
@@ -110,4 +120,17 @@ var callback = function() {
             console.log(list);
         }
     });
+}
+
+var searchExtJson = function(json) {
+    return function(key) {
+        var key2 = "Null";
+        $.each(json, function(i, v) {
+            if(v == key && i.indexOf("key") > -1) {
+                key2 = "value"+i.substring(3)
+                return false
+            }
+        })
+        return json[key2] == undefined ? key2 : json[key2]
+    }
 }

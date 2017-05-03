@@ -159,7 +159,7 @@ object alFileExport {
       n=n-(n%100)
     }
     if((num % (n/100))==0){
-      sendMessage.send("", "", 1, uname)
+      sendMessage.sendMsg("1", uname, Map("uuid" -> "", "company" -> "", "type" -> "progress"))
     }
   }
 }

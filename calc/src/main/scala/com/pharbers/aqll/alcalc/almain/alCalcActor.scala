@@ -95,7 +95,7 @@ class alCalcActor extends Actor
             r match {
                 case None => None
                 case Some(d) =>
-                    sendMessage.sendMsg(s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname)
+                    sendMessage.sendMsg(s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
                     d.subs.foreach (x => _data_connection_cores.getCollection(x.uuid).drop())
 //                    Restart
             }
@@ -190,7 +190,7 @@ class alCalcActor extends Actor
             _data_connection_cores.getCollection(sub_uuid).drop()
 	        log.info(s"单个线程结束删除临时表")
 
-            sendMessage.send(data.uuid, data.company, 1, data.uname)
+            sendMessage.sendMsg("1", data.uname, Map("uuid" -> data.uuid, "company" -> data.company, "type" -> "progress"))
 
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
                 println(sub_uuid)

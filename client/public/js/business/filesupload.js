@@ -142,14 +142,33 @@ $(function(){
 var setProgress = function() {
     conn.listen({
         onTextMessage: function ( message ) {
-            var msg = eval("("+message.data+")")
-            msgIdentifying = msg.progress
-            var r = p.setPercent(msg.progress)
-            if(msg.progress >= 100 || r >= 100) {
-                setCloseInterval()
-                p.setPercent(0)
-                $(".progresstier").css("display", "none");
+            var ext = message.ext
+            if (ext != null) {
+                var result = searchExtJson(ext)("type")
+                if(result == "progress") {
+                    var r = p.setPercent(parseInt(message.data))
+                    msgIdentifying = parseInt(message.data)
+                    if(parseInt(message.data) >= 100 || r >= 100) {
+                        setCloseInterval()
+                        p.setPercent(0)
+                        $(".progresstier").css("display", "none");
+                    }
+                }else if(result == "txt") {
+                    console.info(message.data);
+                }else {
+                    console.info("No Type");
+                    console.info(message.data);
+                }
             }
+
+            // var msg = eval("("+message.data+")")
+            // msgIdentifying = msg.progress
+            // var r = p.setPercent(msg.progress)
+            // if(msg.progress >= 100 || r >= 100) {
+            //     setCloseInterval()
+            //     p.setPercent(0)
+            //     $(".progresstier").css("display", "none");
+            // }
         }
     });
 }

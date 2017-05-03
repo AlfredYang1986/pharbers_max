@@ -95,7 +95,7 @@ class alGroupActor extends Actor
             r match {
                 case None => None
                 case Some(d) =>
-                    sendMessage.sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname)
+                    sendMessage.sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
                     d.subs.foreach (x => _data_connection_cores.getCollection(x.uuid).drop())
 //                Restart
             }
