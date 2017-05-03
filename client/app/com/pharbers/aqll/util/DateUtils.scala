@@ -91,5 +91,4 @@ object DateUtils {
   def ArrayDate2ArrayTimeStamp(arr: Array[String]): Array[Long] = {
     arr.map(x => DateUtils.yyyyMM2Long(x))
   }
-
 }

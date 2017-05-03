@@ -108,6 +108,28 @@ class Application extends Controller {
       }
   }
 
+  //用户管理页面
+  def usermanage = Action {request =>
+    val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
+    val is_administrator = enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt)
+    if(token.equals("")){
+      Ok(views.html.login("Your new application is ready."))
+    }else{
+      Ok(views.html.userManage(is_administrator))
+    }
+  }
+
+  //市场管理页面
+  def marketmanage = Action {request =>
+    val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
+    val is_administrator = enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt)
+    if(token.equals("")){
+      Ok(views.html.login("Your new application is ready."))
+    }else{
+      Ok(views.html.marketManage(is_administrator))
+    }
+  }
+
   def enumAdministrator(is_administrator : Int) = is_administrator match {
         case 0 => "No"
         case 1 => "Yes"

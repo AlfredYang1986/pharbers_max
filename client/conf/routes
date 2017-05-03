@@ -13,6 +13,8 @@ GET		/error500					controllers.Application.error500
 GET		/lockscreen					controllers.Application.lockScreen
 GET		/forgotpassword				controllers.Application.forgotPassword
 GET		/emptypage					controllers.Application.emptyPage
+GET     /marketmanage                controllers.Application.marketmanage
+GET     /usermanage                  controllers.Application.usermanage
 # Core Function
 GET		/filesupload				controllers.Application.filesUpload
 GET		/samplecheck				controllers.Application.sampleCheck
@@ -32,7 +34,11 @@ POST    /callfileexport             controllers.CallAkkaHttpController.callHttpF
 POST    /commitrunresult            controllers.CallAkkaHttpController.callHttpCommitRunResultAjaxCall
 POST    /cleaningdata               controllers.CallAkkaHttpController.callHttpCleaningDataAjaxCall
 POST    /uploadbefore               controllers.CallAkkaHttpController.callHttpUploadBeforeAjaxCall
-
+POST    /marketmanage/query         controllers.MarketManageController.marketManageQueryAjax
+POST    /marketmanage/delete        controllers.MarketManageController.marketManageDeleteAjax
+POST    /marketmanage/querybyid     controllers.MarketManageController.marketManageQueryByIdAjax
+POST    /marketmanage/save          controllers.MarketManageController.marketManageSaveAjax
+POST    /usermanage/query           controllers.UserManageController.userManageQueryAjax
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
 POST	/pharbers/files/upload		controllers.foptController.uploadFile
