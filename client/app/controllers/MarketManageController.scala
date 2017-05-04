@@ -22,10 +22,10 @@ class MarketManageController extends Controller{
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("marketManageDeleteAjax"))), jv, request) :: msg_marketmanage_delete(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
-    def marketManageQueryByIdAjax = Action(request => requestArgs(request) { jv =>
+    def marketManageFindOneAjax = Action(request => requestArgs(request) { jv =>
         import pattern.LogMessage.common_log
         import pattern.ResultMessage.common_result
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("marketManageQueryByIdAjax"))), jv, request) :: msg_marketmanage_querybyid(jv) :: msg_CommonResultMessage() :: Nil, None)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("marketManageFindOneAjax"))), jv, request) :: msg_marketmanage_findOne(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
     def marketManageSaveAjax = Action(request => requestArgs(request) { jv =>

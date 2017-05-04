@@ -1,5 +1,30 @@
 $(function(){
     query();
+
+    $('#addEntry').click(function(){
+        $('#m_form')[0].reset();
+        $('#title').text("新增");
+        $("#au").val("add");
+        $("#modal-form").modal('show');
+    });
+
+    $('#selectAll').click(function(){
+        if(this.checked){
+            $("#list input[type='checkbox']").prop("checked", true);
+        }else{
+            $("#list input[type='checkbox']").prop("checked", false);
+        }
+    });
+
+    $('#batchDel').click(function(){
+        var ids = [];
+        $("#list input[type='checkbox']").each(function(i){
+            if($(this).prop("checked")==true){
+                ids.push($(this).val());
+            }
+        });
+        remove_func(ids);
+    });
 });
 
 var market_lst = function(data) {
@@ -9,10 +34,11 @@ var market_lst = function(data) {
     var nobj = lst[0]
     if(nobj!=null){
         $.each(lst, function (i, v) {
+            temp.push("<input type=\"checkbox\" class=\"i-checks\" name=\"input[]\" value="+v.Market_Id+">");
             temp.push((i + 1));
             temp.push(v.Market_Name);
             temp.push(v.Date);
-            temp.push("<a href=\"javascript:update_func('"+v.Market_Id+"');\"><i class=\"fa fa-pencil-square-o\"></i></a>&nbsp;&nbsp;<a href=\"javascript:delete_func('"+v.Market_Id+"');\"><i class=\"fa fa-trash-o\"></i></a>");
+            temp.push("<a href=\"javascript:update_func('"+v.Market_Id+"');\"><i class=\"fa fa-pencil-square-o\"></i></a>&nbsp;&nbsp;<a href=\"javascript:singledel_func('"+v.Market_Id+"');\"><i class=\"fa fa-trash-o\"></i></a>");
             data.push(temp)
             temp = []
         })
@@ -20,50 +46,28 @@ var market_lst = function(data) {
     return data;
 }
 
-var add_func = function(){
-    $("#au").val("a");
-    $("#modal-form").modal('show');
-}
-
 var update_func = function(id){
     var obj = new Object();
     obj['Market_Id'] = id;
     $.ajax({
-        url: "/marketmanage/querybyid",
+        url: "/marketmanage/findOne",
         type: 'POST',
         dataType: 'json',
         contentType: 'application/json, charset=utf-8',
         data: JSON.stringify(obj),
         cache: false,
         success: function(data) {
-            var obj = data.result.result
-            $("#au").val("u");
-            $("#market_id").val(obj.Market_Id);
-            $("#market_name").val(obj.Market_Name);
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
-        }
-    });
-    $("#modal-form").modal('show');
-}
-
-var delete_func = function(id){
-    var query_object = new Object();
-    query_object['Market_Id'] = id;
-    $.ajax({
-        url: "/marketmanage/delete",
-        type: 'POST',
-        dataType: 'json',
-        contentType: 'application/json, charset=utf-8',
-        data: JSON.stringify(query_object),
-        cache: false,
-        success: function(data) {
-            var lst = data.result.result
-            if(data.status == "ok" && lst.length != 0){
-                $.tooltip('OK, 删除成功！', 2500, true);
-                var data = market_lst(data);
-                dataTableAjax(data);
+            if(data.status == "ok"){
+                var result = data.result.result
+                if(result.status == "success"){
+                    $("#au").val("update");
+                    $('#title').text("编辑");
+                    $("#market_id").val(result.result.Market_Id);
+                    $("#market_name").val(result.result.Market_Name);
+                    $("#modal-form").modal('show');
+                }else{
+                    $.tooltip('My God, '+result.result+'！！！');
+                }
             }else{
                 $.tooltip('My God, 出错啦！！！');
             }
@@ -71,6 +75,38 @@ var delete_func = function(id){
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             $.tooltip('My God, 出错啦！！！');
         }
+    });
+}
+
+var singledel_func = function(id){
+    remove_func([id]);
+}
+
+var remove_func = function(ids){
+    var query_object = new Object();
+    query_object['Market_Id'] = ids;
+    $.dialog('confirm','提示','您确认要删除么？',0,function(){
+        $.ajax({
+            url: "/marketmanage/delete",
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json, charset=utf-8',
+            data: JSON.stringify(query_object),
+            cache: false,
+            success: function(data) {
+                var result = data.result.result
+                if(data.status == "ok" && result.status == "success"){
+                    $.tooltip('OK, '+result.result+'！', 2500, true);
+                    query();
+                }else{
+                    $.tooltip('My God, '+result.result+'！！！');
+                }
+                $.closeDialog(function(){});
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.tooltip('My God, 出错啦！！！');
+            }
+        });
     });
 }
 
@@ -87,8 +123,17 @@ var save_func = function(){
         data: JSON.stringify(obj),
         cache: false,
         success: function(data) {
-            query();
-            $("#modal-form").modal('hide');
+            if(data.status == "ok"){
+                var result = data.result.result
+                if(result.status == "success"){
+                    query();
+                    $("#modal-form").modal('hide');
+                }else{
+                    $.tooltip('My God, '+result.result+'！！！');
+                }
+            }else{
+                $.tooltip('My God, 出错啦！！！');
+            }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             $.tooltip('My God, 出错啦！！！');

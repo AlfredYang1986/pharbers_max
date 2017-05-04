@@ -36,7 +36,7 @@ POST    /cleaningdata               controllers.CallAkkaHttpController.callHttpC
 POST    /uploadbefore               controllers.CallAkkaHttpController.callHttpUploadBeforeAjaxCall
 POST    /marketmanage/query         controllers.MarketManageController.marketManageQueryAjax
 POST    /marketmanage/delete        controllers.MarketManageController.marketManageDeleteAjax
-POST    /marketmanage/querybyid     controllers.MarketManageController.marketManageQueryByIdAjax
+POST    /marketmanage/findOne       controllers.MarketManageController.marketManageFindOneAjax
 POST    /marketmanage/save          controllers.MarketManageController.marketManageSaveAjax
 POST    /usermanage/query           controllers.UserManageController.userManageQueryAjax
 #upload
