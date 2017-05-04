@@ -40,6 +40,7 @@ function login() {
                     $.cookie("token",r.result.FinalResult.Token);
                     $.cookie("company_name_ch",r.result.FinalResult.CompanyNameCh);
                     $.cookie("company_name_en",r.result.FinalResult.CompanyNameEn);
+                    $.cookie("ip",r.result.FinalResult.ip);
                     setTimeout(function () {
                         location = "index"
                     }, 1000 * 3)
@@ -67,6 +68,7 @@ function logout() {
     $.cookie('webim_token', "", {"path": "/", "expires": -1 });
     $.cookie('webim_user', "", {"path": "/", "expires": -1 });
     $.cookie('calc_panel_file', "", {"path": "/", "expires": -1 });
+    $.cookie('ip', "", {"path": "/", "expires": -1 });
 	location = "login"
 }
 

@@ -8126,7 +8126,7 @@ body.md-skin {
     min-height: 1200px;
   }
   .navbar-static-side {
-    z-index: 2001;
+    z-index: 1000;
     position: absolute;
     width: 220px;
   }
