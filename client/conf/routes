@@ -39,6 +39,9 @@ POST    /marketmanage/delete        controllers.MarketManageController.marketMan
 POST    /marketmanage/findOne       controllers.MarketManageController.marketManageFindOneAjax
 POST    /marketmanage/save          controllers.MarketManageController.marketManageSaveAjax
 POST    /usermanage/query           controllers.UserManageController.userManageQueryAjax
+POST    /usermanage/delete          controllers.UserManageController.userManageDeleteAjax
+POST    /usermanage/findOne         controllers.UserManageController.userManageFindOneAjax
+POST    /usermanage/save            controllers.UserManageController.userManageSaveAjax
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
 POST	/pharbers/files/upload		controllers.foptController.uploadFile

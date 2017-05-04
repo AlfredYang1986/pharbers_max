@@ -159,34 +159,40 @@ var remove_func = function(ids){
 //说明：保存新增或修改后的市场数据。
 //*********************************************************************
 var save_func = function(){
-    var obj = new Object();
-    obj['Market_Id'] = $("#market_id").val();
-    obj['Market_Name'] = $("#market_name").val();
-    obj['au'] = $("#au").val();
-    $.ajax({
-        url: "/marketmanage/save",
-        type: 'POST',
-        dataType: 'json',
-        contentType: 'application/json, charset=utf-8',
-        data: JSON.stringify(obj),
-        cache: false,
-        success: function(data) {
-            if(data.status == "ok"){
-                var result = data.result.result
-                if(result.status == "success"){
-                    query();
-                    $("#modal-form").modal('hide');
+    var market_name = $("#market_name").val();
+    if(market_name != ""){
+        var obj = new Object();
+        obj['Market_Id'] = $("#market_id").val();
+        obj['Market_Name'] = market_name;
+        obj['au'] = $("#au").val();
+        $.ajax({
+            url: "/marketmanage/save",
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json, charset=utf-8',
+            data: JSON.stringify(obj),
+            cache: false,
+            success: function(data) {
+                if(data.status == "ok"){
+                    var result = data.result.result
+                    if(result.status == "success"){
+                        query();
+                        $("#modal-form").modal('hide');
+                    }else{
+                        $.tooltip('My God, '+result.result+'！！！');
+                    }
                 }else{
-                    $.tooltip('My God, '+result.result+'！！！');
+                    $.tooltip('My God, 出错啦！！！');
                 }
-            }else{
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
                 $.tooltip('My God, 出错啦！！！');
             }
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
-        }
-    });
+        });
+    } else {
+        $.tooltip('市场名称输入为空！！！');
+    }
+
 }
 
 //*********************************************************************
