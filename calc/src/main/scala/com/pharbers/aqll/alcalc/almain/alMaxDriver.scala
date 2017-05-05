@@ -149,7 +149,6 @@ class alMaxDriver extends Actor
         case schedule_calc() => scheduleOneCalcJob
         case calc_sum_result(uuid, sub_uuid, sum) => sumSuccessWithWork(uuid, sub_uuid, sum)
         case calc_final_result(uuid, sub_uuid, v, u) => finalSuccessWithWork(uuid, sub_uuid, v, u, start)
-        case db_final_result(uuid, dbuuid) => dbfinalSuccessWithWork(uuid, dbuuid, start)
         case commit_finalresult_jobs(company) => commit_finalresult_jobs_func(company)
         case check_excel_jobs(company,filename) => check_excel_jobs_func(company,filename)
         case x : Any => {
@@ -400,35 +399,6 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
                     calc_router.single.get foreach ( x => x ! calc_avg_job(r.uuid, mapAvg))
                 }
             }
-        }
-    }
-
-    // TODO : 这段暂时没用到，不过在解决入库效率上，可能会用到此方法
-    def dbfinalSuccessWithWork(uuid : String, dbuuid: String, start: Long) = {
-        println(s"section_number = $section_number")
-        // TODO : 数据库高速还原
-        val company = alCalcParmary.alParmary.single.get.find(_.uuid == uuid) match {
-            case None =>
-                println(s"not company")
-                //alRestoreColl("", sub_uuid :: Nil)
-                ("", "")
-            case Some(x) =>
-                val u = x.company+UUID.randomUUID().toString
-                //alRestoreColl(u, dbuuid :: Nil)
-                (x.company, u)
-        }
-
-        section_number = section_number + 1
-        println(s"section_number = $section_number")
-
-        if(section_number == 2) {
-            section_number = -1
-            // TODO : 数据去重，重新入库
-            println(s"开始去重数据")
-            val tmp = (new alWeightSum(company._1, company._2))
-            println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
-            println(s"结束去重数据")
-            endDate("入库完成",start)
         }
     }
 

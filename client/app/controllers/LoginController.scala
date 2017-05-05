@@ -16,6 +16,6 @@ class LoginController extends Controller{
     def Login = Action(request => requestArgs(request) { jv =>
         import pattern.LogMessage.common_log
         import pattern.ResultMessage.common_result
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("Login"))), jv, request) :: msg_login(jv) :: msg_CommonResultMessage() :: Nil, None)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("Login"))), jv, request) :: msg_login(jv, request.remoteAddress) :: msg_CommonResultMessage() :: Nil, None)
     })
 }

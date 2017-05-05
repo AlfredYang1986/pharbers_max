@@ -12,5 +12,6 @@ trait alSupervisorStrategy { this: Actor =>
 	override val supervisorStrategy =
 		AllForOneStrategy() {
 			case _: Exception => Stop
+			case _: Error => Stop
 		}
 }

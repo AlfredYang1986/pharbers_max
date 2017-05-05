@@ -11,19 +11,18 @@ import play.api.libs.json._
 
 object LoginModuleMessage {
     sealed class msg_LoginBaseQuery extends CommonMessage
-    case class msg_login(data: JsValue) extends msg_LoginBaseQuery
+    case class msg_login(data: JsValue, ip: String) extends msg_LoginBaseQuery
 }
 
 object LoginModule extends ModuleTrait {
     import LoginModuleMessage._
     import controllers.common.default_error_handler.f
     def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-        case msg_login(data) => login(data)
+        case msg_login(data, ip) => login(data, ip)
         case _ => println("Error--------"); ???
     }
 
-    def login(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        println(data)
+    def login(data: JsValue, ip: String)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) =>
@@ -48,12 +47,11 @@ object LoginModule extends ModuleTrait {
         }
 
         def conditions: List[DBObject] = {
-            var con = conditionsAcc(Nil, "Account" :: "Password" :: Nil, userConditions(x => x.asOpt[String]))
+            val con = conditionsAcc(Nil, "Account" :: "Password" :: Nil, userConditions(x => x.asOpt[String]))
             con
         }
 
         try {
-            println(conditions)
             conditions.size match {
                 case 0 => (Some(Map("FinalResult" -> toJson("input is null"))), None)
 
@@ -62,7 +60,7 @@ object LoginModule extends ModuleTrait {
                 case 2 => conditions match {
                     case x: List[DBObject] =>
                         val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))
-                        val tmp = (from db () in "Company" where t).selectAggregate(resultData(_))(_data_connection_basic).toList
+                        val tmp = (from db () in "Company" where t).selectAggregate(resultData(_, ip))(_data_connection_basic).toList
                         tmp.size match {
                             case 0 => (Some(Map("FinalResult" -> toJson("is null"))), None)
                             case _ => (Some(Map("FinalResult" -> tmp.head)),None)
@@ -75,7 +73,7 @@ object LoginModule extends ModuleTrait {
         }
     }
 
-    def resultData(x: MongoDBObject): JsValue = {
+    def resultData(x: MongoDBObject, ip: String): JsValue = {
         val User_lst = x.getAs[MongoDBObject]("User_lst").get
         val Company = x.getAs[MongoDBList]("Company_Name").get
         val Company_Id = x.getAs[String]("Company_Id").get
@@ -97,6 +95,7 @@ object LoginModule extends ModuleTrait {
             "User_Token" -> toJson(UserId),
             "CompanyNameCh" -> toJson(CompanyNameCh),
             "CompanyNameEn" -> toJson(CompanyNameEn),
+            "ip" -> toJson(ip),
             "Timestamp" -> toJson(Timestamp)))
     }
 }
