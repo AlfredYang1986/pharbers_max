@@ -78,7 +78,7 @@ object LoginModule extends ModuleTrait {
         val Company = x.getAs[MongoDBList]("Company_Name").get
         val Company_Id = x.getAs[String]("Company_Id").get
         val Timestamp = x.getAs[Number]("Timestamp").get.longValue()
-
+        val E_Mail = x.getAs[String]("E-Mail").get
         val UserName = User_lst.getAs[String]("Name").getOrElse("无")
         val UserId = User_lst.getAs[String]("ID").getOrElse("无")
         val UserTimestamp = User_lst.as[Number]("Timestamp").longValue()
@@ -89,6 +89,7 @@ object LoginModule extends ModuleTrait {
 
         toJson(Map("UserName" -> toJson(UserName),
             "Token" -> toJson(Company_Id),
+            "E_Mail" -> toJson(E_Mail),
             "UserTimestamp" -> toJson(UserTimestamp),
             "UserAuth" -> toJson(UserAuth),
             "IsAdministrator" -> toJson(IsAdministrator),

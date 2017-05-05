@@ -178,6 +178,7 @@ var save_func = function(){
                     if(result.status == "success"){
                         query();
                         $("#modal-form").modal('hide');
+                        $.tooltip('OK, 操作成功！', 2500, true);
                     }else{
                         $.tooltip('My God, '+result.result+'！！！');
                     }

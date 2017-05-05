@@ -1,5 +1,5 @@
 @(is_administrator: String)
-@main("Max | Market Page") {
+@main("Max | User Page") {
 <body>
 <div id="wrapper">
     <nav class="navbar-default navbar-static-side" role="navigation">
@@ -144,10 +144,23 @@
                                     <h4 class="modal-title" id="title">新增|编辑</h4>
                                 </div>
                                 <div class="modal-body">
-                                    <form id="m_form" role="form">
-                                        <div class="form-group hidden"><label>操作类型</label> <input id="au" type="text" placeholder="操作类型" class="form-control"></div>
-                                        <div class="form-group hidden"><label>市场ID</label> <input id="market_id" type="text" placeholder="Market Id" class="form-control"></div>
-                                        <div class="form-group"><label>市场名称</label> <input id="market_name" type="text" placeholder="Market Name" class="form-control"></div>
+                                    <form id="u_form" role="form">
+                                        <div class="form-group hidden"><label>类型</label> <input id="au" type="text" placeholder="类型" class="form-control"></div>
+                                        <div class="form-group hidden"><label>用户ID</label> <input id="User_ID" type="text" placeholder="用户ID" class="form-control"></div>
+                                        <div class="form-group hidden"><label>公司ID</label> <input id="Company_Id" type="text" placeholder="公司ID" class="form-control"></div>
+                                        <div class="form-group "><label>账号</label> <input id="Account" type="text" placeholder="账号" class="form-control"></div>
+                                        <div class="form-group "><label>用户名</label> <input id="Name" type="text" placeholder="用户名" class="form-control"></div>
+                                        <div class="form-group "><label>密码</label> <input id="Password" type="password" placeholder="密码" class="form-control"></div>
+                                        <div class="form-group "><label>账号类型</label>
+                                            <!--<input id="isadministrator" type="text" placeholder="用户类型" class="form-control">-->
+                                            <select id="isadministrator" data-name="search-result-datatype" class="form-control">
+                                                <option value="0">普通用户</option>
+                                                <option value="1">管理员</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group "><label>公司(中文)</label> <input id="Company_Name_Ch" type="text" placeholder="公司中文" class="form-control"></div>
+                                        <div class="form-group "><label>公司(英文)</label> <input id="Company_Name_En" type="text" placeholder="公司英文" class="form-control"></div>
+                                        <div class="form-group "><label>公司邮箱</label> <input id="E_Mail" type="email" placeholder="公司邮箱" class="form-control"></div>
                                     </form>
                                 </div>
                                 <div class="modal-footer">

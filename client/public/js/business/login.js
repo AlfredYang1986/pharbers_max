@@ -40,6 +40,7 @@ function login() {
                     $.cookie("token",r.result.FinalResult.Token);
                     $.cookie("company_name_ch",r.result.FinalResult.CompanyNameCh);
                     $.cookie("company_name_en",r.result.FinalResult.CompanyNameEn);
+                    $.cookie("email",r.result.FinalResult.E_Mail)
                     $.cookie("ip",r.result.FinalResult.ip);
                     setTimeout(function () {
                         location = "index"
