@@ -1,10 +1,11 @@
 $(function(){
-	$("body").keydown(function() {
-	    if (event.keyCode == "13") {
-	    	login();
-	    	return false; 
-	    }
+	$("body").keydown(function(event) {
+        if(event.which == 13){
+            login();
+            return false;
+        }
 	});
+
 	$("#loginBtn").click(function(){
 		login();
 	});
@@ -42,12 +43,13 @@ function login() {
                     $.cookie("company_name_en",r.result.FinalResult.CompanyNameEn);
                     $.cookie("email",r.result.FinalResult.E_Mail)
                     $.cookie("ip",r.result.FinalResult.ip);
+                    $.tooltip('OK, 登录成功！', 2500, true);
                     setTimeout(function () {
                         location = "index"
                     }, 1000 * 3)
                 }
 			}else {
-				alert("清理浏览器Cookie")
+                $.tooltip('清理浏览器Cookie');
 			}
 
 		},
@@ -59,18 +61,18 @@ function login() {
 
 function logout() {
     conn.close();
-	$.cookie("user_token", "", {"path": "/", "expires": -1 });
-    $.cookie("user_name", "", {"path": "/", "expires": -1 });
-    $.cookie("user_auth", "", {"path": "/", "expires": -1 });
-    $.cookie("is_administrator", "", {"path": "/", "expires": -1 });
-    $.cookie("token", "", {"path": "/", "expires": -1 });
-    $.cookie("company_name_ch", "", {"path": "/", "expires": -1 });
-    $.cookie("company_name_en", "", {"path": "/", "expires": -1 });
-    $.cookie('webim_token', "", {"path": "/", "expires": -1 });
-    $.cookie('webim_user', "", {"path": "/", "expires": -1 });
-    $.cookie('calc_panel_file', "", {"path": "/", "expires": -1 });
-    $.cookie('ip', "", {"path": "/", "expires": -1 });
+    cleanAllCookie();
 	location = "login"
+}
+
+
+var cleanAllCookie = function() {
+	var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
+    if(keys) {
+		$.each(keys, function(i, v) {
+            $.cookie(v, "", {"path": "/", "expires": -1 });
+		})
+    }
 }
 
 function loginInfo() {
