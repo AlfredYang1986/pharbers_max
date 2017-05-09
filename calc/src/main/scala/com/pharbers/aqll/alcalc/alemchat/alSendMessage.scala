@@ -25,13 +25,8 @@ class alSendMessage extends alSendMessageTrait {
 object sendMessage {
 
 	def sendMsg(msgStr: String, uname: String, ext: Map[String, String] = Map.empty): String = {
-		val msg = new Msg
-		val msgContent = new MsgContent
-		msgContent.`type`(MsgContent.TypeEnum.TXT).msg(msgStr)
-		val userName = new UserName
+		val userName = new UserName()
 		userName.add(uname)
-		msg.from("project").target(userName).targetType("users").msg(msgContent).ext(ext)
-		val result = new alSendMessage().sendMsg(msg)
-		resultIMException(result)
+		resultIMException(new alSendMessage().sendMsg(new Msg().from("project").target(userName).targetType("users").msg(new MsgContent().`type`(MsgContent.TypeEnum.TXT).msg(msgStr)).ext(ext)))
 	}
 }

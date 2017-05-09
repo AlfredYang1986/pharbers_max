@@ -34,7 +34,6 @@ class alDriverSingleton extends Actor with ActorLogging{
 	)
 
 	def receive = {
-		case cmd : db_final_result => driver forward cmd
 		case cmd : filter_excel_jobs => driver forward cmd
 		case cmd : finish_split_excel_job => driver forward cmd
 		case cmd : push_max_job => driver forward cmd
