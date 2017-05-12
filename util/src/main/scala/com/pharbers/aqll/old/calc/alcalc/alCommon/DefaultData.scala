@@ -2,6 +2,8 @@ package com.pharbers.aqll.old.calc.alcalc.alCommon
 
 import java.io.File
 
+import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.{alExcelDataParser, exceldataparser}
+import com.pharbers.aqll.old.calc.alcalc.almodel.AdminHospitalData
 import com.pharbers.aqll.old.calc.alcalc.alFileHandler.alexcel._
 import com.pharbers.aqll.old.calc.util.GetProperties
 
@@ -13,6 +15,18 @@ object DefaultData {
         hospdatabase.startParse(GetProperties.fileBase + company + GetProperties.hospitalData + path, 1)
         hospdatabase.resultlist
     }
+
+
+    def hospdatabasetest2(path: String) = {
+        val hospdata_ch_file = "config/admin/HospDataStruct.xml"
+        val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
+        type targt = AdminHospitalData
+        val a = new alExcelDataParser(new targt, hospdata_en_file, hospdata_ch_file)
+        a.prase(path)("")
+        a.data
+
+    }
+
 
     object integratedXmlPath {
         lazy val integratedxmlpath_ch = "config/consumer/IntegratedDataStruct.xml"

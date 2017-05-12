@@ -38,10 +38,14 @@ POST    /marketmanage/query         controllers.MarketManageController.marketMan
 POST    /marketmanage/delete        controllers.MarketManageController.marketManageDeleteAjax
 POST    /marketmanage/findOne       controllers.MarketManageController.marketManageFindOneAjax
 POST    /marketmanage/save          controllers.MarketManageController.marketManageSaveAjax
-POST    /usermanage/query           controllers.UserManageController.userManageQueryAjax
-POST    /usermanage/delete          controllers.UserManageController.userManageDeleteAjax
-POST    /usermanage/findOne         controllers.UserManageController.userManageFindOneAjax
-POST    /usermanage/save            controllers.UserManageController.userManageSaveAjax
+POST    /usermanage/company/query   controllers.UserManageController.userManageCompanyQueryAjax
+POST    /usermanage/company/delete  controllers.UserManageController.userManageCompanyDeleteAjax
+POST    /usermanage/company/findOne controllers.UserManageController.userManageCompanyFindOneAjax
+POST    /usermanage/company/save    controllers.UserManageController.userManageCompanySaveAjax
+POST    /usermanage/user/query      controllers.UserManageController.userManageUserQueryAjax
+POST    /usermanage/user/delete     controllers.UserManageController.userManageUserDeleteAjax
+POST    /usermanage/user/findOne    controllers.UserManageController.userManageUserFindOneAjax
+POST    /usermanage/user/save       controllers.UserManageController.userManageUserSaveAjax
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
 POST	/pharbers/files/upload		controllers.foptController.uploadFile
