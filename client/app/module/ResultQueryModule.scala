@@ -5,11 +5,11 @@ import java.util.Calendar
 import com.pharbers.aqll.util.DateUtils
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.util.dao.Page._
+import com.pharbers.aqll.util.page.Page._
 import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.util.StringOption
+import com.pharbers.aqll.util.StringUtils
 object ResultQueryModuleMessage {
 	sealed class msg_resultqueryBase extends CommonMessage
 	case class msg_finalresult(data : JsValue) extends msg_resultqueryBase
@@ -26,7 +26,7 @@ object ResultQueryModule extends ModuleTrait {
 	def msg_finalresult_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 
 		var market = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(List())
-		market = market.map(x => StringOption.takeStringSpace(x))
+		market = market.map(x => StringUtils.removeSpace(x))
 		var staend = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(List())
 		val fmomat_f = new SimpleDateFormat("MM/yyyy")
 		var conditions = MongoDBObject()

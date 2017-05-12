@@ -5,7 +5,7 @@ import play.api.mvc.MultipartFormData
 import java.io._
 import com.pharbers.aqll.util.GetProperties._
 import com.pharbers.aqll.util.GetProperties.fileBase
-import com.pharbers.aqll.util.{MD5, StringOption}
+import com.pharbers.aqll.util.StringUtils
 import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
@@ -27,7 +27,7 @@ object SliceUpload {
             val company = data.dataParts.get("company").get.head
             val date = data.dataParts.get("date").get.head
             val market = data.dataParts.get("market").get.head
-            MD5.md5(company+date+StringOption.takeStringSpace(market))
+            StringUtils.md5(company+date+StringUtils.removeSpace(market))
           }
           case _ => x.filename
         }
