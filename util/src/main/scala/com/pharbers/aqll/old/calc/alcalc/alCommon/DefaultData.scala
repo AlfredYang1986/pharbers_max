@@ -3,12 +3,12 @@ package com.pharbers.aqll.old.calc.alcalc.alCommon
 import java.io.File
 
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.{alExcelDataParser, exceldataparser}
-import com.pharbers.aqll.old.calc.alcalc.alFileHandler.alexcel._
 import com.pharbers.aqll.old.calc.alcalc.almodel.AdminHospitalData
+
+import com.pharbers.aqll.old.calc.alcalc.alFileHandler.alexcel._
 import com.pharbers.aqll.old.calc.util.GetProperties
 
 object DefaultData {
-
     def hospdatabase(path: String, company: String) = {
         val hospdata_ch_file = "config/admin/HospDataStruct.xml"
         val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
