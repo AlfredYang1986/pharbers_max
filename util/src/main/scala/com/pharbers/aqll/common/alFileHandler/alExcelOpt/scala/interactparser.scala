@@ -11,7 +11,6 @@ trait interactparser extends excelparser with exceltitleparser with exceltargetc
 	var closeV = false
 
 	var rowlist: List[String] = Nil
-	var resultlist: List[target_type] = Nil
 
 	var preRef: String = null
 	var ref: String = null
@@ -73,7 +72,6 @@ trait interactparser extends excelparser with exceltitleparser with exceltargetc
 					try {
 						val target = targetInstance
 						(rowlist zip fields).foreach(x => ReflectUtil.invokeSetter(target, x._2, x._1))
-						resultlist = resultlist :+ target
 						handleOneTarget(target)
 						rowlist = Nil
 						switchbtn = true

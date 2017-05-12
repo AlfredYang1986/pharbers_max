@@ -17,15 +17,6 @@ object DefaultData {
         hospdatabase.resultlist
     }
 
-    def hospdatabasetest(path: String) = {
-        val hospdata_ch_file = "config/admin/HospDataStruct.xml"
-        val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
-        type targt = AdminHospitalData
-        val hospdatabase = exceldataparser(hospdata_en_file, hospdata_ch_file, new targt)
-        hospdatabase.startParse(path)
-        hospdatabase.resultlist.asInstanceOf[List[targt]]
-    }
-
     def hospdatabasetest2(path: String) = {
         val hospdata_ch_file = "config/admin/HospDataStruct.xml"
         val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
