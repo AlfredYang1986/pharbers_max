@@ -1,4 +1,4 @@
-package com.pharbers.aqll.common.alErrorHandler
+package com.pharbers.aqll.common.alErrorCode
 
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.json.Json.toJson
