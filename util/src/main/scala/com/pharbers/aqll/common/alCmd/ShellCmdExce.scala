@@ -1,4 +1,4 @@
-package com.pharbers.aqll.old.calc.alcalc.alcmd
+package com.pharbers.aqll.common.alCmd
 
 import java.io._
 
@@ -6,7 +6,8 @@ sealed class ShellResultDefines (val t : Int, val d : String)
 
 object ShellResult {
     case object success extends ShellResultDefines(0, "success")
-    case object faild extends ShellResultDefines(-1, "faild")
+    case object failed extends ShellResultDefines(-1, "failed")
+    case object runningException extends ShellResultDefines(-2, "runningException")
 }
 
 trait shellCmdExce {
@@ -15,11 +16,7 @@ trait shellCmdExce {
     val cmd : String
 
     def excute : Int = {
-        import ShellResult.success._
-        import ShellResult.faild._
-
         try {
-            println(cmd)
             val builder = new ProcessBuilder("/bin/bash", "-c", cmd)
             val process = builder.start()
 
@@ -28,18 +25,18 @@ trait shellCmdExce {
 
             var line : String = null
             process.waitFor()
-
-            ShellResult.success.t
-
+            do {
+                line = input.readLine()
+            } while (line != null)
+            if(line.isEmpty) ShellResult.success.t
+            else ShellResult.runningException.t
         } catch {
             case _ : IOException => {
-                println("io exception occurs")
-                ShellResult.faild.t
+                ShellResult.failed.t
             }
 
             case ex : Exception => {
-                println(ex.getMessage)
-                ShellResult.faild.t
+                ShellResult.failed.t
             }
         }
     }
