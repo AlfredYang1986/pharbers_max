@@ -1,4 +1,4 @@
-package com.pharbers.aqll.common.alErrorHandler
+package com.pharbers.aqll.common.alErrorCode
 
 /**
   * Created by qianpeng on 2017/5/13.
