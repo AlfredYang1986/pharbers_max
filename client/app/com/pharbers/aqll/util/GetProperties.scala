@@ -1,58 +1,88 @@
 package com.pharbers.aqll.util
 
-import com.typesafe.config.{Config, ConfigFactory}
+import java.io.FileInputStream
+import java.util.Properties
+
+import com.typesafe.config.ConfigFactory
 
 /**
-  * Created by Faiz on 2017/1/17.
+  * Created by clock on 2017/5/10.
   */
 object GetProperties {
-
-    import java.util.Properties
-    import java.io.FileInputStream
-
     def loadProperties(filename: String): Properties = {
         val properties = new Properties()
         properties.load(new FileInputStream(Thread.currentThread().getContextClassLoader.getResource(filename).getPath))
         properties
     }
 
-    def loadConf(filename: String): Config = {
-        ConfigFactory.load(filename)
-    }
+    val msd: IPropertiesFactory = GetConfigFactory.getMsdConfigFactory
+    val file: IPropertiesFactory = GetConfigFactory.getFileConfigFactory
 
     /*msd.conf*/
-    def DBHost = GetProperties.loadConf("msd.conf").getString("DataBase.DBHost")
+    val DBHost = msd.getProperties("DataBase.DBHost")
+    val DBPort = msd.getProperties("DataBase.DBPort").toInt
+    val username = msd.getProperties("DataBase.username")
+    val password = msd.getProperties("DataBase.password")
+    val DB1 = msd.getProperties("DataBase.DB1")
+    val DB2 = msd.getProperties("DataBase.DB2")
 
-    def DBPort = GetProperties.loadConf("msd.conf").getInt("DataBase.DBPort")
 
-    def username = GetProperties.loadConf("msd.conf").getString("DataBase.username")
-
-    def password = GetProperties.loadConf("msd.conf").getString("DataBase.password")
-
-    def DB1 = GetProperties.loadConf("msd.conf").getString("DataBase.DB1")
-
-    def DB2 = GetProperties.loadConf("msd.conf").getString("DataBase.DB2")
-
-    def Akka_Http_IP = loadConf("File.conf").getString("Akka.Http.ip")
-
-    def Akka_Http_Port = loadConf("File.conf").getInt("Akka.Http.port")
-
-    // TODO : Client上传／导出／Manage上传的HospitalData地址
-    def fileBase = loadConf("File.conf").getString("File.FileBase_FilePath")
-
-    def hospitalData = loadConf("File.conf").getString("File.Upload_HospitalData_File")
-
-    def export_file = loadConf("File.conf").getString("File.Export_File")
-
-    def transfer_file = loadConf("File.conf").getString("File.Transfer_File")
-
-    def template_file = loadConf("File.conf").getString("File.Template_File")
-
-    def client_cpa_file = loadConf("File.conf").getString("File.Client_Cpa")
-
-    def client_gycx_file = loadConf("File.conf").getString("File.Client_Gycx")
-
-    def manage_file = loadConf("File.conf").getString("File.Manage_File")
+    /*file.conf*/
+    val Akka_Http_IP = file.getProperties("Akka.Http.ip")
+    val Akka_Http_Port = file.getProperties("Akka.Http.port").toInt
+    val fileBase = file.getProperties("File.FileBase_FilePath")
+    val hospitalData = file.getProperties("File.Upload_HospitalData_File")
+    val export_file = file.getProperties("File.Export_File")
+    val transfer_file = file.getProperties("File.Transfer_File")
+    val template_file = file.getProperties("File.Template_File")
+    val client_cpa_file = file.getProperties("File.Client_Cpa")
+    val client_gycx_file = file.getProperties("File.Client_Gycx")
+    val manage_file = file.getProperties("File.Manage_File")
 
 }
 
+/**
+  * The singleton abstract factory is used to generate the specified configuration file factory.
+  */
+object GetConfigFactory {
+    val configFileMap = Map("mds" -> new MsdConfigFactory("msd.conf"), "file" -> new FileConfigFactory("File.conf"))
+
+    def getMsdConfigFactory = {
+        configFileMap("mds")
+    }
+
+    def getFileConfigFactory = {
+        configFileMap("file")
+    }
+}
+
+/**
+  * Configure file factory interface
+  */
+trait IPropertiesFactory {
+    def getProperties(configKey: String):String
+}
+
+class MsdConfigFactory(configFileName: String) extends IPropertiesFactory {
+    val config = ConfigFactory.load(configFileName)
+
+    override def getProperties(configKey: String):String = {
+        if (configKey.equals("DataBase.DBPort")) {
+            config.getInt(configKey).toString
+        } else {
+            config.getString(configKey)
+        }
+    }
+}
+
+class FileConfigFactory(configFileName: String) extends IPropertiesFactory {
+    val config = ConfigFactory.load(configFileName)
+
+    override def getProperties(configKey: String):String = {
+        if (configKey.equals("Akka.Http.port")) {
+            config.getInt(configKey).toString
+        } else {
+            config.getString(configKey)
+        }
+    }
+}
