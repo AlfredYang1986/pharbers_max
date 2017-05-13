@@ -42,20 +42,20 @@ object _data_connection_basic extends data_connection {
 object _data_connection_cores_thread extends data_connection {
     override def conn_name: String = "Max_Cores"
 
-    override var _conntion  = Ref(Map[String , MongoCollection]().empty)
+    var conntion  = Ref(Map[String , MongoCollection]().empty)
 
     override def getCollection(coll_name : String) : MongoCollection = {
         atomic { implicit thx =>
-            if (!_conntion.single.get.contains(coll_name)){
-                _conntion() = _conntion() + (coll_name -> _conn(conn_name).apply(coll_name))
+            if (!conntion.single.get.contains(coll_name)){
+                conntion() = conntion() + (coll_name -> _conn(conn_name).apply(coll_name))
             }
-            _conntion.single.get.get(coll_name).get
+            conntion.single.get.get(coll_name).get
         }
     }
 
     override def releaseConntions = {
         atomic { implicit thx =>
-            _conntion() = Map.empty
+            conntion() = Map.empty
         }
     }
 }
