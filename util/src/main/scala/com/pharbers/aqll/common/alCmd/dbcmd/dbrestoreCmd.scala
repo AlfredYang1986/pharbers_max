@@ -1,6 +1,7 @@
 package com.pharbers.aqll.common.alCmd.dbcmd
 
 import com.pharbers.aqll.common.alCmd.ShellOtherCmdExce
+import com.pharbers.aqll.common.alCmd.alCallShellCmdExce.otherFactory
 
 case class dbrestoreCmd(db: String,
                         coll: String,
@@ -9,6 +10,7 @@ case class dbrestoreCmd(db: String,
                         userPassword: String,
                         ip: String = "127.0.0.1",
                         port: Int = 27017) extends ShellOtherCmdExce {
-   override val cmd = "usr/bin/mongorestore " +
+   val cmd = "usr/bin/mongorestore " +
         DBInputConfig(db, coll, dir, Some(ip), Some(port), Some(userName), Some(userPassword)).toArgs
+   otherFactory.CreateShellCmdExce().excute(cmd)
 }
