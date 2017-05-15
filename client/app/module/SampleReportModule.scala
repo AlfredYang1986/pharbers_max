@@ -2,10 +2,10 @@ package module
 
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
+import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
-import com.pharbers.aqll.util.DateUtils
+import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import scala.collection.mutable.ListBuffer
 
 object SampleReportModuleMessage {
@@ -34,8 +34,8 @@ object SampleReportModule extends ModuleTrait {
 				x._2.foreach { y =>
 					val date = y.get("Date").get
 					date_lst_sb.append(toJson(s"$date"))
-					val e_query = MongoDBObject("Company" -> company,"Market" -> y.get("Market").get,"Date" -> MongoDBObject("$eq" -> DateUtils.yyyyMM2EarlyLong(date.toString)))
-					val l_query = MongoDBObject("Company" -> company,"Market" -> y.get("Market").get,"Date" -> MongoDBObject("$eq" -> DateUtils.yyyyMM2LastLong(y.get("Date").get.toString)))
+					val e_query = MongoDBObject("Company" -> company,"Market" -> y.get("Market").get,"Date" -> MongoDBObject("$eq" -> alDateOpt.yyyyMM2EarlyLong(date.toString)))
+					val l_query = MongoDBObject("Company" -> company,"Market" -> y.get("Market").get,"Date" -> MongoDBObject("$eq" -> alDateOpt.yyyyMM2LastLong(y.get("Date").get.toString)))
 					dhp_lst_sb.append(
 						toJson(Map("Date" -> toJson(y.get("Date").get.toString),
 							"c_HospNum" -> toJson(y.get("HospNum").get.toString),
@@ -71,7 +71,7 @@ object SampleReportModule extends ModuleTrait {
 			"HospNum" -> d.getAs[Number]("HospNum").get.longValue(),
 			"ProductNum" -> d.getAs[Number]("ProductNum").get.longValue(),
 			"Market" -> d.getAs[String]("Market").get,
-			"Date" -> DateUtils.Timestamp2yyyyMM(d.getAs[Number]("Date").get.longValue())
+			"Date" -> alDateOpt.Timestamp2yyyyMM(d.getAs[Number]("Date").get.longValue())
 		)
 	}
 }

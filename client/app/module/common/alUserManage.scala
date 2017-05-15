@@ -2,8 +2,9 @@ package module.common
 
 import com.mongodb.{BasicDBList, BasicDBObject, DBObject}
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
-import com.pharbers.aqll.util.{DateUtils, StringUtils}
-import com.pharbers.aqll.util.dao._data_connection_basic
+import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
+import com.pharbers.aqll.common.alDate.scala.alDateOpt
+import com.pharbers.aqll.common.alDao._data_connection_basic
 import module.common.alMessage.getMessage
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -52,7 +53,7 @@ object alUserManage {
         "isadministrator" -> toJson(user.get("isadministrator").asInstanceOf[Number].longValue() match {
           case 0 => "普通用户"
           case 1 => "管理员"}),
-        "Timestamp" -> toJson(DateUtils.Timestamp2yyyyMMdd(user.get("Timestamp").asInstanceOf[Number].longValue()))
+        "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(user.get("Timestamp").asInstanceOf[Number].longValue()))
       ))
     }
     toJson(User_lst)
@@ -132,7 +133,7 @@ object alUserManage {
             "Password" -> toJson(user.get("Password").asInstanceOf[String]),
             "auth" -> toJson(user.get("auth").asInstanceOf[Number].intValue()),
             "isadministrator" -> toJson(user.get("isadministrator").asInstanceOf[Number].intValue()),
-            "Timestamp" -> toJson(DateUtils.Timestamp2yyyyMMdd(user.get("Timestamp").asInstanceOf[Number].longValue()))
+            "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(user.get("Timestamp").asInstanceOf[Number].longValue()))
           )),"status" -> toJson("success")))
         }
       }
@@ -154,7 +155,7 @@ object alUserManage {
     val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse("")
     val ID = au match {
         case i if i.equals("update") => (data \ "ID").get.asOpt[String].getOrElse("")
-        case _ => StringUtils.md5(Account)
+        case _ => md5(Account)
     }
     val isadmin = (data \ "isadmin").get.asOpt[Int].getOrElse(0)
     //println(s"au=$au Account=$Account password=$password Company_Id=$Company_Id ID=$ID isadmin=$isadmin")
@@ -162,7 +163,7 @@ object alUserManage {
         "ID" -> ID,
         "Account" -> Account,
         "Name" -> (data \ "Name").get.asOpt[String].getOrElse(""),
-        "Password" -> (if(au.equals("update")){password}else{StringUtils.md5(password)}),
+        "Password" -> (if(au.equals("update")){password}else{md5(password)}),
         "auth" -> 0,
         "isadministrator" -> isadmin,
         "Timestamp" -> System.currentTimeMillis()

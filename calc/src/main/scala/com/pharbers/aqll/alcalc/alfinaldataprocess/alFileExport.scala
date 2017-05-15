@@ -11,7 +11,6 @@ import java.io.File
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.util.GetProperties._
 import com.pharbers.aqll.alcalc.alfinaldataprocess.csv.scala.CSVWriter
-import com.pharbers.aqll.util.StringOption
 /**
   * Created by liwei on 2017/3/25.
   */
