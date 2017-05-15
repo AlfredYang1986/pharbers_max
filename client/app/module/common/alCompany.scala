@@ -8,7 +8,7 @@ import com.mongodb.{BasicDBList,DBObject}
 import com.pharbers.aqll.util.dao._data_connection_basic
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.util.{DateUtils, MD5}
+import com.pharbers.aqll.util.{DateUtils, StringUtils}
 import module.common.alMessage._
 
 object alCompany {
@@ -109,7 +109,7 @@ object alCompany {
     au match {
       case "add" => {
         val Company_Id_MD5 = Company_Id match {
-          case "" => MD5.md5(Company_Name_Ch match {
+          case "" => StringUtils.md5(Company_Name_Ch match {
             case "" => Company_Name_En
             case _ => Company_Name_Ch
           })

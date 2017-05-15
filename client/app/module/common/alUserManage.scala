@@ -2,7 +2,7 @@ package module.common
 
 import com.mongodb.{BasicDBList, BasicDBObject, DBObject}
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
-import com.pharbers.aqll.util.{DateUtils, MD5}
+import com.pharbers.aqll.util.{DateUtils, StringUtils}
 import com.pharbers.aqll.util.dao._data_connection_basic
 import module.common.alMessage.getMessage
 import play.api.libs.json.JsValue
@@ -154,7 +154,7 @@ object alUserManage {
     val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse("")
     val ID = au match {
         case i if i.equals("update") => (data \ "ID").get.asOpt[String].getOrElse("")
-        case _ => MD5.md5(Account)
+        case _ => StringUtils.md5(Account)
     }
     val isadmin = (data \ "isadmin").get.asOpt[Int].getOrElse(0)
     //println(s"au=$au Account=$Account password=$password Company_Id=$Company_Id ID=$ID isadmin=$isadmin")
@@ -162,7 +162,7 @@ object alUserManage {
         "ID" -> ID,
         "Account" -> Account,
         "Name" -> (data \ "Name").get.asOpt[String].getOrElse(""),
-        "Password" -> (if(au.equals("update")){password}else{MD5.md5(password)}),
+        "Password" -> (if(au.equals("update")){password}else{StringUtils.md5(password)}),
         "auth" -> 0,
         "isadministrator" -> isadmin,
         "Timestamp" -> System.currentTimeMillis()

@@ -2,17 +2,13 @@ package com.pharbers.aqll.module.fopModule
 
 import java.io.File
 
-import play.api.libs.Files
 import java.io.FileInputStream
-
 import play.api.mvc.MultipartFormData
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
 import java.util.UUID
-import com.pharbers.aqll.util.alcmd.scpcmd.scpCmd
-import com.pharbers.aqll.util.{MD5, StringOption}
 import com.pharbers.aqll.util.GetProperties._
 
 object fop {
