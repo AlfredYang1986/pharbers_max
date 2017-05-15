@@ -1,43 +1,20 @@
 package com.pharbers.aqll.common.alCmd
 
-import java.io._
-
-sealed class ShellResultDefines (val t : Int, val d : String)
-
-object ShellResult {
-    case object success extends ShellResultDefines(0, "success")
-    case object failed extends ShellResultDefines(-1, "failed")
-    case object runningException extends ShellResultDefines(-2, "runningException")
-}
+import com.pharbers.aqll.common.alCmd.almodel.alResultDefines
 
 trait shellCmdExce {
 
-    var process : Process = null
-    val cmd : String
+    def process : Process = null
 
-    def excute : Int = {
-        try {
-            val builder = new ProcessBuilder("/bin/bash", "-c", cmd)
-            val process = builder.start()
+    def cmd : String = ""
 
-            val ir = new InputStreamReader(process.getInputStream())
-            val input = new LineNumberReader(ir)
+    def excute : List[alResultDefines]
 
-            var line : String = null
-            process.waitFor()
-            do {
-                line = input.readLine()
-            } while (line != null)
-            if(line.isEmpty) ShellResult.success.t
-            else ShellResult.runningException.t
-        } catch {
-            case _ : IOException => {
-                ShellResult.failed.t
-            }
-
-            case ex : Exception => {
-                ShellResult.failed.t
-            }
-        }
+    def resultDefines(c: Int, n: String, m: String) : List[alResultDefines] = {
+        val result : alResultDefines = new alResultDefines()
+        result.setCode(c)
+        result.setName(n)
+        result.setMessage(m)
+        result :: Nil
     }
 }

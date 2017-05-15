@@ -1,6 +1,6 @@
 package com.pharbers.aqll.common.alCmd.scpcmd
 
-import com.pharbers.aqll.old.calc.alcalc.alcmd.shellCmdExce
+import com.pharbers.aqll.common.alCmd.shellCmdExce
 
 
 /**

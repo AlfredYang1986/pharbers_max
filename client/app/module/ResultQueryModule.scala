@@ -1,15 +1,14 @@
 package module
 
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import com.pharbers.aqll.util.DateUtils
+import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.util.page.Page._
-import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
+import com.pharbers.aqll.common.Page._
+import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.util.StringUtils
+import com.pharbers.aqll.common.alString.alStringOpt
 object ResultQueryModuleMessage {
 	sealed class msg_resultqueryBase extends CommonMessage
 	case class msg_finalresult(data : JsValue) extends msg_resultqueryBase
@@ -26,7 +25,7 @@ object ResultQueryModule extends ModuleTrait {
 	def msg_finalresult_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 
 		var market = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(List())
-		market = market.map(x => StringUtils.removeSpace(x))
+		market = market.map(x => alStringOpt.removeSpace(x))
 		var staend = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(List())
 		val fmomat_f = new SimpleDateFormat("MM/yyyy")
 		var conditions = MongoDBObject()
@@ -50,7 +49,7 @@ object ResultQueryModule extends ModuleTrait {
 
 	def finalResultTempJsValue(x : MongoDBObject) : Map[String,JsValue] = {
 		Map(
-			"Date" -> toJson(DateUtils.Timestamp2yyyyMM(x.getAs[Number]("Date").get.longValue())),
+			"Date" -> toJson(alDateOpt.Timestamp2yyyyMM(x.getAs[Number]("Date").get.longValue())),
 			"Provice" -> toJson(x.getAs[String]("Provice").get),
 			"City" -> toJson(x.getAs[String]("City").get),
 			"Panel_ID" -> toJson(x.getAs[String]("Panel_ID").get),

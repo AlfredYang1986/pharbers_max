@@ -2,7 +2,7 @@ package com.pharbers.aqll.alcalc.alfinaldataprocess
 
 import com.pharbers.aqll.alcalc.alCommon.DefaultData
 import com.pharbers.aqll.alcalc.almodel.AdminHospitalDataBase
-import com.pharbers.aqll.util.{DateUtils, FileUtils, MD5, StringOption}
+import com.pharbers.aqll.util.FileUtils
 import com.mongodb.casbah.Imports._
 import java.util.UUID
 import scala.collection.mutable.ListBuffer

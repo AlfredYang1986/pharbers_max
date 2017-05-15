@@ -3,7 +3,6 @@ package com.pharbers.aqll.alcalc.almain
 import com.pharbers.aqll.alcalc.almodel.westMedicineIncome
 import com.pharbers.aqll.alcalc.alCommon.DefaultData
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
-import com.pharbers.aqll.util.StringOption
 
 /**
   * Created by Alfred on 13/03/2017.

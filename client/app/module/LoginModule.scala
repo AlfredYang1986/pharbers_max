@@ -4,8 +4,8 @@ import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.util.StringUtils
-import com.pharbers.aqll.util.dao.{_data_connection_basic, from}
+import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
+import com.pharbers.aqll.common.alDao.{_data_connection_basic, from}
 import play.api.libs.json.Json._
 import play.api.libs.json._
 
@@ -32,7 +32,7 @@ object LoginModule extends ModuleTrait {
                   if(key.equals("Account")) {
                       Some("User_lst."+key $eq x.toString)
                   }else {
-                      Some("User_lst."+key $eq StringUtils.md5(x.asInstanceOf[String]))
+                      Some("User_lst."+key $eq alEncryptionOpt.md5(x.asInstanceOf[String]))
                   }
               }
 
