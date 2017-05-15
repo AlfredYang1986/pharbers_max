@@ -1,6 +1,6 @@
 package com.pharbers.aqll.common.alCmd.pkgcmd
 
-import com.pharbers.aqll.old.calc.alcalc.alcmd.shellCmdExce
+import com.pharbers.aqll.common.alCmd.shellCmdExce
 
 /**
   * Created by Alfred on 10/03/2017.

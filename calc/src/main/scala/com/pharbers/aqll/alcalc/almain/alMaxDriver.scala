@@ -21,7 +21,7 @@ import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.mail.{Mail, MailAgent, MailToEmail}
-import com.pharbers.aqll.util.{GetProperties, StringOption}
+import com.pharbers.aqll.util.GetProperties
 import com.pharbers.aqll.util.dao._data_connection_cores
 
 import scala.concurrent.Await

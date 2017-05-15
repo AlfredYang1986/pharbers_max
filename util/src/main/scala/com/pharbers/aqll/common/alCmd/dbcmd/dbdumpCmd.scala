@@ -1,6 +1,6 @@
 package com.pharbers.aqll.common.alCmd.dbcmd
 
-import com.pharbers.aqll.old.calc.alcalc.alcmd.shellCmdExce
+import com.pharbers.aqll.common.alCmd.shellCmdExce
 
 case class dbdumpCmd(db: String,
                      coll: String,

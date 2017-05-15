@@ -14,7 +14,7 @@ import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alCommon.DefaultData
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.almodel.westMedicineIncome
-import com.pharbers.aqll.util.{GetProperties, MD5}
+import com.pharbers.aqll.util.GetProperties
 
 import scala.concurrent.stm.{Ref, atomic}
 
