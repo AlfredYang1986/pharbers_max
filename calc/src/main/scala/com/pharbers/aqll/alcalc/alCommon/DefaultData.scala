@@ -3,14 +3,14 @@ package com.pharbers.aqll.alcalc.alCommon
 import java.io.File
 
 import com.pharbers.aqll.alcalc.alFileHandler.alexcel._
-import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.util.fileConfig
 
 object DefaultData {
     def hospdatabase(path: String, company: String) = {
         val hospdata_ch_file = "config/admin/HospDataStruct.xml"
         val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
         val hospdatabase = hospdatainteractparser(hospdata_en_file, hospdata_ch_file)
-        hospdatabase.startParse(GetProperties.fileBase + company + GetProperties.hospitalData + path, 1)
+        hospdatabase.startParse(fileConfig.fileBase + company + fileConfig.hospitalData + path, 1)
         hospdatabase.resultlist
     }
 
@@ -21,7 +21,7 @@ object DefaultData {
 
     def integratedbase(filename: String, company: String) = {
         val integratedbase = integrateddataparser(integratedXmlPath.integratedxmlpath_en, integratedXmlPath.integratedxmlpath_ch)
-        integratedbase.startParse(GetProperties.fileBase + company + GetProperties.outPut + filename, 1)
+        integratedbase.startParse(fileConfig.fileBase + company + fileConfig.outPut + filename, 1)
         integratedbase.resultlist
     }
 

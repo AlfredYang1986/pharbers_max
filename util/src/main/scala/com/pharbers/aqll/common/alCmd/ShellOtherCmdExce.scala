@@ -9,8 +9,6 @@ import com.pharbers.aqll.common.alCmd.almodel.alResultDefines
   */
 class ShellOtherCmdExce() extends shellCmdExce{
 
-  override def cmd: String = ""
-
   override def excute : List[alResultDefines] = {
     try {
       println(cmd)

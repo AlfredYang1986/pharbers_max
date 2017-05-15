@@ -100,6 +100,35 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * 获取所有的成员变量,包括父类
+	 *
+	 * @param clazz
+	 * @return
+	 * @throws Exception
+	 */
+	public static <T> Field[] getClassFieldsAndSuperClassFields(Class<T> clazz) throws Exception {
+
+		Field[] fields = clazz.getDeclaredFields();
+
+		if (clazz.getSuperclass() == null) {
+			throw new Exception(clazz.getName() + "没有父类");
+		}
+
+		Field[] superFields = clazz.getSuperclass().getDeclaredFields();
+
+		Field[] allFields = new Field[fields.length + superFields.length];
+
+		for (int i = 0; i < fields.length; i++) {
+			allFields[i] = fields[i];
+		}
+		for (int i = 0; i < superFields.length; i++) {
+			allFields[fields.length + i] = superFields[i];
+		}
+
+		return allFields;
+	}
+
+	/**
 	 * 反射调用指定对象的父级属性的setter方法
 	 *
 	 * @param <T>

@@ -2,7 +2,7 @@ package com.pharbers.aqll.alcalc.alfinaldataprocess
 
 import com.pharbers.aqll.alcalc.alcmd.dbcmd._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.util.dao._data_connection_cores
+import com.pharbers.aqll.common.alDao._data_connection_cores
 /**
   * Created by LIWEI on 2017/3/20.
   */

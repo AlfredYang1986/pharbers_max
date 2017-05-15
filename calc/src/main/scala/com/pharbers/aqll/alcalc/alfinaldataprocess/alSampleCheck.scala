@@ -1,18 +1,24 @@
 package com.pharbers.aqll.alcalc.alfinaldataprocess
 
+import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.alcalc.alCommon.DefaultData
 import com.pharbers.aqll.alcalc.almodel.AdminHospitalDataBase
-import com.pharbers.aqll.util.FileUtils
-import com.mongodb.casbah.Imports._
 import java.util.UUID
+
 import scala.collection.mutable.ListBuffer
-import com.pharbers.aqll.util.dao._data_connection_cores
 import scala.collection.immutable.List
 import java.util.Date
+
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
-import com.pharbers.aqll.util.GetProperties._
 import java.io._
+
+import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.common.alDate.scala.alDateOpt
+import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
+import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
+import com.pharbers.aqll.old.calc.util.{DateUtils, StringOption}
+import com.pharbers.aqll.util.fileConfig._
 /**
   * Created by liwei on 2017/3/27.
   */
@@ -33,7 +39,7 @@ class alSampleCheck(company : String, filename : String, uname: String) {
 
       Market_Current.foreach{mc =>
 
-        val hospdata = DefaultData.hospdatabase(MD5.md5(company+date._1.toString.substring(0,4)+StringOption.takeStringSpace(mc._1)), company)
+        val hospdata = DefaultData.hospdatabase(alEncryptionOpt.md5(company+date._1.toString.substring(0,4)+StringOption.takeStringSpace(mc._1)), company)
         var HospNum,ProductNum,Sales,Units = 0.0
         val mismatch = new ListBuffer[List[String]]()
 
@@ -57,13 +63,13 @@ class alSampleCheck(company : String, filename : String, uname: String) {
         }
         val lsb = new ListBuffer[Map[String,String]]()
         mismatch.toList.foreach(x => lsb.append(Map("Hosp_name" -> x.head,"Province" -> x.tail.head,"City" -> x.tail.tail.head,"City_level" -> x.tail.tail.tail.head)))
-        _data_connection_cores.getCollection("FactResult").findAndRemove(new MongoDBObject(MongoDBObject("Company" -> company,"Market" -> mc._1,"Date" -> DateUtils.yyyyMM2Long(date._1.toString))))
-        _data_connection_cores.getCollection("FactResult").insert(Map("ID" -> MD5.md5(UUID.randomUUID().toString),"Date" -> DateUtils.yyyyMM2Long(date._1.toString),"Market" -> mc._1,"Company" -> company,"HospNum" -> HospNum.toInt,"ProductNum" -> ProductNum.toInt,"MarketNum" -> Market_Current.size,"Units" -> Units,"Sales" -> Sales,"Mismatch" -> lsb.toList,"CreateDate" -> DateUtils.Date2Long(new Date())))
+        _data_connection_cores.getCollection("FactResult").findAndRemove(new MongoDBObject(MongoDBObject("Company" -> company,"Market" -> mc._1,"Date" -> alDateOpt.yyyyMM2Long(date._1.toString))))
+        _data_connection_cores.getCollection("FactResult").insert(Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString),"Date" -> alDateOpt.yyyyMM2Long(date._1.toString),"Market" -> mc._1,"Company" -> company,"HospNum" -> HospNum.toInt,"ProductNum" -> ProductNum.toInt,"MarketNum" -> Market_Current.size,"Units" -> Units,"Sales" -> Sales,"Mismatch" -> lsb.toList,"CreateDate" -> DateUtils.Date2Long(new Date())))
         //println(s"日期：${date._1} 市场：${mc._1} 公司：${company} 医院数量：${HospNum.toInt} 产品数量：${ProductNum.toInt} 市场数量：${Market_Current.size} 销售额：${Sales} 销售数量：${Units} 未匹配：${mismatch.toList.size}")
       }
     }
-    FileUtils.delFolder(fileBase+company+client_cpa_file)
-    FileUtils.delFolder(fileBase+company+client_gycx_file)
+    alFileOpt(fileBase+company+client_cpa_file).removeCurFiles
+    alFileOpt(fileBase+company+client_gycx_file).removeCurFiles
 //    FileUtils.delFolder(fileBase+company+manage_file)
   } catch {
     case e: Exception => println(e.getMessage)

@@ -1,9 +1,6 @@
 package com.pharbers.aqll.alcalc.alCommon
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.pharbers.aqll.util.GetProperties
-import com.sun.mail.imap.protocol.BODY
+import com.pharbers.aqll.util.mailConfig
 import io.swagger.client.ApiException
 import io.swagger.client.api.AuthenticationApi
 import io.swagger.client.model.Token
@@ -18,9 +15,9 @@ trait EasemobAPI {
 
 object alOrgInfo {
 
-	val alOrgName = GetProperties.org_name
+	val alOrgName = mailConfig.org_name
 
-	val alAppName = GetProperties.app_name
+	val alAppName = mailConfig.app_name
 }
 
 object ResponseHandler {
@@ -62,9 +59,9 @@ object ResponseHandler {
 }
 
 object TokenUtil {
-	val grant_type = GetProperties.grant_type
-	val client_id = GetProperties.client_id
-	val client_secret = GetProperties.client_secret
+	val grant_type = mailConfig.grant_type
+	val client_id = mailConfig.client_id
+	val client_secret = mailConfig.client_secret
 	val body = new Token().clientId(client_id).grantType(grant_type).clientSecret(client_secret)
 	val api = new AuthenticationApi
 	var access_token = ""

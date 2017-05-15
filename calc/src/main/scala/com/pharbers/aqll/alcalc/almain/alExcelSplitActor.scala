@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, FSM, Props}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alExcelSplitJobStates._
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.util.clusterListenerConfig._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -39,7 +39,7 @@ class alExcelSplitActor extends Actor
         case Event(spliting_job(s, c), _) => {
             val result = s.result
                 //"akka.tcp://calc@127.0.0.1:2551/user/splitreception"
-            val singleton = context.actorSelection(GetProperties.singletonPaht)
+            val singleton = context.actorSelection(singletonPaht)
                 //context.actorSelection("akka://calc/user/splitreception")
             val (p, sb) = result.map (x => x).getOrElse(throw new Exception("cal error"))
             c.uuid = p.toString
