@@ -8,11 +8,8 @@ import com.pharbers.aqll.common.alCmd.almodel.alResultDefines
 
 class ShellPythonCmdExce() extends shellCmdExce {
 
-  override def cmd: String = ""
-
   override def excute : List[alResultDefines] = {
     try {
-      println(cmd)
       val builder = new ProcessBuilder("/bin/bash", "-c", cmd)
       val process = builder.start()
       val ir = new InputStreamReader(process.getInputStream())
