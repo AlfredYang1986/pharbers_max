@@ -5,7 +5,6 @@ import com.pharbers.aqll.old.calc.alcalc.almodel.{AdminHospitalData, AdminHospit
 
 trait fileinteractparser extends interactparser {
 	override def handleOneTarget(target : target_type) = Unit
-	private implicit def cast(c: BaseExcle) = c -> c.getClass
 }
 
 case class hospdatainteractparser(xml_file_name: String, xml_file_name_ch : String) extends fileinteractparser {
