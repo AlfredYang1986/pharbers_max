@@ -1,4 +1,4 @@
-package com.pharbers.aqll.util.dao
+package com.pharbers.aqll.util.page
 
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson

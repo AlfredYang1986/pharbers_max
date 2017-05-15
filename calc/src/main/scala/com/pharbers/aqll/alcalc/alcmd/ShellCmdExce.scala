@@ -26,27 +26,25 @@ trait shellCmdExce {
             println(cmd)
             val builder = new ProcessBuilder("/bin/bash", "-c", cmd)
             val process = builder.start()
-
             val ir = new InputStreamReader(process.getInputStream())
             val input = new LineNumberReader(ir)
 
             var line : String = null
             process.waitFor()
-
+//            val strbuff: StringBuffer = new StringBuffer()
 //            do {
 //                line = input.readLine()
-//                println(line)
+//                if(line!=null)
+//                    println(line)
+//                    strbuff.append(line)
 //
 //            } while (line != null)
-
             ShellResult.success.t
-
         } catch {
             case _ : IOException => {
                 println("io exception occurs")
                 ShellResult.faild.t
             }
-
             case ex : Exception => {
                 println(ex.getMessage)
                 ShellResult.faild.t
