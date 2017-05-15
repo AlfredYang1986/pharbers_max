@@ -11,11 +11,13 @@ import com.pharbers.aqll.alcalc.alemchat.alIMUser
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alFileExport.alFileExport
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{check_excel_jobs, commit_finalresult_jobs, filter_excel_jobs}
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
-import com.pharbers.aqll.util.GetProperties._
 import spray.json.DefaultJsonProtocol
 import com.pharbers.aqll.alcalc.alfinaldataprocess.{alFilesExport, alSampleCheck}
 
 import scala.concurrent.ExecutionContext
+
+import com.pharbers.aqll.util.fileConfig._
+import com.pharbers.aqll.util.clusterListenerConfig._
 
 /**
   * Created by qianpeng on 2017/3/26.

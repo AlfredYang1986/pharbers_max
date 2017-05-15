@@ -16,8 +16,8 @@ import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.alPkgJob
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.util.GetProperties
-import com.pharbers.aqll.util.dao._data_connection_cores
+import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.util.clusterListenerConfig._
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -140,7 +140,7 @@ class alCalcActor extends Actor
 //                    (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
 //                }).toList
                 r.isSumed = true
-                val st = context.actorSelection(GetProperties.singletonPaht)
+                val st = context.actorSelection(singletonPaht)
 
                 r.subs.foreach { x =>
                     st ! calc_sum_result(r.parent, x.uuid, x.sum)
@@ -162,7 +162,7 @@ class alCalcActor extends Actor
 	        if(data.faultTimes == data.maxTimeTry) {
 		        log.info(s"concert_calc_avg -- 该UUID: ${data.uuid},在尝试性计算3次后，其中的某个线程计算失败，正在结束停止计算！")
 		        // TODO : 这块儿发送消息告诉所有在计算这个文件的Actor停止计算
-                context.actorSelection(GetProperties.singletonPaht) ! crash_calc(data.uuid, "concert_calc_avg计算crash")
+                context.actorSelection(singletonPaht) ! crash_calc(data.uuid, "concert_calc_avg计算crash")
                 context.unwatch(concert_router)
 	        }else {
 		        log.info(s"concert_calc_avg -- 尝试${data.faultTimes}次")
@@ -210,7 +210,7 @@ class alCalcActor extends Actor
 //                r.finalUnit = r.subs.map(_.finalUnit).sum
                 r.isCalc = true
 
-                val st = context.actorSelection(GetProperties.singletonPaht)
+                val st = context.actorSelection(singletonPaht)
 
                 r.subs.foreach { x =>
                     st ! calc_final_result(r.parent, x.uuid, x.finalValue, x.finalUnit)
@@ -258,7 +258,7 @@ class alCalcActor extends Actor
 	        if(data.faultTimes == data.maxTimeTry) {
 		        println(s"concert_calc -- 该UUID: ${data.uuid},在尝试性计算3次后，其中的某个线程计算失败，正在结束停止计算！")
                 context.unwatch(concert_router)
-                context.actorSelection(GetProperties.singletonPaht) ! crash_calc(data.uuid, "concert_calc计算crash")
+                context.actorSelection(singletonPaht) ! crash_calc(data.uuid, "concert_calc计算crash")
 	        }else {
 		        println(s"concert_calc -- 尝试${data.faultTimes}次")
 		        self ! calc_job(maxProperty, data)

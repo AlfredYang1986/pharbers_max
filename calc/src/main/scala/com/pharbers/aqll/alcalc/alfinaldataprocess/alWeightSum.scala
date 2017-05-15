@@ -4,7 +4,8 @@ import java.util.UUID
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
+import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
+import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 /**
 	* Created by LIWEI on 17-3-17.
 	*/
@@ -66,9 +67,9 @@ object alWeightSum {
 			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1,"City" -> 1))
 		}
 		// TODO : 还原省份|城市权和索引，其他字段保持不变
-		_data_connection_cores.getCollection(company).insert(Map("ID" -> MD5.md5(UUID.randomUUID().toString) ,"Provice" -> x.get("Provice"),"City" -> x.get("City"),"Panel_ID" -> x.get("Panel_ID"),"Market" -> x.get("Market"),"Product" -> x.get("Product"),"f_units" -> f_units_sum,"f_sales" -> f_sales_sum,"Date" -> x.get("Date"),"hosp_Index" -> x.get("hosp_Index"),
-			"prov_Index" -> MD5.md5(x.get("Provice")+x.get("Market").toString+x.get("Product")+x.get("Date")),
-			"city_Index" -> MD5.md5(x.get("Provice")+x.get("City").toString+x.get("Market")+x.get("Product")+x.get("Date"))
+		_data_connection_cores.getCollection(company).insert(Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString) ,"Provice" -> x.get("Provice"),"City" -> x.get("City"),"Panel_ID" -> x.get("Panel_ID"),"Market" -> x.get("Market"),"Product" -> x.get("Product"),"f_units" -> f_units_sum,"f_sales" -> f_sales_sum,"Date" -> x.get("Date"),"hosp_Index" -> x.get("hosp_Index"),
+			"prov_Index" -> alEncryptionOpt.md5(x.get("Provice")+x.get("Market").toString+x.get("Product")+x.get("Date")),
+			"city_Index" -> alEncryptionOpt.md5(x.get("Provice")+x.get("City").toString+x.get("Market")+x.get("Product")+x.get("Date"))
 		))
 	}
 }

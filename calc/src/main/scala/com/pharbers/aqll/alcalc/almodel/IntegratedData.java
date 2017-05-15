@@ -1,7 +1,8 @@
 package com.pharbers.aqll.alcalc.almodel;
 
-import com.pharbers.aqll.util.StringOption;
-import com.pharbers.aqll.util.export.Excel;
+
+import com.pharbers.aqll.common.alFileHandler.alExcelOpt.java.Excel;
+import com.pharbers.aqll.old.calc.util.StringOption;
 
 import java.io.Serializable;
 
