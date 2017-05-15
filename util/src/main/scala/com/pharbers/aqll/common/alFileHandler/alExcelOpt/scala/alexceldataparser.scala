@@ -1,5 +1,7 @@
 package com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala
 
+import java.io.FileOutputStream
+
 import akka.actor.ActorRef
 import com.pharbers.aqll.common.alFileHandler.alFileHandler
 
@@ -14,6 +16,15 @@ class alExcelDataParser(target: BaseExcle, xml_file_name : String, xml_file_name
 	override def prase(path : String)(x : Any) : Any = {
 		parser.startParse(path)
 		this
+	}
+}
+
+class alExcelWriteDataParser[T](lst: List[T], path: String) extends alFileHandler with writeparser[T]{
+	override def write: Unit = {
+		val out = new FileOutputStream(path)
+		getWorkBook(lst).write(out)
+		out.flush
+		out.close
 	}
 }
 
