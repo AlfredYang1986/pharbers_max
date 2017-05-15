@@ -6,7 +6,7 @@ trait shellCmdExce {
 
     def process : Process = null
 
-    def cmd : String = ""
+    val cmd : String = ""
 
     def excute : List[alResultDefines]
 
