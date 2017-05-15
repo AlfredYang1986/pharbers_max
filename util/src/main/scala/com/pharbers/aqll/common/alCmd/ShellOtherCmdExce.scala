@@ -1,13 +1,12 @@
 package com.pharbers.aqll.common.alCmd
 
 import java.io.{IOException, InputStreamReader, LineNumberReader}
-
 import com.pharbers.aqll.common.alCmd.almodel.alResultDefines
 
 /**
   * Created by liwei on 2017/5/15.
   */
-class ShellOtherCmdExce() extends shellCmdExce{
+trait ShellOtherCmdExce extends ShellCmdExce{
 
   override def excute : List[alResultDefines] = {
     try {
