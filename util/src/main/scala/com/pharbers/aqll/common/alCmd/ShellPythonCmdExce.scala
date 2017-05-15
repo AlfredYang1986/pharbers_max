@@ -5,8 +5,7 @@ import com.pharbers.aqll.common.alCmd.almodel.alResultDefines
 /**
   * Created by liwei on 2017/5/15.
   */
-
-class ShellPythonCmdExce() extends shellCmdExce {
+trait ShellPythonCmdExce extends ShellCmdExce {
 
   override def excute : List[alResultDefines] = {
     try {
@@ -17,7 +16,6 @@ class ShellPythonCmdExce() extends shellCmdExce {
       var line : String = null
       process.waitFor()
       val strbuff : StringBuffer = new StringBuffer()
-
       do {
         line = input.readLine()
         if(line!=null)
