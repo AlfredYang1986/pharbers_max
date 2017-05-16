@@ -2,11 +2,13 @@ package com.pharbers.aqll.stub
 
 import com.google.gson.Gson
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
+import com.pharbers.aqll.common.alDao._data_connection_cores
 
 /**
   * Created by Alfred on 09/03/2017.
   */
 object stub_test_1 extends App {
+
 	//{
 	//// test case 1 : reading excel file and storage and portion
 	//val s = alStorage(config/new_test/2016-01.xlsx""", new alIntegrateddataparser)
