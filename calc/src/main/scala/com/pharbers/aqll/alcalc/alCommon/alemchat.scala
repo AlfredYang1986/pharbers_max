@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.alCommon
 
-import com.pharbers.aqll.alcalc.alCommon.mailConfig
+import com.pharbers.aqll.alcalc.alCommon.emChatConfig._
 import io.swagger.client.ApiException
 import io.swagger.client.api.AuthenticationApi
 import io.swagger.client.model.Token
@@ -15,9 +15,9 @@ trait EasemobAPI {
 
 object alOrgInfo {
 
-	val alOrgName = mailConfig.org_name
+	val alOrgName = orgName
 
-	val alAppName = mailConfig.app_name
+	val alAppName = appName
 }
 
 object ResponseHandler {
@@ -59,9 +59,9 @@ object ResponseHandler {
 }
 
 object TokenUtil {
-	val grant_type = mailConfig.grant_type
-	val client_id = mailConfig.client_id
-	val client_secret = mailConfig.client_secret
+	val grant_type = grantType
+	val client_id = clientId
+	val client_secret = clientSecret
 	val body = new Token().clientId(client_id).grantType(grant_type).clientSecret(client_secret)
 	val api = new AuthenticationApi
 	var access_token = ""
