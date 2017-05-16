@@ -46,6 +46,7 @@ POST    /usermanage/user/query      controllers.UserManageController.userManageU
 POST    /usermanage/user/delete     controllers.UserManageController.userManageUserDeleteAjax
 POST    /usermanage/user/findOne    controllers.UserManageController.userManageUserFindOneAjax
 POST    /usermanage/user/save       controllers.UserManageController.userManageUserSaveAjax
+POST    /uploadfiles/removefiles    controllers.FilesUploadController.removefilesAjaxCall
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
 POST	/pharbers/files/upload		controllers.foptController.uploadFile
