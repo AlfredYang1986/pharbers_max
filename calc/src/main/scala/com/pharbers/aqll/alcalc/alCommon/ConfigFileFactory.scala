@@ -63,12 +63,6 @@ object mailConfig {
 	// TODO : Mail发送消息
 	val mail_context = mail.getProperties("Mail.context")
 	val mail_subject = mail.getProperties("Mail.subject")
-	// TODO : EmChat的Org
-	val org_name = mail.getProperties("EmChat.org_name")
-	val app_name = mail.getProperties("EmChat.app_name")
-	val grant_type = mail.getProperties("EmChat.grant_type")
-	val client_id = mail.getProperties("EmChat.client_id")
-	val client_secret = mail.getProperties("EmChat.client_secret")
 }
 object serverConfig {
 	val server: IConfigFactory = ConfigFileFactory.getServerConfigFactory
