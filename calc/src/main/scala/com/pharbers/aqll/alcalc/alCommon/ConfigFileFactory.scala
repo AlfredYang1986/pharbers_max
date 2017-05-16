@@ -6,12 +6,17 @@ import com.typesafe.config.ConfigFactory
   * Created by clock on 2017/5/15.
   */
 object msdConfig {
-	val msd: IConfigFactory = ConfigFileFactory.getMsdConfigFactory
+	val msd: IConfigFactory = ConfigFileFactory.getDBConfigFactory
 
-	def restoredb_ip = msd.getProperties("DataBase.dbrestore-ip")
-	// TODO : 数据库备份还原IP
-	def dumpdb_ip = msd.getProperties("DataBase.dbdump-ip")
-	def localrestoredb_ip = msd.getProperties("DataBase.dblocalrestore-ip")
+	val dbhost = msd.getProperties("database.dbhost")
+	val dbport = msd.getProperties("database.dbport")
+	val dbuser = msd.getProperties("database.dbuser")
+	val dbpwd = msd.getProperties("database.dbpwd")
+	val db1 = msd.getProperties("database.db1")
+	val db2 = msd.getProperties("database.db2")
+	val dumpdb_ip = msd.getProperties("database.dbdump_ip")
+	val restoredb_ip = msd.getProperties("database.dbrestore_ip")
+	val localrestoredb_ip = msd.getProperties("database.dblocalrestore_ip")
 }
 
 object fileConfig {
@@ -71,10 +76,10 @@ object clusterListenerConfig {
   * The singleton abstract factory is used to generate the specified configuration file factory.
   */
 object ConfigFileFactory {
-	val configFileMap = Map("msd" -> new MsdConfigFactory("msd.conf"),"mail" -> new MailConfigFactory("mail.conf"),"file" -> new FileConfigFactory("File.conf"),"cluster" -> new ClusterListenerConfigFactory("cluster-listener.conf"))
+	val configFileMap = Map("database" -> new MsdConfigFactory("database.conf"),"mail" -> new MailConfigFactory("mail.conf"),"file" -> new FileConfigFactory("File.conf"),"cluster" -> new ClusterListenerConfigFactory("cluster-listener.conf"))
 
-	def getMsdConfigFactory = {
-		configFileMap("msd")
+	def getDBConfigFactory = {
+		configFileMap("database")
 	}
 
 	def getFileConfigFactory = {
