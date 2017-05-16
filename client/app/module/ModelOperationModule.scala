@@ -6,7 +6,7 @@ import com.pharbers.aqll.common.HTTP
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alDao._data_connection_cores
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.aqll.common.alConfig.alGetProperties._
+import com.pharbers.aqll.common.akkaConfig._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.common.{alOperation, alRestDate}

@@ -3,7 +3,7 @@ package module
 import com.mongodb.casbah.Imports.MongoDBObject
 import com.pharbers.aqll.common.HTTP
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.common.alConfig.alGetProperties._
+import com.pharbers.aqll.common.akkaConfig._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
