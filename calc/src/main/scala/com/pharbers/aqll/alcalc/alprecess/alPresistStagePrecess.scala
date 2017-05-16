@@ -5,7 +5,7 @@ import java.util.UUID
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alFileHandler.altext.{FileOpt, alTextSync}
 import com.pharbers.aqll.alcalc.alstages.alStage
-import com.pharbers.aqll.util.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 
 /**
   * Created by Alfred on 10/03/2017.

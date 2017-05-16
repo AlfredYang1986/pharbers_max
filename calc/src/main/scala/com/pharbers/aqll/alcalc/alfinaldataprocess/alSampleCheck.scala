@@ -18,7 +18,7 @@ import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.old.calc.util.{DateUtils, StringOption}
-import com.pharbers.aqll.util.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 /**
   * Created by liwei on 2017/3/27.
   */

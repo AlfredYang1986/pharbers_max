@@ -7,8 +7,6 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.routing.RoundRobinPool
 import akka.pattern.ask
 import akka.util.Timeout
-import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
-import com.pharbers.aqll.alcalc.alcmd.scpcmd.scpCmd
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alRestoreColl
@@ -21,8 +19,8 @@ import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.mail.{Mail, MailAgent, MailToEmail}
-import com.pharbers.aqll.util.fileConfig._
-import com.pharbers.aqll.util.mailConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.mailConfig._
 
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic
@@ -32,6 +30,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck
 import com.pharbers.aqll.alcalc.allog.alLoggerMsgTrait
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
+import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
 import com.pharbers.aqll.old.calc.util.StringOption
 

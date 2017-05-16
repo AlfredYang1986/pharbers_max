@@ -3,7 +3,7 @@ package com.pharbers.aqll.alcalc.alCommon
 import java.io.File
 
 import com.pharbers.aqll.alcalc.alFileHandler.alexcel._
-import com.pharbers.aqll.util.fileConfig
+import com.pharbers.aqll.alcalc.alCommon.fileConfig
 
 object DefaultData {
     def hospdatabase(path: String, company: String) = {

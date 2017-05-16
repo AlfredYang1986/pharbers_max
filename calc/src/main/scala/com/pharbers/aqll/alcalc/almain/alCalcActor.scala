@@ -5,9 +5,8 @@ import java.util.UUID
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alcalc.alcmd.pkgcmd.unPkgCmd
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
-import com.pharbers.aqll.alcalc.alfinaldataprocess.{alDumpcollScp, alLocalRestoreColl, alRestoreColl}
+import com.pharbers.aqll.alcalc.alfinaldataprocess.{alDumpcollScp, alRestoreColl}
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates._
 import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_avg_job, calc_job, concert_calc_result, crash_calc, _}
@@ -16,8 +15,9 @@ import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.alPkgJob
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.common.alCmd.pkgcmd.unPkgCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
-import com.pharbers.aqll.util.clusterListenerConfig._
+import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref

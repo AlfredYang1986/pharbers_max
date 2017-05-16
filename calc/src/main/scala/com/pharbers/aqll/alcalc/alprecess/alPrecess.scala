@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alcalc.alprecess
 
-import com.pharbers.aqll.alcalc.alcmd.shellCmdExce
 import com.pharbers.aqll.alcalc.alstages.alStage
+import com.pharbers.aqll.common.alCmd.alShellCmdExce
 
 /**
   * Created by Alfred on 10/03/2017.
@@ -15,5 +15,5 @@ trait alPrecess {
 }
 
 trait alFilePrecess {
-    def precess(s: shellCmdExce)
+    def precess(s: alShellCmdExce)
 }
