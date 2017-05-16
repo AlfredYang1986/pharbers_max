@@ -15,7 +15,7 @@ import com.pharbers.aqll.alcalc.alCommon.DefaultData
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.almodel.westMedicineIncome
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
-import com.pharbers.aqll.util.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 
 import scala.concurrent.stm.{Ref, atomic}
 

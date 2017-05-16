@@ -2,7 +2,7 @@ package com.pharbers.aqll.alcalc.alfinaldataprocess
 
 import com.pharbers.aqll.common.alCmd.dbcmd.dbdumpCmd
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
-import com.pharbers.aqll.util.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 /**
   * Created by Wli on 17-3-17.
   */

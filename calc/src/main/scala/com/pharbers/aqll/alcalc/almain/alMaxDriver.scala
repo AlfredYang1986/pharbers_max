@@ -19,8 +19,8 @@ import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.mail.{Mail, MailAgent, MailToEmail}
-import com.pharbers.aqll.util.fileConfig._
-import com.pharbers.aqll.util.mailConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.mailConfig._
 
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic

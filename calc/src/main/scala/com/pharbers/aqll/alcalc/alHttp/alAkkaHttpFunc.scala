@@ -15,8 +15,8 @@ import com.pharbers.aqll.alcalc.alfinaldataprocess.{alFilesExport, alSampleCheck
 import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 
 import scala.concurrent.ExecutionContext
-import com.pharbers.aqll.util.fileConfig._
-import com.pharbers.aqll.util.clusterListenerConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
 
 /**
   * Created by qianpeng on 2017/3/26.
