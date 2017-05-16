@@ -1,6 +1,6 @@
 package com.pharbers.aqll.old.calc.alcalc.almodel;
 
-import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.BaseExcle;
+import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.BaseExcel;
 
 import java.io.Serializable;
 
@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @author Faiz
  *
  */
-public class AdminHospitalData extends BaseExcle implements Serializable {
+public class AdminHospitalData extends BaseExcel implements Serializable {
 	private String company;
 
     private Integer uploadYear = 0;

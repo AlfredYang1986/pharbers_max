@@ -1,10 +1,11 @@
 package com.pharbers.aqll.alcalc.alSchedulerJobs
 
-import java.util.{Calendar, Date}
+import java.util.{Calendar}
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alcalc.alFileHandler.altext.FileOpt
 import com.pharbers.aqll.alcalc.alCommon.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.timingConfig._
 
 /**
   * Created by qianpeng on 2017/3/27.

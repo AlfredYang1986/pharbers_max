@@ -1,7 +1,5 @@
 package com.pharbers.aqll.common.alFileHandler
 
-import org.apache.poi.ss.usermodel.Workbook
-
 import scala.collection.mutable.ListBuffer
 
 trait alFileHandler {
