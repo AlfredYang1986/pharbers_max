@@ -18,8 +18,8 @@ import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
-import com.pharbers.aqll.util.fileConfig._
-import com.pharbers.aqll.util.clusterListenerConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref

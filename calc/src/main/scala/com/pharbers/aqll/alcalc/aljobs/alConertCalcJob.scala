@@ -3,7 +3,7 @@ package com.pharbers.aqll.alcalc.aljobs
 import com.pharbers.aqll.alcalc.almain.alShareData
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines.{do_calc, do_map, presist_data, restore_data}
 import com.pharbers.aqll.alcalc.alstages.alStage
-import com.pharbers.aqll.util.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 
 /**
   * Created by Alfred on 13/03/2017.

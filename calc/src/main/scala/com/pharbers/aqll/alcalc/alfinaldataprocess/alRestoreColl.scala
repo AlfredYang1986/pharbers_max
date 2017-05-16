@@ -3,7 +3,7 @@ package com.pharbers.aqll.alcalc.alfinaldataprocess
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.common.alCmd.dbcmd.dbrestoreCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
-import com.pharbers.aqll.util.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 /**
   * Created by LIWEI on 2017/3/20.
   */

@@ -17,7 +17,7 @@ import com.pharbers.aqll.alcalc.aljobs.alPkgJob
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.common.alCmd.pkgcmd.unPkgCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
-import com.pharbers.aqll.util.clusterListenerConfig._
+import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref

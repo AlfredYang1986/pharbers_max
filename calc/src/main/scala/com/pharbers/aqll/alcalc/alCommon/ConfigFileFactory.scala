@@ -1,4 +1,4 @@
-package com.pharbers.aqll.util
+package com.pharbers.aqll.alcalc.alCommon
 
 import com.typesafe.config.ConfigFactory
 
