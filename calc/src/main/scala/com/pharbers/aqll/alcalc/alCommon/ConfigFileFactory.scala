@@ -5,20 +5,34 @@ import com.typesafe.config.ConfigFactory
 /**
   * Created by clock on 2017/5/15.
   */
-object msdConfig {
-	val msd: IConfigFactory = ConfigFileFactory.getDBConfigFactory
+object clusterListenerConfig {
+	val clusterListener: IConfigFactory = ConfigFileFactory.getClusterListenerConfigFactory
 
-	val dbhost = msd.getProperties("database.dbhost")
-	val dbport = msd.getProperties("database.dbport")
-	val dbuser = msd.getProperties("database.dbuser")
-	val dbpwd = msd.getProperties("database.dbpwd")
-	val db1 = msd.getProperties("database.db1")
-	val db2 = msd.getProperties("database.db2")
-	val dumpdb_ip = msd.getProperties("database.dbdump_ip")
-	val restoredb_ip = msd.getProperties("database.dbrestore_ip")
-	val localrestoredb_ip = msd.getProperties("database.dblocalrestore_ip")
+	// TODO : Akka singleton地址
+	val singletonPaht = clusterListener.getProperties("cluster-listener.Node.main")
 }
+object databaseConfig {
+	val db: IConfigFactory = ConfigFileFactory.getDBConfigFactory
 
+	val dbhost = db.getProperties("database.dbhost")
+	val dbport = db.getProperties("database.dbport").toInt
+	val dbuser = db.getProperties("database.dbuser")
+	val dbpwd = db.getProperties("database.dbpwd")
+	val db1 = db.getProperties("database.db1")
+	val db2 = db.getProperties("database.db2")
+	val dumpdb_ip = db.getProperties("database.dbdump_ip")
+	val restoredb_ip = db.getProperties("database.dbrestore_ip")
+	val localrestoredb_ip = db.getProperties("database.dblocalrestore_ip")
+}
+object emChatConfig {
+	val emChat: IConfigFactory = ConfigFileFactory.getEmChatConfigFactory
+
+	val orgName = emChat.getProperties("EmChat.org_name")
+	val appName = emChat.getProperties("EmChat.app_name")
+	val grantType = emChat.getProperties("EmChat.grant_type")
+	val clientId = emChat.getProperties("EmChat.client_id")
+	val clientSecret = emChat.getProperties("EmChat.client_secret")
+}
 object fileConfig {
 	val file: IConfigFactory = ConfigFileFactory.getFileConfigFactory
 
@@ -42,13 +56,7 @@ object fileConfig {
 	val fileTarGz = file.getProperties("SCP.File_Tar_Gz")
 	val scpPath = program + file.getProperties("SCP.scp_path")
 	val dumpdb = file.getProperties("SCP.dumpdb")
-	// TODO : 任务删除指定文件的时间 Hours = 3 小时 Minutes = 0 分钟 Seconds = 10 秒
-	val hours = file.getProperties("SCP.RemoveTime.Hours").toInt
-	val minutes = file.getProperties("SCP.RemoveTime.Minutes").toInt
-	val seconds = file.getProperties("SCP.RemoveTime.Seconds").toInt
 }
-
-
 object mailConfig {
 	val mail: IConfigFactory = ConfigFileFactory.getMailConfigFactory
 
@@ -62,36 +70,60 @@ object mailConfig {
 	val client_id = mail.getProperties("EmChat.client_id")
 	val client_secret = mail.getProperties("EmChat.client_secret")
 }
+object serverConfig {
+	val server: IConfigFactory = ConfigFileFactory.getServerConfigFactory
 
+	// TODO : Server的用户
+	val serverUser = server.getProperties("Server.user")
+	val serverPass = server.getProperties("Server.pass")
+	// TODO : ServerHost
+	val serverHost215 = server.getProperties("Server.Host.aliyun215")
+	val serverHost106 = server.getProperties("Server.Host.aliyun106")
+	val serverHost50 = server.getProperties("Server.Host.aliyun50")
+}
+object timingConfig {
+	val timing: IConfigFactory = ConfigFileFactory.getTimingConfigFactory
 
-
-object clusterListenerConfig {
-	val clusterListener: IConfigFactory = ConfigFileFactory.getClusterListenerConfigFactory
-
-	// TODO : Akka singleton地址
-	val singletonPaht = clusterListener.getProperties("cluster-listener.Node.main")
+	// TODO : 任务删除指定文件的时间 Hours = 3 小时 Minutes = 0 分钟 Seconds = 10 秒
+	val hours = timing.getProperties("Timing.Hours").toInt
+	val minutes = timing.getProperties("Timing.Minutes").toInt
+	val seconds = timing.getProperties("Timing.Seconds").toInt
 }
 
 /**
   * The singleton abstract factory is used to generate the specified configuration file factory.
   */
 object ConfigFileFactory {
-	val configFileMap = Map("database" -> new MsdConfigFactory("database.conf"),"mail" -> new MailConfigFactory("mail.conf"),"file" -> new FileConfigFactory("File.conf"),"cluster" -> new ClusterListenerConfigFactory("cluster-listener.conf"))
-
-	def getDBConfigFactory = {
-		configFileMap("database")
-	}
-
-	def getFileConfigFactory = {
-		configFileMap("file")
-	}
-
-	def getMailConfigFactory = {
-		configFileMap("mail")
-	}
+	val configFileMap = Map(
+		"cluster" -> new ClusterListenerConfigFactory("cluster-listener.conf"),
+		"db" -> new DBConfigFactory("database.conf"),
+		"emChat" -> new EmChatConfigFactory("emChat.conf"),
+		"file" -> new FileConfigFactory("file.conf"),
+		"mail" -> new MailConfigFactory("mail.conf"),
+		"server" -> new ServerConfigFactory("server.conf"),
+		"timing" -> new TimingConfigFactory("timing.conf")
+	)
 
 	def getClusterListenerConfigFactory = {
 		configFileMap("cluster")
+	}
+	def getDBConfigFactory = {
+		configFileMap("db")
+	}
+	def getEmChatConfigFactory = {
+		configFileMap("emChat")
+	}
+	def getFileConfigFactory = {
+		configFileMap("file")
+	}
+	def getMailConfigFactory = {
+		configFileMap("mail")
+	}
+	def getServerConfigFactory = {
+	configFileMap("server")
+	}
+	def getTimingConfigFactory = {
+	configFileMap("timing")
 	}
 }
 
@@ -102,34 +134,6 @@ trait IConfigFactory {
 	def getProperties(configKey: String):String
 }
 
-class MsdConfigFactory(configFileName: String) extends IConfigFactory {
-	val config = ConfigFactory.load(configFileName)
-
-	override def getProperties(configKey: String):String = {
-		config.getString(configKey)
-	}
-}
-
-class MailConfigFactory(configFileName: String) extends IConfigFactory {
-	val config = ConfigFactory.load(configFileName)
-
-	override def getProperties(configKey: String):String = {
-		config.getString(configKey)
-	}
-}
-
-class FileConfigFactory(configFileName: String) extends IConfigFactory {
-	val config = ConfigFactory.load(configFileName)
-
-	override def getProperties(configKey: String):String = {
-		if(configKey.equals("SCP.RemoveTime.Hours")||configKey.equals("SCP.RemoveTime.Minutesy")||configKey.equals("SCP.RemoveTime.Seconds")){
-			config.getInt(configKey).toString
-		}else{
-			config.getString(configKey)
-		}
-	}
-}
-
 class ClusterListenerConfigFactory(configFileName: String) extends IConfigFactory {
 	val config = ConfigFactory.load(configFileName)
 
@@ -137,3 +141,51 @@ class ClusterListenerConfigFactory(configFileName: String) extends IConfigFactor
 		config.getString(configKey)
 	}
 }
+class DBConfigFactory(configFileName: String) extends IConfigFactory {
+	val config = ConfigFactory.load(configFileName)
+
+	override def getProperties(configKey: String):String = {
+		if(configKey.equals("DB.dbport")){
+			config.getInt(configKey).toString
+		}else{
+			config.getString(configKey)
+		}
+	}
+}
+class EmChatConfigFactory(configFileName: String) extends IConfigFactory {
+	val config = ConfigFactory.load(configFileName)
+
+	override def getProperties(configKey: String):String = {
+		config.getString(configKey)
+	}
+}
+class FileConfigFactory(configFileName: String) extends IConfigFactory {
+	val config = ConfigFactory.load(configFileName)
+
+	override def getProperties(configKey: String):String = {
+		config.getString(configKey)
+	}
+}
+class MailConfigFactory(configFileName: String) extends IConfigFactory {
+	val config = ConfigFactory.load(configFileName)
+
+	override def getProperties(configKey: String):String = {
+		config.getString(configKey)
+	}
+}
+class ServerConfigFactory(configFileName: String) extends IConfigFactory {
+	val config = ConfigFactory.load(configFileName)
+
+	override def getProperties(configKey: String):String = {
+		config.getString(configKey)
+	}
+}
+class TimingConfigFactory(configFileName: String) extends IConfigFactory {
+	val config = ConfigFactory.load(configFileName)
+
+	override def getProperties(configKey: String):String = {
+		config.getInt(configKey).toString
+	}
+}
+
+

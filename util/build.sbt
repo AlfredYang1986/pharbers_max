@@ -20,7 +20,7 @@ libraryDependencies ++= Seq(
 lazy val root = (project in file(".")).
   settings(commonSettings: _*).
   settings(
-	name := "pharbers_common_package_%scalaVersion%_%version%",
+	name := "pharbers_common_package",
 	fork in run := true,
 	javaOptions += "-Xmx4G"
   )

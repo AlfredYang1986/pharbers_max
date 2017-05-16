@@ -2,11 +2,12 @@ package com.pharbers.aqll.alcalc.almodel;
 
 
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.java.Excel;
+import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.BaseExcel;
 import com.pharbers.aqll.old.calc.util.StringOption;
 
 import java.io.Serializable;
 
-public class IntegratedData implements Serializable {
+public class IntegratedData extends BaseExcel implements Serializable {
 
     @Excel(name = "ID", width = 10, precision = 1)
     private Integer hospNum = 0;
