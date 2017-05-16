@@ -2,8 +2,6 @@ package com.pharbers.aqll.alcalc.almain
 
 import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
-import com.pharbers.aqll.alcalc.alcmd.scpcmd.scpCmd
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
@@ -17,10 +15,11 @@ import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.alPkgJob
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
+import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
 import com.pharbers.aqll.util.fileConfig._
 import com.pharbers.aqll.util.clusterListenerConfig._
-
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -157,7 +156,7 @@ class alGroupActor extends Actor
                 println(s"group sum uuid = ${r.uuid}")
 
                 cur = Some(new pkgCmd(s"${memorySplitFile}${group}${r.uuid}" :: Nil, s"${memorySplitFile}${fileTarGz}${r.uuid}")
-                    :: new scpCmd(s"${memorySplitFile}${fileTarGz}${r.uuid}.tar.gz", "program/scp/", "aliyun215", "root")
+                    :: new scpCmd(s"${memorySplitFile}${fileTarGz}${r.uuid}.tar.gz", s"${program+scpPath}", "aliyun215", "root")
                     :: Nil)
                 process = do_pkg() :: Nil
                 super.excute()
