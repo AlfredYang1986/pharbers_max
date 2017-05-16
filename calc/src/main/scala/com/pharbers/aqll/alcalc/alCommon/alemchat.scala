@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alcalc.alCommon
 
-import com.pharbers.aqll.util.mailConfig
+import com.pharbers.aqll.alcalc.alCommon.mailConfig
 import io.swagger.client.ApiException
 import io.swagger.client.api.AuthenticationApi
 import io.swagger.client.model.Token

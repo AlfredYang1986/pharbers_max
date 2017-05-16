@@ -1,7 +1,7 @@
 package module
 
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.common.alConfig.alGetProperties._
+import com.pharbers.aqll.common.fopConfig._
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -27,8 +27,8 @@ object FilesUploadModule extends ModuleTrait {
       val scp_filename = (data \ "filename").asOpt[String].get
       val scp_filepath = s"$fileBase$company$hospitalData"
       //println(company+"-----"+scp_filename)
-      scpCmd(s"$scp_filepath$scp_filename",s"$scp_filepath","aliyun106", "root").excute
-      scpCmd(s"$scp_filepath$scp_filename",s"$scp_filepath", "aliyun50", "root").excute
+      scpCmd(s"$scp_filepath$scp_filename",s"$scp_filepath","aliyun106", "root")
+      scpCmd(s"$scp_filepath$scp_filename",s"$scp_filepath", "aliyun50", "root")
       (Some(Map("result" -> toJson("OK"))), None)
     } catch {
       case ex : Exception => (None, Some(error_handler(ex.getMessage().toInt)))

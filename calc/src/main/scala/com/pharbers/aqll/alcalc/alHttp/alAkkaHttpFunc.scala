@@ -5,7 +5,6 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
 import com.google.gson.Gson
-import com.pharbers.aqll.alcalc.alcmd.pyshell.pyShell
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.alcalc.alemchat.alIMUser
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alFileExport.alFileExport
@@ -13,11 +12,11 @@ import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{check_excel_jo
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
 import spray.json.DefaultJsonProtocol
 import com.pharbers.aqll.alcalc.alfinaldataprocess.{alFilesExport, alSampleCheck}
+import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 
 import scala.concurrent.ExecutionContext
-
-import com.pharbers.aqll.util.fileConfig._
-import com.pharbers.aqll.util.clusterListenerConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
 
 /**
   * Created by qianpeng on 2017/3/26.
@@ -73,7 +72,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			entity(as[alUpBeforeItem]) { item =>
 				println(s"company=${item.company}")
 				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val result = pyShell(item.company,"MaximumLikelyMonth.py","").excute
+				val result = new pyCmd(fileBase + item.company + python, "MaximumLikelyMonth.py", "", "").excute
 				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val gson: Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
@@ -87,7 +86,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			entity(as[alUploadItem]) { item =>
 				println(s"company=${item.company}")
 				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val result = pyShell(item.company,"GeneratePanelFile.py",item.yms).excute
+				val result = new pyCmd(fileBase + item.company + python, "GeneratePanelFile.py", "", item.yms).excute
 				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val gson: Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")

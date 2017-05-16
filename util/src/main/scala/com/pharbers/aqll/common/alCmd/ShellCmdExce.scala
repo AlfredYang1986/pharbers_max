@@ -6,14 +6,12 @@ import com.pharbers.aqll.common.alCmd.almodel.alResultDefines
   * Created by liwei on 2017/5/16.
   */
 
-trait alShellCmdExceFactory {
-  def CreateShellCmdExce() : alShellCmdExce
-}
-
 trait alShellCmdExce {
   def process : Process = null
 
-  def excute(cmd : String) : List[alResultDefines]
+  val cmd = ""
+
+  def excute : List[alResultDefines]
 
   def resultDefines(c: Int, n: String, m: String) : List[alResultDefines] = {
     val result : alResultDefines = new alResultDefines()
@@ -25,7 +23,7 @@ trait alShellCmdExce {
 }
 
 class alShellOtherCmdExce() extends alShellCmdExce {
-  override def excute(cmd : String) : List[alResultDefines] = {
+  override def excute : List[alResultDefines] = {
     try {
       val builder = new ProcessBuilder("/bin/bash", "-c", cmd)
       val process = builder.start()
@@ -42,7 +40,7 @@ class alShellOtherCmdExce() extends alShellCmdExce {
 }
 
 class alShellPythonCmdExce() extends alShellCmdExce {
-  override def excute(cmd : String) : List[alResultDefines] = {
+  override def excute : List[alResultDefines] = {
     try {
       val builder = new ProcessBuilder("/bin/bash", "-c", cmd)
       val process = builder.start()
@@ -66,19 +64,4 @@ class alShellPythonCmdExce() extends alShellCmdExce {
       case ex : Exception => resultDefines(-2,"error","Exception")
     }
   }
-}
-
-object alShellOtherCmdExceFactory extends alShellCmdExceFactory {
-  override def CreateShellCmdExce() : alShellCmdExce = new alShellOtherCmdExce
-}
-
-object alShellPythonCmdExceFactory extends alShellCmdExceFactory {
-  override def CreateShellCmdExce(): alShellCmdExce = new alShellPythonCmdExce
-}
-
-object alCallShellCmdExce {
-
-  val otherFactory : alShellCmdExceFactory = alShellOtherCmdExceFactory
-
-  val pythonFactory : alShellCmdExceFactory = alShellPythonCmdExceFactory
 }

@@ -12,7 +12,7 @@ import com.pharbers.aqll.alcalc.alfinaldataprocess.csv.scala.CSVWriter
 import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
 import com.pharbers.aqll.old.calc.util.StringOption
 
-import com.pharbers.aqll.util.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 
 /**
   * Created by liwei on 2017/3/25.
