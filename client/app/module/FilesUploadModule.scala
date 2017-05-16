@@ -1,8 +1,8 @@
 package module
 
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.util.GetProperties._
-import com.pharbers.aqll.util.alcmd.scpcmd.scpCmd
+import com.pharbers.aqll.common.alConfig.alGetProperties._
+import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 /**

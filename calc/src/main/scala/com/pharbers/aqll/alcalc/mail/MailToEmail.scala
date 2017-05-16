@@ -3,9 +3,9 @@ package com.pharbers.aqll.alcalc.mail
 /**
   * Created by Wli on 2017/3/13 0013.
   */
-import com.pharbers.aqll.util.dao.{_data_connection_basic, from}
 import com.mongodb.BasicDBObject
 import com.mongodb.DBObject
+import com.pharbers.aqll.common.alDao.{_data_connection_basic, from}
 
 import scala.collection.immutable.List
 

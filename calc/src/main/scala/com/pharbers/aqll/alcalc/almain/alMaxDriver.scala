@@ -21,8 +21,8 @@ import com.pharbers.aqll.alcalc.alstages.alStage
 import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.mail.{Mail, MailAgent, MailToEmail}
-import com.pharbers.aqll.util.{GetProperties, StringOption}
-import com.pharbers.aqll.util.dao._data_connection_cores
+import com.pharbers.aqll.util.fileConfig._
+import com.pharbers.aqll.util.mailConfig._
 
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic
@@ -32,7 +32,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alcalc.alfinaldataprocess.alSampleCheck
 import com.pharbers.aqll.alcalc.allog.alLoggerMsgTrait
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.util.GetProperties._
+import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.old.calc.util.StringOption
 
 /**
   * Created by Alfred on 10/03/2017.
@@ -134,9 +135,9 @@ class alMaxDriver extends Actor
             pushGroupJobs(alMaxProperty(null, p, subs))
 
             // TODO : 最开始的Split的文件 传输到各个机器上
-            cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.sync}$p" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$p")
-                        :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$p.tar.gz", "program/scp/", "aliyun106", "root")
-                        :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$p.tar.gz", "program/scp/", "aliyun50", "root")
+            cur = Some(new pkgCmd(s"${memorySplitFile}${sync}$p" :: Nil, s"${memorySplitFile}${fileTarGz}$p")
+                        :: new scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", "program/scp/", "aliyun106", "root")
+                        :: new scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", "program/scp/", "aliyun50", "root")
                         :: Nil)
             process = do_pkg() :: Nil
             super.excute()
@@ -217,7 +218,7 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
 
 
 
-                    common.cur = Some(alStage(r.subs map (x => s"${GetProperties.memorySplitFile}${GetProperties.group}${x.uuid}")))
+                    common.cur = Some(alStage(r.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
                     common.process = restore_grouped_data() ::
                         do_calc() :: do_union() :: do_calc() ::
                         do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil
@@ -257,9 +258,9 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
 
                 // TODO : 压缩最终需要用到的Group文件
                 println(s"calc is uuid = $uuid")
-                cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.calc}$uuid" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$uuid")
-                            :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$uuid.tar.gz", s"${GetProperties.scpPath}", "aliyun106", "root")
-                            :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}$uuid.tar.gz", s"${GetProperties.scpPath}", "aliyun50", "root")
+                cur = Some(new pkgCmd(s"${memorySplitFile}${calc}$uuid" :: Nil, s"${memorySplitFile}${fileTarGz}$uuid")
+                            :: new scpCmd(s"${memorySplitFile}${fileTarGz}$uuid.tar.gz", s"${scpPath}", "aliyun106", "root")
+                            :: new scpCmd(s"${memorySplitFile}${fileTarGz}$uuid.tar.gz", s"${scpPath}", "aliyun50", "root")
                             :: Nil)
                 process = do_pkg() :: Nil
                 super.excute()
@@ -439,7 +440,7 @@ trait alCalcJobsManager extends alPkgJob { this : Actor with alCalcJobsSchedule 
 //                    println(s"结束去重数据")
 
                     val e_mail = MailToEmail.getEmail(company._1)
-                    MailAgent(Mail(GetProperties.mail_context, GetProperties.mail_subject, e_mail)).sendMessage()
+                    MailAgent(Mail(mail_context, mail_subject, e_mail)).sendMessage()
                     endDate("计算完成",start)
                     sendMessage.sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
                     self ! finish_max_job(uuid)

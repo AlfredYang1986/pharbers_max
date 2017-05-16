@@ -4,7 +4,6 @@ import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register, push_max_job, worker_register}
 import com.pharbers.aqll.alcalc.almain.{alCalcActor, alDriverSingleton, alGroupActor, alMaxDriver}
-import com.pharbers.aqll.util.GetProperties
 import com.typesafe.config.ConfigFactory
 
 /**

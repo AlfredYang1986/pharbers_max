@@ -41,7 +41,7 @@ class alFileOpt(path: String)(oldPath: String) {
 	def removeAllFiles: Boolean = {
 		if(isDir) {
 			inHideListFile foreach { x =>
-				if(!new alFileOpt(x).removeAllFiles) false
+				if(!alFileOpt(x).removeAllFiles) false
 			}
 		}
 		f.delete

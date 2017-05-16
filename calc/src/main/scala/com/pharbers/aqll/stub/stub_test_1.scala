@@ -7,13 +7,6 @@ import com.pharbers.aqll.alcalc.alemchat.sendMessage
   * Created by Alfred on 09/03/2017.
   */
 object stub_test_1 extends App {
-	val uuid = "123dsd12s12"
-	val company = "BMS"
-	val progress = 100
-	val c = s"""{"uuid": "$uuid", "company": "$company", "progress": $progress}"""
-	val result = sendMessage.send(uuid, company, progress , "test")
-	println(result)
-
 	//{
 	//// test case 1 : reading excel file and storage and portion
 	//val s = alStorage(config/new_test/2016-01.xlsx""", new alIntegrateddataparser)

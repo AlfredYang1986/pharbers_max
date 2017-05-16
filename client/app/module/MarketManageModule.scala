@@ -2,11 +2,12 @@ package module
 
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.util.dao._data_connection_basic
+import com.pharbers.aqll.common.alDao._data_connection_basic
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.util.{DateUtils, MD5}
+import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import module.common.alMessage._
+import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
 
 object MarketManageModuleMessage {
     sealed class msg_MarketManageBase extends CommonMessage
@@ -107,7 +108,7 @@ object MarketManageModule extends ModuleTrait {
                     val dbo = _data_connection_basic.getCollection("Market").findOne(query)
                     val result = dbo match {
                         case None => {
-                            val market = MongoDBObject("Market_Id" -> MD5.md5(Market_Name),"Market_Name"-> Market_Name,"Date" -> System.currentTimeMillis())
+                            val market = MongoDBObject("Market_Id" -> md5(Market_Name),"Market_Name"-> Market_Name,"Date" -> System.currentTimeMillis())
                             val r = _data_connection_basic.getCollection("Market").insert(market)
                             r.getN match {
                                 case 0 => getMessage(1)
@@ -121,7 +122,7 @@ object MarketManageModule extends ModuleTrait {
                 case "update" => {
                     val Market_Id = (data \ "Market_Id").get.asOpt[String].getOrElse("")
                     val query = MongoDBObject("Market_Id" -> Market_Id)
-                    val update = MongoDBObject("Market_Id" -> MD5.md5(Market_Name),"Market_Name" -> Market_Name,"Date" -> System.currentTimeMillis())
+                    val update = MongoDBObject("Market_Id" -> md5(Market_Name),"Market_Name" -> Market_Name,"Date" -> System.currentTimeMillis())
                     val r = _data_connection_basic.getCollection("Market").update(query,update)
                     val result = r.getN match {
                         case 1 => getMessage(1)
@@ -141,5 +142,5 @@ object MarketManageModule extends ModuleTrait {
       * @author liwei
       * @return
       */
-    def query : List[JsValue] = _data_connection_basic.getCollection("Market").find().map(x => toJson(Map("Market_Id" -> toJson(x.get("Market_Id").asInstanceOf[String]),"Market_Name" -> toJson(x.get("Market_Name").asInstanceOf[String]),"Date" -> toJson(DateUtils.Timestamp2yyyyMMdd(x.get("Date").asInstanceOf[Number].longValue()))))).toList
+    def query : List[JsValue] = _data_connection_basic.getCollection("Market").find().map(x => toJson(Map("Market_Id" -> toJson(x.get("Market_Id").asInstanceOf[String]),"Market_Name" -> toJson(x.get("Market_Name").asInstanceOf[String]),"Date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(x.get("Date").asInstanceOf[Number].longValue()))))).toList
 }

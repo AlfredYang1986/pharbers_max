@@ -17,8 +17,10 @@ import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.alPkgJob
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.util.GetProperties
-import com.pharbers.aqll.util.dao._data_connection_cores
+import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.util.fileConfig._
+import com.pharbers.aqll.util.clusterListenerConfig._
+
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -130,7 +132,7 @@ class alGroupActor extends Actor
 
                 val common = common_jobs()
 //                common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
-                common.cur = Some(alStage(r.subs map (x => s"${GetProperties.memorySplitFile}${GetProperties.group}${x.uuid}")))
+                common.cur = Some(alStage(r.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
                 common.process = restore_grouped_data() ::
                                     do_calc() :: do_union() :: do_calc() ::
                                     do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil
@@ -154,13 +156,13 @@ class alGroupActor extends Actor
 
                 println(s"group sum uuid = ${r.uuid}")
 
-                cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.group}${r.uuid}" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}")
-                    :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}.tar.gz", "program/scp/", "aliyun215", "root")
+                cur = Some(new pkgCmd(s"${memorySplitFile}${group}${r.uuid}" :: Nil, s"${memorySplitFile}${fileTarGz}${r.uuid}")
+                    :: new scpCmd(s"${memorySplitFile}${fileTarGz}${r.uuid}.tar.gz", "program/scp/", "aliyun215", "root")
                     :: Nil)
                 process = do_pkg() :: Nil
                 super.excute()
 
-                val st = context.actorSelection(GetProperties.singletonPaht)
+                val st = context.actorSelection(singletonPaht)
                 st ! group_result(r.parent, r.uuid)
                 goto(alMasterJobIdle) using new alCalcParmary("", "")
             } else stay()
@@ -194,7 +196,7 @@ class alGroupActor extends Actor
             data.faultTimes = data.faultTimes + 1
             if(data.faultTimes == data.maxTimeTry) {
                 log.info(s"concert_group -- 该UUID: ${data.uuid},在尝试性group 3次后，其中的某个线程计算失败，正在结束停止计算！")
-                context.actorSelection(GetProperties.singletonPaht) ! crash_calc(data.uuid, "concert_group crash")
+                context.actorSelection(singletonPaht) ! crash_calc(data.uuid, "concert_group crash")
                 context.unwatch(concert_router)
             }else {
                 log.info(s"concert_group -- 尝试${data.faultTimes}次")

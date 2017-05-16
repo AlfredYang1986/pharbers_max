@@ -4,7 +4,7 @@ import java.util.{Calendar, Date}
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alcalc.alFileHandler.altext.FileOpt
-import com.pharbers.aqll.util.GetProperties._
+import com.pharbers.aqll.util.fileConfig._
 
 /**
   * Created by qianpeng on 2017/3/27.

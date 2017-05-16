@@ -1,10 +1,6 @@
 package com.pharbers.aqll.old.calc.alcalc.alcmd
 
 import java.io._
-import java.nio.ByteBuffer
-import java.nio.channels.{Channels, FileChannel}
-
-import com.mongodb.casbah.Imports._
 
 sealed class ShellResultDefines (val t : Int, val d : String)
 
@@ -32,12 +28,6 @@ trait shellCmdExce {
 
             var line : String = null
             process.waitFor()
-
-//            do {
-//                line = input.readLine()
-//                println(line)
-//
-//            } while (line != null)
 
             ShellResult.success.t
 

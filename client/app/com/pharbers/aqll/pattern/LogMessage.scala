@@ -2,10 +2,9 @@ package com.pharbers.aqll.pattern
 
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.pattern.CommonMessage
-import com.pharbers.aqll.util.errorcode.ErrorCode
 import org.apache.log4j.Logger
 import play.api.mvc.{AnyContent, Request}
+import com.pharbers.aqll.common.ClientErrorCode
 
 abstract class msg_LogCommand extends CommonMessage
 
@@ -23,7 +22,7 @@ object LogMessage {
             logger.info(s"${request} User-Agent: ${request.headers.toMap.get("User-Agent").get.head} Host: ${request.remoteAddress} User: ${user} Company: ${company} Method: ${method} Args: ${data.toString()}")
             (Some(Map("status" -> toJson("ok"))), None)
         } catch {
-            case ex : Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+            case ex : Exception => (None, Some(ClientErrorCode.apply.errorToJson(ex.getMessage)))
         }
     }
 

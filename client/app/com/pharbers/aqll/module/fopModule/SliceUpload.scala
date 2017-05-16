@@ -3,12 +3,12 @@ package com.pharbers.aqll.module.fopModule
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc.MultipartFormData
 import java.io._
-import com.pharbers.aqll.util.GetProperties._
-import com.pharbers.aqll.util.GetProperties.fileBase
-import com.pharbers.aqll.util.{MD5, StringOption}
+import com.pharbers.aqll.common.alConfig.alGetProperties._
 import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
+import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
+import com.pharbers.aqll.common.alString.alStringOpt
 /**
   * Created by liwei on 2017/4/7.
   */
@@ -27,7 +27,7 @@ object SliceUpload {
             val company = data.dataParts.get("company").get.head
             val date = data.dataParts.get("date").get.head
             val market = data.dataParts.get("market").get.head
-            MD5.md5(company+date+StringOption.takeStringSpace(market))
+            alEncryptionOpt.md5(company+date+alStringOpt.removeSpace(market))
           }
           case _ => x.filename
         }
