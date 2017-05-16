@@ -72,7 +72,6 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			entity(as[alUpBeforeItem]) { item =>
 				println(s"company=${item.company}")
 				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-//				val result = pyCmd(item.company,"MaximumLikelyMonth.py","").excute
 				val result = new pyCmd(fileBase + item.company + python, "MaximumLikelyMonth.py", "", "").excute
 				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val gson: Gson = new Gson()
@@ -87,7 +86,6 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			entity(as[alUploadItem]) { item =>
 				println(s"company=${item.company}")
 				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-//				val result = pyShell(item.company,"GeneratePanelFile.py",item.yms).excute
 				val result = new pyCmd(fileBase + item.company + python, "GeneratePanelFile.py", "", item.yms).excute
 				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val gson: Gson = new Gson()
