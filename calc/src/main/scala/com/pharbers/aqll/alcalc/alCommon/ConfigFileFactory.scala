@@ -73,10 +73,10 @@ object mailConfig {
 object serverConfig {
 	val server: IConfigFactory = ConfigFileFactory.getServerConfigFactory
 
-	// TODO : Mail发送消息
+	// TODO : Server的用户
 	val serverUser = server.getProperties("Server.user")
 	val serverPass = server.getProperties("Server.pass")
-	// TODO : EmChat的Org
+	// TODO : ServerHost
 	val serverHost215 = server.getProperties("Server.Host.aliyun215")
 	val serverHost106 = server.getProperties("Server.Host.aliyun106")
 	val serverHost50 = server.getProperties("Server.Host.aliyun50")

@@ -20,6 +20,7 @@ import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
 import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
+import com.pharbers.aqll.alcalc.alCommon.serverConfig._
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -67,7 +68,7 @@ class alGroupActor extends Actor
             // TODO: 接收到Driver的信息后开始在各个机器上解压SCP过来的tar.gz文件，在开始group
 
             println(s"unPkgSplit uuid = ${p.uuid}")
-            cur = Some(new unPkgCmd(s"/root/program/scp/${p.uuid}", "/root/program/") :: Nil)
+            cur = Some(new unPkgCmd(s"${root + program + scpPath + p.uuid}", s"${root + program}") :: Nil)
             process = do_pkg() :: Nil
             super.excute()
 
@@ -155,8 +156,8 @@ class alGroupActor extends Actor
 
                 println(s"group sum uuid = ${r.uuid}")
 
-                cur = Some(new pkgCmd(s"${memorySplitFile}${group}${r.uuid}" :: Nil, s"${memorySplitFile}${fileTarGz}${r.uuid}")
-                    :: new scpCmd(s"${memorySplitFile}${fileTarGz}${r.uuid}.tar.gz", s"${program+scpPath}", "aliyun215", "root")
+                cur = Some(pkgCmd(s"${memorySplitFile}${group}${r.uuid}" :: Nil, s"${memorySplitFile}${fileTarGz}${r.uuid}")
+                    :: scpCmd(s"${memorySplitFile}${fileTarGz}${r.uuid}.tar.gz", s"${program+scpPath}", serverHost215, serverUser)
                     :: Nil)
                 process = do_pkg() :: Nil
                 super.excute()
