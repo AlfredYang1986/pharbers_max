@@ -72,11 +72,11 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			entity(as[alUpBeforeItem]) { item =>
 				println(s"company=${item.company}")
 				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val result = new pyCmd(fileBase + item.company + python, "MaximumLikelyMonth.py", "", "").excute
+				//println(s"路径=$root$program$fileBase${item.company}$python")
+				val result = pyCmd(s"$root$program$fileBase${item.company}$python", "MaximumLikelyMonth.py", item.company, "").excute
+				//println(s"返回值=$result")
 				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val gson: Gson = new Gson()
-				println(s"result=${gson.toJson(result)}")
-				complete("""{"result":""" + gson.toJson(result) +"""}""")
+				complete("""{"result":""" + result +"""}""")
 			}
 		}
 	}
@@ -85,12 +85,12 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
 				println(s"company=${item.company}")
-				//sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val result = new pyCmd(fileBase + item.company + python, "GeneratePanelFile.py", "", item.yms).excute
-				//sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val gson: Gson = new Gson()
-				println(s"result=${gson.toJson(result)}")
-				complete("""{"result":""" + gson.toJson(result) +"""}""")
+				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				//println(s"路径=$root$program$fileBase${item.company}$python")
+				val result = pyCmd(s"$root$program$fileBase${item.company}$python", "GeneratePanelFile.py", item.company, item.yms).excute
+				//println(s"返回值=$result")
+				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				complete("""{"result":""" + result +"""}""")
 			}
 		}
 	}
