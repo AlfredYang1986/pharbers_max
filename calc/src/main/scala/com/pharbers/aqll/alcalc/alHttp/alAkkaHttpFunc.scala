@@ -76,9 +76,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				val result = pyCmd(s"$root$program$fileBase${item.company}$python", "MaximumLikelyMonth.py", item.company, "").excute
 				//println(s"返回值=$result")
 				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val gson: Gson = new Gson()
-				println(s"result=${gson.toJson(result)}")
-				complete("""{"result":""" + gson.toJson(result) +"""}""")
+				complete("""{"result":""" + result +"""}""")
 			}
 		}
 	}
@@ -92,9 +90,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				val result = pyCmd(s"$root$program$fileBase${item.company}$python", "GeneratePanelFile.py", item.company, item.yms).excute
 				//println(s"返回值=$result")
 				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val gson: Gson = new Gson()
-				println(s"result=${gson.toJson(result)}")
-				complete("""{"result":""" + gson.toJson(result) +"""}""")
+				complete("""{"result":""" + result +"""}""")
 			}
 		}
 	}
