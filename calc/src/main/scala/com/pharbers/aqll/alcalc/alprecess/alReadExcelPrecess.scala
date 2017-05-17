@@ -1,16 +1,22 @@
 package com.pharbers.aqll.alcalc.alprecess
 
-import com.pharbers.aqll.alcalc.alFileHandler.alexcel.alIntegrateddataparser
+import com.pharbers.aqll.alcalc.alCommon.DefaultData
+import com.pharbers.aqll.alcalc.alFileHandler.alFileHandlers
 import com.pharbers.aqll.alcalc.aldata.alStorage
+import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.alstages._
+import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.{BaseExcel, alExcelDataParser}
 
 /**
   * Created by Alfred on 10/03/2017.
   */
+
+case class excelHandlers() extends alExcelDataParser(new IntegratedData, DefaultData.integratedxmlpath_en, DefaultData.integratedxmlpath_ch) with alFileHandlers
+
 class alReadExcelPrecess extends alPrecess {
     def precess(j : alStage) : List[alStage] = {
 
-        def precessAcc(path : String) : alStorage = alStorage(path, new alIntegrateddataparser)
+        def precessAcc(path : String) : alStorage = alStorage(path, excelHandlers())
 
         try {
             j match {

@@ -1,11 +1,13 @@
 package com.pharbers.aqll.alcalc.almodel;
 
+import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.BaseExcel;
+
 /***
  * 医院数据库
  * @author Faiz
  *
  */
-public class AdminHospitalDataBase {
+public class AdminHospitalDataBase extends BaseExcel{
 	private String company;
 
     private Integer uploadYear = 0;

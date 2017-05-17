@@ -2,11 +2,13 @@ package com.pharbers.aqll.alcalc.almodel;
 
 
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.java.Excel;
-import com.pharbers.aqll.old.calc.util.StringOption;
+import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.BaseExcel;
 
 import java.io.Serializable;
 
-public class IntegratedData implements Serializable {
+import com.pharbers.aqll.common.alString.alStringOpt;
+
+public class IntegratedData extends BaseExcel implements Serializable {
 
     @Excel(name = "ID", width = 10, precision = 1)
     private Integer hospNum = 0;
@@ -99,7 +101,7 @@ public class IntegratedData implements Serializable {
 
     public void setSegment(String segment) {this.segment = segment;}
 
-    public String sortConditions1() {return yearAndmonth.toString() + hospNum.toString() + StringOption.takeStringSpace(minimumUnitCh.toString());}
+    public String sortConditions1() {return yearAndmonth.toString() + hospNum.toString() + alStringOpt.removeSpace(minimumUnitCh.toString());}
 
     @Override
     public String toString() {

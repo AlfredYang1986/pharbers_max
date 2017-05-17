@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by qianpeng on 2017/4/13.
+ * Created by qianpeng on 2017/5/16.
  */
 public class alFromJson {
 	public static Map<String, String> formJson(String resp) {

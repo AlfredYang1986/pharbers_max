@@ -5,7 +5,7 @@ import com.pharbers.aqll.common.alCmd.alShellOtherCmdExce
 /**
   * Created by Alfred on 09/03/2017.
   */
-case class pkgCmd(val lst : List[String], val compress_file : String) extends alShellOtherCmdExce{
+case class pkgCmd(lst : List[String], compress_file : String) extends alShellOtherCmdExce{
   override val cmd = s"tar -czvf ${compress_file}.tar.gz ${lst.head}"
 }
 

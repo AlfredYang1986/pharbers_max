@@ -21,6 +21,8 @@ import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.mail.{Mail, MailAgent, MailToEmail}
 import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 import com.pharbers.aqll.alcalc.alCommon.mailConfig._
+import com.pharbers.aqll.alcalc.alCommon.databaseConfig._
+import com.pharbers.aqll.alcalc.alCommon.serverConfig._
 
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic
@@ -33,7 +35,7 @@ import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
-import com.pharbers.aqll.old.calc.util.StringOption
+import com.pharbers.aqll.common.alString.alStringOpt._
 
 /**
   * Created by Alfred on 10/03/2017.
@@ -74,13 +76,12 @@ class alMaxDriver extends Actor
                 case None => println("File is None")
                 case Some(x) =>
                     x.doCalc
-                    val p = x.data.asInstanceOf[List[IntegratedData]].map( x => (x.getYearAndmonth.toString.substring(0, 4), x.getMarket1Ch)).distinct
+                    val p = x.data.asInstanceOf[List[IntegratedData]].filterNot(x => x.getYearAndmonth ==0 && !x.getMarket1Ch.isEmpty).map( x => (x.getYearAndmonth.toString.substring(0, 4), x.getMarket1Ch)).distinct
                     x.isCalc = false
                     p.size match {
-                        case 0 => println("this is File is None")
                         case 1 =>
                             parmary.year = p.head._1.toInt
-                            parmary.market = StringOption.takeStringSpace(p.head._2)
+                            parmary.market = removeSpace(p.head._2)
                             act ! push_max_job(file, parmary)
                         case n if n > 1 => println("需要分拆文件，再次读取")
                         case _ => ???
@@ -135,9 +136,9 @@ class alMaxDriver extends Actor
             pushGroupJobs(alMaxProperty(null, p, subs))
 
             // TODO : 最开始的Split的文件 传输到各个机器上
-            cur = Some(new pkgCmd(s"${memorySplitFile}${sync}$p" :: Nil, s"${memorySplitFile}${fileTarGz}$p")
-                        :: new scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", "program/scp/", "aliyun106", "root")
-                        :: new scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", "program/scp/", "aliyun50", "root")
+            cur = Some(pkgCmd(s"${memorySplitFile}${sync}$p" :: Nil, s"${memorySplitFile}${fileTarGz}$p")
+                        :: scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", s"${program + scpPath}", serverHost106, serverUser)
+                        :: scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", s"${program + scpPath}", serverHost50, serverUser)
                         :: Nil)
             process = do_pkg() :: Nil
             super.excute()
@@ -207,7 +208,7 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
                 r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
 
                 // TODO : 解压汇总过来的Group文件
-                cur = Some(new unPkgCmd(s"/root/program/scp/$sub_uuid", "/root/program/") :: Nil)
+                cur = Some(new unPkgCmd(s"${root + program + scpPath + sub_uuid}", s"${root + program}") :: Nil)
                 process = do_pkg() :: Nil
                 super.excute()
 
@@ -258,9 +259,9 @@ trait alGroupJobsManager extends alPkgJob { this : Actor with alGroupJobsSchedul
 
                 // TODO : 压缩最终需要用到的Group文件
                 println(s"calc is uuid = $uuid")
-                cur = Some(new pkgCmd(s"${memorySplitFile}${calc}$uuid" :: Nil, s"${memorySplitFile}${fileTarGz}$uuid")
-                            :: new scpCmd(s"${memorySplitFile}${fileTarGz}$uuid.tar.gz", s"${scpPath}", "aliyun106", "root")
-                            :: new scpCmd(s"${memorySplitFile}${fileTarGz}$uuid.tar.gz", s"${scpPath}", "aliyun50", "root")
+                cur = Some(pkgCmd(s"${memorySplitFile}${calc}$uuid" :: Nil, s"${memorySplitFile}${fileTarGz}$uuid")
+                            :: scpCmd(s"${memorySplitFile}${fileTarGz}$uuid.tar.gz", s"${scpPath}", serverHost106, serverUser)
+                            :: scpCmd(s"${memorySplitFile}${fileTarGz}$uuid.tar.gz", s"${scpPath}", serverHost50, serverUser)
                             :: Nil)
                 process = do_pkg() :: Nil
                 super.excute()
