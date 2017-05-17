@@ -4,6 +4,8 @@ import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 import com.pharbers.aqll.alcalc.almodel.{AdminHospitalDataBase, IntegratedData}
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
 
+import scala.collection.mutable.ListBuffer
+
 object DefaultData {
 //    def hospdatabase(path: String, company: String) = {
 //        val hospdata_ch_file = "config/admin/HospDataStruct.xml"
@@ -19,7 +21,7 @@ object DefaultData {
         type targt = AdminHospitalDataBase
         val hospdatabase = new alExcelDataParser(new targt, hospdata_en_file, hospdata_ch_file)
         hospdatabase.prase(fileBase + company + hospitalData + path)("")
-        hospdatabase.data.asInstanceOf[List[targt]]
+        hospdatabase.data.toList.asInstanceOf[List[AdminHospitalDataBase]]
     }
 
 //    object integratedXmlPath {

@@ -76,10 +76,9 @@ class alMaxDriver extends Actor
                 case None => println("File is None")
                 case Some(x) =>
                     x.doCalc
-                    val p = x.data.asInstanceOf[List[IntegratedData]].map( x => (x.getYearAndmonth.toString.substring(0, 4), x.getMarket1Ch)).distinct
+                    val p = x.data.asInstanceOf[List[IntegratedData]].filterNot(x => x.getYearAndmonth ==0 && !x.getMarket1Ch.isEmpty).map( x => (x.getYearAndmonth.toString.substring(0, 4), x.getMarket1Ch)).distinct
                     x.isCalc = false
                     p.size match {
-                        case 0 => println("this is File is None")
                         case 1 =>
                             parmary.year = p.head._1.toInt
                             parmary.market = StringOption.takeStringSpace(p.head._2)
