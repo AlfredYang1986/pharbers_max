@@ -14,8 +14,8 @@ libraryDependencies ++= Seq(
 	"com.google.code.gson" % "gson" % "2.2.4",
     "javax.mail" % "mail" % "1.4.7",
 	"ch.qos.logback" % "logback-classic" % "1.1.3",
-	"com.easemob" % "rest-java-sdk" % "1.0.1"
-
+	"com.easemob" % "rest-java-sdk" % "1.0.1",
+	"com.typesafe.play" % "play-json_2.11" % "2.5.6"
 )
 
 lazy val root = (project in file(".")).
