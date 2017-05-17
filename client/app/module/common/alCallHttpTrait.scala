@@ -14,10 +14,7 @@ trait alCallHttpTrait {
   val data : JsValue
 
   def call : JsValue = {
-    println(s"data=$data")
-    println(s"url=$url")
-    play.api.libs.json.Json.toJson("")
-    //(HTTP(url)).post(data).as[JsValue]
+    (HTTP(url)).post(data).as[JsValue]
   }
 }
 
