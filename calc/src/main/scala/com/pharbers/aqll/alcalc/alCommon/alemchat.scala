@@ -69,7 +69,6 @@ object TokenUtil {
 
 	def initTokenByProp() = {
 		val resp = api.orgNameAppNameTokenPost(alOrgInfo.alOrgName, alOrgInfo.alAppName, body)
-//		val map = alFromJson.formJson(resp)
 		val map = alFromJson.formJson(resp)
 		access_token = " Bearer " + map.get("access_token")
 		expirdat = (System.currentTimeMillis() + map.get("expires_in").asInstanceOf[Double])
