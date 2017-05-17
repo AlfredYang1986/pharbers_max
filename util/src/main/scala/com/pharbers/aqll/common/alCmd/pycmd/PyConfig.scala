@@ -2,10 +2,7 @@ package com.pharbers.aqll.common.alCmd.pycmd
 
 case class PyConfig(pyDir: String,
                     pyFileName: String,
-                    args: Option[String] = None) {
-    def toArgs: String = {
-        ((if(pyDir.isEmpty) "" else pyDir) +
-        (if(pyFileName.isEmpty) "" else pyFileName) + " " +
-        (if(args.isEmpty) "" else args.get))
-    }
+                    company: Option[String] = None,
+                    yearAndMonth: Option[String] = None) {
+    def toArgs: String = s"$pyDir$pyFileName ${(if(company.isEmpty) "" else company.get)} ${(if(yearAndMonth.isEmpty) "" else yearAndMonth.get)}"
 }
