@@ -60,7 +60,7 @@ object alOperation {
     * @param lst
     * @return
     */
-  def salesSumByDate(lst: List[Map[String,Any]]): List[Map[String,Any]] ={
+  def salesSumByDate(lst: List[Map[String,Any]]): List[Map[String,Any]] = {
     var date = ""
     var sales_sum = 0.0
     val list = new ListBuffer[Map[String,Any]]()
@@ -80,33 +80,34 @@ object alOperation {
     list.toList
   }
 
+
   /**
     * @author liwei
-    * @param A meta data
-    * @param B reference data
+    * @param m_data
+    * @param r_data
     * @return
     */
-  def matchCityData(A: List[Map[String,Any]])(B: List[Map[String,Any]]): List[Map[String,Any]] ={
-    B map { x =>
-      val r = A.find(y => x.get("City").get.equals(y.get("City").get))
-      r match {
-        case None => x
-        case _ => r.get
-      }
-    }
+  def matchCityData(m_data: List[Map[String,Any]])(r_data: List[Map[String,Any]]): List[Map[String,Any]] = r_data map(x => findSomeDataByCity(m_data.find(y => x.get("City").get.equals(y.get("City").get)))(x))
+
+  /**
+    * @author liwei
+    * @param omap
+    * @param map
+    * @return
+    */
+  def findSomeDataByCity(omap: Option[Map[String,Any]])(map: Map[String,Any]) : Map[String,Any] = omap match {
+    case None => map
+    case _ => omap.get
   }
 
   /**
     * @author liwei
     * @param lst
-    * @param o
+    * @param s
     * @return
     */
-  def lst2Json(lst: List[Map[String,Any]],o: Int): JsValue ={
-    o match {
+  def lst2Json(lst: List[Map[String,Any]],s : Int): JsValue = s match {
       case 1 => toJson(lst.map(x => toJson(Map("Date" -> toJson(x.get("Date").get.asInstanceOf[String]),"f_sales" -> toJson(x.get("f_sales").get.asInstanceOf[Number].doubleValue())))))
       case 2 => toJson(lst map(x => toJson(Map("City" -> toJson(x.get("City").get.asInstanceOf[String]),"f_sales" -> toJson(x.get("f_sales").get.asInstanceOf[Number].doubleValue())))))
-    }
-
   }
 }

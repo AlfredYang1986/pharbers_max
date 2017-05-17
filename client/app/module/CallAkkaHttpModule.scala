@@ -1,115 +1,36 @@
 package module
 
-import com.mongodb.casbah.Imports.MongoDBObject
-import com.pharbers.aqll.common.HTTP
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.common.akkaConfig._
 import play.api.libs.json.JsValue
-import play.api.libs.json.Json.toJson
-
+import common.alCallHttp
 /**
   * Created by qianpeng on 2017/2/13.
   */
 object CallAkkaHttpModuleMessage {
-
 	sealed class msg_CallHttp extends CommonMessage
-
-	case class msg_CallCheckExcel(data: JsValue) extends msg_CallHttp
-
-	case class msg_CallRunModel(data: JsValue) extends msg_CallHttp
-
-	case class msg_CallFileExport(data: JsValue) extends msg_CallHttp
-
-	case class msg_CallCommitRunData(data: JsValue) extends msg_CallHttp
-
-	case class msg_CallCleaningData(data: JsValue) extends msg_CallHttp
-
-	case class msg_CallUploadBefore(data: JsValue) extends msg_CallHttp
-
+	case class msg_callHttpServer(data: JsValue) extends msg_CallHttp
 }
 
 object CallAkkaHttpModule extends ModuleTrait {
-
 	import CallAkkaHttpModuleMessage._
 	import controllers.common.default_error_handler.f
 
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-		case msg_CallCheckExcel(data) => checkExcel(data)
-		case msg_CallRunModel(data) => runModel(data)
-		case msg_CallFileExport(data) => fileExport(data)
-		case msg_CallCommitRunData(data) => commitrundata(data)
-		case msg_CallCleaningData(data) => cleaningdata(data)
-		case msg_CallUploadBefore(data) => uploadbefore(data)
-		case _ => println("Error---------------"); ???
+			case msg_callHttpServer(data) => callHttpServer_func(data)
 	}
 
-	def uploadbefore(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	/**
+		* @author liwei
+		* @param data
+		* @param error_handler
+		* @return
+		*/
+	def callHttpServer_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			println(s"data=$data")
-			val result = call(Akka_Http_IP + ":" + Akka_Http_Port + "/uploadbefore", data)
-			println(s"result=${result}")
-			(Some(Map("result" -> result)), None)
+			val businessType = (data \ "businessType").get.asOpt[String].getOrElse("")
+			(Some(Map("result" -> alCallHttp(businessType, data).call)), None)
 		} catch {
 			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
 		}
-	}
-
-	def cleaningdata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		try {
-			val result = call(Akka_Http_IP + ":" + Akka_Http_Port + "/uploadfile", data)
-			(Some(Map("result" -> result)), None)
-		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
-		}
-	}
-
-	def checkExcel(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		try {
-				call(Akka_Http_IP + ":" + Akka_Http_Port + "/samplecheck", data)
-				(Some(Map("result" -> toJson("Ok"))), None)
-		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
-		}
-	}
-
-	def runModel(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		try {
-			val result = call(Akka_Http_IP + ":" + Akka_Http_Port + "/modelcalc", data)
-			(Some(Map("result" -> result)), None)
-		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
-		}
-	}
-
-	def commitrundata(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		try {
-			val result = call(Akka_Http_IP + ":" + Akka_Http_Port + "/datacommit", data)
-			(Some(Map("result" -> toJson("ok"))), None)
-		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
-		}
-	}
-
-	def fileExport(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		try {
-			val result = call(Akka_Http_IP + ":" + Akka_Http_Port + "/dataexport", data)
-			(Some(Map("result" -> result)), None)
-		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
-		}
-	}
-
-	def managedp(d: MongoDBObject)(filename: String): JsValue = {
-		val company = d.getAs[String]("Company").get
-		val hospmatchpath = d.getAs[String]("File_Path").get
-		toJson(Map("filename" -> filename,
-				   "company" -> company,
-			       "hospmatchpath" -> hospmatchpath
-				))
-	}
-
-	def call(uri: String, data: JsValue): JsValue = {
-		val json = (HTTP(uri)).post(data).as[JsValue]
-		json
 	}
 }

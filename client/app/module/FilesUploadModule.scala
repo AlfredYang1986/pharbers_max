@@ -10,21 +10,21 @@ import com.pharbers.aqll.common.alFileHandler.alFilesOpt._
   * Created by Wli on 2017/2/20.
   */
 object FilesUploadModuleMessage {
-      sealed class msg_filesuploadBase extends CommonMessage
-	  case class msg_scpfile(data : JsValue) extends msg_filesuploadBase
-    case class msg_removefiles(data : JsValue) extends msg_filesuploadBase
+    sealed class msg_filesuploadBase extends CommonMessage
+	  case class msg_scpCopyFiles(data : JsValue) extends msg_filesuploadBase
+    case class msg_removeFiles(data : JsValue) extends msg_filesuploadBase
 }
 
 object FilesUploadModule extends ModuleTrait {
     import FilesUploadModuleMessage._
     import controllers.common.default_error_handler.f
 	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]]) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-		case msg_scpfile(data) => msg_scpfile_func(data)
-    case msg_removefiles(data) => msg_removefiles_func(data)
+		case msg_scpCopyFiles(data) => scpCopyFiles_func(data)
+    case msg_removeFiles(data) => removeFiles_func(data)
 		case _ => ???
 	}
 
-  def msg_scpfile_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+  def scpCopyFiles_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
     try {
       val company = (data \ "company").asOpt[String].get
       val scp_filename = (data \ "filename").asOpt[String].get
@@ -38,7 +38,7 @@ object FilesUploadModule extends ModuleTrait {
     }
   }
 
-  def msg_removefiles_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+  def removeFiles_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
     try {
       val company = (data \ "company").asOpt[String].get
       val cpa_filepath = s"$fileBase$company$client_cpa_file"
