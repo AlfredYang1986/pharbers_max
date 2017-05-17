@@ -68,6 +68,7 @@ class alGroupActor extends Actor
             // TODO: 接收到Driver的信息后开始在各个机器上解压SCP过来的tar.gz文件，在开始group
 
             println(s"unPkgSplit uuid = ${p.uuid}")
+
             cur = Some(new unPkgCmd(s"${root + program + scpPath + p.uuid}", s"${root + program}") :: Nil)
             process = do_pkg() :: Nil
             super.excute()
