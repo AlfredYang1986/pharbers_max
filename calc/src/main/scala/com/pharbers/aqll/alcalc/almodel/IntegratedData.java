@@ -3,9 +3,10 @@ package com.pharbers.aqll.alcalc.almodel;
 
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.java.Excel;
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.BaseExcel;
-import com.pharbers.aqll.old.calc.util.StringOption;
 
 import java.io.Serializable;
+
+import com.pharbers.aqll.common.alString.alStringOpt;
 
 public class IntegratedData extends BaseExcel implements Serializable {
 
@@ -100,7 +101,7 @@ public class IntegratedData extends BaseExcel implements Serializable {
 
     public void setSegment(String segment) {this.segment = segment;}
 
-    public String sortConditions1() {return yearAndmonth.toString() + hospNum.toString() + StringOption.takeStringSpace(minimumUnitCh.toString());}
+    public String sortConditions1() {return yearAndmonth.toString() + hospNum.toString() + alStringOpt.removeSpace(minimumUnitCh.toString());}
 
     @Override
     public String toString() {
