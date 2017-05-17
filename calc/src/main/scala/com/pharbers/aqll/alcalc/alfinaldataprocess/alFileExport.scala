@@ -8,10 +8,9 @@ import java.util.{Calendar, UUID}
 import java.io.File
 
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
-import com.pharbers.aqll.alcalc.alfinaldataprocess.csv.scala.CSVWriter
 import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
-import com.pharbers.aqll.old.calc.util.StringOption
-
+import com.pharbers.aqll.common.alString.alStringOpt._
+import com.pharbers.aqll.common.alFileHandler.alCsvOpt.scala.CSVWriter
 import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 
 /**
@@ -30,7 +29,7 @@ object alFileExport {
     try{
       val fmomat_f = new SimpleDateFormat("MM/yyyy")
       var conditions = MongoDBObject()
-      val markets = alExport.market.map(x => StringOption.takeStringSpace(x))
+      val markets = alExport.market.map(x => removeSpace(x))
       markets.size match {
         case 0 => conditions = MongoDBObject("Date" -> MongoDBObject("$gte" -> fmomat_f.parse(alExport.staend.head).getTime,"$lt" -> fmomat_f.parse(alExport.staend.tail.head).getTime))
         case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> markets),"Date" -> MongoDBObject("$gte" -> fmomat_f.parse(alExport.staend.head).getTime,"$lt" -> fmomat_f.parse(alExport.staend.tail.head).getTime))

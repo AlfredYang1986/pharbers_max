@@ -35,7 +35,7 @@ import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
-import com.pharbers.aqll.old.calc.util.StringOption
+import com.pharbers.aqll.common.alString.alStringOpt._
 
 /**
   * Created by Alfred on 10/03/2017.
@@ -81,7 +81,7 @@ class alMaxDriver extends Actor
                     p.size match {
                         case 1 =>
                             parmary.year = p.head._1.toInt
-                            parmary.market = StringOption.takeStringSpace(p.head._2)
+                            parmary.market = removeSpace(p.head._2)
                             act ! push_max_job(file, parmary)
                         case n if n > 1 => println("需要分拆文件，再次读取")
                         case _ => ???

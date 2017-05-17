@@ -1,5 +1,6 @@
-package com.pharbers.aqll.alcalc.alCommon
+package com.pharbers.aqll.alcalc.alemchat
 
+import com.pharbers.aqll.alcalc.alCommon.alFromJson
 import com.pharbers.aqll.alcalc.alCommon.emChatConfig._
 import io.swagger.client.ApiException
 import io.swagger.client.api.AuthenticationApi
