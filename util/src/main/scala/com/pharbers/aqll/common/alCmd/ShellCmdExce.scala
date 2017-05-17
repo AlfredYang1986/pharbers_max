@@ -25,12 +25,7 @@ trait alShellCmdExce {
 class alShellOtherCmdExce() extends alShellCmdExce {
   override def excute : List[alResultDefines] = {
     try {
-      val builder = new ProcessBuilder("/bin/bash", "-c", cmd)
-      val process = builder.start()
-      val ir = new InputStreamReader(process.getInputStream())
-      val input = new LineNumberReader(ir)
-      var line : String = null
-      process.waitFor()
+      new ProcessBuilder("/bin/bash", "-c", cmd).start().waitFor()
       resultDefines(0,"success","")
     } catch {
       case _ : IOException => resultDefines(-2,"error","IOException")
