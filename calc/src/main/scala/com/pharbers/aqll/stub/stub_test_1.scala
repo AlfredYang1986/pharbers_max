@@ -1,18 +1,21 @@
 package com.pharbers.aqll.stub
 
 import com.google.gson.Gson
+import com.pharbers.aqll.alcalc.alFileHandler.alFileHandlers
+import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
+import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
 
 /**
   * Created by Alfred on 09/03/2017.
   */
+
+case class tt() extends alExcelDataParser(null, "", "") with alFileHandlers
+
 object stub_test_1 extends App {
-	val uuid = "123dsd12s12"
-	val company = "BMS"
-	val progress = 100
-	val c = s"""{"uuid": "$uuid", "company": "$company", "progress": $progress}"""
-	val result = sendMessage.send(uuid, company, progress , "test")
-	println(result)
+//	alStorage("", new tt)
+
 
 	//{
 	//// test case 1 : reading excel file and storage and portion
@@ -58,7 +61,7 @@ object stub_test_1 extends App {
 
 	//{
 	//// test case 5 : compress data ** gzip
-	//val p = new pkgCmd("""config/group/ad0046ee-4669-4ed3-a781-cea9995c97f4""" :: Nil, """config/compress/test2/aa""")
+	//val p = pkgCmd("""config/group/ad0046ee-4669-4ed3-a781-cea9995c97f4""" :: Nil, """config/compress/test2/aa""")
 	//p.excute
 	//}
 	//
@@ -77,7 +80,7 @@ object stub_test_1 extends App {
 
 	//    {
 	//        // test case 7 : scp ** gzip // 需要提前部署scp rsa秘钥
-	//        val p = new scpCmd("""config/compress/test.tar.gz""", """""", "59.110.31.215", "root")
+	//        val p = scpCmd("""config/compress/test.tar.gz""", """""", "59.110.31.215", "root")
 	//        p.excute
 	//    }
 
@@ -89,7 +92,7 @@ object stub_test_1 extends App {
 
 	//{
 	//
-	//cur = Some(new pkgCmd("""config/group/ad0046ee-4669-4ed3-a781-cea9995c97f4""" :: Nil, """config/compress/test2/aa""") :: Nil)
+	//cur = Some(pkgCmd("""config/group/ad0046ee-4669-4ed3-a781-cea9995c97f4""" :: Nil, """config/compress/test2/aa""") :: Nil)
 	//process = do_pkg() :: Nil
 	//super.excute()
 	////a.cc("你好")

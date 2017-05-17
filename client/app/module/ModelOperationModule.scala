@@ -2,12 +2,15 @@ package module
 
 import com.mongodb.casbah.Imports.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
+import com.pharbers.aqll.common.HTTP
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.util.dao._data_connection_cores
-import com.pharbers.aqll.util.{DateUtils, GetProperties, HTTP}
+import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.common.alDate.scala.alDateOpt
+import com.pharbers.aqll.common.akkaConfig._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import module.common.{alRestDate, alOperation}
+import module.common.{alOperation, alRestDate}
+
 import scala.collection.mutable.ListBuffer
 
 object ModelOperationModuleMessage {
@@ -126,9 +129,9 @@ object ModelOperationModule extends ModuleTrait {
 		*/
 	def queryDBObject(market: String,date: String,el: String,list: Option[List[String]]): DBObject ={
 		val ces_date = el match {
-			case "cur" => DateUtils.MMyyyy2Long(date)
-			case "ear" => DateUtils.MMyyyy2EarlyLong(date)
-			case "las" => DateUtils.MMyyyy2LastLong(date)
+			case "cur" => alDateOpt.MMyyyy2Long(date)
+			case "ear" => alDateOpt.MMyyyy2EarlyLong(date)
+			case "las" => alDateOpt.MMyyyy2LastLong(date)
 		}
 		list match {
 			case None => MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$eq" -> ces_date))
@@ -145,24 +148,24 @@ object ModelOperationModule extends ModuleTrait {
 		* @return
 		*/
 	def queryNear12(company: String,market: String,date: String,temp_coll: String): List[Map[String,Any]] ={
-		val cur_date = DateUtils.MMyyyy2yyyyMM(date)
+		val cur_date = alDateOpt.MMyyyy2yyyyMM(date)
 		val date_lst_str = alRestDate.diff12Month(cur_date)
-		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> DateUtils.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))))
+		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))))
 		_data_connection_cores.getCollection(temp_coll).count() match {
 			case 0 => {
 				val list_map = _data_connection_cores.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
-					Map("Date" -> DateUtils.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
+					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 						"f_sales" -> x.get("f_sales")
 					)).toList
 				alOperation.matchDateData(date_lst_str,SumByDate(list_map) :: Nil)
 			}
 			case _ => {
 				val temp_list_map = _data_connection_cores.getCollection(temp_coll).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
-					Map("Date" -> DateUtils.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
+					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 						"f_sales" -> x.get("f_sales")
 					)).toList
 				val fina_list_map = _data_connection_cores.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
-					Map("Date" -> DateUtils.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
+					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 						"f_sales" -> x.get("f_sales")
 					)).toList
 				alOperation.matchDateData(date_lst_str,SumByDate(temp_list_map) :: SumByDate(fina_list_map) :: Nil)
@@ -214,7 +217,7 @@ object ModelOperationModule extends ModuleTrait {
 	}
 
 	def queryUUID(company: String): Option[String] = {
-		val uuidjson = call(GetProperties.Akka_Http_IP + ":" + GetProperties.Akka_Http_Port + "/queryUUID", toJson(Map("company" -> toJson(company))))
+		val uuidjson = call(Akka_Http_IP + ":" + Akka_Http_Port + "/queryUUID", toJson(Map("company" -> toJson(company))))
 		Some((uuidjson \ "result").asOpt[String].get)
 	}
 

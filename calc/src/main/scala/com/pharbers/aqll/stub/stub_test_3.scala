@@ -4,7 +4,6 @@ import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register, push_max_job, worker_register}
 import com.pharbers.aqll.alcalc.almain.{alCalcActor, alDriverSingleton, alGroupActor, alMaxDriver}
-import com.pharbers.aqll.util.GetProperties
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -27,7 +26,7 @@ object stub_test_3 extends App {
             val a = system.actorOf(alDriverSingleton.props)
             a ! group_register(w)
             a ! calc_register(c)
-            system.scheduler.scheduleOnce(20 second, a, worker_register())
+            system.scheduler.scheduleOnce(10 second, a, worker_register())
 //            a ! worker_register()
 //            a ! push_max_job("""config/new_test/2016-01.xlsx""")
 //            a ! push_max_job("""config/new_test/AI_R_panel 201501.xlsx""")

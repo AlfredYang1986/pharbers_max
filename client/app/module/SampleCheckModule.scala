@@ -3,10 +3,10 @@ package module
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
+import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
-import com.pharbers.aqll.util.DateUtils
+import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import module.common.alRestDate
 import module.common.alSampleCheck
 import scala.collection.mutable.ListBuffer
@@ -37,8 +37,8 @@ object SampleCheckModule extends ModuleTrait {
 		val date = (data \ "date").asOpt[String].getOrElse("")
 		try {
 
-			val cur_date = DateUtils.MMyyyy2yyyyMM(date)
-			val las_date = DateUtils.Timestamp2yyyyMM(DateUtils.MMyyyy2LastLong(date))
+			val cur_date = alDateOpt.MMyyyy2yyyyMM(date)
+			val las_date = alDateOpt.Timestamp2yyyyMM(alDateOpt.MMyyyy2LastLong(date))
 			val cur12_date = alSampleCheck.matchThisYearData(alRestDate.diff12Month(cur_date),queryNear12(company,market,date))
 			val las12_date = alSampleCheck.matchLastYearData(alRestDate.diff12Month(las_date),queryLast12(company,market,date))
 			val cur_data = query_cel_data(query(company,market,date,"cur"))
@@ -76,7 +76,7 @@ object SampleCheckModule extends ModuleTrait {
 			marketNum = obj.get("MarketNum").asInstanceOf[Number].intValue()
 			sales = obj.get("Sales").asInstanceOf[Number].doubleValue()
 			units = obj.get("Units").asInstanceOf[Number].doubleValue()
-			date = DateUtils.Timestamp2yyyyMM(obj.get("Date").asInstanceOf[Number].longValue())
+			date = alDateOpt.Timestamp2yyyyMM(obj.get("Date").asInstanceOf[Number].longValue())
 		}
 		toJson(Map("HospNum" -> toJson(hospNum),"ProductNum" -> toJson(productNum),"MarketNum" -> toJson(marketNum),"Sales" -> toJson(sales),"Units" -> toJson(units),"Date" -> toJson(date)))
 	}
@@ -91,9 +91,9 @@ object SampleCheckModule extends ModuleTrait {
 		*/
 	def query(company: String,market: String,date: String,query_type: String): DBObject ={
 		query_type match {
-			case "cur" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> DateUtils.MMyyyy2Long(date)))
-			case "ear" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> DateUtils.MMyyyy2EarlyLong(date)))
-			case "las" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> DateUtils.MMyyyy2LastLong(date)))
+			case "cur" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2Long(date)))
+			case "ear" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2EarlyLong(date)))
+			case "las" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2LastLong(date)))
 		}
 	}
 
@@ -105,20 +105,20 @@ object SampleCheckModule extends ModuleTrait {
 		* @return
 		*/
 	def queryNear12(company: String,market: String,date: String): List[List[Map[String,AnyRef]]] = {
-		val cur_date = DateUtils.MMyyyy2yyyyMM(date)
-		val date_lst = DateUtils.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))
+		val cur_date = alDateOpt.MMyyyy2yyyyMM(date)
+		val date_lst = alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))
 		val query = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$in" -> date_lst))
 		val f_lst = _data_connection_cores.getCollection("FactResult").find(query).sort(MongoDBObject("Date" -> 1))
 		val s_lst = _data_connection_cores.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
 		val factResult = f_lst.map{x =>
 			Map(
-				"Date" -> DateUtils.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
+				"Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 				"HospNum" -> x.get("HospNum"),"ProductNum" -> x.get("ProductNum"),"MarketNum" -> x.get("MarketNum"),"Sales" -> x.get("Sales"),"Units" -> x.get("Units"))
 		} toList
 
 		val sampleCheck = s_lst.map{x =>
 			Map(
-				"Date" -> DateUtils.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
+				"Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 				"HospNum" -> x.get("HospNum"),"ProductNum" -> x.get("ProductNum"),"MarketNum" -> x.get("MarketNum"),"Sales" -> x.get("Sales"),"Units" -> x.get("Units"))
 		} toList
 
@@ -133,14 +133,14 @@ object SampleCheckModule extends ModuleTrait {
 		* @return
 		*/
 	def queryLast12(company: String,market: String,date: String): List[Map[String,AnyRef]] = {
-		val las_date = DateUtils.MMyyyy2LastLong(date)
-		val cur_date = DateUtils.Timestamp2yyyyMM(las_date)
-		val date_lst = DateUtils.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))
+		val las_date = alDateOpt.MMyyyy2LastLong(date)
+		val cur_date = alDateOpt.Timestamp2yyyyMM(las_date)
+		val date_lst = alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))
 		val query = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$in" -> date_lst))
 		val lst = _data_connection_cores.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
 		lst map{ x =>
 			Map(
-				"Date" -> DateUtils.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
+				"Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 				"HospNum" -> x.get("HospNum"),"ProductNum" -> x.get("ProductNum"),"MarketNum" -> x.get("MarketNum"),"Sales" -> x.get("Sales"),"Units" -> x.get("Units"))
 		} toList
 	}

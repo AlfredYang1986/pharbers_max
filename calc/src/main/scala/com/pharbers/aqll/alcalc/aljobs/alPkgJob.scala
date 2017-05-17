@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alcalc.aljobs
 
-import com.pharbers.aqll.alcalc.alcmd.shellCmdExce
 import com.pharbers.aqll.alcalc.alprecess.alFilePrecess
+import com.pharbers.aqll.common.alCmd.alShellCmdExce
 
 
 /**
@@ -14,7 +14,7 @@ object alPkgJob {
 trait alPkgJob {
 	var process : List[alFilePrecess] = Nil
 
-	var cur : Option[List[shellCmdExce]] = None
+	var cur : Option[List[alShellCmdExce]] = None
 
 	def excute(): Unit = {
 		if (!process.isEmpty) nextRun()

@@ -4,14 +4,16 @@ import java.text.SimpleDateFormat
 
 import com.mongodb.casbah.Imports.{DBObject, MongoCursor}
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.util.dao.{_data_connection_cores, from}
 import java.util.{Calendar, UUID}
 import java.io.File
 
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
-import com.pharbers.aqll.util.GetProperties._
 import com.pharbers.aqll.alcalc.alfinaldataprocess.csv.scala.CSVWriter
-import com.pharbers.aqll.util.StringOption
+import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
+import com.pharbers.aqll.old.calc.util.StringOption
+
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
+
 /**
   * Created by liwei on 2017/3/25.
   */

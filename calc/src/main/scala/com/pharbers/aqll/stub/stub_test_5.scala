@@ -5,7 +5,7 @@ import akka.cluster.Cluster
 import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alcalc.almain.{alCalcActor, alDriverSingleton, alGroupActor}
 import com.pharbers.aqll.alcalc.almaxdefines.alCalcParmary
-import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -20,7 +20,7 @@ object stub_test_5 extends App{
 			import scala.concurrent.duration._
 			import scala.concurrent.ExecutionContext.Implicits.global
 			import com.pharbers.aqll.alcalc.alSchedulerJobs.{alScheduleRemoveFiles, rmFile}
-			val a = system.actorSelection(GetProperties.singletonPaht)
+			val a = system.actorSelection(singletonPaht)
 			val c = system.actorOf(alCalcActor.props)
 			val w = system.actorOf(alGroupActor.props)
 			a ! group_register(w)

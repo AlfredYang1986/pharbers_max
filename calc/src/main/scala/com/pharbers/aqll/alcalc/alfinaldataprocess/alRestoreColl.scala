@@ -1,15 +1,13 @@
 package com.pharbers.aqll.alcalc.alfinaldataprocess
 
-import com.pharbers.aqll.alcalc.alcmd.dbcmd._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.util.dao._data_connection_cores
+import com.pharbers.aqll.common.alCmd.dbcmd.dbrestoreCmd
+import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.databaseConfig._
 /**
   * Created by LIWEI on 2017/3/20.
   */
-
-object alLocalRestoreColl {
-    def apply(company : String, sub_uuids : String) = new alLocalRestoreColl(company, sub_uuids)
-}
 
 object alRestoreColl {
     def apply(company : String, sub_uuids : List[String]): alRestoreColl = new alRestoreColl(company, sub_uuids)
@@ -19,12 +17,8 @@ class alRestoreColl(company : String, sub_uuids : List[String]){
     var isfirst : Boolean = false
     sub_uuids foreach{ x =>
 //        dbrestoreCmd("Max_Cores",company+"_temp",x).excute
-        dbrestoreCmd("Max_Cores", company, x).excute
+        dbrestoreCmd(db1, company, scpPath + x, dbuser, dbpwd, dbhost, dbport).excute
         if(!isfirst){_data_connection_cores.getCollection(company).createIndex(MongoDBObject("hosp_Index" -> 1))}
         isfirst = true
     }
-}
-
-class alLocalRestoreColl(company : String, sub_uuids : String){
-    dblocalrestoreCmd("Max_Cores", company, sub_uuids).excute
 }

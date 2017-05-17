@@ -2,8 +2,6 @@ package com.pharbers.aqll.alcalc.almain
 
 import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alcalc.alcmd.pkgcmd.{pkgCmd, unPkgCmd}
-import com.pharbers.aqll.alcalc.alcmd.scpcmd.scpCmd
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alemchat.sendMessage
 import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
@@ -17,8 +15,12 @@ import com.pharbers.aqll.alcalc.aljobs.alJob._
 import com.pharbers.aqll.alcalc.aljobs.alPkgJob
 import com.pharbers.aqll.alcalc.almodel.IntegratedData
 import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.util.GetProperties
-import com.pharbers.aqll.util.dao._data_connection_cores
+import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
+import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
+import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
+import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
+import com.pharbers.aqll.alcalc.alCommon.serverConfig._
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -66,7 +68,8 @@ class alGroupActor extends Actor
             // TODO: 接收到Driver的信息后开始在各个机器上解压SCP过来的tar.gz文件，在开始group
 
             println(s"unPkgSplit uuid = ${p.uuid}")
-            cur = Some(new unPkgCmd(s"/root/program/scp/${p.uuid}", "/root/program/") :: Nil)
+
+            cur = Some(new unPkgCmd(s"${root + program + scpPath + p.uuid}", s"${root + program}") :: Nil)
             process = do_pkg() :: Nil
             super.excute()
 
@@ -130,7 +133,7 @@ class alGroupActor extends Actor
 
                 val common = common_jobs()
 //                common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
-                common.cur = Some(alStage(r.subs map (x => s"${GetProperties.memorySplitFile}${GetProperties.group}${x.uuid}")))
+                common.cur = Some(alStage(r.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
                 common.process = restore_grouped_data() ::
                                     do_calc() :: do_union() :: do_calc() ::
                                     do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil
@@ -154,13 +157,13 @@ class alGroupActor extends Actor
 
                 println(s"group sum uuid = ${r.uuid}")
 
-                cur = Some(new pkgCmd(s"${GetProperties.memorySplitFile}${GetProperties.group}${r.uuid}" :: Nil, s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}")
-                    :: new scpCmd(s"${GetProperties.memorySplitFile}${GetProperties.fileTarGz}${r.uuid}.tar.gz", "program/scp/", "aliyun215", "root")
+                cur = Some(pkgCmd(s"${memorySplitFile}${group}${r.uuid}" :: Nil, s"${memorySplitFile}${fileTarGz}${r.uuid}")
+                    :: scpCmd(s"${memorySplitFile}${fileTarGz}${r.uuid}.tar.gz", s"${program+scpPath}", serverHost215, serverUser)
                     :: Nil)
                 process = do_pkg() :: Nil
                 super.excute()
 
-                val st = context.actorSelection(GetProperties.singletonPaht)
+                val st = context.actorSelection(singletonPaht)
                 st ! group_result(r.parent, r.uuid)
                 goto(alMasterJobIdle) using new alCalcParmary("", "")
             } else stay()
@@ -194,7 +197,7 @@ class alGroupActor extends Actor
             data.faultTimes = data.faultTimes + 1
             if(data.faultTimes == data.maxTimeTry) {
                 log.info(s"concert_group -- 该UUID: ${data.uuid},在尝试性group 3次后，其中的某个线程计算失败，正在结束停止计算！")
-                context.actorSelection(GetProperties.singletonPaht) ! crash_calc(data.uuid, "concert_group crash")
+                context.actorSelection(singletonPaht) ! crash_calc(data.uuid, "concert_group crash")
                 context.unwatch(concert_router)
             }else {
                 log.info(s"concert_group -- 尝试${data.faultTimes}次")

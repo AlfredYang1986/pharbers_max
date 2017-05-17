@@ -5,7 +5,7 @@ import java.util.UUID
 import com.pharbers.aqll.alcalc.aldata.alStorage
 import com.pharbers.aqll.alcalc.alFileHandler.altext.{FileOpt, alTextSync}
 import com.pharbers.aqll.alcalc.alstages.alStage
-import com.pharbers.aqll.util.GetProperties
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 
 /**
   * Created by Alfred on 10/03/2017.
@@ -16,9 +16,9 @@ class alPresistStagePrecess(val dirOpt : Option[String], val prefix : Option[Str
     def precess(j : alStage) : List[alStage] = {
 
         val dir = dirOpt.map (x => x).getOrElse(UUID.randomUUID.toString)
-        val sync = prefix.map (x => x).getOrElse(GetProperties.sync)
+        val syncdir = prefix.map (x => x).getOrElse(sync)
 //        val path = s"config/$sync/$dir"
-	    val path = s"${GetProperties.memorySplitFile}$sync/$dir"
+	    val path = s"${memorySplitFile}$syncdir/$dir"
         val f = FileOpt(path)
         f.createDir
         j.storages map { x =>

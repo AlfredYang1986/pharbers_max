@@ -1,6 +1,6 @@
 package module.common
 
-import com.pharbers.aqll.util.dao.{_data_connection_basic, _data_connection_cores}
+import com.pharbers.aqll.common.alDao.{_data_connection_basic, _data_connection_cores}
 /**
   * Created by Wli on 2017/1/4.
   */

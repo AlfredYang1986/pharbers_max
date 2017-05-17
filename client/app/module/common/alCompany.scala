@@ -5,10 +5,11 @@ package module.common
   */
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
 import com.mongodb.{BasicDBList,DBObject}
-import com.pharbers.aqll.util.dao._data_connection_basic
+import com.pharbers.aqll.common.alDao._data_connection_basic
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.util.{DateUtils, MD5}
+import com.pharbers.aqll.common.alDate.scala.alDateOpt
+import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import module.common.alMessage._
 
 object alCompany {
@@ -46,7 +47,7 @@ object alCompany {
       "Ch" -> toJson(Company_Name_lst.get("Ch").asInstanceOf[String]),
       "En" -> toJson(Company_Name_lst.get("En").asInstanceOf[String]),
       "E_Mail" -> toJson(x.get("E-Mail").asInstanceOf[String]),
-      "Timestamp" -> toJson(DateUtils.Timestamp2yyyyMMdd(x.get("Timestamp").asInstanceOf[Number].longValue()))))
+      "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(x.get("Timestamp").asInstanceOf[Number].longValue()))))
   }
 
   /**
@@ -86,7 +87,7 @@ object alCompany {
           "Ch" -> toJson(Company_Name.get("Ch").asInstanceOf[String]),
           "En" -> toJson(Company_Name.get("En").asInstanceOf[String]),
           "E_Mail" -> toJson(company.get.get("E-Mail").asInstanceOf[String]),
-          "Timestamp" -> toJson(DateUtils.Timestamp2yyyyMMdd(company.get.get("Timestamp").asInstanceOf[Number].longValue())),
+          "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(company.get.get("Timestamp").asInstanceOf[Number].longValue())),
           "User_lst" -> toJson(User_lst.size)
         )),"status" -> toJson("success")))
       }
@@ -109,7 +110,7 @@ object alCompany {
     au match {
       case "add" => {
         val Company_Id_MD5 = Company_Id match {
-          case "" => MD5.md5(Company_Name_Ch match {
+          case "" => alEncryptionOpt.md5(Company_Name_Ch match {
             case "" => Company_Name_En
             case _ => Company_Name_Ch
           })
