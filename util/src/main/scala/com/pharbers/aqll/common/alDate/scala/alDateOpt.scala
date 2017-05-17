@@ -8,6 +8,11 @@ import java.util.Date
   */
 object alDateOpt {
 
+  def Date2Long(date: Date) : Long = {
+    val sdf : SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    sdf.parse(sdf.format(date)).getTime
+  }
+
   /**
     * 将yyyyMM转换为Long
     *

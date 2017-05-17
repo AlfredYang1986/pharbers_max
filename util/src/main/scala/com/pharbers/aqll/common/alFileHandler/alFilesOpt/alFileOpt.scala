@@ -2,8 +2,6 @@ package com.pharbers.aqll.common.alFileHandler.alFilesOpt
 
 import java.io.{File, FileWriter, PrintWriter}
 
-import com.pharbers.aqll.old.calc.alcalc.alFileHandler.altext.FileOpt.convertString
-
 import scala.io.Source
 
 /**
