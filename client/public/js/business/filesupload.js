@@ -15,7 +15,7 @@ $(function(){
         query_object["uname"] = $.cookie('webim_user');
         query_object["businessType"] = "/uploadbefore";
         $("#s_nextstepBtn").removeAttr("disabled");
-        $.ajax({
+            $.ajax({
             url: "/callhttpServer",
             type: 'POST',
             dataType: 'json',
@@ -25,8 +25,8 @@ $(function(){
             success: function(data) {
                 console.info(data);
                 if (data.status == "ok") {
-                    if(data.result.result.result.head.status==0){
-                        var result = data.result.result.result.head.result;
+                    if(data.result.result.result.status=="success"){
+                        var result = data.result.result.result.message;
                         var arr = result.split("#");
                         var html = "<div class='col-lg-6 text-left'>"
                         for(var i in arr){
@@ -36,7 +36,7 @@ $(function(){
                             }
                         }
                         html += "</div>";
-                        $('#resultDiv')[0].innerHTML = html;
+                        $('div[id="resultDiv"]')[0].innerHTML = html;
                         $('label[id="generate_panel_content"]').text("文件检查通过，请勾选月份，继续点击下一步。");
                         //$.tooltip('OK, 操作成功！', 2500, true);
                     }else{
@@ -45,6 +45,7 @@ $(function(){
                         $('label[id="generate_panel_content"]').text("文件检查失败，请点击上一步，返回上传页面，重新上传文件。");
                         //$.tooltip('My God, 出错啦！！！');
                     }
+                    $('#resultDiv').show();
                     $("#upload_file").hide();
                     $("#generate_panel_file").show();
                 }else{
@@ -111,8 +112,8 @@ $(function(){
                     $("#generate_panel_file").hide();
                     $("#generate_sample_data").show();
                     if (data.status == "ok") {
-                        if(data.result.result.result.head.status==0){
-                            $.cookie("calc_panel_file",data.result.result.result.head.result)
+                        if(data.result.result.result.status=="success"){
+                            $.cookie("calc_panel_file",data.result.result.result.message)
                             //$.tooltip('OK, 操作成功！', 2500, true);
                             $('label[id="generate_sample_content"]').text("生成panel文件成功，请继续点击下一步。");
                         }else{
