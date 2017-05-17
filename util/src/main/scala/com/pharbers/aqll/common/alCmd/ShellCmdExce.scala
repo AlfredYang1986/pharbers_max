@@ -2,6 +2,9 @@ package com.pharbers.aqll.common.alCmd
 
 import java.io.{IOException, InputStreamReader, LineNumberReader}
 import com.pharbers.aqll.common.alCmd.almodel.alResultDefines
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json.toJson
+
 /**
   * Created by liwei on 2017/5/16.
   */
@@ -13,17 +16,13 @@ trait alShellCmdExce {
 
   def excute : List[alResultDefines]
 
-  def resultDefines(c: Int, n: String, m: String) : List[alResultDefines] = {
-    val result : alResultDefines = new alResultDefines()
-    result.setCode(c)
-    result.setName(n)
-    result.setMessage(m)
-    result :: Nil
+  def resultDefines(c: Int, n: String, m: String) : JsValue = {
+    toJson(Map("code" -> toJson(c),"name" -> toJson(n),"message" -> toJson(m)) :: Nil)
   }
 }
 
 class alShellOtherCmdExce() extends alShellCmdExce {
-  override def excute : List[alResultDefines] = {
+  override def excute : JsValue = {
     try {
       new ProcessBuilder("/bin/bash", "-c", cmd).start().waitFor()
       resultDefines(0,"success","")
@@ -35,7 +34,7 @@ class alShellOtherCmdExce() extends alShellCmdExce {
 }
 
 class alShellPythonCmdExce() extends alShellCmdExce {
-  override def excute : List[alResultDefines] = {
+  override def excute : JsValue = {
     try {
       val builder = new ProcessBuilder("/bin/bash", "-c", cmd)
       val process = builder.start()
