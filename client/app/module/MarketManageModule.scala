@@ -21,10 +21,10 @@ object MarketManageModule extends ModuleTrait {
     import MarketManageModuleMessage._
     import controllers.common.default_error_handler.f
     def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-        case msg_marketmanage_query(data) => query_func(data)
-        case msg_marketmanage_delete(data) => delete_func(data)
-        case msg_marketmanage_findOne(data) => findOne_func(data)
-        case msg_marketmanage_save(data) => save_func(data)
+        case msg_marketmanage_query(data) => queryMarkets_func(data)
+        case msg_marketmanage_delete(data) => deleteMarkets_func(data)
+        case msg_marketmanage_findOne(data) => findOneMarket_func(data)
+        case msg_marketmanage_save(data) => saveMarket_func(data)
     }
 
     /**
@@ -35,9 +35,9 @@ object MarketManageModule extends ModuleTrait {
       * @param error_handler
       * @return
       */
-    def query_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def queryMarkets_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            (Some(Map("result" -> toJson(query))),None)
+            (Some(Map("result" -> toJson(queryMarkets))),None)
         } catch {
             case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
         }
@@ -52,7 +52,7 @@ object MarketManageModule extends ModuleTrait {
       * @param error_handler
       * @return
       */
-    def delete_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def deleteMarkets_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             val ids = (data \ "Market_Id").get.asOpt[List[String]].getOrElse(Nil)
             val r = ids map(x => _data_connection_basic.getCollection("Market").findAndRemove(MongoDBObject("Market_Id" -> x)))
@@ -75,7 +75,7 @@ object MarketManageModule extends ModuleTrait {
       * @param error_handler
       * @return
       */
-    def findOne_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def findOneMarket_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             val Market_Id = (data \ "Market_Id").get.asOpt[String].getOrElse("")
             val query =MongoDBObject("Market_Id" -> Market_Id)
@@ -98,7 +98,7 @@ object MarketManageModule extends ModuleTrait {
       * @param error_handler
       * @return
       */
-    def save_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def saveMarket_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             val Market_Name = (data \ "Market_Name").get.asOpt[String].getOrElse("")
             val au = (data \ "au").get.asOpt[String].getOrElse("")
@@ -142,5 +142,5 @@ object MarketManageModule extends ModuleTrait {
       * @author liwei
       * @return
       */
-    def query : List[JsValue] = _data_connection_basic.getCollection("Market").find().map(x => toJson(Map("Market_Id" -> toJson(x.get("Market_Id").asInstanceOf[String]),"Market_Name" -> toJson(x.get("Market_Name").asInstanceOf[String]),"Date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(x.get("Date").asInstanceOf[Number].longValue()))))).toList
+    def queryMarkets : List[JsValue] = _data_connection_basic.getCollection("Market").find().map(x => toJson(Map("Market_Id" -> toJson(x.get("Market_Id").asInstanceOf[String]),"Market_Name" -> toJson(x.get("Market_Name").asInstanceOf[String]),"Date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(x.get("Date").asInstanceOf[Number].longValue()))))).toList
 }

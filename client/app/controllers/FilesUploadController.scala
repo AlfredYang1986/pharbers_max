@@ -12,16 +12,16 @@ import play.api.mvc._
 	* Created by Wli on 2017/1/4.
 	*/
 class FilesUploadController extends Controller{
-	def scpFileAjaxCall = Action (request => requestArgs(request) { jv =>
+	def scpCopyFiles = Action (request => requestArgs(request) { jv =>
 		import pattern.LogMessage.common_log
 		import pattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("classifyFilesAjaxCall"))), jv, request) :: msg_scpfile(jv) :: msg_CommonResultMessage() :: Nil, None)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("scpCopyFiles"))), jv, request) :: msg_scpCopyFiles(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 
-	def removefilesAjaxCall = Action (request => requestArgs(request) { jv =>
+	def removeFiles = Action (request => requestArgs(request) { jv =>
 		import pattern.LogMessage.common_log
 		import pattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("removefilesAjaxCall"))), jv, request) :: msg_removefiles(jv) :: msg_CommonResultMessage() :: Nil, None)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("removefiles"))), jv, request) :: msg_removeFiles(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 	
 }

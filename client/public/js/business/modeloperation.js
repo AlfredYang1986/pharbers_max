@@ -43,12 +43,13 @@ $(function(){
     $('#nextstepBtn').click(function(){
         var dataMap = JSON.stringify({
             "company": $.cookie("token"),
-            "uname": $.cookie('webim_user')
+            "uname": $.cookie('webim_user'),
+            "businessType": "/datacommit"
         })
         $.ajax({
             type: "post",
             data: dataMap,
-            url: "/commitrunresult",
+            url: "/callhttpServer",
             contentType: 'application/json, charset=utf-8',
             cache: false,
             dataType: "json",

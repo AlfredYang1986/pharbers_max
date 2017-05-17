@@ -532,7 +532,7 @@ jQuery(function() {
                 type : "post",
                 data : JSON.stringify(query_object),
                 contentType: "application/json,charset=utf-8",
-                url :"pharbers/files/scp",
+                url :"/filesUpload/scpCopyFiles",
                 cache : false,
                 dataType : "json",
                 success : function(json){

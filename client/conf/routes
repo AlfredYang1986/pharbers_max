@@ -28,16 +28,13 @@ POST	/modeloperation/operationbar11	controllers.ModelOperationController.mondelO
 POST	/modeloperation/operationbar23  controllers.ModelOperationController.mondelOperationBar23AjaxCall
 POST	/login/start			    controllers.LoginController.Login
 GET     /resultquery/files/:name    controllers.foptController.exportFile(name)
-POST    /callcheckexcel             controllers.CallAkkaHttpController.callHttpCheckExcelAjaxCall
-POST    /callrunmodel               controllers.CallAkkaHttpController.callHttpRunModelAjaxCall
-POST    /callfileexport             controllers.CallAkkaHttpController.callHttpFileExportAjaxCall
-POST    /commitrunresult            controllers.CallAkkaHttpController.callHttpCommitRunResultAjaxCall
-POST    /cleaningdata               controllers.CallAkkaHttpController.callHttpCleaningDataAjaxCall
-POST    /uploadbefore               controllers.CallAkkaHttpController.callHttpUploadBeforeAjaxCall
+POST    /callhttpServer             controllers.CallAkkaHttpController.callHttpServer
+
 POST    /marketmanage/query         controllers.MarketManageController.marketManageQueryAjax
 POST    /marketmanage/delete        controllers.MarketManageController.marketManageDeleteAjax
 POST    /marketmanage/findOne       controllers.MarketManageController.marketManageFindOneAjax
 POST    /marketmanage/save          controllers.MarketManageController.marketManageSaveAjax
+
 POST    /usermanage/company/query   controllers.UserManageController.userManageCompanyQueryAjax
 POST    /usermanage/company/delete  controllers.UserManageController.userManageCompanyDeleteAjax
 POST    /usermanage/company/findOne controllers.UserManageController.userManageCompanyFindOneAjax
@@ -46,11 +43,13 @@ POST    /usermanage/user/query      controllers.UserManageController.userManageU
 POST    /usermanage/user/delete     controllers.UserManageController.userManageUserDeleteAjax
 POST    /usermanage/user/findOne    controllers.UserManageController.userManageUserFindOneAjax
 POST    /usermanage/user/save       controllers.UserManageController.userManageUserSaveAjax
-POST    /uploadfiles/removefiles    controllers.FilesUploadController.removefilesAjaxCall
+
+POST    /filesUpload/scpCopyFiles   controllers.FilesUploadController.scpCopyFiles
+POST    /filesUpload/removeFiles    controllers.FilesUploadController.removeFiles
 #upload
 GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
 POST	/pharbers/files/upload		controllers.foptController.uploadFile
-POST    /pharbers/files/scp         controllers.FilesUploadController.scpFileAjaxCall
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
