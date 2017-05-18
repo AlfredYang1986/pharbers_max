@@ -1,67 +1,56 @@
 package com.pharbers.aqll.common.alCmd
 
-import java.io.{IOException, InputStreamReader, LineNumberReader}
-import com.pharbers.aqll.common.alCmd.almodel.alResultDefines
+import java.io.{InputStreamReader, LineNumberReader}
+
+import com.pharbers.aqll.common.alErrorCode.alErrorCode
+import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json.toJson
+
 /**
   * Created by liwei on 2017/5/16.
   */
 
 trait alShellCmdExce {
-  def process : Process = null
-
   val cmd = ""
 
-  def excute : List[alResultDefines]
+  def excute: JsValue
 
-  def resultDefines(c: Int, n: String, m: String) : List[alResultDefines] = {
-    val result : alResultDefines = new alResultDefines()
-    result.setCode(c)
-    result.setName(n)
-    result.setMessage(m)
-    result :: Nil
+  /**
+    * 目前针对Python文件返回
+    * @param m 返回内容
+    */
+  def resultDefines(m: String) : JsValue = {
+    Json.toJson(Map("status" -> toJson("success"), "message" -> toJson(m)))
   }
 }
 
 class alShellOtherCmdExce() extends alShellCmdExce {
-  override def excute : List[alResultDefines] = {
+  override def excute: JsValue = {
     try {
-      val builder = new ProcessBuilder("/bin/bash", "-c", cmd)
-      val process = builder.start()
-      val ir = new InputStreamReader(process.getInputStream())
-      val input = new LineNumberReader(ir)
-      var line : String = null
-      process.waitFor()
-      resultDefines(0,"success","")
+      new ProcessBuilder("/bin/bash", "-c", cmd).start().waitFor()
+      alErrorCode.errorToJson("shell success")
     } catch {
-      case _ : IOException => resultDefines(-2,"error","IOException")
-      case ex : Exception => resultDefines(-2,"error","Exception")
+      case e : Exception => alErrorCode.errorToJson("shell error")
     }
   }
 }
 
 class alShellPythonCmdExce() extends alShellCmdExce {
-  override def excute : List[alResultDefines] = {
+  override def excute: JsValue = {
     try {
-      val builder = new ProcessBuilder("/bin/bash", "-c", cmd)
-      val process = builder.start()
-      val ir = new InputStreamReader(process.getInputStream())
-      val input = new LineNumberReader(ir)
-      var line : String = null
+      val process = new ProcessBuilder("/bin/bash", "-c", cmd).start()
+      val input = new LineNumberReader(new InputStreamReader(process.getInputStream()))
+      var line: String = ""
       process.waitFor()
       val strbuff : StringBuffer = new StringBuffer()
       do {
         line = input.readLine()
-        if(line!=null)
-          strbuff.append(line)
-      } while (line != null)
-
-      strbuff.toString match {
-        case "" => resultDefines(0,"success",strbuff.toString)
-        case _ => resultDefines(-1,"faild","")
-      }
+        if(!line.isEmpty) strbuff.append(line)
+      } while (!line.isEmpty)
+      if(strbuff.toString.isEmpty) resultDefines(strbuff.toString)
+      else alErrorCode.errorToJson("shell error")
     } catch {
-      case _ : IOException => resultDefines(-2,"error","IOException")
-      case ex : Exception => resultDefines(-2,"error","Exception")
+      case e : Exception => alErrorCode.errorToJson("shell error")
     }
   }
 }

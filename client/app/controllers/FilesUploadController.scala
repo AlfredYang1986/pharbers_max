@@ -17,5 +17,11 @@ class FilesUploadController extends Controller{
 		import pattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("classifyFilesAjaxCall"))), jv, request) :: msg_scpfile(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
+
+	def removefilesAjaxCall = Action (request => requestArgs(request) { jv =>
+		import pattern.LogMessage.common_log
+		import pattern.ResultMessage.common_result
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("removefilesAjaxCall"))), jv, request) :: msg_removefiles(jv) :: msg_CommonResultMessage() :: Nil, None)
+	})
 	
 }

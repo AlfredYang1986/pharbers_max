@@ -18,6 +18,7 @@ import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.common.alCmd.pkgcmd.unPkgCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
 import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
+import com.pharbers.aqll.alcalc.alCommon.fileConfig._
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -64,7 +65,7 @@ class alCalcActor extends Actor
 
 	        log.info(s"unCalcPkgSplit uuid = ${p.uuid}")
 
-            cur = Some(new unPkgCmd(s"/root/program/scp/${p.uuid}", "/root/program/") :: Nil)
+            cur = Some(new unPkgCmd(s"${root + program + scpPath + p.uuid}", s"${root + program}") :: Nil)
             process = do_pkg() :: Nil
             super.excute()
 
