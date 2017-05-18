@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, FSM, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.alExcelSplitJobStates.spliting_data
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointState}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.alCalaHelp.clusterListenerConfig._
+import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.duration._

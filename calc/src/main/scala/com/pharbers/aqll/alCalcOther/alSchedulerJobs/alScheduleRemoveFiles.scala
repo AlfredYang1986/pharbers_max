@@ -3,8 +3,8 @@ package com.pharbers.aqll.alCalcOther.alSchedulerJobs
 import java.util.Calendar
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.pharbers.aqll.alCalaHelp.fileConfig._
-import com.pharbers.aqll.alCalaHelp.timingConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.timingConfig._
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
 /**
@@ -43,7 +43,7 @@ class alScheduleRemoveFiles extends Actor with ActorLogging{
 //			printf("Hours: %s, Minute: %s, Seconds: %s \n", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.SECOND))
 			if (hours == time.get(Calendar.HOUR_OF_DAY) &&
 				minutes == time.get(Calendar.MINUTE) &&
-				seconds > time.get(Calendar.SECOND)) {
+				seconds.toInt > time.get(Calendar.SECOND)) {
 				alScheduleRemoveFiles.rmLst foreach (alFileOpt(_).removeCurFiles)
 			}
 		case _ => ???

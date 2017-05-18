@@ -18,8 +18,8 @@ import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
 import com.pharbers.aqll.common.alString.alStringOpt._
-import com.pharbers.aqll.alCalaHelp.fileConfig._
-import com.pharbers.aqll.alCalaHelp.serverConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, startDate}
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData

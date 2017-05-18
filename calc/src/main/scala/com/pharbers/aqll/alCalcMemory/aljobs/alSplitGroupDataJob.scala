@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
 import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.alCalaHelp.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.{presist_data, restore_grouped_data, split_data}
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy.hash_split
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
