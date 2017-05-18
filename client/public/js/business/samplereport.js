@@ -107,12 +107,13 @@ $(function(){
             var dataMap = JSON.stringify({
                 "company": $.cookie("token"),
                 "filename": $.cookie("calc_panel_file"),
-                "uname": $.cookie('webim_user')
+                "uname": $.cookie('webim_user'),
+                "businessType": "/modelcalc"
             })
             $.ajax({
                 type: "post",
                 data: dataMap,
-                url: "/callrunmodel",
+                url: "/callhttpServer",
                 contentType: 'application/json, charset=utf-8',
                 cache: false,
                 dataType: "json",

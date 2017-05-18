@@ -27,6 +27,7 @@ trait alShellCmdExce {
 class alShellOtherCmdExce() extends alShellCmdExce {
   override def excute: JsValue = {
     try {
+      println(s"cmd=$cmd")
       new ProcessBuilder("/bin/bash", "-c", cmd).start().waitFor()
       alErrorCode.errorToJson("shell success")
     } catch {
@@ -38,16 +39,16 @@ class alShellOtherCmdExce() extends alShellCmdExce {
 class alShellPythonCmdExce() extends alShellCmdExce {
   override def excute: JsValue = {
     try {
+      println(s"cmd=$cmd")
       val process = new ProcessBuilder("/bin/bash", "-c", cmd).start()
       val input = new LineNumberReader(new InputStreamReader(process.getInputStream()))
-      var line: String = ""
+      var line,result: String = ""
       process.waitFor()
-      val strbuff : StringBuffer = new StringBuffer()
       do {
         line = input.readLine()
-        if(!line.isEmpty) strbuff.append(line)
-      } while (!line.isEmpty)
-      if(strbuff.toString.isEmpty) resultDefines(strbuff.toString)
+        if(line != null) result = line
+      } while (line != null)
+      if(!result.isEmpty) resultDefines(result)
       else alErrorCode.errorToJson("shell error")
     } catch {
       case e : Exception => alErrorCode.errorToJson("shell error")
