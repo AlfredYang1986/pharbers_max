@@ -1,5 +1,6 @@
 package com.pharbers.aqll.pattern
 
+import com.pharbers.aqll.common.alErrorCode.alErrorCode
 import play.api.libs.json.JsValue
 import com.pharbers.aqll.pattern.LogMessage._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._

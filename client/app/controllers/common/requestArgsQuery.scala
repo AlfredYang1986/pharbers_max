@@ -15,6 +15,7 @@ import com.pharbers.aqll.pattern.excute
 import com.pharbers.aqll.pattern.RoutesActor
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.concurrent.Akka
+import com.pharbers.aqll.common.alErrorCode.alErrorCode
 
 object requestArgsQuery extends Controller{
 	implicit val t = Timeout(600 seconds)

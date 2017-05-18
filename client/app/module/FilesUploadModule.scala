@@ -1,7 +1,7 @@
 package module
 
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.common.fopConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
