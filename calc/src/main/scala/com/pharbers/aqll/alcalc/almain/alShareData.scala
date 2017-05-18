@@ -1,16 +1,14 @@
-package com.pharbers.aqll.alcalc.almain
+package com.pharbers.aqll.alCalc.almain
 
-import com.pharbers.aqll.alcalc.almodel.westMedicineIncome
-import com.pharbers.aqll.alcalc.alCommon.DefaultData
-import com.pharbers.aqll.alcalc.almodel.IntegratedData
+import com.pharbers.aqll.alCalaHelp.DefaultData
+import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
+import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.common.alString.alStringOpt._
 
 /**
   * Created by Alfred on 13/03/2017.
   */
 object alShareData {
-    lazy val hospdata = DefaultData.hospdatabase("universe_ot_SPE_ljx.xlsx", "SPE")
-
     def hospdata(name: String, company: String) = DefaultData.hospdatabase(name, company)
 
     val txt2IntegratedData : Any => IntegratedData = { txt =>
