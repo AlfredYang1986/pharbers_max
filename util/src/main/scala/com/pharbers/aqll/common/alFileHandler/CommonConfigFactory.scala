@@ -48,6 +48,8 @@ object fileConfig {
 	val client_cpa_file = file.getProperties("File.Client_Cpa")
 	val client_gycx_file = file.getProperties("File.Client_Gycx")
 	val manage_file = file.getProperties("File.Manage_File")
+	val Upload_Firststep_Filename = file.getProperties("File.Upload_Firststep_Filename")
+	val Upload_Secondstep_Filename = file.getProperties("File.Upload_Secondstep_Filename")
 	// TODO : Max计算输出地址
 	val memorySplitFile = file.getProperties("SCP.Memory_Split_File")
 	val sync = file.getProperties("SCP.sync")
