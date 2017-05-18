@@ -11,7 +11,7 @@ import akka.pattern.ask
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate}
 import com.pharbers.aqll.alCalcOther.alEmchat.sendMessage
 import com.pharbers.aqll.alCalcOther.mail.{Mail, MailAgent, MailToEmail}
-import com.pharbers.aqll.alCalaHelp.mailConfig._
+import com.pharbers.aqll.common.alFileHandler.mailConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info

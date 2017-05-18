@@ -16,8 +16,8 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalaHelp.fileConfig._
-import com.pharbers.aqll.alCalaHelp.serverConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 

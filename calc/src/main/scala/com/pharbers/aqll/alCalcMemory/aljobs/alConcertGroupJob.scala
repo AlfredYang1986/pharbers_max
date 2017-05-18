@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
 import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.alCalaHelp.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.{do_calc, do_map, restore_data}
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
 /**

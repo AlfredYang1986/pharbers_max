@@ -25,8 +25,8 @@ object alAkkaSystemGloble {
 
 object alAkkaHttpMain extends App with RequestTimeout {
 	val config = ConfigFactory.load("application")
-	val host = config.getString("http.host")
-	val port = config.getInt("http.port")
+	val host = config.getString("http.server.host")
+	val port = config.getInt("http.server.port")
 
 	implicit val system = ActorSystem("HttpMain")
 	implicit val ec = system.dispatcher

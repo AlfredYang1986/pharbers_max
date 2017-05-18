@@ -3,7 +3,7 @@ package com.pharbers.aqll.alCalcOther.alEmchat
 import io.swagger.client.ApiException
 import io.swagger.client.api.AuthenticationApi
 import io.swagger.client.model.Token
-import com.pharbers.aqll.alCalaHelp.emChatConfig._
+import com.pharbers.aqll.common.alFileHandler.emChatConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode
 import play.api.libs.json.{JsValue, Json}
 

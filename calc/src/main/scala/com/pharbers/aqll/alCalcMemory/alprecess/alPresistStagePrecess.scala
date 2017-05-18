@@ -4,7 +4,7 @@ import java.util.UUID
 
 import com.pharbers.aqll.alCalaHelp.alFileHandler.altext.alTextSync
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalaHelp.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
