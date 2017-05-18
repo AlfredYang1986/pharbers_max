@@ -6,7 +6,7 @@ import com.pharbers.aqll.common.HTTP
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alDao._data_connection_cores
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.aqll.common.akkaConfig._
+import com.pharbers.aqll.common.alFileHandler.akkaConfig._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.common.{alOperation, alRestDate}
@@ -217,7 +217,7 @@ object ModelOperationModule extends ModuleTrait {
 	}
 
 	def queryUUID(company: String): Option[String] = {
-		val uuidjson = call(Akka_Http_IP + ":" + Akka_Http_Port + "/queryUUID", toJson(Map("company" -> toJson(company))))
+		val uuidjson = call(akkaIp + ":" + akkaPort + "/queryUUID", toJson(Map("company" -> toJson(company))))
 		Some((uuidjson \ "result").asOpt[String].get)
 	}
 
