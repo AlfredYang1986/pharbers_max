@@ -83,6 +83,22 @@ object timingConfig {
 	val minutes = timing.getProperties("Timing.Minutes")
 	val seconds = timing.getProperties("Timing.Seconds")
 }
+object fopConfig {
+	val fop: IConfigFactory = CommonConfigFactory.getConfigFactory("fop")
+
+	val filebase = fop.getProperties("fop.filebase")
+	val hospital = fop.getProperties("fop.hospital")
+	val export = fop.getProperties("fop.export")
+	val cpa = fop.getProperties("fop.cpa")
+	val gycx = fop.getProperties("fop.gycx")
+	val manage = fop.getProperties("fop.manage")
+}
+object akkaConfig {
+	val akka: IConfigFactory = CommonConfigFactory.getConfigFactory("akka")
+
+	val akkaIp = akka.getProperties("akka.http.ip")
+	val akkaPort = akka.getProperties("akka.http.port")
+}
 
 object CommonConfigFactory {
 	val configFactoryMap:Map[String,IConfigFactory] = Map(
@@ -92,7 +108,9 @@ object CommonConfigFactory {
 		"file" -> new FileConfigFactory,
 		"mail" -> new MailConfigFactory,
 		"server" -> new ServerConfigFactory,
-		"timing" -> new TimingConfigFactory
+		"timing" -> new TimingConfigFactory,
+		"fop" -> new FopConfigFactory,
+		"akka" -> new AkkaConfigFactory
 	)
 
 	def getConfigFactory(configFileName:String):IConfigFactory = {
@@ -115,7 +133,9 @@ trait IConfigFactory{
 class ClusterListenerConfigFactory() extends IConfigFactory{override val configFileName = "cluster-listener.conf"}
 class DBConfigFactory  extends IConfigFactory{override val configFileName = "database.conf"}
 class EmChatConfigFactory  extends IConfigFactory{override val configFileName = "emChat.conf"}
-class FileConfigFactory  extends IConfigFactory{override val configFileName = "file.conf"}
+class FileConfigFactory  extends IConfigFactory{override val configFileName = "File.conf"}
 class MailConfigFactory  extends IConfigFactory{override val configFileName = "mail.conf"}
 class ServerConfigFactory  extends IConfigFactory{override val configFileName = "server.conf"}
 class TimingConfigFactory  extends IConfigFactory{override val configFileName = "timing.conf"}
+class FopConfigFactory  extends IConfigFactory{override val configFileName = "fop.conf"}
+class AkkaConfigFactory  extends IConfigFactory{override val configFileName = "akka.conf"}
