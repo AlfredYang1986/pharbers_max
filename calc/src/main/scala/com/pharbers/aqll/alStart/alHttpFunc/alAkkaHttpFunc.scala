@@ -9,9 +9,8 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalcOther.alEmchat.{alIMUser, sendMessage}
 import spray.json.DefaultJsonProtocol
 import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
-
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import scala.concurrent.ExecutionContext
-import com.pharbers.aqll.alCalaHelp.fileConfig._
 import com.pharbers.aqll.alCalaHelp.clusterListenerConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.{alFileExport, alFilesExport, alSampleCheck, alSampleCheckCommit}
@@ -69,7 +68,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("uploadbefore") {
 			entity(as[alUpBeforeItem]) { item =>
 				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val result = pyCmd(s"$root$program$fileBase${item.company}$python", "MaximumLikelyMonth.py", item.company, "").excute
+				val result = pyCmd(s"$root$program$fileBase${item.company}" ,Upload_Firststep_Filename, "").excute
 				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result":""" + result +"""}""")
 			}
@@ -80,7 +79,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
 				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val result = pyCmd(s"$root$program$fileBase${item.company}$python", "GeneratePanelFile.py", item.company, item.yms).excute
+				val result = pyCmd(s"$root$program$fileBase${item.company}",Upload_Secondstep_Filename, item.yms).excute
 				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result":""" + result +"""}""")
 			}

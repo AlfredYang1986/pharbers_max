@@ -132,7 +132,7 @@ $(function(){
                 }
             });
         }else{
-            $.tooltip('抱歉，在您进行确认之前，需要先点击文件解析，并且勾选年月！！！');
+            $.tooltip('抱歉，在点击下一步之前，您需要选择一个或多个年月！！！');
         }
     });
 
@@ -142,7 +142,6 @@ $(function(){
         $("#generate_sample_data").hide();
         $("#t_nextstepBtn").removeAttr("disabled");
         $("#s_nextstepBtn").removeAttr("disabled");
-        $('#resultDiv')[0].innerHTML = "";
     });
 
     $("#t_nextstepBtn").click(function () {
