@@ -3,7 +3,7 @@ package com.pharbers.aqll.alCalc.almain
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
-import com.pharbers.aqll.alCalaHelp.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage

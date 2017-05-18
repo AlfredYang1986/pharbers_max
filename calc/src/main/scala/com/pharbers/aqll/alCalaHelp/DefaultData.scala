@@ -2,7 +2,7 @@ package com.pharbers.aqll.alCalaHelp
 
 import com.pharbers.aqll.alCalc.almodel.java.{AdminHospitalDataBase, IntegratedData}
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
-import com.pharbers.aqll.alCalaHelp.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 
 object DefaultData {
 //    def hospdatabase(path: String, company: String) = {

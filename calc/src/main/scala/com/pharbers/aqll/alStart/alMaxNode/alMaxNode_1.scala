@@ -2,7 +2,7 @@ package com.pharbers.aqll.alStart.alMaxNode
 
 import akka.actor.ActorSystem
 import akka.cluster.Cluster
-import com.pharbers.aqll.alCalaHelp.clusterListenerConfig._
+import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalc.almain.{alCalcActor, alGroupActor}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register, worker_register}
 import com.pharbers.aqll.alCalcOther.alSchedulerJobs.{alScheduleRemoveFiles, rmFile}
