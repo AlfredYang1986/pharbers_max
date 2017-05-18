@@ -36,9 +36,10 @@ $(function(){
         query_object['company'] = $.cookie("token");
         query_object['filetype'] = type;
         query_object['uname'] = $.cookie('webim_user');
+        query_object['businessType'] = "/dataexport";
 
         $.ajax({
-            url :"/callfileexport",
+            url :"/callhttpServer",
             type : "POST",
             dataType : "json",
             contentType: "application/json,charset=utf-8",

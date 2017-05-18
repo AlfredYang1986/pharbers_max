@@ -1,24 +1,25 @@
-package com.pharbers.aqll.alcalc.almain
+package com.pharbers.aqll.alCalc.almain
 
 import java.util.UUID
 
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alcalc.alemchat.sendMessage
-import com.pharbers.aqll.alcalc.alfinaldataprocess.{alDumpcollScp, alRestoreColl}
-import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxCalcJobStates._
-import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{calc_avg_job, calc_job, concert_calc_result, crash_calc, _}
-import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty}
-import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alcalc.aljobs.alJob._
-import com.pharbers.aqll.alcalc.aljobs.alPkgJob
-import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointState}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.common.alCmd.pkgcmd.unPkgCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
-import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
-import com.pharbers.aqll.alcalc.alCommon.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
+import com.pharbers.aqll.alCalcEnergy.alSupervisorStrategy
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.alMaxCalcJobStates.{calc_coreing, calc_maxing}
+import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.do_pkg
+import com.pharbers.aqll.alCalcOther.alEmchat.sendMessage
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alDumpcollScp
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref

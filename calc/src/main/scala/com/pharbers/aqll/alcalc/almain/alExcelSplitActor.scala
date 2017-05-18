@@ -1,12 +1,12 @@
-package com.pharbers.aqll.alcalc.almain
+package com.pharbers.aqll.alCalc.almain
 
 import akka.actor.{Actor, ActorLogging, FSM, Props}
-import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
-import com.pharbers.aqll.alcalc.aljobs.aljobstates.alExcelSplitJobStates._
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
-
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.alExcelSplitJobStates.spliting_data
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointState}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import scala.concurrent.duration._
 
 /**
