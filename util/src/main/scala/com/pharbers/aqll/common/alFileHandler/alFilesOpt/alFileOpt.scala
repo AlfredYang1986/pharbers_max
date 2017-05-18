@@ -22,9 +22,9 @@ object alFileOpt {
 class alFileOpt(path: String)(oldPath: String) {
 	val f = new File(path)
 
-	def exHideListFile = f.listFiles.filter(x => !x.isHidden).map(_.getPath)
+	def exHideListFile: List[String] = f.listFiles.filter(x => x.isFile && !x.isHidden).map(_.getPath).toList
 
-	def inHideListFile = f.listFiles.map(_.getPath)
+	def listAllFiles: List[String] = f.listFiles.map(_.getPath).toList
 
 	def isExists = f.exists
 
@@ -38,7 +38,7 @@ class alFileOpt(path: String)(oldPath: String) {
 
 	def removeAllFiles: Boolean = {
 		if(isDir) {
-			inHideListFile foreach { x =>
+			listAllFiles foreach { x =>
 				if(!alFileOpt(x).removeAllFiles) false
 			}
 		}
