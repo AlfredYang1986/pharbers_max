@@ -2,8 +2,8 @@ package module
 
 import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import play.api.libs.json.JsValue
-import play.api.libs.json.Json.toJson
 import module.common.{alCompany,alUserManage}
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 object UserManageModuleMessage {
     sealed class msg_UserManageBase extends CommonMessage
@@ -31,67 +31,67 @@ object UserManageModule extends ModuleTrait {
         case msg_usermanage_user_save(data) => save_user_func(data)
     }
 
-    def query_company_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def query_company_func(data: JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            (Some(Map("result" -> alCompany.query(data))),None)
+            (Some(Map("result" -> alCompany.queryCompanys(data))),None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
         }
     }
 
     def delete_company_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            (Some(Map("result" -> alCompany.delete(data))),None)
+            (Some(Map("result" -> alCompany.deleteCompany(data))),None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
         }
     }
 
     def findOne_company_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            (Some(Map("result" -> alCompany.findOne(data))),None)
+            (Some(Map("result" -> alCompany.findOneCompany(data))),None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
         }
     }
 
     def save_company_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            (Some(Map("result" -> alCompany.save(data))),None)
+            (Some(Map("result" -> alCompany.saveCompany(data))),None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
         }
     }
 
     def query_user_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            (Some(Map("result" -> alUserManage.query(data))),None)
+            (Some(Map("result" -> alUserManage.queryUsers(data))),None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
         }
     }
 
     def delete_user_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            (Some(Map("result" -> alUserManage.delete(data))),None)
+            (Some(Map("result" -> alUserManage.deleteUser(data))),None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
         }
     }
 
     def findOne_user_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            (Some(Map("result" -> alUserManage.findOne(data))),None)
+            (Some(Map("result" -> alUserManage.findOneUser(data))),None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
         }
     }
 
     def save_user_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            (Some(Map("result" -> alUserManage.save(data))),None)
+            (Some(Map("result" -> alUserManage.saveUser(data))),None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
         }
     }
 }

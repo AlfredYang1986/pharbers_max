@@ -20,7 +20,7 @@ object alUserManage {
     * @param data
     * @return
     */
-  def query(data: JsValue): JsValue ={
+  def queryUsers(data: JsValue): JsValue ={
     val Company_Id = (data \ "Company_Id").get.asOpt[String].get
     val result = Company_Id match {
       case i if i.equals("788d4ff5836bcee2ebf4940fec882ac8") => _data_connection_basic.getCollection("Company").find().toList.map(x => queryDBObject(x: DBObject))
@@ -66,7 +66,7 @@ object alUserManage {
     * @param data
     * @return
     */
-  def delete(data: JsValue): JsValue ={
+  def deleteUser(data: JsValue): JsValue ={
     val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse("")
     val IDs = (data \ "IDs").get.asOpt[List[String]].getOrElse(Nil)
     val companys = findOneByCompany(Company_Id)
@@ -99,11 +99,11 @@ object alUserManage {
     document.put("User_lst",sub_user_list)
     val del_result = _data_connection_basic.getCollection("Company").findAndRemove(query)
     del_result match {
-      case None => getMessage(2)
+      case None => throw new Exception("warn operation failed")
       case _ => {
         _data_connection_basic.getCollection("Company").insert(document) getN match {
-          case 0 => getMessage(1)
-          case _ => getMessage(2)
+          case 0 => throw new Exception("warn operation success")
+          case _ => throw new Exception("warn operation failed")
         }
       }
     }
@@ -116,7 +116,7 @@ object alUserManage {
     * @param data
     * @return
     */
-  def findOne(data: JsValue): JsValue ={
+  def findOneUser(data: JsValue): JsValue ={
     val ID = (data \ "ID").get.asOpt[String].get
     var lsb = toJson("")
     _data_connection_basic.getCollection("Company").find().toList.foreach{x =>
@@ -148,7 +148,7 @@ object alUserManage {
     * @param data
     * @return
     */
-  def save(data: JsValue): JsValue ={
+  def saveUser(data: JsValue): JsValue ={
     val au = (data \ "au").get.asOpt[String].getOrElse("")
     val Account = (data \ "Account").get.asOpt[String].getOrElse("")
     val password = (data \ "Password").get.asOpt[String].getOrElse("")
@@ -199,11 +199,11 @@ object alUserManage {
                     )
                   }))
                 _data_connection_basic.getCollection("Company").insert(doc) getN match {
-                  case 0 => getMessage(1)
-                  case _ => getMessage(2)
+                  case 0 => throw new Exception("warn operation success")
+                  case _ => throw new Exception("warn operation failed")
                 }
               }
-              case _ => getMessage(3)
+              case _ => throw new Exception("warn target already exists")
             }
           }
           case "update" => {
@@ -232,8 +232,8 @@ object alUserManage {
 
               })
             _data_connection_basic.getCollection("Company").update(query,sql).getN match {
-              case 1 => getMessage(1)
-              case _ => getMessage(2)
+              case 1 => throw new Exception("warn operation success")
+              case _ => throw new Exception("warn operation failed")
             }
           }
         }

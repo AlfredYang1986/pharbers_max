@@ -49,14 +49,26 @@ object alErrorCode {
 		ErrorNode("warn code", -403, "输入正确的验证码"),
 		ErrorNode("warn user not exist", -404, "用户不存在或者密码不正确"),
 		ErrorNode("warn email", -405, "输入正确的邮件地址"),
-		ErrorNode("error input", -406, "你输入的参数不正确"),
-		ErrorNode("warn input", -407, "输入参数有错误"),
+		ErrorNode("warn input", -406, "输入参数有错误"),
+		ErrorNode("warn operation success", -407, "操作成功"),
+		ErrorNode("warn operation failed", -408, "操作失败"),
+		ErrorNode("warn target already exists", -409, "目标已存在"),
+		ErrorNode("warn target does not exist", -410, "目标不存在"),
+		ErrorNode("warn cpa file delete failed", -411, "cpa文件删除失败"),
+		ErrorNode("warn gycx file delete failed", -412, "gycx文件删除失败"),
+		ErrorNode("warn aliyun106 scp copy file failed", -413, "aliyun106 scp拷贝文件失败"),
+		ErrorNode("warn aliyun50 scp copy file failed", -415, "aliyun50 scp拷贝文件失败"),
 
 		/**
 		  * Shell状态
 		  */
 		ErrorNode("shell error" , -501, "shell执行失败"),
 		ErrorNode("shell success" , -502, "shell执行成功"),
+
+		/**
+			* 错误信息
+			*/
+		ErrorNode("error input", -601, "你输入的参数不正确"),
 
 		/**
 		  * 功能未实现
