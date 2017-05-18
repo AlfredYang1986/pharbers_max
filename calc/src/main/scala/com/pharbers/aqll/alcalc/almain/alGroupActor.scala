@@ -1,26 +1,26 @@
-package com.pharbers.aqll.alcalc.almain
+package com.pharbers.aqll.alCalc.almain
 
 import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alcalc.aldata.alStorage
-import com.pharbers.aqll.alcalc.alemchat.sendMessage
-import com.pharbers.aqll.alcalc.aljobs.alJob.grouping_jobs
-import com.pharbers.aqll.alcalc.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
-import com.pharbers.aqll.alcalc.aljobs.aljobstates.{alMasterJobIdle, alPointState}
-import com.pharbers.aqll.alcalc.aljobs.aljobtrigger.alJobTrigger.{concert_groupjust_result, _}
-import com.pharbers.aqll.alcalc.almaxdefines.{alCalcParmary, alMaxProperty}
-import com.pharbers.aqll.alcalc.alstages.alStage
-import com.pharbers.aqll.alcalc.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alcalc.aljobs.alJob._
-import com.pharbers.aqll.alcalc.aljobs.alPkgJob
-import com.pharbers.aqll.alcalc.almodel.IntegratedData
-import com.pharbers.aqll.alcalc.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import com.pharbers.aqll.common.alDao._data_connection_cores
-import com.pharbers.aqll.alcalc.alCommon.fileConfig._
-import com.pharbers.aqll.alcalc.alCommon.clusterListenerConfig._
-import com.pharbers.aqll.alcalc.alCommon.serverConfig._
+import com.pharbers.aqll.alCalaHelp.fileConfig._
+import com.pharbers.aqll.alCalaHelp.clusterListenerConfig._
+import com.pharbers.aqll.alCalaHelp.serverConfig._
+import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
+import com.pharbers.aqll.alCalcEnergy.alSupervisorStrategy
+import com.pharbers.aqll.alCalcMemory.aldata.alStorage
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, grouping_jobs}
+import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointState}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
+import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alCalcMemory.alstages.alStage
+import com.pharbers.aqll.alCalcOther.alEmchat.sendMessage
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
