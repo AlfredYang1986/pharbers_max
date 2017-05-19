@@ -21,6 +21,8 @@ object ScatterGatherActor {
 
 class ScatterGatherActor(originSender : ActorRef, msr : MessageRoutes)(implicit f : List[Map[String, JsValue]] => Map[String, JsValue]) extends Actor with ActorLogging {
 
+	implicit val cm = msr.cm
+
 	var next : ActorRef = null
 	var sub_act = Seq[ActorRef]()
 	var excepted = 0

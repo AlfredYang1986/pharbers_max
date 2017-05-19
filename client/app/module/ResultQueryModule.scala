@@ -1,7 +1,7 @@
 package module
 
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.Page._
 import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
 import play.api.libs.json.JsValue
@@ -19,12 +19,12 @@ object ResultQueryModuleMessage {
 object ResultQueryModule extends ModuleTrait {
 	import ResultQueryModuleMessage._
 	import controllers.common.default_error_handler.f
-	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]]) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_calc_result_query(data) => calc_result_query_func(data)
 		case _ => ???
 	}
 
-	def calc_result_query_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def calc_result_query_func(data : JsValue)(implicit error_handler : Int => JsValue, cm: CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 
 		var markets = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(Nil)
 		var dates = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(throw new Exception("warn input"))
