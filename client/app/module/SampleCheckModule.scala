@@ -89,12 +89,10 @@ object SampleCheckModule extends ModuleTrait {
 		* @param query_type
 		* @return
 		*/
-	def query(company: String,market: String,date: String,query_type: String): DBObject ={
-		query_type match {
-			case "cur" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2Long(date)))
-			case "ear" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2EarlyLong(date)))
-			case "las" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2LastLong(date)))
-		}
+	def query(company: String,market: String,date: String,query_type: String): DBObject = query_type match {
+		case "cur" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2Long(date)))
+		case "ear" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2EarlyLong(date)))
+		case "las" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2LastLong(date)))
 	}
 
 	/**

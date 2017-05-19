@@ -50,10 +50,10 @@ $(function() {
     //说明：根据市场和日期筛选结果数据列表。
     //*********************************************************************
 	$('#queryBtn').click(function(){
-        pageResult(3);
+        pageResult(1);
 	});
 
-	pageResult(3);
+	pageResult(1);
 });
 
 function pageResult(page){

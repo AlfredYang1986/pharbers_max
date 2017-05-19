@@ -59,8 +59,8 @@ object alSampleCheck {
     */
   def matchLastYearData(arr: Array[String],lst: List[Map[String,AnyRef]]): List[Map[String,Any]] = {
     val date_lst = richDateArr(arr)
-    lst.size match {
-      case 0 => date_lst
+    lst match {
+      case Nil => date_lst
       case _ => {
         date_lst map{ x =>
           val obj = lst.find(y => y.get("Date").get.equals(x.get("Date").get))
