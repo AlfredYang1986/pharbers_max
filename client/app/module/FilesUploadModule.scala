@@ -1,6 +1,6 @@
 package module
 
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import play.api.libs.json.JsValue
@@ -19,7 +19,7 @@ object FilesUploadModuleMessage {
 object FilesUploadModule extends ModuleTrait {
     import FilesUploadModuleMessage._
     import controllers.common.default_error_handler.f
-	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]]) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_scpCopyFiles(data) => scpCopyFiles_func(data)
     case msg_removeFiles(data) => removeFiles_func(data)
 		case _ => ???

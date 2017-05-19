@@ -1,8 +1,8 @@
 package module
 
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
 import play.api.libs.json.JsValue
-import module.common.{alCompany,alUserManage}
+import module.common.{alCompany, alUserManage}
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 object UserManageModuleMessage {
@@ -20,7 +20,7 @@ object UserManageModuleMessage {
 object UserManageModule extends ModuleTrait {
     import UserManageModuleMessage._
     import controllers.common.default_error_handler.f
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_usermanage_company_query(data) => query_company_func(data)
         case msg_usermanage_company_delete(data) => delete_company_func(data)
         case msg_usermanage_company_findOne(data) => findOne_company_func(data)
@@ -31,7 +31,7 @@ object UserManageModule extends ModuleTrait {
         case msg_usermanage_user_save(data) => save_user_func(data)
     }
 
-    def query_company_func(data: JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def query_company_func(data: JsValue)(implicit cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             (Some(Map("result" -> alCompany.queryCompanys(data))),None)
         } catch {
@@ -39,7 +39,7 @@ object UserManageModule extends ModuleTrait {
         }
     }
 
-    def delete_company_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def delete_company_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             (Some(Map("result" -> alCompany.deleteCompany(data))),None)
         } catch {
@@ -47,7 +47,7 @@ object UserManageModule extends ModuleTrait {
         }
     }
 
-    def findOne_company_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def findOne_company_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             (Some(Map("result" -> alCompany.findOneCompany(data))),None)
         } catch {
@@ -55,7 +55,7 @@ object UserManageModule extends ModuleTrait {
         }
     }
 
-    def save_company_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def save_company_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             (Some(Map("result" -> alCompany.saveCompany(data))),None)
         } catch {
@@ -63,7 +63,7 @@ object UserManageModule extends ModuleTrait {
         }
     }
 
-    def query_user_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def query_user_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             (Some(Map("result" -> alUserManage.queryUsers(data))),None)
         } catch {
@@ -71,7 +71,7 @@ object UserManageModule extends ModuleTrait {
         }
     }
 
-    def delete_user_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def delete_user_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             (Some(Map("result" -> alUserManage.deleteUser(data))),None)
         } catch {
@@ -79,7 +79,7 @@ object UserManageModule extends ModuleTrait {
         }
     }
 
-    def findOne_user_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def findOne_user_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             (Some(Map("result" -> alUserManage.findOneUser(data))),None)
         } catch {
@@ -87,7 +87,7 @@ object UserManageModule extends ModuleTrait {
         }
     }
 
-    def save_user_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def save_user_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             (Some(Map("result" -> alUserManage.saveUser(data))),None)
         } catch {
