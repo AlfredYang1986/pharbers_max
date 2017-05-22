@@ -1,5 +1,5 @@
 function Page(data) {
-	var page = data.result.page[0];
+	var page = data.result.result.page[0];
 	$('div[id="pageinfo"]').html("显示第 " + page.ROW_START + " 至 " + page.ROW_END + " 条记录，共 " + page.TOTLE_RECORD + " 条记录");
 	var element = $('#pageview');
 	options = {

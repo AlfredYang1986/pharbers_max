@@ -1,5 +1,8 @@
 package controllers
 
+import javax.inject.Inject
+
+import com.pharbers.aqll.dbmodule.MongoDBModule
 import com.pharbers.aqll.pattern
 import com.pharbers.aqll.pattern.LogMessage.msg_log
 import com.pharbers.aqll.pattern.{CommonModule, MessageRoutes}
@@ -9,9 +12,10 @@ import module.UserManageModuleMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
-class UserManageController extends Controller{
+class UserManageController@Inject() (mdb: MongoDBModule) extends Controller{
+    implicit val dbc = mdb.basic
 
-    implicit val cm = CommonModule(Some(Map("" -> None)))
+    implicit val cm = CommonModule(Some(Map("db" -> dbc)))
 
     def userManageCompanyQueryAjax = Action(request => requestArgs(request) { jv =>
         import pattern.LogMessage.common_log

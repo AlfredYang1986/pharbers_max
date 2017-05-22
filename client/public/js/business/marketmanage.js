@@ -52,7 +52,7 @@ $(function(){
 //说明：组装分页数据。
 //*********************************************************************
 var market_lst = function(data) {
-    var lst = data.result.result
+    var lst = data.result.result.result
     var temp = []
     var data = []
     var nobj = lst[0]
@@ -87,23 +87,16 @@ var update_func = function(id){
         data: JSON.stringify(obj),
         cache: false,
         success: function(data) {
-            if(data.status == "ok"){
-                var result = data.result.result
-                if(result.status == "success"){
-                    $("#au").val("update");
-                    $('#title').text("编辑");
-                    $("#market_id").val(result.result.Market_Id);
-                    $("#market_name").val(result.result.Market_Name);
-                    $("#modal-form").modal('show');
-                }else{
-                    $.tooltip('My God, '+result.result+'！！！');
-                }
+            var result = data.result.result.result
+            if(result.status == "success"){
+                $("#au").val("update");
+                $('#title').text("编辑");
+                $("#market_id").val(result.result.Market_Id);
+                $("#market_name").val(result.result.Market_Name);
+                $("#modal-form").modal('show');
             }else{
-                $.tooltip('My God, 出错啦！！！');
+                $.tooltip(data.result.message);
             }
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
         }
     });
 }
@@ -136,17 +129,14 @@ var remove_func = function(ids){
             data: JSON.stringify(query_object),
             cache: false,
             success: function(data) {
-                var result = data.result.result
-                if(data.status == "ok" && result.status == "success"){
-                    $.tooltip('OK, '+result.result+'！', 2500, true);
+                var result = data.result
+                if(result.status == "success"){
                     query();
+                    $.tooltip(result.result.result, 2500, true);
                 }else{
-                    $.tooltip('My God, '+result.result+'！！！');
+                    $.tooltip(data.result.message);
                 }
                 $.closeDialog(function(){});
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                $.tooltip('My God, 出错啦！！！');
             }
         });
     });
@@ -173,27 +163,19 @@ var save_func = function(){
             data: JSON.stringify(obj),
             cache: false,
             success: function(data) {
-                if(data.status == "ok"){
-                    var result = data.result.result
-                    if(result.status == "success"){
-                        query();
-                        $("#modal-form").modal('hide');
-                        $.tooltip('OK, 操作成功！', 2500, true);
-                    }else{
-                        $.tooltip('My God, '+result.result+'！！！');
-                    }
+                var result = data.result
+                if(result.status == "success"){
+                    query();
+                    $("#modal-form").modal('hide');
+                    $.tooltip(result.result.result, 2500, true);
                 }else{
-                    $.tooltip('My God, 出错啦！！！');
+                    $.tooltip(result.message);
                 }
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                $.tooltip('My God, 出错啦！！！');
             }
         });
     } else {
         $.tooltip('市场名称输入为空！！！');
     }
-
 }
 
 //*********************************************************************
@@ -213,9 +195,6 @@ var query = function(){
         success: function(data) {
             var data = market_lst(data);
             dataTableAjax(data);
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
         }
     });
 }

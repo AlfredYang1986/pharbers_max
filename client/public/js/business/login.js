@@ -27,34 +27,25 @@ function login() {
 		data: d,
 		contentType: "application/json,charset=utf-8",
 		success: function(r){
-			if(r.status == "ok") {
-                if(r.result.FinalResult == "input is null") {
-                    $("#loginSub").click();
-                }else if(r.result.FinalResult == "is null") {
-                    alert("用户名或密码错误！！！")
-                }else if(r != null  && r != ""){
-                    login_im(userName, userPass);
-                    $.cookie("user_token",r.result.FinalResult.User_Token);
-                    $.cookie("user_name",r.result.FinalResult.UserName);
-                    $.cookie("user_auth",r.result.FinalResult.UserAuth);
-                    $.cookie("is_administrator",r.result.FinalResult.IsAdministrator);
-                    $.cookie("token",r.result.FinalResult.Token);
-                    $.cookie("company_name_ch",r.result.FinalResult.CompanyNameCh);
-                    $.cookie("company_name_en",r.result.FinalResult.CompanyNameEn);
-                    $.cookie("email",r.result.FinalResult.E_Mail)
-                    $.cookie("ip",r.result.FinalResult.ip);
-                    $.tooltip('OK, 登录成功！', 2500, true);
-                    setTimeout(function () {
-                        location = "index"
-                    }, 1000 * 3)
-                }
-			}else {
-                $.tooltip('清理浏览器Cookie');
+			if(r.result.status == "success"){
+				var user = r.result.result.result
+				login_im(userName, userPass);
+				$.cookie("user_token",user.User_Token);
+				$.cookie("user_name",user.UserName);
+				$.cookie("user_auth",user.UserAuth);
+				$.cookie("is_administrator",user.IsAdministrator);
+				$.cookie("token",user.Token);
+				$.cookie("company_name_ch",user.CompanyNameCh);
+				$.cookie("company_name_en",user.CompanyNameEn);
+				$.cookie("email",user.E_Mail)
+				$.cookie("ip",user.ip);
+				$.tooltip('OK, 登录成功！', 2500, true);
+				setTimeout(function () {
+					location = "index"
+				}, 1000 * 3)
+			}else{
+				$.tooltip(r.result.message);
 			}
-
-		},
-		error: function(XMLHttpRequest, textStatus, errorThrown){
-			console.info("Error")
 		}
 	});
 }
