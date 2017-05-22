@@ -1,13 +1,13 @@
 package module
 
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.common.alDao._data_connection_basic
+import com.pharbers.aqll.common.alDao.data_connection
+import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import module.common.alMessage._
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 object MarketManageModuleMessage {
     sealed class msg_MarketManageBase extends CommonMessage
@@ -20,7 +20,7 @@ object MarketManageModuleMessage {
 object MarketManageModule extends ModuleTrait {
     import MarketManageModuleMessage._
     import controllers.common.default_error_handler.f
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_marketmanage_query(data) => queryMarkets_func(data)
         case msg_marketmanage_delete(data) => deleteMarkets_func(data)
         case msg_marketmanage_findOne(data) => findOneMarket_func(data)
@@ -32,14 +32,19 @@ object MarketManageModule extends ModuleTrait {
       *
       * @author liwei
       * @param data
-      * @param error_handler
       * @return
       */
-    def queryMarkets_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def queryMarkets_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            (Some(Map("result" -> toJson(queryMarkets))),None)
+            val result = cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Market").find().map(x =>
+                toJson(Map(
+                    "Market_Id" -> toJson(x.get("Market_Id").asInstanceOf[String]),
+                    "Market_Name" -> toJson(x.get("Market_Name").asInstanceOf[String]),
+                    "Date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(x.get("Date").asInstanceOf[Number].longValue()))
+                ))).toList
+            (successToJson(toJson(result)), None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
     }
 
@@ -49,21 +54,23 @@ object MarketManageModule extends ModuleTrait {
       *
       * @author liwei
       * @param data
-      * @param error_handler
       * @return
       */
-    def deleteMarkets_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def deleteMarkets_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            val ids = (data \ "Market_Id").get.asOpt[List[String]].getOrElse(Nil)
-            val r = ids map(x => _data_connection_basic.getCollection("Market").findAndRemove(MongoDBObject("Market_Id" -> x)))
-            println(r)
-            val result = r.size match {
-                case i if i.equals(ids.size) => getMessage(1)
-                case _ => getMessage(2)
+            val market_ids = (data \ "Market_Id").get.asOpt[List[String]].getOrElse(throw new Exception("info select markets you want to delete"))
+            println(market_ids)
+            val result = market_ids map (x => cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Market").findAndRemove(MongoDBObject("Market_Id" -> x)))
+
+            result.size match {
+                case i if i.equals(market_ids.size) => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
+                case _ => throw new Exception("warn operation failed")
             }
-            (Some(Map("result" -> result)),None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => {
+                println(ex.getMessage)
+                (None, Some(errorToJson(ex.getMessage())))
+            }
         }
     }
 
@@ -72,21 +79,25 @@ object MarketManageModule extends ModuleTrait {
       *
       * @author liwei
       * @param data
-      * @param error_handler
       * @return
       */
-    def findOneMarket_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def findOneMarket_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             val Market_Id = (data \ "Market_Id").get.asOpt[String].getOrElse("")
             val query =MongoDBObject("Market_Id" -> Market_Id)
-            val dbo = _data_connection_basic.getCollection("Market").findOne(query)
-            val result = dbo match {
-                case None => getMessage(4)
-                case _ => toJson(Map("result" -> toJson(Map("Market_Id" -> toJson(dbo.get.get("Market_Id").asInstanceOf[String]),"Market_Name" -> toJson(dbo.get.get("Market_Name").asInstanceOf[String]))),"status" -> toJson("success")))
+            val dbo = cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Market").findOne(query)
+            dbo match {
+                case None => throw new Exception("warn target does not exist")
+                case _ => {
+                    val result = toJson(Map("result" -> toJson(Map(
+                        "Market_Id" -> toJson(dbo.get.get("Market_Id").asInstanceOf[String]),
+                        "Market_Name" -> toJson(dbo.get.get("Market_Name").asInstanceOf[String]))),
+                        "status" -> toJson("success")))
+                    (successToJson(result), None)
+                }
             }
-            (Some(Map("result" -> result)),None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
     }
 
@@ -95,52 +106,38 @@ object MarketManageModule extends ModuleTrait {
       *
       * @author liwei
       * @param data
-      * @param error_handler
       * @return
       */
-    def saveMarket_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def saveMarket_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             val Market_Name = (data \ "Market_Name").get.asOpt[String].getOrElse("")
             val au = (data \ "au").get.asOpt[String].getOrElse("")
             au match {
                 case "add" => {
                     val query = MongoDBObject("Market_Name" -> Market_Name)
-                    val dbo = _data_connection_basic.getCollection("Market").findOne(query)
-                    val result = dbo match {
+                    cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Market").findOne(query) match {
                         case None => {
-                            val market = MongoDBObject("Market_Id" -> md5(Market_Name),"Market_Name"-> Market_Name,"Date" -> System.currentTimeMillis())
-                            val r = _data_connection_basic.getCollection("Market").insert(market)
-                            r.getN match {
-                                case 0 => getMessage(1)
-                                case _ => getMessage(2)
+                            val doc = MongoDBObject("Market_Id" -> md5(Market_Name),"Market_Name"-> Market_Name,"Date" -> System.currentTimeMillis())
+                            cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Market").insert(doc).getN match {
+                                case 0 => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
+                                case _ => throw new Exception("warn operation failed")
                             }
                         }
-                        case _ => getMessage(3)
+                        case _ => throw new Exception("warn target already exists")
                     }
-                    (Some(Map("result" -> result)),None)
                 }
                 case "update" => {
                     val Market_Id = (data \ "Market_Id").get.asOpt[String].getOrElse("")
                     val query = MongoDBObject("Market_Id" -> Market_Id)
                     val update = MongoDBObject("Market_Id" -> md5(Market_Name),"Market_Name" -> Market_Name,"Date" -> System.currentTimeMillis())
-                    val r = _data_connection_basic.getCollection("Market").update(query,update)
-                    val result = r.getN match {
-                        case 1 => getMessage(1)
-                        case _ => getMessage(2)
+                    cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Market").update(query,update).getN match {
+                        case 1 => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
+                        case _ => throw new Exception("warn operation failed")
                     }
-                    (Some(Map("result" -> result)),None)
                 }
             }
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
     }
-
-    /**
-      * 检索市场列表
-      *
-      * @author liwei
-      * @return
-      */
-    def queryMarkets : List[JsValue] = _data_connection_basic.getCollection("Market").find().map(x => toJson(Map("Market_Id" -> toJson(x.get("Market_Id").asInstanceOf[String]),"Market_Name" -> toJson(x.get("Market_Name").asInstanceOf[String]),"Date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(x.get("Date").asInstanceOf[Number].longValue()))))).toList
 }

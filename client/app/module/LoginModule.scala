@@ -3,11 +3,12 @@ package module
 import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
-import com.pharbers.aqll.common.alDao.{_data_connection_basic, from}
+import com.pharbers.aqll.common.alDao.{data_connection, from}
 import play.api.libs.json.Json._
 import play.api.libs.json._
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 object LoginModuleMessage {
     sealed class msg_LoginBaseQuery extends CommonMessage
@@ -17,12 +18,12 @@ object LoginModuleMessage {
 object LoginModule extends ModuleTrait {
     import LoginModuleMessage._
     import controllers.common.default_error_handler.f
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_login(data, ip) => login(data, ip)
-        case _ => println("Error--------"); ???
+        case _ => ???
     }
 
-    def login(data: JsValue, ip: String)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def login(data: JsValue, ip: String)(implicit cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) =>
@@ -50,26 +51,26 @@ object LoginModule extends ModuleTrait {
             val con = conditionsAcc(Nil, "Account" :: "Password" :: Nil, userConditions(x => x.asOpt[String]))
             con
         }
-
         try {
             conditions.size match {
-                case 0 => (Some(Map("FinalResult" -> toJson("input is null"))), None)
+                case 0 => throw new Exception("warn user not exist")
 
-                case 1 => (Some(Map("FinalResult" -> toJson("input is null"))), None)
+                case 1 => throw new Exception("warn user not exist")
 
                 case 2 => conditions match {
                     case x: List[DBObject] =>
+                        val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
                         val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))
-                        val tmp = (from db () in "Company" where t).selectAggregate(resultData(_, ip))(_data_connection_basic).toList
+                        val tmp = (from db () in "Company" where t).selectAggregate(resultData(_, ip))(database).toList
                         tmp.size match {
-                            case 0 => (Some(Map("FinalResult" -> toJson("is null"))), None)
-                            case _ => (Some(Map("FinalResult" -> tmp.head)),None)
+                            case 0 => throw new Exception("warn user not exist")
+                            case _ => (successToJson(tmp.head), None)
                         }
                 }
-                case _ => ???
+                case _ => throw new Exception
             }
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
     }
 

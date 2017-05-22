@@ -40,6 +40,7 @@ object alErrorCode {
 		ErrorNode("info input company address", -306, "请输入公司注册地址"),
 		ErrorNode("info input market name", -307, "请输入市场名称"),
 		ErrorNode("info input company name", -308, "请输入公司名称"),
+		ErrorNode("info select markets you want to delete", -309 ,"请选择要删除的市场"),
 
 		/**
 		  * 验证
@@ -58,6 +59,7 @@ object alErrorCode {
 		ErrorNode("warn gycx file delete failed", -412, "gycx文件删除失败"),
 		ErrorNode("warn aliyun106 scp copy file failed", -413, "aliyun106 scp拷贝文件失败"),
 		ErrorNode("warn aliyun50 scp copy file failed", -415, "aliyun50 scp拷贝文件失败"),
+		ErrorNode("warn uuid does not exist", -416, "没有匹配的UUID"),
 
 		/**
 		  * Shell状态
@@ -99,7 +101,12 @@ object alErrorCode {
 	def errorMessageByCode(code: Int): (Int, String) = (code, getErrorMessageByCode(code))
 
 	def errorToJson(name: String): JsValue = {
-		Json.toJson(Map("status" -> toJson("error"), "error" ->
+		Json.toJson(Map("status" -> toJson("error"), "result" ->
 			toJson(Map("code" -> toJson(this.getErrorCodeByName(name)), "message" -> toJson(this.getErrorMessageByName(name))))))
+	}
+
+	def successToJson(result: JsValue = toJson("OK"), page: JsValue = toJson("")): Option[Map[String,JsValue]] = {
+		Some(Map("status" -> toJson("success"), "result" ->
+			toJson(Map("result" -> result, "page" -> page))))
 	}
 }

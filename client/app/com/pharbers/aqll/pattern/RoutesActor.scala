@@ -13,6 +13,7 @@ class RoutesActor extends Actor with ActorLogging {
 	var next : ActorRef = null
 	def receive = {
 		case excute(msr)  => {
+			implicit val cm = msr.cm
 			originSender = sender
 			msr.lst match {
 				case Nil => originSender ! toJson("error")

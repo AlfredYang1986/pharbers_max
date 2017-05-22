@@ -112,10 +112,11 @@ var query_companys = function () {
         data: JSON.stringify(obj),
         cache: false,
         success: function(data) {
-            dataTableMultiAjax(company_lst(data),'#dataTables-company');
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
+            if(data.result.status == "success"){
+                dataTableMultiAjax(company_lst(data),'#dataTables-company');
+            }else{
+                $.tooltip(data.result.message);
+            }
         }
     });
 }
@@ -127,7 +128,7 @@ var query_companys = function () {
 //说明：组装公司分页数据。
 //*********************************************************************
 var company_lst = function(data) {
-    var lst = data.result.result
+    var lst = data.result.result.result
     var temp = []
     var fina = []
     var nobj = lst[0]
@@ -171,25 +172,18 @@ var update_company_func = function(id){
         data: JSON.stringify(obj),
         cache: false,
         success: function(data) {
-            if(data.status == "ok"){
-                var result = data.result.result
-                if(result.status == "success"){
-                    $("#c_au").val("update");
-                    $('#c_title').text("编辑");
-                    $("#Company_Id").val(result.result.Company_Id);
-                    $("#Company_Name_Ch").val(result.result.Ch);
-                    $("#Company_Name_En").val(result.result.En);
-                    $("#E_Mail").val(result.result.E_Mail);
-                    $("#company-form").modal('show');
-                }else{
-                    $.tooltip('My God, '+result.result+'！！！');
-                }
+            if(data.result.status == "success"){
+                var company = data.result.result.result.result;
+                $("#c_au").val("update");
+                $('#c_title').text("编辑");
+                $("#Company_Id").val(company.Company_Id);
+                $("#Company_Name_Ch").val(company.Ch);
+                $("#Company_Name_En").val(company.En);
+                $("#E_Mail").val(company.E_Mail);
+                $("#company-form").modal('show');
             }else{
-                $.tooltip('My God, 出错啦！！！');
+                $.tooltip(data.result.message);
             }
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
         }
     });
 }
@@ -231,21 +225,13 @@ var save_company_func = function(){
         data: JSON.stringify(obj),
         cache: false,
         success: function(data) {
-            if(data.status == "ok"){
-                var result = data.result.result
-                if(result.status == "success"){
-                    query_companys();
-                    $("#company-form").modal('hide');
-                    $.tooltip('OK, 操作成功！', 2500, true);
-                }else{
-                    $.tooltip('My God, '+result.result+'！！！');
-                }
+            if(data.result.status == "success"){
+                query_companys();
+                $("#company-form").modal('hide');
+                $.tooltip('OK, 操作成功！', 2500, true);
             }else{
-                $.tooltip('My God, 出错啦！！！');
+                $.tooltip(data.result.message);
             }
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
         }
     });
 }
@@ -279,17 +265,8 @@ var remove_company_func = function (ids) {
             data: JSON.stringify(query_object),
             cache: false,
             success: function(data) {
-                var result = data.result.result
-                if(data.status == "ok" && result.status == "success"){
-                    $.tooltip('OK, '+result.result+'！', 2500, true);
-                    query_companys();
-                }else{
-                    $.tooltip('My God, '+result.result+'！！！');
-                }
+                $.tooltip(data.result.message);
                 $.closeDialog(function(){});
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                $.tooltip('My God, 出错啦！！！');
             }
         });
     });
@@ -311,10 +288,11 @@ var query_user = function(){
         data: JSON.stringify(obj),
         cache: false,
         success: function(data) {
-            dataTableMultiAjax(user_lst(data),'#dataTables-user');
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
+            if(data.result.status == "success"){
+                dataTableMultiAjax(user_lst(data),'#dataTables-user');
+            }else{
+                $.tooltip(data.result.message);
+            }
         }
     });
 }
@@ -326,7 +304,7 @@ var query_user = function(){
 //说明：组装用户分页数据。
 //*********************************************************************
 var user_lst = function(data) {
-    var lst = data.result.result
+    var lst = data.result.result.result;
     var temp = []
     var fina = []
     var nobj = lst[0]
@@ -391,17 +369,8 @@ var remove_user_func = function (ids,Company_Id) {
             data: JSON.stringify(query_object),
             cache: false,
             success: function(data) {
-                var result = data.result.result
-                if(data.status == "ok" && result.status == "success"){
-                    $.tooltip('OK, '+result.result+'！', 2500, true);
-                    query_user();
-                }else{
-                    $.tooltip('My God, '+result.result+'！！！');
-                }
+                $.tooltip(data.result.message);
                 $.closeDialog(function(){});
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                $.tooltip('My God, 出错啦！！！');
             }
         });
     });
@@ -424,36 +393,29 @@ var update_user_func = function (id) {
         data: JSON.stringify(obj),
         cache: false,
         success: function(data) {
-            if(data.status == "ok"){
-                var result = data.result.result
-                if(result.status == "success"){
-                    $("#u_au").val("update");
-                    $('#u_title').text("编辑");
-                    $("#ID").val(result.result.ID);
-                    $("#Account").val(result.result.Account);
-                    $("#Name").val(result.result.Name);
-                    $("#Password").val(result.result.Password);
-                    $("#isadmin").val(result.result.isadministrator);
-                    if(result.result.isadministrator == 0){
-                        $('#isadmin').get(0).selectedIndex=0;
-                    }else{
-                        $('#isadmin').get(0).selectedIndex=1;
-                    }
-                    $("#u_Company_Id").val(result.result.Company_Id);
-                    $("#u_Ch").val(result.result.Ch);
-                    $("#u_En").val(result.result.En);
-                    $("#u_E_Mail").val(result.result.E_Mail);
-                    $("#Account").prop('readonly', true);
-                    $("#user-form").modal('show');
+            if(data.result.status == "success"){
+                var user = data.result.result.result.result;
+                $("#u_au").val("update");
+                $('#u_title').text("编辑");
+                $("#ID").val(user.ID);
+                $("#Account").val(user.Account);
+                $("#Name").val(user.Name);
+                $("#Password").val(user.Password);
+                $("#isadmin").val(user.isadministrator);
+                if(user.isadministrator == 0){
+                    $('#isadmin').get(0).selectedIndex=0;
                 }else{
-                    $.tooltip('My God, '+result.result+'！！！');
+                    $('#isadmin').get(0).selectedIndex=1;
                 }
+                $("#u_Company_Id").val(user.Company_Id);
+                $("#u_Ch").val(user.Ch);
+                $("#u_En").val(user.En);
+                $("#u_E_Mail").val(user.E_Mail);
+                $("#Account").prop('readonly', true);
+                $("#user-form").modal('show');
             }else{
-                $.tooltip('My God, 出错啦！！！');
+                $.tooltip(data.result.message);
             }
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
         }
     });
 }
@@ -500,21 +462,8 @@ var save_user_func = function(){
         data: JSON.stringify(obj),
         cache: false,
         success: function(data) {
-            if(data.status == "ok"){
-                var result = data.result.result
-                if(result.status == "success"){
-                    query_user();
-                    $("#user-form").modal('hide');
-                    $.tooltip('OK, 操作成功！', 2500, true);
-                }else{
-                    $.tooltip('My God, '+result.result+'！！！');
-                }
-            }else{
-                $.tooltip('My God, 出错啦！！！');
-            }
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
+            query_user();
+            $.tooltip(data.result.message, 2500, true);
         }
     });
 }

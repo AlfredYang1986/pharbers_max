@@ -1,5 +1,6 @@
 package com.pharbers.aqll.pattern
 
+import com.pharbers.aqll.common.alErrorCode.alErrorCode
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import org.apache.log4j.Logger
