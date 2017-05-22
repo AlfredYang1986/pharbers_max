@@ -3,6 +3,7 @@ package com.pharbers.aqll.alCalcOther.alRemoveJobs
 import java.util.Calendar
 
 import akka.actor.{Actor, ActorLogging, Props}
+import com.pharbers.aqll.common.alErrorCode.alErrorCode
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.timingConfig._
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
@@ -44,8 +45,9 @@ class alScheduleRemoveFiles extends Actor with ActorLogging{
 				minutes == time.get(Calendar.MINUTE) &&
 				seconds.toInt > time.get(Calendar.SECOND)) {
 				alScheduleRemoveFiles.rmLst foreach { x =>
-					val flag = alFileOpt(x).removeCurFiles
-					if(!flag) println() else println()
+					if(!alFileOpt(x).removeCurFiles) {
+						log.error(alErrorCode.errorToJson("delete file error").toString)
+					}
 				}
 			}
 		case _ => ???
