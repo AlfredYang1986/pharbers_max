@@ -13,9 +13,10 @@ import scala.concurrent.stm.{Ref, atomic}
 
 trait data_connection {
     def conn_name : String
-    val addr = new ServerAddress("127.0.0.1",2017)
-    val credentialsList = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
-    val _conn = MongoClient.apply(addr, List(credentialsList))
+    def addr: ServerAddress
+    def credentialsList: MongoCredential
+
+    val _conn = MongoClient(addr, List(credentialsList))
 
     var _conntion : Map[String, MongoCollection] = Map.empty
     def getCollection(coll_name : String) : MongoCollection = {
@@ -31,16 +32,30 @@ trait data_connection {
     def releaseConntions = _conntion = Map.empty
 }
 
-object _data_connection_cores extends data_connection {
-    override def conn_name: String = "Max_Cores"
+object dataFactory {
+
+    def getDataCores(host: String = "127.0.0.1", port: Int = 2017, user: String = "Pharbers", pwd: String = "Pharbers2017."): data_connection = new DataConnectionCores(host, port, user, pwd)
+
+    def gerDataBasic(host: String = "127.0.0.1", port: Int = 2017, user: String = "Pharbers", pwd: String = "Pharbers2017."): data_connection = new DataConnectionBasic(host, port, user, pwd)
 }
 
-object _data_connection_basic extends data_connection {
+class DataConnectionCores(host: String, port: Int, user: String, pwd: String) extends data_connection {
+    override def conn_name: String = "Max_Cores"
+    override def addr: ServerAddress = new ServerAddress(host, port)
+    override def credentialsList: MongoCredential = MongoCredential.createScramSha1Credential(user, conn_name , pwd.toCharArray)
+}
+
+class DataConnectionBasic(host: String, port: Int, user: String, pwd: String) extends data_connection {
     override def conn_name: String = "Max_Basic"
+    override def addr: ServerAddress = new ServerAddress(host, port)
+    override def credentialsList: MongoCredential = MongoCredential.createScramSha1Credential(user, conn_name ,pwd.toCharArray)
 }
 
 object _data_connection_cores_thread extends data_connection {
     override def conn_name: String = "Max_Cores"
+
+    override val addr: ServerAddress = new ServerAddress("127.0.0.1",2017)
+    override val credentialsList: MongoCredential = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
 
     var conntion  = Ref(Map[String , MongoCollection]().empty)
 

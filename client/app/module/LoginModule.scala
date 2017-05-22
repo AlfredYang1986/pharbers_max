@@ -3,7 +3,7 @@ package module
 import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alDao.{_data_connection_basic, from}
 import play.api.libs.json.Json._
@@ -17,12 +17,12 @@ object LoginModuleMessage {
 object LoginModule extends ModuleTrait {
     import LoginModuleMessage._
     import controllers.common.default_error_handler.f
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_login(data, ip) => login(data, ip)
         case _ => println("Error--------"); ???
     }
 
-    def login(data: JsValue, ip: String)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def login(data: JsValue, ip: String)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) =>

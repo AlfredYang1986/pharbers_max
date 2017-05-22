@@ -3,7 +3,7 @@ package com.pharbers.aqll.module.fopModule
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc.MultipartFormData
 import java.io._
-import com.pharbers.aqll.common.fopConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue

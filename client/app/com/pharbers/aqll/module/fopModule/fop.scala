@@ -9,7 +9,7 @@ import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
 import java.util.UUID
-import com.pharbers.aqll.common.fopConfig._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 
 object fop {
 	

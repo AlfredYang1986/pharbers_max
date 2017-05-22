@@ -1,6 +1,5 @@
 package controllers
 
-import play.api._
 import javax.inject._
 
 import module.common.alMarkets

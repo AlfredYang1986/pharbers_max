@@ -1,7 +1,7 @@
 package module
 
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alDao._data_connection_basic
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -20,7 +20,7 @@ object MarketManageModuleMessage {
 object MarketManageModule extends ModuleTrait {
     import MarketManageModuleMessage._
     import controllers.common.default_error_handler.f
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_marketmanage_query(data) => queryMarkets_func(data)
         case msg_marketmanage_delete(data) => deleteMarkets_func(data)
         case msg_marketmanage_findOne(data) => findOneMarket_func(data)
@@ -35,7 +35,7 @@ object MarketManageModule extends ModuleTrait {
       * @param error_handler
       * @return
       */
-    def queryMarkets_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def queryMarkets_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             (Some(Map("result" -> toJson(queryMarkets))),None)
         } catch {

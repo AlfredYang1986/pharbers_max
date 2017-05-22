@@ -3,10 +3,10 @@ package module
 import com.mongodb.casbah.Imports.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.common.HTTP
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alDao._data_connection_cores
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.aqll.common.akkaConfig._
+import com.pharbers.aqll.common.alFileHandler.akkaConfig._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.common.{alOperation, alRestDate}
@@ -22,13 +22,13 @@ object ModelOperationModuleMessage {
 object ModelOperationModule extends ModuleTrait {
 	import ModelOperationModuleMessage._
 	import controllers.common.default_error_handler.f
-	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]]) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_operationBar11(data) => msg_operation_bar11_func(data)
 		case msg_operationBar23(data) => msg_operation_bar23_func(data)
 		case _ => ???
 	}
 
-	def msg_operation_bar11_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_operation_bar11_func(data : JsValue)(implicit error_handler : Int => JsValue, cm: CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
@@ -217,7 +217,7 @@ object ModelOperationModule extends ModuleTrait {
 	}
 
 	def queryUUID(company: String): Option[String] = {
-		val uuidjson = call(Akka_Http_IP + ":" + Akka_Http_Port + "/queryUUID", toJson(Map("company" -> toJson(company))))
+		val uuidjson = call(akkaIp + ":" + akkaPort + "/queryUUID", toJson(Map("company" -> toJson(company))))
 		Some((uuidjson \ "result").asOpt[String].get)
 	}
 

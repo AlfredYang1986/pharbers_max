@@ -2,7 +2,7 @@ package module.common
 
 import com.pharbers.aqll.common.HTTP
 import play.api.libs.json.JsValue
-import com.pharbers.aqll.common.akkaConfig._
+import com.pharbers.aqll.common.alFileHandler.akkaConfig._
 
 /**
   * Created by liwei on 2017/5/17.
@@ -20,5 +20,5 @@ trait alCallHttpTrait {
 
 case class alCallHttp(businessType : String,data : JsValue) extends alCallHttpTrait {
 
-  override val url: String = s"${Akka_Http_IP}:${Akka_Http_Port}${businessType}"
+  override val url: String = s"${akkaIp}:${akkaPort}${businessType}"
 }

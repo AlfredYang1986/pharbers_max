@@ -2,13 +2,14 @@ package module
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import module.common.alRestDate
 import module.common.alSampleCheck
+
 import scala.collection.mutable.ListBuffer
 
 object SampleCheckModuleMessage {
@@ -21,7 +22,7 @@ object SampleCheckModule extends ModuleTrait {
 	import SampleCheckModuleMessage._
 	import controllers.common.default_error_handler.f
 
-	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]]): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_samplecheck(data) => msg_check_func(data)
 	}
 
@@ -31,7 +32,7 @@ object SampleCheckModule extends ModuleTrait {
 		* @param error_handler
 		* @return
 		*/
-	def msg_check_func(data: JsValue)(implicit error_handler: Int => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_check_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val market = (data \ "market").asOpt[String].getOrElse("")
 		val date = (data \ "date").asOpt[String].getOrElse("")
@@ -89,12 +90,10 @@ object SampleCheckModule extends ModuleTrait {
 		* @param query_type
 		* @return
 		*/
-	def query(company: String,market: String,date: String,query_type: String): DBObject ={
-		query_type match {
-			case "cur" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2Long(date)))
-			case "ear" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2EarlyLong(date)))
-			case "las" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2LastLong(date)))
-		}
+	def query(company: String,market: String,date: String,query_type: String): DBObject = query_type match {
+		case "cur" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2Long(date)))
+		case "ear" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2EarlyLong(date)))
+		case "las" => MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$eq" -> alDateOpt.MMyyyy2LastLong(date)))
 	}
 
 	/**
