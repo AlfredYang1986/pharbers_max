@@ -34,7 +34,7 @@ object MarketManageModule extends ModuleTrait {
       * @param data
       * @return
       */
-    def queryMarkets_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def queryMarkets_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             val result = cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Market").find().map(x =>
                 toJson(Map(
@@ -44,7 +44,7 @@ object MarketManageModule extends ModuleTrait {
                 ))).toList
             (successToJson(toJson(result)), None)
         } catch {
-            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
+            case ex: Exception => (None, Some(error_handler(ex.getMessage())))
         }
     }
 
@@ -56,7 +56,7 @@ object MarketManageModule extends ModuleTrait {
       * @param data
       * @return
       */
-    def deleteMarkets_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def deleteMarkets_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             val market_ids = (data \ "Market_Id").get.asOpt[List[String]].getOrElse(throw new Exception("info select markets you want to delete"))
             println(market_ids)
@@ -67,10 +67,7 @@ object MarketManageModule extends ModuleTrait {
                 case _ => throw new Exception("warn operation failed")
             }
         } catch {
-            case ex: Exception => {
-                println(ex.getMessage)
-                (None, Some(errorToJson(ex.getMessage())))
-            }
+            case ex: Exception => (None, Some(error_handler(ex.getMessage())))
         }
     }
 
@@ -81,7 +78,7 @@ object MarketManageModule extends ModuleTrait {
       * @param data
       * @return
       */
-    def findOneMarket_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def findOneMarket_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             val Market_Id = (data \ "Market_Id").get.asOpt[String].getOrElse("")
             val query =MongoDBObject("Market_Id" -> Market_Id)
@@ -97,7 +94,7 @@ object MarketManageModule extends ModuleTrait {
                 }
             }
         } catch {
-            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
+            case ex: Exception => (None, Some(error_handler(ex.getMessage())))
         }
     }
 
@@ -108,7 +105,7 @@ object MarketManageModule extends ModuleTrait {
       * @param data
       * @return
       */
-    def saveMarket_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def saveMarket_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
             val Market_Name = (data \ "Market_Name").get.asOpt[String].getOrElse("")
             val au = (data \ "au").get.asOpt[String].getOrElse("")
@@ -137,7 +134,7 @@ object MarketManageModule extends ModuleTrait {
                 }
             }
         } catch {
-            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
+            case ex: Exception => (None, Some(error_handler(ex.getMessage())))
         }
     }
 }

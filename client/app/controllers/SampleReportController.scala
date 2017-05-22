@@ -17,9 +17,9 @@ class SampleReportController@Inject() (mdb: MongoDBModule) extends Controller{
 
   implicit val cm = CommonModule(Some(Map("db" -> dbc)))
 
-  def sampleReportAjaxCall = Action (request => requestArgs(request) { jv =>
+  def sampleReport = Action (request => requestArgs(request) { jv =>
     import pattern.LogMessage.common_log
     import pattern.ResultMessage.common_result
-    MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheckAjaxCall"))), jv, request) :: msg_samplereport(jv) :: msg_CommonResultMessage() :: Nil, None)
+    MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleReport"))), jv, request) :: msg_samplereport(jv) :: msg_CommonResultMessage() :: Nil, None)
   })
 }

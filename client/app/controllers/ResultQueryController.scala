@@ -20,10 +20,10 @@ class ResultQueryController@Inject() (mdb: MongoDBModule) extends Controller{
 
 	implicit val cm = CommonModule(Some(Map("db" -> dbc)))
     
-  def resultQueryAjaxCall = Action (request => requestArgs(request) { jv =>
+  def resultQuerySearch = Action (request => requestArgs(request) { jv =>
 		import pattern.LogMessage.common_log
 		import pattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("resultQueryAjaxCall"))), jv, request) ::  msg_calc_result_query(jv) :: msg_CommonResultMessage() :: Nil, None)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("resultQuerySearch"))), jv, request) ::  msg_resultquery(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 	
 }

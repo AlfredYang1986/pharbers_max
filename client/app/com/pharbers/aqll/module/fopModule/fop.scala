@@ -15,31 +15,25 @@ object fop {
 	
 	def uploadFile(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
 	    try {
-  	      	var lst : List[JsValue] = Nil
-      	    data.files.foreach { x =>
-						val uuid = UUID.randomUUID
-						val file = new File(fileBase)
-						if(!file.exists()) {
-							file.mkdir()
-						}
-						new TemporaryFile(x.ref.file).moveTo(new File(s"$fileBase$uuid"), true)
-      	  	  	lst = lst :+ toJson(uuid.toString)
-      	  	}
-      	    Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
-  	    } catch {
+				var lst : List[JsValue] = Nil
+				data.files.foreach { x =>
+				val uuid = UUID.randomUUID
+				val file = new File(fileBase)
+				if(!file.exists()) {
+					file.mkdir()
+				}
+				new TemporaryFile(x.ref.file).moveTo(new File(s"$fileBase$uuid"), true)
+						lst = lst :+ toJson(uuid.toString)
+				}
+				Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
+			} catch {
   	    	case ex : Exception => error_handler(-1)
-  	    }
+			}
 	}
 
 	def downloadFile(name : String) : Array[Byte] = {
-	  	val file = new File(s"$fileBase$name")
-			val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
-			new FileInputStream(file).read(reVal)
-			reVal
-	}
-
-	def exportFile(name : String) : Array[Byte] = {
-		val file = new File(fileBase + export_file + name)
+		val filepath = fileBase + export_file + name
+		val file = new File(filepath)
 		val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
 		new FileInputStream(file).read(reVal)
 		reVal

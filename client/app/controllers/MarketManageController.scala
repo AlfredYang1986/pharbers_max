@@ -17,27 +17,27 @@ class MarketManageController@Inject() (mdb: MongoDBModule) extends Controller{
 
     implicit val cm = CommonModule(Some(Map("db" -> dbc)))
 
-    def marketManageQueryAjax = Action(request => requestArgs(request) { jv =>
+    def queryMarkets = Action(request => requestArgs(request) { jv =>
         import pattern.LogMessage.common_log
         import pattern.ResultMessage.common_result
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("marketManageQueryAjax"))), jv, request) :: msg_marketmanage_query(jv) :: msg_CommonResultMessage() :: Nil, None)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryMarkets"))), jv, request) :: msg_marketmanage_query(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
-    def marketManageDeleteAjax = Action(request => requestArgs(request) { jv =>
+    def deleteMarket = Action(request => requestArgs(request) { jv =>
         import pattern.LogMessage.common_log
         import pattern.ResultMessage.common_result
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("marketManageDeleteAjax"))), jv, request) :: msg_marketmanage_delete(jv) :: msg_CommonResultMessage() :: Nil, None)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("deleteMarket"))), jv, request) :: msg_marketmanage_delete(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
-    def marketManageFindOneAjax = Action(request => requestArgs(request) { jv =>
+    def findOneMarket = Action(request => requestArgs(request) { jv =>
         import pattern.LogMessage.common_log
         import pattern.ResultMessage.common_result
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("marketManageFindOneAjax"))), jv, request) :: msg_marketmanage_findOne(jv) :: msg_CommonResultMessage() :: Nil, None)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("findOneMarket"))), jv, request) :: msg_marketmanage_findOne(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
-    def marketManageSaveAjax = Action(request => requestArgs(request) { jv =>
+    def saveMarket = Action(request => requestArgs(request) { jv =>
         import pattern.LogMessage.common_log
         import pattern.ResultMessage.common_result
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("marketManageSaveAjax"))), jv, request) :: msg_marketmanage_save(jv) :: msg_CommonResultMessage() :: Nil, None)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("saveMarket"))), jv, request) :: msg_marketmanage_save(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 }

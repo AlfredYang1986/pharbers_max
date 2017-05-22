@@ -78,6 +78,7 @@ function pageResult(page){
         cache: false,
         success: function(data) {
             $.hideLoading();
+            console.info(data);
             if(data.result.status == "success"){
                 var result = data.result.result.result;
                 var thead = "<tr>";

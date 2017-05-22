@@ -48,8 +48,7 @@ object requestArgsQuery extends Controller{
 }
 
 object default_error_handler {
-	implicit val f : Int => JsValue = { code =>
-		val (c, m) = errorMessageByCode(code)
-		toJson(Map("status" -> toJson("error"), "result" -> toJson(Map("code" -> toJson(c), "message" -> toJson(m)))))
+	implicit val f : String => JsValue = { name =>
+		toJson(Map("status" -> toJson("error"), "result" -> toJson(Map("code" -> toJson(getErrorCodeByName(name)), "message" -> toJson(getErrorMessageByName(name))))))
 	}
 }
