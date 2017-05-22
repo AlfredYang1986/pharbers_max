@@ -10,13 +10,10 @@ import akka.util.Timeout
 
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic
-import scala.concurrent.stm.Ref
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alCalcEnergy._
-import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
+import com.pharbers.aqll.common.alCmd.pkgcmd.pkgCmd
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
-import com.pharbers.aqll.common.alDao._data_connection_cores
 import com.pharbers.aqll.common.alString.alStringOpt._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
