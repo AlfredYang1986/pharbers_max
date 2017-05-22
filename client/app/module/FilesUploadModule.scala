@@ -29,7 +29,7 @@ object FilesUploadModule extends ModuleTrait {
     * @param data
     * @return
     */
-  def scpCopyFiles_func(data : JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+  def scpCopyFiles_func(data : JsValue)(implicit error_handler: String => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
     try {
       val company = (data \ "company").asOpt[String].getOrElse(throw new Exception("error input"))
       val scp_filename = (data \ "filename").asOpt[String].getOrElse(throw new Exception("error input"))
@@ -47,9 +47,8 @@ object FilesUploadModule extends ModuleTrait {
         case "success" => (successToJson(), None)
         case "error" => throw new Exception("warn aliyun50 scp copy file failed")
       }
-
     } catch {
-      case ex : Exception => (None, Some(errorToJson(ex.getMessage())))
+      case ex : Exception => (None, Some(error_handler(ex.getMessage())))
     }
   }
 
@@ -58,7 +57,7 @@ object FilesUploadModule extends ModuleTrait {
     * @param data
     * @return
     */
-  def removeFiles_func(data : JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+  def removeFiles_func(data : JsValue)(implicit error_handler: String => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
     try {
       val company = (data \ "company").asOpt[String].getOrElse(throw new Exception("error input"))
 
@@ -71,7 +70,7 @@ object FilesUploadModule extends ModuleTrait {
         case false => throw new Exception("warn gycx file delete failed")
       }
     } catch {
-      case ex : Exception => (None, Some(errorToJson(ex.getMessage())))
+      case ex : Exception => (None, Some(error_handler(ex.getMessage())))
     }
   }
 }

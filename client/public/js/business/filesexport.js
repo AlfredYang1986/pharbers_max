@@ -49,7 +49,7 @@ $(function(){
                 if (data.result.result.result.status==0) {
                     console.info("fuckiing")
                     $(".progresstier").css("display", "none");
-                    location.href = "/resultquery/files/"+data.result.result.result.filename;
+                    location.href = "/pharbers/files/"+data.result.result.result.filename;
                 }else{
                     $(".progresstier").css("display", "none");
                     $.tooltip(data.result.result.result.message);

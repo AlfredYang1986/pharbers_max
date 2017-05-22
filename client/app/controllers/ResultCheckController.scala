@@ -1,31 +1,30 @@
 package controllers
 
 import javax.inject.Inject
-
 import com.pharbers.aqll.dbmodule.MongoDBModule
 import com.pharbers.aqll.pattern
 import com.pharbers.aqll.pattern.LogMessage.msg_log
 import com.pharbers.aqll.pattern.{CommonModule, MessageRoutes}
 import com.pharbers.aqll.pattern.ResultMessage.msg_CommonResultMessage
 import controllers.common.requestArgsQuery.requestArgs
-import module.ModelOperationModuleMessage._
+import module.ResultCheckModuleMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
-class ModelOperationController@Inject() (mdb: MongoDBModule) extends Controller{
+class ResultCheckController@Inject() (mdb: MongoDBModule) extends Controller{
 	implicit val dbc = mdb.cores
 
 	implicit val cm = CommonModule(Some(Map("db" -> dbc)))
 
-    def mondelOperationBar11AjaxCall = Action (request => requestArgs(request) { jv =>
+    def resultChecklinechart = Action (request => requestArgs(request) { jv =>
 			import pattern.LogMessage.common_log
 			import pattern.ResultMessage.common_result
-			MessageRoutes(msg_log(toJson(Map("method" -> toJson("mondelOperationBar11AjaxCall"))), jv, request) :: msg_operationBar11(jv) :: msg_CommonResultMessage() :: Nil, None)
+			MessageRoutes(msg_log(toJson(Map("method" -> toJson("resultChecklinechart"))), jv, request) :: msg_linechart(jv) :: msg_CommonResultMessage() :: Nil, None)
 		})
 
-		def mondelOperationBar23AjaxCall = Action (request => requestArgs(request) { jv =>
+		def resultCheckhistogram = Action (request => requestArgs(request) { jv =>
 			import pattern.LogMessage.common_log
 			import pattern.ResultMessage.common_result
-			MessageRoutes(msg_log(toJson(Map("method" -> toJson("mondelOperationBar23AjaxCall"))), jv, request) :: msg_operationBar23(jv) :: msg_CommonResultMessage() :: Nil, None)
+			MessageRoutes(msg_log(toJson(Map("method" -> toJson("resultCheckhistogram"))), jv, request) :: msg_histogram(jv) :: msg_CommonResultMessage() :: Nil, None)
 		})
 }

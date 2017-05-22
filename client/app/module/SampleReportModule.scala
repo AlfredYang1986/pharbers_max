@@ -24,7 +24,7 @@ object SampleReportModule extends ModuleTrait {
 		case msg_samplereport(data) => msg_check_func(data)
 	}
 
-	def msg_check_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_check_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val query = MongoDBObject("Company" -> company)
@@ -43,17 +43,17 @@ object SampleReportModule extends ModuleTrait {
 						toJson(Map("Date" -> toJson(y.get("Date").get.toString),
 							"c_HospNum" -> toJson(y.get("HospNum").get.toString),
 							"c_ProductNum" -> toJson(y.get("ProductNum").get.toString),
-							"e_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(A(_))(database).toList,"ProductNum").toString),
-							"e_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(B(_))(database).toList,"HospNum").toString),
-							"l_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(A(_))(database).toList,"ProductNum").toString),
-							"l_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(B(_))(database).toList,"HospNum").toString)
+							"e_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryProductNum(_))(database).toList,"ProductNum").toString),
+							"e_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryHospNum(_))(database).toList,"HospNum").toString),
+							"l_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryProductNum(_))(database).toList,"ProductNum").toString),
+							"l_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryHospNum(_))(database).toList,"HospNum").toString)
 						)))
 				}
 				lb.append(toJson(Map("Market" -> toJson(x._1.toString),"date_lst_sb" -> toJson(date_lst_sb.toList),"dhp_lst_sb" -> toJson(dhp_lst_sb.toList))))
 			}
 			(successToJson(toJson(lb)), None)
 		} catch {
-			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
+			case ex: Exception => (None, Some(error_handler(ex.getMessage())))
 		}
 	}
 
@@ -65,9 +65,9 @@ object SampleReportModule extends ModuleTrait {
 		}
 	}
 
-	def A(d: MongoDBObject): Map[String,Any] = Map("ProductNum" -> d.getAs[Number]("ProductNum").get.longValue())
+	def queryProductNum(d: MongoDBObject): Map[String,Any] = Map("ProductNum" -> d.getAs[Number]("ProductNum").get.longValue())
 
-	def B(d: MongoDBObject): Map[String,Any] = Map("HospNum" -> d.getAs[Number]("HospNum").get.longValue())
+	def queryHospNum(d: MongoDBObject): Map[String,Any] = Map("HospNum" -> d.getAs[Number]("HospNum").get.longValue())
 
 	def MongoDBReport(d: MongoDBObject): Map[String,Any] = {
 		Map(
