@@ -1,7 +1,8 @@
 package controllers
 
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 
+import com.pharbers.aqll.dbmodule.MongoDBModule
 import com.pharbers.aqll.pattern
 import com.pharbers.aqll.pattern.LogMessage.msg_log
 import com.pharbers.aqll.pattern.{CommonModule, MessageRoutes}
@@ -12,8 +13,11 @@ import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
 @Singleton
-class LoginController extends Controller{
-    implicit val cm = CommonModule(Some(Map("" -> None)))
+class LoginController@Inject() (mdb: MongoDBModule) extends Controller{
+
+    implicit val dbc = mdb.basic
+
+    implicit val cm = CommonModule(Some(Map("db" -> dbc)))
 
     def Login = Action(request => requestArgs(request) { jv =>
         import pattern.LogMessage.common_log

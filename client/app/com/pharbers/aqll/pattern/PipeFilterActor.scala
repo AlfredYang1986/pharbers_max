@@ -33,10 +33,10 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 		module.dispatchMsg(cmd)(rst) match {
 			case (_, Some(err)) => {
 				originSender ! error(err)
-				cancelActor					
+				cancelActor
 			}
 			case (Some(r), _) => {
-				rst = Some(r) 
+				rst = Some(r)
 			}
 			case _ => println("never go here")
 		}

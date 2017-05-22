@@ -14,7 +14,7 @@ import play.api.mvc.{Action, Controller}
 /**
   * Created by qianpeng on 2017/5/19.
   */
-class TestController @Inject() (mdb: MongoDBModule) extends Controller{
+class TestController@Inject() (mdb: MongoDBModule) extends Controller{
 	implicit val dbc = mdb.basic
 
 	implicit val cm = CommonModule(Some(Map("" -> None)))

@@ -3,8 +3,8 @@ package module
 import com.mongodb.casbah.Imports.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.common.HTTP
+import com.pharbers.aqll.common.alDao.data_connection
 import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.common.alDao._data_connection_cores
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.aqll.common.alFileHandler.akkaConfig._
 import play.api.libs.json.JsValue
@@ -12,6 +12,7 @@ import play.api.libs.json.Json.toJson
 import module.common.{alOperation, alRestDate}
 
 import scala.collection.mutable.ListBuffer
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 object ModelOperationModuleMessage {
 	sealed class msg_mondelOperationBase extends CommonMessage
@@ -34,35 +35,39 @@ object ModelOperationModule extends ModuleTrait {
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
 			val uuid = queryUUID(company)
+			val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
 			uuid match {
-				case None => (Some(Map("result" -> toJson("None"))), None)
-				case _ => (Some(Map("result" -> alOperation.lst2Json(queryNear12(company,market,date,s"$company${uuid.get}"),1))), None)
+				case None => throw new Exception("warn uuid does not exist")
+				case _ => {
+					val result = alOperation.lst2Json(queryNear12(database,company,market,date,s"$company${uuid.get}"),1)
+					(successToJson(result), None)
+				}
 			}
 		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+			case ex: Exception =>	(None, Some(errorToJson(ex.getMessage())))
 		}
 	}
 
-	def msg_operation_bar23_func(data : JsValue)(implicit error_handler : Int => JsValue) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_operation_bar23_func(data : JsValue)(implicit error_handler : Int => JsValue, cm: CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
 			val uuid = queryUUID(company)
+			val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
 			uuid match {
-				case None => (Some(Map("result" -> toJson("None"))), None)
+				case None => throw new Exception("warn uuid does not exist")
 				case _ => {
 					val temp_coll = s"$company${uuid.get}"
-					val cur_top6 = queryCELData(company,market,date,temp_coll,"cur")(None,None)
-					val ear_top6 = queryCELData(company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
-					val las_top6 = queryCELData(company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
-					(Some(Map("result" -> toJson(
-						Map("cur_top6" -> alOperation.lst2Json(cur_top6._1,2),"ear_top6" -> alOperation.lst2Json(ear_top6._1,2),"las_top6" -> alOperation.lst2Json(las_top6._1,2))
-					))), None)
+					val cur_top6 = queryCELData(database,company,market,date,temp_coll,"cur")(None,None)
+					val ear_top6 = queryCELData(database,company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
+					val las_top6 = queryCELData(database,company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
+					val result = toJson(Map("cur_top6" -> alOperation.lst2Json(cur_top6._1,2),"ear_top6" -> alOperation.lst2Json(ear_top6._1,2),"las_top6" -> alOperation.lst2Json(las_top6._1,2)))
+					(successToJson(result), None)
 				}
 			}
 		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
 	}
 
@@ -77,12 +82,12 @@ object ModelOperationModule extends ModuleTrait {
 		* @param olm
 		* @return
 		*/
-	def queryCELData(company: String,market: String,date: String,temp_coll: String,ces: String)(ols: Option[List[String]],olm: Option[List[Map[String,Any]]]): (List[Map[String,Any]],Option[List[String]],Option[List[Map[String,Any]]]) = {
+	def queryCELData(database: data_connection,company: String,market: String,date: String,temp_coll: String,ces: String)(ols: Option[List[String]],olm: Option[List[Map[String,Any]]]): (List[Map[String,Any]],Option[List[String]],Option[List[Map[String,Any]]]) = {
 		val query = queryDBObject(market,date,ces,ols)
-		val cur_size = _data_connection_cores.getCollection(temp_coll).count()
+		val cur_size = database.getCollection(temp_coll).count()
 		val result = cur_size match {
-			case 0 => _data_connection_cores.getCollection(company).find(query).sort(MongoDBObject("City" -> 1))
-			case _ => _data_connection_cores.getCollection(temp_coll).find(query).sort(MongoDBObject("City" -> 1))
+			case 0 => database.getCollection(company).find(query).sort(MongoDBObject("City" -> 1))
+			case _ => database.getCollection(temp_coll).find(query).sort(MongoDBObject("City" -> 1))
 		}
 		val list = new ListBuffer[Map[String,Any]]()
 		var city = ""
@@ -147,24 +152,24 @@ object ModelOperationModule extends ModuleTrait {
 		* @param temp_coll
 		* @return
 		*/
-	def queryNear12(company: String,market: String,date: String,temp_coll: String): List[Map[String,Any]] ={
+	def queryNear12(database: data_connection,company: String,market: String,date: String,temp_coll: String): List[Map[String,Any]] ={
 		val cur_date = alDateOpt.MMyyyy2yyyyMM(date)
 		val date_lst_str = alRestDate.diff12Month(cur_date)
 		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))))
-		_data_connection_cores.getCollection(temp_coll).count() match {
+		database.getCollection(temp_coll).count() match {
 			case 0 => {
-				val list_map = _data_connection_cores.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
+				val list_map = database.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
 					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 						"f_sales" -> x.get("f_sales")
 					)).toList
 				alOperation.matchDateData(date_lst_str,SumByDate(list_map) :: Nil)
 			}
 			case _ => {
-				val temp_list_map = _data_connection_cores.getCollection(temp_coll).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
+				val temp_list_map = database.getCollection(temp_coll).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
 					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 						"f_sales" -> x.get("f_sales")
 					)).toList
-				val fina_list_map = _data_connection_cores.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
+				val fina_list_map = database.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
 					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
 						"f_sales" -> x.get("f_sales")
 					)).toList

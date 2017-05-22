@@ -3,13 +3,12 @@ package module
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.Page._
-import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
+import com.pharbers.aqll.common.alDao.{data_connection, from}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.alString.alStringOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-
 
 object ResultQueryModuleMessage {
 	sealed class msg_resultqueryBase extends CommonMessage
@@ -25,7 +24,6 @@ object ResultQueryModule extends ModuleTrait {
 	}
 
 	def calc_result_query_func(data : JsValue)(implicit error_handler : Int => JsValue, cm: CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-
 		var markets = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(Nil)
 		var dates = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(throw new Exception("warn input"))
 
@@ -42,11 +40,12 @@ object ResultQueryModule extends ModuleTrait {
 		val currentPage = (data \ "currentPage").asOpt[Int].map (x => x).getOrElse(3)
 		val company = (data \ "company").asOpt[String].get
 		try {
-			val result = (from db() in company where conditions).selectSkipTop(SKIP(currentPage))(TAKE)("Date")(calc_result_query_mdbobject(_))(_data_connection_cores).toList
-			val total = (from db() in company where conditions).count(_data_connection_cores)
-			(Some(Map("finalResult" -> toJson(result), "page" -> toJson(Page(currentPage,total)))), None)
+			val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
+			val result = (from db() in company where conditions).selectSkipTop(SKIP(currentPage))(TAKE)("Date")(calc_result_query_mdbobject(_))(database).toList
+			val total = (from db() in company where conditions).count(database)
+			(successToJson(toJson(result),toJson(Page(currentPage,total))), None)
 		} catch {
-			case ex : Exception => (None, Some(errorToJson(ex.getMessage)))
+			case ex : Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
 	}
 
