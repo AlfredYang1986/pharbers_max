@@ -12,10 +12,6 @@ class Application@Inject() (mdb: MongoDBModule) extends Controller {
   implicit val basic = mdb.basic
   implicit val cores = mdb.cores
 
-  def test = Action {
-      Ok(views.html.test("Your new application is ready."))
-  }
-
   //登录
   def login = Action { request =>
       Ok(views.html.login("Your new application is ready."))
@@ -34,31 +30,6 @@ class Application@Inject() (mdb: MongoDBModule) extends Controller {
   //注册
   def register = Action {
       Ok(views.html.register("Your new application is ready."))
-  }
-
-  //错误404
-  def error404 = Action {
-      Ok(views.html.error404("Your new application is ready."))
-  }
-
-  //错误500
-  def error500 = Action {
-      Ok(views.html.error500("Your new application is ready."))
-  }
-
-  //锁屏
-  def lockScreen = Action {
-      Ok(views.html.lockScreen("Your new application is ready."))
-  }
-
-  //忘记密码
-  def forgotPassword = Action {
-      Ok(views.html.forgotPassword("Your new application is ready."))
-  }
-
-  //空页面
-  def emptyPage = Action {
-      Ok(views.html.emptyPage("Your new application is ready."))
   }
 
   //文件上传
@@ -93,12 +64,12 @@ class Application@Inject() (mdb: MongoDBModule) extends Controller {
   }
 
   //结果检查
-  def modelOperation = Action { request =>
+  def resultcheck = Action { request =>
       val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.modelOperation(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.alGetMarkets("",basic,cores)))
+          Ok(views.html.resultCheck(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.alGetMarkets("",basic,cores)))
       }
   }
 

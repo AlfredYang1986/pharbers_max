@@ -17,7 +17,7 @@ object SliceUpload {
   // TODO : 多文件上传后台代码
   // TODO : 多文件上传的核心是，前端的文件队列里面，文件一个一个排着队，等第一个文件上传完了，在上传第二个文件，
   // TODO : 前端反复多次调用这个方法，mulitiFIleFileName为当前正在上传的文件名
-  def ManyFileSlice(data : MultipartFormData[TemporaryFile])(implicit error_handler : Int => JsValue) : JsValue = {
+  def ManyFileSlice(data : MultipartFormData[TemporaryFile])(implicit error_handler : String => JsValue) : JsValue = {
     try {
       //var lst : List[JsValue] = Nil
       data.files.foreach{ x =>
@@ -36,7 +36,7 @@ object SliceUpload {
       }
       Json.toJson(Map("status" -> toJson("ok")))
     } catch {
-      case ex : Exception => error_handler(-1)
+      case ex : Exception => error_handler(ex.getMessage)
     }
   }
 

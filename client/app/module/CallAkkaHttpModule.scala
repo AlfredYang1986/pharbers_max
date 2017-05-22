@@ -26,7 +26,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 		* @param data
 		* @return
 		*/
-	def callHttpServer_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def callHttpServer_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val businessType = (data \ "businessType").get.asOpt[String].getOrElse("error input")
 			(successToJson(alCallHttp(businessType, data).call), None)

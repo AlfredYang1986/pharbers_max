@@ -119,7 +119,7 @@ var ModelOperationEchartFun = function() {
     });
     $.ajax({
         type: "POST",
-        url: "/modeloperation/operationbar11",
+        url: "/resultcheck/linechart",
         dataType: "json",
         data: dataMap,
         contentType: 'application/json,charset=utf-8',
@@ -132,7 +132,7 @@ var ModelOperationEchartFun = function() {
     });
     $.ajax({
         type: "POST",
-        url: "/modeloperation/operationbar23",
+        url: "/resultcheck/histogram",
         dataType: "json",
         data: dataMap,
         contentType: 'application/json,charset=utf-8',

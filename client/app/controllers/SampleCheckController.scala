@@ -17,9 +17,9 @@ class SampleCheckController@Inject() (mdb: MongoDBModule) extends Controller{
 
 	implicit val cm = CommonModule(Some(Map("db" -> dbc)))
 
-	def sampleCheckAjaxCall = Action (request => requestArgs(request) { jv =>
+	def sampleCheck = Action (request => requestArgs(request) { jv =>
 		import pattern.LogMessage.common_log
 		import pattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheckAjaxCall"))), jv, request) :: msg_samplecheck(jv) :: msg_CommonResultMessage() :: Nil, None)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheck"))), jv, request) :: msg_samplecheck(jv) :: msg_CommonResultMessage() :: Nil, None)
 	})
 }
