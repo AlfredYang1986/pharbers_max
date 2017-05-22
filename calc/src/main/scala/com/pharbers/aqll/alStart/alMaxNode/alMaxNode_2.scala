@@ -5,7 +5,7 @@ import akka.cluster.Cluster
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalc.almain.{alCalcActor, alGroupActor}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register, worker_register}
-import com.pharbers.aqll.alCalcOther.alSchedulerJobs.{alScheduleRemoveFiles, rmFile}
+import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile}
 import com.typesafe.config.ConfigFactory
 
 /**

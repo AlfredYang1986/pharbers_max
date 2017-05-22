@@ -47,11 +47,12 @@ class alFileOpt(path: String)(oldPath: String) {
 
 	def removeCurFiles: Boolean = {
 		if(isDir) {
-			exHideListFile foreach { x =>
-				if(!new alFileOpt(x)(oldPath).removeAllFiles) false
+			listAllFiles foreach { x =>
+				if(!new alFileOpt(x)(oldPath).removeCurFiles) false
 			}
 		}
-		if(f.getPath != oldPath) f.delete else false
+		
+		if(f.getPath != oldPath) f.delete else true
 	}
 
 	def pushData2File(lst : List[Any]) = {
