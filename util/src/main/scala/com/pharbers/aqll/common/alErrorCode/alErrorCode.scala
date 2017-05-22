@@ -16,6 +16,7 @@ object alErrorCode {
 		ErrorNode("file not found", -1, "未找到文件"),
 		ErrorNode("file content error", -2, "文件内容错误"),
 		ErrorNode("file unknow error", -3, "文件未知错误"),
+		ErrorNode("delete file error", -4, "删除文件异常"),
 
 		/**
 		  * 文件分组分发
