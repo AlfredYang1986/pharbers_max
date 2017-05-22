@@ -6,10 +6,11 @@ import java.util.{Calendar, UUID}
 
 import com.mongodb.casbah.Imports.{DBObject, MongoCursor}
 import com.mongodb.casbah.commons.MongoDBObject
+import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalcOther.alEmchat.sendMessage
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.java.alExport
-import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
+import com.pharbers.aqll.common.alDao.from
 import com.pharbers.aqll.common.alFileHandler.alCsvOpt.scala.CSVWriter
 import com.pharbers.aqll.common.alString.alStringOpt._
 
@@ -24,7 +25,10 @@ case class alFilesExport(datatype: String,
                         filetype : String,
                         uname: String)
 
-object alFileExport {
+object alFileExport extends DBList{
+  
+  implicit val dbc = dbcores
+  
   def apply(alExport: alFilesExport) = alFileExport(alExport)
 
   def alFileExport(alExport: alFilesExport) : alExport = {
@@ -37,10 +41,10 @@ object alFileExport {
         case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> markets),"Date" -> MongoDBObject("$gte" -> fmomat_f.parse(alExport.staend.head).getTime,"$lt" -> fmomat_f.parse(alExport.staend.tail.head).getTime))
       }
 
-      var lst = (from db() in alExport.company where conditions).selectOneByOne("hosp_Index")(x => x)(_data_connection_cores)
+      var lst = (from db() in alExport.company where conditions).selectOneByOne("hosp_Index")(x => x)
       alExport.datatype match {
-        case "省份数据" => lst = (from db() in alExport.company where conditions).selectOneByOne("prov_Index")(x => x)(_data_connection_cores)
-        case "城市数据" => lst = (from db() in alExport.company where conditions).selectOneByOne("city_Index")(x => x)(_data_connection_cores)
+        case "省份数据" => lst = (from db() in alExport.company where conditions).selectOneByOne("prov_Index")(x => x)
+        case "城市数据" => lst = (from db() in alExport.company where conditions).selectOneByOne("city_Index")(x => x)
         case "医院数据" => lst = lst
       }
 

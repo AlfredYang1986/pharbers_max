@@ -5,13 +5,14 @@ import java.util.UUID
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
+import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointState}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.common.alCmd.pkgcmd.unPkgCmd
-import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.common.alDao.dataFactory._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalcEnergy.alSupervisorStrategy
@@ -36,10 +37,11 @@ class alCalcActor extends Actor
                      with ActorLogging 
                      with FSM[alPointState, alCalcParmary]
                      with alCreateConcretCalcRouter
-                     with alPkgJob{
+                     with alPkgJob
+                     with DBList{
 
     import alCalcActor.core_number
-
+   
     startWith(alMasterJobIdle, new alCalcParmary("", ""))
 
 	var maxProperty: alMaxProperty = null
@@ -98,7 +100,7 @@ class alCalcActor extends Actor
                 case None => None
                 case Some(d) =>
                     sendMessage.sendMsg(s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
-                    d.subs.foreach (x => _data_connection_cores.getCollection(x.uuid).drop())
+                    d.subs.foreach (x => dbcores.getCollection(x.uuid).drop())
 //                    Restart
             }
             goto(alMasterJobIdle) using new alCalcParmary("", "")
@@ -189,7 +191,7 @@ class alCalcActor extends Actor
 	        log.info(s"单个线程备份传输结束")
 
 	        log.info(s"单个线程开始删除临时表")
-            _data_connection_cores.getCollection(sub_uuid).drop()
+            dbcores.getCollection(sub_uuid).drop()
 	        log.info(s"单个线程结束删除临时表")
 
             sendMessage.sendMsg("1", data.uname, Map("uuid" -> data.uuid, "company" -> data.company, "type" -> "progress"))
