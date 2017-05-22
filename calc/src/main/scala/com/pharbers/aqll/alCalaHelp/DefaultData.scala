@@ -1,6 +1,7 @@
 package com.pharbers.aqll.alCalaHelp
 
 import com.pharbers.aqll.alCalc.almodel.java.{AdminHospitalDataBase, IntegratedData}
+import com.pharbers.aqll.common.alDao.dataFactory._
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 
@@ -42,4 +43,10 @@ object DefaultData {
         integratedbase.prase(fileBase + company + outPut + filename)("")
         integratedbase.data.asInstanceOf[List[targt]]
     }
+}
+
+trait DBList {
+    // TODO 这个地方需要读取配置文件，如果都是默认的可以忽略，最好读取配置文件
+    val dbcores = getDataCores()
+    val dbbasic = getDataCores()
 }

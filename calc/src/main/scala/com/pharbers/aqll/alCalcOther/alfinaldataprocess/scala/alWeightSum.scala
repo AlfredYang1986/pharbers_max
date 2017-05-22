@@ -4,14 +4,16 @@ import java.util.UUID
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
+import com.pharbers.aqll.alCalaHelp.DBList
+import com.pharbers.aqll.common.alDao.from
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 /**
 	* Created by LIWEI on 17-3-17.
 	*/
-object alWeightSum {
-	class alWeightSum(company : String, u: String){
-		val lst = (from db() in u).selectOneByOne("hosp_Index")(x => x)(_data_connection_cores)
+object alWeightSum extends DBList{
+	implicit val dbc = dbcores
+	class alWeightSum(company : String, u: String) {
+		val lst = (from db() in u).selectOneByOne("hosp_Index")(x => x)
 		var b : Option[DBObject] = None
 		var f_units_sum,f_sales_sum = 0.0
 		var f_units_sum2,f_sales_sum2 = 0.0
@@ -57,17 +59,17 @@ object alWeightSum {
 	}
 
 	def insertFinalData(x: DBObject,company: String,f_units_sum: Double,f_sales_sum: Double) {
-		if(_data_connection_cores.getCollection(company).count()==1){
-			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("hosp_Index" -> 1))
-			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("prov_Index" -> 1))
-			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("city_Index" -> 1))
-			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Date" -> 1))
-			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Market" -> 1))
-			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1))
-			_data_connection_cores.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1,"City" -> 1))
+		if(dbc.getCollection(company).count()==1){
+			dbc.getCollection(company).createIndex(MongoDBObject("hosp_Index" -> 1))
+			dbc.getCollection(company).createIndex(MongoDBObject("prov_Index" -> 1))
+			dbc.getCollection(company).createIndex(MongoDBObject("city_Index" -> 1))
+			dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1))
+			dbc.getCollection(company).createIndex(MongoDBObject("Market" -> 1))
+			dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1))
+			dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1,"City" -> 1))
 		}
 		// TODO : 还原省份|城市权和索引，其他字段保持不变
-		_data_connection_cores.getCollection(company).insert(Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString) ,"Provice" -> x.get("Provice"),"City" -> x.get("City"),"Panel_ID" -> x.get("Panel_ID"),"Market" -> x.get("Market"),"Product" -> x.get("Product"),"f_units" -> f_units_sum,"f_sales" -> f_sales_sum,"Date" -> x.get("Date"),"hosp_Index" -> x.get("hosp_Index"),
+		dbc.getCollection(company).insert(Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString) ,"Provice" -> x.get("Provice"),"City" -> x.get("City"),"Panel_ID" -> x.get("Panel_ID"),"Market" -> x.get("Market"),"Product" -> x.get("Product"),"f_units" -> f_units_sum,"f_sales" -> f_sales_sum,"Date" -> x.get("Date"),"hosp_Index" -> x.get("hosp_Index"),
 			"prov_Index" -> alEncryptionOpt.md5(x.get("Provice")+x.get("Market").toString+x.get("Product")+x.get("Date")),
 			"city_Index" -> alEncryptionOpt.md5(x.get("Provice")+x.get("City").toString+x.get("Market")+x.get("Product")+x.get("Date"))
 		))

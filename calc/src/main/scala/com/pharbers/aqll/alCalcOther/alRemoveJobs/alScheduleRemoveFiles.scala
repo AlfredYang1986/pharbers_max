@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalcOther.alSchedulerJobs
+package com.pharbers.aqll.alCalcOther.alRemoveJobs
 
 import java.util.Calendar
 
@@ -40,11 +40,13 @@ class alScheduleRemoveFiles extends Actor with ActorLogging{
 	val remove: Receive = {
 		case rmFile() =>
 			val time = Calendar.getInstance
-//			printf("Hours: %s, Minute: %s, Seconds: %s \n", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.SECOND))
 			if (hours == time.get(Calendar.HOUR_OF_DAY) &&
 				minutes == time.get(Calendar.MINUTE) &&
 				seconds.toInt > time.get(Calendar.SECOND)) {
-				alScheduleRemoveFiles.rmLst foreach (alFileOpt(_).removeCurFiles)
+				alScheduleRemoveFiles.rmLst foreach { x =>
+					val flag = alFileOpt(x).removeCurFiles
+					if(!flag) println() else println()
+				}
 			}
 		case _ => ???
 	}
