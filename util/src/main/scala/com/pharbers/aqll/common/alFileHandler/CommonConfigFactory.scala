@@ -1,5 +1,6 @@
 package com.pharbers.aqll.common.alFileHandler
 
+import com.pharbers.aqll.common.alFileHandler.fileConfig.file
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -85,21 +86,11 @@ object timingConfig {
 	val minutes = timing.getProperties("Timing.Minutes")
 	val seconds = timing.getProperties("Timing.Seconds")
 }
-object fopConfig {
-	val fop: IConfigFactory = CommonConfigFactory.getConfigFactory("fop")
-
-	val filebase = fop.getProperties("fop.filebase")
-	val hospital = fop.getProperties("fop.hospital")
-	val export = fop.getProperties("fop.export")
-	val cpa = fop.getProperties("fop.cpa")
-	val gycx = fop.getProperties("fop.gycx")
-	val manage = fop.getProperties("fop.manage")
-}
 object akkaConfig {
 	val akka: IConfigFactory = CommonConfigFactory.getConfigFactory("akka")
-
 	val akkaIp = akka.getProperties("akka.http.ip")
 	val akkaPort = akka.getProperties("akka.http.port")
+
 }
 
 object CommonConfigFactory {
@@ -111,7 +102,6 @@ object CommonConfigFactory {
 		"mail" -> new MailConfigFactory,
 		"server" -> new ServerConfigFactory,
 		"timing" -> new TimingConfigFactory,
-		"fop" -> new FopConfigFactory,
 		"akka" -> new AkkaConfigFactory
 	)
 
@@ -139,5 +129,4 @@ class FileConfigFactory  extends IConfigFactory{override val configFileName = "F
 class MailConfigFactory  extends IConfigFactory{override val configFileName = "mail.conf"}
 class ServerConfigFactory  extends IConfigFactory{override val configFileName = "server.conf"}
 class TimingConfigFactory  extends IConfigFactory{override val configFileName = "timing.conf"}
-class FopConfigFactory  extends IConfigFactory{override val configFileName = "fop.conf"}
 class AkkaConfigFactory  extends IConfigFactory{override val configFileName = "akka.conf"}

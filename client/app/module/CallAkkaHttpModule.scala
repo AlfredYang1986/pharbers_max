@@ -14,11 +14,13 @@ object CallAkkaHttpModuleMessage {
 }
 
 object CallAkkaHttpModule extends ModuleTrait {
+
 	import CallAkkaHttpModuleMessage._
 	import controllers.common.default_error_handler.f
-	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-			case msg_callHttpServer(data) => callHttpServer_func(data)
-			case _ => ???
+
+	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+		case msg_callHttpServer(data) => callHttpServer_func(data)
+		case _ => ???
 	}
 
 	/**

@@ -6,13 +6,6 @@ import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 
 object DefaultData {
-//    def hospdatabase(path: String, company: String) = {
-//        val hospdata_ch_file = "config/admin/HospDataStruct.xml"
-//        val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
-//        val hospdatabase = hospdatainteractparser(hospdata_en_file, hospdata_ch_file)
-//        hospdatabase.startParse(fileBase + company + hospitalData + path, 1)
-//        hospdatabase.resultlist
-//    }
 
     def hospdatabase(path: String, company: String) = {
         val hospdata_ch_file = "config/admin/HospDataStruct.xml"
@@ -23,17 +16,6 @@ object DefaultData {
         hospdatabase.data.toList.asInstanceOf[List[AdminHospitalDataBase]]
     }
 
-//    object integratedXmlPath {
-//        lazy val integratedxmlpath_ch = "config/consumer/IntegratedDataStruct.xml"
-//        lazy val integratedxmlpath_en = "config/consumer/FieldNamesIntegratedDataStruct.xml"
-//    }
-
-//    def integratedbase(filename: String, company: String) = {
-//        val integratedbase = integrateddataparser(integratedXmlPath.integratedxmlpath_en, integratedXmlPath.integratedxmlpath_ch)
-//        integratedbase.startParse(fileBase + company + outPut + filename, 1)
-//        integratedbase.resultlist
-//    }
-
     val integratedxmlpath_ch = "config/consumer/IntegratedDataStruct.xml"
     val integratedxmlpath_en = "config/consumer/FieldNamesIntegratedDataStruct.xml"
 
@@ -41,12 +23,12 @@ object DefaultData {
         type targt = IntegratedData
         val integratedbase = new alExcelDataParser(new targt, integratedxmlpath_en, integratedxmlpath_ch)
         integratedbase.prase(fileBase + company + outPut + filename)("")
-        integratedbase.data.asInstanceOf[List[targt]]
+        integratedbase.data.toList.asInstanceOf[List[targt]]
     }
 }
 
 trait DBList {
     // TODO 这个地方需要读取配置文件，如果都是默认的可以忽略，最好读取配置文件
     val dbcores = getDataCores()
-    val dbbasic = getDataCores()
+    val dbbasic = gerDataBasic()
 }
