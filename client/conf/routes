@@ -32,12 +32,13 @@ POST	/resultcheck/histogram              controllers.ResultCheckController.resul
 #   结果查询
 GET		/resultquery				        controllers.Application.resultQuery
 POST 	/resultquery/search			        controllers.ResultQueryController.resultQuerySearch
-#   用户管理
+#   公司管理
 GET     /usermanage                         controllers.Application.usermanage
 POST    /usermanage/company/query           controllers.CompanyManageController.queryCompanys
 POST    /usermanage/company/delete          controllers.CompanyManageController.deleteCompany
 POST    /usermanage/company/findOne         controllers.CompanyManageController.findOneCompany
 POST    /usermanage/company/save            controllers.CompanyManageController.saveCompany
+#   用户管理
 POST    /usermanage/user/query              controllers.UserManageController.queryUsers
 POST    /usermanage/user/delete             controllers.UserManageController.deleteUser
 POST    /usermanage/user/findOne            controllers.UserManageController.findOneUser
