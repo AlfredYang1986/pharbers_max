@@ -87,3 +87,8 @@ calc/manage/upload
 *.bat
 *.jar
 
+# Ember 
+client/ember_web/node_modules
+client/ember_web/bower_components
+client/ember_web/public/assets
+client/public/assets
