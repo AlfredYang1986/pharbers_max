@@ -32,6 +32,8 @@ object CallAkkaHttpModule extends ModuleTrait {
 		try {
 			val businessType = (data \ "businessType").get.asOpt[String].getOrElse("error input")
 			(successToJson(alCallHttp(businessType, data).call), None)
+			//@unit testing
+			//(successToJson(toJson(Map("result" -> toJson(Map("status" -> toJson("success"),"message" -> toJson("201611#")))))), None)
 		} catch {
 			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
