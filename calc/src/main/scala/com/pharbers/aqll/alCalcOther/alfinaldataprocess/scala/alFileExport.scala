@@ -3,13 +3,13 @@ package com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.{Calendar, UUID}
-
+import play.api.libs.json.Json.toJson
+import play.api.libs.json.JsValue
 import com.mongodb.casbah.Imports.{DBObject, MongoCursor}
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.java.alExport
 import com.pharbers.aqll.common.alDao.from
 import com.pharbers.aqll.common.alFileHandler.alCsvOpt.scala.CSVWriter
 import com.pharbers.aqll.common.alString.alStringOpt._
@@ -31,7 +31,7 @@ object alFileExport extends DBList{
   
   def apply(alExport: alFilesExport) = alFileExport(alExport)
 
-  def alFileExport(alExport: alFilesExport) : alExport = {
+  def alFileExport(alExport: alFilesExport) : JsValue = {
     try{
       val fmomat_f = new SimpleDateFormat("MM/yyyy")
       var conditions = MongoDBObject()
@@ -152,12 +152,8 @@ object alFileExport extends DBList{
     }
   }
   // TODO :  返回
-  def returnMess(status: Integer,message: String,filename: String): alExport ={
-    val alexport : alExport = new alExport()
-    alexport.setStatus(status)
-    alexport.setMessage(message)
-    alexport.setFilename(filename)
-    alexport
+  def returnMess(status: Int,message: String,filename: String): JsValue ={
+    toJson(Map("status" -> toJson(status),"message" -> toJson(message),"filename" -> toJson(filename)))
   }
 
   def stepVal(num: Int,total: Int, uname: String) {

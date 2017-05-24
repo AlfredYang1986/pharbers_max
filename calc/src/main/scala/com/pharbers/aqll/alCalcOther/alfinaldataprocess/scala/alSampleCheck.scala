@@ -2,8 +2,6 @@ package com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala
 
 import java.io._
 import java.util.{Date, UUID}
-
-import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alCalaHelp.{DBList, DefaultData}
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
@@ -13,7 +11,6 @@ import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alString.alStringOpt._
-
 import scala.collection.immutable.List
 import scala.collection.mutable.ListBuffer
 
@@ -62,7 +59,7 @@ class alSampleCheck(company : String, filename : String, uname: String) extends 
         val lsb = new ListBuffer[Map[String,String]]()
         mismatch.toList.foreach(x => lsb.append(Map("Hosp_name" -> x.head,"Province" -> x.tail.head,"City" -> x.tail.tail.head,"City_level" -> x.tail.tail.tail.head)))
         dbcores.getCollection("FactResult").findAndRemove(new MongoDBObject(MongoDBObject("Company" -> company,"Market" -> mc._1,"Date" -> alDateOpt.yyyyMM2Long(date._1.toString))))
-          dbcores.getCollection("FactResult").insert(Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString),"Date" -> alDateOpt.yyyyMM2Long(date._1.toString),"Market" -> mc._1,"Company" -> company,"HospNum" -> HospNum.toInt,"ProductNum" -> ProductNum.toInt,"MarketNum" -> Market_Current.size,"Units" -> Units,"Sales" -> Sales,"Mismatch" -> lsb.toList,"CreateDate" -> alDateOpt.Date2Long(new Date())))
+        dbcores.getCollection("FactResult").insert(Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString),"Date" -> alDateOpt.yyyyMM2Long(date._1.toString),"Market" -> mc._1,"Company" -> company,"HospNum" -> HospNum.toInt,"ProductNum" -> ProductNum.toInt,"MarketNum" -> Market_Current.size,"Units" -> Units,"Sales" -> Sales,"Mismatch" -> lsb.toList,"CreateDate" -> alDateOpt.Date2Long(new Date())))
         //println(s"日期：${date._1} 市场：${mc._1} 公司：${company} 医院数量：${HospNum.toInt} 产品数量：${ProductNum.toInt} 市场数量：${Market_Current.size} 销售额：${Sales} 销售数量：${Units} 未匹配：${mismatch.toList.size}")
       }
     }

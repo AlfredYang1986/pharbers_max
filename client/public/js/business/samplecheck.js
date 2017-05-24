@@ -2,21 +2,6 @@
  * Created by Wli on 2017/1/5.
  */
 $(function(){
-    var i = 0
-    $('#data_5 .input-daterange').datepicker({
-        minViewMode: 1,
-        keyboardNavigation: false,
-        forceParse: false,
-        autoclose: true,
-        todayHighlight: true
-    }).on('changeDate',function(){
-        if(i==0){
-            sampleCheckFun()
-            i++
-        }else{
-            i=0
-        }
-    });
 
     sampleCheckFun();
 
@@ -27,12 +12,12 @@ $(function(){
     //说明：加载样本检查数据。
     //*********************************************************************
     function sampleCheckFun() {
-        var market = $('select[data-name="search-result-market"]').val();
-        var date = $('input[name="date_5"]').val();
+        var markets = $('select[data-name="search-result-market"]').val();
+        var dates = $('select[data-name="search-result-date"]').val();
         var dataMap = JSON.stringify({
             "company": $.cookie("token"),
-            "market": market,
-            "date": date
+            "market": markets,
+            "date": dates
         });
         $.ajax({
             type: "POST",
@@ -40,16 +25,18 @@ $(function(){
             dataType: "json",
             data: dataMap,
             contentType: 'application/json,charset=utf-8',
-            success: function (r) {
-                console.info(r)
-                cel_data(r);
-                cur12_data_HPM(r);
-                cur12_las12_data(r);
-                var data = Top_Mismatch(r);
-                dataTableAjax(data);
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                $.tooltip('My God, 出错啦！！！');
+            success: function (data) {
+                console.info(data)
+                if(data.result.status){
+                    var result = data.result.result.result
+                    cel_data(result);
+                    cur12_data_HPM(result);
+                    cur12_las12_data(result);
+                    var data = Top_Mismatch(result);
+                    dataTableAjax(data);
+                }else{
+                    $.tooltip('生成样本检查数据失败');
+                }
             }
         });
     }
@@ -62,9 +49,9 @@ $(function(){
     //说明：医院数量、产品数量、市场数量。
     //*********************************************************************
     var cel_data = function(r){
-        var cur_data = r.result.cur_data
-        var ear_data = r.result.ear_data
-        var las_data = r.result.las_data
+        var cur_data = r.cur_data
+        var ear_data = r.ear_data
+        var las_data = r.las_data
         $("#Current_Month_HospitalNum").text(cur_data.HospNum);
         $("#Current_Month_ProductNum").text(cur_data.ProductNum);
         $("#Current_Month_MarketNum").text(cur_data.MarketNum);
@@ -84,7 +71,7 @@ $(function(){
         var s_prod_data = [];
         var s_mark_data = [];
 
-        var cur12_date = r.result.cur12_date
+        var cur12_date = r.cur12_date
 
         for(var item in cur12_date){
             var obj = cur12_date[item];
@@ -264,8 +251,8 @@ $(function(){
     //*********************************************************************
     function cur12_las12_data(r) {
 
-        var cur12_date = r.result.cur12_date
-        var las12_date = r.result.las12_date
+        var cur12_date = r.cur12_date
+        var las12_date = r.las12_date
 
         var x_data = [];
         var y_curr12_sales = [];
@@ -424,7 +411,7 @@ $(function(){
     //说明：不匹配医院列表。
     //*********************************************************************
     function Top_Mismatch(r) {
-        var mismatch_lst = r.result.misMatchHospital
+        var mismatch_lst = r.misMatchHospital
         var temp = []
         var data = []
         var nobj = mismatch_lst[0]
