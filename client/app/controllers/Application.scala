@@ -109,4 +109,8 @@ class Application@Inject() (mdb: MongoDBModule) extends Controller {
         case 0 => "No"
         case 1 => "Yes"
   }
+
+  def emberWebPage(path : String) = Action {
+    Ok(views.html.new_web())
+  }
 }

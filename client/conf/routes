@@ -52,5 +52,8 @@ POST    /marketmanage/save                  controllers.MarketManageController.s
 #   公用部分
 POST    /callhttpServer                     controllers.CallAkkaHttpController.callHttpServer
 
+# new ember web pages
+GET     /new/*path                          controllers.Application.emberWebPage(path)
+
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)
