@@ -18,5 +18,5 @@ class MongoModule extends Module{
 class MongoDBModule {
 	def cores = getDataCores()
 
-	def basic = gerDataBasic()
+	def basic = getDataBasic()
 }

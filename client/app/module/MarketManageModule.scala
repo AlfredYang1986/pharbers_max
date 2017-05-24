@@ -107,15 +107,16 @@ object MarketManageModule extends ModuleTrait {
       */
     def saveMarket_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
+            val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
             val Market_Name = (data \ "Market_Name").get.asOpt[String].getOrElse("")
             val au = (data \ "au").get.asOpt[String].getOrElse("")
             au match {
                 case "add" => {
                     val query = MongoDBObject("Market_Name" -> Market_Name)
-                    cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Market").findOne(query) match {
+                    database.getCollection("Market").findOne(query) match {
                         case None => {
                             val doc = MongoDBObject("Market_Id" -> md5(Market_Name),"Market_Name"-> Market_Name,"Date" -> System.currentTimeMillis())
-                            cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Market").insert(doc).getN match {
+                            database.getCollection("Market").insert(doc).getN match {
                                 case 0 => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
                                 case _ => throw new Exception("warn operation failed")
                             }
@@ -127,7 +128,7 @@ object MarketManageModule extends ModuleTrait {
                     val Market_Id = (data \ "Market_Id").get.asOpt[String].getOrElse("")
                     val query = MongoDBObject("Market_Id" -> Market_Id)
                     val update = MongoDBObject("Market_Id" -> md5(Market_Name),"Market_Name" -> Market_Name,"Date" -> System.currentTimeMillis())
-                    cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Market").update(query,update).getN match {
+                    database.getCollection("Market").update(query,update).getN match {
                         case 1 => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
                         case _ => throw new Exception("warn operation failed")
                     }

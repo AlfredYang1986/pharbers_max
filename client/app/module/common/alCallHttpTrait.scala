@@ -15,6 +15,7 @@ trait alCallHttpTrait {
 
   def call : JsValue = {
     (HTTP(url)).post(data).as[JsValue]
+    //{"result":{"status":"success","message":"201611#"}}
   }
 }
 

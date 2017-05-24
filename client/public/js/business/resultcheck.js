@@ -56,9 +56,6 @@ $(function(){
             success: function (json) {
                 $(".progresstier").css("display", "block");
                 nextStep()
-            },
-            error: function (e) {
-                $.tooltip('My God, 出错啦！！！');
             }
         });
     });
@@ -67,21 +64,21 @@ $(function(){
 
 $(function(){
 
-    var i = 0
-    $('#data_5 .input-daterange').datepicker({
-        minViewMode: 1,
-        keyboardNavigation: false,
-        forceParse: false,
-        autoclose: true,
-        todayHighlight: true
-    }).on('changeDate',function(){
-        if(i==0){
-          ModelOperationEchartFun();
-          i++
-        }else{
-          i=0
-      }
-    });
+    // var i = 0
+    // $('#data_5 .input-daterange').datepicker({
+    //     minViewMode: 1,
+    //     keyboardNavigation: false,
+    //     forceParse: false,
+    //     autoclose: true,
+    //     todayHighlight: true
+    // }).on('changeDate',function(){
+    //     if(i==0){
+    //       ModelOperationEchartFun();
+    //       i++
+    //     }else{
+    //       i=0
+    //   }
+    // });
 
     ModelOperationEchartFun();
 });
@@ -110,12 +107,12 @@ var ModelOperationEchartFun = function() {
         text : '数据获取中',
         effect: 'whirling'
     });
-    var market = $('select[data-name="search-result-market"]').val();
-    var date = $('input[name="date_5"]').val();
+    var markets = $('select[data-name="search-result-market"]').val();
+    var dates = $('select[data-name="search-result-date"]').val();
     var dataMap = JSON.stringify({
         "company": $.cookie("token"),
-        "market": market.replace(/\s/g, ""),
-        "date": date
+        "market": markets.replace(/\s/g, ""),
+        "date": dates
     });
     $.ajax({
         type: "POST",
@@ -123,11 +120,14 @@ var ModelOperationEchartFun = function() {
         dataType: "json",
         data: dataMap,
         contentType: 'application/json,charset=utf-8',
-        success: function (r) {
-            echarts_bar1(r,bar);
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
+        success: function (data) {
+            console.info(data.result.status)
+            console.info(data.result.result.result)
+            if(data.result.status == "success"){
+                echarts_bar1(data.result.result.result,bar);
+            }else{
+                $.tooltip(data.result.message);
+            }
         }
     });
     $.ajax({
@@ -136,11 +136,15 @@ var ModelOperationEchartFun = function() {
         dataType: "json",
         data: dataMap,
         contentType: 'application/json,charset=utf-8',
-        success: function (r) {
-            echarts_bar23(r,bar2,bar3);
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
+        success: function (data) {
+            console.info(data.result.status)
+            console.info(data.result.result.result)
+            if(data.result.status == "success"){
+                echarts_bar23(data.result.result.result,bar2,bar3);
+            }else{
+                $.tooltip(data.result.message);
+            }
+
         }
     });
 }
@@ -151,14 +155,13 @@ var ModelOperationEchartFun = function() {
 //创建：Arthas
 //说明：根据日期维度、以日期和市场为筛选条件进行分析，将Market和Market Share数据进行比较。
 //*********************************************************************
-var echarts_bar1 = function(r){
-    var data = r.result.result
+var echarts_bar1 = function(result,bar){
     var x_data = [];
     var s_data1 = [];
     var s_data2 = [];
 
-    for(var item in data){
-        var obj = data[item];
+    for(var item in result){
+        var obj = result[item];
         x_data.push(obj.Date);
         s_data1.push((obj.f_sales/10000).toFixed(4));
         s_data2.push((obj.f_sales/10000).toFixed(4));
@@ -227,7 +230,7 @@ var echarts_bar1 = function(r){
 //创建：Arthas
 //说明：根据城市维度、以日期和市场为筛选条件进行分析，将当期和上期数据进行比较，将当期和去年同期数据进行比较。
 //*********************************************************************
-var echarts_bar23 = function(r){
+var echarts_bar23 = function(result,bar2,bar3){
     var colors = [{
         type: 'linear',
         x: 0, x2: 1, y: 0, y2: 0,
@@ -250,9 +253,9 @@ var echarts_bar23 = function(r){
         }]
     }];
 
-    var cur_data = r.result.result.cur_top6
-    var ear_data = r.result.result.ear_top6
-    var las_data = r.result.result.las_top6
+    var cur_data = result.cur_top6
+    var ear_data = result.ear_top6
+    var las_data = result.las_top6
 
     var x_data = [];
     var echarts2_s_data1 = [];

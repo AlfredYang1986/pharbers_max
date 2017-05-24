@@ -36,7 +36,7 @@ object dataFactory {
 
     def getDataCores(host: String = "127.0.0.1", port: Int = 2017, user: String = "Pharbers", pwd: String = "Pharbers2017."): data_connection = new DataConnectionCores(host, port, user, pwd)
 
-    def gerDataBasic(host: String = "127.0.0.1", port: Int = 2017, user: String = "Pharbers", pwd: String = "Pharbers2017."): data_connection = new DataConnectionBasic(host, port, user, pwd)
+    def getDataBasic(host: String = "127.0.0.1", port: Int = 2017, user: String = "Pharbers", pwd: String = "Pharbers2017."): data_connection = new DataConnectionBasic(host, port, user, pwd)
 }
 
 class DataConnectionCores(host: String, port: Int, user: String, pwd: String) extends data_connection {
