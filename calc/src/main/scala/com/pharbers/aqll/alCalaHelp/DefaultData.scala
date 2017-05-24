@@ -30,5 +30,5 @@ object DefaultData {
 trait DBList {
     // TODO 这个地方需要读取配置文件，如果都是默认的可以忽略，最好读取配置文件
     val dbcores = getDataCores()
-    val dbbasic = gerDataBasic()
+    val dbbasic = getDataBasic()
 }
