@@ -10,7 +10,7 @@ import io.swagger.client.model.{Msg, MsgContent, UserName}
   */
 class alMessageProxy extends alMessage with alLoggerMsgTrait {
 	
-	override def sendMsg(toUser: String, content: String, ext: Map[String, String] = Map.empty): Boolean = {
+	override def sendMsg(content: String, toUser: String, ext: Map[String, String] = Map.empty): Boolean = {
 		try {
 			val userName = new UserName()
 			userName.add(toUser)

@@ -54,7 +54,7 @@ sealed trait alEmChat{
 
 trait alMessage extends alEmChat{
 	
-	def sendMsg(toUser: String, content: String, ext: Map[String, String] = Map.empty): Boolean
+	def sendMsg(content: String, toUser: String, ext: Map[String, String] = Map.empty): Boolean
 	
 	def addUser(): Boolean = ???
 	
