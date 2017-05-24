@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalcOther.mail
+package com.pharbers.aqll.alCalcOther.alMail
 
 import com.pharbers.aqll.alCalaHelp.DBList
 import org.apache.commons.mail._
