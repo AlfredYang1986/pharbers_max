@@ -25,7 +25,7 @@ object ResultQueryModule extends ModuleTrait {
 
 	def resultquery_func(data : JsValue)(implicit error_handler : String => JsValue, cm: CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 		var markets = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(Nil)
-		var dates = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(throw new Exception("warn input"))
+		var dates = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(Nil)
 
 		markets = markets.map(x => removeSpace(x))
 

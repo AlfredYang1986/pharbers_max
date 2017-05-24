@@ -7,14 +7,14 @@ window.onload = function(){
         dataType: "json",
         data: JSON.stringify({ "company": $.cookie("token")}),
         contentType: 'application/json,charset=utf-8',
-        success: function (r) {
-            if(r.status=="ok"){
-                var data = r.result.result
-                $('#markets')[0].innerText = data.length+'个市场'
+        success: function (data) {
+            if(data.result.status == "success"){
+                var result = data.result.result.result
+                $('#markets')[0].innerText = result.length+'个市场'
                 var html = "";
                 html += "<li>"
-                for(var x in data){
-                    var obj = data[x]
+                for(var x in result){
+                    var obj = result[x]
                     html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj.Market+"</span>"
                     html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，您需要进行放大月份为</span>"
                     html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+array2str(obj.date_lst_sb)+"</span>"
@@ -60,11 +60,8 @@ window.onload = function(){
                 html += "<p class=MsoNormal style='vertical-align: middle'><span lang=EN-US style='font-family: 'verdena', 'serif'; color: black'>&nbsp;</span></p>"
                 $('#tbody')[0].innerHTML = html;
             }else{
-                $.tooltip('My God, 出错啦！！！');
+                $.tooltip(data.result.message);
             }
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            $.tooltip('My God, 出错啦！！！');
         }
     });
 }

@@ -36,8 +36,8 @@ object ResultCheckModule extends ModuleTrait {
 			val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
 			uuid match {
 				case None => throw new Exception("warn uuid does not exist")
-				case _ => {
-					val result = lsttoJson(queryNearTwelveMonth(database,company,market,date,s"$company${uuid.get}"),1)
+				case Some(x) => {
+					val result = lsttoJson(queryNearTwelveMonth(database,company,market,date,s"$company$x"),1)
 					(successToJson(result), None)
 				}
 			}
@@ -55,8 +55,8 @@ object ResultCheckModule extends ModuleTrait {
 			val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
 			uuid match {
 				case None => throw new Exception("warn uuid does not exist")
-				case _ => {
-					val temp_coll = s"$company${uuid.get}"
+				case Some(x) => {
+					val temp_coll = s"$company$x"
 					val cur_top6 = queryCELData(database,company,market,date,temp_coll,"cur")(None,None)
 					val ear_top6 = queryCELData(database,company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
 					val las_top6 = queryCELData(database,company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
@@ -132,9 +132,9 @@ object ResultCheckModule extends ModuleTrait {
 		*/
 	def queryDBObject(market: String,date: String,el: String,list: Option[List[String]]): DBObject ={
 		val ces_date = el match {
-			case "cur" => alDateOpt.MMyyyy2Long(date)
-			case "ear" => alDateOpt.MMyyyy2EarlyLong(date)
-			case "las" => alDateOpt.MMyyyy2LastLong(date)
+			case "cur" => alDateOpt.yyyyMM2Long(date)
+			case "ear" => alDateOpt.yyyyMM2EarlyLong(date)
+			case "las" => alDateOpt.yyyyMM2LastLong(date)
 		}
 		list match {
 			case None => MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$eq" -> ces_date))
@@ -151,9 +151,8 @@ object ResultCheckModule extends ModuleTrait {
 		* @return
 		*/
 	def queryNearTwelveMonth(database: data_connection,company: String,market: String,date: String,temp_coll: String): List[Map[String,Any]] ={
-		val cur_date = alDateOpt.MMyyyy2yyyyMM(date)
-		val date_lst_str = alRestDate.diff12Month(cur_date)
-		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))))
+		val date_lst_str = alRestDate.diff12Month(date)
+		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(date))))
 		database.getCollection(temp_coll).count() match {
 			case 0 => {
 				val list_map = database.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
@@ -220,7 +219,7 @@ object ResultCheckModule extends ModuleTrait {
 	}
 
 	def queryUUID(company: String): Option[String] = {
-		val uuidjson = alCallHttp("queryUUID",toJson(Map("company" -> toJson(company)))).call
+		val uuidjson = alCallHttp("/queryUUID",toJson(Map("company" -> toJson(company)))).call
 		Some((uuidjson \ "result").asOpt[String].get)
 	}
 

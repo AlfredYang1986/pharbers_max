@@ -8,7 +8,6 @@ import java.util.UUID
 
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.java
 import com.pharbers.aqll.common.alDao._data_connection_cores_thread
 import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
