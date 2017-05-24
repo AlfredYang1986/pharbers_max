@@ -11,7 +11,7 @@ import akka.pattern.ask
 import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate}
 import com.pharbers.aqll.alCalcOther.alEmchat.sendMessage
-import com.pharbers.aqll.alCalcOther.mail.{Mail, MailAgent, MailToEmail}
+import com.pharbers.aqll.alCalcOther.alMail.{Mail, StmConf}
 import com.pharbers.aqll.common.alFileHandler.mailConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
@@ -155,9 +155,10 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 					//                    val tmp = (alWeightSum(company._1, company._2))
 					//                    println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
 					//                    println(s"结束去重数据")
-
-					val e_mail = MailToEmail.getEmail(company._1)
-					MailAgent(Mail(mail_context, mail_subject, e_mail)).sendMessage()
+					
+					implicit val stmc = StmConf()
+					//val e_mail = MailToEmail.getEmail(company._1)
+					//new Mail().sendTo(e_mail)
 					endDate("计算完成",start)
 					sendMessage.sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
 					self ! finish_max_job(uuid)
