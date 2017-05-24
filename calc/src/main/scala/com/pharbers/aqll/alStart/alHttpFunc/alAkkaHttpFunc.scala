@@ -6,13 +6,14 @@ import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
 import com.google.gson.Gson
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import com.pharbers.aqll.alCalcOther.alEmchat.{alIMUser, sendMessage}
 import spray.json.DefaultJsonProtocol
 import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
+
 import scala.concurrent.ExecutionContext
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.{alFileExport, alFilesExport, alSampleCheck, alSampleCheckCommit}
 
 /**
@@ -67,9 +68,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alFileUploadPyBefore = post {
 		path("uploadbefore") {
 			entity(as[alUpBeforeItem]) { item =>
-				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyCmd(s"$root$program$fileBase${item.company}" ,Upload_Firststep_Filename, "").excute
-				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result":""" + result +"""}""")
 			}
 		}
@@ -78,9 +79,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alFileUploadPythonFunc = post {
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
-				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyCmd(s"$root$program$fileBase${item.company}",Upload_Secondstep_Filename, item.yms).excute
-				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result":""" + result +"""}""")
 			}
 		}
@@ -94,7 +95,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				//a ! check_excel_jobs(item.company,item.filename)
 				println(s"company=${item.company} filename=${item.filename}")
 				alSampleCheck(item.company, item.filename, item.uname)
-				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result" : "Ok"}""")
 			}
 		}
@@ -135,7 +136,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 												item.filetype,
 												item.uname)
 				val result = alFileExport(alExport)
-				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val gson : Gson = new Gson()
 				println(s"result=${gson.toJson(result)}")
 				complete("""{"result":"""+gson.toJson(result)+"""}""")
@@ -146,7 +147,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alCreateIMUserFunc = post {
 		path("createimuser") {
 			entity(as[alHttpCreateIMUser]) { item =>
-				alIMUser.createUser(item.name, item.pwd)
+				//alIMUser.createUser(item.name, item.pwd)
 				complete("""{"result": "OK"}""")
 			}
 		}

@@ -8,7 +8,7 @@ import com.mongodb.casbah.Imports.{DBObject, MongoCursor}
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
-import com.pharbers.aqll.alCalcOther.alEmchat.sendMessage
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.java.alExport
 import com.pharbers.aqll.common.alDao.from
 import com.pharbers.aqll.common.alFileHandler.alCsvOpt.scala.CSVWriter
@@ -166,7 +166,7 @@ object alFileExport extends DBList{
       n=n-(n%100)
     }
     if((num % (n/100))==0){
-      sendMessage.sendMsg("1", uname, Map("uuid" -> "", "company" -> "", "type" -> "progress"))
+      new alMessageProxy().sendMsg("1", uname, Map("uuid" -> "", "company" -> "", "type" -> "progress"))
     }
   }
 }

@@ -10,12 +10,12 @@ import scala.concurrent.duration._
 import akka.pattern.ask
 import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate}
-import com.pharbers.aqll.alCalcOther.alEmchat.sendMessage
 import com.pharbers.aqll.alCalcOther.alMail.{EmailForCompany, Mail, StmConf}
 import com.pharbers.aqll.common.alFileHandler.mailConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alRestoreColl
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alWeightSum.alWeightSum
 
@@ -142,10 +142,11 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 						(x.company, u, x.uname)
 					case _ => ???
 				}
-				sendMessage.sendMsg("2", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
-
+				
+				new alMessageProxy().sendMsg("2", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
+				
 				if (r.subs.filterNot (x => x.isCalc).isEmpty) {
-					sendMessage.sendMsg("10", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
+					new alMessageProxy().sendMsg("10", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
 					r.finalValue = r.subs.map(_.finalValue).sum
 					r.finalUnit = r.subs.map(_.finalUnit).sum
 					r.isCalc = true
@@ -159,7 +160,7 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 					implicit val stmc = StmConf()
 					new Mail().sendTo(EmailForCompany(company._1).getEmail())
 					endDate("计算完成",start)
-					sendMessage.sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
+					new alMessageProxy().sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
 					self ! finish_max_job(uuid)
 					atomic { implicit tnx =>
 						calcing_jobs() = calcing_jobs().tail
@@ -173,16 +174,16 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 		alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
 			case None => println(s"commit_finalresult_jobs_func not company")
 			case Some(x) =>
-				sendMessage.sendMsg("30", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("30", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				println(s"x.uuid = ${x.uuid}")
 				new alWeightSum(company, company + x.uuid)
-				sendMessage.sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				println(s"开始删除临时表")
 				dbcores.getCollection(company + x.uuid).drop()
 				println(s"结束删除临时表")
 				val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(x.uuid))
 				alCalcParmary.alParmary.single.get.remove(index)
-				sendMessage.sendMsg("100", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 		}
 	}
 

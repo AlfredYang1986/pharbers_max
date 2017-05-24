@@ -8,7 +8,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alCalaHelp.{DBList, DefaultData}
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalc.almodel.java.AdminHospitalDataBase
-import com.pharbers.aqll.alCalcOther.alEmchat.sendMessage
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
@@ -30,7 +30,7 @@ class alSampleCheck(company : String, filename : String, uname: String) extends 
     val dates = panels.groupBy(x => x.getYearAndmonth)
     dates.foreach{date =>
       val Panels_Filter_Ym = panels.filter(x => x.getYearAndmonth.equals(date._1))
-      sendMessage.sendMsg("10", uname, Map("uuid" -> "", "company" -> company, "type" -> "progress"))
+      new alMessageProxy().sendMsg("10", uname, Map("uuid" -> "", "company" -> company, "type" -> "progress"))
       val Panels_Group_Pha = Panels_Filter_Ym.groupBy(x => x.getPhaid).map(y => (y._1,y._2.size)).toList
       val Market_Current = Panels_Filter_Ym.groupBy(x => x.getMarket1Ch)
       //println(s"Date =${date._1}")
