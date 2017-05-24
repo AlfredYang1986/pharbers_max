@@ -10,7 +10,7 @@ import com.pharbers.aqll.alCalc.almain.{alCalcActor, alGroupActor}
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaListener
 import com.pharbers.aqll.alCalcEnergy.alDriverSingleton
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.alCalcOther.alSchedulerJobs.{alScheduleRemoveFiles, rmFile}
+import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile}
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.Future
@@ -25,8 +25,8 @@ object alAkkaSystemGloble {
 
 object alAkkaHttpMain extends App with RequestTimeout {
 	val config = ConfigFactory.load("application")
-	val host = config.getString("http.server.host")
-	val port = config.getInt("http.server.port")
+	val host = config.getString("akka.http.server.host")
+	val port = config.getInt("akka.http.server.port")
 
 	implicit val system = ActorSystem("HttpMain")
 	implicit val ec = system.dispatcher

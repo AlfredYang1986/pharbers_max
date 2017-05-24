@@ -13,11 +13,12 @@ import module.ResultQueryModuleMessage._
 import module.SampleCheckModuleMessage.msg_CheckBaseQuery
 import module.LoginModuleMessage.msg_LoginBaseQuery
 import module.FilesUploadModuleMessage._
-import module.{ModelOperationModule, SampleReportModule, UserManageModule, MarketManageModule}
-import module.ModelOperationModuleMessage._
+import module.{ResultCheckModule, SampleReportModule, UserManageModule, MarketManageModule, CompanyManageModule}
+import module.ResultCheckModuleMessage._
 import module.SampleReportModuleMessage._
 import module.UserManageModuleMessage._
 import module.MarketManageModuleMessage._
+import module.CompanyManageModuleMessage._
 
 object PipeFilterActor {
 	def prop(originSender : ActorRef, msr : MessageRoutes) : Props = {
@@ -33,10 +34,10 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 		module.dispatchMsg(cmd)(rst) match {
 			case (_, Some(err)) => {
 				originSender ! error(err)
-				cancelActor					
+				cancelActor
 			}
 			case (Some(r), _) => {
-				rst = Some(r) 
+				rst = Some(r)
 			}
 			case _ => println("never go here")
 		}
@@ -51,13 +52,14 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 				case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, module.LoginModule)
 				case cmd : msg_filesuploadBase => dispatchImpl(cmd, module.FilesUploadModule)
 				case cmd : msg_CheckBaseQuery => dispatchImpl(cmd, module.SampleCheckModule)
-				case cmd : msg_mondelOperationBase => dispatchImpl(cmd, ModelOperationModule)
+				case cmd : msg_resultCheckBase => dispatchImpl(cmd, ResultCheckModule)
 				case cmd : msg_resultqueryBase => dispatchImpl(cmd, module.ResultQueryModule)
 				case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
 				case cmd : msg_LogCommand => dispatchImpl(cmd, LogModule)
 				case cmd : msg_ReportBaseQuery => dispatchImpl(cmd, SampleReportModule)
 				case cmd : msg_MarketManageBase => dispatchImpl(cmd, MarketManageModule)
 				case cmd : msg_UserManageBase => dispatchImpl(cmd, UserManageModule)
+				case cmd : msg_CompanyManageBase => dispatchImpl(cmd, CompanyManageModule)
 				case cmd : ParallelMessage => {
 		    cancelActor
 			next = context.actorOf(ScatterGatherActor.prop(originSender, msr), "scat")

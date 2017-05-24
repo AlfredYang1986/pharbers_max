@@ -1,56 +1,59 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
-#GET     /test                       controllers.Application.test
-GET     /test                       controllers.TestController.Test
-GET     /                           controllers.Application.login
-GET		/login						controllers.Application.login
-POST	/login						controllers.Application.login
-GET		/index						controllers.Application.index
-POST	/index						controllers.Application.index
-GET		/register					controllers.Application.register
-GET		/error404					controllers.Application.error404
-GET		/error500					controllers.Application.error500
-GET		/lockscreen					controllers.Application.lockScreen
-GET		/forgotpassword				controllers.Application.forgotPassword
-GET		/emptypage					controllers.Application.emptyPage
-GET     /marketmanage                controllers.Application.marketmanage
-GET     /usermanage                  controllers.Application.usermanage
-# Core Function
-GET		/filesupload				controllers.Application.filesUpload
-GET		/samplecheck				controllers.Application.sampleCheck
-GET		/samplereport				controllers.Application.samplereport
-GET		/modeloperation				controllers.Application.modelOperation
-GET		/resultquery				controllers.Application.resultQuery
-POST 	/resultquery/search			controllers.ResultQueryController.resultQueryAjaxCall
-POST	/samplecheck/check			controllers.SampleCheckController.sampleCheckAjaxCall
-POST	/samplereport/report		controllers.SampleReportController.sampleReportAjaxCall
-POST	/modeloperation/operationbar11	controllers.ModelOperationController.mondelOperationBar11AjaxCall
-POST	/modeloperation/operationbar23  controllers.ModelOperationController.mondelOperationBar23AjaxCall
-POST	/login/start			    controllers.LoginController.Login
-GET     /resultquery/files/:name    controllers.foptController.exportFile(name)
-POST    /callhttpServer             controllers.CallAkkaHttpController.callHttpServer
 
-POST    /marketmanage/query         controllers.MarketManageController.marketManageQueryAjax
-POST    /marketmanage/delete        controllers.MarketManageController.marketManageDeleteAjax
-POST    /marketmanage/findOne       controllers.MarketManageController.marketManageFindOneAjax
-POST    /marketmanage/save          controllers.MarketManageController.marketManageSaveAjax
+# 业务模块
+#   用户登录
+GET     /                                   controllers.Application.login
+GET		/login						        controllers.Application.login
+POST	/login						        controllers.Application.login
+POST	/login/start			            controllers.LoginController.Login
+#   用户注册
+GET		/register					        controllers.Application.register
+#   首页
+GET		/index						        controllers.Application.index
+POST	/index						        controllers.Application.index
+#   文件上传
+GET		/filesupload				        controllers.Application.filesUpload
+GET     /pharbers/files/:name               controllers.foptController.downloadFile(name)
+POST	/pharbers/files/upload		        controllers.foptController.uploadFile
+POST    /filesUpload/scpCopyFiles           controllers.FilesUploadController.scpCopyFiles
+POST    /filesUpload/removeFiles            controllers.FilesUploadController.removeFiles
+#   样本检查
+GET		/samplecheck				        controllers.Application.sampleCheck
+POST	/samplecheck/check			        controllers.SampleCheckController.sampleCheck
+#   样本报告
+GET		/samplereport				        controllers.Application.samplereport
+POST	/samplereport/report		        controllers.SampleReportController.sampleReport
+#   结果检查
+GET		/resultcheck				        controllers.Application.resultcheck
+POST	/resultcheck/linechart	            controllers.ResultCheckController.resultChecklinechart
+POST	/resultcheck/histogram              controllers.ResultCheckController.resultCheckhistogram
+#   结果查询
+GET		/resultquery				        controllers.Application.resultQuery
+POST 	/resultquery/search			        controllers.ResultQueryController.resultQuerySearch
+#   公司管理
+GET     /usermanage                         controllers.Application.usermanage
+POST    /usermanage/company/query           controllers.CompanyManageController.queryCompanys
+POST    /usermanage/company/delete          controllers.CompanyManageController.deleteCompany
+POST    /usermanage/company/findOne         controllers.CompanyManageController.findOneCompany
+POST    /usermanage/company/save            controllers.CompanyManageController.saveCompany
+#   用户管理
+POST    /usermanage/user/query              controllers.UserManageController.queryUsers
+POST    /usermanage/user/delete             controllers.UserManageController.deleteUser
+POST    /usermanage/user/findOne            controllers.UserManageController.findOneUser
+POST    /usermanage/user/save               controllers.UserManageController.saveUser
+#   市场管理
+GET     /marketmanage                       controllers.Application.marketmanage
+POST    /marketmanage/query                 controllers.MarketManageController.queryMarkets
+POST    /marketmanage/delete                controllers.MarketManageController.deleteMarket
+POST    /marketmanage/findOne               controllers.MarketManageController.findOneMarket
+POST    /marketmanage/save                  controllers.MarketManageController.saveMarket
+#   公用部分
+POST    /callhttpServer                     controllers.CallAkkaHttpController.callHttpServer
 
-POST    /usermanage/company/query   controllers.UserManageController.userManageCompanyQueryAjax
-POST    /usermanage/company/delete  controllers.UserManageController.userManageCompanyDeleteAjax
-POST    /usermanage/company/findOne controllers.UserManageController.userManageCompanyFindOneAjax
-POST    /usermanage/company/save    controllers.UserManageController.userManageCompanySaveAjax
-POST    /usermanage/user/query      controllers.UserManageController.userManageUserQueryAjax
-POST    /usermanage/user/delete     controllers.UserManageController.userManageUserDeleteAjax
-POST    /usermanage/user/findOne    controllers.UserManageController.userManageUserFindOneAjax
-POST    /usermanage/user/save       controllers.UserManageController.userManageUserSaveAjax
-
-POST    /filesUpload/scpCopyFiles   controllers.FilesUploadController.scpCopyFiles
-POST    /filesUpload/removeFiles    controllers.FilesUploadController.removeFiles
-#upload
-GET     /pharbers/files/:name       controllers.foptController.downloadFile(name)
-POST	/pharbers/files/upload		controllers.foptController.uploadFile
-
+# new ember web pages
+GET     /new/*path                          controllers.Application.emberWebPage(path)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)

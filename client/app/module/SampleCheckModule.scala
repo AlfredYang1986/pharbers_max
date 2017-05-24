@@ -3,14 +3,13 @@ package module
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import module.common.alRestDate
-import module.common.alSampleCheck
-
+import com.pharbers.aqll.common.alDao.data_connection
 import scala.collection.mutable.ListBuffer
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 object SampleCheckModuleMessage {
 	sealed class msg_CheckBaseQuery extends CommonMessage
@@ -18,7 +17,6 @@ object SampleCheckModuleMessage {
 }
 
 object SampleCheckModule extends ModuleTrait {
-
 	import SampleCheckModuleMessage._
 	import controllers.common.default_error_handler.f
 
@@ -29,10 +27,10 @@ object SampleCheckModule extends ModuleTrait {
 	/**
 		* @author liwei
 		* @param data
-		* @param error_handler
 		* @return
 		*/
-	def msg_check_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_check_func(data: JsValue)(implicit error_handler : String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val market = (data \ "market").asOpt[String].getOrElse("")
 		val date = (data \ "date").asOpt[String].getOrElse("")
@@ -40,24 +38,84 @@ object SampleCheckModule extends ModuleTrait {
 
 			val cur_date = alDateOpt.MMyyyy2yyyyMM(date)
 			val las_date = alDateOpt.Timestamp2yyyyMM(alDateOpt.MMyyyy2LastLong(date))
-			val cur12_date = alSampleCheck.matchThisYearData(alRestDate.diff12Month(cur_date),queryNear12(company,market,date))
-			val las12_date = alSampleCheck.matchLastYearData(alRestDate.diff12Month(las_date),queryLast12(company,market,date))
-			val cur_data = query_cel_data(query(company,market,date,"cur"))
-			val ear_data = query_cel_data(query(company,market,date,"ear"))
-			val las_data = query_cel_data(query(company,market,date,"las"))
-			val mismatch_lst = misMatchHospital(query(company,market,date,"cur"));
-
-			(Some(Map(
+			val cur12_date = matchThisYearData(alRestDate.diff12Month(cur_date),queryNearTwelveMonth(database,company,market,date))
+			val las12_date = matchLastYearData(alRestDate.diff12Month(las_date),queryLastYearTwelveMonth(database,company,market,date))
+			val cur_data = query_cel_data(database,query(company,market,date,"cur"))
+			val ear_data = query_cel_data(database,query(company,market,date,"ear"))
+			val las_data = query_cel_data(database,query(company,market,date,"las"))
+			val mismatch_lst = misMatchHospital(database,query(company,market,date,"cur"));
+			(successToJson(toJson(Map(
 				"cur_data" -> cur_data,
 				"ear_data" -> ear_data,
 				"las_data" -> las_data,
-				"cur12_date" -> alSampleCheck.lst2Json(cur12_date),
-				"las12_date" -> alSampleCheck.lst2Json(las12_date),
+				"cur12_date" -> lsttoJson(cur12_date),
+				"las12_date" -> lsttoJson(las12_date),
 				"misMatchHospital" -> mismatch_lst
-			)), None)
+			))), None)
 		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+			case ex: Exception => (None, Some(error_handler(ex.getMessage())))
 		}
+	}
+
+	def richDateArr(arr: Array[String]): List[Map[String,Any]] = {
+		arr.map(x => Map("Date" -> x,"HospNum" -> 0,"ProductNum" -> 0,"MarketNum" -> 0,"Sales" -> 0.0,"Units" -> 0.0)).toList
+	}
+
+	def matchThisYearData(arr: Array[String],lst: List[List[Map[String,AnyRef]]]): List[Map[String,Any]] = {
+		val date_lst = richDateArr(arr)
+
+		val temp_head_lst = date_lst map { x =>
+			val obj = lst.head.find(y => y.get("Date").get.equals(x.get("Date").get))
+			obj match {
+				case None => x
+				case _ => obj.get
+			}
+		}
+
+		val temp_tail_lst = date_lst map { x =>
+			val obj = lst.tail.head.find(y => y.get("Date").get.equals(x.get("Date").get))
+			obj match {
+				case None => x
+				case _ => obj.get
+			}
+		}
+
+		temp_tail_lst map { x =>
+			val obj = temp_head_lst.find(y => y.get("Date").get.equals(x.get("Date").get))
+			obj match {
+				case None => x
+				case _ => obj.get
+			}
+		}
+	}
+
+	def matchLastYearData(arr: Array[String],lst: List[Map[String,AnyRef]]): List[Map[String,Any]] = {
+		val date_lst = richDateArr(arr)
+		lst match {
+			case Nil => date_lst
+			case _ => {
+				date_lst map{ x =>
+					val obj = lst.find(y => y.get("Date").get.equals(x.get("Date").get))
+					obj match {
+						case None => x
+						case _ => obj.get
+					}
+				}
+			}
+		}
+	}
+
+	def lsttoJson(lst: List[Map[String,Any]]): JsValue ={
+		toJson(lst.map{ x => toJson(
+			Map(
+				"Date" -> toJson(x.get("Date").get.asInstanceOf[String]),
+				"HospNum" -> toJson(x.get("HospNum").get.asInstanceOf[Number].intValue()),
+				"ProductNum" -> toJson(x.get("ProductNum").get.asInstanceOf[Number].intValue()),
+				"MarketNum" -> toJson(x.get("MarketNum").get.asInstanceOf[Number].intValue()),
+				"Sales" -> toJson(x.get("Sales").get.asInstanceOf[Number].doubleValue()),
+				"Units" -> toJson(x.get("Units").get.asInstanceOf[Number].doubleValue())
+			)
+		)})
 	}
 
 	/**
@@ -65,8 +123,8 @@ object SampleCheckModule extends ModuleTrait {
 		* @param query
 		* @return
 		*/
-	def query_cel_data(query: DBObject): JsValue ={
-		val data = _data_connection_cores.getCollection("FactResult").find(query)
+	def query_cel_data(database: data_connection,query: DBObject): JsValue ={
+		val data = database.getCollection("FactResult").find(query)
 		var hospNum,productNum,marketNum = 0
 		var sales,units = 0.0
 		var date = ""
@@ -103,26 +161,22 @@ object SampleCheckModule extends ModuleTrait {
 		* @param date
 		* @return
 		*/
-	def queryNear12(company: String,market: String,date: String): List[List[Map[String,AnyRef]]] = {
+	def queryNearTwelveMonth(database: data_connection,company: String,market: String,date: String): List[List[Map[String,AnyRef]]] = {
 		val cur_date = alDateOpt.MMyyyy2yyyyMM(date)
 		val date_lst = alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))
 		val query = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$in" -> date_lst))
-		val f_lst = _data_connection_cores.getCollection("FactResult").find(query).sort(MongoDBObject("Date" -> 1))
-		val s_lst = _data_connection_cores.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
-		val factResult = f_lst.map{x =>
-			Map(
-				"Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
-				"HospNum" -> x.get("HospNum"),"ProductNum" -> x.get("ProductNum"),"MarketNum" -> x.get("MarketNum"),"Sales" -> x.get("Sales"),"Units" -> x.get("Units"))
-		} toList
-
-		val sampleCheck = s_lst.map{x =>
-			Map(
-				"Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
-				"HospNum" -> x.get("HospNum"),"ProductNum" -> x.get("ProductNum"),"MarketNum" -> x.get("MarketNum"),"Sales" -> x.get("Sales"),"Units" -> x.get("Units"))
-		} toList
-
-		List(factResult,sampleCheck)
+		val f_lst = database.getCollection("FactResult").find(query).sort(MongoDBObject("Date" -> 1))
+		val s_lst = database.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
+		List(f_lst.map(x => resulttomap(x)).toList,s_lst.map(x => resulttomap(x)).toList)
 	}
+
+	def resulttomap(x: DBObject) : Map[String,AnyRef] = Map(
+		"Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
+		"HospNum" -> x.get("HospNum"),
+		"ProductNum" -> x.get("ProductNum"),
+		"MarketNum" -> x.get("MarketNum"),
+		"Sales" -> x.get("Sales"),
+		"Units" -> x.get("Units"))
 
 	/**
 		* @author liwei
@@ -131,17 +185,18 @@ object SampleCheckModule extends ModuleTrait {
 		* @param date
 		* @return
 		*/
-	def queryLast12(company: String,market: String,date: String): List[Map[String,AnyRef]] = {
+	def queryLastYearTwelveMonth(database: data_connection,company: String,market: String,date: String): List[Map[String,AnyRef]] = {
 		val las_date = alDateOpt.MMyyyy2LastLong(date)
 		val cur_date = alDateOpt.Timestamp2yyyyMM(las_date)
 		val date_lst = alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))
 		val query = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$in" -> date_lst))
-		val lst = _data_connection_cores.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
-		lst map{ x =>
-			Map(
-				"Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
-				"HospNum" -> x.get("HospNum"),"ProductNum" -> x.get("ProductNum"),"MarketNum" -> x.get("MarketNum"),"Sales" -> x.get("Sales"),"Units" -> x.get("Units"))
-		} toList
+		val lst = database.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
+		lst.map(x => Map(
+			"Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
+			"HospNum" -> x.get("HospNum"),"ProductNum" -> x.get("ProductNum"),
+			"MarketNum" -> x.get("MarketNum"),
+			"Sales" -> x.get("Sales"),
+			"Units" -> x.get("Units"))).toList
 	}
 
 	/**
@@ -149,19 +204,14 @@ object SampleCheckModule extends ModuleTrait {
 		* @param query
 		* @return
 		*/
-	def misMatchHospital(query: DBObject): JsValue ={
-		val data = _data_connection_cores.getCollection("FactResult").find(query)
+	def misMatchHospital(database: data_connection,query: DBObject): JsValue ={
+		val data = database.getCollection("FactResult").find(query)
 		val Mismatch = new ListBuffer[JsValue]()
 		while (data.hasNext) {
 			val obj = data.next()
 			obj.get("Mismatch").asInstanceOf[BasicDBList].foreach{ x =>
 				val obj = x.asInstanceOf[BasicDBObject]
-				Mismatch.append(toJson(Map(
-					"Hosp_name" -> toJson(obj.get("Hosp_name").asInstanceOf[String]),
-					"Province" -> toJson(obj.get("Province").asInstanceOf[String]),
-					"City" -> toJson(obj.get("City").asInstanceOf[String]),
-					"City_level" -> toJson(obj.get("City_level").asInstanceOf[String])
-				)))
+				Mismatch.append(toJson(Map("Hosp_name" -> toJson(obj.get("Hosp_name").asInstanceOf[String]),"Province" -> toJson(obj.get("Province").asInstanceOf[String]),"City" -> toJson(obj.get("City").asInstanceOf[String]),"City_level" -> toJson(obj.get("City_level").asInstanceOf[String]))))
 			}
 		}
 		toJson(Mismatch)

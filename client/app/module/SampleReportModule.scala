@@ -2,12 +2,13 @@ package module
 
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
-import com.pharbers.aqll.common.alDao.{_data_connection_cores, from}
+import com.pharbers.aqll.common.alDao.from
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-
+import com.pharbers.aqll.common.alDao.data_connection
 import scala.collection.mutable.ListBuffer
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 object SampleReportModuleMessage {
 	sealed class msg_ReportBaseQuery extends CommonMessage
@@ -23,11 +24,12 @@ object SampleReportModule extends ModuleTrait {
 		case msg_samplereport(data) => msg_check_func(data)
 	}
 
-	def msg_check_func(data: JsValue)(implicit error_handler: Int => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_check_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val query = MongoDBObject("Company" -> company)
 		try {
-			val market_lst = (from db() in "FactResult" where query).selectSort("Date")(MongoDBReport(_))(_data_connection_cores).toList
+			val market_lst = (from db() in "FactResult" where query).selectSort("Date")(MongoDBReport(_))(database).toList
 			val market_arr = market_lst.asInstanceOf[List[Map[String,Any]]].groupBy(x => x.get("Market").get)
 			val lb = new ListBuffer[JsValue]()
 			market_arr.foreach { x =>
@@ -41,17 +43,17 @@ object SampleReportModule extends ModuleTrait {
 						toJson(Map("Date" -> toJson(y.get("Date").get.toString),
 							"c_HospNum" -> toJson(y.get("HospNum").get.toString),
 							"c_ProductNum" -> toJson(y.get("ProductNum").get.toString),
-							"e_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(A(_))(_data_connection_cores).toList,"ProductNum").toString),
-							"e_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(B(_))(_data_connection_cores).toList,"HospNum").toString),
-							"l_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(A(_))(_data_connection_cores).toList,"ProductNum").toString),
-							"l_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(B(_))(_data_connection_cores).toList,"HospNum").toString)
+							"e_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryProductNum(_))(database).toList,"ProductNum").toString),
+							"e_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryHospNum(_))(database).toList,"HospNum").toString),
+							"l_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryProductNum(_))(database).toList,"ProductNum").toString),
+							"l_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryHospNum(_))(database).toList,"HospNum").toString)
 						)))
 				}
 				lb.append(toJson(Map("Market" -> toJson(x._1.toString),"date_lst_sb" -> toJson(date_lst_sb.toList),"dhp_lst_sb" -> toJson(dhp_lst_sb.toList))))
 			}
-			(Some(Map("result" -> toJson(lb))), None)
+			(successToJson(toJson(lb)), None)
 		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage().toInt)))
+			case ex: Exception => (None, Some(error_handler(ex.getMessage())))
 		}
 	}
 
@@ -63,9 +65,9 @@ object SampleReportModule extends ModuleTrait {
 		}
 	}
 
-	def A(d: MongoDBObject): Map[String,Any] = Map("ProductNum" -> d.getAs[Number]("ProductNum").get.longValue())
+	def queryProductNum(d: MongoDBObject): Map[String,Any] = Map("ProductNum" -> d.getAs[Number]("ProductNum").get.longValue())
 
-	def B(d: MongoDBObject): Map[String,Any] = Map("HospNum" -> d.getAs[Number]("HospNum").get.longValue())
+	def queryHospNum(d: MongoDBObject): Map[String,Any] = Map("HospNum" -> d.getAs[Number]("HospNum").get.longValue())
 
 	def MongoDBReport(d: MongoDBObject): Map[String,Any] = {
 		Map(

@@ -2,15 +2,16 @@ package com.pharbers.aqll.alCalcEnergy
 
 import akka.actor.{Actor, ActorRef}
 import akka.util.Timeout
-import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.common.alDao.dataFactory._
 
 import scala.concurrent.Await
 import scala.concurrent.stm.{Ref, atomic}
 import scala.concurrent.duration._
 import akka.pattern.ask
+import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate}
 import com.pharbers.aqll.alCalcOther.alEmchat.sendMessage
-import com.pharbers.aqll.alCalcOther.mail.{Mail, MailAgent, MailToEmail}
+import com.pharbers.aqll.alCalcOther.alMail.{EmailForCompany, Mail, StmConf}
 import com.pharbers.aqll.common.alFileHandler.mailConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
@@ -29,7 +30,7 @@ trait alCalcJobsSchedule { this: Actor =>
 	val calc_timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_calc)
 }
 
-trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule =>
+trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJobsSchedule =>
 	val calc_router = Ref(List[ActorRef]())
 	var calc_nodenumber = -1
 	var section_number = -1
@@ -154,9 +155,9 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule =
 					//                    val tmp = (alWeightSum(company._1, company._2))
 					//                    println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
 					//                    println(s"结束去重数据")
-
-					val e_mail = MailToEmail.getEmail(company._1)
-					MailAgent(Mail(mail_context, mail_subject, e_mail)).sendMessage()
+					
+					implicit val stmc = StmConf()
+					new Mail().sendTo(EmailForCompany(company._1).getEmail())
 					endDate("计算完成",start)
 					sendMessage.sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
 					self ! finish_max_job(uuid)
@@ -177,7 +178,7 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule =
 				new alWeightSum(company, company + x.uuid)
 				sendMessage.sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				println(s"开始删除临时表")
-				_data_connection_cores.getCollection(company + x.uuid).drop()
+				dbcores.getCollection(company + x.uuid).drop()
 				println(s"结束删除临时表")
 				val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(x.uuid))
 				alCalcParmary.alParmary.single.get.remove(index)

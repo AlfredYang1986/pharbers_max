@@ -2,14 +2,15 @@ package controllers
 
 import javax.inject._
 
+import com.pharbers.aqll.dbmodule.MongoDBModule
+import com.pharbers.aqll.pattern.CommonModule
 import module.common.alMarkets
 import play.api.mvc._
 
 @Singleton
-class Application extends Controller {
-  def test = Action {
-      Ok(views.html.test("Your new application is ready."))
-  }
+class Application@Inject() (mdb: MongoDBModule) extends Controller {
+  implicit val basic = mdb.basic
+  implicit val cores = mdb.cores
 
   //登录
   def login = Action { request =>
@@ -31,31 +32,6 @@ class Application extends Controller {
       Ok(views.html.register("Your new application is ready."))
   }
 
-  //错误404
-  def error404 = Action {
-      Ok(views.html.error404("Your new application is ready."))
-  }
-
-  //错误500
-  def error500 = Action {
-      Ok(views.html.error500("Your new application is ready."))
-  }
-
-  //锁屏
-  def lockScreen = Action {
-      Ok(views.html.lockScreen("Your new application is ready."))
-  }
-
-  //忘记密码
-  def forgotPassword = Action {
-      Ok(views.html.forgotPassword("Your new application is ready."))
-  }
-
-  //空页面
-  def emptyPage = Action {
-      Ok(views.html.emptyPage("Your new application is ready."))
-  }
-
   //文件上传
   def filesUpload = Action { request =>
       val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
@@ -63,7 +39,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.filesUpload(is_administrator,alMarkets.alGetMarkets("")))
+          Ok(views.html.filesUpload(is_administrator,alMarkets.alGetMarkets("",basic,cores)))
       }
   }
 
@@ -73,7 +49,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.sampleCheck(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.alGetMarkets("sc")))
+          Ok(views.html.sampleCheck(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.alGetMarkets("sc",basic,cores)))
       }
   }
 
@@ -83,17 +59,17 @@ class Application extends Controller {
     if(token.equals("")){
       Ok(views.html.login("Your new application is ready."))
     }else{
-      Ok(views.html.sampleReport(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.alGetMarkets("sc")))
+      Ok(views.html.sampleReport(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.alGetMarkets("sc",basic,cores)))
     }
   }
 
   //结果检查
-  def modelOperation = Action { request =>
+  def resultcheck = Action { request =>
       val token = request.cookies.get("user_token").map (x => x.value).getOrElse("")
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.modelOperation(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.alGetMarkets("")))
+          Ok(views.html.resultCheck(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.alGetMarkets("",basic,cores)))
       }
   }
 
@@ -103,7 +79,7 @@ class Application extends Controller {
       if(token.equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.resultQuery(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.alGetMarkets("")))
+          Ok(views.html.resultQuery(enumAdministrator(request.cookies.get("is_administrator").map(x => x.value).get.toInt),alMarkets.alGetMarkets("",basic,cores)))
       }
   }
 
@@ -132,5 +108,9 @@ class Application extends Controller {
   def enumAdministrator(is_administrator : Int) = is_administrator match {
         case 0 => "No"
         case 1 => "Yes"
+  }
+
+  def emberWebPage(path : String) = Action {
+    Ok(views.html.new_web())
   }
 }

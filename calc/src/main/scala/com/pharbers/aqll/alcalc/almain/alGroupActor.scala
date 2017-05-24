@@ -2,10 +2,11 @@ package com.pharbers.aqll.alCalc.almain
 
 import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
+import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
-import com.pharbers.aqll.common.alDao._data_connection_cores
+import com.pharbers.aqll.common.alDao.dataFactory._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
@@ -42,7 +43,8 @@ class alGroupActor extends Actor
                      with ActorLogging
                      with FSM[alPointState, alCalcParmary]
                      with alCreateConcretGroupRouter
-					 with alPkgJob{
+					 with alPkgJob
+                     with DBList{
 
     startWith(alMasterJobIdle, new alCalcParmary("", ""))
 
@@ -99,7 +101,7 @@ class alGroupActor extends Actor
                 case None => None
                 case Some(d) =>
                     sendMessage.sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
-                    d.subs.foreach (x => _data_connection_cores.getCollection(x.uuid).drop())
+                    d.subs.foreach (x => dbcores.getCollection(x.uuid).drop())
 //                Restart
             }
             goto(alMasterJobIdle) using new alCalcParmary("", "")

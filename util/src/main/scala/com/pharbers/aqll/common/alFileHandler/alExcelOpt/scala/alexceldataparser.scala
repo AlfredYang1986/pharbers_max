@@ -30,7 +30,7 @@ class alExcelWriteDataParser[T](lst: List[T], path: String) extends alFileHandle
 
 case class inner_parsers(xml_file_name : String, xml_file_name_ch : String, a : ActorRef, h : alFileHandler, targetHandle: BaseExcel) extends rowinteractparser {
 	type target_type = BaseExcel
-	override def targetInstance: target_type = targetHandle
+	override def targetInstance: target_type = targetHandle.getClass.newInstance
 	override def handleOneTarget(target: target_type) = h.data.append(target)
 }
 
