@@ -54,3 +54,12 @@ class Mail() extends MailTrait {
 		email.send()
 	}
 }
+
+case class EmailForCompany(company: String) extends DBList{
+	import com.pharbers.aqll.common.alDao.from
+	def getEmail() = {
+		implicit val dbc = dbbasic
+		val conditions = Map("Company_Id" -> company)
+		(from db () in "Company" where conditions).select(x => x).head.getAs[String]("E-Mail").getOrElse("pqian@pharbers.com")
+	}
+}

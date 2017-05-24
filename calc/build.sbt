@@ -15,7 +15,8 @@ libraryDependencies ++= Seq(
     "javax.mail" % "mail" % "1.4.7",
 	"ch.qos.logback" % "logback-classic" % "1.1.3",
 	"com.easemob" % "rest-java-sdk" % "1.0.1",
-	"com.typesafe.play" % "play-json_2.11" % "2.5.6"
+	"com.typesafe.play" % "play-json_2.11" % "2.5.6",
+	"org.apache.commons" % "commons-email" % "1.4"
 )
 
 lazy val root = (project in file(".")).
