@@ -1,176 +1,83 @@
 <div style="display: none;" class="progresstier">
-	<div class="progress">&nbsp;</div>
-	<div class="widgets">
-		<div class="shadow">
-			<div id="chart" class="chart-container"> </div>
-		</div>
-	</div>
+    <div class="progress">&nbsp;</div>
+    <div class="widgets">
+        <div class="shadow">
+            <div id="chart" class="chart-container"> </div>
+        </div>
+    </div>
 </div>
-<div id="wrapper">
-	<nav class="navbar-default navbar-static-side" role="navigation">
-		<div class="sidebar-collapse">
-			<ul class="nav metismenu" id="side-menu">
-				<li class="nav-header">
-					<div class="dropdown profile-element">
-						<div style="width: 48px; height: 48px;">
-							<span>
-                                    <img alt="image" width="48" height="48" style="background-color: #ffffff;" class="img-circle" src="assets/images/boy-4.png" />
-                                </span>
-						</div>
-						<div style="position: absolute; z-index: 9888; top: -10%; left: 40%;">
-							<div class="tooltip-demo" id="weather">
-								<img src="http://appimg.showapi.com/images/weather/icon/day/00.png" style="cursor: pointer;" width="84px" height="84px" data-toggle="tooltip" data-placement="right" title="城市：北京，温度：21，天气：晴，风向：西南风，风力：3级">
-							</div>
-						</div>
-						<a data-toggle="dropdown" class="dropdown-toggle" href="#">
-							<span class="clear">
-                                    <span class="block m-t-xs">
-                                        <strong class="font-bold" id="company"></strong>
-                                    </span>
-							<span class="text-muted text-xs block"><span id="Name"></span> Staff<b class="caret"></b></span>
-							</span>
-						</a>
-						<ul class="dropdown-menu animated fadeInRight m-t-xs">
-							<li>
-								<a href="emptypage">个人资料</a>
-							</li>
-							<li class="divider"></li>
-							<li>
-								<a href="javaScript:void();" onclick="logout()">退出系统</a>
-							</li>
-						</ul>
-					</div>
-					<div class="logo-element">
-						MAX
-					</div>
-				</li>
-				<li>
-					<a href="index"><i class="fa fa-th-large"></i> <span class="nav-label">首页</span></a>
-				</li>
-				<li>
-					<a href="filesupload"><i class="fa fa-cloud-upload"></i> <span class="nav-label">1.文件上传</span></a>
-				</li>
-				<li>
-					<a href="samplecheck"><i class="fa fa-pie-chart"></i> <span class="nav-label">2.样本检查</span></a>
-				</li>
-				<li class="active">
-					<a href="samplereport"><i class="fa fa-file-text"></i> <span class="nav-label">3.样本报告</span></a>
-				</li>
-				<li>
-					<a id="mxys" href="modeloperation"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">4.结果检查</span></a>
-				</li>
-				<li>
-					<a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">5.结果查询</span></a>
-				</li>
 
-				<li>
-					<a><i class="fa fa-gears"></i> <span class="nav-label">管理页面</span> <span class="fa arrow"></span></a>
-					<ul class="nav nav-second-level">
-						<li>
-							<a href="usermanage">用户管理</a>
-						</li>
-						<li>
-							<a href="marketmanage">市场管理</a>
-						</li>
-					</ul>
-				</li>
-
-				<li class="landing_link">
-					<a target="_blank" href="http://www.pharbers.com/"><i class="fa fa-star"></i> <span class="nav-label">官方网站</span> <span class="label label-warning pull-right">NEW</span></a>
-				</li>
-			</ul>
-
-		</div>
-	</nav>
-	<div id="page-wrapper" class="gray-bg">
-		<div class="row border-bottom">
-			<nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
-				<div class="navbar-header">
-					<a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
-				</div>
-				<ul class="nav navbar-top-links navbar-right">
-					<li>
-						<span class="m-r-sm text-muted welcome-message">欢迎访问MAX系统</span>
-					</li>
-					<li>
-						<a href="javaScript:void();" onclick="logout()">
-							<i class="fa fa-sign-out"></i> 退出系统
-						</a>
-					</li>
-				</ul>
-			</nav>
-		</div>
-		<div class="row wrapper border-bottom white-bg page-heading">
-			<div class="col-lg-12">
-				<h2>报告</h2>
-				<ol class="breadcrumb">
-					<li>
-						<a href="index.html">首页</a>
-					</li>
-					<li class="active">
-						<strong>报告</strong>
-					</li>
-				</ol>
-			</div>
-		</div>
-		<div class="wrapper wrapper-content animated fadeInRight">
-			<div class="row">
-				<div class="col-lg-12">
-					<div class="ibox float-e-margins">
-						<div class="ibox-content">
-							<div class="panel-body">
-								<div class="row" style="margin-left:100px;">
-									<p style='margin: 0cm; margin-bottom: .0001pt'>
-										<span lang=EN-US style='font-size: 10.5pt; font-family: "verdena", "serif"; color: black'>&nbsp;</span>
-									</p>
-									<p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'><b><span lang=EN-US style='font-family: "verdena", "serif"; color: #44546A'>&nbsp;</span></b></p>
-									<p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'><b><span lang=EN-US style='font-family: "verdena", "serif"; color: #44546A'>&nbsp;</span></b></p>
-									<br clear=ALL>
-									<p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'>
-										<b><span style='font-family: 幼圆; color: black; font-size:18pt;'>样本检查报告</span></b>
-									</p>
-									<p class=MsoNormal><span lang=EN-US style='font-size: 10.5pt; font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
-									<p style='margin: 0cm; margin-bottom: .0001pt'>
-										<span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span>
-									</p>
-									<p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'>
-										<b><span lang=EN-US style='font-family: "verdena", "serif"; color: red; font-size:14pt;' id="date"></span></b>
-									</p>
-									<p class=MsoNormal><span lang=EN-US style='font-size: 10.5pt; font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
-									<p style='margin: 0cm; margin-bottom: .0001pt'><span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
-
-									<p class=MsoNormal style='vertical-align: middle;'>
-										<span style='font-family: 幼圆; font-size: 12pt; color: red' id="company_ch"></span>
-										<span style='font-family: 幼圆; font-size: 12pt; color: black'>客户你好，您本期总共上传</span>
-										<span style='font-family: 幼圆; font-size: 12pt; color: red' id="markets"></span>
-										<span style='font-family: 幼圆; font-size: 12pt; color: black'>的数据源文件，各市场的产品及医院信息罗列如下：</span>
-									</p>
-									<p class=MsoNormal style='vertical-align: middle'>
-										<span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
-									<ul>
-										<li id="tbody"></li>
-									</ul>
-									<p class=MsoNormal style='vertical-align: middle'><span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
-									<p style='margin: 0cm; margin-bottom: .0001pt'>
-										<span style='font-family: 幼圆; font-size: 12pt; color: black'>请您查阅此报告，无异常情况请按确定键进行放大运算，我们预估完成以上各个市场模型运算大约需要</span>
-										<span style='font-family: 幼圆; font-size: 12pt; color: red'>2小时</span>
-										<span style='font-family: 幼圆; font-size: 12pt; color: black'>。<br><br>请您先进行其他工作，放大完成我们会发送通知邮件至您的绑定邮箱如有数据异常。<br><br>请先查看数据源是否上传有误，排除此情况依然异常请联系法伯管理员协助处理，谢谢！</span>
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-12">
-					<div class="ibox-content">
-						<div class="row">
-							<div class="col-lg-12 text-right">
-								<button type="button" class="btn btn-primary btn-sm" id="nextstepBtm">下一步</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>报告</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="index.html">首页</a>
+            </li>
+            <li class="active">
+                <strong>报告</strong>
+            </li>
+        </ol>
+    </div>
 </div>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <div class="panel-body">
+                        <div class="row" style="margin-left:100px;">
+                            <p style='margin: 0cm; margin-bottom: .0001pt'>
+                                <span lang=EN-US style='font-size: 10.5pt; font-family: "verdena", "serif"; color: black'>&nbsp;</span>
+                            </p>
+                            <p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'><b><span lang=EN-US style='font-family: "verdena", "serif"; color: #44546A'>&nbsp;</span></b></p>
+                            <p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'><b><span lang=EN-US style='font-family: "verdena", "serif"; color: #44546A'>&nbsp;</span></b></p>
+                            <br clear=ALL>
+                            <p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'>
+                                <b><span style='font-family: 幼圆; color: black; font-size:18pt;'>样本检查报告</span></b>
+                            </p>
+                            <p class=MsoNormal><span lang=EN-US style='font-size: 10.5pt; font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
+                            <p style='margin: 0cm; margin-bottom: .0001pt'>
+                                <span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span>
+                            </p>
+                            <p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'>
+                                <b><span lang=EN-US style='font-family: "verdena", "serif"; color: red; font-size:14pt;' id="date"></span></b>
+                            </p>
+                            <p class=MsoNormal><span lang=EN-US style='font-size: 10.5pt; font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
+                            <p style='margin: 0cm; margin-bottom: .0001pt'><span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
+
+                            <p class=MsoNormal style='vertical-align: middle;'>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: red' id="company_ch"></span>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: black'>客户你好，您本期总共上传</span>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: red' id="markets"></span>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: black'>的数据源文件，各市场的产品及医院信息罗列如下：</span>
+                            </p>
+                            <p class=MsoNormal style='vertical-align: middle'>
+                                <span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
+                            <ul>
+                                <li id="tbody"></li>
+                            </ul>
+                            <p class=MsoNormal style='vertical-align: middle'><span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
+                            <p style='margin: 0cm; margin-bottom: .0001pt'>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: black'>请您查阅此报告，无异常情况请按确定键进行放大运算，我们预估完成以上各个市场模型运算大约需要</span>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: red'>2小时</span>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: black'>。<br><br>请您先进行其他工作，放大完成我们会发送通知邮件至您的绑定邮箱如有数据异常。<br><br>请先查看数据源是否上传有误，排除此情况依然异常请联系法伯管理员协助处理，谢谢！</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-12 text-right">
+                        <button type="button" class="btn btn-primary btn-sm" id="nextstepBtm">下一步</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="assets/js/business/samplereport.js"></script>
