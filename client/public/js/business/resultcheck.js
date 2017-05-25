@@ -121,8 +121,6 @@ var ModelOperationEchartFun = function() {
         data: dataMap,
         contentType: 'application/json,charset=utf-8',
         success: function (data) {
-            console.info(data.result.status)
-            console.info(data.result.result.result)
             if(data.result.status == "success"){
                 echarts_bar1(data.result.result.result,bar);
             }else{
@@ -137,8 +135,6 @@ var ModelOperationEchartFun = function() {
         data: dataMap,
         contentType: 'application/json,charset=utf-8',
         success: function (data) {
-            console.info(data.result.status)
-            console.info(data.result.result.result)
             if(data.result.status == "success"){
                 echarts_bar23(data.result.result.result,bar2,bar3);
             }else{
