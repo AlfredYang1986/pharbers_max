@@ -118,9 +118,6 @@ $(function(){
                     $(".progresstier").css("display", "block");
                     p.setPercent(4);
                     nextStep()
-                },
-                error: function (e) {
-                    $.tooltip('My God, 出错啦！！！');
                 }
             });
         } else {

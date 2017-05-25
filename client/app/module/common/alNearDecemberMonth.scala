@@ -6,7 +6,7 @@ import scala.collection.mutable.ArrayBuffer
   * Created by liwei on 2017/4/24.
   */
 
-object alRestDate {
+object alNearDecemberMonth {
   /**
     * @author liwei
     * @param date

@@ -6,7 +6,7 @@ import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, M
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import module.common.alRestDate
+import module.common.alNearDecemberMonth
 import com.pharbers.aqll.common.alDao.data_connection
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
@@ -36,8 +36,8 @@ object SampleCheckModule extends ModuleTrait {
 		val date = (data \ "date").asOpt[String].getOrElse("")
 		try {
 
-			val cur12_date = matchThisYearData(alRestDate.diff12Month(date),queryNearTwelveMonth(database,company,market,date))
-			val las12_date = matchLastYearData(alRestDate.diff12Month(date),queryLastYearTwelveMonth(database,company,market,date))
+			val cur12_date = matchThisYearData(alNearDecemberMonth.diff12Month(date),queryNearTwelveMonth(database,company,market,date))
+			val las12_date = matchLastYearData(alNearDecemberMonth.diff12Month(date),queryLastYearTwelveMonth(database,company,market,date))
 
 			val cur_data = query_cel_data(database,query(company,market,date,"cur"))
 			val ear_data = query_cel_data(database,query(company,market,date,"ear"))
@@ -163,7 +163,7 @@ object SampleCheckModule extends ModuleTrait {
 		* @return
 		*/
 	def queryNearTwelveMonth(database: data_connection,company: String,market: String,date: String): List[List[Map[String,AnyRef]]] = {
-		val date_lst = alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(date))
+		val date_lst = alDateOpt.ArrayDate2ArrayTimeStamp(alNearDecemberMonth.diff12Month(date))
 		val query = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$in" -> date_lst))
 		val f_lst = database.getCollection("FactResult").find(query).sort(MongoDBObject("Date" -> 1))
 		val s_lst = database.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
@@ -186,7 +186,7 @@ object SampleCheckModule extends ModuleTrait {
 		* @return
 		*/
 	def queryLastYearTwelveMonth(database: data_connection,company: String,market: String,date: String): List[Map[String,AnyRef]] = {
-		val date_lst = alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(date))
+		val date_lst = alDateOpt.ArrayDate2ArrayTimeStamp(alNearDecemberMonth.diff12Month(date))
 		val query = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$in" -> date_lst))
 		val lst = database.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
 		lst.map(x => Map(

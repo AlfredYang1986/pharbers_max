@@ -98,7 +98,6 @@ $(function(){
                 data: JSON.stringify(query_object),
                 cache: false,
                 success: function(data) {
-                    console.info(data);
                     $("#upload_file").hide();
                     $("#generate_panel_file").hide();
                     $("#generate_sample_data").show();
