@@ -6,11 +6,13 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almain.{alCalcActor, alGroupActor}
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaListener
 import com.pharbers.aqll.alCalcEnergy.alDriverSingleton
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile}
+import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig.singletonPaht
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.Future

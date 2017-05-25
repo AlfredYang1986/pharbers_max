@@ -54,8 +54,8 @@ class DataConnectionBasic(host: String, port: Int, user: String, pwd: String) ex
 object _data_connection_cores_thread extends data_connection {
     override def conn_name: String = "Max_Cores"
 
-    override val addr: ServerAddress = new ServerAddress("127.0.0.1",2017)
-    override val credentialsList: MongoCredential = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
+    override def addr: ServerAddress = new ServerAddress("127.0.0.1",2017)
+    override def credentialsList: MongoCredential = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
 
     var conntion  = Ref(Map[String , MongoCollection]().empty)
 

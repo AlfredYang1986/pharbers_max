@@ -88,10 +88,6 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alSampleCheckDataFunc = post {
 		path("samplecheck") {
 			entity(as[alCheckItem]) {item =>
-				//println(s"company = ${item.company} filename = ${item.filename}")
-				//val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
-				//a ! check_excel_jobs(item.company,item.filename)
-				println(s"company=${item.company} filename=${item.filename}")
 				alSampleCheck(item.company, item.filename, item.uname)
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result" : "Ok"}""")
@@ -102,9 +98,6 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alCalcDataFunc = post {
 		path("modelcalc") {
 			entity(as[alCalcItem]) {item =>
-				println(s"item = ${item.company}")
-				println(s"item = ${item.filename}")
-				println(s"path = ${fileBase + item.company + outPut + item.filename}")
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				val path = fileBase + item.company + outPut + item.filename
 				a ! filter_excel_jobs(path, new alCalcParmary(item.company, item.uname), a)
@@ -115,7 +108,6 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alModelOperationCommitFunc = post {
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
-				println(s"item=${item.company}")
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				a ! commit_finalresult_jobs(item.company)
 				alSampleCheckCommit(item.company)
