@@ -13,7 +13,6 @@ import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alString.alStringOpt._
 import scala.collection.immutable.List
 import scala.collection.mutable.ListBuffer
-
 /**
   * Created by liwei on 2017/3/27.
   */
@@ -30,12 +29,10 @@ class alSampleCheck(company : String, filename : String, uname: String) extends 
       new alMessageProxy().sendMsg("10", uname, Map("uuid" -> "", "company" -> company, "type" -> "progress"))
       val Panels_Group_Pha = Panels_Filter_Ym.groupBy(x => x.getPhaid).map(y => (y._1,y._2.size)).toList
       val Market_Current = Panels_Filter_Ym.groupBy(x => x.getMarket1Ch)
-      //println(s"Date =${date._1}")
-
       Market_Current.foreach{mc =>
-
         val hospdata = DefaultData.hospdatabase(alEncryptionOpt.md5(company+date._1.toString.substring(0,4)+removeSpace(mc._1)), company)
-        var HospNum,ProductNum,Sales,Units = 0.0
+        var HospNum,ProductNum = 0
+        var Sales,Units = 0.0
         val mismatch = new ListBuffer[List[String]]()
 
         hospdata.asInstanceOf[List[AdminHospitalDataBase]].foreach { x =>
@@ -46,7 +43,6 @@ class alSampleCheck(company : String, filename : String, uname: String) extends 
               Panels_Filter_Ym.filter(j => j.getPhaid.equals(x.getPhaid)).foreach{su =>
                 Sales_S = Sales_S + su.getSumValue
                 Units_S = Units_S + su.getVolumeUnit
-                //println(s"Sales_S=${su.getSumValue} Units_S=${su.getVolumeUnit}")
               }
               Sales = Sales + Sales_S
               Units = Units + Units_S
@@ -58,9 +54,24 @@ class alSampleCheck(company : String, filename : String, uname: String) extends 
         }
         val lsb = new ListBuffer[Map[String,String]]()
         mismatch.toList.foreach(x => lsb.append(Map("Hosp_name" -> x.head,"Province" -> x.tail.head,"City" -> x.tail.tail.head,"City_level" -> x.tail.tail.tail.head)))
-        dbcores.getCollection("FactResult").findAndRemove(new MongoDBObject(MongoDBObject("Company" -> company,"Market" -> mc._1,"Date" -> alDateOpt.yyyyMM2Long(date._1.toString))))
-        dbcores.getCollection("FactResult").insert(Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString),"Date" -> alDateOpt.yyyyMM2Long(date._1.toString),"Market" -> mc._1,"Company" -> company,"HospNum" -> HospNum.toInt,"ProductNum" -> ProductNum.toInt,"MarketNum" -> Market_Current.size,"Units" -> Units,"Sales" -> Sales,"Mismatch" -> lsb.toList,"CreateDate" -> alDateOpt.Date2Long(new Date())))
-        //println(s"日期：${date._1} 市场：${mc._1} 公司：${company} 医院数量：${HospNum.toInt} 产品数量：${ProductNum.toInt} 市场数量：${Market_Current.size} 销售额：${Sales} 销售数量：${Units} 未匹配：${mismatch.toList.size}")
+
+        dbcores.getCollection("FactResult").findAndRemove(MongoDBObject(
+          "Company" -> company,
+          "Market" -> mc._1,
+          "Date" -> alDateOpt.yyyyMM2Long(date._1.toString)))
+
+        dbcores.getCollection("FactResult").insert(MongoDBObject(
+          "ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString),
+          "Date" -> alDateOpt.yyyyMM2Long(date._1.toString),
+          "Market" -> mc._1,
+          "Company" -> company,
+          "HospNum" -> HospNum,
+          "ProductNum" -> ProductNum,
+          "MarketNum" -> Market_Current.size,
+          "Units" -> Units,
+          "Sales" -> Sales,
+          "Mismatch" -> lsb.toList,
+          "CreateDate" -> alDateOpt.Date2Long(new Date())))
       }
     }
     alFileOpt(fileBase + company + client_cpa_file).removeCurFiles

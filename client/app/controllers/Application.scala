@@ -1,7 +1,6 @@
 package controllers
 
 import javax.inject._
-
 import com.pharbers.aqll.dbmodule.MongoDBModule
 import module.common.alModularEnum
 import module.common.alAdminEnum
@@ -37,7 +36,7 @@ class Application@Inject() (mdb: MongoDBModule) extends Controller {
       if(getUserTokenByCookies(request).equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.filesUpload(getAdminByCookies(request),PageDefaultData(getTokenByCookies(request),alModularEnum.FU,basic,cores)._1))
+          Ok(views.html.filesUpload(getAdminByCookies(request),PageDefaultData(alModularEnum.FU,basic,cores)._1))
       }
   }
 
@@ -46,7 +45,7 @@ class Application@Inject() (mdb: MongoDBModule) extends Controller {
       if(getUserTokenByCookies(request).equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          val defaultdata = PageDefaultData(getTokenByCookies(request),alModularEnum.SC,basic,cores,false)
+          val defaultdata = PageDefaultData(alModularEnum.SC,basic,cores,false)
           Ok(views.html.sampleCheck(getAdminByCookies(request),defaultdata._1,defaultdata._2))
       }
   }
@@ -56,7 +55,7 @@ class Application@Inject() (mdb: MongoDBModule) extends Controller {
     if(getUserTokenByCookies(request).equals("")){
       Ok(views.html.login("Your new application is ready."))
     }else{
-      Ok(views.html.sampleReport(getAdminByCookies(request),PageDefaultData(getTokenByCookies(request),alModularEnum.SR,basic,cores)._1))
+      Ok(views.html.sampleReport(getAdminByCookies(request),PageDefaultData(alModularEnum.SR,basic,cores)._1))
     }
   }
 
@@ -65,7 +64,7 @@ class Application@Inject() (mdb: MongoDBModule) extends Controller {
       if(getUserTokenByCookies(request).equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-        val defaultdata = PageDefaultData(getTokenByCookies(request),alModularEnum.RC,basic,cores,false)
+        val defaultdata = PageDefaultData(alModularEnum.RC,basic,cores,false)
         Ok(views.html.resultCheck(getAdminByCookies(request),defaultdata._1,defaultdata._2))
       }
   }
@@ -75,7 +74,7 @@ class Application@Inject() (mdb: MongoDBModule) extends Controller {
       if(getUserTokenByCookies(request).equals("")){
           Ok(views.html.login("Your new application is ready."))
       }else{
-          Ok(views.html.resultQuery(getAdminByCookies(request),PageDefaultData(getTokenByCookies(request),alModularEnum.RQ,basic,cores)._1))
+          Ok(views.html.resultQuery(getAdminByCookies(request),PageDefaultData(alModularEnum.RQ,basic,cores)._1))
       }
   }
 
@@ -95,10 +94,6 @@ class Application@Inject() (mdb: MongoDBModule) extends Controller {
     }else{
       Ok(views.html.marketManage(getAdminByCookies(request)))
     }
-  }
-
-  def getTokenByCookies(request: Request[AnyContent]) : String = {
-    request.cookies.get("token").map (x => x.value).getOrElse("")
   }
 
   def getUserTokenByCookies(request: Request[AnyContent]) : String = {
