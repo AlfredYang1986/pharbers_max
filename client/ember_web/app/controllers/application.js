@@ -5,14 +5,14 @@ const { computed } = Ember;
 export default Ember.Controller.extend({
 
     accessToken: computed(function(){
-        return getCookie('user_token');
+        return Ember.$.cookie('user_token');
     }),
 
     validated:Ember.computed.bool('accessToken'),
 
     isAdmin: computed(function(){
 
-        let binaryAdmin = getCookie('is_administrator');
+        let binaryAdmin = Ember.$.cookie('is_administrator');
         if(binaryAdmin==1){
             return true;
         }
@@ -21,8 +21,9 @@ export default Ember.Controller.extend({
 
     actions:{
         cleanCookie(){
-            delCookie("user_token");
-            delCookie("is_administrator");
+            $.cookie("user_token","");
+            $.cookie("is_administrator","");
+            // cleanAllCookie();//未能成功清除所有cookie
         }
     }
 

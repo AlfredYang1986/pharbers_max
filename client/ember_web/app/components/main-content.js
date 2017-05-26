@@ -29,8 +29,9 @@ export default Ember.Component.extend({
     ],
     actions:{
         cleanCookie(){
-            delCookie("user_token");
-            delCookie("is_administrator");
+            $.cookie("user_token","");
+            $.cookie("is_administrator","");
+            // cleanAllCookie();//未能成功清除所有cookie
         }
     }
 });
