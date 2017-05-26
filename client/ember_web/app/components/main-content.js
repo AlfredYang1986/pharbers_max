@@ -26,5 +26,11 @@ export default Ember.Component.extend({
         title:"5.结果查询",
         to:"resultquery"
     }
-    ]
+    ],
+    actions:{
+        cleanCookie(){
+            delCookie("user_token");
+            delCookie("is_administrator");
+        }
+    }
 });
