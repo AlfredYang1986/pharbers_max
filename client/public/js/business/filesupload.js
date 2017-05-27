@@ -23,37 +23,28 @@ $(function(){
             data: JSON.stringify(query_object),
             cache: false,
             success: function(data) {
-                console.info(data);
-                if (data.status == "ok") {
-                    if(data.result.result.result.status=="success"){
-                        var result = data.result.result.result.message;
-                        var arr = result.split("#");
-                        var html = "<div class='col-lg-6 text-left'>"
-                        for(var i in arr){
-                            var obj = arr[i];
-                            if(obj!=null && obj!=""){
-                                html += "<label class='checkbox-inline'><input type='checkbox' value='"+obj+"'> "+obj+"</label>";
-                            }
+                var result = data.result.result.result.result
+                if(result.status == "success"){
+                    var result = result.message;
+                    var arr = result.split("#");
+                    var html = "<div class='col-lg-6 text-left'>"
+                    for(var i in arr){
+                        var obj = arr[i];
+                        if(obj!=null && obj!=""){
+                            html += "<label class='checkbox-inline'><input type='checkbox' value='"+obj+"'> "+obj+"</label>";
                         }
-                        html += "</div>";
-                        $('div[id="resultDiv"]')[0].innerHTML = html;
-                        $('label[id="generate_panel_content"]').text("文件检查通过，请勾选月份，继续点击下一步。");
-                        //$.tooltip('OK, 操作成功！', 2500, true);
-                    }else{
-                        $.cookie("calc_panel_file",null)
-                        $("#s_nextstepBtn").attr({"disabled":"disabled"});
-                        $('label[id="generate_panel_content"]').text("文件检查失败，请点击上一步，返回上传页面，重新上传文件。");
-                        //$.tooltip('My God, 出错啦！！！');
                     }
-                    $('#resultDiv').show();
-                    $("#upload_file").hide();
-                    $("#generate_panel_file").show();
+                    html += "</div>";
+                    $('div[id="resultDiv"]')[0].innerHTML = html;
+                    $('label[id="generate_panel_content"]').text("文件检查通过，请勾选月份，继续点击下一步。");
                 }else{
-                    $.tooltip('My God, 出错啦！！！');
+                    $.cookie("calc_panel_file",null)
+                    $("#s_nextstepBtn").attr({"disabled":"disabled"});
+                    $('label[id="generate_panel_content"]').text("文件检查失败，请点击上一步，返回上传页面，重新上传文件。");
                 }
-            },
-            error:function(e){
-                $.tooltip('My God, 出错啦！！！');
+                $('#resultDiv').show();
+                $("#upload_file").hide();
+                $("#generate_panel_file").show();
             }
         });
     });
@@ -107,28 +98,19 @@ $(function(){
                 data: JSON.stringify(query_object),
                 cache: false,
                 success: function(data) {
-                    console.info(data);
                     $("#upload_file").hide();
                     $("#generate_panel_file").hide();
                     $("#generate_sample_data").show();
-                    if (data.status == "ok") {
-                        if(data.result.result.result.status=="success"){
-                            $.cookie("calc_panel_file",data.result.result.result.message)
-                            //$.tooltip('OK, 操作成功！', 2500, true);
-                            $('label[id="generate_sample_content"]').text("生成panel文件成功，请继续点击下一步。");
-                        }else{
-                            $.cookie("calc_panel_file",null)
-                            //$.tooltip('My God, 出错啦！！！');
-                            $("#t_nextstepBtn").attr({"disabled":"disabled"});
-                            $('label[id="generate_sample_content"]').text("生成panel文件失败，请点击上一步，返回文件上传页面或文件检查页面重新操作。");
-                        }
+                    var result = data.result.result.result.result
+                    if(result.status == "success") {
+                        $.cookie("calc_panel_file",result.message)
+                        $('label[id="generate_sample_content"]').text("生成panel文件成功，请继续点击下一步。");
                     }else{
+                        $.cookie("calc_panel_file",null)
                         //$.tooltip('My God, 出错啦！！！');
+                        $("#t_nextstepBtn").attr({"disabled":"disabled"});
                         $('label[id="generate_sample_content"]').text("生成panel文件失败，请点击上一步，返回文件上传页面或文件检查页面重新操作。");
                     }
-                },
-                error:function(e){
-                    $.tooltip('My God, 出错啦！！！');
                 }
             });
         }else{
@@ -163,11 +145,8 @@ $(function(){
                 cache : false,
                 dataType : "json",
                 success : function(json){
-                    $.tooltip('OK, 操作成功！', 2500, true);
+                    $.tooltip('操作成功', 2500, true);
                     document.getElementById("ybjc").click();
-                },
-                error:function(e){
-                    $.tooltip('My God, 出错啦！！！');
                 }
             });
         }else{

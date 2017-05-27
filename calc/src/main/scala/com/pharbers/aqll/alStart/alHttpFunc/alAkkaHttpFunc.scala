@@ -4,17 +4,16 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
-import com.google.gson.Gson
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import com.pharbers.aqll.alCalcOther.alEmchat.{alIMUser, sendMessage}
 import spray.json.DefaultJsonProtocol
 import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import scala.concurrent.ExecutionContext
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.{alFileExport, alFilesExport, alSampleCheck, alSampleCheckCommit}
-
+import play.api.libs.json.Json.toJson
 /**
   * Created by qianpeng on 2017/3/26.
   */
@@ -67,9 +66,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alFileUploadPyBefore = post {
 		path("uploadbefore") {
 			entity(as[alUpBeforeItem]) { item =>
-				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyCmd(s"$root$program$fileBase${item.company}" ,Upload_Firststep_Filename, "").excute
-				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result":""" + result +"""}""")
 			}
 		}
@@ -78,9 +77,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alFileUploadPythonFunc = post {
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
-				sendMessage.sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyCmd(s"$root$program$fileBase${item.company}",Upload_Secondstep_Filename, item.yms).excute
-				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result":""" + result +"""}""")
 			}
 		}
@@ -89,12 +88,8 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alSampleCheckDataFunc = post {
 		path("samplecheck") {
 			entity(as[alCheckItem]) {item =>
-				//println(s"company = ${item.company} filename = ${item.filename}")
-				//val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
-				//a ! check_excel_jobs(item.company,item.filename)
-				println(s"company=${item.company} filename=${item.filename}")
 				alSampleCheck(item.company, item.filename, item.uname)
-				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result" : "Ok"}""")
 			}
 		}
@@ -103,9 +98,6 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alCalcDataFunc = post {
 		path("modelcalc") {
 			entity(as[alCalcItem]) {item =>
-				println(s"item = ${item.company}")
-				println(s"item = ${item.filename}")
-				println(s"path = ${fileBase + item.company + outPut + item.filename}")
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				val path = fileBase + item.company + outPut + item.filename
 				a ! filter_excel_jobs(path, new alCalcParmary(item.company, item.uname), a)
@@ -116,7 +108,6 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alModelOperationCommitFunc = post {
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
-				println(s"item=${item.company}")
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				a ! commit_finalresult_jobs(item.company)
 				alSampleCheckCommit(item.company)
@@ -135,10 +126,8 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 												item.filetype,
 												item.uname)
 				val result = alFileExport(alExport)
-				sendMessage.sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				val gson : Gson = new Gson()
-				println(s"result=${gson.toJson(result)}")
-				complete("""{"result":"""+gson.toJson(result)+"""}""")
+				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				complete("""{"result":"""+result+"""}""")
 			}
 		}
 	}
@@ -146,7 +135,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alCreateIMUserFunc = post {
 		path("createimuser") {
 			entity(as[alHttpCreateIMUser]) { item =>
-				alIMUser.createUser(item.name, item.pwd)
+				//alIMUser.createUser(item.name, item.pwd)
 				complete("""{"result": "OK"}""")
 			}
 		}
@@ -159,8 +148,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 					case None => "fb9cb2cd-52ab-4493-b943-24800d85a610"
 					case Some(x) => x.uuid.toString
 				}
-				val gson : Gson = new Gson()
-				complete("""{"result": """+gson.toJson(uuid)+"""}""")
+				complete("""{"result": """+toJson(uuid)+"""}""")
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-@(is_administrator: String,markets : List[String])
+@(is_administrator: String,markets : List[String],dates : List[Map[String,Any]])
 @main("Max | Home") {
 <body>
     <div id="wrapper">
@@ -113,26 +113,29 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-sm-4 col-md-4">
-                            <div class="form-group" id="data_5">
+
+                        <div class="col-sm-3 col-md-3">
+                            <div class="form-group">
                                 <label class="control-label">日期</label>
-                                <div class="input-daterange input-group" id="datepicker">
-                                    <input type="text" class="input-md form-control" name="date_5" value="11/2016" />
-                                </div>
+                                @*<div class="input-daterange input-group" id="datepicker">*@
+                                    @*<input type="text" class="input-md form-control" name="date_5" value="11/2016" />*@
+                                @*</div>*@
+                                <select data-name="search-result-date" onchange="sampleCheckFun()" class="form-control">
+                                    @{dates map { date =>
+                                        <option>{date.get("name").get}</option>
+                                    }};
+                                </select>
                             </div>
                         </div>
                     </div>
 
                     <div class="row" style="margin-bottom: 20px;">
                         <div class="col-lg-4">
-                            <h1 class="m-b-xs" id = "Current_Month_HospitalNum">
-                                0
-                            </h1>
-                            <small>
-                                当期医院数量
-                            </small>
-                            <div id="hospline" style="height:90px;"></div>
                             <div class="row">
+                                <div class="col-xs-4">
+                                    <small class="stats-label">当期医院数量</small>
+                                    <h4 id = "Current_Month_HospitalNum">0</h4>
+                                </div>
                                 <div class="col-xs-4">
                                     <small class="stats-label">上期</small>
                                     <h4 id="Early_Month_HospitalNum">0</h4>
@@ -142,16 +145,14 @@
                                     <h4 id="Last_Year_HospitalNum">0</h4>
                                 </div>
                             </div>
+                            <div id="hospline" style="height:110px;"></div>
                         </div>
                         <div class="col-lg-4">
-                            <h1 class="m-b-xs" id = "Current_Month_ProductNum">
-                                0
-                            </h1>
-                            <small>
-                                当期产品数量
-                            </small>
-                            <div id="prodline" style="height:90px"></div>
                             <div class="row">
+                                <div class="col-xs-4">
+                                    <small class="stats-label">当期产品数量</small>
+                                    <h4 id = "Current_Month_ProductNum">0</h4>
+                                </div>
                                 <div class="col-xs-4">
                                     <small class="stats-label">上期</small>
                                     <h4 id="Early_Month_ProductNum">0</h4>
@@ -161,16 +162,14 @@
                                     <h4 id="Last_Year_ProductNum">0</h4>
                                 </div>
                             </div>
+                            <div id="prodline" style="height:110px"></div>
                         </div>
                         <div class="col-lg-4">
-                            <h1 class="m-b-xs" id = "Current_Month_MarketNum">
-                                0
-                            </h1>
-                            <small>
-                                当期市场数量
-                            </small>
-                            <div id="markline" style="height:90px"></div>
                             <div class="row">
+                                <div class="col-xs-4">
+                                    <small class="stats-label">当期市场数量</small>
+                                    <h4 id = "Current_Month_MarketNum">0</h4>
+                                </div>
                                 <div class="col-xs-4">
                                     <small class="stats-label">上期</small>
                                     <h4 id="Early_Month_MarketNum">0</h4>
@@ -180,6 +179,7 @@
                                     <h4 id="Last_Year_MarketNum">0</h4>
                                 </div>
                             </div>
+                            <div id="markline" style="height:110px"></div>
                         </div>
                     </div>
 

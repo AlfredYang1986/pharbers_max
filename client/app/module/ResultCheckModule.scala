@@ -7,7 +7,7 @@ import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, M
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import module.common.alRestDate
+import module.common.alNearDecemberMonth
 import module.common.alCallHttp
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
@@ -32,12 +32,12 @@ object ResultCheckModule extends ModuleTrait {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
-			val uuid = queryUUID(company)
+
 			val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
-			uuid match {
+			queryUUID(company) match {
 				case None => throw new Exception("warn uuid does not exist")
-				case _ => {
-					val result = lsttoJson(queryNearTwelveMonth(database,company,market,date,s"$company${uuid.get}"),1)
+				case Some(x) => {
+					val result = lsttoJson(queryNearTwelveMonth(database,company,market,date,s"$company$x"),1)
 					(successToJson(result), None)
 				}
 			}
@@ -55,8 +55,8 @@ object ResultCheckModule extends ModuleTrait {
 			val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
 			uuid match {
 				case None => throw new Exception("warn uuid does not exist")
-				case _ => {
-					val temp_coll = s"$company${uuid.get}"
+				case Some(x) => {
+					val temp_coll = s"$company$x"
 					val cur_top6 = queryCELData(database,company,market,date,temp_coll,"cur")(None,None)
 					val ear_top6 = queryCELData(database,company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
 					val las_top6 = queryCELData(database,company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
@@ -132,9 +132,9 @@ object ResultCheckModule extends ModuleTrait {
 		*/
 	def queryDBObject(market: String,date: String,el: String,list: Option[List[String]]): DBObject ={
 		val ces_date = el match {
-			case "cur" => alDateOpt.MMyyyy2Long(date)
-			case "ear" => alDateOpt.MMyyyy2EarlyLong(date)
-			case "las" => alDateOpt.MMyyyy2LastLong(date)
+			case "cur" => alDateOpt.yyyyMM2Long(date)
+			case "ear" => alDateOpt.yyyyMM2EarlyLong(date)
+			case "las" => alDateOpt.yyyyMM2LastLong(date)
 		}
 		list match {
 			case None => MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$eq" -> ces_date))
@@ -151,27 +151,23 @@ object ResultCheckModule extends ModuleTrait {
 		* @return
 		*/
 	def queryNearTwelveMonth(database: data_connection,company: String,market: String,date: String,temp_coll: String): List[Map[String,Any]] ={
-		val cur_date = alDateOpt.MMyyyy2yyyyMM(date)
-		val date_lst_str = alRestDate.diff12Month(cur_date)
-		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> alDateOpt.ArrayDate2ArrayTimeStamp(alRestDate.diff12Month(cur_date))))
+		val date_lst_str = alNearDecemberMonth.diff12Month(date)
+		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> alDateOpt.ArrayDate2ArrayTimeStamp(alNearDecemberMonth.diff12Month(date))))
 		database.getCollection(temp_coll).count() match {
 			case 0 => {
 				val list_map = database.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
-					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
-						"f_sales" -> x.get("f_sales")
+					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),"f_sales" -> x.get("f_sales")
 					)).toList
-				matchDataByDate(date_lst_str,SumByDate(list_map) :: Nil)
+				matchDataByDate(date_lst_str,(None,Some(SumByDate(list_map))))
 			}
 			case _ => {
 				val temp_list_map = database.getCollection(temp_coll).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
-					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
-						"f_sales" -> x.get("f_sales")
+					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),"f_sales" -> x.get("f_sales")
 					)).toList
 				val fina_list_map = database.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
-					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),
-						"f_sales" -> x.get("f_sales")
+					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),"f_sales" -> x.get("f_sales")
 					)).toList
-				matchDataByDate(date_lst_str,SumByDate(temp_list_map) :: SumByDate(fina_list_map) :: Nil)
+				matchDataByDate(date_lst_str,(Some(SumByDate(temp_list_map)),Some(SumByDate(fina_list_map))))
 			}
 		}
 	}
@@ -181,85 +177,37 @@ object ResultCheckModule extends ModuleTrait {
 		* @param lst
 		* @return
 		*/
-	def SumByDate(lst: List[Map[String,Any]]): List[Map[String,Any]] ={
-		var date = ""
-		var f_sales_sum = 0.0
-		val n_lst = new ListBuffer[Map[String,Any]]()
-		lst match {
-			case i if i.size.equals(0) => Nil
-			case i if i.size.equals(1) => lst	// TODO : 完善只有一条数据时有可能遗漏Sum和append的情况
-			case _ => {
-				var num = 0
-				lst.foreach{x =>
-					val o_date = x.get("Date").get.asInstanceOf[String]
-					val o_sales = x.get("f_sales").get.asInstanceOf[Number].doubleValue()
-					num = num + 1
-					date match {
-						case "" => {
-							date = o_date
-							f_sales_sum = f_sales_sum + o_sales
-						}
-						case i if i.equals(o_date) => {
-							f_sales_sum = f_sales_sum + o_sales
-						}
-						case i if !i.equals(o_date) => {
-							n_lst.append(Map("Date" -> date, "f_sales" -> f_sales_sum))
-							num match {	// TODO : 完善最后一条数据有可能遗漏Sum和append的情况
-								case n if n.equals(lst.size) => n_lst.append(Map("Date" -> o_date, "f_sales" -> o_sales))
-								case n if !n.equals(lst.size) => {
-									date = o_date
-									f_sales_sum = 0.0
-								}
-							}
-						}
-					}
-				}
-				n_lst.toList
-			}
-		}
-	}
+	def SumByDate(lst: List[Map[String,Any]]): List[Map[String,Any]] = lst.groupBy(x => x.get("Date").get).map(y => Map("Date" -> y._1,"f_sales" -> y._2.map(z => z.get("f_sales").get.asInstanceOf[Number].doubleValue()).sum)).toList
 
 	def queryUUID(company: String): Option[String] = {
-		val uuidjson = alCallHttp("queryUUID",toJson(Map("company" -> toJson(company)))).call
+		val uuidjson = alCallHttp("/queryUUID",toJson(Map("company" -> toJson(company)))).call
 		Some((uuidjson \ "result").asOpt[String].get)
 	}
 
-	def richDateArr(arr: Array[String]): List[Map[String,Any]] = {
-		arr.map(x => Map("Date" -> x,"f_sales" -> 0.0)).toList
-	}
-
-	def matchDataByDate(arr: Array[String],lst: List[List[Map[String,Any]]]): List[Map[String,Any]] = {
-		val date_lst = richDateArr(arr)
-
-		val temp_head_lst = date_lst map { x =>
-			val obj = lst.head.find(y => y.get("Date").get.equals(x.get("Date").get))
-			obj match {
-				case None => x
-				case _ => obj.get
+	def matchDataByDate(arr: Array[String],tuple_lst: (Option[List[Map[String,Any]]],Option[List[Map[String,Any]]])): List[Map[String,Any]] = {
+		val date_lst = arr.map(x => Map("Date" -> x,"f_sales" -> 0.0)).toList
+		tuple_lst._1 match {
+			case None => {
+				tuple_lst._2 match {
+					case None => date_lst
+					case Some(o) => getTuple_Date_Lst(date_lst,o)
+				}
 			}
-		}
-		val temp_tail_lst: List[Map[String,Any]] = Nil
-		temp_tail_lst match {
-			case Nil => temp_head_lst
-			case _ => {
-//				date_lst map { x =>
-//					val obj = lst.tail.head.find(y => y.get("Date").get.equals(x.get("Date").get))
-//					obj match {
-//						case None => x
-//						case _ => obj.get
-//					}
-//				}
-
-				temp_tail_lst map { x =>
-					val obj = temp_head_lst.find(y => y.get("Date").get.equals(x.get("Date").get))
-					obj match {
-						case None => x
-						case _ => obj.get
-					}
+			case Some(x) => {
+				tuple_lst._2 match {
+					case None => getTuple_Date_Lst(date_lst,x)
+					case Some(o) => getTuple_Date_Lst(getTuple_Date_Lst(date_lst,o),getTuple_Date_Lst(date_lst,x))
 				}
 			}
 		}
 	}
+
+	def getTuple_Date_Lst(f_lst: List[Map[String,Any]],s_lst: List[Map[String,Any]]): List[Map[String,Any]] = f_lst.map(x =>
+		s_lst.find(y => y.get("Date").get.equals(x.get("Date").get)) match {
+			case None => x
+			case Some(o) => o
+		}
+	)
 
 	def salesSumByDate(lst: List[Map[String,Any]]): List[Map[String,Any]] = {
 		var date = ""

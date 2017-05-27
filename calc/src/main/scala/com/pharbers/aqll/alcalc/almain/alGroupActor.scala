@@ -21,7 +21,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalcOther.alEmchat.sendMessage
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
@@ -100,7 +100,7 @@ class alGroupActor extends Actor
             r match {
                 case None => None
                 case Some(d) =>
-                    sendMessage.sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
+                    new alMessageProxy().sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
                     d.subs.foreach (x => dbcores.getCollection(x.uuid).drop())
 //                Restart
             }

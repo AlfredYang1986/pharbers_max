@@ -1,0 +1,17 @@
+{
+  "app":{
+    "name": "Pharbers"
+  },
+  "nav":{
+    "home": "Home",
+    "product": "Products And Services",
+    "tool": "Tools And Products",
+    "contact": "Contact"
+  },
+  "body":{
+
+  },
+  "topnav":{
+
+  }
+}

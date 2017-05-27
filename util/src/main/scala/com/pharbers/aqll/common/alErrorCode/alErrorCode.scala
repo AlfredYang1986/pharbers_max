@@ -67,12 +67,20 @@ object alErrorCode {
 		  */
 		ErrorNode("shell error" , -501, "shell执行失败"),
 		ErrorNode("shell success" , -502, "shell执行成功"),
-
+		
 		/**
-			* 错误信息
-			*/
+		  * 错误信息
+		  */
 		ErrorNode("error input", -601, "你输入的参数不正确"),
-
+		
+		/**
+		  * 对接第三方Message通信错误
+		  */
+		ErrorNode("error parameter", -701, "参数错误"),
+		ErrorNode("error server", -702, "消息服务器异常"),
+		ErrorNode("error client secre", -703, "客户端安全码异常"),
+		ErrorNode("error appkey", -704, "应用标识错误"),
+		
 		/**
 		  * 功能未实现
 		  */
