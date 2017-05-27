@@ -7,5 +7,5 @@ import com.pharbers.aqll.common.alCmd.alShellOtherCmdExce
   */
 
 case class scpCmd(file : String, des_path : String, host : String, user_name : String) extends alShellOtherCmdExce {
-  override val cmd = s"scp ${file} ${user_name}@${host}:~/${des_path}"
+  override def cmd = s"scp ${file} ${user_name}@${host}:~/${des_path}"
 }

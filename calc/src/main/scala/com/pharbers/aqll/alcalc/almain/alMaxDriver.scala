@@ -115,8 +115,8 @@ class alMaxDriver extends Actor
 
             // TODO : 最开始的Split的文件 传输到各个机器上
             cur = Some(pkgCmd(s"${memorySplitFile}${sync}$p" :: Nil, s"${memorySplitFile}${fileTarGz}$p")
-                        :: scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", s"${program + scpPath}", serverHost106, serverUser)
-                        :: scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", s"${program + scpPath}", serverHost50, serverUser)
+                        :: scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", s"${scpPath}", serverHost106, serverUser)
+                        :: scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", s"${scpPath}", serverHost50, serverUser)
                         :: Nil)
             process = do_pkg() :: Nil
             super.excute()

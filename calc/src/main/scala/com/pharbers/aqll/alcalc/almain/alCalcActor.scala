@@ -68,7 +68,7 @@ class alCalcActor extends Actor
 
 	        log.info(s"unCalcPkgSplit uuid = ${p.uuid}")
 
-            cur = Some(new unPkgCmd(s"${root + program + scpPath + p.uuid}", s"${root + program}") :: Nil)
+            cur = Some(new unPkgCmd(s"${root + scpPath + p.uuid}", s"${root + program}") :: Nil)
             process = do_pkg() :: Nil
             super.excute()
 
