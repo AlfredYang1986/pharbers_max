@@ -61,7 +61,7 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 				r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
 
 				// TODO : 解压汇总过来的Group文件
-				cur = Some(new unPkgCmd(s"${root + program + scpPath + sub_uuid}", s"${root + program}") :: Nil)
+				cur = Some(new unPkgCmd(s"${root + scpPath + sub_uuid}", s"${root + program}") :: Nil)
 				process = do_pkg() :: Nil
 				super.excute()
 

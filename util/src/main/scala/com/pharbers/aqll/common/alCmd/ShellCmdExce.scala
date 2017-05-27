@@ -11,7 +11,7 @@ import play.api.libs.json.Json.toJson
   */
 
 trait alShellCmdExce {
-  val cmd = ""
+  def cmd = ""
 
   def excute: JsValue
 

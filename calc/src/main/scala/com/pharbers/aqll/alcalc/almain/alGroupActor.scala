@@ -71,7 +71,7 @@ class alGroupActor extends Actor
 
             println(s"unPkgSplit uuid = ${p.uuid}")
 
-            cur = Some(new unPkgCmd(s"${root + program + scpPath + p.uuid}", s"${root + program}") :: Nil)
+            cur = Some(new unPkgCmd(s"${root + scpPath + p.uuid}", s"${root + program}") :: Nil)
             process = do_pkg() :: Nil
             super.excute()
 
@@ -160,7 +160,7 @@ class alGroupActor extends Actor
                 println(s"group sum uuid = ${r.uuid}")
 
                 cur = Some(pkgCmd(s"${memorySplitFile}${group}${r.uuid}" :: Nil, s"${memorySplitFile}${fileTarGz}${r.uuid}")
-                    :: scpCmd(s"${memorySplitFile}${fileTarGz}${r.uuid}.tar.gz", s"${program+scpPath}", serverHost215, serverUser)
+                    :: scpCmd(s"${memorySplitFile}${fileTarGz}${r.uuid}.tar.gz", s"${scpPath}", serverHost215, serverUser)
                     :: Nil)
                 process = do_pkg() :: Nil
                 super.excute()
