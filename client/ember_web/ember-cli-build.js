@@ -22,6 +22,12 @@ module.exports = function(defaults) {
   });
   app.import(app.bowerDirectory + '/bootstrap/dist/css/bootstrap.css');
   app.import(app.bowerDirectory + '/bootstrap/dist/js/bootstrap.js');
+  app.import(app.bowerDirectory + '/jquery/dist/jquery.cookie.js');
+  app.import(app.bowerDirectory + '/assets/js/business/login.js');
+  app.import(app.bowerDirectory + '/assets/js/web-im/load-im.js');
+  app.import(app.bowerDirectory + '/assets/js/web-im/strophe-1.2.8.js');
+  app.import(app.bowerDirectory + '/assets/js/web-im/webim.config.js');
+  app.import(app.bowerDirectory + '/assets/js/web-im/websdk-1.4.10.js');
 
   app.import(app.bowerDirectory + '/bootstrap/dist/fonts/glyphicons-halflings-regular.woff', {
     destDir: 'fonts'

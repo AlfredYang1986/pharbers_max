@@ -16,7 +16,7 @@
                         <span class="m-r-sm text-muted welcome-message">欢迎访问MAX系统</span>
                     </li>
                     <li>
-                        <a href="javaScript:void();" onclick="logout()">
+                        <a  {{action 'cleanCookie'}} href="javaScript:void();" onclick="logout()">
                             <i class="fa fa-sign-out"></i> 退出系统
                         </a>
                     </li>
