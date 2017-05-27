@@ -22,6 +22,7 @@ module.exports = function(defaults) {
   });
   app.import(app.bowerDirectory + '/bootstrap/dist/css/bootstrap.css');
   app.import(app.bowerDirectory + '/bootstrap/dist/js/bootstrap.js');
+  app.import(app.bowerDirectory + '/bootstrap/dist/js/bootstrap.min.js');
   app.import(app.bowerDirectory + '/jquery/dist/jquery.cookie.js');
   app.import(app.bowerDirectory + '/assets/js/business/login.js');
   app.import(app.bowerDirectory + '/assets/js/web-im/load-im.js');
