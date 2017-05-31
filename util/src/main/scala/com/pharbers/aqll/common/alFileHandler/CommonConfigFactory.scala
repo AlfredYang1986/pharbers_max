@@ -15,15 +15,15 @@ object clusterListenerConfig {
 object databaseConfig {
 	val db: IConfigFactory = CommonConfigFactory.getConfigFactory("database")
 
-	val dbhost = db.getProperties("DB.dbhost")
-	val dbport = db.getProperties("DB.dbport")
-	val dbuser = db.getProperties("DB.dbuser")
-	val dbpwd = db.getProperties("DB.dbpwd")
-	val db1 = db.getProperties("DB.db1")
-	val db2 = db.getProperties("DB.db2")
-	val dumpdb_ip = db.getProperties("DB.dbdump_ip")
-	val restoredb_ip = db.getProperties("DB.dbrestore_ip")
-	val localrestoredb_ip = db.getProperties("DB.dblocalrestore_ip")
+	val dbhost = db.getProperties("database.dbhost")
+	val dbport = db.getProperties("database.dbport")
+	val dbuser = db.getProperties("database.dbuser")
+	val dbpwd = db.getProperties("database.dbpwd")
+	val db1 = db.getProperties("database.db1")
+	val db2 = db.getProperties("database.db2")
+	val dumpdb_ip = db.getProperties("database.dbdump_ip")
+	val restoredb_ip = db.getProperties("database.dbrestore_ip")
+	val localrestoredb_ip = db.getProperties("database.dblocalrestore_ip")
 }
 object emChatConfig {
 	val emChat: IConfigFactory = CommonConfigFactory.getConfigFactory("emChat")
