@@ -11,7 +11,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_cal
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alInertDatabase
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alInertDatabase
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
 import scala.concurrent.stm.{Ref, atomic}

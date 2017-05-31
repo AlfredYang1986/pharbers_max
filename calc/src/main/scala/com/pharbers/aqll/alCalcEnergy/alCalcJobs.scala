@@ -16,8 +16,8 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alRestoreColl
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alWeightSum
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alRestoreColl, alWeightSum}
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alWeightSum
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

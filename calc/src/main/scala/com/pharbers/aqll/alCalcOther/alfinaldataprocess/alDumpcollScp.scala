@@ -1,10 +1,10 @@
-package com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala
+package com.pharbers.aqll.alCalcOther.alfinaldataprocess
 
+import com.pharbers.aqll.common.alCmd.dbcmd.dbdumpCmd
+import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
-import com.pharbers.aqll.common.alCmd.dbcmd.dbdumpCmd
-import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 
 
 /**

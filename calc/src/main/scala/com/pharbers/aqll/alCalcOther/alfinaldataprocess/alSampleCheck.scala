@@ -1,21 +1,20 @@
-package com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala
+package com.pharbers.aqll.alCalcOther.alfinaldataprocess
 
 import java.io._
 import java.util.{Date, UUID}
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alCalaHelp.{DBList, DefaultData}
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalc.almodel.java.AdminHospitalDataBase
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alString.alStringOpt._
 import play.api.libs.json.JsValue
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import scala.collection.immutable.List
-import scala.collection.mutable.ListBuffer
 import play.api.libs.json.Json.toJson
+import scala.collection.mutable.ListBuffer
 /**
   * Created by liwei on 2017/3/27.
   */
