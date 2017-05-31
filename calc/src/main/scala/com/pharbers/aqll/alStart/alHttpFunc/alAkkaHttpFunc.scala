@@ -8,11 +8,12 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import spray.json.DefaultJsonProtocol
 import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
+
 import scala.concurrent.ExecutionContext
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.{alFileExport, alExport, alSampleCheck, alSampleCheckCommit}
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
 import play.api.libs.json.Json.toJson
 /**
   * Created by qianpeng on 2017/3/26.

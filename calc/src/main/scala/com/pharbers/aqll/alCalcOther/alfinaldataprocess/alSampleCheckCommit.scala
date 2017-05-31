@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala
+package com.pharbers.aqll.alCalcOther.alfinaldataprocess
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject

@@ -20,7 +20,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.alMaxCalcJobStates.{calc_coreing, calc_maxing}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.do_pkg
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alDumpcollScp
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alDumpcollScp
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref

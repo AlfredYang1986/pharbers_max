@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala
+package com.pharbers.aqll.alCalcOther.alfinaldataprocess
 
 /**
   * Created by liwei on 2017/3/15.
@@ -11,9 +11,9 @@ import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.common.alDao._data_connection_cores_thread
 import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 case class alInertDatabase(){
 	def apply(mrd : westMedicineIncome,sub_uuid : String): JsValue = {
