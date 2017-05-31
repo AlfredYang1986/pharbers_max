@@ -23,6 +23,9 @@ $(function(){
             data: JSON.stringify(query_object),
             cache: false,
             success: function(data) {
+                $('#resultDiv').show();
+                $("#upload_file").hide();
+                $("#generate_panel_file").show();
                 var result = data.result.result.result.result
                 if(result.status == "success"){
                     var result = result.message;
@@ -42,9 +45,6 @@ $(function(){
                     $("#s_nextstepBtn").attr({"disabled":"disabled"});
                     $('label[id="generate_panel_content"]').text("文件检查失败，请点击上一步，返回上传页面，重新上传文件。");
                 }
-                $('#resultDiv').show();
-                $("#upload_file").hide();
-                $("#generate_panel_file").show();
             }
         });
     });
@@ -107,7 +107,6 @@ $(function(){
                         $('label[id="generate_sample_content"]').text("生成panel文件成功，请继续点击下一步。");
                     }else{
                         $.cookie("calc_panel_file",null)
-                        //$.tooltip('My God, 出错啦！！！');
                         $("#t_nextstepBtn").attr({"disabled":"disabled"});
                         $('label[id="generate_sample_content"]').text("生成panel文件失败，请点击上一步，返回文件上传页面或文件检查页面重新操作。");
                     }

@@ -1,168 +1,193 @@
 package com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala
 
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.{Calendar, UUID}
+import java.util.UUID
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.JsValue
-import com.mongodb.casbah.Imports.{DBObject, MongoCursor}
+import com.mongodb.casbah.Imports.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alCalaHelp.DBList
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.common.alDao.from
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.common.alFileHandler.alCsvOpt.scala.CSVWriter
 import com.pharbers.aqll.common.alString.alStringOpt._
-
+import com.pharbers.aqll.common.alDate.scala.alDateOpt._
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 /**
   * Created by liwei on 2017/3/25.
   */
-
-case class alFilesExport(datatype: String,
+case class alExport(datatype: String,
                         market : List[String],
                         staend : List[String],
                         company : String,
                         filetype : String,
                         uname: String)
-
-object alFileExport extends DBList{
-  
+case class alFileExport() extends DBList {
   implicit val dbc = dbcores
-  
-  def apply(alExport: alFilesExport) = alFileExport(alExport)
 
-  def alFileExport(alExport: alFilesExport) : JsValue = {
+  def apply(export: alExport): JsValue = {
+    val Provice = "省份数据"
+    val City = "城市数据"
+    val Hospital = "医院数据"
+
     try{
-      val fmomat_f = new SimpleDateFormat("MM/yyyy")
-      var conditions = MongoDBObject()
-      val markets = alExport.market.map(x => removeSpace(x))
-      markets.size match {
-        case 0 => conditions = MongoDBObject("Date" -> MongoDBObject("$gte" -> fmomat_f.parse(alExport.staend.head).getTime,"$lt" -> fmomat_f.parse(alExport.staend.tail.head).getTime))
-        case _ => conditions = MongoDBObject("Market" -> MongoDBObject("$in" -> markets),"Date" -> MongoDBObject("$gte" -> fmomat_f.parse(alExport.staend.head).getTime,"$lt" -> fmomat_f.parse(alExport.staend.tail.head).getTime))
+      val conditions = export.market.map(x => removeSpace(x)) match {
+        case Nil => MongoDBObject("Date" -> MongoDBObject("$gte" -> MMyyyy2Long(export.staend.head),"$lt" -> MMyyyy2Long(export.staend.tail.head)))
+        case m => MongoDBObject("Market" -> MongoDBObject("$in" -> m),"Date" -> MongoDBObject("$gte" -> MMyyyy2Long(export.staend.head),"$lt" -> MMyyyy2Long(export.staend.tail.head)))
       }
 
-      var lst = (from db() in alExport.company where conditions).selectOneByOne("hosp_Index")(x => x)
-      alExport.datatype match {
-        case "省份数据" => lst = (from db() in alExport.company where conditions).selectOneByOne("prov_Index")(x => x)
-        case "城市数据" => lst = (from db() in alExport.company where conditions).selectOneByOne("city_Index")(x => x)
-        case "医院数据" => lst = lst
+      val lst = export.datatype match {
+        case Provice => (from db() in export.company where conditions).selectOneByOne("prov_Index")(x => x)
+        case City => (from db() in export.company where conditions).selectOneByOne("city_Index")(x => x)
+        case Hospital => (from db() in export.company where conditions).selectOneByOne("hosp_Index")(x => x)
       }
 
-      lst.size match {
-        case 0 => returnMess(-1,"no matching data.","Unknown")
+      var dbo : Option[DBObject] = None
+      var f_units_sum,f_sales_sum,f_units_sum2,f_sales_sum2 = 0.0
+      val total = lst.size
+      var num = 0
+      var filename = ""
+      total match {
+        case 0 => throw new Exception("warn data does not exist")
         case _ => {
-          val file : File = createFile(alExport.filetype)
+          val file : File = createFile(export.filetype)
           val writer = CSVWriter.open(file,"GBK")
-          writeFileHead(alExport.datatype, writer)
-          weightSum(lst, alExport.datatype, writer, alExport.uname)
+          writer.writeRow(writeFileHead(export.datatype))
+          while(lst.hasNext) {
+            val c : DBObject = lst.next()
+            num = num + 1
+            calculateProgress(num, total)
+            dbo match {
+              case None => {
+                dbo = Some(c)
+                overrideSum(c,false)
+                isInsertData((total == num),c,writer)
+              }
+              case Some(x) => matchPCHData(x,c,writer)
+            }
+          }
           writer.close()
-          returnMess(0,"file generation success.",file.getName)
+          filename = file.getName
         }
       }
-    } catch {
-      case e:Exception => {
-        println(e.printStackTrace())
-      }
-      returnMess(-1,"system internal error,file generation failed.","Unknown")
-    }
-  }
-  // TODO :  创建文件夹
-  def createFile(filetype: String): File ={
-    val file_f : File = new File(fileBase + export_file)
-    if(!file_f.exists()) file_f.mkdir()
-    val file_t : File = new File(fileBase + export_file + UUID.randomUUID + filetype)
-    file_t
-  }
-  // TODO :  写入文件头部部分
-  def writeFileHead(datatype: String,writer: CSVWriter) {
-    val someXml : String = export_xml
-    var fields: List[String] = Nil
-    datatype match {
-      case "省份数据" => {
-        fields = ((xml.XML.loadFile(someXml) \ "body" \ "Provice").map(x => x.text)).toList
-      }
-      case "城市数据" => {
-        fields = ((xml.XML.loadFile(someXml) \ "body" \ "City").map(x => x.text)).toList
-      }
-      case "医院数据" => {
-        fields = ((xml.XML.loadFile(someXml) \ "body" \ "Hospital").map(x => x.text)).toList
-      }
-    }
-    writer.writeRow(fields)
-  }
-  // TODO :  根据datatype求权和
-  def weightSum(lst: MongoCursor,datatype: String, writer : CSVWriter, uname: String): Unit ={
-    var b : Option[DBObject] = None
-    var f_units_sum,f_sales_sum = 0.0
-    var num = 0
-    val total = lst.size
-    while(lst.hasNext) {
-      val c : DBObject = lst.next()
-      num = num + 1
-      stepVal(num, total, uname)
-      b match {
-        case None => {
-          b = Some(c)
-          f_units_sum = c.get("f_units").asInstanceOf[Double]
-          f_sales_sum = c.get("f_sales").asInstanceOf[Double]
-          if(total == num) writeFileBody(writer,c,datatype,f_units_sum,f_sales_sum)
-        }
-        case Some(x) => {
-          var flag = false
-          datatype match {
-            case "省份数据" => flag = x.get("prov_Index").equals(c.get("prov_Index"))
-            case "城市数据" => flag = x.get("city_Index").equals(c.get("city_Index"))
-            case "医院数据" => flag = x.get("hosp_Index").equals(c.get("hosp_Index"))
-          }
-          flag match {
-            case true => {
-              f_units_sum = f_units_sum + c.get("f_units").asInstanceOf[Double]
-              f_sales_sum = f_sales_sum + c.get("f_sales").asInstanceOf[Double]
-              if(total == num) writeFileBody(writer,x,datatype,f_units_sum,f_sales_sum)
-            }
-            case false => {
-              writeFileBody(writer,x,datatype,f_units_sum,f_sales_sum)
-              b = Some(c)
-              f_units_sum = c.get("f_units").asInstanceOf[Double]
-              f_sales_sum = c.get("f_sales").asInstanceOf[Double]
-            }
-          }
-        }
-      }
-    }
-  }
-  // TODO :  写入文件主体部分
-  def writeFileBody(writer: CSVWriter,x:DBObject,datatype:String,f_units_sum:Double,f_sales_sum:Double){
-    val timeDate = Calendar.getInstance
-    timeDate.setTimeInMillis(x.get("Date").asInstanceOf[Number].longValue())
-    val m = timeDate.get(Calendar.MONTH)+1
-    var mm = ""
-    if(m.toString.length < 2) mm = "0"+m else mm = m.toString
-    val date = timeDate.get(Calendar.YEAR)+""+mm
-    datatype match {
-      case "省份数据" => {
-        writer.writeRow(date :: x.get("Provice") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: Nil)
-      }
-      case "城市数据" =>{
-        writer.writeRow(date :: x.get("Provice") :: x.get("City") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: Nil)
-      }
-      case "医院数据" => {
-        writer.writeRow(date :: x.get("Provice") :: x.get("City") :: x.get("Panel_ID") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: Nil)
-      }
-    }
-  }
-  // TODO :  返回
-  def returnMess(status: Int,message: String,filename: String): JsValue ={
-    toJson(Map("status" -> toJson(status),"message" -> toJson(message),"filename" -> toJson(filename)))
-  }
 
-  def stepVal(num: Int,total: Int, uname: String) {
-    var n = total
-    if(n%100!=0){
-      n=n-(n%100)
-    }
-    if((num % (n/100))==0){
-      new alMessageProxy().sendMsg("1", uname, Map("uuid" -> "", "company" -> "", "type" -> "progress"))
+      /**
+        * 创建文件
+        * @param filetype
+        * @return
+        */
+      def createFile(filetype: String): File = {
+        val file_f : File = new File(root + program + fileBase + export_file)
+        if(!file_f.exists()) file_f.mkdir()
+        new File(root+ program + fileBase + export_file + UUID.randomUUID + filetype)
+      }
+
+      /**
+        * 匹配省份城市医院索引
+        * @param x
+        * @param c
+        * @return
+        */
+      def matchPCHIndex(x: DBObject,c: DBObject): Boolean = export.datatype match {
+        case Provice => x.get("prov_Index").equals(c.get("prov_Index"))
+        case City => x.get("city_Index").equals(c.get("city_Index"))
+        case Hospital => x.get("hosp_Index").equals(c.get("hosp_Index"))
+        case _ => false
+      }
+
+      /**
+        * 匹配省份城市医院数据
+        * @param x
+        * @param c
+        * @param writer
+        */
+      def matchPCHData(x: DBObject,c: DBObject,writer: CSVWriter): Unit = {
+        matchPCHIndex(x,c) match {
+          case true => {
+            overrideSum(c,true)
+            isInsertData((total==num && f_units_sum!=0.0 && f_sales_sum!=0.0),c,writer)
+          }
+          case false => {
+            isInsertData((f_units_sum!=0.0 && f_sales_sum!=0.0),c,writer)
+            f_units_sum2 = f_units_sum2 + f_units_sum
+            f_sales_sum2 = f_sales_sum2 + f_sales_sum
+            dbo = Some(c)
+            overrideSum(c,false)
+          }
+        }
+      }
+
+      /**
+        * 写入数据
+        * @param isinsert
+        * @param c
+        * @param writer
+        */
+      def isInsertData(isinsert: Boolean,c: DBObject,writer: CSVWriter): Unit ={
+        if(isinsert) writeFileBody(writer,c,export.datatype,f_units_sum,f_sales_sum)
+      }
+
+      /**
+        * 匹配求和
+        * @param c
+        * @param isadd
+        */
+      def overrideSum(c: DBObject,isadd: Boolean): Unit ={
+        isadd match {
+          case true => {
+            f_units_sum = f_units_sum + c.get("f_units").asInstanceOf[Double]
+            f_sales_sum = f_sales_sum + c.get("f_sales").asInstanceOf[Double]
+          }
+          case false => {
+            f_units_sum = c.get("f_units").asInstanceOf[Double]
+            f_sales_sum = c.get("f_sales").asInstanceOf[Double]
+          }
+        }
+      }
+
+      /**
+        * 写入文件头部部分
+        * @param datatype
+        * @return
+        */
+      def writeFileHead(datatype: String): List[String] = datatype match {
+        case Provice => ((xml.XML.loadFile(export_xml) \ "body" \ "Provice").map(x => x.text)).toList
+        case City => ((xml.XML.loadFile(export_xml) \ "body" \ "City").map(x => x.text)).toList
+        case Hospital => ((xml.XML.loadFile(export_xml) \ "body" \ "Hospital").map(x => x.text)).toList
+      }
+
+      /**
+        * 写入文件主体部分
+        * @param writer
+        * @param x
+        * @param datatype
+        * @param f_units_sum
+        * @param f_sales_sum
+        */
+      def writeFileBody(writer: CSVWriter,x:DBObject,datatype:String,f_units_sum:Double,f_sales_sum:Double){
+        val date = Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue())
+        datatype match {
+          case Provice => writer.writeRow(date :: x.get("Provice") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: Nil)
+          case City => writer.writeRow(date :: x.get("Provice") :: x.get("City") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: Nil)
+          case Hospital => writer.writeRow(date :: x.get("Provice") :: x.get("City") :: x.get("Panel_ID") :: x.get("Market") :: x.get("Product") :: f_sales_sum :: f_units_sum :: Nil)
+        }
+      }
+
+      /**
+        * 计算进度条
+        * @param num
+        * @param total
+        */
+      def calculateProgress(num: Int,total: Int) {
+        var n = total
+        if(n%100!=0) n=n-(n%100)
+        if((num % (n/100))==0) new alMessageProxy().sendMsg("1", export.uname, Map("uuid" -> "", "company" -> "", "type" -> "progress"))
+      }
+
+      toJson(successToJson(toJson(filename)).get)
+    } catch {
+      case e: Exception => errorToJson(e.getMessage)
     }
   }
 }

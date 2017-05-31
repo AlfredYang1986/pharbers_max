@@ -61,6 +61,7 @@ object alErrorCode {
 		ErrorNode("warn aliyun106 scp copy file failed", -413, "aliyun106 scp拷贝文件失败"),
 		ErrorNode("warn aliyun50 scp copy file failed", -415, "aliyun50 scp拷贝文件失败"),
 		ErrorNode("warn uuid does not exist", -416, "没有匹配的UUID"),
+		ErrorNode("warn data does not exist", -417, "没有匹配的数据"),
 
 		/**
 		  * Shell状态
@@ -72,7 +73,8 @@ object alErrorCode {
 		  * 错误信息
 		  */
 		ErrorNode("error input", -601, "你输入的参数不正确"),
-		
+		ErrorNode("error excel generation failed", -602, "excel生成失败"),
+
 		/**
 		  * 对接第三方Message通信错误
 		  */

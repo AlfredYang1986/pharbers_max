@@ -99,7 +99,7 @@ $(function(){
     //创建：Faiz2
     //说明：根据公司对应的Panel文件和25000家医院进行模型运算。 => 跳转至结果检查页面。
     //*********************************************************************
-    $('#nextstepBtm').click(function(){
+    $('#nextstepBtn').click(function(){
         if ($.cookie("calc_panel_file") != null) {
             var dataMap = JSON.stringify({
                 "company": $.cookie("token"),

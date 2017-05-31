@@ -18,11 +18,11 @@ object fop {
 				var lst : List[JsValue] = Nil
 				data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				val file = new File(fileBase)
+				val file = new File(root+program+fileBase)
 				if(!file.exists()) {
 					file.mkdir()
 				}
-				new TemporaryFile(x.ref.file).moveTo(new File(s"$fileBase$uuid"), true)
+				new TemporaryFile(x.ref.file).moveTo(new File(s"$root$program$fileBase$uuid"), true)
 						lst = lst :+ toJson(uuid.toString)
 				}
 				Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
@@ -32,7 +32,7 @@ object fop {
 	}
 
 	def downloadFile(name : String) : Array[Byte] = {
-		val filepath = fileBase + export_file + name
+		val filepath = root+program+fileBase + export_file + name
 		val file = new File(filepath)
 		val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
 		new FileInputStream(file).read(reVal)

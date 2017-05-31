@@ -101,7 +101,7 @@ class alConcertCalcActor extends Actor
 
 					// TODO : 插入数据库
 					atomic { implicit thx =>
-						alInertDatabase(mrd, sub_uuid)
+						alInertDatabase().apply(mrd, sub_uuid)
 					}
 
 					//writer.write(mrd.toString + "\n")
