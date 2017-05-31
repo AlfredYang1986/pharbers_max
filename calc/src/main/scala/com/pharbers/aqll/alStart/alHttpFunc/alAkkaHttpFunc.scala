@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.{alFileExport, alFilesExport, alSampleCheck, alSampleCheckCommit}
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.{alFileExport, alExport, alSampleCheck, alSampleCheckCommit}
 import play.api.libs.json.Json.toJson
 /**
   * Created by qianpeng on 2017/3/26.
@@ -88,9 +88,9 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alSampleCheckDataFunc = post {
 		path("samplecheck") {
 			entity(as[alCheckItem]) {item =>
-				alSampleCheck(item.company, item.filename, item.uname)
+				val result = alSampleCheck().apply(item.company, item.filename, item.uname)
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				complete("""{"result" : "Ok"}""")
+				complete("""{"result" : """+result+"""}""")
 			}
 		}
 	}
@@ -110,8 +110,8 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			entity(as[alCommitItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				a ! commit_finalresult_jobs(item.company)
-				alSampleCheckCommit(item.company)
-				complete("""{"result":"Ok"}""")
+				val result = alSampleCheckCommit().apply(item.company)
+				complete("""{"result":"""+result+"""}""")
 			}
 		}
 	}
@@ -119,13 +119,13 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 	def alResultFileExportFunc = post {
 		path("dataexport") {
 			entity(as[alExportItem]) { item =>
-				val alExport = new alFilesExport(item.datatype,
+				val alExport = new alExport(item.datatype,
 												item.market,
 												item.staend,
 												item.company,
-												item.filetype,
+												 item.filetype,
 												item.uname)
-				val result = alFileExport(alExport)
+				val result = alFileExport().apply(alExport)
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete("""{"result":"""+result+"""}""")
 			}

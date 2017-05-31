@@ -187,7 +187,7 @@ class alCalcActor extends Actor
 
             // TODO : 根据Sub_uuid备份数据库
             log.info(s"单个线程备份传输开始")
-            alDumpcollScp(sub_uuid)
+            alDumpcollScp().apply(sub_uuid)
 	        log.info(s"单个线程备份传输结束")
 
 	        log.info(s"单个线程开始删除临时表")

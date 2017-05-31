@@ -17,7 +17,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alRestoreColl
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alWeightSum.alWeightSum
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alWeightSum
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -138,7 +138,7 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 						("", "", "")
 					case Some(x) =>
 						val u = x.company+uuid
-						alRestoreColl(u, sub_uuid :: Nil)
+						alRestoreColl().apply(u, sub_uuid :: Nil)
 						(x.company, u, x.uname)
 					case _ => ???
 				}
@@ -176,7 +176,7 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 			case Some(x) =>
 				new alMessageProxy().sendMsg("30", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				println(s"x.uuid = ${x.uuid}")
-				new alWeightSum(company, company + x.uuid)
+				alWeightSum().apply(company, company + x.uuid)
 				new alMessageProxy().sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				println(s"开始删除临时表")
 				dbcores.getCollection(company + x.uuid).drop()
