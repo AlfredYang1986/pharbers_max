@@ -2,6 +2,7 @@ package com.pharbers.aqll.alCalcMemory.alstages
 
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
+import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 
 
 /**
@@ -34,8 +35,8 @@ trait alStage extends alLoggerMsgTrait{
 
     def canLength : Boolean = false
     def length : Int = {
-        logger.info("only Memory can calc length")
-        ???
+        logger.error(errorToJson("only Memory can calc length").toString)
+        -1
     }
 }
 

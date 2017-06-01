@@ -90,7 +90,7 @@ object alJob {
 
 sealed class job_defines(val t : Int, val d : String)
 
-trait alJob extends alLoggerMsgTrait {
+trait alJob extends alLoggerMsgTrait{
     val uuid = UUID.randomUUID.toString
 
     var cur : Option[alStage] = None
