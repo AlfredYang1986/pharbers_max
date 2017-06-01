@@ -1,10 +1,12 @@
 package com.pharbers.aqll.alCalcMemory.aldata
 
 import com.pharbers.aqll.alCalaHelp.alFileHandler.altext.alTextParser
-
+import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
+import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 
 /**
   * Created by BM on 09/03/2017.
+  * Modify by clock on 24/05/2017.
   */
 
 object alPortion {
@@ -23,7 +25,7 @@ object alPortion {
     }
 }
 
-trait alPortion {
+trait alPortion extends alLoggerMsgTrait{
     def isPersis : Boolean
 
     def map(f : Any => Any) : alPortion
@@ -38,14 +40,17 @@ case class alMemoryPortion(val d : List[Any]) extends alPortion {
     def data : List[Any] = d
     def length : Int = d.length
 }
-case class alPersisportion(path : String) extends  alPortion {
+case class alPersisportion(path : String) extends  alPortion with alLoggerMsgTrait{
     override def isPersis = true
 
-    def map(f : Any => Any) : alPortion = ???
+    def map(f : Any => Any) : alPortion = {
+        logger.error(errorToJson("persist portion cannot map").toString)
+        null
+    }
     def data : List[Any] = alPortion(alTextParser(path)).data
     def length : Int = {
-        println("persist portion cannot calc length")
-        ???
+        logger.error(errorToJson("persist portion cannot calc length").toString)
+        -1
     }
 }
 

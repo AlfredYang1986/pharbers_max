@@ -5,6 +5,8 @@ import com.pharbers.aqll.alCalaHelp.alFileHandler.alFileHandlers
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.alstages.{alInitStage, alMemoryStage, alPresisStage, alStage}
+import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
+import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.{BaseExcel, alExcelDataParser}
 
 /**
@@ -13,7 +15,7 @@ import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.{BaseExcel, alExc
 
 case class excelHandlers() extends alExcelDataParser(new IntegratedData, DefaultData.integratedxmlpath_en, DefaultData.integratedxmlpath_ch) with alFileHandlers
 
-class alReadExcelPrecess extends alPrecess {
+class alReadExcelPrecess extends alPrecess with alLoggerMsgTrait{
     def precess(j : alStage) : List[alStage] = {
 
         def precessAcc(path : String) : alStorage = alStorage(path, excelHandlers())
@@ -22,17 +24,11 @@ class alReadExcelPrecess extends alPrecess {
             j match {
                 case it : alInitStage => alStage(precessAcc(it.storages.head.toString) :: Nil) :: Nil
                 case it : alPresisStage => alStage(it.storages.map(x => precessAcc(x.toString))) :: Nil
-                case _ : alMemoryStage => ???
+                case _ : alMemoryStage => logger.error(errorToJson("memory stage cannot precess").toString);null
             }
-
         } catch {
-            case ex : OutOfMemoryError => println("not enough memory"); throw ex
-            case ex : Exception => println("unknow error"); throw ex
+            case ex : OutOfMemoryError => logger.error(errorToJson("not enough memory").toString); throw ex
+            case ex : Exception => logger.error(errorToJson("unknow error").toString + ex.getMessage); throw ex
         }
-    }
-
-    def action(j : alStage) = {
-        println("read excel is map precess")
-        throw new Exception("read excel is map precess")
     }
 }

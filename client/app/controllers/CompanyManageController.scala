@@ -12,7 +12,7 @@ import module.CompanyManageModuleMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
-class CompanyManageController@Inject()(mdb: MongoDBModule) extends Controller{
+class CompanyManageController @Inject()(mdb: MongoDBModule) extends Controller {
     implicit val dbc = mdb.basic
 
     implicit val cm = CommonModule(Some(Map("db" -> dbc)))
@@ -24,20 +24,20 @@ class CompanyManageController@Inject()(mdb: MongoDBModule) extends Controller{
     })
 
     def deleteCompany = Action(request => requestArgs(request) { jv =>
-      import pattern.LogMessage.common_log
-      import pattern.ResultMessage.common_result
-      MessageRoutes(msg_log(toJson(Map("method" -> toJson("deleteCompany"))), jv, request) :: msg_companymanage_delete(jv) :: msg_CommonResultMessage() :: Nil, None)
+        import pattern.LogMessage.common_log
+        import pattern.ResultMessage.common_result
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("deleteCompany"))), jv, request) :: msg_companymanage_delete(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
     def findOneCompany = Action(request => requestArgs(request) { jv =>
-      import pattern.LogMessage.common_log
-      import pattern.ResultMessage.common_result
-      MessageRoutes(msg_log(toJson(Map("method" -> toJson("findOneCompany"))), jv, request) :: msg_companymanage_findOne(jv) :: msg_CommonResultMessage() :: Nil, None)
+        import pattern.LogMessage.common_log
+        import pattern.ResultMessage.common_result
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("findOneCompany"))), jv, request) :: msg_companymanage_findOne(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
     def saveCompany = Action(request => requestArgs(request) { jv =>
-      import pattern.LogMessage.common_log
-      import pattern.ResultMessage.common_result
-      MessageRoutes(msg_log(toJson(Map("method" -> toJson("saveCompany"))), jv, request) :: msg_companymanage_save(jv) :: msg_CommonResultMessage() :: Nil, None)
+        import pattern.LogMessage.common_log
+        import pattern.ResultMessage.common_result
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("saveCompany"))), jv, request) :: msg_companymanage_save(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 }

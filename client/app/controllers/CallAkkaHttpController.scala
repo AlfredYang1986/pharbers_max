@@ -12,13 +12,13 @@ import play.api.mvc.{Controller, _}
 /**
   * Created by qianpeng on 2017/2/13.
   */
-class CallAkkaHttpController extends Controller{
+class CallAkkaHttpController extends Controller {
     implicit val cm = CommonModule(Some(Map("" -> None)))
 
     import pattern.LogMessage.common_log
     import pattern.ResultMessage.common_result
 
-    def callHttpServer = Action (request => requestArgs(request) { jv =>
+    def callHttpServer = Action(request => requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("callHttpServer"))), jv, request) :: msg_callHttpServer(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 }

@@ -4,6 +4,7 @@ import java.util.UUID
 
 import com.pharbers.aqll.alCalcMemory.alprecess.alPrecess
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
+import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
 
 /**
   * Created by Alfred on 10/03/2017.
@@ -89,7 +90,7 @@ object alJob {
 
 sealed class job_defines(val t : Int, val d : String)
 
-trait alJob {
+trait alJob extends alLoggerMsgTrait{
     val uuid = UUID.randomUUID.toString
 
     var cur : Option[alStage] = None
@@ -107,16 +108,16 @@ trait alJob {
     def nextAcc : Unit = {             // 递归实现next
         if (!process.isEmpty) {
             val p = process.head
-            println(s"current precess is $p")
+            logger.info(s"current precess is $p")
             process = process.tail
 
             val s = cur.map (x => x).getOrElse(throw new Exception("job needs current stage"))
-            println(s"current stage is $s")
+            logger.info(s"current stage is $s")
             val s1 = p.precess(s).head
             cur = Some(s1)
-            println(s"new stage is $s1")
+            logger.info(s"new stage is $s1")
             if (s1.canLength)
-                println(s"if calc new stage has ${s1.length} data")
+                logger.info(s"if calc new stage has ${s1.length} data")
 
             nextAcc
         }

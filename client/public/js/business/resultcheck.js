@@ -54,8 +54,14 @@ $(function(){
             cache: false,
             dataType: "json",
             success: function (json) {
-                $(".progresstier").css("display", "block");
-                nextStep()
+                console.info(data)
+                var result = data.result
+                if(result.status == "success"){
+                    $(".progresstier").css("display", "block");
+                    nextStep()
+                }else{
+                    $.tooltip(result.message);
+                }
             }
         });
     });

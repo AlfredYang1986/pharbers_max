@@ -1,6 +1,8 @@
 package com.pharbers.aqll.alCalcMemory.alstages
 
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
+import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
+import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 
 
 /**
@@ -27,14 +29,14 @@ object alStage {
     }
 }
 
-trait alStage {
+trait alStage extends alLoggerMsgTrait{
     var storages : List[AnyRef] = Nil
     def isCalc = false
 
     def canLength : Boolean = false
     def length : Int = {
-        println("only Memory can calc length")
-        ???
+        logger.error(errorToJson("only Memory can calc length").toString)
+        -1
     }
 }
 

@@ -61,6 +61,7 @@ object alErrorCode {
 		ErrorNode("warn aliyun106 scp copy file failed", -413, "aliyun106 scp拷贝文件失败"),
 		ErrorNode("warn aliyun50 scp copy file failed", -415, "aliyun50 scp拷贝文件失败"),
 		ErrorNode("warn uuid does not exist", -416, "没有匹配的UUID"),
+		ErrorNode("warn data does not exist", -417, "没有匹配的数据"),
 
 		/**
 		  * Shell状态
@@ -72,7 +73,8 @@ object alErrorCode {
 		  * 错误信息
 		  */
 		ErrorNode("error input", -601, "你输入的参数不正确"),
-		
+		ErrorNode("error excel generation failed", -602, "excel生成失败"),
+
 		/**
 		  * 对接第三方Message通信错误
 		  */
@@ -80,7 +82,20 @@ object alErrorCode {
 		ErrorNode("error server", -702, "消息服务器异常"),
 		ErrorNode("error client secre", -703, "客户端安全码异常"),
 		ErrorNode("error appkey", -704, "应用标识错误"),
-		
+
+		/**
+		  * CalcMemory
+		  */
+		ErrorNode("persist portion cannot map", -801, "持久化部分无法遍历"),
+		ErrorNode("persist portion cannot calc length", -802, "持久化部分无法计算大小"),
+		ErrorNode("not implement", -803, "没有实现"),
+		ErrorNode("instance of alPortionedStorage", -804, "实例化于alPortionedStorage"),
+		ErrorNode("only Memory can calc length", -805, "只有内存可以计算大小"),
+		ErrorNode("memory stage cannot precess", -806, "已是内存状态无法处理"),
+		ErrorNode("not memory stage cannot precess", -807, "不是内存状态无法处理"),
+		ErrorNode("not enough memory", -808, "内存不足"),
+		ErrorNode("read excel is map precess", -809, "只有map阶段可以读取excel"),
+
 		/**
 		  * 功能未实现
 		  */

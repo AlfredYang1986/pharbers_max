@@ -99,7 +99,7 @@ $(function(){
     //创建：Faiz2
     //说明：根据公司对应的Panel文件和25000家医院进行模型运算。 => 跳转至结果检查页面。
     //*********************************************************************
-    $('#nextstepBtm').click(function(){
+    $('#nextstepBtn').click(function(){
         if ($.cookie("calc_panel_file") != null) {
             var dataMap = JSON.stringify({
                 "company": $.cookie("token"),
@@ -114,10 +114,16 @@ $(function(){
                 contentType: 'application/json, charset=utf-8',
                 cache: false,
                 dataType: "json",
-                success: function (json) {
-                    $(".progresstier").css("display", "block");
-                    p.setPercent(4);
-                    nextStep()
+                success: function (data) {
+                    console.info(data)
+                    var result = data.result
+                    if(result.status == "success"){
+                        $(".progresstier").css("display", "block");
+                        p.setPercent(4);
+                        nextStep();
+                    }else{
+                        $.tooltip(result.message);
+                    }
                 }
             });
         } else {
