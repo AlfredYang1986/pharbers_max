@@ -3,19 +3,18 @@ package com.pharbers.aqll.alCalcMemory.alprecess
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy
 import com.pharbers.aqll.alCalcMemory.alstages.{alInitStage, alMemoryStage, alPresisStage, alStage}
-
-import scala.collection.JavaConverters._
-
+import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
+import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 
 /**
   * Created by Alfred on 10/03/2017.
   */
-class alSplitPrecess(val strategy : alSplitStrategy) extends alPrecess {
+class alSplitPrecess(val strategy : alSplitStrategy) extends alPrecess with alLoggerMsgTrait{
     def precess(j : alStage) : List[alStage] = {
         try {
             j match {
-                case _: alInitStage => ???
-                case _: alPresisStage => ???
+                case _: alInitStage => logger.error(errorToJson("not memory stage cannot precess").toString);null
+                case _: alPresisStage => logger.error(errorToJson("not memory stage cannot precess").toString);null
                 case _: alMemoryStage => {
                     j.storages.map({
                         x => alStage(x.asInstanceOf[alStorage].portion(strategy.strategy).upgrade)
@@ -24,14 +23,8 @@ class alSplitPrecess(val strategy : alSplitStrategy) extends alPrecess {
             }
 
         } catch {
-            case ex : OutOfMemoryError => logger.info("not enough memory"); throw ex
-            case ex : Exception => logger.info("unknow error"); throw ex
+            case ex : OutOfMemoryError => logger.error(errorToJson("not enough memory").toString); throw ex
+            case ex : Exception => logger.error(errorToJson("unknow error").toString + ex.getMessage); throw ex
         }
-
-    }
-
-    def action(j : alStage) = {
-        logger.info("presist stage is map precess")
-        throw new Exception("read excel is map precess")
     }
 }

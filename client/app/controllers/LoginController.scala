@@ -13,7 +13,7 @@ import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
 @Singleton
-class LoginController@Inject() (mdb: MongoDBModule) extends Controller{
+class LoginController @Inject()(mdb: MongoDBModule) extends Controller {
 
     implicit val dbc = mdb.basic
 

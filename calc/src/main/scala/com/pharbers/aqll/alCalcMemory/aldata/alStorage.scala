@@ -2,12 +2,14 @@ package com.pharbers.aqll.alCalcMemory.aldata
 
 import com.pharbers.aqll.alCalaHelp.alFileHandler.alFileHandlers
 import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
+import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 
 
 /**
   * Created by Alfred on 09/03/2017.
+  * Modify by clock on 24/05/2017.
   */
-object alStorage {
+object alStorage extends alLoggerMsgTrait{
     def apply(path : String, rf : alFileHandlers) : alStorage = new alFileInitStorage(rf.prase(path))
     def apply(lst : List[Any]) : alStorage = new alMemoryInitStorage(lst)
     def apply(ps : List[alPortion]) : alPortionedStorage = {
@@ -36,7 +38,7 @@ object alStorage {
     }
     
     def union(lst : List[alStorage]) : alStorage = alStorage(lst map { x =>
-            if (x.isInstanceOf[alPortionedStorage]) ???
+            if (x.isInstanceOf[alPortionedStorage]) logger.error(errorToJson("instance of alPortionedStorage").toString)
             else alPortion(x.data)
         })
 }
@@ -132,7 +134,7 @@ class alPortionedStorage(p : List[alStorage], fc : Any => Any) extends alStorage
             parents match {
                 case Nil => portions = portions.map (iter => iter.map(f))
                 case pt :: Nil => portions = pt.portions.map (iter => iter.map(f))
-                case _ => logger.info("not implement"); ???
+                case _ => logger.error(errorToJson("not implement").toString)
             }
             isCalc = true
         }
@@ -145,7 +147,7 @@ class alPortionedStorage(p : List[alStorage], fc : Any => Any) extends alStorage
     override def length : Int = portions.map(x => x.asInstanceOf[alPortion].length).sum
 }
 
-class alNormalStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p, fc) with alLoggerMsgTrait {
+class alNormalStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p, fc) with alLoggerMsgTrait{
     override def doCalc {
         if (!isCalc) {
             p.foreach(_.doCalc)
@@ -155,7 +157,7 @@ class alNormalStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p,
                 case pt :: Nil => {
                     data = pt.data.map(f)
                 }
-                case _ => logger.info("not implement"); ???
+                case _ => logger.error(errorToJson("not implement").toString)
             }
             isCalc = true
         }

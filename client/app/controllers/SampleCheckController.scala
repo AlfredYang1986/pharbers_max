@@ -12,14 +12,14 @@ import module.SampleCheckModuleMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
-class SampleCheckController@Inject() (mdb: MongoDBModule) extends Controller{
-	implicit val dbc = mdb.cores
+class SampleCheckController @Inject()(mdb: MongoDBModule) extends Controller {
+    implicit val dbc = mdb.cores
 
-	implicit val cm = CommonModule(Some(Map("db" -> dbc)))
+    implicit val cm = CommonModule(Some(Map("db" -> dbc)))
 
-	def sampleCheck = Action (request => requestArgs(request) { jv =>
-		import pattern.LogMessage.common_log
-		import pattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheck"))), jv, request) :: msg_samplecheck(jv) :: msg_CommonResultMessage() :: Nil, None)
-	})
+    def sampleCheck = Action(request => requestArgs(request) { jv =>
+        import pattern.LogMessage.common_log
+        import pattern.ResultMessage.common_result
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheck"))), jv, request) :: msg_samplecheck(jv) :: msg_CommonResultMessage() :: Nil, None)
+    })
 }
