@@ -20,8 +20,8 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.alMaxCalcJobStates.{calc_coreing, calc_maxing}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.do_pkg
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alDumpcollScp
-
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alDumpcollScp
+import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -187,7 +187,7 @@ class alCalcActor extends Actor
 
             // TODO : 根据Sub_uuid备份数据库
             log.info(s"单个线程备份传输开始")
-            alDumpcollScp(sub_uuid)
+            alDumpcollScp().apply(sub_uuid, serverHost215)
 	        log.info(s"单个线程备份传输结束")
 
 	        log.info(s"单个线程开始删除临时表")

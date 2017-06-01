@@ -34,7 +34,7 @@ object FilesUploadModule extends ModuleTrait {
       val company = (data \ "company").asOpt[String].getOrElse(throw new Exception("error input"))
       val scp_filename = (data \ "filename").asOpt[String].getOrElse(throw new Exception("error input"))
 
-      val scp_filepath = s"$fileBase$company$hospitalData"
+      val scp_filepath = s"$root$program$fileBase$company$hospitalData"
 
       val scp106result = scpCmd(s"$scp_filepath$scp_filename",s"$scp_filepath","aliyun106", "root").excute
       (scp106result \ "status").get.asOpt[String].get match {
@@ -61,11 +61,11 @@ object FilesUploadModule extends ModuleTrait {
     try {
       val company = (data \ "company").asOpt[String].getOrElse(throw new Exception("error input"))
 
-      alFileOpt.apply(s"$fileBase$company$client_cpa_file").removeCurFiles match {
+      alFileOpt.apply(s"$root$program$fileBase$company$client_cpa_file").removeCurFiles match {
         case true => (successToJson(), None)
         case false => throw new Exception("warn cpa file delete failed")
       }
-      alFileOpt.apply(s"$fileBase$company$client_gycx_file").removeCurFiles match {
+      alFileOpt.apply(s"$root$program$fileBase$company$client_gycx_file").removeCurFiles match {
         case true =>  (successToJson(), None)
         case false => throw new Exception("warn gycx file delete failed")
       }
