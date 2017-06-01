@@ -3,7 +3,8 @@ package com.pharbers.aqll.alCalcOther.alfinaldataprocess
 import java.io._
 import java.util.{Date, UUID}
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.alCalaHelp.{DBList, DefaultData}
+import com.pharbers.aqll.alCalaHelp.dbcores._
+import com.pharbers.aqll.alCalaHelp.DefaultData
 import com.pharbers.aqll.alCalc.almodel.java.AdminHospitalDataBase
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
@@ -18,8 +19,7 @@ import scala.collection.mutable.ListBuffer
 /**
   * Created by liwei on 2017/3/27.
   */
-case class alSampleCheck() extends DBList{
-  implicit val dbc = dbcores
+case class alSampleCheck() {
 
   def apply(company: String, filename: String, uname: String): JsValue = {
     try {
@@ -55,13 +55,13 @@ case class alSampleCheck() extends DBList{
           }
           val lsb = new ListBuffer[Map[String,String]]()
           mismatch.toList.foreach(x => lsb.append(Map("Hosp_name" -> x.head,"Province" -> x.tail.head,"City" -> x.tail.tail.head,"City_level" -> x.tail.tail.tail.head)))
-
-          dbcores.getCollection("FactResult").findAndRemove(MongoDBObject(
+  
+          dbc.getCollection("FactResult").findAndRemove(MongoDBObject(
             "Company" -> company,
             "Market" -> mc._1,
             "Date" -> alDateOpt.yyyyMM2Long(date._1.toString)))
-
-          dbcores.getCollection("FactResult").insert(MongoDBObject(
+  
+          dbc.getCollection("FactResult").insert(MongoDBObject(
             "ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString),
             "Date" -> alDateOpt.yyyyMM2Long(date._1.toString),
             "Market" -> mc._1,

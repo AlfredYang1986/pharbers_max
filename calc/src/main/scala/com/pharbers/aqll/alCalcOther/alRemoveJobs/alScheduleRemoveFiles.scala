@@ -36,20 +36,20 @@ object alScheduleRemoveFiles extends alFilePath{
 }
 
 class alScheduleRemoveFiles extends Actor with ActorLogging{
-
-	// TODO : 要删除的目录 SCP、sync、group、dbdump
+	import alScheduleRemoveFiles._
 	val remove: Receive = {
-		case rmFile() =>
+		case rmFile() => {
 			val time = Calendar.getInstance
-			if (hours == time.get(Calendar.HOUR_OF_DAY) &&
-				minutes == time.get(Calendar.MINUTE) &&
+			if (hours.toInt == time.get(Calendar.HOUR_OF_DAY) &&
+				minutes.toInt == time.get(Calendar.MINUTE) &&
 				seconds.toInt > time.get(Calendar.SECOND)) {
-				alScheduleRemoveFiles.rmLst foreach { x =>
+				rmLst foreach { x =>
 					if(!alFileOpt(x).removeCurFiles) {
 						log.error(alErrorCode.errorToJson("delete file error").toString)
 					}
 				}
 			}
+		}
 		case _ => ???
 	}
 

@@ -62,7 +62,7 @@ class alMaxDriver extends Actor
             cj.result
             val lst = Option(cj.cur.get.storages.head.asInstanceOf[alStorage])
             lst match {
-                case None => println("File is None")
+                case None => log.info("File is None")
                 case Some(x) =>
                     x.doCalc
                     val p = x.data.asInstanceOf[List[IntegratedData]].filterNot(x => x.getYearAndmonth ==0 && !x.getMarket1Ch.isEmpty).map( x => (x.getYearAndmonth.toString.substring(0, 4), x.getMarket1Ch)).distinct
@@ -72,13 +72,13 @@ class alMaxDriver extends Actor
                             parmary.year = p.head._1.toInt
                             parmary.market = removeSpace(p.head._2)
                             act ! push_max_job(file, parmary)
-                        case n if n > 1 => println("需要分拆文件，再次读取")
+                        case n if n > 1 => log.info("需要分拆文件，再次读取")
                         case _ => ???
                     }
             }
         }
         case push_max_job(file_path, p) => {
-            println(s"sign a job with file name $file_path")
+            log.info(s"sign a job with file name $file_path")
             atomic { implicit txn =>
                 jobs() = jobs() :+ (max_jobs(file_path), p)
             }
@@ -99,11 +99,11 @@ class alMaxDriver extends Actor
         }
         case finish_max_group_job(uuid) => {
             group_nodenumber = -1
-            println(s"finish a group job with uuid $uuid")
+            log.info(s"finish a group job with uuid $uuid")
         }
         case finish_max_job(uuid) => {
             calc_nodenumber = -1
-            println(s"finish a job with uuid $uuid")
+            log.info(s"finish a job with uuid $uuid")
         }
         case finish_split_excel_job(p, j, c) => {
             atomic {implicit  thx =>
@@ -113,7 +113,6 @@ class alMaxDriver extends Actor
             val subs = j map (x => alMaxProperty(p, x, Nil))
             pushGroupJobs(alMaxProperty(null, p, subs))
 
-            // TODO : 最开始的Split的文件 传输到各个机器上
             cur = Some(pkgCmd(s"${memorySplitFile}${sync}$p" :: Nil, s"${memorySplitFile}${fileTarGz}$p")
                         :: scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", s"${scpPath}", serverHost106, serverUser)
                         :: scpCmd(s"${memorySplitFile}${fileTarGz}$p.tar.gz", s"${scpPath}", serverHost50, serverUser)
@@ -132,7 +131,7 @@ class alMaxDriver extends Actor
         case commit_finalresult_jobs(company) => commit_finalresult_jobs_func(company)
         case check_excel_jobs(company,filename) => check_excel_jobs_func(company,filename)
         case x : Any => {
-            println(x)
+            log.info(x.toString)
             ???
         }
     }

@@ -40,7 +40,6 @@ object alAkkaHttpMain extends App with RequestTimeout {
 
 	bindingFuture.map { serverBinding =>
 		stubmain
-		println(s"serverBinding = ${serverBinding}")
 	}.onFailure {
 		case ex: Exception =>
 			system.terminate()
@@ -55,7 +54,6 @@ object alAkkaHttpMain extends App with RequestTimeout {
 		import scala.concurrent.duration._
 		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
 			Cluster(system).registerOnMemberUp {
-				println("cluster ready")
 				alAkkaSystemGloble.system = system
 				a ! group_register(w)
 				a ! calc_register(c)

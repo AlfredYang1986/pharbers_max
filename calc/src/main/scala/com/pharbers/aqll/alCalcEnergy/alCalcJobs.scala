@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alCalcEnergy
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.util.Timeout
 import com.pharbers.aqll.common.alDao.dataFactory._
 
@@ -8,7 +8,6 @@ import scala.concurrent.Await
 import scala.concurrent.stm.{Ref, atomic}
 import scala.concurrent.duration._
 import akka.pattern.ask
-import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate}
 import com.pharbers.aqll.alCalcOther.alMail.{EmailForCompany, Mail, StmConf}
 import com.pharbers.aqll.common.alFileHandler.mailConfig._
@@ -20,6 +19,7 @@ import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alRestoreColl, alWeight
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alWeightSum
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.pharbers.aqll.alCalaHelp.dbcores._
 
 /**
   * Created by qianpeng on 2017/5/17.
@@ -30,7 +30,8 @@ trait alCalcJobsSchedule { this: Actor =>
 	val calc_timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_calc)
 }
 
-trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJobsSchedule =>
+trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule with ActorLogging =>
+	
 	val calc_router = Ref(List[ActorRef]())
 	var calc_nodenumber = -1
 	var section_number = -1
@@ -57,11 +58,9 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 		implicit val t = Timeout(0.5 second)
 		val f = calc_router.single.get map (x => x ? can_sign_job())
 		p.subs.length / server_info.cpu <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
-		// TODO : 每个四核，这里要改
 	}
 
 	def signCalcJob(p : alMaxProperty) = {
-		// TODO: sign with 递归
 		atomic { implicit tnx =>
 			siginEach(calc_router.single.get)
 			waiting_calc() = waiting_calc().tail
@@ -70,13 +69,12 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 
 		def siginEach(lst: List[ActorRef]): Unit = {
 			lst match {
-				case Nil => println("not enough calc to do the jobs")
+				case Nil => log.info("not enough calc to do the jobs")
 				case node => {
-					//TODO:Calc
 					calc_nodenumber = calc_nodenumber + 1
 					lst.head ! concert_calcjust_result(calc_nodenumber)
 					alCalcParmary.alParmary.single.get.find(_.uuid == p.uuid) match {
-						case None => println("not CalcParamry file")
+						case None => log.info("not CalcParamry file")
 						case Some(x) =>
 							lst.head ! calc_job(p, x)
 							siginEach(lst.tail)
@@ -92,8 +90,8 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 		calcing_jobs.single.get.find(x => x.uuid == uuid).map (x => Some(x)).getOrElse(None) match {
 			case None => Unit
 			case Some(r) => {
-
-				println(s"sum in singleton $sum with $sub_uuid")
+				
+				log.info(s"sum in singleton $sum with $sub_uuid")
 
 				r.subs.find (x => x.uuid == sub_uuid).map { x =>
 					x.isSumed = true
@@ -102,12 +100,12 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 
 				if (r.subs.filterNot (x => x.isSumed).isEmpty) {
 					val tmp = r.subs.map (x => x.sum).flatten
-					println(s"done for suming ${tmp.filter(_._1 == "98")}")
+					log.info(s"done for suming ${tmp.filter(_._1 == "98")}")
 					r.sum = (tmp.groupBy(_._1) map { x =>
 						(x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
 					}).toList
 					r.isSumed = true
-					println(s"done for suming ${r.sum}")
+					log.info(s"done for suming ${r.sum}")
 
 					val mapAvg = r.sum.map { x =>
 						(x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
@@ -130,10 +128,9 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 					x.finalUnit = u
 				}.getOrElse(Unit)
 
-				// TODO : 数据库高速还原
 				val company = alCalcParmary.alParmary.single.get.find(_.uuid == uuid) match {
 					case None =>
-						println(s"not company")
+						log.info(s"not company")
 						//                        alRestoreColl("", sub_uuid :: Nil)
 						("", "", "")
 					case Some(x) =>
@@ -150,8 +147,7 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 					r.finalValue = r.subs.map(_.finalValue).sum
 					r.finalUnit = r.subs.map(_.finalUnit).sum
 					r.isCalc = true
-					println(s"done calc job with uuid ${r.uuid}, final value : ${r.finalValue} and final unit : ${r.finalUnit}")
-					// TODO : 数据去重，重新入库
+					log.info(s"done calc job with uuid ${r.uuid}, final value : ${r.finalValue} and final unit : ${r.finalUnit}")
 					//                    println(s"开始去重数据")
 					//                    val tmp = (alWeightSum(company._1, company._2))
 					//                    println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
@@ -172,15 +168,15 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 
 	def commit_finalresult_jobs_func(company: String) = {
 		alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
-			case None => println(s"commit_finalresult_jobs_func not company")
+			case None => log.info(s"commit_finalresult_jobs_func not company")
 			case Some(x) =>
 				new alMessageProxy().sendMsg("30", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
-				println(s"x.uuid = ${x.uuid}")
+				log.info(s"x.uuid = ${x.uuid}")
 				alWeightSum().apply(company, company + x.uuid)
 				new alMessageProxy().sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
-				println(s"开始删除临时表")
-				dbcores.getCollection(company + x.uuid).drop()
-				println(s"结束删除临时表")
+				log.info(s"开始删除临时表")
+				dbc.getCollection(company + x.uuid).drop()
+				log.info(s"结束删除临时表")
 				val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(x.uuid))
 				alCalcParmary.alParmary.single.get.remove(index)
 				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
@@ -189,8 +185,8 @@ trait alCalcJobsManager extends alPkgJob with DBList{ this: Actor with alCalcJob
 
 	def check_excel_jobs_func(company: String,filename: String) = {
 		alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
-			case None => println(s"commit_finalresult_jobs_func not company")
-			case Some(x) => println(x.company)
+			case None => log.info(s"commit_finalresult_jobs_func not company")
+			case Some(x) => log.info(x.company)
 		}
 	}
 

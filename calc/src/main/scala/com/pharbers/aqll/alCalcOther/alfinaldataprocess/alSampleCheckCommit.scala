@@ -1,8 +1,8 @@
 package com.pharbers.aqll.alCalcOther.alfinaldataprocess
 
 import com.mongodb.casbah.Imports._
+import com.pharbers.aqll.alCalaHelp.dbcores._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -10,9 +10,7 @@ import play.api.libs.json.Json.toJson
 /**
   * Created by liwei on 2017/4/18.
   */
-case class alSampleCheckCommit() extends DBList {
-
-  implicit val dbc = dbcores
+case class alSampleCheckCommit() {
 
   def apply(company: String): JsValue = {
     try {

@@ -1,6 +1,7 @@
 package com.pharbers.aqll.alCalcMemory.aldata
 
 import com.pharbers.aqll.alCalaHelp.alFileHandler.altext.alTextParser
+import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
 
 
 /**
@@ -23,7 +24,7 @@ object alPortion {
     }
 }
 
-trait alPortion {
+trait alPortion extends alLoggerMsgTrait{
     def isPersis : Boolean
 
     def map(f : Any => Any) : alPortion
@@ -44,7 +45,7 @@ case class alPersisportion(path : String) extends  alPortion {
     def map(f : Any => Any) : alPortion = ???
     def data : List[Any] = alPortion(alTextParser(path)).data
     def length : Int = {
-        println("persist portion cannot calc length")
+        logger.info("persist portion cannot calc length")
         ???
     }
 }
