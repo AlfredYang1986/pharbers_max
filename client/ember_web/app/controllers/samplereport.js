@@ -17,7 +17,78 @@ export default Ember.Controller.extend({
                     if(result.length != 0){
                         var html = "";
                         html += "<li>"
-                        for(var x in result){
+                        $.each(result,function(i,v){
+                            html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v.Market+"</span>"
+                            html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，您需要进行放大月份为</span>"
+                            html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+array2str(v.date_lst_sb)+"</span>"
+                            html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，</span>"
+                            html += "</li>"
+                            html += "<p class=MsoNormal style='vertical-align: middle'><span lang=EN-US style='font-family: 'verdena', 'serif'; color: black'>&nbsp;</span></p>"
+                            html += "<li>"
+                            html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v.Market+"</span>"
+                            html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>：</span><br><ul>"
+
+                            var bodys = v.dhp_lst_sb
+                            if(bodys!=null && bodys.length!=0){
+
+                                $.each(bodys,function (i,v2) {
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red; text-indent:2em;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+v2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>产品数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.c_ProductNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>对应上期产品数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.e_ProductNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>对应去年同期产品数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.l_ProductNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>。</span><br><br>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+v2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>医院数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.c_HospNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>对应上期医院数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.e_HospNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>对应去年同期医院数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.l_HospNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>。</span><br><br>"
+                                })
+
+                                /*for(var y in bodys){
+                                    var obj2 = bodys[y]
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red; text-indent:2em;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+obj2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>产品数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj2.c_ProductNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>对应上期产品数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj2.e_ProductNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>对应去年同期产品数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj2.l_ProductNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>。</span><br><br>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+obj2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>医院数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj2.c_HospNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>对应上期医院数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj2.e_HospNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj2.Date+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>对应去年同期医院数</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj2.l_HospNum+"</span>"
+                                    html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>。</span><br><br>"
+                                }*/
+                            }
+                        })
+
+                        /*for(var x in result){
                             var obj = result[x]
                             html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+obj.Market+"</span>"
                             html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，您需要进行放大月份为</span>"
@@ -59,7 +130,7 @@ export default Ember.Controller.extend({
                                     html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>。</span><br><br>"
                                 }
                             }
-                        }
+                        }*/
                         html += "</li>";
                         html += "<p class=MsoNormal style='vertical-align: middle'><span lang=EN-US style='font-family: 'verdena', 'serif'; color: black'>&nbsp;</span></p>"
                         Ember.$('#tbody')[0].innerHTML = html;
