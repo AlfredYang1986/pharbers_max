@@ -8,7 +8,7 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import spray.json.DefaultJsonProtocol
 import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
-
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import scala.concurrent.ExecutionContext
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
@@ -102,7 +102,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				val path = fileBase + item.company + outPut + item.filename
 				a ! filter_excel_jobs(path, new alCalcParmary(item.company, item.uname), a)
-				complete("""{"resule" : "Ok"}""")
+				complete("""{"resule" : """+toJson(successToJson().get)+"""}""")
 			}
 		}
 	}
@@ -149,7 +149,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 					case None => "fb9cb2cd-52ab-4493-b943-24800d85a610"
 					case Some(x) => x.uuid.toString
 				}
-				complete("""{"result": """+toJson(uuid)+"""}""")
+				complete("""{"result": """+toJson(successToJson(toJson(uuid)).get)+"""}""")
 			}
 		}
 	}

@@ -32,7 +32,16 @@ object CallAkkaHttpModule extends ModuleTrait {
 		try {
 			val businessType = (data \ "businessType").get.asOpt[String].getOrElse("error input")
 			val result = alCallHttp(businessType, data).call
-			(successToJson(result), None)
+			val res_json = (result \ "result").get.asOpt[JsValue].get
+			val res_stat = (res_json \ "status").get.asOpt[String].get
+			println(s"res_json=$res_json")
+			res_stat match {
+				case "success" => {
+					val res_valu = (((res_json \ "result").get.asOpt[JsValue].get) \ "result").get.asOpt[JsValue].get
+					(successToJson(res_valu), None)
+				}
+				case "error" => (None, Some(res_json))
+			}
 			//@unit testing
 			//(successToJson(toJson(Map("result" -> toJson(Map("status" -> toJson("success"),"message" -> toJson("201611#")))))), None)
 		} catch {
