@@ -5,7 +5,6 @@ import java.util.UUID
 
 import com.mongodb.casbah.Imports.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.common.alDao.from
 import com.pharbers.aqll.common.alDate.scala.alDateOpt._
@@ -15,6 +14,8 @@ import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alString.alStringOpt._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
+import com.pharbers.aqll.alCalaHelp.dbcores._
+
 /**
   * Created by liwei on 2017/3/25.
   */
@@ -24,8 +25,7 @@ case class alExport(datatype: String,
                         company : String,
                         filetype : String,
                         uname: String)
-case class alFileExport() extends DBList {
-  implicit val dbc = dbcores
+case class alFileExport() {
 
   def apply(export: alExport): JsValue = {
     val Provice = "省份数据"

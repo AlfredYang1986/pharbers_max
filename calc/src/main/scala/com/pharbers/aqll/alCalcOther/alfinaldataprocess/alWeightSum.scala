@@ -4,18 +4,17 @@ import java.util.UUID
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.common.alDao.from
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
+import com.pharbers.aqll.alCalaHelp.dbcores._
 
 /**
 	* Created by liwei on 17-3-17.
 	*/
-case class alWeightSum() extends DBList {
-	implicit val dbc = dbcores
+case class alWeightSum() {
 
 	def apply(company : String, u: String): JsValue = {
 		try {

@@ -2,7 +2,6 @@ package com.pharbers.aqll.alCalc.almain
 
 import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
@@ -27,6 +26,7 @@ import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import com.pharbers.aqll.alCalaHelp.dbcores._
 
 /**
   * Created by BM on 11/03/2017.
@@ -43,8 +43,7 @@ class alGroupActor extends Actor
                      with ActorLogging
                      with FSM[alPointState, alCalcParmary]
                      with alCreateConcretGroupRouter
-					 with alPkgJob
-                     with DBList{
+					 with alPkgJob {
 
     startWith(alMasterJobIdle, new alCalcParmary("", ""))
 
@@ -66,10 +65,8 @@ class alGroupActor extends Actor
             atomic { implicit tnx =>
                 concert_ref() = Some(p)
             }
-
-            // TODO: 接收到Driver的信息后开始在各个机器上解压SCP过来的tar.gz文件，在开始group
-
-            println(s"unPkgSplit uuid = ${p.uuid}")
+    
+            log.info(s"unPkgSplit uuid = ${p.uuid}")
 
             cur = Some(new unPkgCmd(s"${root + scpPath + p.uuid}", s"${root + program}") :: Nil)
             process = do_pkg() :: Nil
@@ -81,7 +78,7 @@ class alGroupActor extends Actor
                     context.system.scheduler.scheduleOnce(0 seconds, self, grouping_job(cj))
                     goto(group_coreing) using data
                 case _ =>
-                    println("group no subs list")
+                    log.info("group no subs list")
                     stay()
             }
 //            val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs(groupjust_index.single.get).uuid))
@@ -101,7 +98,7 @@ class alGroupActor extends Actor
                 case None => None
                 case Some(d) =>
                     new alMessageProxy().sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
-                    d.subs.foreach (x => dbcores.getCollection(x.uuid).drop())
+                    d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
 //                Restart
             }
             goto(alMasterJobIdle) using new alCalcParmary("", "")
@@ -152,12 +149,10 @@ class alGroupActor extends Actor
                 val sg = alStage(g :: Nil)
                 val pp = presist_data(Some(r.uuid), Some("group"))
                 pp.precess(sg)
-
-                println(s"post group result ${r.parent} && ${r.uuid}")
-
-                // TODO : 把各个线程上汇总的Group文件再次tar.gz 传输到Driver机器上 进行最终的Group合并
-
-                println(s"group sum uuid = ${r.uuid}")
+    
+                log.info(s"post group result ${r.parent} && ${r.uuid}")
+    
+                log.info(s"group sum uuid = ${r.uuid}")
 
                 cur = Some(pkgCmd(s"${memorySplitFile}${group}${r.uuid}" :: Nil, s"${memorySplitFile}${fileTarGz}${r.uuid}")
                     :: scpCmd(s"${memorySplitFile}${fileTarGz}${r.uuid}.tar.gz", s"${scpPath}", serverHost215, serverUser)

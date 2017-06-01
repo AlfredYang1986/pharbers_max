@@ -1,17 +1,16 @@
 package com.pharbers.aqll.alCalcOther.alfinaldataprocess
 
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.common.alCmd.dbcmd.dbrestoreCmd
 import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import com.pharbers.aqll.alCalaHelp.dbcores._
 
 /**
   * Created by liwei on 2017/3/20.
   */
 
-case class alRestoreColl() extends DBList{
-    implicit val dbc = dbcores
+case class alRestoreColl() {
 
     def apply(company : String, sub_uuids : List[String]) = {
         var isfirst : Boolean = false

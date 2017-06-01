@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alCalcOther.alMail
 
-import com.pharbers.aqll.alCalaHelp.DBList
+import com.pharbers.aqll.alCalaHelp.dbbasic._
 import org.apache.commons.mail._
 import com.pharbers.aqll.common.alFileHandler.mailConfig._
 
@@ -16,7 +16,7 @@ case class StmConf(from: String = "project@pharbers.com",
                    tls: Boolean = false,
                    ssl: Boolean = false)
 
-trait MailTrait extends DBList{
+trait MailTrait {
 
 	var subject: String = mail_subject
 	var context: String = mail_context
@@ -55,10 +55,9 @@ class Mail() extends MailTrait {
 	}
 }
 
-case class EmailForCompany(company: String) extends DBList{
+case class EmailForCompany(company: String) {
 	import com.pharbers.aqll.common.alDao.from
 	def getEmail() = {
-		implicit val dbc = dbbasic
 		val conditions = Map("Company_Id" -> company)
 		(from db () in "Company" where conditions).select(x => x).head.getAs[String]("E-Mail").getOrElse("pqian@pharbers.com")
 	}

@@ -63,7 +63,6 @@ trait alHardware {
 class alReadExcelSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy {
     override val constraints: Map[String, Any] = c
     override val strategy : List[Any] => List[alPortion] = { lst =>
-        // TODO: 需要一个根据内存分配的stratege去划分整体数据
         val memory = constraints.get(alServerHardware.server_memory)
         memory match {
             case None => {
