@@ -114,10 +114,16 @@ $(function(){
                 contentType: 'application/json, charset=utf-8',
                 cache: false,
                 dataType: "json",
-                success: function (json) {
-                    $(".progresstier").css("display", "block");
-                    p.setPercent(4);
-                    nextStep()
+                success: function (data) {
+                    console.info(data)
+                    var result = data.result
+                    if(result.status == "success"){
+                        $(".progresstier").css("display", "block");
+                        p.setPercent(4);
+                        nextStep();
+                    }else{
+                        $.tooltip(result.message);
+                    }
                 }
             });
         } else {

@@ -47,14 +47,13 @@ $(function(){
             cache : false,
             success : function(data){
                 console.info(data)
-                var result = data.result.result.result.result
-                if(result.status == 0) {
-                    $(".progresstier").css("display", "none");
-                    location.href = "/pharbers/files/"+result.filename;
+                var result = data.result
+                if(result.status == "success"){
+                    location.href = "/pharbers/files/"+result.result.result;
                 }else{
-                    $(".progresstier").css("display", "none");
-                    $.tooltip("导出失败");
+                    $.tooltip(result.message);
                 }
+                $(".progresstier").css("display", "none");
             }
         });
     }
