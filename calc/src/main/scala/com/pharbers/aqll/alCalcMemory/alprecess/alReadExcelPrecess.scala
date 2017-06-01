@@ -26,13 +26,13 @@ class alReadExcelPrecess extends alPrecess {
             }
 
         } catch {
-            case ex : OutOfMemoryError => println("not enough memory"); throw ex
-            case ex : Exception => println("unknow error"); throw ex
+            case ex : OutOfMemoryError => logger.info("not enough memory"); throw ex
+            case ex : Exception => logger.info("unknow error"); throw ex
         }
     }
 
     def action(j : alStage) = {
-        println("read excel is map precess")
+        logger.info("read excel is map precess")
         throw new Exception("read excel is map precess")
     }
 }

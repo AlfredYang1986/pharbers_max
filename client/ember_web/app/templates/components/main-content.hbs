@@ -38,7 +38,7 @@
 
             {{#each liTab as |tabLi|}}
                 <li >
-                    {{#link-to tabLi.to}}<i class="fa fa-cloud-upload"></i> <span class="nav-label">{{tabLi.title}}</span>{{/link-to}}
+                    {{#link-to tabLi.to}}<i class={{tabLi.icon}}></i> <span class="nav-label">{{tabLi.title}}</span>{{/link-to}}
                 </li>
             {{/each}}
 

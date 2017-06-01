@@ -75,10 +75,10 @@ object SliceUpload {
     val filetype = data.dataParts.get("filetype").get.head
     val company = data.dataParts.get("company").get.head
     val outpath = filetype match {
-      case "CPA" => s"$fileBase$company$client_cpa_file"
-      case "GYCX" => s"$fileBase$company$client_gycx_file"
-      case "Manager" => s"$fileBase$company$manage_file"
-      case "Hospital" => s"$fileBase$company$hospitalData"
+      case "CPA" => s"$root$program$fileBase$company$client_cpa_file"
+      case "GYCX" => s"$root$program$fileBase$company$client_gycx_file"
+      case "Manager" => s"$root$program$fileBase$company$manage_file"
+      case "Hospital" => s"$root$program$fileBase$company$hospitalData"
     }
     val dirfile = new File(outpath)
     if(!dirfile.exists()){

@@ -5,7 +5,6 @@ import java.util.UUID
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alCalaHelp.DBList
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointState}
@@ -20,12 +19,13 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.alMaxCalcJobStates.{calc_coreing, calc_maxing}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.do_pkg
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alDumpcollScp
-
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alDumpcollScp
+import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import com.pharbers.aqll.alCalaHelp.dbcores._
 
 object alCalcActor {
     def props : Props = Props[alCalcActor]
@@ -37,8 +37,7 @@ class alCalcActor extends Actor
                      with ActorLogging 
                      with FSM[alPointState, alCalcParmary]
                      with alCreateConcretCalcRouter
-                     with alPkgJob
-                     with DBList{
+                     with alPkgJob {
 
     import alCalcActor.core_number
    
@@ -64,11 +63,9 @@ class alCalcActor extends Actor
 	            log.info(s"calc finally $p")
             }
 
-            // TODO: 接收到Driver的信息后开始在各个机器上解压SCP过来的tar.gz文件，在开始Calc
-
 	        log.info(s"unCalcPkgSplit uuid = ${p.uuid}")
 
-            cur = Some(new unPkgCmd(s"${root + program + scpPath + p.uuid}", s"${root + program}") :: Nil)
+            cur = Some(new unPkgCmd(s"${root + scpPath + p.uuid}", s"${root + program}") :: Nil)
             process = do_pkg() :: Nil
             super.excute()
 
@@ -100,7 +97,7 @@ class alCalcActor extends Actor
                 case None => None
                 case Some(d) =>
                     new alMessageProxy().sendMsg(s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
-                    d.subs.foreach (x => dbcores.getCollection(x.uuid).drop())
+                    d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
 //                    Restart
             }
             goto(alMasterJobIdle) using new alCalcParmary("", "")
@@ -165,7 +162,6 @@ class alCalcActor extends Actor
 	        data.faultTimes = data.faultTimes + 1
 	        if(data.faultTimes == data.maxTimeTry) {
 		        log.info(s"concert_calc_avg -- 该UUID: ${data.uuid},在尝试性计算3次后，其中的某个线程计算失败，正在结束停止计算！")
-		        // TODO : 这块儿发送消息告诉所有在计算这个文件的Actor停止计算
                 context.actorSelection(singletonPaht) ! crash_calc(data.uuid, "concert_calc_avg计算crash")
                 context.unwatch(concert_router)
 	        }else {
@@ -176,7 +172,6 @@ class alCalcActor extends Actor
         }
 
         case Event(concert_calc_result(sub_uuid, v, u), data) => {
-            println(sub_uuid, v, u)
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
 
             r.subs.find (x => x.uuid == sub_uuid).map { x =>
@@ -185,19 +180,17 @@ class alCalcActor extends Actor
                 x.finalUnit = u
             }.getOrElse(Unit)
 
-            // TODO : 根据Sub_uuid备份数据库
             log.info(s"单个线程备份传输开始")
-            alDumpcollScp(sub_uuid)
+            alDumpcollScp().apply(sub_uuid, serverHost215)
 	        log.info(s"单个线程备份传输结束")
 
 	        log.info(s"单个线程开始删除临时表")
-            dbcores.getCollection(sub_uuid).drop()
+            dbc.getCollection(sub_uuid).drop()
 	        log.info(s"单个线程结束删除临时表")
     
             new alMessageProxy().sendMsg("1", data.uname, Map("uuid" -> data.uuid, "company" -> data.company, "type" -> "progress"))
 
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
-                println(sub_uuid)
 //                val uuid = UUID.randomUUID.toString
 //                println(s"uuid = $uuid")
 //                r.subs foreach { x =>
@@ -260,11 +253,11 @@ class alCalcActor extends Actor
         case Event(Terminated(a), data) => {
 	        data.faultTimes = data.faultTimes + 1
 	        if(data.faultTimes == data.maxTimeTry) {
-		        println(s"concert_calc -- 该UUID: ${data.uuid},在尝试性计算3次后，其中的某个线程计算失败，正在结束停止计算！")
+		        log.info(s"concert_calc -- 该UUID: ${data.uuid},在尝试性计算3次后，其中的某个线程计算失败，正在结束停止计算！")
                 context.unwatch(concert_router)
                 context.actorSelection(singletonPaht) ! crash_calc(data.uuid, "concert_calc计算crash")
 	        }else {
-		        println(s"concert_calc -- 尝试${data.faultTimes}次")
+                log.info(s"concert_calc -- 尝试${data.faultTimes}次")
 		        self ! calc_job(maxProperty, data)
 	        }
 	        goto(alMasterJobIdle) using data

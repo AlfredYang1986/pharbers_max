@@ -11,7 +11,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_cal
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.scala.alInertDatabase
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alInertDatabase
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
 import scala.concurrent.stm.{Ref, atomic}
@@ -23,11 +23,10 @@ object alConcertCalcActor {
 	def props: Props = Props[alConcertCalcActor]
 }
 
-class alConcertCalcActor extends Actor
-	with ActorLogging {
+class alConcertCalcActor extends Actor with ActorLogging {
 
-	var unit = 0.0.toDouble
-	var value = 0.0.toDouble
+	var unit: Double = 0.0
+	var value: Double = 0.0
 	val index = Ref(-1)
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
 
@@ -46,12 +45,10 @@ class alConcertCalcActor extends Actor
 			concert.data.zipWithIndex.foreach(x =>
 				max_precess(x._1.asInstanceOf[IntegratedData],
 					p.subs(index.single.get).uuid,
-					Some(x._2 + "/" + concert.data.length))
-				(recall)
-				(c)
+					Some(x._2 + "/" + concert.data.length))(recall)(c)
 			)
-
-			println(s"concert index ${index.single.get} end")
+			
+			log.info(s"concert index ${index.single.get} end")
 			val s = (maxSum.toList.groupBy(_._1) map { x =>
 				(x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
 			}).toList
@@ -59,7 +56,6 @@ class alConcertCalcActor extends Actor
 		}
 		case concert_calc_avg(p, avg) => {
 			import scala.math.BigDecimal
-//			println(s"avg at ${index.single.get} is $avg")
 
 			val sub_uuid = p.subs(index.single.get).uuid
 			val path = s"${memorySplitFile}${calc}$sub_uuid"
@@ -69,9 +65,6 @@ class alConcertCalcActor extends Actor
 
 			val source = alFileOpt(path + "/" + "data")
 			if (source.isExists) {
-//				val target = (path + "/" + "result")
-
-				//val writer = new FileWriter(target, true)
 				source.enumDataWithFunc { line =>
 					val mrd = alShareData.txt2WestMedicineIncome2(line)
 
@@ -94,22 +87,12 @@ class alConcertCalcActor extends Actor
 
 					unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
 					value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
-//                    unit = unit + mrd.finalResultsUnit
-//                    value = value + mrd.finalResultsValue
-//					println(mrd.getV("province").toString)
-//					println(s"fucking sub_uuid = $sub_uuid")
 
-					// TODO : 插入数据库
 					atomic { implicit thx =>
-						alInertDatabase(mrd, sub_uuid)
+						alInertDatabase().apply(mrd, sub_uuid)
 					}
-
-					//writer.write(mrd.toString + "\n")
 				}
-//				writer.flush()
-//				writer.close()
-
-				println(s"calc done at ${index.single.get}")
+				log.info(s"calc done at ${index.single.get}")
 			}
 
 			sender() ! concert_calc_result(sub_uuid, value, unit)
@@ -117,11 +100,10 @@ class alConcertCalcActor extends Actor
 		case _ => ???
 	}
 
-	def max_precess(element2: IntegratedData, sub_uuid: String, log: Option[String] = None)(recall: List[IntegratedData])(c: alCalcParmary) = {
-		if (!log.isEmpty) {
-			println(s"concert index ${index.single.get} calc in $log")
+	def max_precess(element2: IntegratedData, sub_uuid: String, longPath: Option[String] = None)(recall: List[IntegratedData])(c: alCalcParmary) = {
+		if (!longPath.isEmpty) {
+			log.info(s"concert index ${index.single.get} calc in $longPath")
 			val universe = alEncryptionOpt.md5(c.company + c.year + c.market)
-//			println(s"universe = $universe")
 			val tmp =
 			alShareData.hospdata(universe, c.company) map { element =>
 				val mrd = westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0.0, 0.0, element2.getMinimumUnit,
@@ -167,7 +149,7 @@ class alConcertCalcActor extends Actor
 			}
 		} :: do_calc() :: Nil
 		recall.result
-		println(s"current ${index.single.get} recall data length ${recall.cur.get.length}")
+		log.info(s"current ${index.single.get} recall data length ${recall.cur.get.length}")
 		recall.cur.get.storages.head.asInstanceOf[alStorage].data.asInstanceOf[List[IntegratedData]]
 	}
 

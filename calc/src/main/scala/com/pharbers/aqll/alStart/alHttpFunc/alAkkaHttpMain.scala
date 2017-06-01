@@ -8,7 +8,7 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almain.{alCalcActor, alGroupActor}
-import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaListener
+import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor
 import com.pharbers.aqll.alCalcEnergy.alDriverSingleton
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile}
@@ -40,7 +40,6 @@ object alAkkaHttpMain extends App with RequestTimeout {
 
 	bindingFuture.map { serverBinding =>
 		stubmain
-		println(s"serverBinding = ${serverBinding}")
 	}.onFailure {
 		case ex: Exception =>
 			system.terminate()
@@ -55,7 +54,6 @@ object alAkkaHttpMain extends App with RequestTimeout {
 		import scala.concurrent.duration._
 		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
 			Cluster(system).registerOnMemberUp {
-				println("cluster ready")
 				alAkkaSystemGloble.system = system
 				a ! group_register(w)
 				a ! calc_register(c)
@@ -63,7 +61,7 @@ object alAkkaHttpMain extends App with RequestTimeout {
 				val rm = system.actorOf(alScheduleRemoveFiles.props)
 				system.scheduler.schedule(0 seconds, 10 seconds, rm, new rmFile())
 			}
-			system.actorOf(alAkkaListener.props, "akka-listener")
+			system.actorOf(alAkkaMonitor.props, "akka-listener")
 		}
 	}
 }

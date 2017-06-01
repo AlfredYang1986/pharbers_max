@@ -33,7 +33,7 @@ class alPresistStagePrecess(val dirOpt : Option[String], val prefix : Option[Str
     }
 
     def action(j : alStage) = {
-        println("presist stage is map precess")
+        logger.info("presist stage is map precess")
         throw new Exception("read excel is map precess")
     }
 
