@@ -12,7 +12,7 @@ import module.MarketManageModuleMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
-class MarketManageController@Inject() (mdb: MongoDBModule) extends Controller{
+class MarketManageController @Inject()(mdb: MongoDBModule) extends Controller {
     implicit val dbc = mdb.basic
 
     implicit val cm = CommonModule(Some(Map("db" -> dbc)))
