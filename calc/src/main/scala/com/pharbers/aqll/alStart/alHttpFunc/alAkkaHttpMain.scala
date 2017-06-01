@@ -8,7 +8,7 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almain.{alCalcActor, alGroupActor}
-import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.{alAkkaListener, alAkkaMonitor}
+import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor
 import com.pharbers.aqll.alCalcEnergy.alDriverSingleton
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile}
