@@ -77,10 +77,9 @@ case class alSampleCheck() {
       }
       alFileOpt(fileBase + company + client_cpa_file).removeCurFiles
       alFileOpt(fileBase + company + client_gycx_file).removeCurFiles
-      toJson(successToJson())
+      toJson(successToJson().get)
     } catch {
       case e: Exception => errorToJson(e.getMessage)
-      case ioe: IOException => errorToJson(ioe.getMessage)
     }
   }
 }

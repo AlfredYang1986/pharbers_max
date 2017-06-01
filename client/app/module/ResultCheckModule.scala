@@ -180,8 +180,10 @@ object ResultCheckModule extends ModuleTrait {
 	def SumByDate(lst: List[Map[String,Any]]): List[Map[String,Any]] = lst.groupBy(x => x.get("Date").get).map(y => Map("Date" -> y._1,"f_sales" -> y._2.map(z => z.get("f_sales").get.asInstanceOf[Number].doubleValue()).sum)).toList
 
 	def queryUUID(company: String): Option[String] = {
-		val uuidjson = alCallHttp("/queryUUID",toJson(Map("company" -> toJson(company)))).call
-		Some((uuidjson \ "result").asOpt[String].get)
+		val result = alCallHttp("/queryUUID",toJson(Map("company" -> toJson(company)))).call
+		val res_json = (result \ "result").get.asOpt[JsValue].get
+		val res_valu = (((res_json \ "result").get.asOpt[JsValue].get) \ "result").get.asOpt[String].get
+		Some(res_valu)
 	}
 
 	def matchDataByDate(arr: Array[String],tuple_lst: (Option[List[Map[String,Any]]],Option[List[Map[String,Any]]])): List[Map[String,Any]] = {

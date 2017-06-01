@@ -31,7 +31,7 @@ case class alSampleCheckCommit() {
         )
         dbc.getCollection("FactResult").findAndRemove(MongoDBObject("Company" -> c.get("Company")))
       }
-      toJson(successToJson())
+      toJson(successToJson().get)
     } catch {
       case ex: Exception => errorToJson(ex.getMessage)
     }

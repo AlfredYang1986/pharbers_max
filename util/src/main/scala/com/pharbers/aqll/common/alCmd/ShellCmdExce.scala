@@ -1,8 +1,7 @@
 package com.pharbers.aqll.common.alCmd
 
 import java.io.{InputStreamReader, LineNumberReader}
-
-import com.pharbers.aqll.common.alErrorCode.alErrorCode
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.json.Json.toJson
 
@@ -14,14 +13,6 @@ trait alShellCmdExce {
   def cmd = ""
 
   def excute: JsValue
-
-  /**
-    * 目前针对Python文件返回
-    * @param m 返回内容
-    */
-  def resultDefines(m: String) : JsValue = {
-    Json.toJson(Map("status" -> toJson("success"), "message" -> toJson(m)))
-  }
 }
 
 class alShellOtherCmdExce() extends alShellCmdExce {
@@ -29,9 +20,9 @@ class alShellOtherCmdExce() extends alShellCmdExce {
     try {
       println(s"cmd=$cmd")
       new ProcessBuilder("/bin/bash", "-c", cmd).start().waitFor()
-      alErrorCode.errorToJson("shell success")
+      toJson(successToJson(toJson("shell success")).get)
     } catch {
-      case e : Exception => alErrorCode.errorToJson("shell error")
+      case e : Exception => errorToJson("shell error")
     }
   }
 }
@@ -48,10 +39,15 @@ class alShellPythonCmdExce() extends alShellCmdExce {
         line = input.readLine()
         if(line != null) result = line
       } while (line != null)
-      if(!result.isEmpty) resultDefines(result)
-      else alErrorCode.errorToJson("shell error")
+
+      if(!result.isEmpty){
+        toJson(successToJson(toJson(result)).get)
+      } else {
+        throw new Exception("shell error")
+      }
+
     } catch {
-      case e : Exception => alErrorCode.errorToJson("shell error")
+      case e : Exception => errorToJson(e.getMessage)
     }
   }
 }
