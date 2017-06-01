@@ -6,13 +6,12 @@ import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
 
-
 /**
 	* Created by liwei on 17-3-17.
 	*/
 case class alDumpcollScp() {
-	def apply(sub_uuid: String) = {
+	def apply(sub_uuid: String, serverHost: String) = {
 		dbdumpCmd(db1, sub_uuid, dumpdb, dbuser, dbpwd, dbhost, dbport.toInt).excute
-		scpCmd(s"${dumpdb}${db1}/${sub_uuid}.bson.gz",s"${scpPath}", serverHost215, serverUser).excute
+		scpCmd(s"${dumpdb}${db1}/${sub_uuid}.bson.gz",s"${scpPath}", serverHost, serverUser).excute
 	}
 }
