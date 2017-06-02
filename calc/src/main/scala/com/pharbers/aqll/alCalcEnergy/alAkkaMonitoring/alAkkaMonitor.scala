@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.ClusterEvent._
 import akka.cluster.{Cluster, Member}
 
@@ -16,7 +16,8 @@ class alAkkaMonitor extends Actor with ActorLogging {
 	
 	Cluster(context.system).subscribe(self, classOf[MemberEvent])
 	val cluster = Cluster(context.system)
-	var members = Seq[Member]()
+	var memberSeq = Seq[Member]()
+	var actorSeq = Seq[ActorRef]()
 	
 	override def preStart() = {
 		cluster.subscribe(self, initialStateMode = InitialStateAsEvents,
@@ -31,5 +32,10 @@ class alAkkaMonitor extends Actor with ActorLogging {
 		case MemberUp(member) => log.info("Member Up")
 		case MemberExited(member) => log.info("Member Exited")
 		case MemberRemoved(member, previousStatus) => log.info("Member Remove")
+	}
+	
+	def register(member: Member) = {
+		println(member.address)
+		memberSeq = memberSeq :+ member
 	}
 }

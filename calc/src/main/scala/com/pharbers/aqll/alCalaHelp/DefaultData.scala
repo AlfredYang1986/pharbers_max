@@ -8,7 +8,7 @@ import com.pharbers.aqll.common.alFileHandler.fileConfig._
 
 object DefaultData {
 
-    def hospdatabase(path: String, company: String) = {
+    def hospdatabase(path: String, company: String): List[AdminHospitalDataBase] = {
         val hospdata_ch_file = "config/admin/HospDataStruct.xml"
         val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
         type targt = AdminHospitalDataBase
@@ -20,7 +20,7 @@ object DefaultData {
     val integratedxmlpath_ch = "config/consumer/IntegratedDataStruct.xml"
     val integratedxmlpath_en = "config/consumer/FieldNamesIntegratedDataStruct.xml"
 
-    def integratedbase(filename: String, company: String) = {
+    def integratedbase(filename: String, company: String): List[IntegratedData] = {
         type targt = IntegratedData
         val integratedbase = new alExcelDataParser(new targt, integratedxmlpath_en, integratedxmlpath_ch)
         integratedbase.prase(fileBase + company + outPut + filename)("")

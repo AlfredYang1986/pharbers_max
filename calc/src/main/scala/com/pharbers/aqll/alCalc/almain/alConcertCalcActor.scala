@@ -42,11 +42,11 @@ class alConcertCalcActor extends Actor with ActorLogging {
 			val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
 
 			val recall = resignIntegratedData(p.parent)(concert)
-			concert.data.zipWithIndex.foreach(x =>
+			concert.data.zipWithIndex.foreach { x =>
 				max_precess(x._1.asInstanceOf[IntegratedData],
-					p.subs(index.single.get).uuid,
-					Some(x._2 + "/" + concert.data.length))(recall)(c)
-			)
+							p.subs(index.single.get).uuid,
+							Some(x._2 + "/" + concert.data.length))(recall)(c)
+			}
 			
 			log.info(s"concert index ${index.single.get} end")
 			val s = (maxSum.toList.groupBy(_._1) map { x =>
