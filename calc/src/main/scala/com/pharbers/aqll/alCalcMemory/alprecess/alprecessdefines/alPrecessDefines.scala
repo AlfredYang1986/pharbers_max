@@ -3,7 +3,6 @@ package com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines
 import com.pharbers.aqll.alCalcMemory.alprecess._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy
 
-
 /**
   * Created by Alfred on 10/03/2017.
   */

@@ -1,11 +1,12 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
 import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
-import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.{presist_data, restore_grouped_data, split_data}
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy.hash_split
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.grouping_jobs._
+import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
+import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 
 
 class alSplitGroupDataJob(u : String) extends alJob {
@@ -13,7 +14,7 @@ class alSplitGroupDataJob(u : String) extends alJob {
     val ps = presist_data(Some(uuid), Some("calc"))
 
     def init(args : Map[String, Any]) = {
-        val restore_path = s"${memorySplitFile}${group}$uuid"
+        val restore_path = s"${memorySplitFile + group + uuid}"
         cur = Some(alStage(restore_path))
         process = restore_grouped_data() :: split_data(hash_split(Map(hash_split.core_number-> server_info.cpu,
                                                                       hash_split.mechine_number -> server_info.section.single.get,

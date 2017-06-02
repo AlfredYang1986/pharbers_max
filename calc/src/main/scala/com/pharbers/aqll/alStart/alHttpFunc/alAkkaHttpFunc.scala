@@ -2,7 +2,7 @@ package com.pharbers.aqll.alStart.alHttpFunc
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.server.Directives
+import akka.http.scaladsl.server.{Directives, StandardRoute}
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import spray.json.DefaultJsonProtocol
@@ -15,6 +15,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
 import play.api.libs.json.Json.toJson
+import play.api.libs.json.JsValue
 /**
   * Created by qianpeng on 2017/3/26.
   */
@@ -64,7 +65,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				new alMessageProxy().sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyCmd(s"$root$program$fileBase${item.company}" ,Upload_Firststep_Filename, "").excute
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				complete("""{"result":""" + result +"""}""")
+				alStandardRoute(result)
 			}
 		}
 	}
@@ -75,7 +76,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				new alMessageProxy().sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyCmd(s"$root$program$fileBase${item.company}",Upload_Secondstep_Filename, item.yms).excute
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				complete("""{"result":""" + result +"""}""")
+				alStandardRoute(result)
 			}
 		}
 	}
@@ -85,7 +86,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			entity(as[alCheckItem]) {item =>
 				val result = alSampleCheck().apply(item.company, item.filename, item.uname)
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				complete("""{"result" : """+result+"""}""")
+				alStandardRoute(result)
 			}
 		}
 	}
@@ -96,7 +97,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				val path = fileBase + item.company + outPut + item.filename
 				a ! filter_excel_jobs(path, new alCalcParmary(item.company, item.uname), a)
-				complete("""{"resule" : """+toJson(successToJson().get)+"""}""")
+				alStandardRoute()
 			}
 		}
 	}
@@ -106,7 +107,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				a ! commit_finalresult_jobs(item.company)
 				val result = alSampleCheckCommit().apply(item.company)
-				complete("""{"result":"""+result+"""}""")
+				alStandardRoute(result)
 			}
 		}
 	}
@@ -122,7 +123,8 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 												item.uname)
 				val result = alFileExport().apply(alExport)
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				complete("""{"result":"""+result+"""}""")
+				println(result)
+				alStandardRoute(result)
 			}
 		}
 	}
@@ -131,7 +133,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 		path("createimuser") {
 			entity(as[alHttpCreateIMUser]) { item =>
 				//alIMUser.createUser(item.name, item.pwd)
-				complete("""{"result": "OK"}""")
+				alStandardRoute()
 			}
 		}
 	}
@@ -143,8 +145,11 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 					case None => "fb9cb2cd-52ab-4493-b943-24800d85a610"
 					case Some(x) => x.uuid.toString
 				}
-				complete("""{"result": """+toJson(successToJson(toJson(uuid)).get)+"""}""")
+				val result = toJson(successToJson(toJson(uuid)).get)
+				alStandardRoute(result)
 			}
 		}
 	}
+
+	def alStandardRoute(m: JsValue = toJson(successToJson().get)): StandardRoute = complete("""{"result": """+m+"""}""")
 }

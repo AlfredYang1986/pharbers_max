@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_filter_excel_jobs.filter_excel_path
-import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.read_excel
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_filter_excel_jobs._
+import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
 
 /**
