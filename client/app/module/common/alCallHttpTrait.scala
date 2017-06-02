@@ -9,17 +9,17 @@ import com.pharbers.aqll.common.alFileHandler.akkaConfig._
   */
 trait alCallHttpTrait {
 
-  val url : String
+    val url: String
 
-  val data : JsValue
+    val data: JsValue
 
-  def call : JsValue = {
-    (HTTP(url)).post(data).as[JsValue]
-    //{"result":{"status":"success","message":"201611#"}}
-  }
+    def call: JsValue = {
+        (HTTP(url)).post(data).as[JsValue]
+        //{"result":{"status":"success","message":"201611#"}}
+    }
 }
 
-case class alCallHttp(businessType : String,data : JsValue) extends alCallHttpTrait {
+case class alCallHttp(businessType: String, data: JsValue) extends alCallHttpTrait {
 
-  override val url: String = s"${akkaIp}:${akkaPort}${businessType}"
+    override val url: String = s"${akkaIp}:${akkaPort}${businessType}"
 }

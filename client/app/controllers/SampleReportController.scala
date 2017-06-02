@@ -12,14 +12,14 @@ import module.SampleReportModuleMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
-class SampleReportController@Inject() (mdb: MongoDBModule) extends Controller{
-  implicit val dbc = mdb.cores
+class SampleReportController @Inject()(mdb: MongoDBModule) extends Controller {
+    implicit val dbc = mdb.cores
 
-  implicit val cm = CommonModule(Some(Map("db" -> dbc)))
+    implicit val cm = CommonModule(Some(Map("db" -> dbc)))
 
-  def sampleReport = Action (request => requestArgs(request) { jv =>
-    import pattern.LogMessage.common_log
-    import pattern.ResultMessage.common_result
-    MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleReport"))), jv, request) :: msg_samplereport(jv) :: msg_CommonResultMessage() :: Nil, None)
-  })
+    def sampleReport = Action(request => requestArgs(request) { jv =>
+        import pattern.LogMessage.common_log
+        import pattern.ResultMessage.common_result
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleReport"))), jv, request) :: msg_samplereport(jv) :: msg_CommonResultMessage() :: Nil, None)
+    })
 }
