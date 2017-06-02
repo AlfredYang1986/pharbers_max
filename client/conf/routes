@@ -4,36 +4,36 @@
 
 # 业务模块
 #   用户登录
-GET     /                                   controllers.Application.login
-GET		/login						        controllers.Application.login
-POST	/login						        controllers.Application.login
+GET     /                                   controllers.alMaxRouterController.login
+GET		/login						        controllers.alMaxRouterController.login
+POST	/login						        controllers.alMaxRouterController.login
 POST	/login/start			            controllers.LoginController.Login
 #   用户注册
-GET		/register					        controllers.Application.register
+GET		/register					        controllers.alMaxRouterController.register
 #   首页
-GET		/index						        controllers.Application.index
-POST	/index						        controllers.Application.index
+GET		/index						        controllers.alMaxRouterController.index
+POST	/index						        controllers.alMaxRouterController.index
 #   文件上传
-GET		/filesupload				        controllers.Application.filesUpload
-GET     /pharbers/files/:name               controllers.foptController.downloadFile(name)
-POST	/pharbers/files/upload		        controllers.foptController.uploadFile
+GET		/filesupload				        controllers.alMaxRouterController.filesUpload
+GET     /pharbers/files/:name               controllers.FopController.downloadFile(name)
+POST	/pharbers/files/upload		        controllers.FopController.uploadFile
 POST    /filesUpload/scpCopyFiles           controllers.FilesUploadController.scpCopyFiles
 POST    /filesUpload/removeFiles            controllers.FilesUploadController.removeFiles
 #   样本检查
-GET		/samplecheck				        controllers.Application.sampleCheck
+GET		/samplecheck				        controllers.alMaxRouterController.sampleCheck
 POST	/samplecheck/check			        controllers.SampleCheckController.sampleCheck
 #   样本报告
-GET		/samplereport				        controllers.Application.samplereport
+GET		/samplereport				        controllers.alMaxRouterController.samplereport
 POST	/samplereport/report		        controllers.SampleReportController.sampleReport
 #   结果检查
-GET		/resultcheck				        controllers.Application.resultcheck
+GET		/resultcheck				        controllers.alMaxRouterController.resultcheck
 POST	/resultcheck/linechart	            controllers.ResultCheckController.resultChecklinechart
 POST	/resultcheck/histogram              controllers.ResultCheckController.resultCheckhistogram
 #   结果查询
-GET		/resultquery				        controllers.Application.resultQuery
+GET		/resultquery				        controllers.alMaxRouterController.resultQuery
 POST 	/resultquery/search			        controllers.ResultQueryController.resultQuerySearch
 #   公司管理
-GET     /usermanage                         controllers.Application.usermanage
+GET     /usermanage                         controllers.alMaxRouterController.usermanage
 POST    /usermanage/company/query           controllers.CompanyManageController.queryCompanys
 POST    /usermanage/company/delete          controllers.CompanyManageController.deleteCompany
 POST    /usermanage/company/findOne         controllers.CompanyManageController.findOneCompany
@@ -44,7 +44,7 @@ POST    /usermanage/user/delete             controllers.UserManageController.del
 POST    /usermanage/user/findOne            controllers.UserManageController.findOneUser
 POST    /usermanage/user/save               controllers.UserManageController.saveUser
 #   市场管理
-GET     /marketmanage                       controllers.Application.marketmanage
+GET     /marketmanage                       controllers.alMaxRouterController.marketmanage
 POST    /marketmanage/query                 controllers.MarketManageController.queryMarkets
 POST    /marketmanage/delete                controllers.MarketManageController.deleteMarket
 POST    /marketmanage/findOne               controllers.MarketManageController.findOneMarket
@@ -53,7 +53,7 @@ POST    /marketmanage/save                  controllers.MarketManageController.s
 POST    /callhttpServer                     controllers.CallAkkaHttpController.callHttpServer
 
 # new ember web pages
-GET     /new/*path                          controllers.Application.emberWebPage(path)
+GET     /new/*path                          controllers.alMaxRouterController.emberWebPage(path)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)
