@@ -17,14 +17,14 @@ case class excelHandlers() extends alExcelDataParser(new IntegratedData, Default
 
 class alReadExcelPrecess extends alPrecess with alLoggerMsgTrait{
     def precess(j : alStage) : List[alStage] = {
-
+        
         def precessAcc(path : String) : alStorage = alStorage(path, excelHandlers())
-
+        
         try {
             j match {
                 case it : alInitStage => alStage(precessAcc(it.storages.head.toString) :: Nil) :: Nil
                 case it : alPresisStage => alStage(it.storages.map(x => precessAcc(x.toString))) :: Nil
-                case _ : alMemoryStage => logger.error(errorToJson("memory stage cannot precess").toString);null
+                case _ : alMemoryStage => logger.error(errorToJson("memory stage cannot precess").toString);Nil
             }
         } catch {
             case ex : OutOfMemoryError => logger.error(errorToJson("not enough memory").toString); throw ex
@@ -32,3 +32,5 @@ class alReadExcelPrecess extends alPrecess with alLoggerMsgTrait{
         }
     }
 }
+
+

@@ -148,11 +148,6 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 					r.finalUnit = r.subs.map(_.finalUnit).sum
 					r.isCalc = true
 					log.info(s"done calc job with uuid ${r.uuid}, final value : ${r.finalValue} and final unit : ${r.finalUnit}")
-					//                    println(s"开始去重数据")
-					//                    val tmp = (alWeightSum(company._1, company._2))
-					//                    println(s"done calc job with uuid ${uuid}, final value : ${tmp.f_sales_sum2} and final unit : ${tmp.f_units_sum2}")
-					//                    println(s"结束去重数据")
-					
 					implicit val stmc = StmConf()
 					new Mail().sendTo(EmailForCompany(company._1).getEmail())
 					endDate("计算完成",start)

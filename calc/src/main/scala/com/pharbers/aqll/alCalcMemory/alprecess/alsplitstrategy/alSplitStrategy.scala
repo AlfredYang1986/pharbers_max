@@ -1,7 +1,6 @@
 package com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy
 
 import com.pharbers.aqll.alCalcMemory.aldata.alPortion
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy.{core_split, hash_split, read_excel_split}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.stm.Ref
@@ -63,6 +62,7 @@ trait alHardware {
 class alReadExcelSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy {
     override val constraints: Map[String, Any] = c
     override val strategy : List[Any] => List[alPortion] = { lst =>
+        import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy.read_excel_split
         val memory = constraints.get(alServerHardware.server_memory)
         memory match {
             case None => {
@@ -82,6 +82,7 @@ class alReadExcelSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy
 class alCoreSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy {
     override val constraints: Map[String, Any] = c
     override val strategy : List[Any] => List[alPortion] = { lst =>
+        import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy.core_split
         val t = constraints.get(core_split.core_number).map (x => x.asInstanceOf[Int]).getOrElse(1)
         val sn = lst.length / t + 1
         lst.grouped(sn).map(alPortion(_)).toList
@@ -91,6 +92,7 @@ class alCoreSplitStrategy(val c : Map[String, Any]) extends alSplitStrategy {
 class alHashSplitStrategy(val c : Map[String, Any]) extends  alSplitStrategy {
     override val constraints: Map[String, Any] = c
     override val strategy : List[Any] => List[alPortion] = { lst =>
+        import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy.hash_split
         val t = constraints.get(hash_split.core_number).map (x => x.asInstanceOf[Int]).getOrElse(1) *
                     constraints.get(hash_split.mechine_number).map (x => x.asInstanceOf[Int]).getOrElse(1)
         val hash_func = constraints.get(hash_split.hash_func).map (x => x.asInstanceOf[Any => Int]).getOrElse(throw new Exception("should have func"))
