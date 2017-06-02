@@ -18,8 +18,6 @@ class alSplitGroupDataJob(u : String) extends alJob {
         process = restore_grouped_data() :: split_data(hash_split(Map(hash_split.core_number-> server_info.cpu,
                                                                       hash_split.mechine_number -> server_info.section.single.get,
                                                                       hash_split.hash_func -> hash_func))) :: ps :: Nil
-        // TODO : 假定每个机器都是一样，这里理论上是直接对洗牌后占用的核数编程，然后对计算机核总数分配，这个叫洗牌，也就是简单的hash
-        // 我让你想的东西就在这里
     }
     override def result : Option[Any] =  {
         super.result

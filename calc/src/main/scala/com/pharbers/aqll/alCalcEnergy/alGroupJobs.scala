@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alCalcEnergy
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.util.Timeout
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
@@ -32,7 +32,7 @@ trait alGroupJobsSchedule { this: Actor =>
 	val group_timer = context.system.scheduler.schedule(0 seconds, 1 seconds, self, new schedule_group)
 }
 
-trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule =>
+trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule with ActorLogging=>
 	val group_router = Ref(List[ActorRef]())
 	var group_nodenumber = -1
 
@@ -60,7 +60,6 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 			case Some(r) => {
 				r.subs.find (x => x.uuid == sub_uuid).map (x => x.grouped = true).getOrElse(Unit)
 
-				// TODO : 解压汇总过来的Group文件
 				cur = Some(new unPkgCmd(s"${root + scpPath + sub_uuid}", s"${root + program}") :: Nil)
 				process = do_pkg() :: Nil
 				super.excute()
@@ -89,8 +88,8 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 					val sg = alStage(g :: Nil)
 					val pp = presist_data(Some(r.uuid), Some("group"))
 					pp.precess(sg)
-
-					println("done for grouping")
+					
+					log.info("done for grouping")
 
 					groupJobSuccess(uuid)
 				}
@@ -109,9 +108,8 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 				val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> r.uuid))
 				val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
 				val subs = sb map (x => alMaxProperty(p, x, Nil))
-
-				// TODO : 压缩最终需要用到的Group文件
-				println(s"calc is uuid = $uuid")
+				
+				log.info(s"calc is uuid = $uuid")
 				cur = Some(pkgCmd(s"${memorySplitFile}${calc}$uuid" :: Nil, s"${memorySplitFile}${fileTarGz}$uuid")
 					:: scpCmd(s"${memorySplitFile}${fileTarGz}$uuid.tar.gz", s"${scpPath}", serverHost106, serverUser)
 					:: scpCmd(s"${memorySplitFile}${fileTarGz}$uuid.tar.gz", s"${scpPath}", serverHost50, serverUser)
@@ -135,7 +133,6 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 	}
 
 	def signGroupJob(p : alMaxProperty) = {
-		// TODO: sign with 递归
 		siginEach(group_router.single.get)
 		atomic { implicit tnx =>
 			waiting_grouping() = waiting_grouping().tail
@@ -144,12 +141,12 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 
 		def siginEach(lst: List[ActorRef]): Unit = {
 			lst match {
-				case Nil => println("not enough group to do the jobs")
+				case Nil => log.info("not enough group to do the jobs")
 				case node => {
 					group_nodenumber = group_nodenumber + 1
 					lst.head ! concert_groupjust_result(group_nodenumber)
 					alCalcParmary.alParmary.single.get.find(_.uuid == p.uuid) match {
-						case None => println("not GroupParamry file")
+						case None => log.info("not GroupParamry file")
 						case Some(x) =>
 							lst.head ! group_job(p, x)
 							siginEach(lst.tail)
