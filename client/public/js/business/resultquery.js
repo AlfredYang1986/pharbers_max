@@ -50,10 +50,10 @@ $(function() {
     //说明：根据市场和日期筛选结果数据列表。
     //*********************************************************************
 	$('#queryBtn').click(function(){
-        pageResult(3);
+        pageResult(1);
 	});
 
-	pageResult(3);
+	pageResult(1);
 });
 
 function pageResult(page){
@@ -78,8 +78,8 @@ function pageResult(page){
         cache: false,
         success: function(data) {
             $.hideLoading();
-            if (data.status == "ok") {
-                var result = data.result.finalResult;
+            if(data.result.status == "success"){
+                var result = data.result.result.result;
                 var thead = "<tr>";
                     thead += "<th>序号</th>";
                     thead += "<th>Date</th>";
@@ -97,7 +97,7 @@ function pageResult(page){
                     thead += "<th>Units</th>";
                     thead += "</tr>";
                 $('thead[id="thead"]').html(thead);
-                var page = data.result.page[0];
+                var page = data.result.result.page[0];
                 var tbody = "";
                 if (result.length != 0) {
                     for (var i in result) {
@@ -124,12 +124,8 @@ function pageResult(page){
                 $('tbody[id="tbody"]').html(tbody);
                 Page(data);
             } else {
-                $.tooltip('My God, 请求超时！！！');
+                $.tooltip(r.result.message);
             }
-        },
-        error: function(xhr, status, error) {
-            $.hideLoading();
-            $.tooltip('请检查您的输入！！！');
         }
     });
 }

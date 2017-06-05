@@ -36,32 +36,28 @@ $(function(){
         query_object['company'] = $.cookie("token");
         query_object['filetype'] = type;
         query_object['uname'] = $.cookie('webim_user');
+        query_object['businessType'] = "/dataexport";
 
         $.ajax({
-            url :"/callfileexport",
+            url :"/callhttpServer",
             type : "POST",
             dataType : "json",
             contentType: "application/json,charset=utf-8",
             data : JSON.stringify(query_object),
             cache : false,
             success : function(data){
-                if (data.result.result.result.status==0) {
-                    console.info("fuckiing")
-                    $(".progresstier").css("display", "none");
-                    location.href = "/resultquery/files/"+data.result.result.result.filename;
+                console.info(data)
+                var result = data.result
+                if(result.status == "success"){
+                    location.href = "/pharbers/files/"+result.result.result;
                 }else{
-                    $(".progresstier").css("display", "none");
-                    $.tooltip(data.result.result.result.message);
+                    $.tooltip(result.message);
                 }
-            },
-            error : function(e){
                 $(".progresstier").css("display", "none");
-                $.tooltip('My God, 出错啦！！！');
             }
         });
     }
 });
-
 
 var setProgress = function() {
     conn.listen({

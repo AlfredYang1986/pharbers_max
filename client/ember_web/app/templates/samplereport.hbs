@@ -1,0 +1,83 @@
+<div style="display: none;" class="progresstier">
+    <div class="progress">&nbsp;</div>
+    <div class="widgets">
+        <div class="shadow">
+            <div id="chart" class="chart-container"> </div>
+        </div>
+    </div>
+</div>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>报告</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="index.html">首页</a>
+            </li>
+            <li class="active">
+                <strong>报告</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <div class="panel-body">
+                        <div class="row" style="margin-left:100px;">
+                            <p style='margin: 0cm; margin-bottom: .0001pt'>
+                                <span lang=EN-US style='font-size: 10.5pt; font-family: "verdena", "serif"; color: black'>&nbsp;</span>
+                            </p>
+                            <p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'><b><span lang=EN-US style='font-family: "verdena", "serif"; color: #44546A'>&nbsp;</span></b></p>
+                            <p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'><b><span lang=EN-US style='font-family: "verdena", "serif"; color: #44546A'>&nbsp;</span></b></p>
+                            <br clear=ALL>
+                            <p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'>
+                                <b><span style='font-family: 幼圆; color: black; font-size:18pt;'>样本检查报告</span></b>
+                            </p>
+                            <p class=MsoNormal><span lang=EN-US style='font-size: 10.5pt; font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
+                            <p style='margin: 0cm; margin-bottom: .0001pt'>
+                                <span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span>
+                            </p>
+                            <p align=center style='margin: 0cm; margin-bottom: .0001pt; text-align: center'>
+                                <b><span lang=EN-US style='font-family: "verdena", "serif"; color: red; font-size:14pt;' id="date"></span></b>
+                            </p>
+                            <p class=MsoNormal><span lang=EN-US style='font-size: 10.5pt; font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
+                            <p style='margin: 0cm; margin-bottom: .0001pt'><span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
+
+                            <p class=MsoNormal style='vertical-align: middle;'>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: red' id="company_ch"></span>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: black'>客户你好，您本期总共上传</span>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: red' id="markets"></span>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: black'>的数据源文件，各市场的产品及医院信息罗列如下：</span>
+                            </p>
+                            <p class=MsoNormal style='vertical-align: middle'>
+                                <span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
+                            <ul>
+                                <li id="tbody"></li>
+                            </ul>
+                            <p class=MsoNormal style='vertical-align: middle'><span lang=EN-US style='font-family: "verdena", "serif"; color: black'>&nbsp;</span></p>
+                            <p style='margin: 0cm; margin-bottom: .0001pt'>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: black'>请您查阅此报告，无异常情况请按确定键进行放大运算，我们预估完成以上各个市场模型运算大约需要</span>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: red'>2小时</span>
+                                <span style='font-family: 幼圆; font-size: 12pt; color: black'>。<br><br>请您先进行其他工作，放大完成我们会发送通知邮件至您的绑定邮箱如有数据异常。<br><br>请先查看数据源是否上传有误，排除此情况依然异常请联系法伯管理员协助处理，谢谢！</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-12 text-right">
+                        <button type="button" class="btn btn-primary btn-sm" id="nextstepBtm">下一步</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{onload}}

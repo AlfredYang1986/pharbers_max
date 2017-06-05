@@ -1,60 +1,43 @@
 package controllers
 
+import javax.inject.Inject
+
+import com.pharbers.aqll.dbmodule.MongoDBModule
 import com.pharbers.aqll.pattern
 import com.pharbers.aqll.pattern.LogMessage.msg_log
-import com.pharbers.aqll.pattern.MessageRoutes
+import com.pharbers.aqll.pattern.{CommonModule, MessageRoutes}
 import com.pharbers.aqll.pattern.ResultMessage.msg_CommonResultMessage
 import controllers.common.requestArgsQuery.requestArgs
 import module.UserManageModuleMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
-class UserManageController extends Controller{
-    def userManageCompanyQueryAjax = Action(request => requestArgs(request) { jv =>
+class UserManageController @Inject()(mdb: MongoDBModule) extends Controller {
+    implicit val dbc = mdb.basic
+
+    implicit val cm = CommonModule(Some(Map("db" -> dbc)))
+
+    def queryUsers = Action(request => requestArgs(request) { jv =>
         import pattern.LogMessage.common_log
-      import pattern.ResultMessage.common_result
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("userManageCompanyQueryAjax"))), jv, request) :: msg_usermanage_company_query(jv) :: msg_CommonResultMessage() :: Nil, None)
+        import pattern.ResultMessage.common_result
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryUsers"))), jv, request) :: msg_usermanage_query(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
-    def userManageCompanyDeleteAjax = Action(request => requestArgs(request) { jv =>
-      import pattern.LogMessage.common_log
-      import pattern.ResultMessage.common_result
-      MessageRoutes(msg_log(toJson(Map("method" -> toJson("userManageCompanyDeleteAjax"))), jv, request) :: msg_usermanage_company_delete(jv) :: msg_CommonResultMessage() :: Nil, None)
+    def deleteUser = Action(request => requestArgs(request) { jv =>
+        import pattern.LogMessage.common_log
+        import pattern.ResultMessage.common_result
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("deleteUser"))), jv, request) :: msg_usermanage_delete(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
-    def userManageCompanyFindOneAjax = Action(request => requestArgs(request) { jv =>
-      import pattern.LogMessage.common_log
-      import pattern.ResultMessage.common_result
-      MessageRoutes(msg_log(toJson(Map("method" -> toJson("userManageCompanyFindOneAjax"))), jv, request) :: msg_usermanage_company_findOne(jv) :: msg_CommonResultMessage() :: Nil, None)
+    def findOneUser = Action(request => requestArgs(request) { jv =>
+        import pattern.LogMessage.common_log
+        import pattern.ResultMessage.common_result
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("findOneUser"))), jv, request) :: msg_usermanage_findOne(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 
-    def userManageCompanySaveAjax = Action(request => requestArgs(request) { jv =>
-      import pattern.LogMessage.common_log
-      import pattern.ResultMessage.common_result
-      MessageRoutes(msg_log(toJson(Map("method" -> toJson("userManageCompanySaveAjax"))), jv, request) :: msg_usermanage_company_save(jv) :: msg_CommonResultMessage() :: Nil, None)
-    })
-
-    def userManageUserQueryAjax = Action(request => requestArgs(request) { jv =>
-      import pattern.LogMessage.common_log
-    import pattern.ResultMessage.common_result
-      MessageRoutes(msg_log(toJson(Map("method" -> toJson("userManageUserQueryAjax"))), jv, request) :: msg_usermanage_user_query(jv) :: msg_CommonResultMessage() :: Nil, None)
-    })
-
-    def userManageUserDeleteAjax = Action(request => requestArgs(request) { jv =>
-      import pattern.LogMessage.common_log
-    import pattern.ResultMessage.common_result
-      MessageRoutes(msg_log(toJson(Map("method" -> toJson("userManageUserDeleteAjax"))), jv, request) :: msg_usermanage_user_delete(jv) :: msg_CommonResultMessage() :: Nil, None)
-    })
-
-    def userManageUserFindOneAjax = Action(request => requestArgs(request) { jv =>
-      import pattern.LogMessage.common_log
-    import pattern.ResultMessage.common_result
-      MessageRoutes(msg_log(toJson(Map("method" -> toJson("userManageUserFindOneAjax"))), jv, request) :: msg_usermanage_user_findOne(jv) :: msg_CommonResultMessage() :: Nil, None)
-    })
-
-    def userManageUserSaveAjax = Action(request => requestArgs(request) { jv =>
-      import pattern.LogMessage.common_log
-    import pattern.ResultMessage.common_result
-      MessageRoutes(msg_log(toJson(Map("method" -> toJson("userManageUserSaveAjax"))), jv, request) :: msg_usermanage_user_save(jv) :: msg_CommonResultMessage() :: Nil, None)
+    def saveUser = Action(request => requestArgs(request) { jv =>
+        import pattern.LogMessage.common_log
+        import pattern.ResultMessage.common_result
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("saveUser"))), jv, request) :: msg_usermanage_save(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
 }
