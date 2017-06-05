@@ -20,11 +20,11 @@ import com.pharbers.aqll.alCalaHelp.dbcores._
   * Created by liwei on 2017/3/25.
   */
 case class alExport(datatype: String,
-                        market : List[String],
-                        staend : List[String],
-                        company : String,
-                        filetype : String,
-                        uname: String)
+                    market : List[String],
+                    staend : List[String],
+                    company : String,
+                    filetype : String,
+                    uname: String)
 case class alFileExport() {
 
   def apply(export: alExport): JsValue = {

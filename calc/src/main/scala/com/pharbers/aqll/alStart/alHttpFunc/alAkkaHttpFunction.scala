@@ -1,30 +1,31 @@
 package com.pharbers.aqll.alStart.alHttpFunc
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.{Directives, StandardRoute}
 import akka.util.Timeout
+import com.pharbers.aqll.alCalaHelp.alAkkaHttpJson.PlayJsonSupport
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import spray.json.DefaultJsonProtocol
-import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+
 import scala.concurrent.ExecutionContext
+import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
-import play.api.libs.json.Json.toJson
-import play.api.libs.json.JsValue
+import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+
 /**
-  * Created by qianpeng on 2017/3/26.
+  * Created by qianpeng on 2017/6/5.
   */
-
-class alAkkaHttpFuncApi(system: ActorSystem, timeout: Timeout) extends alAkkaHttpFunc {
+class alAkkaHttpFunctionApi(system: ActorSystem, timeout: Timeout) extends alAkkaHttpFunction {
 	implicit val requestTimeout = timeout
-
 	implicit def executionContext = system.dispatcher
 }
+
+case class Item(str: String, lst: List[String])
 
 case class alUpBeforeItem(company: String, uname: String)
 case class alUploadItem(company: String, yms: String, uname: String)
@@ -37,28 +38,38 @@ case class alExportItem(datatype: String, market: List[String],
 case class alHttpCreateIMUser(name: String, pwd: String)
 case class alQueryUUIDItem(company: String)
 
-trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-	implicit val itemFormatUpBefore = jsonFormat2(alUpBeforeItem)
-	implicit val itemFormatUpload = jsonFormat3(alUploadItem)
-	implicit val itemFormatCheck = jsonFormat3(alCheckItem)
-	implicit val itemFormatCalc = jsonFormat3(alCalcItem)
-	implicit val itemFormatCommit = jsonFormat1(alCommitItem)
-	implicit val itemFormatExport = jsonFormat6(alExportItem)
-	implicit val itemFormatUser = jsonFormat2(alHttpCreateIMUser)
-	implicit val itemFormatQueryUUID = jsonFormat1(alQueryUUIDItem)
+trait PlayJson extends PlayJsonSupport {
+	implicit val itemJson = Json.format[Item]
+	
+	implicit val itemFormatUpBefore = Json.format[alUpBeforeItem]
+	implicit val itemFormatUpload = Json.format[alUploadItem]
+	implicit val itemFormatCheck = Json.format[alCheckItem]
+	implicit val itemFormatCalc = Json.format[alCalcItem]
+	implicit val itemFormatCommit = Json.format[alCommitItem]
+	implicit val itemFormatExport = Json.format[alExportItem]
+	implicit val itemFormatUser = Json.format[alHttpCreateIMUser]
+	implicit val itemFormatQueryUUID = Json.format[alQueryUUIDItem]
 }
 
-trait alAkkaHttpFunc extends Directives with JsonSupport{
-
+trait alAkkaHttpFunction extends Directives with PlayJson{
 	implicit def executionContext: ExecutionContext
-
 	implicit def requestTimeout: Timeout
-
-	val routes = alSampleCheckDataFunc ~
-		         alCalcDataFunc ~ alModelOperationCommitFunc ~
-		         alFileUploadPythonFunc ~ alResultFileExportFunc ~
-		         alFileUploadPyBefore ~ alQueryUUIDFunc
-
+	
+	val routes = Test ~ alSampleCheckDataFunc ~
+				 alCalcDataFunc ~ alModelOperationCommitFunc ~
+				 alFileUploadPythonFunc ~ alResultFileExportFunc ~
+				 alFileUploadPyBefore ~ alQueryUUIDFunc
+	
+	def Test = post {
+		path("test") {
+			entity(as[Item]) { item =>
+				println(item.str)
+				println(item.lst)
+				complete("""{"result": "OK"}""")
+			}
+		}
+	}
+	
 	def alFileUploadPyBefore = post {
 		path("uploadbefore") {
 			entity(as[alUpBeforeItem]) { item =>
@@ -69,7 +80,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			}
 		}
 	}
-
+	
 	def alFileUploadPythonFunc = post {
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
@@ -80,7 +91,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			}
 		}
 	}
-
+	
 	def alSampleCheckDataFunc = post {
 		path("samplecheck") {
 			entity(as[alCheckItem]) {item =>
@@ -90,7 +101,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			}
 		}
 	}
-
+	
 	def alCalcDataFunc = post {
 		path("modelcalc") {
 			entity(as[alCalcItem]) {item =>
@@ -111,24 +122,23 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			}
 		}
 	}
-
+	
 	def alResultFileExportFunc = post {
 		path("dataexport") {
 			entity(as[alExportItem]) { item =>
 				val alExport = new alExport(item.datatype,
-												item.market,
-												item.staend,
-												item.company,
-												 item.filetype,
-												item.uname)
+					item.market,
+					item.staend,
+					item.company,
+					item.filetype,
+					item.uname)
 				val result = alFileExport().apply(alExport)
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				println(result)
 				alStandardRoute(result)
 			}
 		}
 	}
-
+	
 	def alCreateIMUserFunc = post {
 		path("createimuser") {
 			entity(as[alHttpCreateIMUser]) { item =>
@@ -137,7 +147,7 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			}
 		}
 	}
-
+	
 	def alQueryUUIDFunc = post {
 		path("queryUUID") {
 			entity(as[alQueryUUIDItem]) { item =>
@@ -150,6 +160,6 @@ trait alAkkaHttpFunc extends Directives with JsonSupport{
 			}
 		}
 	}
-
+	
 	def alStandardRoute(m: JsValue = toJson(successToJson().get)): StandardRoute = complete("""{"result": """+m+"""}""")
 }
