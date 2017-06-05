@@ -1,18 +1,16 @@
 package com.pharbers.aqll.alStart.alHttpFunc
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.cluster.Cluster
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almain.{alCalcActor, alGroupActor}
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor
 import com.pharbers.aqll.alCalcEnergy.alDriverSingleton
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile}
-import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig.singletonPaht
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.Future
@@ -32,10 +30,12 @@ object alAkkaHttpMain extends App with RequestTimeout {
 
 	implicit val system = ActorSystem("HttpMain")
 	implicit val ec = system.dispatcher
+	implicit val mat = ActorMaterializer()
 
-	val api = new alAkkaHttpFuncApi(system, requestTimeout(config)).routes
+//	val api = new alAkkaHttpFuncApi(system, requestTimeout(config)).routes
+	val api = new alAkkaHttpFunctionApi(system, requestTimeout(config)).routes
 
-	implicit val materializer = ActorMaterializer()
+	
 	val bindingFuture: Future[ServerBinding] = Http().bindAndHandle(api, host, port)
 
 	bindingFuture.map { serverBinding =>
