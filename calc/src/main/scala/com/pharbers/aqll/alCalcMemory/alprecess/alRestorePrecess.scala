@@ -10,7 +10,7 @@ import com.pharbers.aqll.alCalcMemory.alstages.{alInitStage, alMemoryStage, alPr
   * Created by Alfred on 10/03/2017.
   * 　Modify by clock on 05/06/2017.
   */
-class alRestorePrecess{
+class alRestorePrecess extends alPrecess{
     def pathProxy(path : String) : String = path
     
     def precess(j : alStage) : List[alStage] = {
