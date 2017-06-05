@@ -1,11 +1,12 @@
 package module
 
-import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import play.api.libs.json.JsValue
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import com.pharbers.aqll.dbmodule.MongoDBModule
 /**
   * Created by Wli on 2017/2/20.
   */
@@ -17,8 +18,7 @@ object FilesUploadModuleMessage {
 
 object FilesUploadModule extends ModuleTrait {
     import FilesUploadModuleMessage._
-    import controllers.common.default_error_handler.f
-	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit db: MongoDBModule) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_scpCopyFiles(data) => scpCopyFiles_func(data)
     case msg_removeFiles(data) => removeFiles_func(data)
 		case _ => ???
@@ -29,7 +29,7 @@ object FilesUploadModule extends ModuleTrait {
     * @param data
     * @return
     */
-  def scpCopyFiles_func(data : JsValue)(implicit error_handler: String => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+  def scpCopyFiles_func(data : JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
     try {
       val company = (data \ "company").asOpt[String].getOrElse(throw new Exception("error input"))
       val scp_filename = (data \ "filename").asOpt[String].getOrElse(throw new Exception("error input"))
@@ -48,7 +48,7 @@ object FilesUploadModule extends ModuleTrait {
         case "error" => throw new Exception("warn aliyun50 scp copy file failed")
       }
     } catch {
-      case ex : Exception => (None, Some(error_handler(ex.getMessage())))
+      case ex : Exception => (None, Some(errorToJson(ex.getMessage())))
     }
   }
 
@@ -57,7 +57,7 @@ object FilesUploadModule extends ModuleTrait {
     * @param data
     * @return
     */
-  def removeFiles_func(data : JsValue)(implicit error_handler: String => JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+  def removeFiles_func(data : JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
     try {
       val company = (data \ "company").asOpt[String].getOrElse(throw new Exception("error input"))
 
@@ -70,7 +70,7 @@ object FilesUploadModule extends ModuleTrait {
         case false => throw new Exception("warn gycx file delete failed")
       }
     } catch {
-      case ex : Exception => (None, Some(error_handler(ex.getMessage())))
+      case ex : Exception => (None, Some(errorToJson(ex.getMessage())))
     }
   }
 }

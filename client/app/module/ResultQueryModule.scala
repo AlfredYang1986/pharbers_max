@@ -1,14 +1,15 @@
 package module
 
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.Page._
-import com.pharbers.aqll.common.alDao.{data_connection, from}
+import com.pharbers.aqll.common.alDao.from
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.alString.alStringOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import com.pharbers.aqll.dbmodule.MongoDBModule
 
 object ResultQueryModuleMessage {
 	sealed class msg_resultqueryBase extends CommonMessage
@@ -17,13 +18,12 @@ object ResultQueryModuleMessage {
 
 object ResultQueryModule extends ModuleTrait {
 	import ResultQueryModuleMessage._
-	import controllers.common.default_error_handler.f
-	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_resultquery(data) => resultquery_func(data)
 		case _ => ???
 	}
 
-	def resultquery_func(data : JsValue)(implicit error_handler : String => JsValue, cm: CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def resultquery_func(data : JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		var markets = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(Nil)
 		var dates = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(Nil)
 
@@ -40,12 +40,11 @@ object ResultQueryModule extends ModuleTrait {
 		val currentPage = (data \ "currentPage").asOpt[Int].map (x => x).getOrElse(3)
 		val company = (data \ "company").asOpt[String].get
 		try {
-			val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
-			val result = (from db() in company where conditions).selectSkipTop(SKIP(currentPage))(TAKE)("Date")(calc_resultquery(_))(database).toList
-			lazy val total = (from db() in company where conditions).count(database)
+			val result = (from db() in company where conditions).selectSkipTop(SKIP(currentPage))(TAKE)("Date")(calc_resultquery(_))(db.cores).toList
+			lazy val total = (from db() in company where conditions).count(db.cores)
 			(successToJson(toJson(result),toJson(Page(currentPage,total))), None)
 		} catch {
-			case ex : Exception => (None, Some(error_handler(ex.getMessage())))
+			case ex : Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
 	}
 

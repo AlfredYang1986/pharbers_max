@@ -1,12 +1,13 @@
 package com.pharbers.aqll.alCalcMemory.alstages
 
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
-import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
-import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 
+import com.pharbers.aqll.alCalcMemory.aldata.alStorage
+import com.pharbers.aqll.alCalcMemory.alexception.alException
+import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 
 /**
   * Created by Alfred on 10/03/2017.
+  * 　Modify by clock on 05/06/2017.
   */
 
 object alStage {
@@ -29,13 +30,13 @@ object alStage {
     }
 }
 
-trait alStage extends alLoggerMsgTrait{
+trait alStage {
     var storages : List[AnyRef] = Nil
     def isCalc = false
 
     def canLength : Boolean = false
     def length : Int = {
-        logger.error(errorToJson("only Memory can calc length").toString)
+        alException(errorToJson("only Memory can calc length"))
         -1
     }
 }

@@ -3,14 +3,16 @@ package module
 import com.mongodb.casbah.Imports.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.common.alDao.data_connection
-import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.common.alNearDecemberMonth
 import module.common.alCallHttp
+
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import com.pharbers.aqll.dbmodule.MongoDBModule
 
 object ResultCheckModuleMessage {
 	sealed class msg_resultCheckBase extends CommonMessage
@@ -20,52 +22,49 @@ object ResultCheckModuleMessage {
 
 object ResultCheckModule extends ModuleTrait {
 	import ResultCheckModuleMessage._
-	import controllers.common.default_error_handler.f
-	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_linechart(data) => msg_linechart_func(data)
 		case msg_histogram(data) => msg_histogram_func(data)
 		case _ => ???
 	}
 
-	def msg_linechart_func(data : JsValue)(implicit error_handler : String => JsValue, cm: CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_linechart_func(data : JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
 
-			val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
 			queryUUID(company) match {
 				case None => throw new Exception("warn uuid does not exist")
 				case Some(x) => {
-					val result = lsttoJson(queryNearTwelveMonth(database,company,market,date,s"$company$x"),1)
+					val result = lsttoJson(queryNearTwelveMonth(db.cores,company,market,date,s"$company$x"),1)
 					(successToJson(result), None)
 				}
 			}
 		} catch {
-			case ex: Exception =>	(None, Some(error_handler(ex.getMessage())))
+			case ex: Exception =>	(None, Some(errorToJson(ex.getMessage())))
 		}
 	}
 
-	def msg_histogram_func(data : JsValue)(implicit error_handler : String => JsValue, cm: CommonModule) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_histogram_func(data : JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
 			val uuid = queryUUID(company)
-			val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
 			uuid match {
 				case None => throw new Exception("warn uuid does not exist")
 				case Some(x) => {
 					val temp_coll = s"$company$x"
-					val cur_top6 = queryCELData(database,company,market,date,temp_coll,"cur")(None,None)
-					val ear_top6 = queryCELData(database,company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
-					val las_top6 = queryCELData(database,company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
+					val cur_top6 = queryCELData(db.cores,company,market,date,temp_coll,"cur")(None,None)
+					val ear_top6 = queryCELData(db.cores,company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
+					val las_top6 = queryCELData(db.cores,company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
 					val result = toJson(Map("cur_top6" -> lsttoJson(cur_top6._1,2),"ear_top6" -> lsttoJson(ear_top6._1,2),"las_top6" -> lsttoJson(las_top6._1,2)))
 					(successToJson(result), None)
 				}
 			}
 		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage())))
+			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
 	}
 

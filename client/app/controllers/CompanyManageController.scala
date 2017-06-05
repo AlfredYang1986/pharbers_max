@@ -6,17 +6,14 @@ import com.pharbers.aqll.dbmodule.MongoDBModule
 import com.pharbers.aqll.pattern
 import com.pharbers.aqll.pattern.LogMessage.msg_log
 import com.pharbers.aqll.pattern.ResultMessage.msg_CommonResultMessage
-import com.pharbers.aqll.pattern.{CommonModule, MessageRoutes}
+import com.pharbers.aqll.pattern.MessageRoutes
 import controllers.common.requestArgsQuery.requestArgs
 import module.CompanyManageModuleMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc._
 
 class CompanyManageController @Inject()(mdb: MongoDBModule) extends Controller {
-    implicit val dbc = mdb.basic
-
-    implicit val cm = CommonModule(Some(Map("db" -> dbc)))
-
+    implicit val db = mdb
     def queryCompanys = Action(request => requestArgs(request) { jv =>
         import pattern.LogMessage.common_log
         import pattern.ResultMessage.common_result

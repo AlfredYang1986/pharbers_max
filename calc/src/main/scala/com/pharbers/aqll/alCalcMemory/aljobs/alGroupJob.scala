@@ -1,9 +1,9 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
-import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.{presist_data, restore_data, split_data}
+import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy.core_split
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 
 /**
   * Created by Alfred on 11/03/2017.
