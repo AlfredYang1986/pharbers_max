@@ -109,9 +109,6 @@ class alCalcActor extends Actor
 
             val m = lst.map (_.result.get.asInstanceOf[(String, List[String])]._2).flatten.distinct
 
-//            val result = cj.result
-//            val (p, sb) = result.get.asInstanceOf[(String, List[String])]
-
             val q = m.map (x => alMaxProperty(p, x, Nil))
             atomic { implicit tnx =>
                 result_ref() = Some(alMaxProperty(concert_ref.single.get.get.uuid, p, q))
@@ -137,9 +134,6 @@ class alCalcActor extends Actor
 	        log.info(s"sub_uuid done $sub_uuid")
 
             if (r.subs.filterNot (x => x.isSumed).isEmpty) {
-//                r.sum = (r.sum.groupBy(_._1) map { x =>
-//                    (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
-//                }).toList
                 r.isSumed = true
                 val st = context.actorSelection(singletonPaht)
 
@@ -191,20 +185,6 @@ class alCalcActor extends Actor
             new alMessageProxy().sendMsg("1", data.uname, Map("uuid" -> data.uuid, "company" -> data.company, "type" -> "progress"))
 
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
-//                val uuid = UUID.randomUUID.toString
-//                println(s"uuid = $uuid")
-//                r.subs foreach { x =>
-//                    println(s"还原开始")
-//                    alLocalRestoreColl(uuid, x.uuid)
-//                    println(s"还原结束")
-//                }
-
-//                println(s"集中备份开始")
-//                alDumpcoll(uuid)
-//                println(s"集中备份结束")
-
-//                r.finalValue = r.subs.map(_.finalValue).sum
-//                r.finalUnit = r.subs.map(_.finalUnit).sum
                 r.isCalc = true
 
                 val st = context.actorSelection(singletonPaht)
@@ -212,10 +192,6 @@ class alCalcActor extends Actor
                 r.subs.foreach { x =>
                     st ! calc_final_result(r.parent, x.uuid, x.finalValue, x.finalUnit)
                 }
-                //st ! db_final_result(r.parent, uuid)
-
-
-//                st ! calc_final_result(r.parent, r.uuid, r.finalValue, r.finalUnit)
                 goto(alMasterJobIdle) using new alCalcParmary("", "")
 
             } else stay()

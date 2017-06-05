@@ -2,14 +2,12 @@ package com.pharbers.aqll.alCalcMemory.aldata
 
 import com.pharbers.aqll.alCalaHelp.alFileHandler.alFileHandlers
 import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
-import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
-
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 /**
   * Created by Alfred on 09/03/2017.
-  * Modify by clock on 24/05/2017.
   */
-object alStorage extends alLoggerMsgTrait{
+object alStorage extends alLoggerMsgTrait {
     def apply(path : String, rf : alFileHandlers) : alStorage = new alFileInitStorage(rf.prase(path))
     def apply(lst : List[Any]) : alStorage = new alMemoryInitStorage(lst)
     def apply(ps : List[alPortion]) : alPortionedStorage = {
@@ -38,12 +36,14 @@ object alStorage extends alLoggerMsgTrait{
     }
     
     def union(lst : List[alStorage]) : alStorage = alStorage(lst map { x =>
-            if (x.isInstanceOf[alPortionedStorage]) logger.error(errorToJson("instance of alPortionedStorage").toString)
-            else alPortion(x.data)
+            if (x.isInstanceOf[alPortionedStorage]){
+                // TODO 为啥是抛出未知或异常才可以继续计算，不然在Group合并uuid的数据的时候有问题
+                ???
+            } else alPortion(x.data)
         })
 }
 
-abstract class alStorage(val parents : List[alStorage], val f : Any => Any) {
+abstract class alStorage(val parents : List[alStorage], val f : Any => Any) extends alLoggerMsgTrait {
     var data : List[Any] = Nil
     var portions : List[alPortion] = Nil
     var isCalc = false
@@ -124,7 +124,7 @@ class alMemoryInitStorage(d : List[Any]) extends alInitStorage(null) {
     }
 }
 
-class alPortionedStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p, fc) with alLoggerMsgTrait{
+class alPortionedStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p, fc) {
     override val isPortions = true
 
     override def doCalc = {
@@ -147,7 +147,7 @@ class alPortionedStorage(p : List[alStorage], fc : Any => Any) extends alStorage
     override def length : Int = portions.map(x => x.asInstanceOf[alPortion].length).sum
 }
 
-class alNormalStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p, fc) with alLoggerMsgTrait{
+class alNormalStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p, fc) {
     override def doCalc {
         if (!isCalc) {
             p.foreach(_.doCalc)

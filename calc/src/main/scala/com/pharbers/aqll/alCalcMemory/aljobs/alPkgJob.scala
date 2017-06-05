@@ -7,10 +7,6 @@ import com.pharbers.aqll.common.alCmd.alShellCmdExce
 /**
   * Created by qianpeng on 2017/3/17.
   */
-object alPkgJob {
-
-}
-
 trait alPkgJob {
 	var process : List[alFilePrecess] = Nil
 
