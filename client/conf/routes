@@ -51,6 +51,7 @@ POST    /marketmanage/findOne               controllers.MarketManageController.f
 POST    /marketmanage/save                  controllers.MarketManageController.saveMarket
 #   公用部分
 POST    /callhttpServer                     controllers.CallAkkaHttpController.callHttpServer
+POST    /loadPageData                       controllers.PageInitializationController.loadPageData
 
 # new ember web pages
 GET     /new/*path                          controllers.alMaxRouterController.emberWebPage(path)

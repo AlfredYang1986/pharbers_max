@@ -76,7 +76,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 				new alMessageProxy().sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyCmd(s"$root$program$fileBase${item.company}" ,Upload_Firststep_Filename, "").excute
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				alStandardRoute(result)
+				complete(result)
 			}
 		}
 	}
@@ -87,7 +87,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 				new alMessageProxy().sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyCmd(s"$root$program$fileBase${item.company}",Upload_Secondstep_Filename, item.yms).excute
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				alStandardRoute(result)
+				complete(result)
 			}
 		}
 	}
@@ -97,7 +97,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 			entity(as[alCheckItem]) {item =>
 				val result = alSampleCheck().apply(item.company, item.filename, item.uname)
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				alStandardRoute(result)
+				complete(result)
 			}
 		}
 	}
@@ -108,7 +108,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				val path = fileBase + item.company + outPut + item.filename
 				a ! filter_excel_jobs(path, new alCalcParmary(item.company, item.uname), a)
-				alStandardRoute()
+				complete(toJson(successToJson().get))
 			}
 		}
 	}
@@ -118,7 +118,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
 				a ! commit_finalresult_jobs(item.company)
 				val result = alSampleCheckCommit().apply(item.company)
-				alStandardRoute(result)
+				complete(result)
 			}
 		}
 	}
@@ -134,7 +134,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 					item.uname)
 				val result = alFileExport().apply(alExport)
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				alStandardRoute(result)
+				complete(result)
 			}
 		}
 	}
@@ -143,7 +143,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("createimuser") {
 			entity(as[alHttpCreateIMUser]) { item =>
 				//alIMUser.createUser(item.name, item.pwd)
-				alStandardRoute()
+				complete(toJson(successToJson().get))
 			}
 		}
 	}
@@ -156,10 +156,9 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 					case Some(x) => x.uuid.toString
 				}
 				val result = toJson(successToJson(toJson(uuid)).get)
-				alStandardRoute(result)
+				complete(result)
 			}
 		}
 	}
 	
-	def alStandardRoute(m: JsValue = toJson(successToJson().get)): StandardRoute = complete("""{"result": """+m+"""}""")
 }
