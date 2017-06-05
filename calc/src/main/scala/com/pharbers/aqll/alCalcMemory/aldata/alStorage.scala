@@ -1,11 +1,13 @@
 package com.pharbers.aqll.alCalcMemory.aldata
 
 import com.pharbers.aqll.alCalaHelp.alFileHandler.alFileHandlers
+import com.pharbers.aqll.alCalcMemory.alexception.alException
 import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 /**
   * Created by Alfred on 09/03/2017.
+  *　 Modify by clock on 05/06/2017.
   */
 object alStorage extends alLoggerMsgTrait {
     def apply(path : String, rf : alFileHandlers) : alStorage = new alFileInitStorage(rf.prase(path))
@@ -134,7 +136,7 @@ class alPortionedStorage(p : List[alStorage], fc : Any => Any) extends alStorage
             parents match {
                 case Nil => portions = portions.map (iter => iter.map(f))
                 case pt :: Nil => portions = pt.portions.map (iter => iter.map(f))
-                case _ => logger.error(errorToJson("not implement").toString)
+                case _ => alException(errorToJson("not implement"))
             }
             isCalc = true
         }
@@ -157,7 +159,7 @@ class alNormalStorage(p : List[alStorage], fc : Any => Any) extends alStorage(p,
                 case pt :: Nil => {
                     data = pt.data.map(f)
                 }
-                case _ => logger.error(errorToJson("not implement").toString)
+                case _ => alException(errorToJson("not implement"))
             }
             isCalc = true
         }

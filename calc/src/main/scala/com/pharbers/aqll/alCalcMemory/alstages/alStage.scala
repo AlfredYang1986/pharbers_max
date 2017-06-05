@@ -2,9 +2,12 @@ package com.pharbers.aqll.alCalcMemory.alstages
 
 
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
+import com.pharbers.aqll.alCalcMemory.alexception.alException
+import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 
 /**
   * Created by Alfred on 10/03/2017.
+  * 　Modify by clock on 05/06/2017.
   */
 
 object alStage {
@@ -33,7 +36,7 @@ trait alStage {
 
     def canLength : Boolean = false
     def length : Int = {
-        println("only Memory can calc length")
+        alException(errorToJson("only Memory can calc length"))
         -1
     }
 }
