@@ -1,13 +1,16 @@
 package controllers
 
 import javax.inject._
+
+import akka.actor.ActorSystem
 import com.pharbers.aqll.dbmodule.MongoDBModule
 import module.common.alModularEnum
 import module.common.alAdminEnum
 import module.common.alPageDefaultData._
 import play.api.mvc._
 
-class alMaxRouterController@Inject()(mdb: MongoDBModule) extends Controller {
+class alMaxRouterController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule) extends Controller {
+    implicit val as = as_inject
 
     //登录
     def login = Action { request =>
