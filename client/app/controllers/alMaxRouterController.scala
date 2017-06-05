@@ -101,7 +101,7 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule
     }
 
     def getAdminByCookies(request: Request[AnyContent]): String = {
-        request.cookies.get("is_administrator").map(x => x.value).get.toInt match {
+        request.cookies.get("auth").map(x => x.value).get.toInt match {
             case 0 => alAdminEnum.users.toString
             case 1 => alAdminEnum.admin.toString
             case 2 => alAdminEnum.admin.toString

@@ -1,4 +1,4 @@
-@(is_administrator: String,markets : List[String],dates : List[Map[String,Any]])
+@(auth: String,markets : List[String],dates : List[Map[String,Any]])
 @main("Max | Home") {
 <body>
     <div id="wrapper">
@@ -53,7 +53,7 @@
                     <li>
                         <a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">4.结果查询</span></a>
                     </li>
-                    @if(is_administrator.equals("Yes")){
+                    @if(auth.equals("Yes")){
                         <li>
                             <a><i class="fa fa-gears"></i> <span class="nav-label">管理页面</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">

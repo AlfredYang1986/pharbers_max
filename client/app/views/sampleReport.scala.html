@@ -1,4 +1,4 @@
-@(is_administrator: String,markets : List[String])
+@(auth: String,markets : List[String])
 @main("Max | Home") {
 <body>
     <div style="display: none;" class="progresstier">
@@ -61,7 +61,7 @@
                     <li>
                         <a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">5.结果查询</span></a>
                     </li>
-                    @if(is_administrator.equals("Yes")){
+                    @if(auth.equals("Yes")){
                         <li>
                             <a><i class="fa fa-gears"></i> <span class="nav-label">管理页面</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">

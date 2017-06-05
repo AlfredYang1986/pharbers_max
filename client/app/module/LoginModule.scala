@@ -70,7 +70,7 @@ object LoginModule extends ModuleTrait {
             "E_Mail" -> toJson(x.getAs[String]("E-Mail").get),
             "UserTimestamp" -> toJson(User_lst.as[Number]("Timestamp").longValue()),
             "UserAuth" -> toJson(User_lst.as[Number]("auth").intValue()),
-            "IsAdministrator" -> toJson(User_lst.as[Number]("isadministrator").intValue()),
+            "Auth" -> toJson(User_lst.as[Number]("isadministrator").intValue()),
             "User_Token" -> toJson(User_lst.getAs[String]("ID").getOrElse("无")),
             "CompanyNameCh" -> toJson(Company.head.asInstanceOf[BasicDBObject].get("Ch").toString),
             "CompanyNameEn" -> toJson(Company.head.asInstanceOf[BasicDBObject].get("En").toString),
