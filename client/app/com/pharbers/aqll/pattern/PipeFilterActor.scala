@@ -19,6 +19,7 @@ import module.SampleReportModuleMessage._
 import module.UserManageModuleMessage._
 import module.MarketManageModuleMessage._
 import module.CompanyManageModuleMessage._
+import module.PageInitializationModuleMessage._
 import module._
 
 object PipeFilterActor {
@@ -61,6 +62,7 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 		case cmd : msg_MarketManageBase => dispatchImpl(cmd, MarketManageModule)
 		case cmd : msg_UserManageBase => dispatchImpl(cmd, UserManageModule)
 		case cmd : msg_CompanyManageBase => dispatchImpl(cmd, CompanyManageModule)
+		case cmd : msg_loadPageDataBase => dispatchImpl(cmd, PageInitializationModule)
 		case cmd : ParallelMessage => {
 		    cancelActor
 			next = context.actorOf(ScatterGatherActor.prop(originSender, msr), "scat")
