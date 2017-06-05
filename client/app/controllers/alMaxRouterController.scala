@@ -7,10 +7,7 @@ import module.common.alAdminEnum
 import module.common.alPageDefaultData._
 import play.api.mvc._
 
-@Singleton
-class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
-    implicit val basic = mdb.basic
-    implicit val cores = mdb.cores
+class alMaxRouterController@Inject()(mdb: MongoDBModule) extends Controller {
 
     //登录
     def login = Action { request =>
@@ -36,7 +33,7 @@ class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            Ok(views.html.filesUpload(getAdminByCookies(request), PageDefaultData(alModularEnum.FU, basic, cores)._1))
+            Ok(views.html.filesUpload(getAdminByCookies(request), PageDefaultData(alModularEnum.FU, mdb.basic, mdb.cores)._1))
         }
     }
 
@@ -45,7 +42,7 @@ class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            val defaultdata = PageDefaultData(alModularEnum.SC, basic, cores, false)
+            val defaultdata = PageDefaultData(alModularEnum.SC, mdb.basic, mdb.cores, false)
             Ok(views.html.sampleCheck(getAdminByCookies(request), defaultdata._1, defaultdata._2))
         }
     }
@@ -55,7 +52,7 @@ class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            Ok(views.html.sampleReport(getAdminByCookies(request), PageDefaultData(alModularEnum.SR, basic, cores)._1))
+            Ok(views.html.sampleReport(getAdminByCookies(request), PageDefaultData(alModularEnum.SR, mdb.basic, mdb.cores)._1))
         }
     }
 
@@ -64,7 +61,7 @@ class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            val defaultdata = PageDefaultData(alModularEnum.RC, basic, cores, false)
+            val defaultdata = PageDefaultData(alModularEnum.RC, mdb.basic, mdb.cores, false)
             Ok(views.html.resultCheck(getAdminByCookies(request), defaultdata._1, defaultdata._2))
         }
     }
@@ -74,7 +71,7 @@ class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            Ok(views.html.resultQuery(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, basic, cores)._1))
+            Ok(views.html.resultQuery(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, mdb.basic, mdb.cores)._1))
         }
     }
 
