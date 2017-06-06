@@ -27,18 +27,20 @@
                 <div class="form-group">
                     <label class="control-label" for="status">市场</label>
                     <select data-name="search-result-market" onchange="ModelOperationEchartFun()" class="form-control">
-
-                        <option>{{market}}</option>
-
+                        {{#each markets as |market|}}
+                            <option>{{market}}</option>
+                        {{/each}}
                     </select>
                 </div>
             </div>
-            <div class="col-sm-4 col-md-4">
-                <div class="form-group" id="data_5">
+            <div class="col-sm-3 col-md-3">
+                <div class="form-group">
                     <label class="control-label">日期</label>
-                    <div class="input-daterange input-group" id="datepicker">
-                        <input type="text" class="input-md form-control" name="date_5" value="11/2016" />
-                    </div>
+                    <select data-name="search-result-date" onchange="ModelOperationEchartFun()" class="form-control">
+                        {{#each dates as |date|}}
+                            <option>{{date.name}}</option>
+                        {{/each}}
+                    </select>
                 </div>
             </div>
         </div>
