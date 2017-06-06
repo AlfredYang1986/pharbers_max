@@ -1,13 +1,16 @@
 package controllers
 
 import javax.inject._
+
+import akka.actor.ActorSystem
 import com.pharbers.aqll.dbmodule.MongoDBModule
 import module.common.alModularEnum
 import module.common.alAdminEnum
 import module.common.alPageDefaultData._
 import play.api.mvc._
 
-class alMaxRouterController@Inject()(mdb: MongoDBModule) extends Controller {
+class alMaxRouterController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule) extends Controller {
+    implicit val as = as_inject
 
     //登录
     def login = Action { request =>
@@ -98,7 +101,7 @@ class alMaxRouterController@Inject()(mdb: MongoDBModule) extends Controller {
     }
 
     def getAdminByCookies(request: Request[AnyContent]): String = {
-        request.cookies.get("is_administrator").map(x => x.value).get.toInt match {
+        request.cookies.get("auth").map(x => x.value).get.toInt match {
             case 0 => alAdminEnum.users.toString
             case 1 => alAdminEnum.admin.toString
             case 2 => alAdminEnum.admin.toString
