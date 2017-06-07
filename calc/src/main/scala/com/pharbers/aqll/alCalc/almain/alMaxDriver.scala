@@ -20,6 +20,7 @@ import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, startDate}
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
+import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_filter_excel_jobs, max_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
@@ -35,18 +36,26 @@ object alMaxDriver {
 }
 
 class alMaxDriver extends Actor
-                     with ActorLogging
-                     with alMaxJobsSchedule
-                     with alGroupJobsSchedule
-                     with alCreateExcelSplitRouter
-                     with alGroupJobsManager 
-                     with alCalcJobsSchedule
-                     with alCalcJobsManager
-                     with alPkgJob {
+                    with ActorLogging
+                    with alMaxJobsSchedule
+                    with alGroupJobsSchedule
+                    with alCreateExcelSplitRouter
+                    with alGroupJobsManager
+                    with alCalcJobsSchedule
+                    with alCalcJobsManager
+                    with alPkgJob {
     val start = startDate()
     implicit val t = Timeout(0.5 second)
 
     override def receive = {
+        case "test" => {
+            import scala.concurrent.ExecutionContext.Implicits.global
+            alAkkaMonitor.groupActor foreach { x =>
+                x ! clean_crash_actor("******************")
+            }
+            context.system.scheduler.scheduleOnce(15 seconds, alAkkaMonitor.groupActor.head, group_test())
+        }
+        
         case crash_group(u, m) => {
             group_router.single.get foreach (x => x ! clean_crash_actor(u))
         }

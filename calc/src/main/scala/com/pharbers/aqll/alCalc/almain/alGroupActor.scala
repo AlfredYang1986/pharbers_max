@@ -1,6 +1,7 @@
 package com.pharbers.aqll.alCalc.almain
 
-import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
+import akka.actor.SupervisorStrategy.Restart
+import akka.actor.{Actor, ActorLogging, FSM, Kill, Props, Terminated}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
@@ -10,7 +11,7 @@ import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcEnergy.alSupervisorStrategy
+import com.pharbers.aqll.alCalcEnergy.{alCalcSupervisorStrategy, alSupervisorStrategy}
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, grouping_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
@@ -81,9 +82,6 @@ class alGroupActor extends Actor
                     log.info("group no subs list")
                     stay()
             }
-//            val cj = grouping_jobs(Map(grouping_jobs.max_uuid -> p.uuid, grouping_jobs.group_uuid -> p.subs(groupjust_index.single.get).uuid))
-//            context.system.scheduler.scheduleOnce(0 seconds, self, grouping_job(cj))
-
         }
         case Event(concert_groupjust_result(i), _) => {
             atomic { implicit tnx =>
@@ -91,17 +89,25 @@ class alGroupActor extends Actor
             }
             stay()
         }
+        case Event(group_test(), _) => {
+            println("Test")
+            println(s"group_test self = $self")
+            stay()
+        }
 
         case Event(clean_crash_actor(uuid), data) => {
-            val r = result_ref.single.get.find(x => x.parent == uuid)
-            r match {
-                case None => None
-                case Some(d) =>
-                    new alMessageProxy().sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
-                    d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
-//                Restart
-            }
-            goto(alMasterJobIdle) using new alCalcParmary("", "")
+            //            val r = result_ref.single.get.find(x => x.parent == uuid)
+            //            r match {
+            //                case None => None
+            //                case Some(d) =>
+            //                    new alMessageProxy().sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
+            //                    d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
+            //            }
+            println(s"fuck $uuid")
+            println(s"clean_crash_actor self $self")
+            println(context.children.toList)
+            context stop context.children.toList.head
+            stay()
         }
     }
 
@@ -196,7 +202,7 @@ class alGroupActor extends Actor
                 context.unwatch(concert_router)
             }else {
                 log.info(s"concert_group -- 尝试${data.faultTimes}次")
-                self ! calc_job(maxProperty, data)
+                self ! group_job(maxProperty, data)
             }
             goto(alMasterJobIdle) using data
         }
@@ -209,7 +215,7 @@ class alGroupActor extends Actor
     val concert_router = CreateConcretGroupRouter
 }
 
-trait alCreateConcretGroupRouter extends alSupervisorStrategy { this : Actor =>
+trait alCreateConcretGroupRouter extends alCalcSupervisorStrategy { this : Actor =>
     import alCalcActor.core_number
     def CreateConcretGroupRouter =
         context.actorOf(BroadcastPool(core_number).props(alConcertGroupActor.props), name = "concert-group-router")
