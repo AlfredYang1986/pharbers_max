@@ -20,6 +20,7 @@ import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alWeightSum
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alCalaHelp.dbcores._
+import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor._
 
 /**
   * Created by qianpeng on 2017/5/17.
@@ -31,14 +32,13 @@ trait alCalcJobsSchedule { this: Actor =>
 }
 
 trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule with ActorLogging =>
-	
-	val calc_router = Ref(List[ActorRef]())
+//	val calc_router = Ref(List[ActorRef]())
 	var calc_nodenumber = -1
 	var section_number = -1
 
-	def registerCalcRouter(a : ActorRef) = atomic { implicit txn =>
-		calc_router() = calc_router() :+ a
-	}
+//	def registerCalcRouter(a : ActorRef) = atomic { implicit txn =>
+//		calc_router() = calc_router() :+ a
+//	}
 
 	def pushCalcJobs(cur : alMaxProperty) = atomic { implicit txn =>
 		waiting_calc() = waiting_calc() :+ cur
@@ -56,13 +56,15 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 
 	def canSignCalcJob(p : alMaxProperty): Boolean = {
 		implicit val t = Timeout(0.5 second)
-		val f = calc_router.single.get map (x => x ? can_sign_job())
+//		val f = calc_router.single.get map (x => x ? can_sign_job())
+		val f = calcRouter map (x => x ? can_sign_job())
 		p.subs.length / server_info.cpu <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
 	}
 
 	def signCalcJob(p : alMaxProperty) = {
 		atomic { implicit tnx =>
-			siginEach(calc_router.single.get)
+//			siginEach(calc_router.single.get)
+			siginEach(calcRouter.toList)
 			waiting_calc() = waiting_calc().tail
 			calcing_jobs() = calcing_jobs() :+ p
 		}
@@ -109,10 +111,10 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 
 					val mapAvg = r.sum.map { x =>
 						(x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
-						//                        (x._1, (x._2._1 / x._2._3),(x._2._2 / x._2._3))
 					}
 
-					calc_router.single.get foreach ( x => x ! calc_avg_job(r.uuid, mapAvg))
+//					calc_router.single.get foreach ( x => x ! calc_avg_job(r.uuid, mapAvg))
+					calcRouter foreach ( x => x ! calc_avg_job(r.uuid, mapAvg))
 				}
 			}
 		}
@@ -135,7 +137,7 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 						("", "", "")
 					case Some(x) =>
 						val u = x.company+uuid
-						alRestoreColl().apply(u, sub_uuid :: Nil)
+//						alRestoreColl().apply(u, sub_uuid :: Nil)
 						(x.company, u, x.uname)
 					case _ => ???
 				}

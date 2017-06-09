@@ -23,6 +23,8 @@ import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor._
+
 /**
   * Created by qianpeng on 2017/5/17.
   */
@@ -33,12 +35,12 @@ trait alGroupJobsSchedule { this: Actor =>
 }
 
 trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule with ActorLogging=>
-	val group_router = Ref(List[ActorRef]())
+//	val group_router = Ref(List[ActorRef]())
 	var group_nodenumber = -1
 
-	def registerGroupRouter(a : ActorRef) = atomic { implicit txn =>
-		group_router() = group_router() :+ a
-	}
+//	def registerGroupRouter(a : ActorRef) = atomic { implicit txn =>
+//		group_router() = group_router() :+ a
+//	}
 
 	def pushGroupJobs(cur : alMaxProperty) = atomic { implicit txn =>
 		waiting_grouping() = waiting_grouping() :+ cur
@@ -116,6 +118,7 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 					:: Nil)
 				process = do_pkg() :: Nil
 				super.excute()
+				
 				self ! finish_max_group_job(uuid)
 				self ! push_calc_job(alMaxProperty(null, p, subs))
 			}
@@ -128,12 +131,14 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 
 	def canSignGroupJob(p : alMaxProperty): Boolean = {
 		implicit val t = Timeout(0.5 second)
-		val f = group_router.single.get map (x => x ? can_sign_job())
+//		val f = group_router.single.get map (x => x ? can_sign_job())
+		val f = groupRouter map (x => x ? can_sign_job())
 		p.subs.length <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
 	}
 
 	def signGroupJob(p : alMaxProperty) = {
-		siginEach(group_router.single.get)
+//		siginEach(group_router.single.get)
+		siginEach(groupRouter.toList)
 		atomic { implicit tnx =>
 			waiting_grouping() = waiting_grouping().tail
 			grouping_jobs() = grouping_jobs() :+ p

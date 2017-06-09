@@ -1,8 +1,8 @@
 package com.pharbers.aqll.alCalcMemory.alprecess
 
+import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alRegisterCommond
 import com.pharbers.aqll.common.alCmd.alShellCmdExce
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
 
 /**
   * Created by Alfred on 10/03/2017.
@@ -16,4 +16,8 @@ trait alPrecess{
 
 trait alFilePrecess {
     def precess(s: alShellCmdExce)
+}
+
+trait alRegister {
+    def precess(s: alRegisterCommond)
 }
