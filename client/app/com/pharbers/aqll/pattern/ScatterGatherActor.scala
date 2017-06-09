@@ -7,9 +7,7 @@ import akka.actor.Props
 import scala.concurrent.stm._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-
 import ParallelMessage.f
-
 import scala.concurrent.duration._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
@@ -20,9 +18,7 @@ object ScatterGatherActor {
 }
 
 class ScatterGatherActor(originSender : ActorRef, msr : MessageRoutes)(implicit f : List[Map[String, JsValue]] => Map[String, JsValue]) extends Actor with ActorLogging {
-
-	implicit val cm = msr.cm
-
+	implicit val db = msr.db
 	var next : ActorRef = null
 	var sub_act = Seq[ActorRef]()
 	var excepted = 0

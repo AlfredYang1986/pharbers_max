@@ -1,8 +1,11 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-    onload:Ember.computed(function () {
-        Ember.$('#date')[0].innerText = getNowFormatDate();
+    mytime:new Date(),
+
+    onload:Ember.computed('mytime',function () {
+
+        Ember.$('#date')[0].innerText = this.getNowFormatDate();
         Ember.$('#company_ch')[0].innerText = Ember.$.cookie("company_name_ch");
         Ember.$.ajax({
             type: "POST",
@@ -17,10 +20,10 @@ export default Ember.Controller.extend({
                     if(result.length != 0){
                         var html = "";
                         html += "<li>"
-                        $.each(result,function(i,v){
+                        Ember.$.each(result,function(i,v){
                             html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v.Market+"</span>"
                             html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，您需要进行放大月份为</span>"
-                            html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+array2str(v.date_lst_sb)+"</span>"
+                            html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+this.array2str(v.date_lst_sb)+"</span>"
                             html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>，</span>"
                             html += "</li>"
                             html += "<p class=MsoNormal style='vertical-align: middle'><span lang=EN-US style='font-family: 'verdena', 'serif'; color: black'>&nbsp;</span></p>"
@@ -31,7 +34,7 @@ export default Ember.Controller.extend({
                             var bodys = v.dhp_lst_sb
                             if(bodys!=null && bodys.length!=0){
 
-                                $.each(bodys,function (i,v2) {
+                                Ember.$.each(bodys,function (i,v2) {
                                     html += "<span style='font-family: 幼圆; font-size: 12pt; color: red; text-indent:2em;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+v2.Date+"</span>"
                                     html += "<span style='font-family: 幼圆; font-size: 12pt; color: black'>产品数</span>"
                                     html += "<span style='font-family: 幼圆; font-size: 12pt; color: red'>"+v2.c_ProductNum+"</span>"
@@ -141,5 +144,30 @@ export default Ember.Controller.extend({
                 }
             }
         });
-    })
+    }),
+
+    array2str(lst){
+        var str = ""
+        for(var x in lst){
+            str = str + lst[x] + "、"
+        }
+        return str.substring(0,str.length-1)
+    },
+
+    //获取当前时间，格式YYYY年MM月DD日
+    getNowFormatDate() {
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var strDate = date.getDate();
+        if (month >= 1 && month <= 9) {
+            month = "0" + month;
+        }
+        if (strDate >= 0 && strDate <= 9) {
+            strDate = "0" + strDate;
+        }
+        var currentdate = year + '年' + month + '月' + strDate + '日';
+        return currentdate;
+    }
+
 });

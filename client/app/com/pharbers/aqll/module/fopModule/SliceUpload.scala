@@ -4,11 +4,11 @@ import play.api.libs.Files.TemporaryFile
 import play.api.mvc.MultipartFormData
 import java.io._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
-import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alString.alStringOpt
+import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 
 /**
   * Created by liwei on 2017/4/7.
@@ -18,7 +18,7 @@ object SliceUpload {
     // TODO : 多文件上传后台代码
     // TODO : 多文件上传的核心是，前端的文件队列里面，文件一个一个排着队，等第一个文件上传完了，在上传第二个文件，
     // TODO : 前端反复多次调用这个方法，mulitiFIleFileName为当前正在上传的文件名
-    def ManyFileSlice(data: MultipartFormData[TemporaryFile])(implicit error_handler: String => JsValue): JsValue = {
+    def ManyFileSlice(data: MultipartFormData[TemporaryFile]): JsValue = {
         try {
             //var lst : List[JsValue] = Nil
             data.files.foreach { x =>
@@ -35,9 +35,9 @@ object SliceUpload {
                 MergeSliceFile(s"${t_lst.tail.head}$filename", x.ref.file)
                 //lst = lst :+ toJson(filename)
             }
-            Json.toJson(Map("status" -> toJson("ok")))
+            toJson(successToJson())
         } catch {
-            case ex: Exception => error_handler(ex.getMessage)
+            case ex: Exception => errorToJson(ex.getMessage)
         }
     }
 

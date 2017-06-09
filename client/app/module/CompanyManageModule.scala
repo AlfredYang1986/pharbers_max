@@ -1,15 +1,15 @@
 package module
 
-import com.mongodb.{BasicDBList, BasicDBObject, DBObject}
+import com.mongodb.{BasicDBList, DBObject}
 import com.pharbers.aqll.common.alDao.data_connection
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
-import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import play.api.libs.json.JsValue
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
-import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
+import com.pharbers.aqll.dbmodule.MongoDBModule
 
 object CompanyManageModuleMessage {
     sealed class msg_CompanyManageBase extends CommonMessage
@@ -21,30 +21,28 @@ object CompanyManageModuleMessage {
 
 object CompanyManageModule extends ModuleTrait {
     import CompanyManageModuleMessage._
-    import controllers.common.default_error_handler.f
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_companymanage_query(data) => query_company_func(data)
         case msg_companymanage_delete(data) => delete_company_func(data)
         case msg_companymanage_findOne(data) => findOne_company_func(data)
         case msg_companymanage_save(data) => save_company_func(data)
     }
 
-    def query_company_func(data: JsValue)(implicit error_handler: String => JsValue,  cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def query_company_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
             val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse(throw new Exception("warn input"))
             val result = Company_Id match {
                 case "788d4ff5836bcee2ebf4940fec882ac8" => {
-                    database.getCollection("Company").find().toList.map(x => queryCompanyDBObject(x: DBObject))
+                    db.basic.getCollection("Company").find().toList.map(x => queryCompanyDBObject(x: DBObject))
                 }
                 case _ => {
                     val query = MongoDBObject("Company_Id" -> Company_Id)
-                    database.getCollection("Company").find(query).toList.map(x => queryCompanyDBObject(x: DBObject))
+                    db.basic.getCollection("Company").find(query).toList.map(x => queryCompanyDBObject(x: DBObject))
                 }
             }
             (successToJson(toJson(result)), None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage())))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
     }
 
@@ -58,32 +56,29 @@ object CompanyManageModule extends ModuleTrait {
             "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(x.get("Timestamp").asInstanceOf[Number].longValue()))))
     }
 
-    def delete_company_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def delete_company_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
             val ids = (data \ "Company_Id").get.asOpt[List[String]].getOrElse(throw new Exception("warn input"))
-            val r = ids map(x => database.getCollection("Company").findAndRemove(MongoDBObject("Company_Id" -> x)))
+            val r = ids map(x => db.basic.getCollection("Company").findAndRemove(MongoDBObject("Company_Id" -> x)))
             r.size match {
                 case i if i.equals(ids.size) => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
                 case _ => throw new Exception("warn operation failed")
             }
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage())))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
     }
 
-    def findOne_company_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def findOne_company_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
-            (successToJson(findOneCompany(database,data)), None)
+            (successToJson(findOneCompany(db.basic,data)), None)
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage())))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
     }
 
-    def save_company_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def save_company_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
             val au = (data \ "au").get.asOpt[String].getOrElse(throw new Exception("warn input"))
             val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse(throw new Exception("warn input"))
             val Company_Name_Ch = (data \ "Company_Name_Ch").get.asOpt[String].getOrElse(throw new Exception("warn input"))
@@ -98,9 +93,9 @@ object CompanyManageModule extends ModuleTrait {
                         })
                         case _ => Company_Id
                     }
-                    cm.modules.get.get("db").get.asInstanceOf[data_connection].getCollection("Company").findOne(MongoDBObject("Company_Id" -> Company_Id_MD5)) match {
+                    db.basic.getCollection("Company").findOne(MongoDBObject("Company_Id" -> Company_Id_MD5)) match {
                         case None => {
-                            database.getCollection("Company").insert(
+                            db.basic.getCollection("Company").insert(
                                 MongoDBObject(
                                     "Company_Id" -> Company_Id_MD5,
                                     "Company_Name" -> MongoDBList(MongoDBObject(
@@ -123,8 +118,8 @@ object CompanyManageModule extends ModuleTrait {
                 }
                 case "update" => {
                     val query = MongoDBObject("Company_Id" -> Company_Id)
-                    val company = database.getCollection("Company").findOne(query)
-                    database.getCollection("Company").update(query,
+                    val company = db.basic.getCollection("Company").findOne(query)
+                    db.basic.getCollection("Company").update(query,
                         MongoDBObject(
                             "Company_Id" -> Company_Id,
                             "Company_Name" -> MongoDBList(MongoDBObject(
@@ -142,7 +137,7 @@ object CompanyManageModule extends ModuleTrait {
                 }
             }
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage())))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
     }
 

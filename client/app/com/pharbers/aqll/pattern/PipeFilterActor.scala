@@ -5,6 +5,7 @@ import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.ActorRef
 import akka.actor.Props
+import com.pharbers.aqll.dbmodule.MongoDBModule
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -13,12 +14,13 @@ import module.ResultQueryModuleMessage._
 import module.SampleCheckModuleMessage.msg_CheckBaseQuery
 import module.LoginModuleMessage.msg_LoginBaseQuery
 import module.FilesUploadModuleMessage._
-import module.{ResultCheckModule, SampleReportModule, UserManageModule, MarketManageModule, CompanyManageModule}
 import module.ResultCheckModuleMessage._
 import module.SampleReportModuleMessage._
 import module.UserManageModuleMessage._
 import module.MarketManageModuleMessage._
 import module.CompanyManageModuleMessage._
+import module.PageInitializationModuleMessage._
+import module._
 
 object PipeFilterActor {
 	def prop(originSender : ActorRef, msr : MessageRoutes) : Props = {
@@ -27,7 +29,7 @@ object PipeFilterActor {
 }
 
 class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Actor with ActorLogging {
-	implicit val cm = msr.cm
+	implicit val db : MongoDBModule = msr.db
 
 	def dispatchImpl(cmd : CommonMessage, module : ModuleTrait) = {
 		tmp = Some(true)
@@ -48,19 +50,20 @@ class PipeFilterActor(originSender : ActorRef, msr : MessageRoutes) extends Acto
 	var rst : Option[Map[String, JsValue]] = msr.rst
 	var next : ActorRef = null
 	def receive = {
-        case cmd : msg_CallHttp => dispatchImpl(cmd, module.CallAkkaHttpModule)
-				case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, module.LoginModule)
-				case cmd : msg_filesuploadBase => dispatchImpl(cmd, module.FilesUploadModule)
-				case cmd : msg_CheckBaseQuery => dispatchImpl(cmd, module.SampleCheckModule)
-				case cmd : msg_resultCheckBase => dispatchImpl(cmd, ResultCheckModule)
-				case cmd : msg_resultqueryBase => dispatchImpl(cmd, module.ResultQueryModule)
-				case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
-				case cmd : msg_LogCommand => dispatchImpl(cmd, LogModule)
-				case cmd : msg_ReportBaseQuery => dispatchImpl(cmd, SampleReportModule)
-				case cmd : msg_MarketManageBase => dispatchImpl(cmd, MarketManageModule)
-				case cmd : msg_UserManageBase => dispatchImpl(cmd, UserManageModule)
-				case cmd : msg_CompanyManageBase => dispatchImpl(cmd, CompanyManageModule)
-				case cmd : ParallelMessage => {
+        case cmd : msg_CallHttp => dispatchImpl(cmd, CallAkkaHttpModule)
+		case cmd : msg_LoginBaseQuery => dispatchImpl(cmd, LoginModule)
+		case cmd : msg_filesuploadBase => dispatchImpl(cmd, FilesUploadModule)
+		case cmd : msg_CheckBaseQuery => dispatchImpl(cmd, SampleCheckModule)
+		case cmd : msg_resultCheckBase => dispatchImpl(cmd, ResultCheckModule)
+		case cmd : msg_resultqueryBase => dispatchImpl(cmd, ResultQueryModule)
+		case cmd : msg_ResultCommand => dispatchImpl(cmd, ResultModule)
+		case cmd : msg_LogCommand => dispatchImpl(cmd, LogModule)
+		case cmd : msg_ReportBaseQuery => dispatchImpl(cmd, SampleReportModule)
+		case cmd : msg_MarketManageBase => dispatchImpl(cmd, MarketManageModule)
+		case cmd : msg_UserManageBase => dispatchImpl(cmd, UserManageModule)
+		case cmd : msg_CompanyManageBase => dispatchImpl(cmd, CompanyManageModule)
+		case cmd : msg_loadPageDataBase => dispatchImpl(cmd, PageInitializationModule)
+		case cmd : ParallelMessage => {
 		    cancelActor
 			next = context.actorOf(ScatterGatherActor.prop(originSender, msr), "scat")
 			next ! cmd
