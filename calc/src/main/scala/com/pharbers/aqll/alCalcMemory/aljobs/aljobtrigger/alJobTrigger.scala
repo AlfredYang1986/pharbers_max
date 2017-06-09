@@ -26,7 +26,6 @@ object alJobTrigger {
 
     case class group_register(a : ActorRef)
     case class calc_register(a : ActorRef)
-    case class group_test()
 
     case class filter_excel_jobs(file: String, p: alCalcParmary, actorSelection: ActorSelection)
     case class commit_finalresult_jobs(company: String)

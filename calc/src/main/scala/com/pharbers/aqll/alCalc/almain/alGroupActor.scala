@@ -89,24 +89,16 @@ class alGroupActor extends Actor
             }
             stay()
         }
-        case Event(group_test(), _) => {
-            println("Test")
-            println(s"group_test self = $self")
-            stay()
-        }
 
         case Event(clean_crash_actor(uuid), data) => {
-            //            val r = result_ref.single.get.find(x => x.parent == uuid)
-            //            r match {
-            //                case None => None
-            //                case Some(d) =>
-            //                    new alMessageProxy().sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
-            //                    d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
-            //            }
-            println(s"fuck $uuid")
-            println(s"clean_crash_actor self $self")
-            println(context.children.toList)
-            context stop context.children.toList.head
+            val r = result_ref.single.get.find(x => x.parent == uuid)
+            r match {
+                case None => None
+                case Some(d) =>
+                    new alMessageProxy().sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
+                    d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
+                    context stop self
+            }
             stay()
         }
     }

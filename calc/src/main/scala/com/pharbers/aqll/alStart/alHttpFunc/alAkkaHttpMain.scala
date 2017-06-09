@@ -6,6 +6,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almain.{alCalcActor, alGroupActor}
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor
 import com.pharbers.aqll.alCalcEnergy.{alCalcRegisterActor, alDriverSingleton, alGroupRegisterActor}
@@ -61,6 +62,7 @@ object alAkkaHttpMain extends App with RequestTimeout {
 //				a ! group_register(w)
 //				a ! calc_register(c)
 //				a ! worker_register()
+				
 				val rm = system.actorOf(alScheduleRemoveFiles.props)
 				system.scheduler.schedule(0 seconds, 10 seconds, rm, new rmFile())
 			}

@@ -1,9 +1,14 @@
 package com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection, Address, Props, Terminated}
 import akka.cluster.ClusterEvent._
 import akka.cluster.{Cluster, Member}
+import com.pharbers.aqll.alCalcMemory.aljobs.alRegisterJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register}
+import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.do_register
+import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+
+import scala.concurrent.stm.atomic
 
 /**
   * Created by qianpeng on 2017/6/1.
@@ -11,11 +16,11 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{calc_reg
 
 object alAkkaMonitor {
 	val props = Props[alAkkaMonitor]
-	var groupActor = Seq[ActorRef]()
-	var calcActor = Seq[ActorRef]()
+	var groupRouter = Seq[ActorRef]()
+	var calcRouter = Seq[ActorRef]()
 }
 
-class alAkkaMonitor extends Actor with ActorLogging {
+class alAkkaMonitor extends Actor with ActorLogging with alRegisterJob{
 	import alAkkaMonitor._
 	
 	Cluster(context.system).subscribe(self, classOf[MemberEvent])
@@ -33,28 +38,80 @@ class alAkkaMonitor extends Actor with ActorLogging {
 	}
 	
 	override def receive = {
-		case MemberJoined(member) =>
-			println("Member Joined")
+		case MemberJoined(member) => println("Member Joined")
 		case MemberUp(member) =>
-			println(s"MemberUp Address = ${member.address}")
-			register(member)
+			cur = Some(RegisterGroup(member.address, group_register(self)) :: RegisterCalc(member.address, calc_register(self)) :: Nil)
+			process = do_register() :: Nil
+			super.excute()
+			atomic { implicit txn => server_info.section() = server_info.section() + 1 }
 		
-		case MemberExited(member) => log.info("Member Exited")
-		case MemberRemoved(member, previousStatus) => log.info("Member Remove")
+		case UnreachableMember(member) =>
+			atomic { implicit txn => server_info.section() = server_info.section() - 1 }
+			removedAcotr(member)
+			
+//		case MemberRemoved(member, previousStatus) => log.info("Member Remove")
 		
 		case group_register(act) =>
-			groupActor = groupActor :+ act
+			groupRouter = groupRouter :+ act
+			context.watch(act)
+		
 		case calc_register(act) =>
-			calcActor = calcActor :+ act
+			calcRouter = calcRouter :+ act
+			context.watch(act)
 			
 		case Terminated(a) =>
-			groupActor = groupActor.filterNot(_ == a)
-			calcActor = calcActor.filterNot(_ == a)
+//			groupActor = groupActor.filterNot( _ == a)
+//			calcActor = calcActor.filterNot( _ == a)
+			groupRouter = groupRouter.filterNot{ x =>
+				if(x == a) {
+					cur = Some(RegisterGroup(a.path.address, group_register(self)) :: Nil)
+					process = do_register() :: Nil
+					super.excute()
+					true
+				} else false
+			}
+
+			calcRouter = calcRouter.filterNot{ x =>
+				if(x == a) {
+					cur = Some(RegisterCalc(a.path.address, calc_register(self)) :: Nil)
+					process = do_register() :: Nil
+					super.excute()
+					true
+				} else false
+			}
+		
 		case x => println(x)
 	}
 	
-	def register(member: Member) = {
-		context.actorSelection(s"${member.address}/user/registergroup") ! group_register(self)
-		context.actorSelection(s"${member.address}/user/registercalc") ! calc_register(self)
+	/**
+	  * 针对于节点因为未知原因重启或者断网导致出错，来删除相应节点的Actor
+	  */
+	def removedAcotr(member: Member): Unit = {
+		groupRouter = groupRouter.filterNot(x => x.path.address == member.address)
+		calcRouter = calcRouter.filterNot(x => x.path.address == member.address)
 	}
+	
+	case class RegisterGroup(address: Address, msg: Any) extends alRegisterCommond {
+		override def actorSelection: ActorSelection = context.actorSelection(s"${address}/user/registergroup")
+		override def message: Any = msg
+	}
+	
+	case class RegisterCalc(address: Address, msg: Any) extends alRegisterCommond {
+		override def actorSelection: ActorSelection = context.actorSelection(s"${address}/user/registercalc")
+		override def message: Any = msg
+	}
+}
+
+trait alRegisterCommond {
+	def actorSelection: ActorSelection = null
+	
+	def message: Any
+	
+	def register(): Unit = actorSelection ! message
+	
+//	def actorSeq: Option[Seq[ActorRef]] = None
+//
+//	def member: Option[Member] = None
+//
+//	def removed(): Unit = None
 }

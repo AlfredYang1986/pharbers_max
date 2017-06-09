@@ -98,9 +98,9 @@ class alCalcActor extends Actor
                 case Some(d) =>
                     new alMessageProxy().sendMsg(s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
                     d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
-//                    Restart
+                    context stop self
             }
-            goto(alMasterJobIdle) using new alCalcParmary("", "")
+            stay()
         }
     }
 
