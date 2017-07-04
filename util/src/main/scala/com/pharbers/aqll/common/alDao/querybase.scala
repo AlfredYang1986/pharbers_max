@@ -34,27 +34,21 @@ trait data_connection {
 
 object dataFactory {
 
-    def getDataCores(host: String = "127.0.0.1", port: Int = 2017, user: String = "Pharbers", pwd: String = "Pharbers2017."): data_connection = new DataConnectionCores(host, port, user, pwd)
+    def getDataCores(host: String = "127.0.0.1", port: Int = 27017, user: String = "", pwd: String = "", dbname: String = "Max_Cores"): data_connection = new DataConnection(host, port, user, pwd, dbname)
 
-    def getDataBasic(host: String = "127.0.0.1", port: Int = 2017, user: String = "Pharbers", pwd: String = "Pharbers2017."): data_connection = new DataConnectionBasic(host, port, user, pwd)
+    def getDataBasic(host: String = "127.0.0.1", port: Int = 27017, user: String = "", pwd: String = "", dbname: String = "Max_Basic"): data_connection = new DataConnection(host, port, user, pwd, dbname)
 }
 
-class DataConnectionCores(host: String, port: Int, user: String, pwd: String) extends data_connection {
-    override def conn_name: String = "Max_Cores"
+class DataConnection(host: String, port: Int, user: String, pwd: String, dbname: String) extends data_connection {
+    override def conn_name: String = dbname
     override def addr: ServerAddress = new ServerAddress(host, port)
     override def credentialsList: MongoCredential = MongoCredential.createScramSha1Credential(user, conn_name , pwd.toCharArray)
-}
-
-class DataConnectionBasic(host: String, port: Int, user: String, pwd: String) extends data_connection {
-    override def conn_name: String = "Max_Basic"
-    override def addr: ServerAddress = new ServerAddress(host, port)
-    override def credentialsList: MongoCredential = MongoCredential.createScramSha1Credential(user, conn_name ,pwd.toCharArray)
 }
 
 object _data_connection_cores_thread extends data_connection {
     override def conn_name: String = "Max_Cores"
 
-    override def addr: ServerAddress = new ServerAddress("127.0.0.1",2017)
+    override def addr: ServerAddress = new ServerAddress("127.0.0.1",27017)
     override def credentialsList: MongoCredential = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
 
     var conntion  = Ref(Map[String , MongoCollection]().empty)
