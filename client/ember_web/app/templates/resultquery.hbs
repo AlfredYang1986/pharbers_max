@@ -40,9 +40,9 @@
                                 <select data-name="search-result-datatype" class="form-control">
                                     <option>省份数据</option>
                                     <option>城市数据</option>
-                                    @if(is_administrator.equals("Yes")){
+                                    {{#if auth}}
                                     <option>医院数据</option>
-                                    }
+                                    {{/if}}
                                 </select>
                             </div>
                         </div>

@@ -31,6 +31,17 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule
         }
     }
 
+    //计算
+    def calculaData = Action {
+        Ok(views.html.CalculaData(""))
+    }
+
+    //历史数据
+    def historyData = Action {
+        Ok(views.html.HistoryData(""))
+    }
+
+
     //文件上传
     def filesUpload = Action { request =>
         if (getUserTokenByCookies(request).equals("")) {
