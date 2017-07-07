@@ -14,7 +14,7 @@ import com.pharbers.aqll.common.alCmd.pkgcmd.unPkgCmd
 import com.pharbers.aqll.common.alDao.dataFactory._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
-import com.pharbers.aqll.alCalcEnergy.alSupervisorStrategy
+import com.pharbers.aqll.alCalcEnergy.alCalcSupervisorStrategy
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.alMaxCalcJobStates.{calc_coreing, calc_maxing}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.do_pkg
@@ -98,9 +98,9 @@ class alCalcActor extends Actor
                 case Some(d) =>
                     new alMessageProxy().sendMsg(s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
                     d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
-//                    Restart
+                    context stop self
             }
-            goto(alMasterJobIdle) using new alCalcParmary("", "")
+            stay()
         }
     }
 
@@ -247,7 +247,7 @@ class alCalcActor extends Actor
     val concert_router = CreateConcretCalcRouter
 }
 
-trait alCreateConcretCalcRouter extends alSupervisorStrategy { this : Actor =>
+trait alCreateConcretCalcRouter extends alCalcSupervisorStrategy { this : Actor =>
     import alCalcActor.core_number
     def CreateConcretCalcRouter =
         context.actorOf(BroadcastPool(core_number).props(alConcertCalcActor.props), name = "concert-calc-router")

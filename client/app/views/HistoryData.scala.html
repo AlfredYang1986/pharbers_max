@@ -35,23 +35,14 @@
                             MAX
                         </div>
                     </li>
-                    <li class="active">
+                    <li>
                         <a href="index"><i class="fa fa-th-large"></i> <span class="nav-label">首页</span></a>
                     </li>
                     <li>
-                        <a href="filesupload"><i class="fa fa-cloud-upload"></i> <span class="nav-label">1.文件上传</span></a>
+                        <a href="filesupload"><i class="fa fa-cloud-upload"></i> <span class="nav-label">计算</span></a>
                     </li>
-                    <li>
-                        <a href="samplecheck"><i class="fa fa-pie-chart"></i> <span class="nav-label">2.样本检查</span></a>
-                    </li>
-                    <li>
-                        <a href="samplereport"><i class="fa fa-file-text"></i> <span class="nav-label">3.样本报告</span></a>
-                    </li>
-                    <li>
-                        <a href="resultcheck"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">4.结果检查</span></a>
-                    </li>
-                    <li>
-                        <a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">5.结果查询</span></a>
+                    <li class="active">
+                        <a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">历史数据</span></a>
                     </li>
                     @if(auth.equals("Yes")){
                         <li>
@@ -87,36 +78,8 @@
 		            </ul>
 		        </nav>
 	        </div>
-        	@*<div class="row wrapper border-bottom white-bg page-heading">*@
-                @*<div class="col-sm-4">*@
-                    @*<h2>这是主标题</h2>*@
-                    @*<ol class="breadcrumb">*@
-                        @*<li>*@
-                            @*<a href="index">当前</a>*@
-                        @*</li>*@
-                        @*<li class="active">*@
-                            @*<strong>位置</strong>*@
-                        @*</li>*@
-                    @*</ol>*@
-                @*</div>*@
-                @*<div class="col-sm-8">*@
-                    @*<div class="title-action">*@
-                        @*<a href="" class="btn btn-primary">这是行动区</a>*@
-                    @*</div>*@
-                @*</div>*@
-            @*</div>*@
-
-            @*<div class="wrapper wrapper-content">*@
-                @*<div class="middle-box text-center animated fadeInRightBig">*@
-                    @*<h3 class="font-bold">这是页面内容</h3>*@
-                    @*<div class="error-desc">*@
-                        	@*在这里你可以创造任何你想要的网格布局。和任何变异布局你想象:) 检查主仪表板和其他网站。它使用许多不同的布局。*@
-                        @*<br/><a href="index.html" class="btn btn-primary m-t">主页面</a>*@
-                    @*</div>*@
-                @*</div>*@
-            @*</div>*@
             <div>
-                <img src="@routes.Assets.versioned("img/index.jpg")" alt="imag" width="100%" height="100%">
+
             </div>
         </div>
     </div>

@@ -13,6 +13,10 @@ GET		/register					        controllers.alMaxRouterController.register
 #   首页
 GET		/index						        controllers.alMaxRouterController.index
 POST	/index						        controllers.alMaxRouterController.index
+#计算
+GET		/calculaData                        controllers.alMaxRouterController.calculaData
+#历史数据
+GET		/historyData                        controllers.alMaxRouterController.historyData
 #   文件上传
 GET		/filesupload				        controllers.alMaxRouterController.filesUpload
 GET     /pharbers/files/:name               controllers.FopController.downloadFile(name)
