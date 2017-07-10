@@ -6,9 +6,10 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almain.{alCalcActor, alGroupActor}
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor
-import com.pharbers.aqll.alCalcEnergy.alDriverSingleton
+import com.pharbers.aqll.alCalcEnergy.{alCalcRegisterActor, alDriverSingleton, alGroupRegisterActor}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile}
 import com.typesafe.config.{Config, ConfigFactory}
@@ -32,7 +33,6 @@ object alAkkaHttpMain extends App with RequestTimeout {
 	implicit val ec = system.dispatcher
 	implicit val mat = ActorMaterializer()
 
-//	val api = new alAkkaHttpFuncApi(system, requestTimeout(config)).routes
 	val api = new alAkkaHttpFunctionApi(system, requestTimeout(config)).routes
 
 	
@@ -48,16 +48,21 @@ object alAkkaHttpMain extends App with RequestTimeout {
 	def stubmain = {
 		val config = ConfigFactory.load("split-master")
 		val system = ActorSystem("calc", config)
-		val w = system.actorOf(alGroupActor.props)
-		val c = system.actorOf(alCalcActor.props)
-		val a = system.actorOf(alDriverSingleton.props, "splitreception")
+//		val w = system.actorOf(alGroupActor.props)
+//		val c = system.actorOf(alCalcActor.props)
+//		val a = system.actorOf(alDriverSingleton.props, "splitreception")
+		system.actorOf(alDriverSingleton.props, "splitreception")
+		system.actorOf(alGroupRegisterActor.props, "registergroup")
+		system.actorOf(alCalcRegisterActor.props, "registercalc")
+		
 		import scala.concurrent.duration._
 		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
 			Cluster(system).registerOnMemberUp {
 				alAkkaSystemGloble.system = system
-				a ! group_register(w)
-				a ! calc_register(c)
-				a ! worker_register()
+//				a ! group_register(w)
+//				a ! calc_register(c)
+//				a ! worker_register()
+				
 				val rm = system.actorOf(alScheduleRemoveFiles.props)
 				system.scheduler.schedule(0 seconds, 10 seconds, rm, new rmFile())
 			}

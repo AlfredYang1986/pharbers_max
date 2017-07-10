@@ -1,7 +1,6 @@
 package com.pharbers.aqll.pattern
 
-import akka.actor.ActorRef
-import akka.actor.Actor
+import com.pharbers.aqll.dbmodule.MongoDBModule
 import play.api.libs.json.JsValue
 
 trait MessageDefines
@@ -28,6 +27,4 @@ case class result(rst : JsValue)
 case class error(err : JsValue)
 case class timeout()
 
-case class MessageRoutes(lst : List[MessageDefines], rst : Option[Map[String, JsValue]])(implicit val cm: CommonModule)
-
-case class CommonModule(modules: Option[Map[String, Any]])
+case class MessageRoutes(lst : List[MessageDefines], rst : Option[Map[String, JsValue]])(implicit val db: MongoDBModule)

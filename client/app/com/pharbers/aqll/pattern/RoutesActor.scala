@@ -3,8 +3,6 @@ package com.pharbers.aqll.pattern
 import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
-import akka.actor.Props
-
 import play.api.libs.json.Json.toJson
 import akka.actor.Terminated
 
@@ -13,7 +11,7 @@ class RoutesActor extends Actor with ActorLogging {
 	var next : ActorRef = null
 	def receive = {
 		case excute(msr)  => {
-			implicit val cm = msr.cm
+			implicit val db = msr.db
 			originSender = sender
 			msr.lst match {
 				case Nil => originSender ! toJson("error")

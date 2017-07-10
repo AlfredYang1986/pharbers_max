@@ -33,7 +33,7 @@ function login() {
 				$.cookie("user_token",user.User_Token);
 				$.cookie("user_name",user.UserName);
 				$.cookie("user_auth",user.UserAuth);
-				$.cookie("is_administrator",user.IsAdministrator);
+				$.cookie("auth",user.Auth);
 				$.cookie("token",user.Token);
 				$.cookie("company_name_ch",user.CompanyNameCh);
 				$.cookie("company_name_en",user.CompanyNameEn);

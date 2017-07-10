@@ -1,8 +1,6 @@
 package com.pharbers.aqll.pattern
 
-import akka.actor.ActorLogging
 import akka.actor.ActorRef
-import akka.actor.Actor
 import akka.actor.Props
 
 object ScatterGatherStepActor {

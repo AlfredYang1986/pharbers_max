@@ -40,9 +40,9 @@
                                 <select data-name="search-result-datatype" class="form-control">
                                     <option>省份数据</option>
                                     <option>城市数据</option>
-                                    @if(is_administrator.equals("Yes")){
+                                    {{#if auth}}
                                     <option>医院数据</option>
-                                    }
+                                    {{/if}}
                                 </select>
                             </div>
                         </div>
@@ -50,7 +50,9 @@
                             <div class="form-group">
                                 <label class="control-label" for="status">市场</label>
                                 <select data-name="search-result-market" class="form-control selectpicker" multiple data-live-search="true"data-live-search-placeholder="搜索" data-actions-box="true">
-                                    <option>INFMarket</option>
+                                    {{#each markets as |market|}}
+                                        <option>{{market}}</option>
+                                    {{/each}}
                                 </select>
                             </div>
                         </div>

@@ -1,14 +1,14 @@
 package module
 
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alDao.from
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.aqll.common.alDao.data_connection
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import com.pharbers.aqll.dbmodule.MongoDBModule
 
 object SampleReportModuleMessage {
 	sealed class msg_ReportBaseQuery extends CommonMessage
@@ -16,20 +16,16 @@ object SampleReportModuleMessage {
 }
 
 object SampleReportModule extends ModuleTrait {
-
 	import SampleReportModuleMessage._
-	import controllers.common.default_error_handler.f
-
-	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_samplereport(data) => msg_check_func(data)
 	}
 
-	def msg_check_func(data: JsValue)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
+	def msg_check_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val query = MongoDBObject("Company" -> company)
 		try {
-			val market_lst = (from db() in "FactResult" where query).selectSort("Date")(MongoDBReport(_))(database).toList
+			val market_lst = (from db() in "FactResult" where query).selectSort("Date")(MongoDBReport(_))(db.cores).toList
 			val market_arr = market_lst.asInstanceOf[List[Map[String,Any]]].groupBy(x => x.get("Market").get)
 			val lb = new ListBuffer[JsValue]()
 			market_arr.foreach { x =>
@@ -43,17 +39,17 @@ object SampleReportModule extends ModuleTrait {
 						toJson(Map("Date" -> toJson(y.get("Date").get.toString),
 							"c_HospNum" -> toJson(y.get("HospNum").get.toString),
 							"c_ProductNum" -> toJson(y.get("ProductNum").get.toString),
-							"e_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryProductNum(_))(database).toList,"ProductNum").toString),
-							"e_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryHospNum(_))(database).toList,"HospNum").toString),
-							"l_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryProductNum(_))(database).toList,"ProductNum").toString),
-							"l_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryHospNum(_))(database).toList,"HospNum").toString)
+							"e_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryProductNum(_))(db.cores).toList,"ProductNum").toString),
+							"e_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryHospNum(_))(db.cores).toList,"HospNum").toString),
+							"l_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryProductNum(_))(db.cores).toList,"ProductNum").toString),
+							"l_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryHospNum(_))(db.cores).toList,"HospNum").toString)
 						)))
 				}
 				lb.append(toJson(Map("Market" -> toJson(x._1.toString),"date_lst_sb" -> toJson(date_lst_sb.toList),"dhp_lst_sb" -> toJson(dhp_lst_sb.toList))))
 			}
 			(successToJson(toJson(lb)), None)
 		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage())))
+			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
 	}
 

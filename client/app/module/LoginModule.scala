@@ -3,12 +3,13 @@ package module
 import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
-import com.pharbers.aqll.common.alDao.{data_connection, from}
+import com.pharbers.aqll.common.alDao.from
 import play.api.libs.json.Json._
 import play.api.libs.json._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import com.pharbers.aqll.dbmodule.MongoDBModule
 
 object LoginModuleMessage {
     sealed class msg_LoginBaseQuery extends CommonMessage
@@ -17,13 +18,12 @@ object LoginModuleMessage {
 
 object LoginModule extends ModuleTrait {
     import LoginModuleMessage._
-    import controllers.common.default_error_handler.f
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_login(data, ip) => login(data, ip)
         case _ => ???
     }
 
-    def login(data: JsValue, ip: String)(implicit error_handler: String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def login(data: JsValue, ip: String)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) => {
@@ -48,9 +48,8 @@ object LoginModule extends ModuleTrait {
                 case _ => {
                     conditions match {
                         case x: List[DBObject] =>
-                            val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
                             val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))
-                            val tmp = (from db () in "Company" where t).selectAggregate(resultData(_, ip))(database).toList
+                            val tmp = (from db () in "Company" where t).selectAggregate(resultData(_, ip))(db.basic).toList
                             tmp match {
                                 case Nil => throw new Exception("warn user not exist")
                                 case _ => (successToJson(tmp.head), None)
@@ -59,7 +58,7 @@ object LoginModule extends ModuleTrait {
                 }
             }
         } catch {
-            case ex: Exception => (None, Some(error_handler(ex.getMessage())))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
     }
 
@@ -71,7 +70,7 @@ object LoginModule extends ModuleTrait {
             "E_Mail" -> toJson(x.getAs[String]("E-Mail").get),
             "UserTimestamp" -> toJson(User_lst.as[Number]("Timestamp").longValue()),
             "UserAuth" -> toJson(User_lst.as[Number]("auth").intValue()),
-            "IsAdministrator" -> toJson(User_lst.as[Number]("isadministrator").intValue()),
+            "Auth" -> toJson(User_lst.as[Number]("isadministrator").intValue()),
             "User_Token" -> toJson(User_lst.getAs[String]("ID").getOrElse("无")),
             "CompanyNameCh" -> toJson(Company.head.asInstanceOf[BasicDBObject].get("Ch").toString),
             "CompanyNameEn" -> toJson(Company.head.asInstanceOf[BasicDBObject].get("En").toString),
