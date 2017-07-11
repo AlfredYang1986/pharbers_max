@@ -19,7 +19,7 @@ object requestArgsQuery {
 }
 
 class requestArgsQuery @Inject() (implicit akkasys : ActorSystem) extends Controller {
-	implicit val t = Timeout(3 seconds)
+	implicit val t = Timeout(1 * 60 * 10 second)
 
 	def requestArgs(request : Request[AnyContent])(func : JsValue => JsValue) : Result = {
 		try {

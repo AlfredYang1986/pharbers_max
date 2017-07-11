@@ -1,6 +1,7 @@
 package com.pharbers.aqll.dbmodule
 
 import com.pharbers.aqll.common.alDao.dataFactory._
+import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 import play.api.inject.Binding
 import play.api.{Configuration, Environment}
 import play.api.inject.Module
@@ -16,7 +17,7 @@ class MongoModule extends Module {
 }
 
 class MongoDBModule {
-    def cores = getDataCores()
-
-    def basic = getDataBasic()
+    def cores = getDataCores(dbhost, dbport.toInt, dbuser, dbpwd, db1)
+    
+    def basic = getDataBasic(dbhost, dbport.toInt, dbuser, dbpwd, db2)
 }
