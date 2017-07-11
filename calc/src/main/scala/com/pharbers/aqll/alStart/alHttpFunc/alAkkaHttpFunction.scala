@@ -61,7 +61,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 				 alFileUploadPyBefore ~ alQueryUUIDFunc
 	
 	def Test = post {
-		path("test") {
+		path("src/test") {
 			entity(as[Item]) { item =>
 				println(item.str)
 				println(item.lst)
