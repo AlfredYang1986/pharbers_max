@@ -2,7 +2,7 @@ package com.pharbers.aqll.alCalcMaster
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alCalcMaster.alMasterTrait.alFilterExcelTrait
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_max_job}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.filter_excel_job_2
 
 /**
   * Created by alfredyang on 11/07/2017.

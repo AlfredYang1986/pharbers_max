@@ -35,10 +35,10 @@ trait DBList {
 
 // TODO 这个地方需要读取配置文件，如果都是默认的可以忽略，最好读取配置文件
 object dbcores extends DBList {
-    override implicit val dbc: data_connection =  null //getDataCores(dbhost, dbport.toInt, dbuser, dbpwd, db1)
+    override implicit val dbc: data_connection =  getDataCores(dbhost, dbport.toInt, dbuser, dbpwd, db1)
 }
 
 // TODO 这个地方需要读取配置文件，如果都是默认的可以忽略，最好读取配置文件
 object dbbasic extends DBList {
-    override implicit val dbc: data_connection =  null //getDataBasic(dbhost, dbport.toInt, dbuser, dbpwd, db2)
+    override implicit val dbc: data_connection =  getDataBasic(dbhost, dbport.toInt, dbuser, dbpwd, db2)
 }
