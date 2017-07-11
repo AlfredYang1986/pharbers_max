@@ -1,6 +1,7 @@
 package com.pharbers.aqll.alCalcMaster.alMasterTrait
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alMaxSlaves.alFilterExcelSlave
@@ -14,7 +15,15 @@ import scala.concurrent.duration._
 trait alFilterExcelTrait { this : Actor =>
     // TODO : query instance from agent
     def createFilterExcelRouter =
-        context.actorOf(BroadcastPool(1).props(alFilterExcelSlave.props), name = "filter-excel-router")
+        context.actorOf(
+            ClusterRouterPool(BroadcastPool(1),
+            ClusterRouterPoolSettings(
+                totalInstances = 1,
+                maxInstancesPerNode = 1,
+                allowLocalRoutees = false,
+                useRole = Some("splitfilterexcelslave")
+            )
+        ).props(alFilterExcelSlave.props), name = "filter-excel-router")
 
     val router = createFilterExcelRouter
 
