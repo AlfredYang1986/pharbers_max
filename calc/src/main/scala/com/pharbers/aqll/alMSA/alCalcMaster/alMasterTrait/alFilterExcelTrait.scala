@@ -1,10 +1,10 @@
-package com.pharbers.aqll.alCalcMaster.alMasterTrait
+package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import com.pharbers.aqll.alMaxSlaves.alFilterExcelSlave
+import com.pharbers.aqll.alMSA.alMaxSlaves.alFilterExcelSlave
 
 import scala.concurrent.duration._
 

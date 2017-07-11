@@ -1,9 +1,9 @@
-package com.pharbers.aqll.alMaxSlaves
+package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import scala.concurrent.duration._
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcMaster.alMasterTrait.alCameoFilterExcel.{filter_excel_end, filter_excel_start, filter_excel_start_impl, filter_excel_timeout}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.{filter_excel_end, filter_excel_start, filter_excel_start_impl, filter_excel_timeout}
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_filter_excel_jobs
 import com.pharbers.aqll.common.alString.alStringOpt.removeSpace

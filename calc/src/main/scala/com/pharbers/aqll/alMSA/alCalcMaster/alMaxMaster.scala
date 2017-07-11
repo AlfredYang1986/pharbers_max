@@ -1,7 +1,7 @@
-package com.pharbers.aqll.alCalcMaster
+package com.pharbers.aqll.alMSA.alCalcMaster
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.pharbers.aqll.alCalcMaster.alMasterTrait.alFilterExcelTrait
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alFilterExcelTrait
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.filter_excel_job_2
 
 /**
