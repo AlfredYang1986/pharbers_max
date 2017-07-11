@@ -28,6 +28,7 @@ trait alFilterExcelTrait { this : Actor =>
 
 object alCameoFilterExcel {
     case class filter_excel_start()
+    case class filter_excel_hand()
     case class filter_excel_start_impl(p : String, par : alCalcParmary)
     case class filter_excel_end(result : Boolean)
     case class filter_excel_timeout()
@@ -47,12 +48,20 @@ class alCameoFilterExcel(val file : String,
 
     import alCameoFilterExcel._
 
+    var sign = false
+
     override def receive: Receive = {
         case filter_excel_timeout() => {
             log.debug("timeout occur")
             shutCameo(filter_excel_timeout())
         }
-        case _ : filter_excel_start => router ! filter_excel_start_impl(file, par)
+        case _ : filter_excel_start => router ! filter_excel_hand()
+        case filter_excel_hand() => {
+            if (sign == false) {
+                sender ! filter_excel_start_impl(file, par)
+                sign = true
+            }
+        }
         case result : filter_excel_end => {
             owner forward result
             shutCameo(result)
