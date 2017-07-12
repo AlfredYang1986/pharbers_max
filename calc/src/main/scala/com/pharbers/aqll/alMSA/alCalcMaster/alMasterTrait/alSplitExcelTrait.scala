@@ -42,6 +42,7 @@ trait alSplitExcelTrait { this : Actor =>
                 val tmp = split_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
+                    println(s"head is ${tmp.head}")
                     splitExcel(tmp.head._1, tmp.head._2, tmp.head._3)
                     split_jobs() = split_jobs().tail
                 }
