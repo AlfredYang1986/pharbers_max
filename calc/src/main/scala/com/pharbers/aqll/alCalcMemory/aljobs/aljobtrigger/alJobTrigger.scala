@@ -15,6 +15,7 @@ object alJobTrigger {
       */
     case class worker_register()
     case class push_max_job(path : String, p: alCalcParmary)
+    case class push_split_excel_job(path : String, p: alCalcParmary)
     case class finish_max_job(uuid : String)
     case class finish_max_group_job(uuid: String)
 

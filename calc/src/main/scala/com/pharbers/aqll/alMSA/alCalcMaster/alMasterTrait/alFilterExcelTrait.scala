@@ -7,6 +7,7 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alMSA.alMaxSlaves.alFilterExcelSlave
 
 import scala.concurrent.duration._
+import scala.concurrent.stm._
 
 /**
   * Created by alfredyang on 11/07/2017.
@@ -25,14 +26,43 @@ trait alFilterExcelTrait { this : Actor =>
             )
         ).props(alFilterExcelSlave.props), name = "filter-excel-router")
 
-    val router = createFilterExcelRouter
+    val filter_router = createFilterExcelRouter
 
-    def filterExcel(file : String, par : alCalcParmary) = {
-        val cur = context.actorOf(alCameoFilterExcel.props(file, par, sender, self, router))
-        context.watch(cur)
+    def pushFilterJob(file : String, par : alCalcParmary, s : ActorRef) = {
+        atomic { implicit thx =>
+            filter_jobs() = filter_jobs() :+ (file, par, s)
+        }
+    }
+
+    def canSchduleJob : Boolean = {
+        true
+    }
+
+    def schduleJob = {
+        if (canSchduleJob) {
+            atomic { implicit thx =>
+                val tmp = filter_jobs.single.get
+                if (tmp.isEmpty) Unit
+                else {
+                    filterExcel(tmp.head._1, tmp.head._2, tmp.head._3)
+                    filter_jobs() = filter_jobs().tail
+                }
+            }
+        }
+    }
+
+    def filterExcel(file : String, par : alCalcParmary, s : ActorRef) = {
+        val cur = context.actorOf(alCameoFilterExcel.props(file, par, s, self, filter_router))
+//        context.watch(cur)
         import alCameoFilterExcel._
         cur ! filter_excel_start()
     }
+
+    import scala.concurrent.ExecutionContext.Implicits.global
+    val filter_schdule = context.system.scheduler.schedule(1 second, 1 second, self, filter_excel_schedule())
+
+    val filter_jobs = Ref(List[(String, alCalcParmary, ActorRef)]())
+    case class filter_excel_schedule()
 }
 
 object alCameoFilterExcel {
@@ -78,7 +108,7 @@ class alCameoFilterExcel(val file : String,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val timeoutMessager = context.system.scheduler.scheduleOnce(10 minute) {
+    val filter_timer = context.system.scheduler.scheduleOnce(10 minute) {
         self ! filter_excel_timeout()
     }
 

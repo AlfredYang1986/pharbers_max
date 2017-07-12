@@ -1,9 +1,12 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
+import akka.actor.SupervisorStrategy.Restart
+
 import scala.concurrent.duration._
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.{filter_excel_end, filter_excel_start, filter_excel_start_impl, filter_excel_timeout}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.{filter_excel_end, filter_excel_start_impl, filter_excel_timeout}
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_filter_excel_jobs
 import com.pharbers.aqll.common.alString.alStringOpt.removeSpace
@@ -12,11 +15,25 @@ import com.pharbers.aqll.common.alString.alStringOpt.removeSpace
   * Created by alfredyang on 11/07/2017.
   */
 object alFilterExcelComeo {
-    def props(originSender : ActorRef, owner : ActorRef) = Props(new alFilterExcelComeo(originSender, owner))
+    def props(file : String, cp : alCalcParmary, originSender : ActorRef, owner : ActorRef) =
+        Props(new alFilterExcelComeo(file, cp, originSender, owner))
 }
 
-class alFilterExcelComeo(originSender : ActorRef,
+// TODO : should use presistence to replace normal Actor
+class alFilterExcelComeo(fp : String,
+                         cp : alCalcParmary,
+                         originSender : ActorRef,
                          owner : ActorRef) extends Actor with ActorLogging {
+
+    override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
+        case _ => Restart
+    }
+
+    override def postRestart(reason: Throwable) : Unit = {
+        super.postRestart(reason)
+        // TODO : 计算次数，从新计算
+        self ! filter_excel_start_impl(fp, cp)
+    }
 
     override def receive: Receive = {
         case filter_excel_timeout() => {
@@ -27,7 +44,10 @@ class alFilterExcelComeo(originSender : ActorRef,
             owner forward result
             shutSlaveCameo(result)
         }
-        case filter_excel_start_impl(file, parmary) => {
+        case _ : filter_excel_start_impl => {
+            val file = fp
+            val parmary = cp
+
             val cj = max_filter_excel_jobs(file)
             cj.result
             val lst = Option(cj.cur.get.storages.head.asInstanceOf[alStorage])
