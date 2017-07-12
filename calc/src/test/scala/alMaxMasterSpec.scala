@@ -34,6 +34,7 @@ class alMaxMasterSpec extends Specification {
             The 'Max master' functions should
                 filter excel file "2016-01.xlsx"                        $e2
                 split excel file "2016-01.xlsx"                         $e3
+                group integrated data                                   $e4
 
                                                                         """
 
@@ -83,6 +84,12 @@ class alMaxMasterSpec extends Specification {
 
         r must_== true
         r.uuid must_== cp.uuid
+        mp must_!= null
+    }
+
+    def e4 = {
+        val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
+
         mp must_!= null
     }
 }

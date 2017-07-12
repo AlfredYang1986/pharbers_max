@@ -25,7 +25,6 @@ class alMaxClusterLister extends Actor with ActorLogging {
         case MemberJoined(member) => log.info("Member Joined")
 
         case MemberUp(member) => {
-            println("member up")
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             member.roles.map (x => a ! refundNodeForRole(x))
         }
