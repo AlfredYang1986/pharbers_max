@@ -1,8 +1,8 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alFilterExcelTrait, alGroupDataTrait, alSplitExcelTrait}
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_group_job, push_split_excel_job}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alCalcDataTrait, alFilterExcelTrait, alGroupDataTrait, alSplitExcelTrait}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_calc_job, push_group_job, push_split_excel_job}
 
 /**
   * Created by alfredyang on 11/07/2017.
@@ -16,7 +16,8 @@ class alMaxMaster extends Actor
                     with ActorLogging
                     with alFilterExcelTrait
                     with alSplitExcelTrait
-                    with alGroupDataTrait {
+                    with alGroupDataTrait
+                    with alCalcDataTrait {
 
     override def receive: Receive = {
         case filter_excel_job_2(file, parmary) => pushFilterJob(file, parmary, sender)
@@ -27,5 +28,8 @@ class alMaxMaster extends Actor
 
         case push_group_job(property) => pushGroupJob(property, sender)
         case group_schedule() => schduleGroupJob
+
+        case push_calc_job(property) => pushCalcJob(property, sender)
+        case calc_schedule() => schduleCalcJob
     }
 }

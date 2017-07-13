@@ -29,7 +29,7 @@ trait alGroupDataTrait { this : Actor =>
                     allowLocalRoutees = false,
                     useRole = Some("splitgroupslave")
                 )
-            ).props(alGroupDataSlave.props), name = "group-integrate-router") // TODO : group slave
+            ).props(alGroupDataSlave.props), name = "group-integrate-router")
 
     val group_router = createGroupRouter
 
@@ -102,14 +102,17 @@ class alCameoGroupData (val property : alMaxProperty,
             router ! group_data_hand()
         }
         case group_data_hand() => {
-            // TODO : group data logic
-            val tmp = property.subs(sed)
-            sender ! group_data_start_impl(tmp)
-            sed += 1
+            if (sed < tol) {
+                val tmp = property.subs(sed)
+                sender ! group_data_start_impl(tmp)
+                sed += 1
+            }
         }
-        case group_data_end(result, _) => {
+        case group_data_end(result, mp) => {
             if (result) {
                 cur += 1
+                resetSubGrouping(mp)
+
                 if (cur == tol) {
                     unionResult
 
@@ -126,7 +129,7 @@ class alCameoGroupData (val property : alMaxProperty,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val split_timer = context.system.scheduler.scheduleOnce(10 minute) {
+    val group_timer = context.system.scheduler.scheduleOnce(10 minute) {
         self ! group_data_timeout()
     }
 
@@ -155,4 +158,7 @@ class alCameoGroupData (val property : alMaxProperty,
         val pp = presist_data(Some(property.uuid), Some("group"))
         pp.precess(sg)
     }
+
+    def resetSubGrouping(mp : alMaxProperty) =
+        property.subs = property.subs.filterNot(x => x.uuid == mp.uuid) :+ mp
 }

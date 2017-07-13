@@ -3,8 +3,9 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.filter_excel_end
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_group_job, push_split_excel_job}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_calc_job, push_group_job, push_split_excel_job}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.common.alFileHandler.fileConfig.fileBase
@@ -101,8 +102,14 @@ class alMaxMasterSpec extends Specification with AfterAll{
         mp must_!= null
 
         val fg = a ? push_group_job(mp)
-        val rg = Await.result(fg, 2 minute).asInstanceOf[group_data_end].result
+        val rg = Await.result(fg, 2 minute).asInstanceOf[group_data_end]
 
-        rg must_== true
+        println(rg.property)
+        rg.result must_== true
+
+        val fff = a ? push_calc_job(mp)
+        val rrr = Await.result(fff, 2 minute).asInstanceOf[calc_data_end]
+
+        rrr.result must_== true
     }
 }

@@ -12,10 +12,6 @@ import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefine
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_hand, group_data_start_impl, group_data_timeout}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
-import com.pharbers.aqll.common.alCmd.pkgcmd.pkgCmd
-import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileTarGz, group, memorySplitFile, scpPath}
-import com.pharbers.aqll.common.alFileHandler.serverConfig.{serverHost215, serverUser}
 
 import scala.concurrent.duration._
 
