@@ -3,13 +3,14 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.filter_excel_end
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_split_excel_job}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_group_job, push_split_excel_job}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.common.alFileHandler.fileConfig.fileBase
 import com.typesafe.config.ConfigFactory
 import org.specs2.mutable.Specification
+import org.specs2.specification.AfterAll
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -17,26 +18,31 @@ import scala.concurrent.duration._
 /**
   * Created by alfredyang on 11/07/2017.
   */
-class alMaxMasterSpec extends Specification {
+class alMaxMasterSpec extends Specification with AfterAll{
 
     val config = ConfigFactory.load("split-test")
     val system : ActorSystem = ActorSystem("calc", config)
     implicit val timeout = Timeout(10 minute)
 
     val cp = new alCalcParmary("tekken", "alfred")
-    var mp : alMaxProperty = null
+
+    override def afterAll() : Unit = {
+        system.terminate()
+        Await.result(system.whenTerminated, Duration.Inf)
+        println("wokao")
+    }
 
     override def is = s2"""
         This is a Max Master Specification to check the 'Max calc' process
             The 'Max master' structure should
-                1 master 1 filter slave                                 $e1
 
             The 'Max master' functions should
-                filter excel file "2016-01.xlsx"                        $e2
-                split excel file "2016-01.xlsx"                         $e3
                 group integrated data                                   $e4
 
                                                                         """
+//    1 master 1 filter slave                                 $e1
+//    filter excel file "2016-01.xlsx"                        $e2
+//    split excel file "2016-01.xlsx"                         $e3
 
     def e1 = {
         val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
@@ -58,7 +64,7 @@ class alMaxMasterSpec extends Specification {
         f1r must_== 1
         f2r must_== 1
         f3r must_== 1
-        f4r must_== 0
+        f4r must_== 2
         f5r must_== 0
     }
 
@@ -66,7 +72,7 @@ class alMaxMasterSpec extends Specification {
         val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
         val path = fileBase + "2016-01.xlsx"
         val f = a ? filter_excel_job_2(path, cp)
-        val r = Await.result(f, 10 minute).asInstanceOf[filter_excel_end].result
+        val r = Await.result(f, 2 minute).asInstanceOf[filter_excel_end].result
         r must_== true
     }
 
@@ -74,22 +80,29 @@ class alMaxMasterSpec extends Specification {
         val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
         val path = fileBase + "2016-01.xlsx"
         val f = a ? push_split_excel_job(path, cp)
-        val r = Await.result(f, 10 minute).asInstanceOf[split_excel_end]
+        val r = Await.result(f, 2 minute).asInstanceOf[split_excel_end]
 
-        val success = r.result
-
-        val p = r.uuid
-        val subs = r.subs map (x => alMaxProperty(p, x, Nil))
-        mp = alMaxProperty(null, p, subs)
-
-        r must_== true
-        r.uuid must_== cp.uuid
-        mp must_!= null
+        r.result must_== true
     }
 
     def e4 = {
         val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
+        val path = fileBase + "2016-01.xlsx"
+        val f = a ? push_split_excel_job(path, cp)
+        val r = Await.result(f, 2 minute).asInstanceOf[split_excel_end]
 
+        val p = r.uuid
+        val subs = r.subs map (x => alMaxProperty(p, x, Nil))
+        val mp = alMaxProperty(null, p, subs)
+        println(mp)
+
+        r.result must_== true
+        cp.uuid = r.uuid
         mp must_!= null
+
+        val fg = a ? push_group_job(mp)
+        val rg = Await.result(fg, 2 minute).asInstanceOf[group_data_end].result
+
+        rg must_== true
     }
 }
