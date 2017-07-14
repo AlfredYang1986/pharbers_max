@@ -27,9 +27,10 @@ class alCalcDataSlave extends Actor with ActorLogging {
             a ! takeNodeForRole("splitcalcslave")
             sender ! calc_data_hand()
         }
-        case calc_data_start_impl(sp) => {
-            val cur = context.actorOf(alCalcDataComeo.props(sp, sender, self))
-            cur.tell(calc_data_start_impl(sp), sender)
+        case calc_data_start_impl(lsp, c) => {
+            println(s"property are ${lsp}")
+            val cur = context.actorOf(alCalcDataComeo.props(c, lsp, sender, self))
+            cur.tell(calc_data_start_impl(lsp, c), sender)
         }
         case cmd : calc_data_end => {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")

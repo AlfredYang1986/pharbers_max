@@ -3,7 +3,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.filter_excel_end
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_calc_job, push_group_job, push_split_excel_job}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
@@ -107,8 +107,8 @@ class alMaxMasterSpec extends Specification with AfterAll{
         println(rg.property)
         rg.result must_== true
 
-        val fff = a ? push_calc_job(mp)
-        val rrr = Await.result(fff, 2 minute).asInstanceOf[calc_data_end]
+        val fff = a ? push_calc_job_2(mp, cp)
+        val rrr = Await.result(fff, 10 minute).asInstanceOf[calc_data_end]
 
         rrr.result must_== true
     }

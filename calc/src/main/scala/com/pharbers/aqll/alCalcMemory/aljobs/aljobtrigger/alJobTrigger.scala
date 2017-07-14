@@ -25,6 +25,7 @@ object alJobTrigger {
     case class schedule_calc()
 
     case class push_calc_job(p : alMaxProperty)
+    case class push_calc_job_2(p : alMaxProperty, c : alCalcParmary)
 
     case class group_register(a : ActorRef)
     case class calc_register(a : ActorRef)

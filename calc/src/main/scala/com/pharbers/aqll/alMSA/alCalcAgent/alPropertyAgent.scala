@@ -28,7 +28,7 @@ class alPropertyAgent extends Actor with ActorLogging {
         case queryIdleNodeInstanceInSystemWithRole(role) => sender ! energy.get(role).map (x => x).getOrElse(-1)
         case takeNodeForRole(role) => {
             val f = energy.find(role == _._1)
-            val can = f.map (_._2 > 1).getOrElse(false)
+            val can = f.map (_._2 > 0).getOrElse(false)
             if (can) {
                 energy = energy.filterNot(x => x._1 == role) + (role -> (f.get._2 - 1))
                 println(energy)

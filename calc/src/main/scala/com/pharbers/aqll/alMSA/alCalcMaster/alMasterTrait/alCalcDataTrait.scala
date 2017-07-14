@@ -3,7 +3,8 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxProperty
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 
@@ -27,9 +28,9 @@ trait alCalcDataTrait { this : Actor =>
 
     val calc_router = createCalcRouter
 
-    def pushCalcJob(property : alMaxProperty, s : ActorRef) = {
+    def pushCalcJob(property : alMaxProperty, c : alCalcParmary, s : ActorRef) = {
         atomic { implicit thx =>
-            calc_jobs() = calc_jobs() :+ (property, s)
+            calc_jobs() = calc_jobs() :+ (property, c, s)
         }
     }
 
@@ -43,44 +44,50 @@ trait alCalcDataTrait { this : Actor =>
                 val tmp = calc_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    calcData(tmp.head._1, tmp.head._2)
+                    calcData(tmp.head._1, tmp.head._2, tmp.head._3)
                     calc_jobs() = calc_jobs().tail
                 }
             }
         }
     }
 
-    def calcData(property : alMaxProperty, s : ActorRef) {
-        val cur = context.actorOf(alCameoCalcData.props(property, s, self, calc_router))
+    def calcData(property : alMaxProperty, c : alCalcParmary, s : ActorRef) {
+        val cur = context.actorOf(alCameoCalcData.props(c, property, s, self, calc_router))
         cur ! calc_data_start()
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
     val calc_schdule = context.system.scheduler.schedule(1 second, 1 second, self, calc_schedule())
 
-    val calc_jobs = Ref(List[(alMaxProperty, ActorRef)]())
+    val calc_jobs = Ref(List[(alMaxProperty, alCalcParmary, ActorRef)]())
     case class calc_schedule()
 }
 
 object alCameoCalcData {
     case class calc_data_start()
     case class calc_data_hand()
-    case class calc_data_start_impl(sub : alMaxProperty)
+    case class calc_data_start_impl(subs : alMaxProperty, c : alCalcParmary)
+    case class calc_data_sum(property : alMaxProperty)
+    case class calc_data_average(a1 : Double, a2 : Double, a3 : Double)
     case class calc_data_end(result : Boolean, property : alMaxProperty)
     case class calc_data_timeout()
 
-    def props(property : alMaxProperty,
+    def props(c : alCalcParmary,
+              property : alMaxProperty,
               originSender : ActorRef,
               owner : ActorRef,
-              router : ActorRef) = Props(new alCameoCalcData(property, originSender, owner, router))
+              router : ActorRef) = Props(new alCameoCalcData(c, property, originSender, owner, router))
 }
 
-class alCameoCalcData (val property : alMaxProperty,
+class alCameoCalcData ( val c : alCalcParmary,
+                        val property : alMaxProperty,
                         val originSender : ActorRef,
                         val owner : ActorRef,
                         val router : ActorRef) extends Actor with ActorLogging {
 
     import alCameoCalcData._
+
+    val core_number = 4
 
     var sed = 0
     var cur = 0
@@ -92,22 +99,32 @@ class alCameoCalcData (val property : alMaxProperty,
             shutCameo(calc_data_timeout())
         }
         case _ : calc_data_start => {
+            val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> property.uuid))
+            val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
+            property.subs = sb map (x => alMaxProperty(p, x, Nil))
+
+            println(s"preperty subs length is ${property.subs.length}")
+
             tol = property.subs.length
             router ! calc_data_hand()
         }
         case calc_data_hand() => {
-            if (sed < tol) {
-                println(s"trait hand $sed")
-                val tmp = property.subs(sed)
-                sender ! calc_data_start_impl(tmp)
+            if (sed < tol / core_number) {
+                val tmp = for (index <- sed * core_number to (sed + 1) * core_number - 1) yield property.subs(index)
+
+                println(s"tmp are $tmp")
+                sender ! calc_data_start_impl(alMaxProperty(property.parent, property.uuid, tmp.toList), c)
                 sed += 1
             }
         }
+        case calc_data_sum(tmp) => {
+            // TODO : generate sum and average, post calc_data_average
+        }
         case calc_data_end(result, mp) => {
-            println("trait result")
             if (result) {
                 cur += 1
-                if (cur == tol) {
+                if (cur == tol / core_number) {
+                    println(s"calc return true")
                     val r = calc_data_end(true, property)
                     owner ! r
                     shutCameo(r)
