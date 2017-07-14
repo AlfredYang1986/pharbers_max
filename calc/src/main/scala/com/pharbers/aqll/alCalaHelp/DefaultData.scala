@@ -14,7 +14,8 @@ object DefaultData {
         val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
         type targt = AdminHospitalDataBase
         val hospdatabase = new alExcelDataParser(new targt, hospdata_en_file, hospdata_ch_file)
-        hospdatabase.prase(fileBase + company + hospitalData + path)("")
+//        hospdatabase.prase(fileBase + company + hospitalData + path)("")
+        hospdatabase.prase("config/FileBase/tekken")("")
         hospdatabase.data.toList.asInstanceOf[List[targt]]
     }
 

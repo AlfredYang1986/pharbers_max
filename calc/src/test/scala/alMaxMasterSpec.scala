@@ -23,7 +23,7 @@ class alMaxMasterSpec extends Specification with AfterAll{
 
     val config = ConfigFactory.load("split-test")
     val system : ActorSystem = ActorSystem("calc", config)
-    implicit val timeout = Timeout(10 minute)
+    implicit val timeout = Timeout(30 minute)
 
     val cp = new alCalcParmary("tekken", "alfred")
 
@@ -38,12 +38,13 @@ class alMaxMasterSpec extends Specification with AfterAll{
             The 'Max master' structure should
 
             The 'Max master' functions should
-                group integrated data                                   $e4
+                calc data                                               $e5
 
                                                                         """
 //    1 master 1 filter slave                                 $e1
 //    filter excel file "2016-01.xlsx"                        $e2
 //    split excel file "2016-01.xlsx"                         $e3
+//    group integrated data                                   $e4
 
     def e1 = {
         val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
@@ -106,10 +107,34 @@ class alMaxMasterSpec extends Specification with AfterAll{
 
         println(rg.property)
         rg.result must_== true
+    }
+
+    def e5 = {
+        val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
+        val path = fileBase + "2016-01.xlsx"
+        val f = a ? push_split_excel_job(path, cp)
+        val r = Await.result(f, 2 minute).asInstanceOf[split_excel_end]
+
+        val p = r.uuid
+        val subs = r.subs map (x => alMaxProperty(p, x, Nil))
+        val mp = alMaxProperty(null, p, subs)
+        println(mp)
+
+        r.result must_== true
+        cp.uuid = r.uuid
+        mp must_!= null
+
+        val fg = a ? push_group_job(mp)
+        val rg = Await.result(fg, 2 minute).asInstanceOf[group_data_end]
+
+        println(rg.property)
+        rg.result must_== true
 
         val fff = a ? push_calc_job_2(mp, cp)
-        val rrr = Await.result(fff, 10 minute).asInstanceOf[calc_data_end]
+        val rrr = Await.result(fff, 30 minute).asInstanceOf[calc_data_end]
 
+        println(rrr.property.finalValue)
+        println(rrr.property.finalUnit)
         rrr.result must_== true
     }
 }

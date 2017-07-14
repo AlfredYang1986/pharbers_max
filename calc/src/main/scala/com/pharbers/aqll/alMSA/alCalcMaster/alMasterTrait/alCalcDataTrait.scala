@@ -10,6 +10,7 @@ import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._
+import scala.math.BigDecimal
 
 /**
   * Created by alfredyang on 13/07/2017.
@@ -67,8 +68,9 @@ object alCameoCalcData {
     case class calc_data_start()
     case class calc_data_hand()
     case class calc_data_start_impl(subs : alMaxProperty, c : alCalcParmary)
-    case class calc_data_sum(property : alMaxProperty)
-    case class calc_data_average(a1 : Double, a2 : Double, a3 : Double)
+    case class calc_data_sum(sum : List[(String, (Double, Double, Double))])
+    case class calc_data_average(avg : List[(String, Double, Double)])
+    case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, property : alMaxProperty)
     case class calc_data_timeout()
 
@@ -89,6 +91,7 @@ class alCameoCalcData ( val c : alCalcParmary,
 
     val core_number = 4
 
+    var sum : List[ActorRef] = Nil
     var sed = 0
     var cur = 0
     var tol = 0
@@ -112,19 +115,39 @@ class alCameoCalcData ( val c : alCalcParmary,
             if (sed < tol / core_number) {
                 val tmp = for (index <- sed * core_number to (sed + 1) * core_number - 1) yield property.subs(index)
 
-                println(s"tmp are $tmp")
                 sender ! calc_data_start_impl(alMaxProperty(property.parent, property.uuid, tmp.toList), c)
                 sed += 1
             }
         }
-        case calc_data_sum(tmp) => {
+        case calc_data_sum(sub_sum) => {
             // TODO : generate sum and average, post calc_data_average
+            property.sum = property.sum ++: sub_sum
+
+            sum = sender :: sum
+            if (sum.length == tol / core_number) {
+                property.isSumed = true
+                property.sum = (property.sum.groupBy(_._1) map { x =>
+                    (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+                }).toList
+
+                log.info(s"done for suming ${property.sum}")
+
+                val mapAvg = property.sum.map { x =>
+                    (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
+                }
+
+                log.info(s"done for avg $mapAvg")
+                sum.foreach(_ ! calc_data_average(mapAvg))
+            }
+        }
+        case calc_data_result(v, u) => {
+            property.finalValue += v
+            property.finalUnit += u
         }
         case calc_data_end(result, mp) => {
             if (result) {
                 cur += 1
                 if (cur == tol / core_number) {
-                    println(s"calc return true")
                     val r = calc_data_end(true, property)
                     owner ! r
                     shutCameo(r)
@@ -138,7 +161,7 @@ class alCameoCalcData ( val c : alCalcParmary,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val calc_timer = context.system.scheduler.scheduleOnce(10 minute) {
+    val calc_timer = context.system.scheduler.scheduleOnce(30 minute) {
         self ! calc_data_timeout()
     }
 

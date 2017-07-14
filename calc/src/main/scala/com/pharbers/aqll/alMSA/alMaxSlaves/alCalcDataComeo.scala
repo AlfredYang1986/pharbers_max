@@ -7,8 +7,10 @@ import akka.actor.SupervisorStrategy.Restart
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.calc_sum_result
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
+import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig.singletonPaht
 
 import scala.concurrent.duration._
 
@@ -50,16 +52,18 @@ class alCalcDataComeo (c : alCalcParmary,
             log.debug("timeout occur")
             shutSlaveCameo(split_excel_timeout())
         }
-        case calc_data_sum(tmp) => {
-//            sender ! calc_data_sum
+        case calc_data_sum(sub_sum) => {
+            println("comeo sum plue one")
+            r.sum = r.sum ++: sub_sum
+
             sum += 1
             if (sum == core_number) {
-                sender ! calc_data_sum(tmp)
+                r.isSumed = true
+                originSender ! calc_data_sum(r.sum)
             }
         }
-        case calc_data_average(a1, a2, a3) => {
-            // TODO : post to impl
-        }
+        case calc_data_average(avg) => impl_router ! calc_data_average(avg)
+        case c : calc_data_result => originSender ! c
         case calc_data_end(result, p) => {
             if (result) {
                 cur += 1
@@ -87,6 +91,7 @@ class alCalcDataComeo (c : alCalcParmary,
             val q = m.map (x => alMaxProperty(mid, x, Nil))
             r = alMaxProperty(op.uuid, mid, q)
 
+//            impl_router ! calc_data_extra(op.parent)
             impl_router ! calc_data_hand()
         }
         case calc_data_hand() => {

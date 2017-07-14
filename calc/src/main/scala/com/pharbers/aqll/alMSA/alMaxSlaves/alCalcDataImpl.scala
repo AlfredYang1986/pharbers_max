@@ -9,9 +9,11 @@ import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_calc_core_split_jobs, worker_core_calc_jobs}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.concert_calc_result
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_average, calc_data_end, calc_data_hand, calc_data_start_impl}
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alInertDatabase
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
@@ -28,35 +30,86 @@ object alCalcDataImpl {
 
 class alCalcDataImpl extends Actor with ActorLogging {
 
+//    var uuid : String = ""
     var unit: Double = 0.0
 	var value: Double = 0.0
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
 
+    var tmp : alMaxProperty = null
+
     override def receive: Receive = {
         case calc_data_hand() => sender ! calc_data_hand()
         case calc_data_start_impl(p, c) => {
-//            val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> p.parent, worker_core_calc_jobs.calc_uuid -> p.uuid))
-//            cj.result
-//
-//            val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
-//
-//            val recall = resignIntegratedData(o.parent)(concert)
-//            concert.data.zipWithIndex.foreach { x =>
-//                max_precess(x._1.asInstanceOf[IntegratedData],
-//                    p.uuid,
-//                    Some(x._2 + "/" + concert.data.length))(recall)(c)
-//            }
-//
-//            log.info(s"concert uuid ${p.uuid} end")
-//            val s = (maxSum.toList.groupBy(_._1) map { x =>
-//                (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
-//            }).toList
+            tmp = p
+            val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> p.uuid, worker_core_calc_jobs.calc_uuid -> p.subs.head.uuid))
+            cj.result
 
-            println(s"calcing ${p}")
-            sender ! calc_data_end(true, p)
+            val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
+
+            val recall = resignIntegratedData(p.parent)(concert)
+            concert.data.zipWithIndex.foreach { x =>
+                max_precess(x._1.asInstanceOf[IntegratedData],
+                    p.subs.head.uuid,
+                    Some(x._2 + "/" + concert.data.length))(recall)(c)
+            }
+
+            log.info(s"concert uuid ${p.subs.head.uuid} end")
+            val s = (maxSum.toList.groupBy(_._1) map { x =>
+                (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+            }).toList
+
+            println(s"calcing sum is ${s}")
+            sender ! calc_data_sum(s)
+//            sender ! calc_data_end(true, p)
         }
-        case calc_data_average(a1, a2, a3) => {
+        case calc_data_average(avg) => {
+            import scala.math.BigDecimal
 
+            println("avg start")
+            val sub_uuid = tmp.subs.head.uuid
+//            val path = s"${memorySplitFile}${calc}$sub_uuid"
+            val path = "config/calc/" + sub_uuid
+            val dir = alFileOpt(path)
+            if (!dir.isExists)
+                dir.createDir
+
+            val source = alFileOpt(path + "/" + "data")
+            if (source.isExists) {
+                source.enumDataWithFunc { line =>
+                    val mrd = alShareData.txt2WestMedicineIncome2(line)
+
+                    avg.find(p => p._1 == mrd.segment).map { x =>
+                        if (mrd.ifPanelAll.equals("1")) {
+                            // mrd.set_finalResultsValue(BigDecimal(mrd.sumValue.toString).toDouble)
+                            // mrd.set_finalResultsUnit(BigDecimal(mrd.volumeUnit.toString).toDouble)
+                            mrd.set_finalResultsValue(mrd.sumValue)
+                            mrd.set_finalResultsUnit(mrd.volumeUnit)
+                        } else {
+
+                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+
+                            // mrd.set_finalResultsValue(x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble)
+                            // mrd.set_finalResultsUnit(x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble)
+                        }
+
+                    }.getOrElse(Unit)
+
+                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+
+//                    atomic { implicit thx =>
+//                        alInertDatabase().apply(mrd, sub_uuid)
+//                    }
+                }
+                log.info(s"calc done at $sub_uuid")
+            }
+
+            println(s"value is $value")
+            println(s"unit is $unit")
+
+            sender ! calc_data_result(value, unit)
+            sender ! calc_data_end(true, tmp)
         }
     }
     def max_precess(element2: IntegratedData, sub_uuid: String, longPath: Option[String] = None)(recall: List[IntegratedData])(c: alCalcParmary) = {
