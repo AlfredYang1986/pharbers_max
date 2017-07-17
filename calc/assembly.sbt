@@ -1,4 +1,4 @@
-assemblyJarName in assembly := "pharbers-calc_2.11-1.1.jar"
+assemblyJarName in assembly := "pharbers-calc_2.11-1.2.jar"
 
 test in assembly := {}
 

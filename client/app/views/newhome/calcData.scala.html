@@ -1,0 +1,184 @@
+@(auth: String, markets: List[String], dates: List[Map[String,Any]])
+@main("Max | Home") {
+    <link href="@routes.Assets.versioned("/css/style.default.css")" rel="stylesheet">
+    <style>
+            .nav > li.active {
+                border-left: 0px solid;
+            }
+    </style>
+    <body>
+        <!-- 你太狂 -->
+        <div id="panel_modal" class="modal fade bs-example-modal-static" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" data-backdrop="static" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">选择生成panle文件的时间</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class='col-lg-6 text-left' id="modal_content"></div>
+                            <div>
+                                <div class="col-md-12 text-right"><button class="btn btn-primary" id="create_panel">确认</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: none;" class="progresstier">
+            <div class="progress_circle">&nbsp;</div>
+            <div class="widgets">
+                <div class="shadow">
+                    <div id="chart" class="chart-container"> </div>
+                </div>
+            </div>
+        </div>
+        <div id="wrapper">
+            <nav class="navbar-default navbar-static-side" role="navigation">
+                <div class="sidebar-collapse">
+                    <ul class="nav metismenu" id="side-menu">
+                        <li class="nav-header">
+                            <div class="dropdown profile-element">
+                                <div style="width: 48px; height: 48px;">
+                                    <span>
+                                        <img alt="image" width="48" height="48" style="background-color: #ffffff;" class="img-circle" src="@routes.Assets.versioned("/images/boy-4.png")" />
+                                    </span>
+                                </div>
+                                <!-- 天气 -->
+                            <!-- <div style="position: absolute; z-index: 9888; top: -10%; left: 40%;">
+                                    <div class="tooltip-demo" id="weather">
+                                        <img src="http://appimg.showapi.com/images/weather/icon/day/00.png" style="cursor: pointer;" width="84px" height="84px" data-toggle="tooltip" data-placement="right" title="城市：北京，温度：21，天气：晴，风向：西南风，风力：3级">
+                                    </div>
+                                </div> -->
+                                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                    <span class="clear">
+                                        <span class="block m-t-xs">
+                                            <strong class="font-bold" id="company"></strong>
+                                        </span>
+                                        <span class="text-muted text-xs block"><span id="Name"></span> Staff<b class="caret"></b></span>
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                    <li><a href="emptypage">个人资料</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="javaScript:void();" onclick="logout()">退出系统</a></li>
+                                </ul>
+                            </div>
+                            <div class="logo-element">
+                                MAX
+                            </div>
+                        </li>
+                        <li>
+                            <a href="newindex"><i class="fa fa-th-large"></i> <span class="nav-label">首页</span></a>
+                        </li>
+                        <li class="active">
+                            <a href="calcdata"><i class="fa fa-cloud-upload"></i> <span class="nav-label">计算</span></a>
+                        </li>
+                        <li>
+                            <a id="jgcx" href="historyData"><i class="fa fa-table"></i> <span class="nav-label">历史数据</span></a>
+                        </li>
+                        @if(auth.equals("Yes")){
+                            <li>
+                                <a><i class="fa fa-gears"></i> <span class="nav-label">管理页面</span> <span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <li><a href="usermanage">用户管理</a></li>
+                                    <li><a href="marketmanage">市场管理</a></li>
+                                </ul>
+                            </li>
+                        }
+                        <li class="landing_link">
+                            <a target="_blank" href="http://www.pharbers.com/"><i class="fa fa-star"></i> <span class="nav-label">官方网站</span> <span class="label label-warning pull-right">NEW</span></a>
+                        </li>
+                    </ul>
+
+                </div>
+            </nav>
+            <div id="page-wrapper" class="gray-bg dashbard-1">
+                <div class="row border-bottom">
+                    <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                        <div class="navbar-header">
+                            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                        </div>
+                        <ul class="nav navbar-top-links navbar-right">
+                            <li>
+                                <span class="m-r-sm text-muted welcome-message">欢迎访问MAX系统</span>
+                            </li>
+                            <li>
+                                <a href="javaScript:void();" onclick="logout()">
+                                    <i class="fa fa-sign-out"></i> 退出系统
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div id="progressWizard" class="basic-wizard">
+                                <!-- TAB流程选项 -->
+                                <div id="disabledTabWizard">
+                                    <ul class="nav nav-pills nav-justified">
+                                        <li><a href="#ptab1" data-toggle="tab"><span>Step 1：</span>CPA文件上传</a></li>
+                                        <li><a href="#ptab2" data-toggle="tab"><span>Step 2：</span>GYCX文件上传</a></li>
+                                        <li><a href="#ptab3" data-toggle="tab"><span>Step 3：</span>样本检查</a></li>
+                                        <li><a href="#ptab4" data-toggle="tab"><span>Step 4：</span>结果检查</a></li>
+                                    </ul>
+                                </div>
+
+                                <div class="tab-content">
+                                    <!-- TAB完成进度图 -->
+                                    <div class="container-fluid">
+                                        <div class="progress progress-striped">
+                                            <div class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 上一步、下一步 -->
+                                    <div class="container-fluid">
+                                        <ul class="pager wizard">
+                                            <li class="previous"><a href="javascript:void(0)">上一步</a></li>
+                                            <li class="next"><a href="javascript:void(0)">下一步</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- TAB流程详细页面 -->
+                                    <!-- 上传CPA文件 -->
+                                    <div class="tab-pane" id="ptab1">
+                                        <div class="container-fluid">
+                                            @upload.cpaUpload()
+                                        </div>
+                                    </div>
+
+                                    <!-- 上传GYCX文件 -->
+                                    <div class="tab-pane" id="ptab2">
+                                        <div class="container-fluid">
+                                            @upload.gycxUpload()
+                                        </div>
+                                    </div>
+
+                                    <!-- 样本检查文件 -->
+                                    <div class="tab-pane" id="ptab3">
+                                        <div class="container-fluid">
+                                            @sample.sampleCheck(auth, markets, dates)
+                                        </div>
+                                    </div>
+
+                                    <!-- 结果检查 -->
+                                    <div class="tab-pane" id="ptab4">
+                                        <div class="container-fluid">
+                                            @result.resultCheck(auth, markets, dates)
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!--原上一步、下一步位置-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="@routes.Assets.versioned("js/newjs/calcstep.js")"></script>
+    </body>
+}

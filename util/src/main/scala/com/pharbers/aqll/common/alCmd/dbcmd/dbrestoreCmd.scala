@@ -9,6 +9,5 @@ case class dbrestoreCmd(db: String,
                         userPassword: String,
                         ip: String = "127.0.0.1",
                         port: Int = 27017) extends alShellOtherCmdExce {
-   override def cmd = "/usr/bin/mongorestore " +
-        DBInputConfig(db, coll, dir, Some(ip), Some(port), Some(userName), Some(userPassword)).toArgs
+   override def cmd = "/usr/bin/mongorestore " + DBInputConfig(db, coll, dir, Some(ip), Some(port), Some(userName), Some(userPassword)).toArgs
 }

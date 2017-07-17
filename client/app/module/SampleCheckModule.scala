@@ -35,7 +35,6 @@ object SampleCheckModule extends ModuleTrait {
 		val market = (data \ "market").asOpt[String].getOrElse("")
 		val date = (data \ "date").asOpt[String].getOrElse("")
 		try {
-
 			val cur12_date = matchThisYearData(alNearDecemberMonth.diff12Month(date),queryNearTwelveMonth(db.cores,company,market,date))
 			val las12_date = matchLastYearData(alNearDecemberMonth.diff12Month(date),queryLastYearTwelveMonth(db.cores,company,market,date))
 

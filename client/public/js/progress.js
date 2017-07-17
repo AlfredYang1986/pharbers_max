@@ -114,11 +114,11 @@ var progress2 = function() {
     }
 }
 
-var setProgressStart = function(time){
-    var temp = msgIdentifying
+var setProgressStart = function(time) {
+    var temp = msgIdentifying;
     var setP = function() {
         if(msgIdentifying == temp) {
-            p.setPercent(1)
+            p.setPercent(1);
         }else {
             setTimeout(function(){setProgressStop(time)}, 1000 * 3);
         }
@@ -127,16 +127,17 @@ var setProgressStart = function(time){
 }
 
 var setProgressStop = function(time) {
-    if(timeProgressInterval){
-        clearInterval(timeProgressInterval)
-        timeProgressInterval = null
+    if(timeProgressInterval) {
+        clearInterval(timeProgressInterval);
+        timeProgressInterval = null;
         setTimeout(function(){setProgressStart(time);}, 1000 * 30);
     }
 }
 
 var setCloseInterval = function() {
-    if(timeProgressInterval){
-        clearInterval(timeProgressInterval)
-        timeProgressInterval = null
+    p.setPercent(0);
+    if(timeProgressInterval) {
+        clearInterval(timeProgressInterval);
+        timeProgressInterval = null;
     }
 }

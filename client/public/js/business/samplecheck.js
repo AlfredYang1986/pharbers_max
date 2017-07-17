@@ -82,42 +82,13 @@ $(function(){
         }
 
         hosp_option = {
-            title: {
-                text: ''
-            },
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                   type: 'none'
-                }
-            },
-            legend: {
-                x: 'left',
-                y: 'middle',
-                orient: 'vertical',
-                data: ['数量'],
-                show: false
-            },
-            grid: {
-                bottom: '3%',
-                left: '-35px',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                show: false,
-                boundaryGap: false,
-                data: x_data
-            },
-            yAxis: {
-                type: 'value',
-                show: false
-            },
-            series: [{
-                name: '数量',
-                type: 'line',
-                smooth: true,
-                symbolSize: symbolSize,
+            title: {text: ''},
+            tooltip: {trigger: 'axis', axisPointer: {type: 'none'}},
+            legend: {x: 'left', y: 'middle', orient: 'vertical', data: ['数量'], show: false},
+            grid: {bottom: '3%', left: '-35px', containLabel: true},
+            xAxis: {type: 'category', show: false, boundaryGap: false, data: x_data},
+            yAxis: {type: 'value', show: false},
+            series: [{name: '数量', type: 'line', smooth: true, symbolSize: symbolSize,
                 itemStyle : {
                     normal : {
                         color:'#2BB89B',
@@ -131,101 +102,23 @@ $(function(){
         };
 
         prod_option = {
-            title: {
-                text: ''
-            },
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'none'
-                }
-            },
-            legend: {
-                x: 'left',
-                y: 'middle',
-                orient: 'vertical',
-                data: ['数量'],
-                show: false
-            },
-            grid: {
-                bottom: '3%',
-                left: '-35px',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                show: false,
-                boundaryGap: false,
-                data: x_data
-            },
-            yAxis: {
-                type: 'value',
-                show: false
-            },
-            series: [{
-                name: '数量',
-                type: 'line',
-                smooth: true,
-                symbolSize: symbolSize,
-                itemStyle : {
-                    normal : {
-                        color:'#2BB89B',
-                        lineStyle:{
-                            color:'#2BB89B'
-                        }
-                    }
-                },
-                data: s_prod_data
-            }]
+            title: {text: ''},
+            tooltip: {trigger: 'axis', axisPointer: {type: 'none'}},
+            legend: {x: 'left', y: 'middle', orient: 'vertical', data: ['数量'], show: false},
+            grid: {bottom: '3%', left: '-35px', containLabel: true},
+            xAxis: {type: 'category', show: false, boundaryGap: false, data: x_data},
+            yAxis: {type: 'value', show: false},
+            series: [{name: '数量', type: 'line', smooth: true, symbolSize: symbolSize, itemStyle : {normal : {color:'#2BB89B', lineStyle:{color:'#2BB89B'}}}, data: s_prod_data}]
         };
 
         mark_option = {
-            title: {
-                text: ''
-            },
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                   type: 'none'
-                }
-            },
-            legend: {
-                x: 'left',
-                y: 'middle',
-                orient: 'vertical',
-                data: ['数量'],
-                show: false
-            },
-            grid: {
-                bottom: '3%',
-                left: '-35px',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                show: false,
-                boundaryGap: false,
-                data: x_data
-            },
-            yAxis: {
-                type: 'value',
-                show: false
-            },
-            series: [{
-                name: '数量',
-                type: 'line',
-                smooth: true,
-                symbolSize: symbolSize,
-                itemStyle : {
-                    normal : {
-                        color:'#2BB89B',
-                        lineStyle:{
-                            color:'#2BB89B'
-                        }
-                    }
-                },
-                data: s_mark_data
-            }]
+            title: {text: ''},
+            tooltip: {trigger: 'axis', axisPointer: {type: 'none'}},
+            legend: {x: 'left', y: 'middle', orient: 'vertical', data: ['数量'], show: false},
+            grid: {bottom: '3%', left: '-35px', containLabel: true},
+            xAxis: {type: 'category', show: false, boundaryGap: false, data: x_data},
+            yAxis: {type: 'value', show: false},
+            series: [{name: '数量', type: 'line', smooth: true, symbolSize: symbolSize, itemStyle : {normal : {color:'#2BB89B', lineStyle:{color:'#2BB89B'}}}, data: s_mark_data}]
         };
 
         var sparkline1 = echarts.init(document.getElementById('hospline'));

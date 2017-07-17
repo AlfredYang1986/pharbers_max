@@ -56,7 +56,6 @@ class alConcertCalcActor extends Actor with ActorLogging {
 		}
 		case concert_calc_avg(p, avg) => {
 			import scala.math.BigDecimal
-
 			val sub_uuid = p.subs(index.single.get).uuid
 			val path = s"${memorySplitFile}${calc}$sub_uuid"
 			val dir = alFileOpt(path)

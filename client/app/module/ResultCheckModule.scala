@@ -42,7 +42,7 @@ object ResultCheckModule extends ModuleTrait {
 				}
 			}
 		} catch {
-			case ex: Exception =>	(None, Some(errorToJson(ex.getMessage())))
+			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
 	}
 
@@ -181,7 +181,8 @@ object ResultCheckModule extends ModuleTrait {
 	def queryUUID(company: String): Option[String] = {
 		val result = alCallHttp("/queryUUID",toJson(Map("company" -> toJson(company)))).call
 		val res_json = (result \ "result").get.asOpt[JsValue].get
-		val res_valu = (((res_json \ "result").get.asOpt[JsValue].get) \ "result").get.asOpt[String].get
+//		val res_valu = (((res_json \ "result").get.asOpt[JsValue].get) \ "result").get.asOpt[String].get
+		val res_valu = (res_json \ "result").asOpt[String].getOrElse("0")
 		Some(res_valu)
 	}
 

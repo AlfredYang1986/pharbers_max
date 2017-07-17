@@ -1,6 +1,5 @@
 package com.pharbers.aqll.alCalcOther.alfinaldataprocess
 
-import java.io._
 import java.util.{Date, UUID}
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alCalaHelp.dbcores._
@@ -16,6 +15,7 @@ import com.pharbers.aqll.common.alString.alStringOpt._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import scala.collection.mutable.ListBuffer
+
 /**
   * Created by liwei on 2017/3/27.
   */
@@ -27,7 +27,7 @@ case class alSampleCheck() {
       val dates = panels.groupBy(x => x.getYearAndmonth)
       dates.foreach{date =>
         val Panels_Filter_Ym = panels.filter(x => x.getYearAndmonth.equals(date._1))
-        new alMessageProxy().sendMsg("10", uname, Map("uuid" -> "", "company" -> company, "type" -> "progress"))
+        new alMessageProxy().sendMsg("5", uname, Map("uuid" -> "", "company" -> company, "type" -> "progress"))
         val Panels_Group_Pha = Panels_Filter_Ym.groupBy(x => x.getPhaid).map(y => (y._1,y._2.size)).toList
         val Market_Current = Panels_Filter_Ym.groupBy(x => x.getMarket1Ch)
         Market_Current.foreach{mc =>
@@ -79,7 +79,9 @@ case class alSampleCheck() {
       alFileOpt(fileBase + company + client_gycx_file).removeCurFiles
       toJson(successToJson().get)
     } catch {
-      case e: Exception => errorToJson(e.getMessage)
+      case e: Exception =>
+        println(e)
+        errorToJson(e.getMessage)
     }
   }
 }
