@@ -42,6 +42,7 @@
 		<link rel="stylesheet" href="@routes.Assets.versioned("hDialog/css/animate.min.css")">
 		<link rel="stylesheet" href="@routes.Assets.versioned("hDialog/css/common.css")">
     	<link href="@routes.Assets.versioned("css/progress.css")" rel="stylesheet">
+
 	    @*通用CSS 结束*@
 	    <!-- Mainly scripts -->
 
@@ -134,13 +135,39 @@
 		<script src="@routes.Assets.versioned("js/web-im/webim.config.js")"></script>
 		<script src="@routes.Assets.versioned("js/web-im/websdk-1.4.10.js")"></script>
 		<script src="@routes.Assets.versioned("js/web-im/load-im.js")"></script>
+
 		<script src="@routes.Assets.versioned("pharbersuploader/md5.min.js")"></script>
 
 		<!-- Weather -->
 		<script src="@routes.Assets.versioned("js/business/weather.js")"></script>
+
+		<!-- Upload Start -->
+		<link href="@routes.Assets.versioned("pharbersuploader/webuploader/webuploader.css")" rel="stylesheet" type="text/css" />
+		<link href="@routes.Assets.versioned("pharbersuploader/PharbersWebUploader.css")" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="@routes.Assets.versioned("pharbersuploader/webuploader/webuploader.js")"></script>
+		<!-- <script type="text/javascript" src="@routes.Assets.versioned("pharbersuploader/PharbersWebUploader.js")"></script> -->
+		<script type="text/javascript" src="@routes.Assets.versioned("js/newjs/PharbersWebUploader.js")"></script>
+		<!-- <script type="text/javascript" src="@routes.Assets.versioned("js/business/filesupload.js")"></script> -->
+		<!-- Upload End -->
+		<!--TAB流程进度 Start-->
+		<script src="@routes.Assets.versioned("js/bootstrap-wizard.min.js")"></script>
+		<!--TAB流程进度 End-->
+
+		<!-- 公用Common包 -->
+		<script src="@routes.Assets.versioned("js/common/ajaxbase.js")"></script>
+
+		<!-- d3组件，用于圆形进度展示 Start-->
+		<script src="//cdn.bootcss.com/d3/3.5.5/d3.min.js"></script>
+		<!-- d3组件，用于圆形进度展示 End-->
+
     	@*通用JS 结束*@
 	</head>
    @content
-	<script src="https://cdn.bootcss.com/d3/3.5.5/d3.min.js"></script>
+
+	<!-- 弹框组件 Start-->
 	<script src="@routes.Assets.versioned("hDialog/js/jquery.hDialog.js")"></script>
+	<!-- 弹框组件 End-->
+
+	<!-- <script src="@routes.Assets.versioned("js/business/samplecheck.js")"></script> -->
+	<script src="@routes.Assets.versioned("js/plugins/sparkline/jquery.sparkline.min.js")"></script>
 </html>

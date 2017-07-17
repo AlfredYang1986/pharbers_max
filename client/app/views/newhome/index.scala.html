@@ -1,0 +1,87 @@
+@(auth: String)
+@main("Max | Home") {
+    <body>
+        <div id="wrapper">
+            <nav class="navbar-default navbar-static-side" role="navigation">
+                <div class="sidebar-collapse">
+                    <ul class="nav metismenu" id="side-menu">
+                        <li class="nav-header">
+                            <div class="dropdown profile-element">
+                                <div style="width: 48px; height: 48px;">
+                                    <span>
+                                        <img alt="image" width="48" height="48" style="background-color: #ffffff;" class="img-circle" src="@routes.Assets.versioned("images/boy-4.png")" />
+                                    </span>
+                                </div>
+                                    <!-- <div style="position: absolute; z-index: 9888; top: -10%; left: 40%;">
+                                <div class="tooltip-demo" id="weather">
+                                    <img src="http://appimg.showapi.com/images/weather/icon/day/00.png" style="cursor: pointer;" width="84px" height="84px" data-toggle="tooltip" data-placement="right" title="城市：北京，温度：21，天气：晴，风向：西南风，风力：3级">
+                                </div>
+                            </div> -->
+                                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                    <span class="clear">
+                                        <span class="block m-t-xs">
+                                            <strong class="font-bold" id="company"></strong>
+                                        </span>
+                                        <span class="text-muted text-xs block"><span id="Name"></span> Staff<b class="caret"></b></span>
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                    <li><a href="emptypage">个人资料</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="javaScript:void();" onclick="logout()">退出系统</a></li>
+                                </ul>
+                            </div>
+                            <div class="logo-element">
+                                MAX
+                            </div>
+                        </li>
+                        <li class="active">
+                            <a href="newindex"><i class="fa fa-th-large"></i> <span class="nav-label">首页</span></a>
+                        </li>
+                        <li>
+                            <a href="calcdata"><i class="fa fa-cloud-upload"></i> <span class="nav-label">计算</span></a>
+                        </li>
+                        <li>
+                            <a href="historyData"><i class="fa fa-table"></i> <span class="nav-label">历史数据</span></a>
+                        </li>
+                        @if(auth.equals("Yes")){
+                            <li>
+                                <a><i class="fa fa-gears"></i> <span class="nav-label">管理页面</span> <span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <li><a href="usermanage">用户管理</a></li>
+                                    <li><a href="marketmanage">市场管理</a></li>
+                                </ul>
+                            </li>
+                        }
+                        <li class="landing_link">
+                            <a target="_blank" href="http://www.pharbers.com/"><i class="fa fa-star"></i> <span class="nav-label">官方网站</span> <span class="label label-warning pull-right">NEW</span></a>
+                        </li>
+                    </ul>
+
+                </div>
+            </nav>
+            <div id="page-wrapper" class="gray-bg dashbard-1">
+                <div class="row border-bottom">
+                    <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                        <div class="navbar-header">
+                            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                        </div>
+                        <ul class="nav navbar-top-links navbar-right">
+                            <li>
+                                <span class="m-r-sm text-muted welcome-message">欢迎访问MAX系统</span>
+                            </li>
+                            <li>
+                                <a href="javaScript:void();" onclick="logout()">
+                                    <i class="fa fa-sign-out"></i> 退出系统
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="container-fluid">
+                    <img class="img-responsive" src="@routes.Assets.versioned("img/index.jpg")" alt="imag" width="98.8%">
+                </div>
+            </div>
+        </div>
+    </body>
+}

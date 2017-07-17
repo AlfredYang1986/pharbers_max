@@ -1,0 +1,157 @@
+@(auth: String,markets : List[String],dates : List[Map[String,Any]])
+<div class="wrapper wrapper-content animated fadeIn">
+    <div class="p-w-md m-t-sm">
+        <div class="row">
+            <div class="col-sm-3 col-md-3">
+                <div class="form-group">
+                    <label class="control-label" for="status">市场</label>
+                    <select data-name="search-result-market" class="form-control" id="sample_market">
+                        @{markets map { market =>
+                            <option>{market}</option>
+                        }};
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-3 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">日期</label>
+                    <select data-name="search-result-date" class="form-control" id="sample_date">
+                        @{dates map { date =>
+                            <option>{date.get("name").get}</option>
+                        }};
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-bottom: 20px;">
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-xs-4">
+                        <small class="stats-label">当期医院数量</small>
+                        <h4 id = "Current_Month_HospitalNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">上期</small>
+                        <h4 id="Early_Month_HospitalNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">去年同期</small>
+                        <h4 id="Last_Year_HospitalNum">0</h4>
+                    </div>
+                </div>
+                <div id="hospline" style="height:110px;"></div>
+            </div>
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-xs-4">
+                        <small class="stats-label">当期产品数量</small>
+                        <h4 id = "Current_Month_ProductNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">上期</small>
+                        <h4 id="Early_Month_ProductNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">去年同期</small>
+                        <h4 id="Last_Year_ProductNum">0</h4>
+                    </div>
+                </div>
+                <div id="prodline" style="height:110px"></div>
+            </div>
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-xs-4">
+                        <small class="stats-label">当期市场数量</small>
+                        <h4 id = "Current_Month_MarketNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">上期</small>
+                        <h4 id="Early_Month_MarketNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">去年同期</small>
+                        <h4 id="Last_Year_MarketNum">0</h4>
+                    </div>
+                </div>
+                <div id="markline" style="height:110px"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div id="Sales" style="height:400px"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div id="Units" style="height:400px"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox">
+                    <div class="ibox-content"><!-- ibox-content container-fluid-->
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover" id="dataTables-example" >
+                                <thead>
+                                    <tr>
+                                        <td colspan="6" style="font-size: 16px">
+                                            <div class="row">
+                                                <div class="col-md-2 col-md-offset-5 text-center"><span>样本医院检查结果</span></div>
+                                                <div class="col-md-3 col-md-offset-2 text-right">
+                                                    <span>
+                                                        <a href="javascript:void();"><i class="fa fa-times text-danger text"></i></a>
+                                                    </span>
+                                                    <span style="font-size: xx-small">代表上传文件的样本医院未与标准库匹配到</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>序号</th>
+                                        <th>医院名称</th>
+                                        <th>省份</th>
+                                        <th>城市</th>
+                                        <th>城市级别</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="col-lg-12">
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-12 text-right">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="javascript:alert('我是报告页面！')">生成样本报告</button>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+</div>

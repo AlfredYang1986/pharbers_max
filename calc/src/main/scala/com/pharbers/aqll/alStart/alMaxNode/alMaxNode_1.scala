@@ -12,9 +12,9 @@ import com.typesafe.config.ConfigFactory
 object alMaxNode_1 extends App {
 	val config = ConfigFactory.load("split-worker_1")
 	val system = ActorSystem("calc", config)
+	
 	system.actorOf(alGroupRegisterActor.props, "registergroup")
 	system.actorOf(alCalcRegisterActor.props, "registercalc")
-	
 	if (system.settings.config.getStringList("akka.cluster.roles").contains("splitworker")) {
 		Cluster(system).registerOnMemberUp {
 			import scala.concurrent.duration._

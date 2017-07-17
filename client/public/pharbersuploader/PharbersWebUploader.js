@@ -12,6 +12,42 @@
  * Webuploader git仓库   git clone https://github.com/fex-team/webuploader.git
  *
  */
+
+var anow_uploader = function (filePicker, queueList, index, filetype) {
+    return WebUploader.create({
+        pick: {                                 // TODO 参数说明: {Selector, Object} [可选] [默认值：undefined] 指定选择文件的按钮容器，不指定则不创建按钮.
+            id: filePicker,                     // TODO 参数说明: {Seletor|dom} 指定选择文件的按钮容器，不指定则不创建按钮。注意 这里虽然写的是 id, 但是不是只支持 id, 还支持 class, 或者 dom 节点.
+            innerHTML: '点击选择文件'                // TODO 参数说明: {String}
+        },
+        dnd: queueList,                         // TODO 参数说明: {Selector} [可选] [默认值：undefined] 指定Drag And Drop拖拽的容器，如果不指定，则不启动.
+        accept: {                               // TODO 参数说明: {Arroy} [可选] [默认值：null] 指定接受哪些类型的文件.由于目前还有ext转mimeType表，所以这里需要分开指定.
+            title: 'intoTypes',                 // TODO 参数说明: {String} 文字描述.
+            extensions: 'xlsx,xls',             // TODO 参数说明: {String} 允许的文件后缀，不带点，多个用逗号分割.
+            mimeTypes: '.xlsx,.xls'             // TODO 参数说明: {String} 多个用逗号分割.
+        },
+        disableGlobalDnd: true,                 // TODO 参数说明: {Selector} [可选] [默认值：false] 是否禁掉整个页面的拖拽功能，如果不禁用，图片拖进来的时候会默认被浏览器打开.
+        chunked: true,                          // TODO 参数说明: {Boolean} [可选] [默认值：false] 是否要分片处理大文件上传.
+        chunkSize: 5242880,                     // TODO 参数说明: {Boolean} [可选] [默认值：5242880] 如果要分片，分多大一片？ 默认大小为5M.
+        chunkRetry: 3,                          // TODO 参数说明: {Boolean} [可选] [默认值：2] 如果某个分片由于网络问题出错，允许自动重传多少次？
+        threads: 1,                             // TODO 参数说明: {Boolean} [可选] [默认值：3] 上传并发数。允许同时最大上传进程数.
+        server: 'pharbers/files/upload',        // TODO 参数说明: {String} [必选] 文件接收服务端.
+        fileVal: 'file',                        // TODO 参数说明: {Object} [可选] [默认值：'file'] 设置文件上传域的name.
+        method: 'POST',                         // TODO 参数说明: {Object} [可选] [默认值：'POST'] 文件上传方式，POST或者GET.
+        fileNumLimit: 16,                       // TODO 参数说明: {int} [可选] [默认值：undefined] 验证文件总数量, 超出则不允许加入队列.
+        fileSizeLimit: 5242880000,              // TODO 参数说明: {int} [可选] [默认值：undefined] 验证文件总大小是否超出限制, 超出则不允许加入队列.
+        fileSingleSizeLimit: 524288000,         // TODO 参数说明: {int} [可选] [默认值：undefined] 验证单个文件大小是否超出限制, 超出则不允许加入队列.
+        auto : false,                           // TODO 参数说明: {Boolean} [可选] [默认值：false] 设置为 true 后，不需要手动调用上传，有文件选择即开始上传.
+        formData: {                             // TODO 参数说明: {Object} [可选] [默认值：{}] 文件上传请求的参数表，每次发送都会发送此对象中的参数.
+            token: index,                       // TODO: 唯一标示
+            filetype: filetype,                 // TODO: 文件类型
+            company: '',                        // TODO: 公司名称
+            date: '',                           // TODO: 文件日期
+            market: ''                          // TODO: 所属市场
+        },
+        compress: false                         // TODO 参数说明: {Object} [可选] 配置压缩的图片的选项。如果此选项为false, 则图片在上传前不进行压缩
+    });
+}
+
 jQuery(function() {
 
     var uploader = new Array();                         // TODO 参数说明: 创建uploader实例数组
@@ -29,7 +65,6 @@ jQuery(function() {
     //循环页面中每个上传域
     $('.uploder-container').each(function(index){
         var filetype = "";
-        var now_uploader=now_uploader
         switch(index) {
             case 0:
                 filetype = "CPA";
@@ -45,6 +80,7 @@ jQuery(function() {
                 break;
         }
 
+
         var ratio = window.devicePixelRatio || 1,                           // TODO 参数说明: 物理像素/独立像素 默认设置为1
         thumbnailWidth = 100 * ratio,                                       // TODO 参数说明: 缩略图大小(宽)
         thumbnailHeight = 100 * ratio,                                      // TODO 参数说明: 缩略图大小(高)
@@ -55,14 +91,15 @@ jQuery(function() {
             s = null;
             return r;
         })();
-
         var filePicker=$(this).find('.filePicker');                         // TODO : 上传按钮实例
         var queueList=$(this).find('.queueList');                           // TODO : 拖拽容器实例
         var jxfilePicker=$(this).find('.jxfilePicker');                     // TODO : 继续添加按钮实例
         var placeholder=$(this).find('.placeholder');                       // TODO : 按钮与虚线框实例
         var statusBar=$(this).find('.statusBar');                           // TODO : 再次添加按钮容器实例
-        var info =statusBar.find('.info');                                  // TODO : 提示信息容器实例
+        var info = statusBar.find('.info');                                  // TODO : 提示信息容器实例
         var upload = $(this).find('.uploadBtn');                            // TODO : 上传按钮容器实例
+
+        var now_uploader = anow_uploader(filePicker, queueList, index, filetype)
 
         var queue = $('<ul class="filelist"></ul>').appendTo( queueList);   // TODO : 文件容器实例
         percentages[index] = {};                                            // TODO 参数说明: 所有文件的进度信息，key为file id
@@ -72,38 +109,7 @@ jQuery(function() {
         fileCount[index] = 0;                                               // TODO : 添加的文件数量
         fileSize[index] = 0;                                                // TODO : 添加的文件总大小
         // TODO : 初始化上传实例
-        now_uploader = WebUploader.create({
-            pick: {                                 // TODO 参数说明: {Selector, Object} [可选] [默认值：undefined] 指定选择文件的按钮容器，不指定则不创建按钮.
-                id: filePicker,                     // TODO 参数说明: {Seletor|dom} 指定选择文件的按钮容器，不指定则不创建按钮。注意 这里虽然写的是 id, 但是不是只支持 id, 还支持 class, 或者 dom 节点.
-                innerHTML: '点击选择文件'                // TODO 参数说明: {String}
-            },
-            dnd: queueList,                         // TODO 参数说明: {Selector} [可选] [默认值：undefined] 指定Drag And Drop拖拽的容器，如果不指定，则不启动.
-            accept: {                               // TODO 参数说明: {Arroy} [可选] [默认值：null] 指定接受哪些类型的文件.由于目前还有ext转mimeType表，所以这里需要分开指定.
-                title: 'intoTypes',                 // TODO 参数说明: {String} 文字描述.
-                extensions: 'xlsx,xls',             // TODO 参数说明: {String} 允许的文件后缀，不带点，多个用逗号分割.
-                mimeTypes: '.xlsx,.xls'             // TODO 参数说明: {String} 多个用逗号分割.
-            },
-            disableGlobalDnd: true,                 // TODO 参数说明: {Selector} [可选] [默认值：false] 是否禁掉整个页面的拖拽功能，如果不禁用，图片拖进来的时候会默认被浏览器打开.
-            chunked: true,                          // TODO 参数说明: {Boolean} [可选] [默认值：false] 是否要分片处理大文件上传.
-            chunkSize: 5242880,                     // TODO 参数说明: {Boolean} [可选] [默认值：5242880] 如果要分片，分多大一片？ 默认大小为5M.
-            chunkRetry: 3,                          // TODO 参数说明: {Boolean} [可选] [默认值：2] 如果某个分片由于网络问题出错，允许自动重传多少次？
-            threads: 1,                             // TODO 参数说明: {Boolean} [可选] [默认值：3] 上传并发数。允许同时最大上传进程数.
-            server: 'pharbers/files/upload',        // TODO 参数说明: {String} [必选] 文件接收服务端.
-            fileVal: 'file',                        // TODO 参数说明: {Object} [可选] [默认值：'file'] 设置文件上传域的name.
-            method: 'POST',                         // TODO 参数说明: {Object} [可选] [默认值：'POST'] 文件上传方式，POST或者GET.
-            fileNumLimit: 16,                       // TODO 参数说明: {int} [可选] [默认值：undefined] 验证文件总数量, 超出则不允许加入队列.
-            fileSizeLimit: 5242880000,              // TODO 参数说明: {int} [可选] [默认值：undefined] 验证文件总大小是否超出限制, 超出则不允许加入队列.
-            fileSingleSizeLimit: 524288000,         // TODO 参数说明: {int} [可选] [默认值：undefined] 验证单个文件大小是否超出限制, 超出则不允许加入队列.
-            auto : false,                           // TODO 参数说明: {Boolean} [可选] [默认值：false] 设置为 true 后，不需要手动调用上传，有文件选择即开始上传.
-            formData: {                             // TODO 参数说明: {Object} [可选] [默认值：{}] 文件上传请求的参数表，每次发送都会发送此对象中的参数.
-                token: index,                       // TODO: 唯一标示
-                filetype: filetype,                 // TODO: 文件类型
-                company: '',                        // TODO: 公司名称
-                date: '',                           // TODO: 文件日期
-                market: ''                          // TODO: 所属市场
-            },
-            compress: false                         // TODO 参数说明: {Object} [可选] 配置压缩的图片的选项。如果此选项为false, 则图片在上传前不进行压缩
-        });
+
 
         // TODO : 添加“添加文件”的按钮
         now_uploader.addButton({
@@ -217,7 +223,6 @@ jQuery(function() {
 
         // TODO : 捕捉uploader事件类型，并赋值状态
         now_uploader.on( 'all', function( type ) {
-            var stats;
             switch( type ) {
                 case 'uploadFinished':
                     setState( 'confirm');

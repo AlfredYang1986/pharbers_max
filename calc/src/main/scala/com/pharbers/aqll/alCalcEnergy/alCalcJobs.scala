@@ -133,11 +133,11 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 				val company = alCalcParmary.alParmary.single.get.find(_.uuid == uuid) match {
 					case None =>
 						log.info(s"not company")
-						//                        alRestoreColl("", sub_uuid :: Nil)
+//						alRestoreColl("", sub_uuid :: Nil)
 						("", "", "")
 					case Some(x) =>
 						val u = x.company+uuid
-//						alRestoreColl().apply(u, sub_uuid :: Nil)
+						alRestoreColl().apply(u, sub_uuid :: Nil)
 						(x.company, u, x.uname)
 					case _ => ???
 				}
@@ -153,7 +153,7 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 					implicit val stmc = StmConf()
 					new Mail().sendTo(EmailForCompany(company._1).getEmail())
 					endDate("计算完成",start)
-					new alMessageProxy().sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
+					new alMessageProxy().sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress_calc"))
 					self ! finish_max_job(uuid)
 					atomic { implicit tnx =>
 						calcing_jobs() = calcing_jobs().tail
@@ -167,16 +167,16 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 		alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
 			case None => log.info(s"commit_finalresult_jobs_func not company")
 			case Some(x) =>
-				new alMessageProxy().sendMsg("30", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+//				new alMessageProxy().sendMsg("30", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				log.info(s"x.uuid = ${x.uuid}")
 				alWeightSum().apply(company, company + x.uuid)
-				new alMessageProxy().sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+//				new alMessageProxy().sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				log.info(s"开始删除临时表")
 				dbc.getCollection(company + x.uuid).drop()
 				log.info(s"结束删除临时表")
 				val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(x.uuid))
 				alCalcParmary.alParmary.single.get.remove(index)
-				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress_calc_result"))
 		}
 	}
 
