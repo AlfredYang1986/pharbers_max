@@ -11,7 +11,7 @@ import com.typesafe.config.ConfigFactory
   * Created by alfredyang on 11/07/2017.
   */
 object alMaxMaterEntry extends App {
-    val config = ConfigFactory.load("split-master")
+    val config = ConfigFactory.load("split-new-master")
     val system = ActorSystem("calc", config)
 
     if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
