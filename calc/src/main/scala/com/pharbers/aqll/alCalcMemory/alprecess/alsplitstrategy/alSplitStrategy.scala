@@ -12,7 +12,7 @@ import scala.concurrent.stm.Ref
 object server_info {
     val cpu: Int = Runtime.getRuntime.availableProcessors
     val memory: Long = Runtime.getRuntime.maxMemory
-    val section = Ref(0)
+    val section = Ref(1)
 }
 
 object alSplitStrategy {
