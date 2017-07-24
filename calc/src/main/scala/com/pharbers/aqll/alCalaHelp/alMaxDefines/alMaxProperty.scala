@@ -5,7 +5,7 @@ package com.pharbers.aqll.alCalaHelp.alMaxDefines
   */
 case class alMaxProperty(val parent : String,
                          val uuid : String,
-                         val subs : List[alMaxProperty],
+                         var subs : List[alMaxProperty],
                          var signed : Boolean = false,
                          var grouped : Boolean = false,
                          var isSumed : Boolean = false,
@@ -13,4 +13,4 @@ case class alMaxProperty(val parent : String,
                          var isCalc : Boolean = false,
                          var finalValue : Double = 0.0,
                          var finalUnit : Double = 0.0
-                        )
+                        ) extends java.io.Serializable

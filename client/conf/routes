@@ -13,8 +13,13 @@ GET		/register					        controllers.alMaxRouterController.register
 #   首页
 GET		/index						        controllers.alMaxRouterController.index
 POST	/index						        controllers.alMaxRouterController.index
+
+GET     /newindex                           controllers.alMaxRouterController.newindex
 #计算
 GET		/calculaData                        controllers.alMaxRouterController.calculaData
+#计算2
+GET     /calcdata                           controllers.alMaxRouterController.calcData
+
 #历史数据
 GET		/historyData                        controllers.alMaxRouterController.historyData
 #   文件上传

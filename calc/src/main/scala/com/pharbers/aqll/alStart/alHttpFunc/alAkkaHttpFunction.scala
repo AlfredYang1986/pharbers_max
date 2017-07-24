@@ -7,7 +7,7 @@ import com.pharbers.aqll.alCalaHelp.alAkkaHttpJson.PlayJsonSupport
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 
 import scala.concurrent.ExecutionContext
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
@@ -39,16 +39,16 @@ case class alHttpCreateIMUser(name: String, pwd: String)
 case class alQueryUUIDItem(company: String)
 
 trait PlayJson extends PlayJsonSupport {
-	implicit val itemJson = Json.format[Item]
+	implicit val itemJson = format[Item]
 	
-	implicit val itemFormatUpBefore = Json.format[alUpBeforeItem]
-	implicit val itemFormatUpload = Json.format[alUploadItem]
-	implicit val itemFormatCheck = Json.format[alCheckItem]
-	implicit val itemFormatCalc = Json.format[alCalcItem]
-	implicit val itemFormatCommit = Json.format[alCommitItem]
-	implicit val itemFormatExport = Json.format[alExportItem]
-	implicit val itemFormatUser = Json.format[alHttpCreateIMUser]
-	implicit val itemFormatQueryUUID = Json.format[alQueryUUIDItem]
+	implicit val itemFormatUpBefore = format[alUpBeforeItem]
+	implicit val itemFormatUpload = format[alUploadItem]
+	implicit val itemFormatCheck = format[alCheckItem]
+	implicit val itemFormatCalc = format[alCalcItem]
+	implicit val itemFormatCommit = format[alCommitItem]
+	implicit val itemFormatExport = format[alExportItem]
+	implicit val itemFormatUser = format[alHttpCreateIMUser]
+	implicit val itemFormatQueryUUID = format[alQueryUUIDItem]
 }
 
 trait alAkkaHttpFunction extends Directives with PlayJson{
@@ -61,7 +61,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 				 alFileUploadPyBefore ~ alQueryUUIDFunc
 	
 	def Test = post {
-		path("test") {
+		path("src/test") {
 			entity(as[Item]) { item =>
 				println(item.str)
 				println(item.lst)
@@ -73,8 +73,8 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alFileUploadPyBefore = post {
 		path("uploadbefore") {
 			entity(as[alUpBeforeItem]) { item =>
-				new alMessageProxy().sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyCmd(s"$root$program$fileBase${item.company}" ,Upload_Firststep_Filename, "").excute
+//				toJson(Map("status" -> toJson("success"), "result" -> toJson(Map("result" -> "2016#", "page" -> ""))))
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete(result)
 			}
@@ -84,9 +84,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alFileUploadPythonFunc = post {
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
-				new alMessageProxy().sendMsg("10", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				val result = pyCmd(s"$root$program$fileBase${item.company}",Upload_Secondstep_Filename, item.yms).excute
-				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete(result)
 			}
 		}
@@ -152,7 +150,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("queryUUID") {
 			entity(as[alQueryUUIDItem]) { item =>
 				val uuid = alCalcParmary.alParmary.single.get.find(_.company.equals(item.company)) match {
-					case None => "fb9cb2cd-52ab-4493-b943-24800d85a610"
+					case None => "7c9661d4-30d8-4b8f-8691-f4721f882acb"
 					case Some(x) => x.uuid.toString
 				}
 				val result = toJson(successToJson(toJson(uuid)).get)

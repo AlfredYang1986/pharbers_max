@@ -85,7 +85,6 @@ object SliceUpload {
         if (!dirfile.exists()) {
             dirfile.mkdirs()
         }
-        //println(s"${dirfile.getPath}/")
         filetype :: s"${dirfile.getPath}/" :: Nil
     }
 }

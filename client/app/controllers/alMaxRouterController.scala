@@ -30,15 +30,31 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule
             Ok(views.html.index(getAdminByCookies(request)))
         }
     }
+    
+    //首页2
+    
+    def newindex = Action { request =>
+        if (getUserTokenByCookies(request).equals("")) {
+            Ok(views.html.login())
+        } else {
+            Ok(views.html.newhome.index(getAdminByCookies(request)))
+        }
+    }
 
     //计算
     def calculaData = Action {
         Ok(views.html.CalculaData(""))
     }
+    
+    //计算2
+    def calcData = Action { request =>
+        val defaultdata = PageDefaultData(alModularEnum.SC, mdb.basic, mdb.cores, false)
+        Ok(views.html.newhome.calcData(getAdminByCookies(request), defaultdata._1, defaultdata._2))
+    }
 
     //历史数据
-    def historyData = Action {
-        Ok(views.html.HistoryData(""))
+    def historyData = Action { request =>
+        Ok(views.html.HistoryData(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, mdb.basic, mdb.cores)._1))
     }
 
 

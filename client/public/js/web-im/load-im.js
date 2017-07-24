@@ -1,5 +1,4 @@
-var conn;
-var msgIdentifying = 0;
+var conn, msgIdentifying = 0;
 
 var beget = function(obj) {
     var F = function(){};
@@ -27,6 +26,7 @@ var load_Web_IM = function() {
  * @param p
  */
 var login_im = function(u, p) {
+    conn = load_Web_IM();
     var options = {
         apiUrl: WebIM.config.apiURL,
         appKey: WebIM.config.appkey,
@@ -48,14 +48,17 @@ var login_im = function(u, p) {
  * 该方法是通过WEB-IM的token登录
  */
 var load_im = function() {
-    var options = {
-        apiUrl: WebIM.config.apiURL,
-        appKey: WebIM.config.appkey,
-        user: $.cookie('webim_user'),
-        accessToken: $.cookie('webim_token')
-    };
-    conn.open(options);
-    callback();
+    conn = load_Web_IM();
+    if($.cookie('webim_user') != undefined) {
+        var options = {
+            apiUrl: WebIM.config.apiURL,
+            appKey: WebIM.config.appkey,
+            user: $.cookie('webim_user'),
+            accessToken: $.cookie('webim_token')
+        };
+        conn.open(options);
+        callback();
+    }
 }
 
 var callback = function() {

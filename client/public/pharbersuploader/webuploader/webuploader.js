@@ -4878,7 +4878,7 @@
                     label = this.label = $( document.createElement('label') ),
                     input =  this.input = $( document.createElement('input') ),
                     arr, i, len, mouseHandler;
-    
+
                 input.attr( 'type', 'file' );
                 input.attr( 'name', opts.name );
                 input.addClass('webuploader-element-invisible');

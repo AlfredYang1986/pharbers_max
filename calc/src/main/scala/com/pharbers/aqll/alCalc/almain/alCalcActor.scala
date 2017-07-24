@@ -147,6 +147,7 @@ class alCalcActor extends Actor
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
 
 	        log.info(s"avg")
+            
             if (r.parent == uuid)
                 concert_router ! concert_calc_avg(r, avg)
             stay()
@@ -167,7 +168,6 @@ class alCalcActor extends Actor
 
         case Event(concert_calc_result(sub_uuid, v, u), data) => {
             val r = result_ref.single.get.map (x => x).getOrElse(throw new Exception("must have runtime property"))
-
             r.subs.find (x => x.uuid == sub_uuid).map { x =>
                 x.isCalc = true
                 x.finalValue = v
