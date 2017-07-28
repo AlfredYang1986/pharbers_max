@@ -14,7 +14,19 @@ class FopController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule) extend
     def uploadFile = Action { request =>
         requestArgsQuery().uploadRequestArgs(request)(SliceUpload.ManyFileSlice)
     }
-
+    
+    def upload = Action(parse.multipartFormData) { request =>
+        request.body.file("file").map { file =>
+            import java.io.File
+            val filename = file.filename
+            val contentType = file.contentType
+            file.ref.moveTo(new File(s"/Users/qianpeng/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Client/CPA/$filename"))
+            Ok("File uploaded")
+        }.getOrElse {
+            Ok("File uploaded")
+        }
+    }
+    
     def downloadFile(name: String) = Action {
         Ok(fop.downloadFile(name)).as("excel/csv")
     }

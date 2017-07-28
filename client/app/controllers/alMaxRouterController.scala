@@ -48,8 +48,7 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule
     
     //计算2
     def calcData = Action { request =>
-        val defaultdata = PageDefaultData(alModularEnum.SC, mdb.basic, mdb.cores, false)
-        Ok(views.html.newhome.calcData(getAdminByCookies(request), defaultdata._1, defaultdata._2))
+        Ok(views.html.newhome.calcData(getAdminByCookies(request)))
     }
 
     //历史数据
@@ -64,6 +63,15 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule
             Ok(views.html.login())
         } else {
             Ok(views.html.filesUpload(getAdminByCookies(request), PageDefaultData(alModularEnum.FU, mdb.basic, mdb.cores)._1))
+        }
+    }
+    
+    //测试上传文件页面
+    def test = Action { request =>
+        if (getUserTokenByCookies(request).equals("")) {
+            Ok(views.html.login())
+        } else {
+            Ok(views.html.test())
         }
     }
 

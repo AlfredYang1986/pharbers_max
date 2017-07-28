@@ -1,0 +1,104 @@
+<!-- @helper.form(action = routes.FopController.uploadFile, 'enctype -> "multipart/form-data") {
+
+    <input type="file" name="file">
+
+    <p>
+        <input type="submit">
+    </p>
+
+}-->
+@main("Test") {
+    <link href="@routes.Assets.versioned("css/extlib/bspfileinput/fileinput.css")" rel="stylesheet">
+    <div class="contentpanel">
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div style="padding:10px;">
+                                <form enctype="multipart/form-data">
+                                    <input id="cpa" name="file" type="file" multiple>
+                                    <br>
+                                </form>
+                            </div>
+                            <div style="padding:10px; display: none;" id="gycxdiv">
+                                <form enctype="multipart/form-data">
+                                    <input id="gycx" name="file" type="file" multiple>
+                                    <br>
+                                </form>
+                            </div>
+                            <div style="padding:10px;">
+                                <button id="show" type="button" class="btn btn-success">show</button>
+                                <button id="hide" type="button" class="btn btn-success">hide</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="@routes.Assets.versioned("js/extlib/bspfileinput/fileinput.js")"></script>
+    <script src="@routes.Assets.versioned("js/extlib/bspfileinput/fileinput_locale_zh.js")"></script>
+    <script>
+        $(function(){
+            $("#show").click(function(){
+                $("#gycxdiv").show();
+            });
+            $("#hide").click(function(){
+                $("#gycxdiv").hide();
+            });
+            createUpload("cpa", "pharbers/files/upload", ["xlsx","xls"], 20000, {filetype: 'CPA', company: "fea9f203d4f593a96f0d6faa91ba24ba"})
+        });
+
+        var createUpload = function(id, url, uploadType, maxFileSize, extData) {
+            //{filetype: 'CPA', company: "fea9f203d4f593a96f0d6faa91ba24ba"}
+            return $("#"+id).fileinput({
+                language: 'zh',
+                uploadUrl: url,
+                uploadExtraData: extData,
+//                allowedPreviewTypes : ['image', 'html', 'text', 'video', 'audio', 'flash'],
+                allowedFileExtensions : uploadType,
+                maxFileSize : maxFileSize,
+            });
+        }
+
+
+//        $('#cpa').fileinput({
+//            language: 'zh',
+//            uploadUrl: 'pharbers/files/upload',
+//            uploadExtraData: {filetype: 'CPA', company: "fea9f203d4f593a96f0d6faa91ba24ba"},
+//            allowedFileExtensions : [ 'xlsx', 'xls' ],
+//            maxFileSize : 2000,
+//
+//        });
+//        $('#gycx').fileinput({
+//            language: 'zh',
+//            uploadUrl: 'pharbers/files/upload',
+//            uploadExtraData: {filetype: 'GYCX', company: "fea9f203d4f593a96f0d6faa91ba24ba"},
+//            allowedFileExtensions : [ 'xlsx', 'xls' ],
+//            maxFileSize : 2000,
+//
+//        });
+
+//        $('#cpa').on('fileuploaderror', function(event, data, previewId, index) {
+//            var form = data.form, files = data.files, extra = data.extra, response = data.response, reader = data.reader;
+//            console.log(data);
+//            console.log('文件上传失败');
+//        });
+//
+//        $('#cpa').on('fileerror', function(event, data) {
+//            console.log(data.id);
+//            console.log(data.index);
+//            console.log(data.file);
+//            console.log(data.reader);
+//            console.log(data.files);
+//        });
+//
+//        $('#cpa').on('fileuploaded', function(event, data, previewId, index) {
+//            var form = data.form, files = data.files, extra = data.extra, response = data.response, reader = data.reader;
+//            console.log(data.msg);
+//            console.log('文件上传触发');
+//        });
+    </script>
+}

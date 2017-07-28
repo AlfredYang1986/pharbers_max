@@ -16,6 +16,7 @@ import controllers.common.requestArgsQuery
 class ResultCheckController @Inject()(as_inject : ActorSystem, mdb: MongoDBModule) extends Controller {
     implicit val db = mdb
     implicit val as = as_inject
+    
     def resultChecklinechart = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
         import pattern.LogMessage.common_log
         import pattern.ResultMessage.common_result

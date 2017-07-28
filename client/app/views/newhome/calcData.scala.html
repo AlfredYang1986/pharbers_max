@@ -1,4 +1,4 @@
-@(auth: String, markets: List[String], dates: List[Map[String,Any]])
+@(auth: String)
 @main("Max | Home") {
     <link href="@routes.Assets.versioned("/css/style.default.css")" rel="stylesheet">
     <style>
@@ -6,6 +6,7 @@
                 border-left: 0px solid;
             }
     </style>
+
     <body>
         <!-- 你太狂 -->
         <div id="panel_modal" class="modal fade bs-example-modal-static" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" data-backdrop="static" aria-hidden="true">
@@ -160,14 +161,14 @@
                                     <!-- 样本检查文件 -->
                                     <div class="tab-pane" id="ptab3">
                                         <div class="container-fluid">
-                                            @sample.sampleCheck(auth, markets, dates)
+                                            @sample.sampleCheck()
                                         </div>
                                     </div>
 
                                     <!-- 结果检查 -->
                                     <div class="tab-pane" id="ptab4">
                                         <div class="container-fluid">
-                                            @result.resultCheck(auth, markets, dates)
+                                            @result.resultCheck()
                                         </div>
                                     </div>
 
@@ -179,6 +180,7 @@
                 </div>
             </div>
         </div>
+
         <script type="text/javascript" src="@routes.Assets.versioned("js/newjs/calcstep.js")"></script>
     </body>
 }
