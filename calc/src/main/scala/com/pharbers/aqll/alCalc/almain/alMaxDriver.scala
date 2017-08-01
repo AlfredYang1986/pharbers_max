@@ -135,7 +135,7 @@ class alMaxDriver extends Actor
         case schedule_calc() => scheduleOneCalcJob
         case calc_sum_result(uuid, sub_uuid, sum) => sumSuccessWithWork(uuid, sub_uuid, sum)
         case calc_final_result(uuid, sub_uuid, v, u) => finalSuccessWithWork(uuid, sub_uuid, v, u, start)
-        case commit_finalresult_jobs(company) => commit_finalresult_jobs_func(company)
+        case commit_finalresult_jobs(company, uuid) => commit_finalresult_jobs_func(company, uuid)
         case check_excel_jobs(company,filename) => check_excel_jobs_func(company,filename)
         case x : Any => {
             log.info(x.toString)

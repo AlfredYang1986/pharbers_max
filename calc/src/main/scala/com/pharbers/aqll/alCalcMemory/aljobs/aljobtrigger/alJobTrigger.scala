@@ -32,7 +32,7 @@ object alJobTrigger {
 
     case class filter_excel_jobs(file: String, p: alCalcParmary, actorSelection: ActorSelection)
     case class filter_excel_job_2(file : String, p : alCalcParmary)
-    case class commit_finalresult_jobs(company: String)
+    case class commit_finalresult_jobs(company: String, uuid: String)
     case class check_excel_jobs(company: String,filename: String)
     /**
       * for split excel

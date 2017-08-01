@@ -27,6 +27,7 @@ var p;
                         var r = p.setPercent(parseInt(message.data));
                         msgIdentifying = parseInt(message.data);
                         if(parseInt(message.data) >= 100 || r >= 100) {
+                            console.info(message);
                             setCloseInterval();
                             setTimeout(function(){$(".progresstier").css("display", "none");p.setPercent(0);}, 1000 * 1);
                             flagnext = true;
