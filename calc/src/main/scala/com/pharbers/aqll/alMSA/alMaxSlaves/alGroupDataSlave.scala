@@ -1,6 +1,7 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.SupervisorStrategy.Restart
+import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.agent.Agent
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_hand, group_data_start_impl}
@@ -18,6 +19,10 @@ class alGroupDataSlave extends Actor with ActorLogging {
     import scala.concurrent.ExecutionContext.Implicits.global
     case class state_agent(val isRunning : Boolean)
     val stateAgent = Agent(state_agent(false))
+
+    override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
+        case _ => Restart
+    }
 
     override def receive: Receive = {
         case group_data_hand() => if (stateAgent().isRunning) Unit

@@ -4,6 +4,7 @@ import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_jobs
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.{split_excel_end, split_excel_start_impl, split_excel_timeout}
 
 import scala.concurrent.duration._
@@ -15,6 +16,8 @@ import scala.concurrent.duration._
 object alSplitExcelComeo {
     def props(file : String, par : alCalcParmary, originSender : ActorRef, owner : ActorRef) =
         Props(new alSplitExcelComeo(file, par, originSender, owner))
+
+    var count = 3
 }
 
 class alSplitExcelComeo(file : String,
@@ -22,14 +25,19 @@ class alSplitExcelComeo(file : String,
                         originSender : ActorRef,
                         owner : ActorRef) extends Actor with ActorLogging {
 
-    override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
-        case _ => Restart
-    }
+    import alSplitExcelComeo._
 
     override def postRestart(reason: Throwable) : Unit = {
-        super.postRestart(reason)
-        // TODO : 计算次数，从新计算
-        self ! split_excel_start_impl(file, par)
+        // TODO : 计算次数，重新计算
+        count -= 1
+        println(s"&&&&& ==> alSplitExcelComeo error times=${3-count} , reason=${reason}")
+        count match {
+//            case 0 =>
+            case 0 => new alMessageProxy().sendMsg("100", "username", Map("error" -> "alSplitExcelComeo error"))
+                println("&&&&&& 重启3次后，依然未能正确执行 => alSplitExcelComeo &&&&&&")
+                self ! split_excel_end(false,"",Nil,null)
+            case _ => super.postRestart(reason); self ! split_excel_start_impl(file, par)
+        }
     }
 
     override def receive: Receive = {
@@ -43,6 +51,14 @@ class alSplitExcelComeo(file : String,
         }
         case split_excel_start_impl(f, c) => {
             val result = max_jobs(file).result
+
+            /**
+              * Modified by Jeorch on 02/08/2017.
+              * 制造一个错误，检验错误计数，重算流程
+            println("start push error!")
+            throw new Exception("&&& ==> Some alSplitExcelComeo Error！")
+              */
+
             try {
                 val (p, sb) = result.map (x => x).getOrElse(throw new Exception("cal error"))
                 c.uuid = p.toString

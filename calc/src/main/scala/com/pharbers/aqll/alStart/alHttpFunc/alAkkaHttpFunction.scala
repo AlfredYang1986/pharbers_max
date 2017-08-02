@@ -63,8 +63,8 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def Test = post {
 		path("src/test") {
 			entity(as[Item]) { item =>
-				println(item.str)
-				println(item.lst)
+//				println(item.str)
+//				println(item.lst)
 				complete("""{"result": "OK"}""")
 			}
 		}
