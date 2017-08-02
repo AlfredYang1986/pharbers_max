@@ -13,7 +13,7 @@ class alCalcSplitJob(u : String, val parent : String, val mid : String) extends 
 
     def init(args : Map[String, Any]) = {
 //        val restore_path = s"${memorySplitFile}${calc}$parent/$u"
-        val restore_path = "config/calc/" + parent + "/" + u
+        val restore_path = "/home/jeorch/work/max/files/calc/" + parent + "/" + u
         cur = Some(alStage(restore_path))
 //        process = restore_data() :: split_data(hash_split(Map(hash_split.core_number -> 4,
 //                    hash_split.hash_func -> hash_func))) :: ps :: Nil

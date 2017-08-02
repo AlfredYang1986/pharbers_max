@@ -47,6 +47,7 @@ trait alGroupDataTrait { this : Actor =>
         if (canSchduleGroupJob) {
             atomic { implicit thx =>
                 val tmp = group_jobs.single.get
+//                println(s"&&& group_jobs tmp ==> ${tmp}")
                 if (tmp.isEmpty) Unit
                 else {
                     groupData(tmp.head._1, tmp.head._2)
@@ -141,7 +142,8 @@ class alCameoGroupData (val property : alMaxProperty,
 
     def unionResult = {
         val common = common_jobs()
-        common.cur = Some(alStage(property.subs map (x => "config/group/" + x.uuid)))
+//        common.cur = Some(alStage(property.subs map (x => "config/group/" + x.uuid)))
+        common.cur = Some(alStage(property.subs map (x => "/home/jeorch/work/max/files/group/" + x.uuid)))
         common.process = restore_grouped_data() ::
             do_calc() :: do_union() :: do_calc() ::
             do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil

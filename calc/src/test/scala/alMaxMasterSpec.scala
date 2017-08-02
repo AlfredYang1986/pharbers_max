@@ -25,12 +25,12 @@ class alMaxMasterSpec extends Specification with AfterAll{
     val system : ActorSystem = ActorSystem("calc", config)
     implicit val timeout = Timeout(30 minute)
 
-    val cp = new alCalcParmary("tekken", "alfred")
+    val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "alfred")
 
     override def afterAll() : Unit = {
         system.terminate()
         Await.result(system.whenTerminated, Duration.Inf)
-        println("wokao")
+        println("Here print function => afterAll")
     }
 
     override def is = s2"""
@@ -96,7 +96,7 @@ class alMaxMasterSpec extends Specification with AfterAll{
         val p = r.uuid
         val subs = r.subs map (x => alMaxProperty(p, x, Nil))
         val mp = alMaxProperty(null, p, subs)
-        println(mp)
+//        println(mp)
 
         r.result must_== true
         cp.uuid = r.uuid
@@ -105,7 +105,7 @@ class alMaxMasterSpec extends Specification with AfterAll{
         val fg = a ? push_group_job(mp)
         val rg = Await.result(fg, 2 minute).asInstanceOf[group_data_end]
 
-        println(rg.property)
+//        println(rg.property)
         rg.result must_== true
     }
 
@@ -118,7 +118,7 @@ class alMaxMasterSpec extends Specification with AfterAll{
         val p = r.uuid
         val subs = r.subs map (x => alMaxProperty(p, x, Nil))
         val mp = alMaxProperty(null, p, subs)
-        println(mp)
+//        println(mp)
 
         r.result must_== true
         cp.uuid = r.uuid
@@ -127,14 +127,14 @@ class alMaxMasterSpec extends Specification with AfterAll{
         val fg = a ? push_group_job(mp)
         val rg = Await.result(fg, 2 minute).asInstanceOf[group_data_end]
 
-        println(rg.property)
+//        println(rg.property)
         rg.result must_== true
 
         val fff = a ? push_calc_job_2(mp, cp)
-        val rrr = Await.result(fff, 30 minute).asInstanceOf[calc_data_end]
+        val rrr = Await.result(fff, 40 minute).asInstanceOf[calc_data_end]
 
-        println(rrr.property.finalValue)
-        println(rrr.property.finalUnit)
+//        println(rrr.property.finalValue)
+//        println(rrr.property.finalUnit)
         rrr.result must_== true
     }
 }

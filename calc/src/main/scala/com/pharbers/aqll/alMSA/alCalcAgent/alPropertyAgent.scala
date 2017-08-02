@@ -31,14 +31,14 @@ class alPropertyAgent extends Actor with ActorLogging {
             val can = f.map (_._2 > 0).getOrElse(false)
             if (can) {
                 energy = energy.filterNot(x => x._1 == role) + (role -> (f.get._2 - 1))
-                println(energy)
+//                println(energy)
                 sender ! true
             } else sender ! false
         }
         case refundNodeForRole(role) => {
             val f = energy.find(role == _._1)
             energy = energy.filterNot(x => x._1 == role) + (role -> (f.get._2 + 1))
-            println(energy)
+//            println(energy)
             sender ! true
         }
     }
