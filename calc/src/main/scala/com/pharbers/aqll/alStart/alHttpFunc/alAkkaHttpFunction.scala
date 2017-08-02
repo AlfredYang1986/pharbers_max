@@ -31,7 +31,7 @@ case class alUpBeforeItem(company: String, uname: String)
 case class alUploadItem(company: String, yms: String, uname: String)
 case class alCheckItem(company: String, filename: String, uname: String)
 case class alCalcItem(filename: String, company: String, uname: String)
-case class alCommitItem(company: String)
+case class alCommitItem(company: String, uuid: String)
 case class alExportItem(datatype: String, market: List[String],
                         staend: List[String], company: String,
                         filetype: String, uname: String)
@@ -110,11 +110,13 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 			}
 		}
 	}
+	
+	//待测试
 	def alModelOperationCommitFunc = post {
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
-				a ! commit_finalresult_jobs(item.company)
+				a ! commit_finalresult_jobs(item.company, item.uuid)
 				val result = alSampleCheckCommit().apply(item.company)
 				complete(result)
 			}

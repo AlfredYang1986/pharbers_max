@@ -25,7 +25,7 @@ class alMaxMasterSpec extends Specification with AfterAll{
     val system : ActorSystem = ActorSystem("calc", config)
     implicit val timeout = Timeout(30 minute)
 
-    val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "alfred")
+    val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
 
     override def afterAll() : Unit = {
         system.terminate()

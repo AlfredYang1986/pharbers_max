@@ -315,7 +315,7 @@ $(function(){
                 temp.push(v.Province);
                 temp.push(v.City);
                 temp.push(v.City_level);
-                temp.push("<a href=\"javascript:;\"><i class=\"fa fa-times text-danger text\"></i></a>");
+                // temp.push("<a href=\"javascript:;\"><i class=\"fa fa-times text-danger text\"></i></a>");
                 data.push(temp)
                 temp = []
             })

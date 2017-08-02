@@ -595,6 +595,16 @@ var createUpload = function(uploadid, index, flag) {
         innerHTML: '添加文件'
     });
 
+    now_uploader.destroy = function(){
+        if(now_uploader){
+            console.info(456);
+            // uploader.destroy();
+            delete window;
+            // $("#gycx_upload").html('')
+            //     .html('<div class="queueList"><div id="dndArea" class="placeholder"><div id="filePicker"></div><p>或将照片拖到这里，单次最多可选20张</p></div></div><div class="statusBar" style="display:none;"><div class="progress"><span class="text">0%</span><span class="percentage"></span></div><div class="info"></div><div class="btns"><div id="filePicker2"></div><div class="uploadBtn">开始上传</div></div></div>');
+        }
+    };
+
     // TODO : 当文件被加入队列之前触发，此事件的handler返回值为false，则此文件不会被添加进入队列
     now_uploader.on('beforeFileQueued', function(file){
         //console.log(file);
@@ -688,6 +698,7 @@ var createUpload = function(uploadid, index, flag) {
         if(filetype == "Hospital"){
             sendSCPFile(file.name);
         }else{
+            $.cookie("next",true);
             //alert("文件："+file.name+"上传完成.");
         }
     });
@@ -1025,4 +1036,5 @@ var createUpload = function(uploadid, index, flag) {
             }
         });
     }
+    return now_uploader;
 }

@@ -24,6 +24,7 @@ object LoginModule extends ModuleTrait {
     }
 
     def login(data: JsValue, ip: String)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+        implicit val basic = db.basic
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) => {
@@ -49,7 +50,7 @@ object LoginModule extends ModuleTrait {
                     conditions match {
                         case x: List[DBObject] =>
                             val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))
-                            val tmp = (from db () in "Company" where t).selectAggregate(resultData(_, ip))(db.basic).toList
+                            val tmp = (from db () in "Company" where t).selectAggregate(resultData(_, ip)).toList
                             tmp match {
                                 case Nil => throw new Exception("warn user not exist")
                                 case _ => (successToJson(tmp.head), None)

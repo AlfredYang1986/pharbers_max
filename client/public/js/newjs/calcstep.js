@@ -2,59 +2,13 @@
  * Created by qianpeng on 2017/7/12.
  */
 
-// $(function(){
-//     loadFun()
-// })
-//
-// /**
-//  * 加载function
-//  */
-// var loadFun = function() {
-//     createUpload("cpa_upload", 0)
-//     bootstraptab()
-// }
-//
-// /**
-//  * 计算步骤TAB组件
-//  */
-// var bootstraptab = function() {
-//     $('#progressWizard').bootstrapWizard({
-//         'nextSelector': '.next',
-//         'previousSelector': '.previous',
-//         onNext: function(tab, navigation, index) {
-//             if(index <= navigation.find('li').length - 1) {
-//                 if(index == 1){
-//                     //创建第二个上传组件
-//                     createUpload("gycx_upload", 1)
-//                 }
-//                 var $total = navigation.find('li').length;
-//                 var $current = index+1;
-//                 var $percent = ($current/$total) * 100;
-//                 $('#progressWizard').find('.progress-bar').css('width', $percent+'%');
-//             }
-//         },
-//         onPrevious: function(tab, navigation, index) {
-//             if(index >= 0) {
-//                 var $total = navigation.find('li').length;
-//                 var $current = index+1;
-//                 var $percent = ($current/$total) * 100;
-//                 $('#progressWizard').find('.progress-bar').css('width', $percent+'%');
-//             }
-//         }
-//     });
-//
-//     $('#disabledTabWizard').bootstrapWizard({
-//         tabClass: 'nav nav-pills nav-justified nav-disabled-click',
-//         onTabClick: function(tab, navigation, index) {
-//             return false;
-//         }
-//     });
-// }
 var p;
 (function ($, g, d) {
+    "use strict";
     var flagnext = false;
+    var gycxflag = 0;
+    $.cookie("next",false);
     var setProgress = function() {
-
         conn.listen({
             onTextMessage: function ( message ) {
                 var ext = message.ext;
@@ -73,6 +27,7 @@ var p;
                         var r = p.setPercent(parseInt(message.data));
                         msgIdentifying = parseInt(message.data);
                         if(parseInt(message.data) >= 100 || r >= 100) {
+                            console.info(message);
                             setCloseInterval();
                             setTimeout(function(){$(".progresstier").css("display", "none");p.setPercent(0);}, 1000 * 1);
                             flagnext = true;
@@ -98,7 +53,8 @@ var p;
 
     /*加载function*/
     var loadFun = function() {
-        createUpload("cpa_upload", 0, "CPA");
+        createUpload("cpa", "pharbers/files/upload", ["xlsx","xls"], 20000, {filetype: 'CPA', company: $.cookie("token")});
+        createUpload("gycx", "pharbers/files/upload", ["xlsx","xls"], 20000, {filetype: 'GYCX', company: $.cookie("token")});
         bootstraptab();
         p = new progress2();
         load_im();
@@ -125,6 +81,8 @@ var p;
                 });
                 //打开拟态框，选择日期
                 openModel();
+            }else {
+                $.tooltip('Python检查文件出错，请链接管理员！');
             }
         },function(e){console.error(e)})
     }
@@ -179,7 +137,7 @@ var p;
 
             ajaxData("/callhttpServer", query_object, "POST", function(d) {
                 if(d.status == "ok" && d.result.status == "success") {
-                    $.tooltip('样本检查结束，正在进行检查结果展示...', 5000, true);
+                    $.tooltip('样本检查结束，正在进行检查结果展示...', 3000, true);
                     //加载样本检查数据
                     loadsamplecheck();
                     flagnext = true;
@@ -192,14 +150,35 @@ var p;
     /*********样本检查 开始**********/
     /**加载样本检查查询数据*/
     var loadsamplecheck = function() {
-        var markets = $('select[data-name="search-result-market"]').val();
-        var dates = $('select[data-name="search-result-date"]').val();
-        if(markets != null) {
-            var dataMap = JSON.stringify({
-                "company": $.cookie("token"),
-                "market": markets,
-                "date": dates
-            });
+
+        var loadselect = function(){
+            $('#sample_market').empty();
+            $('#sample_date').empty();
+            ajaxData("/samplecheck/reloadselect",JSON.stringify({"company": $.cookie("token")}) ,"POST", function(d){
+                if(d.status == "ok" && d.result.status == "success") {
+                    $.each(d.result.result.result.marketlst, function(i, v){
+                        $('#sample_market').append("<option value='"+v+"'>"+v+"</option>");
+                    });
+                    $.each(d.result.result.result.datelst, function(i, v){
+                        $('#sample_date').append("<option value='"+v.name+"'>"+v.name+"</option>");
+                    });
+                    loadsamplepage()
+                }else {
+                    $.tooltip('加载搜索条件失败');
+                }
+            }, function(e){console.info(e)})
+        }
+
+        var loadsamplepage = function(){
+            var markets = $('#sample_market').val();
+            var dates = $('#sample_date').val();
+            if(markets != null) {
+                var dataMap = JSON.stringify({
+                    "company": $.cookie("token"),
+                    "market": markets,
+                    "date": dates
+                });
+            }
             ajaxData("/samplecheck/check",dataMap ,"POST", function(d){
                 if(d.status == "ok" && d.result.status == "success") {
                     samplecharts(d.result.result.result);
@@ -208,6 +187,10 @@ var p;
                 }
             }, function(e){console.info(e)})
         }
+        loadselect();
+
+        /*样本检查change事件*/
+        $("#sample_market,#sample_date").change(function(){loadsamplepage();})
     }
 
     /*样本检查图标*/
@@ -216,7 +199,8 @@ var p;
         var hospList = function() {
             var lst = [];
             $.each(data.misMatchHospital, function(i, v){
-                lst.push([(i + 1), v.Hosp_name, v.Province, v.City, v.City_level, "<a href=\"javascript:;\"><i class=\"fa fa-times text-danger text\"></i></a>"])
+                // lst.push([(i + 1), v.Hosp_name, v.Province, v.City, v.City_level, "<a href=\"javascript:;\"><i class=\"fa fa-times text-danger text\"></i></a>"])
+                lst.push([(i + 1), v.Hosp_name, v.Province, v.City, v.City_level])
             });
             dataTableAjax(lst);
         }
@@ -252,7 +236,7 @@ var p;
                 s_mark_data.push(v.MarketNum);
             })
 
-            hosp_option = {
+            var hosp_option = {
                 title: {text: ''},
                 tooltip: {trigger: 'axis', axisPointer: {type: 'none'}},
                 legend: {x: 'left', y: 'middle', orient: 'vertical', data: ['数量'], show: false},
@@ -265,7 +249,7 @@ var p;
                 }]
             };
 
-            prod_option = {
+            var prod_option = {
                 title: {text: ''},
                 tooltip: {trigger: 'axis', axisPointer: {type: 'none'}},
                 legend: {x: 'left', y: 'middle', orient: 'vertical', data: ['数量'], show: false},
@@ -275,7 +259,7 @@ var p;
                 series: [{name: '数量', type: 'line', smooth: true, symbolSize: symbolSize, itemStyle : {normal : {color:'#2BB89B', lineStyle:{color:'#2BB89B'}}}, data: s_prod_data}]
             };
 
-            mark_option = {
+            var mark_option = {
                 title: {text: ''},
                 tooltip: {trigger: 'axis', axisPointer: {type: 'none'}},
                 legend: {x: 'left', y: 'middle', orient: 'vertical', data: ['数量'], show: false},
@@ -335,7 +319,7 @@ var p;
             })
 
             var itemStyleColor = ['#9CDACD', '#9DC7E1'];
-            Sales_Opt = {
+            var Sales_Opt = {
                 title: {text: '今年Vs去年(近12月销售额)',left: '50%',textAlign: 'center'},
                 tooltip: {trigger: 'asix', axisPointer: {lineStyle: {color: '#ddd'}}, backgroundColor: 'rgba(255,255,255,1)', padding: [5, 10], textStyle: {color: '#7588E4'}, extraCssText: 'box-shadow: 0 0 5px rgba(0,0,0,0.3)'},
                 legend: {right: 20,orient: 'vertical',data: ['今年前12月','去年前12月']},
@@ -346,7 +330,7 @@ var p;
                 }]
             };
 
-            Units_Opt = {
+            var Units_Opt = {
                 title: {text: '今年Vs去年(近12月销售量)',left: '50%',textAlign: 'center'},
                 tooltip: {trigger: 'asix', axisPointer: {lineStyle: {color: '#ddd'}}, backgroundColor: 'rgba(255,255,255,1)', padding: [5, 10], textStyle: {color: '#7588E4'}, extraCssText: 'box-shadow: 0 0 5px rgba(0,0,0,0.3)'},
                 legend: {right: 20,orient: 'vertical',data: ['今年前12月','去年前12月']},
@@ -373,9 +357,6 @@ var p;
         cur12_las12_data()
 
     }
-
-    /*样本检查change事件*/
-    $("#sample_market,#sample_date").change(function(){loadsamplecheck();})
     /*********样本检查 结束**********/
 
     /*********计算 开始********/
@@ -390,8 +371,8 @@ var p;
             ajaxData("/callhttpServer", dataMap, "POST", function(d){
                 if(d.status == "ok" && d.result.status == "success") {
                     $(".progresstier").css("display", "block");
-                    setProgressStart(1000 * 60);
                     p.setPercent(4);
+                    setProgressStart(1000 * 60);
                 }
             }, function(e){console.error(e)});
         }else {
@@ -403,215 +384,237 @@ var p;
     /*********结果检查 开始********/
     /*加载结果检查数据*/
     var loadresultcheck = function() {
-        var bar = echarts.init(document.getElementById('bar1'));
-        var bar2 = echarts.init(document.getElementById('bar2'));
-        var bar3 = echarts.init(document.getElementById('bar3'));
-
-        bar.showLoading({
-            text : '数据获取中',
-            effect: 'whirling'
+        /*结果检查change事件*/
+        $("#result_check_market,#result_check_date").change(function(){
+            loadresultpage();
         });
-        bar2.showLoading({
-            text : '数据获取中',
-            effect: 'whirling'
-        });
-        bar3.showLoading({
-            text : '数据获取中',
-            effect: 'whirling'
-        });
-        var markets = $('select[data-name="search-result-market"]').val();
-        var dates = $('select[data-name="search-result-date"]').val();
-        var dataMap = JSON.stringify({
-            "company": $.cookie("token"),
-            "market": markets.replace(/\s/g, ""),
-            "date": dates
-        });
+        var loadselect = function () {
+            $('#result_check_market').empty();
+            $('#result_check_date').empty();
+            ajaxData("/samplecheck/reloadselect",JSON.stringify({"company": $.cookie("token")}) ,"POST", function(d){
+                if(d.status == "ok" && d.result.status == "success") {
+                    $.each(d.result.result.result.marketlst, function(i, v){
+                        $('#result_check_market').append("<option value='"+v+"'>"+v+"</option>");
+                    });
+                    $.each(d.result.result.result.datelst, function(i, v){
+                        $('#result_check_date').append("<option value='"+v.name+"'>"+v.name+"</option>");
+                    });
+                    loadresultpage()
+                }else {
+                    $.tooltip('加载搜索条件失败');
+                }
+            }, function(e){console.info(e)})
+        }
+        
+        var loadresultpage = function(){
+            var bar = echarts.init(document.getElementById('bar1'));
+            var bar2 = echarts.init(document.getElementById('bar2'));
+            var bar3 = echarts.init(document.getElementById('bar3'));
 
-        ajaxData("/resultcheck/linechart", dataMap, "POST", function(d){
-            if(d.result.status == "success" && d.status == "ok"){
-                echarts_bar1(d.result.result.result,bar);
-            }else{
-                $.tooltip(d.result.message);
-            }
-        }, function(e){console.error(e)})
-
-        ajaxData("/resultcheck/histogram", dataMap, "POST", function(d){
-            if(d.result.status == "success" && d.status == "ok"){
-                echarts_bar23(d.result.result.result,bar2,bar3);
-            }else{
-                $.tooltip(d.result.message);
-            }
-        }, function(e){console.error(e)})
-
-        var echarts_bar1 = function(result,bar){
-            var x_data = [];
-            var s_data1 = [];
-            var s_data2 = [];
-
-            $.each(result, function(i, v){
-                x_data.push(v.Date);
-                s_data1.push((v.f_sales/10000).toFixed(4));
-                s_data2.push((v.f_sales/10000).toFixed(4));
+            bar.showLoading({
+                text : '数据获取中',
+                effect: 'whirling'
+            });
+            bar2.showLoading({
+                text : '数据获取中',
+                effect: 'whirling'
+            });
+            bar3.showLoading({
+                text : '数据获取中',
+                effect: 'whirling'
+            });
+            var markets = $('#result_check_market').val();
+            var dates = $('#result_check_date').val();
+            var dataMap = JSON.stringify({
+                "company": $.cookie("token"),
+                "market": markets.replace(/\s/g, ""),
+                "date": dates
             });
 
-            var itemStyleColor = ['#1ab394', '#cacaca'];
-            var option = {
-                tooltip: {
-                    trigger: 'axis'
-                },
-                xAxis: [
-                    {
-                        name: '日期',
-                        type: 'category',
+            ajaxData("/resultcheck/linechart", dataMap, "POST", function(d){
+                if(d.result.status == "success" && d.status == "ok"){
+                    echarts_bar1(d.result.result.result,bar);
+                }else{
+                    $.tooltip(d.result.message);
+                }
+            }, function(e){console.error(e)})
+
+            ajaxData("/resultcheck/histogram", dataMap, "POST", function(d){
+                if(d.result.status == "success" && d.status == "ok"){
+                    echarts_bar23(d.result.result.result,bar2,bar3);
+                }else{
+                    $.tooltip(d.result.message);
+                }
+            }, function(e){console.error(e)})
+
+            var echarts_bar1 = function(result,bar){
+                var x_data = [];
+                var s_data1 = [];
+                var s_data2 = [];
+
+                $.each(result, function(i, v){
+                    x_data.push(v.Date);
+                    s_data1.push((v.f_sales/10000).toFixed(4));
+                    s_data2.push((v.f_sales/10000).toFixed(4));
+                });
+
+                var itemStyleColor = ['#1ab394', '#cacaca'];
+                var option = {
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    xAxis: [
+                        {
+                            name: '日期',
+                            type: 'category',
+                            data: x_data
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            name: '销售额(万)',
+                        },
+                        {
+                            type: 'value',
+                            name: 'Mono Unit Share',
+                            show: false,
+                            spliteLine: {show: false}
+                        }
+                    ],
+                    series: [
+                        {
+                            name:'MAX',
+                            type:'bar',
+                            barWidth: 35,
+                            data: s_data1,
+                            itemStyle: {
+                                normal: {
+                                    color: itemStyleColor[0]
+                                }
+                            }
+                        },
+                        {
+                            name:'MAX Mono Share',
+                            type:'line',
+                            yAxisIndex: 1,
+                            data: s_data2,
+                            itemStyle: {
+                                normal: {
+                                    color: itemStyleColor[1]
+                                }
+                            }
+                        }
+                    ]
+                };
+                bar = echarts.init(document.getElementById('bar1'));
+                bar.hideLoading();
+                bar.setOption(option);
+                window.addEventListener("resize", function() {
+                    bar.resize();
+                });
+            }
+
+            var echarts_bar23 = function(result,bar2,bar3){
+                var colors = [{
+                    type: 'linear',
+                    x: 0, x2: 1, y: 0, y2: 0,
+                    colorStops: [{
+                        offset: 0,
+                        color: '#1ab394'
+                    }, {
+                        offset: 1,
+                        color: '#1ab394'
+                    }]
+                }, {
+                    type: 'linear',
+                    x: 0, x2: 1, y: 0, y2: 0,
+                    colorStops: [{
+                        offset: 0,
+                        color: '#cacaca'
+                    }, {
+                        offset: 1,
+                        color: '#cacaca'
+                    }]
+                }];
+
+                var x_data = [];
+                var echarts2_s_data1 = [];
+                var echarts2_s_data2 = [];
+                var echarts3_s_data2 = [];
+
+                $.each(result.cur_top6, function(i, v){
+                    x_data.push(v.City);
+                    echarts2_s_data1.push((v.f_sales/10000).toFixed(4));
+                });
+
+                $.each(result.ear_top6, function(i, v){
+                    x_data.push(v.City);
+                    echarts2_s_data1.push((v.f_sales/10000).toFixed(4));
+                });
+
+                $.each(result.las_top6, function(i, v){
+                    x_data.push(v.City);
+                    echarts3_s_data2.push((v.f_sales/10000).toFixed(4));
+                });
+
+                var option2 = {
+                    color: colors,
+
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    xAxis: {
+                        type: 'category',name: '城市',
                         data: x_data
-                    }
-                ],
-                yAxis: [
-                    {
-                        type: 'value',
-                        name: '销售额(万)',
                     },
-                    {
-                        type: 'value',
-                        name: 'Mono Unit Share',
-                        show: false,
-                        spliteLine: {show: false}
-                    }
-                ],
-                series: [
-                    {
-                        name:'MAX',
-                        type:'bar',
-                        barWidth: 35,
-                        data: s_data1,
-                        itemStyle: {
-                            normal: {
-                                color: itemStyleColor[0]
-                            }
-                        }
+                    yAxis: {type: 'value',name: '销售额(万)'},
+                    series: [{
+                        name: '当期',
+                        type: 'bar',
+                        data: echarts2_s_data1
+                    }, {
+                        name: '上期',
+                        type: 'bar',
+                        data: echarts2_s_data2
+                    }]
+                };
+                var option3 = {
+                    color: colors,
+                    tooltip: {
+                        trigger: 'axis'
                     },
-                    {
-                        name:'MAX Mono Share',
-                        type:'line',
-                        yAxisIndex: 1,
-                        data: s_data2,
-                        itemStyle: {
-                            normal: {
-                                color: itemStyleColor[1]
-                            }
-                        }
-                    }
-                ]
-            };
-            bar = echarts.init(document.getElementById('bar1'));
-            bar.hideLoading();
-            bar.setOption(option);
-            window.addEventListener("resize", function() {
-                bar.resize();
-            });
+                    xAxis: {
+                        type: 'category',name: '城市',
+                        data: x_data
+                    },
+                    yAxis: {type: 'value',name: '销售额(万)'},
+                    series: [{
+                        name: '当期',
+                        type: 'bar',
+                        data: echarts2_s_data1
+                    }, {
+                        name: '去年同期',
+                        type: 'bar',
+                        data: echarts3_s_data2
+                    }]
+                };
+                bar2 = echarts.init(document.getElementById('bar2'));
+                bar3 = echarts.init(document.getElementById('bar3'));
+                bar2.hideLoading();
+                bar2.setOption(option2);
+                bar3.hideLoading();
+                bar3.setOption(option3);
+                window.addEventListener("resize", function() {
+                    bar2.resize();
+                    bar3.resize();
+                });
+            }
         }
 
-        var echarts_bar23 = function(result,bar2,bar3){
-            var colors = [{
-                type: 'linear',
-                x: 0, x2: 1, y: 0, y2: 0,
-                colorStops: [{
-                    offset: 0,
-                    color: '#1ab394'
-                }, {
-                    offset: 1,
-                    color: '#1ab394'
-                }]
-            }, {
-                type: 'linear',
-                x: 0, x2: 1, y: 0, y2: 0,
-                colorStops: [{
-                    offset: 0,
-                    color: '#cacaca'
-                }, {
-                    offset: 1,
-                    color: '#cacaca'
-                }]
-            }];
-
-            var x_data = [];
-            var echarts2_s_data1 = [];
-            var echarts2_s_data2 = [];
-            var echarts3_s_data2 = [];
-
-            $.each(result.cur_top6, function(i, v){
-                x_data.push(v.City);
-                echarts2_s_data1.push((v.f_sales/10000).toFixed(4));
-            });
-
-            $.each(result.ear_top6, function(i, v){
-                x_data.push(v.City);
-                echarts2_s_data1.push((v.f_sales/10000).toFixed(4));
-            });
-
-            $.each(result.las_top6, function(i, v){
-                x_data.push(v.City);
-                echarts3_s_data2.push((v.f_sales/10000).toFixed(4));
-            });
-
-            var option2 = {
-                color: colors,
-
-                tooltip: {
-                    trigger: 'axis'
-                },
-                xAxis: {
-                    type: 'category',name: '城市',
-                    data: x_data
-                },
-                yAxis: {type: 'value',name: '销售额(万)'},
-                series: [{
-                    name: '当期',
-                    type: 'bar',
-                    data: echarts2_s_data1
-                }, {
-                    name: '上期',
-                    type: 'bar',
-                    data: echarts2_s_data2
-                }]
-            };
-            var option3 = {
-                color: colors,
-                tooltip: {
-                    trigger: 'axis'
-                },
-                xAxis: {
-                    type: 'category',name: '城市',
-                    data: x_data
-                },
-                yAxis: {type: 'value',name: '销售额(万)'},
-                series: [{
-                    name: '当期',
-                    type: 'bar',
-                    data: echarts2_s_data1
-                }, {
-                    name: '去年同期',
-                    type: 'bar',
-                    data: echarts3_s_data2
-                }]
-            };
-            bar2 = echarts.init(document.getElementById('bar2'));
-            bar3 = echarts.init(document.getElementById('bar3'));
-            bar2.hideLoading();
-            bar2.setOption(option2);
-            bar3.hideLoading();
-            bar3.setOption(option3);
-            window.addEventListener("resize", function() {
-                bar2.resize();
-                bar3.resize();
-            });
-        }
-
+        loadselect()
     }
-    /*结果检查change事件*/
-    $("#result_check_market,#result_check_date").change(function(){
-        loadresultcheck();
-    });
+
     //点击进入历史按钮
     $("#goinghistory").click(function() {
         var dataMap = JSON.stringify({
@@ -644,27 +647,38 @@ var p;
             onNext: function(tab, navigation, index) {
                 if(index <= navigation.find('li').length - 1) {
                     if(index == 1){
-                        //创建第二个上传组件
-                        createUpload("gycx_upload", 1, "GYCX");
-                        step(tab, navigation, index);
-                    } else if(index == 2) {
-                        if(!flagnext) {
-                            uploadbefore();
+                        if($.cookie("next") != "true") {
+                            $.tooltip('还没上传文件不能进行下一步操作');
                             return false;
                         }else {
-                            setCloseInterval();
+                            gycxflag++;
+                            $.cookie("next",false);
                             step(tab, navigation, index);
-                            flagnext = false;
                             return true;
+                        }
+                    } else if(index == 2) {
+                        if($.cookie("next") != "true" && gycxflag == 0) {
+                            $.tooltip('还没上传文件不能进行下一步操作');
+                            return false;
+                        }else {
+                            if(!flagnext) {
+                                uploadbefore();
+                                return false;
+                            }else {
+                                step(tab, navigation, index);
+                                flagnext = false;
+                                setTimeout(function(){closeAllInterval()}, 1000 * 3);
+                                return true;
+                            }
                         }
                     } else if(index == 3) {
                         if(!flagnext) {
                             calc();
                             return false;
                         }else {
-                            setCloseInterval();
                             step(tab, navigation, index);
                             flagnext = false;
+                            setTimeout(function(){closeAllInterval()}, 1000 * 3);
                             return true;
                         }
                     }
@@ -672,6 +686,7 @@ var p;
             },
             onPrevious: function(tab, navigation, index) {
                 if(index >= 0) {
+                    $.cookie("next",true);
                     flagnext = false;
                     step(tab, navigation, index);
                 }

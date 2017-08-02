@@ -1,4 +1,4 @@
-@(auth: String, markets: List[String], dates: List[Map[String,Any]])
+@(auth: String)
 @main("Max | Home") {
     <link href="@routes.Assets.versioned("/css/style.default.css")" rel="stylesheet">
     <style>
@@ -6,7 +6,9 @@
                 border-left: 0px solid;
             }
     </style>
+
     <body>
+        @user.userinfo()
         <!-- 你太狂 -->
         <div id="panel_modal" class="modal fade bs-example-modal-static" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" data-backdrop="static" aria-hidden="true">
             <div class="modal-dialog">
@@ -60,7 +62,7 @@
                                     </span>
                                 </a>
                                 <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                                    <li><a href="emptypage">个人资料</a></li>
+                                    <li><a id="userinfo">个人资料</a></li>
                                     <li class="divider"></li>
                                     <li><a href="javaScript:void();" onclick="logout()">退出系统</a></li>
                                 </ul>
@@ -160,14 +162,14 @@
                                     <!-- 样本检查文件 -->
                                     <div class="tab-pane" id="ptab3">
                                         <div class="container-fluid">
-                                            @sample.sampleCheck(auth, markets, dates)
+                                            @sample.sampleCheck()
                                         </div>
                                     </div>
 
                                     <!-- 结果检查 -->
                                     <div class="tab-pane" id="ptab4">
                                         <div class="container-fluid">
-                                            @result.resultCheck(auth, markets, dates)
+                                            @result.resultCheck()
                                         </div>
                                     </div>
 
@@ -179,6 +181,7 @@
                 </div>
             </div>
         </div>
+
         <script type="text/javascript" src="@routes.Assets.versioned("js/newjs/calcstep.js")"></script>
     </body>
 }

@@ -1,6 +1,7 @@
 @(auth: String,markets : List[String])
     @main("Max | 历史查询") {
         <body>
+            @user.userinfo()
             <div style="display: none;" class="progresstier">
                 <div class="progress_circle">&nbsp;</div>
                 <div class="widgets">
@@ -34,7 +35,7 @@
                                         </span>
                                     </a>
                                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                                        <li><a href="emptypage">个人资料</a></li>
+                                        <li><a id="userinfo">个人资料</a></li>
                                         <li class="divider"></li>
                                         <li><a href="javaScript:void();" onclick="logout()">退出系统</a></li>
                                     </ul>
@@ -110,7 +111,7 @@
                                             <div class="col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <label class="control-label" for="status">数据类型</label>
-                                                    <select data-name="search-result-datatype" class="form-control">
+                                                    <select data-name="search-result-datatype" class="form-control" style="cursor: pointer;">
                                                         <option>省份数据</option>
                                                         <option>城市数据</option>
                                                         @if(auth.equals("Yes")){
