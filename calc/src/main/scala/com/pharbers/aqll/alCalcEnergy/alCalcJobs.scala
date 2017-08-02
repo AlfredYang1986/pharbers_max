@@ -174,7 +174,9 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 				log.info(s"开始删除临时表")
 				dbc.getCollection(company + x.uuid).drop()
 				log.info(s"结束删除临时表")
-				alCalcParmary.alParmary() = alCalcParmary.alParmary.single.get.filterNot(_.company.equals(x.company))
+				atomic { implicit txn =>
+					alCalcParmary.alParmary() = alCalcParmary.alParmary.single.get.filterNot(_.company.equals(x.company))
+				}
 				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress_calc_result"))
 		}
 	}
