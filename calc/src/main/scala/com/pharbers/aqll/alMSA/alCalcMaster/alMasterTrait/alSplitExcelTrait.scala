@@ -40,9 +40,10 @@ trait alSplitExcelTrait { this : Actor =>
         if (canSchduleSplitExcelJob) {
             atomic { implicit thx =>
                 val tmp = split_jobs.single.get
+//                println(s"&&& split_jobs tmp ==> ${tmp}")
                 if (tmp.isEmpty) Unit
                 else {
-                    println(s"head is ${tmp.head}")
+//                    println(s"head is ${tmp.head}")
                     splitExcel(tmp.head._1, tmp.head._2, tmp.head._3)
                     split_jobs() = split_jobs().tail
                 }

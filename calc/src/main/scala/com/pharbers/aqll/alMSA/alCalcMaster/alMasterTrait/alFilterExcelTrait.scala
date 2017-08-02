@@ -30,6 +30,7 @@ trait alFilterExcelTrait { this : Actor =>
 
     def pushFilterJob(file : String, par : alCalcParmary, s : ActorRef) = {
         atomic { implicit thx =>
+            println("&&& ==> pushFilterJob")
             filter_jobs() = filter_jobs() :+ (file, par, s)
         }
     }
@@ -42,6 +43,7 @@ trait alFilterExcelTrait { this : Actor =>
         if (canSchduleJob) {
             atomic { implicit thx =>
                 val tmp = filter_jobs.single.get
+//                println(s"&&& filter_jobs tmp ==> ${tmp}")
                 if (tmp.isEmpty) Unit
                 else {
                     filterExcel(tmp.head._1, tmp.head._2, tmp.head._3)

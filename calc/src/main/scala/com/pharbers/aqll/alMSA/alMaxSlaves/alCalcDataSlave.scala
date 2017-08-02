@@ -1,6 +1,7 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.SupervisorStrategy.Restart
+import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.agent.Agent
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_end, calc_data_hand, calc_data_start_impl}
@@ -19,6 +20,10 @@ class alCalcDataSlave extends Actor with ActorLogging {
     case class state_agent(val isRunning : Boolean)
     val stateAgent = Agent(state_agent(false))
 
+    override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
+        case _ => Restart
+    }
+
     override def receive: Receive = {
         case calc_data_hand() => if (stateAgent().isRunning) Unit
         else {
@@ -28,7 +33,7 @@ class alCalcDataSlave extends Actor with ActorLogging {
             sender ! calc_data_hand()
         }
         case calc_data_start_impl(lsp, c) => {
-            println(s"property are ${lsp}")
+//            println(s"property are ${lsp}")
             val cur = context.actorOf(alCalcDataComeo.props(c, lsp, sender, self))
             cur.tell(calc_data_start_impl(lsp, c), sender)
         }

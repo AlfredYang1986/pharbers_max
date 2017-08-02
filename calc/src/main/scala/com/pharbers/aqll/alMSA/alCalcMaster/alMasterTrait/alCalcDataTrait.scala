@@ -43,6 +43,7 @@ trait alCalcDataTrait { this : Actor =>
         if (canCalcGroupJob) {
             atomic { implicit thx =>
                 val tmp = calc_jobs.single.get
+//                println(s"&&& calc_jobs tmp ==> ${tmp}")
                 if (tmp.isEmpty) Unit
                 else {
                     calcData(tmp.head._1, tmp.head._2, tmp.head._3)
@@ -106,7 +107,7 @@ class alCameoCalcData ( val c : alCalcParmary,
             val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
             property.subs = sb map (x => alMaxProperty(p, x, Nil))
 
-            println(s"preperty subs length is ${property.subs.length}")
+//            println(s"preperty subs length is ${property.subs.length}")
 
             tol = property.subs.length
             router ! calc_data_hand()
