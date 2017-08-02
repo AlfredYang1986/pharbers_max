@@ -1,6 +1,7 @@
 @(auth: String)
 @main("Max | Home") {
     <body>
+        @user.userinfo()
         <div id="wrapper">
             <nav class="navbar-default navbar-static-side" role="navigation">
                 <div class="sidebar-collapse">
@@ -26,7 +27,7 @@
                                     </span>
                                 </a>
                                 <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                                    <li><a href="emptypage">个人资料</a></li>
+                                    <li><a id="userinfo">个人资料</a></li>
                                     <li class="divider"></li>
                                     <li><a href="javaScript:void();" onclick="logout()">退出系统</a></li>
                                 </ul>

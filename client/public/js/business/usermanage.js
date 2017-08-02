@@ -162,34 +162,40 @@ var remove_user_func = function (ids,Company_Id) {
 //说明：修改用户数据。
 //*********************************************************************
 var update_user_func = function (id) {
-    var obj = new Object();
-    obj['ID'] = id;
+    // var obj = new Object();
+    // obj['ID'] = id;
+    var obj = JSON.stringify({
+        "uid" : id,
+        "cid" : $.cookie("token")
+    })
     $.ajax({
         url: "/usermanage/user/findOne",
         type: 'POST',
         dataType: 'json',
         contentType: 'application/json, charset=utf-8',
-        data: JSON.stringify(obj),
+        data: obj,
         cache: false,
         success: function(data) {
             if(data.result.status == "success"){
-                var user = data.result.result.result.result;
-                $("#u_au").val("update");
-                $('#u_title').text("编辑");
-                $("#ID").val(user.ID);
-                $("#Account").val(user.Account);
-                $("#Name").val(user.Name);
-                $("#Password").val(user.Password);
-                $("#isadmin").val(user.isadministrator);
-                if(user.isadministrator == 0){
-                    $('#isadmin').get(0).selectedIndex=0;
-                }else{
-                    $('#isadmin').get(0).selectedIndex=1;
-                }
-                $("#u_Company_Id").val(user.Company_Id);
-                $("#u_Ch").val(user.Ch);
-                $("#u_En").val(user.En);
-                $("#u_E_Mail").val(user.E_Mail);
+                var user = data.result.result.result;
+                $.each(user, function(i, v){
+                    $("#u_au").val("update");
+                    $('#u_title').text("编辑");
+                    $("#ID").val(v.ID);
+                    $("#Account").val(v.Account);
+                    $("#Name").val(v.Name);
+                    $("#Password").val(v.Password);
+                    $("#isadmin").val(v.isadministrator);
+                    if(v.isadministrator == 0){
+                        $('#isadmin').get(0).selectedIndex=0;
+                    }else{
+                        $('#isadmin').get(0).selectedIndex=1;
+                    }
+                    // $("#u_Company_Id").val(v.Company_Id);
+                    // $("#u_Ch").val(v.Ch);
+                    // $("#u_En").val(v.En);
+                    // $("#u_E_Mail").val(v.E_Mail);
+                });
                 $("#Account").prop('readonly', true);
                 $("#user-form").modal('show');
             }else{

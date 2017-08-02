@@ -1,4 +1,5 @@
 var timeProgressInterval = null;
+var timeProgressTimeout = null;
 
 var progress2 = function() {
     var w = 300, h = 320;
@@ -115,6 +116,7 @@ var progress2 = function() {
 }
 
 var setProgressStart = function(time) {
+    setCloseInterval()
     var temp = msgIdentifying;
     var setP = function() {
         if(msgIdentifying == temp) {
@@ -130,14 +132,35 @@ var setProgressStop = function(time) {
     if(timeProgressInterval) {
         clearInterval(timeProgressInterval);
         timeProgressInterval = null;
+        // timeProgressTimeout = setTimeout(function(){setProgressStart(time);}, 1000 * 30);
         setTimeout(function(){setProgressStart(time);}, 1000 * 30);
     }
 }
 
 var setCloseInterval = function() {
-    p.setPercent(0);
-    if(timeProgressInterval) {
-        clearInterval(timeProgressInterval);
+    // if(timeProgressInterval) {
+    //     clearInterval(timeProgressInterval);
+    //     timeProgressInterval = null;
+    // }
+    clearInterval(timeProgressInterval);
+    timeProgressInterval = null;
+
+    // var highestTimeoutId = setTimeout(";");
+    // for (var i = 0 ; i < highestTimeoutId ; i++) {
+    //     timeProgressTimeout = null;
+    //     clearTimeout(i);
+    // }
+    // var highestIntervalId = setInterval(";");
+    // for (var i = 0 ; i < highestIntervalId ; i++) {
+    //     timeProgressInterval = null;
+    //     clearInterval(i);
+    // }
+}
+
+var closeAllInterval = function() {
+    var highestIntervalId = setInterval(";");
+    for (var i = 0 ; i < highestIntervalId ; i++) {
         timeProgressInterval = null;
+        clearInterval(i);
     }
 }

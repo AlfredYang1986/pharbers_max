@@ -19,6 +19,14 @@ class SampleCheckController @Inject()(as_inject : ActorSystem, mdb: MongoDBModul
     def sampleCheck = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
         import pattern.LogMessage.common_log
         import pattern.ResultMessage.common_result
+        
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("sampleCheck"))), jv, request) :: msg_samplecheck(jv) :: msg_CommonResultMessage() :: Nil, None)
     })
+    
+    def reloadSelect = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+        import pattern.LogMessage.common_log
+        import pattern.ResultMessage.common_result
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("reloadSelect"))), jv, request) :: msg_reloadselectvalue(jv) :: msg_CommonResultMessage() :: Nil, None)
+    })
+    
 }

@@ -113,29 +113,65 @@ object UserManageModule extends ModuleTrait {
     }
 
     def findOne_user_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+        implicit val basic = db.basic
+        import com.pharbers.aqll.common.alDao._
         try {
-            val ID = (data \ "ID").get.asOpt[String].get
-            var lsb = toJson("")
-            db.basic.getCollection("Company").find().toList.foreach{x =>
-                val users = x.get("User_lst").asInstanceOf[BasicDBList].toArray
-                users.foreach{y =>
-                    val user = y.asInstanceOf[DBObject]
-                    if(ID.equals(user.get("ID").asInstanceOf[String])){
-                        lsb = toJson(Map("result" -> toJson(Map(
-                            //"Companys" -> (if(x.get("Company_Id").asInstanceOf[String].equals("788d4ff5836bcee2ebf4940fec882ac8")){alCompany.query(toJson(Map("Company_Id" -> toJson("788d4ff5836bcee2ebf4940fec882ac8"))))}),
-                            //"Company_Id" -> toJson(x.get("Company_Id").asInstanceOf[String]),
-                            "ID" -> toJson(user.get("ID").asInstanceOf[String]),
-                            "Account" -> toJson(user.get("Account").asInstanceOf[String]),
-                            "Name" -> toJson(user.get("Name").asInstanceOf[String]),
-                            "Password" -> toJson(user.get("Password").asInstanceOf[String]),
-                            "auth" -> toJson(user.get("auth").asInstanceOf[Number].intValue()),
-                            "isadministrator" -> toJson(user.get("isadministrator").asInstanceOf[Number].intValue()),
-                            "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(user.get("Timestamp").asInstanceOf[Number].longValue()))
-                        )),"status" -> toJson("success")))
+            val account = (data \ "account").asOpt[String]
+            val companyid = (data \ "cid").asOpt[String]
+
+            def result(x: MongoDBObject, account: String): JsValue = {
+                val company = x.getAs[MongoDBList]("Company_Name").map(x => x).get.toList.asInstanceOf[List[DBObject]]
+                val userlst = x.getAs[MongoDBList]("User_lst").map(x => x).get.toList.asInstanceOf[List[DBObject]]
+                val user = userlst.find(x => x.get("Account") == account)
+                user match {
+                    case None => toJson("该用户不存在！")
+                    case Some(u) => {
+                        toJson(Map(
+                            "ID" -> toJson(u.get("ID").asInstanceOf[String]),
+                            "Account" -> toJson(u.get("Account").asInstanceOf[String]),
+                            "Name" -> toJson(u.get("Name").asInstanceOf[String]),
+//                            "Password" -> toJson(u.get("Password").asInstanceOf[String]),
+                            "auth" -> toJson(u.get("auth").asInstanceOf[Number].intValue()),
+                            "isadministrator" -> toJson(u.get("isadministrator").asInstanceOf[Number].intValue()),
+                            "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(u.get("Timestamp").asInstanceOf[Number].longValue())),
+                            "Company_CH" -> toJson(company.head.get("Ch").asInstanceOf[String]),
+                            "Company_EN" -> toJson(company.head.get("En").asInstanceOf[String])
+                        ))
                     }
                 }
             }
-            (successToJson(lsb), None)
+            
+            val r = companyid match {
+                case None => toJson("公司为空！")
+                case Some(cid) => {
+                    val conditions = MongoDBObject("Company_Id" -> cid)
+                    toJson((from db() in "Company" where conditions).select(x => result(x, account.get)).toList)
+                }
+            }
+            
+            (successToJson(r), None)
+//            val ID = (data \ "ID").get.asOpt[String].get
+//            var lsb = toJson("")
+//            db.basic.getCollection("Company").find().toList.foreach{x =>
+//                val users = x.get("User_lst").asInstanceOf[BasicDBList].toArray
+//                users.foreach{y =>
+//                    val user = y.asInstanceOf[DBObject]
+//                    if(ID.equals(user.get("ID").asInstanceOf[String])){
+//                        lsb = toJson(Map("result" -> toJson(Map(
+//                            //"Companys" -> (if(x.get("Company_Id").asInstanceOf[String].equals("788d4ff5836bcee2ebf4940fec882ac8")){alCompany.query(toJson(Map("Company_Id" -> toJson("788d4ff5836bcee2ebf4940fec882ac8"))))}),
+//                            //"Company_Id" -> toJson(x.get("Company_Id").asInstanceOf[String]),
+//                            "ID" -> toJson(user.get("ID").asInstanceOf[String]),
+//                            "Account" -> toJson(user.get("Account").asInstanceOf[String]),
+//                            "Name" -> toJson(user.get("Name").asInstanceOf[String]),
+//                            "Password" -> toJson(user.get("Password").asInstanceOf[String]),
+//                            "auth" -> toJson(user.get("auth").asInstanceOf[Number].intValue()),
+//                            "isadministrator" -> toJson(user.get("isadministrator").asInstanceOf[Number].intValue()),
+//                            "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(user.get("Timestamp").asInstanceOf[Number].longValue()))
+//                        )),"status" -> toJson("success")))
+//                    }
+//                }
+//            }
+//            (successToJson(lsb), None)
         } catch {
             case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
