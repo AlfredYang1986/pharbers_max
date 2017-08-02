@@ -66,15 +66,6 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule
         }
     }
     
-    //测试上传文件页面
-    def test = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.test())
-        }
-    }
-
     //样本检查
     def sampleCheck = Action { request =>
         if (getUserTokenByCookies(request).equals("")) {
