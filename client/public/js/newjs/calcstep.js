@@ -639,7 +639,7 @@ var p;
             var $total = navigation.find('li').length;
             var $current = index+1;
             var $percent = ($current/$total) * 100;
-            $('#progressWizard').find('.progress-bar').css('width', $percent+'%');
+            $('#progressWizard').find('.progress-bar').eq(0).css('width', $percent+'%');
         }
 
         $('#progressWizard').bootstrapWizard({
