@@ -33,14 +33,9 @@ object ResultCheckModule extends ModuleTrait {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
-
-			queryUUID(company) match {
-				case None => throw new Exception("warn uuid does not exist")
-				case Some(x) => {
-					val result = lsttoJson(queryNearTwelveMonth(db.cores,company,market,date,s"$company$x"),1)
-					(successToJson(result), None)
-				}
-			}
+			val uuid = (data \ "uuid").asOpt[String].getOrElse("0")
+			val result = lsttoJson(queryNearTwelveMonth(db.cores,company,market,date,s"$company$uuid"),1)
+			(successToJson(result), None)
 		} catch {
 			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
@@ -51,18 +46,13 @@ object ResultCheckModule extends ModuleTrait {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
-			val uuid = queryUUID(company)
-			uuid match {
-				case None => throw new Exception("warn uuid does not exist")
-				case Some(x) => {
-					val temp_coll = s"$company$x"
-					val cur_top6 = queryCELData(db.cores,company,market,date,temp_coll,"cur")(None,None)
-					val ear_top6 = queryCELData(db.cores,company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
-					val las_top6 = queryCELData(db.cores,company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
-					val result = toJson(Map("cur_top6" -> lsttoJson(cur_top6._1,2),"ear_top6" -> lsttoJson(ear_top6._1,2),"las_top6" -> lsttoJson(las_top6._1,2)))
-					(successToJson(result), None)
-				}
-			}
+			val uuid = (data \ "uuid").asOpt[String].getOrElse("0")
+			val temp_coll = s"$company$uuid"
+			val cur_top6 = queryCELData(db.cores,company,market,date,temp_coll,"cur")(None,None)
+			val ear_top6 = queryCELData(db.cores,company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
+			val las_top6 = queryCELData(db.cores,company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
+			val result = toJson(Map("cur_top6" -> lsttoJson(cur_top6._1,2),"ear_top6" -> lsttoJson(ear_top6._1,2),"las_top6" -> lsttoJson(las_top6._1,2)))
+			(successToJson(result), None)
 		} catch {
 			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
@@ -177,14 +167,6 @@ object ResultCheckModule extends ModuleTrait {
 		* @return
 		*/
 	def SumByDate(lst: List[Map[String,Any]]): List[Map[String,Any]] = lst.groupBy(x => x.get("Date").get).map(y => Map("Date" -> y._1,"f_sales" -> y._2.map(z => z.get("f_sales").get.asInstanceOf[Number].doubleValue()).sum)).toList
-
-	def queryUUID(company: String): Option[String] = {
-		val result = alCallHttp("/queryUUID",toJson(Map("company" -> toJson(company)))).call
-		val res_json = (result \ "result").get.asOpt[JsValue].get
-//		val res_valu = (((res_json \ "result").get.asOpt[JsValue].get) \ "result").get.asOpt[String].get
-		val res_valu = (res_json \ "result").asOpt[String].getOrElse("0")
-		Some(res_valu)
-	}
 
 	def matchDataByDate(arr: Array[String],tuple_lst: (Option[List[Map[String,Any]]],Option[List[Map[String,Any]]])): List[Map[String,Any]] = {
 		val date_lst = arr.map(x => Map("Date" -> x,"f_sales" -> 0.0)).toList

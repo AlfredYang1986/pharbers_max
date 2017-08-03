@@ -24,10 +24,10 @@ var p;
                     }else if(result == "txt") {
                         console.info(message.data);
                     }else if(result == "progress_calc"){
+                        $.cookie("uuid", searchExtJson(ext)("uuid"));
                         var r = p.setPercent(parseInt(message.data));
                         msgIdentifying = parseInt(message.data);
                         if(parseInt(message.data) >= 100 || r >= 100) {
-                            console.info(message);
                             setCloseInterval();
                             setTimeout(function(){$(".progresstier").css("display", "none");p.setPercent(0);}, 1000 * 1);
                             flagnext = true;
@@ -428,6 +428,7 @@ var p;
             var dataMap = JSON.stringify({
                 "company": $.cookie("token"),
                 "market": markets.replace(/\s/g, ""),
+                "uuid": $.cookie('uuid'),
                 "date": dates
             });
 
@@ -619,7 +620,7 @@ var p;
     $("#goinghistory").click(function() {
         var dataMap = JSON.stringify({
             "company": $.cookie("token"),
-            "uname": $.cookie('webim_user'),
+            "uuid": $.cookie('uuid'),
             "businessType": "/datacommit"
         });
         ajaxData("/callhttpServer", dataMap, "POST", function(d){
@@ -638,7 +639,7 @@ var p;
             var $total = navigation.find('li').length;
             var $current = index+1;
             var $percent = ($current/$total) * 100;
-            $('#progressWizard').find('.progress-bar').css('width', $percent+'%');
+            $('#progressWizard').find('.progress-bar').eq(0).css('width', $percent+'%');
         }
 
         $('#progressWizard').bootstrapWizard({

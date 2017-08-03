@@ -36,7 +36,6 @@ case class alExportItem(datatype: String, market: List[String],
                         staend: List[String], company: String,
                         filetype: String, uname: String)
 case class alHttpCreateIMUser(name: String, pwd: String)
-case class alQueryUUIDItem(company: String)
 
 trait PlayJson extends PlayJsonSupport {
 	implicit val itemJson = format[Item]
@@ -48,7 +47,6 @@ trait PlayJson extends PlayJsonSupport {
 	implicit val itemFormatCommit = format[alCommitItem]
 	implicit val itemFormatExport = format[alExportItem]
 	implicit val itemFormatUser = format[alHttpCreateIMUser]
-	implicit val itemFormatQueryUUID = format[alQueryUUIDItem]
 }
 
 trait alAkkaHttpFunction extends Directives with PlayJson{
@@ -58,7 +56,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	val routes = Test ~ alSampleCheckDataFunc ~
 				 alCalcDataFunc ~ alModelOperationCommitFunc ~
 				 alFileUploadPythonFunc ~ alResultFileExportFunc ~
-				 alFileUploadPyBefore ~ alQueryUUIDFunc
+				 alFileUploadPyBefore
 	
 	def Test = post {
 		path("src/test") {
@@ -147,18 +145,4 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 			}
 		}
 	}
-	
-	def alQueryUUIDFunc = post {
-		path("queryUUID") {
-			entity(as[alQueryUUIDItem]) { item =>
-				val uuid = alCalcParmary.alParmary.single.get.find(_.company.equals(item.company)) match {
-					case None => "7c9661d4-30d8-4b8f-8691-f4721f882acb"
-					case Some(x) => x.uuid.toString
-				}
-				val result = toJson(successToJson(toJson(uuid)).get)
-				complete(result)
-			}
-		}
-	}
-	
 }
