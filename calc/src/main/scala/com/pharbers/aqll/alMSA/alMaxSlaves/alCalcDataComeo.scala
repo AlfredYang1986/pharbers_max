@@ -45,10 +45,10 @@ class alCalcDataComeo (c : alCalcParmary,
     override def postRestart(reason: Throwable) : Unit = {
         // TODO : 计算次数，重新计算
         count -= 1
-        println(s"&&&&& ==> alCalcDataComeo error times=${3-count} , reason=${reason}")
+//        println(s"&&&&& ==> alCalcDataComeo error times=${3-count} , reason=${reason}")
         count match {
             case 0 => new alMessageProxy().sendMsg("100", "username", Map("error" -> "alCalcDataComeo error"))
-                println("&&&&&& 重启3次后，依然未能正确执行 => alCalcDataComeo &&&&&&")
+//                println("&&&&&& 重启3次后，依然未能正确执行 => alCalcDataComeo &&&&&&")
                 self ! calc_data_end(false, r)
             case _ => super.postRestart(reason); self ! calc_data_start_impl(op, c)
         }

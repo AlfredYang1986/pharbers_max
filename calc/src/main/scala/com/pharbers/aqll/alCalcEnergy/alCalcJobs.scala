@@ -177,7 +177,7 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 				atomic { implicit txn =>
 					alCalcParmary.alParmary() = alCalcParmary.alParmary.single.get.filterNot(_.company.equals(x.company))
 				}
-				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress_calc_result"))
+				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
 		}
 	}
 

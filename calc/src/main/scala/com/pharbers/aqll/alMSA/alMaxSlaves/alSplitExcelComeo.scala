@@ -30,11 +30,10 @@ class alSplitExcelComeo(file : String,
     override def postRestart(reason: Throwable) : Unit = {
         // TODO : 计算次数，重新计算
         count -= 1
-        println(s"&&&&& ==> alSplitExcelComeo error times=${3-count} , reason=${reason}")
+        // println(s"&&&&& ==> alSplitExcelComeo error times=${3-count} , reason=${reason}")
         count match {
-//            case 0 =>
             case 0 => new alMessageProxy().sendMsg("100", "username", Map("error" -> "alSplitExcelComeo error"))
-                println("&&&&&& 重启3次后，依然未能正确执行 => alSplitExcelComeo &&&&&&")
+                // println("&&&&&& 重启3次后，依然未能正确执行 => alSplitExcelComeo &&&&&&")
                 self ! split_excel_end(false,"",Nil,null)
             case _ => super.postRestart(reason); self ! split_excel_start_impl(file, par)
         }
