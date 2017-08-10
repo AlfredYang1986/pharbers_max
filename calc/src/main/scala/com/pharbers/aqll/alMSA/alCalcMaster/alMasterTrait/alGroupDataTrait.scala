@@ -3,6 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
+import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
@@ -10,6 +11,7 @@ import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.common_jobs
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
+import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.query
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
 
@@ -39,12 +41,19 @@ trait alGroupDataTrait { this : Actor =>
         }
     }
 
-    def canSchduleGroupJob : Boolean = {
-        true
+    def canSchduleGroupJob(act: ActorRef) : Boolean = {
+        import akka.pattern.ask
+        import scala.concurrent.Await
+        import scala.concurrent.duration._
+        implicit val timeout = Timeout(1 seconds)
+
+        val f = act ? query()
+        Await.result(f, 1 seconds).asInstanceOf[Boolean]
+//        true
     }
 
-    def schduleGroupJob = {
-        if (canSchduleGroupJob) {
+    def schduleGroupJob(act: ActorRef) = {
+        if (canSchduleGroupJob(act)) {
             atomic { implicit thx =>
                 val tmp = group_jobs.single.get
 //                println(s"&&& group_jobs tmp ==> ${tmp}")
@@ -145,8 +154,8 @@ class alCameoGroupData (val property : alMaxProperty,
 //        common.cur = Some(alStage(property.subs map (x => "config/group/" + x.uuid)))
 
         import com.pharbers.aqll.common.alFileHandler.fileConfig._
-        common.cur = Some(alStage(property.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
-//        common.cur = Some(alStage(property.subs map (x => "/home/jeorch/work/max/files/group/" + x.uuid)))
+//        common.cur = Some(alStage(property.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
+        common.cur = Some(alStage(property.subs map (x => "/home/jeorch/work/max/files/group/" + x.uuid)))
 
         common.process = restore_grouped_data() ::
             do_calc() :: do_union() :: do_calc() ::
