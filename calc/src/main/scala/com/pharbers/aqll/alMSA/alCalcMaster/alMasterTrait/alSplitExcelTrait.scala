@@ -5,7 +5,6 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.query
 import com.pharbers.aqll.alMSA.alMaxSlaves.alSplitExcelSlave
 
 import scala.concurrent.duration._
@@ -34,19 +33,19 @@ trait alSplitExcelTrait { this : Actor =>
         }
     }
 
-    def canSchduleSplitExcelJob(act: ActorRef) : Boolean = {
-        import akka.pattern.ask
-        import scala.concurrent.Await
-        import scala.concurrent.duration._
-        implicit val timeout = Timeout(1 seconds)
-
-        val f = act ? query()
-        Await.result(f, 1 seconds).asInstanceOf[Boolean]
-//        true
+    def canSchduleSplitExcelJob : Boolean = {
+//        import akka.pattern.ask
+//        import scala.concurrent.Await
+//        import scala.concurrent.duration._
+//        implicit val timeout = Timeout(1 seconds)
+//
+//        val f = act ? query()
+//        Await.result(f, 1 seconds).asInstanceOf[Boolean]
+        true
     }
 
-    def schduleSplitExcelJob(act: ActorRef) = {
-        if (canSchduleSplitExcelJob(act)) {
+    def schduleSplitExcelJob = {
+        if (canSchduleSplitExcelJob) {
             atomic { implicit thx =>
                 val tmp = split_jobs.single.get
 //                println(s"&&& split_jobs tmp ==> ${tmp}")

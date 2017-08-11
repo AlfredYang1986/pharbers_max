@@ -19,27 +19,29 @@ object alSingleAgentMaster {
     def props = Props[alSingleAgentMaster]
     def name = "single-agent"
 
-    case class latestEnergy(energy : Map[String,Int])
-    case class query()
+//    case class latestEnergy(energy : Map[String,Int])
+//    case class query()
 }
 
 class alSingleAgentMaster extends Actor with ActorLogging {
 
-    import alSingleAgentMaster._
-    implicit val timeout = Timeout(1 minute)
+//    import alSingleAgentMaster._
+//    implicit val timeout = Timeout(1 minute)
 
-    val energyAgent = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+//    val energyAgent = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
 
 
     override def receive: Receive = {
 
-        case query() => {
+        case _ => ???
 
-            val f = energyAgent ? queryEnergy()
-            val energy = Await.result(f, 1 seconds).asInstanceOf[latestEnergy].energy
-            if(energy.size == energy.values.filterNot(x => x==0).size) sender() ! true
-            else sender() ! false
-        }
+//        case query() => {
+//
+//            val f = energyAgent ? queryEnergy()
+//            val energy = Await.result(f, 1 seconds).asInstanceOf[latestEnergy].energy
+//            if(energy.size == energy.values.filterNot(x => x==0).size) sender() ! true
+//            else sender() ! false
+//        }
     }
 }
 

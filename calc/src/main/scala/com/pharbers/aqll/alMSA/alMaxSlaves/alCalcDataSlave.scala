@@ -34,7 +34,8 @@ class alCalcDataSlave extends Actor with ActorLogging {
         }
         case calc_data_start_impl(lsp, c) => {
 //            println(s"property are ${lsp}")
-            val cur = context.actorOf(alCalcDataComeo.props(c, lsp, sender, self))
+            val counter = context.actorOf(alCommonErrorCounter.props)
+            val cur = context.actorOf(alCalcDataComeo.props(c, lsp, sender, self, counter))
             cur.tell(calc_data_start_impl(lsp, c), sender)
         }
         case cmd : calc_data_end => {

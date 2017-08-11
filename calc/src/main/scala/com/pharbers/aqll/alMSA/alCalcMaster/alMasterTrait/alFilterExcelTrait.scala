@@ -7,7 +7,6 @@ import akka.routing.BroadcastPool
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.{latestEnergy, query}
 import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster
 import com.pharbers.aqll.alMSA.alMaxSlaves.alFilterExcelSlave
 
@@ -30,7 +29,7 @@ trait alFilterExcelTrait { this : Actor =>
                 allowLocalRoutees = false,
                 useRole = Some("splitfilterexcelslave")
             )
-        ).props(alFilterExcelSlave.props), name = "filter-excel-router");//println("创建 createFilterExcelRouter")
+        ).props(alFilterExcelSlave.props), name = "filter-excel-router")
 
     val filter_router = createFilterExcelRouter
 
@@ -40,22 +39,22 @@ trait alFilterExcelTrait { this : Actor =>
         }
     }
 
-    def canSchduleJob(act: ActorRef) : Boolean = {
-        import akka.pattern.ask
-        import scala.concurrent.Await
-        import scala.concurrent.duration._
-        implicit val timeout = Timeout(1 seconds)
-
-        val f = act ? query()
-        Await.result(f, 1 seconds).asInstanceOf[Boolean]
-//        true
+    def canSchduleJob : Boolean = {
+//        import akka.pattern.ask
+//        import scala.concurrent.Await
+//        import scala.concurrent.duration._
+//        implicit val timeout = Timeout(1 seconds)
+//
+//        val f = act ? query()
+//        Await.result(f, 1 seconds).asInstanceOf[Boolean]
+        true
     }
 
-    def schduleJob(act: ActorRef) = {
-        if (canSchduleJob(act)) {
+    def schduleJob = {
+        if (canSchduleJob) {
             atomic { implicit thx =>
                 val tmp = filter_jobs.single.get
-                //println(s"执行 schduleJob && filter_jobs tmp ==> ${tmp}")
+//                println(s"执行 schduleJob && filter_jobs tmp ==> ${tmp}")
                 if (tmp.isEmpty) Unit
                 else {
                     filterExcel(tmp.head._1, tmp.head._2, tmp.head._3)
@@ -66,9 +65,9 @@ trait alFilterExcelTrait { this : Actor =>
     }
 
     def filterExcel(file : String, par : alCalcParmary, s : ActorRef) = {
-        //println(s"执行 filterExcel ")
+//        println(s"新任务执行 filterExcel filter_router=${filter_router}##")
         val cur = context.actorOf(alCameoFilterExcel.props(file, par, s, self, filter_router))
-//        context.watch(cur)
+//        println(s"创建新的 alCameoFilterExcel-Actor（属于Trail之下）=${cur}##")
         import alCameoFilterExcel._
         cur ! filter_excel_start()
     }
@@ -113,17 +112,16 @@ class alCameoFilterExcel(val file : String,
             log.debug("timeout occur")
             shutCameo(filter_excel_timeout())
         }
-        case _ : filter_excel_start => /*println("执行 filter_excel_start");*/router ! filter_excel_hand()
+        case _ : filter_excel_start => router ! filter_excel_hand()
         case filter_excel_hand() => {
-            /*println(s"执行 filter_excel_hand() 判断 sign = ${sign}")*/
+//            println(s"接收到从Slave发来的filter_excel_hand命令 sign=${sign}")
             if (sign == false) {
                 sender ! filter_excel_start_impl(file, par)
                 sign = true
             }
         }
         case result : filter_excel_end => {
-            //println("执行 alFilterExcelTrait -> filter_excel_end")
-            //println("释放a refundNodeForRole => splitfilterexcelslave ")
+//            println("结束 alFilterExcelTrait -> filter_excel_end")
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! refundNodeForRole("splitfilterexcelslave")
             stateAgent send state_agent(false)
@@ -139,8 +137,8 @@ class alCameoFilterExcel(val file : String,
     }
 
     def shutCameo(msg : AnyRef) = {
-        //println("执行 shutCameo => stopping filter excel cameo")
-        originSender ! msg
+//        println(s"停止 shutCameo => stop alCameoFilterExcel self = ${self} ##")
+//        originSender ! msg
         log.debug("stopping filter excel cameo")
         context.stop(self)
     }

@@ -6,6 +6,7 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_jobs
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.{split_excel_end, split_excel_start_impl, split_excel_timeout}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 
 import scala.concurrent.duration._
 
@@ -14,29 +15,19 @@ import scala.concurrent.duration._
   */
 
 object alSplitExcelComeo {
-    def props(file : String, par : alCalcParmary, originSender : ActorRef, owner : ActorRef) =
-        Props(new alSplitExcelComeo(file, par, originSender, owner))
-
-    var count = 3
+    def props(file : String, par : alCalcParmary, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
+        Props(new alSplitExcelComeo(file, par, originSender, owner, counter))
 }
 
 class alSplitExcelComeo(file : String,
                         par : alCalcParmary,
                         originSender : ActorRef,
-                        owner : ActorRef) extends Actor with ActorLogging {
-
-    import alSplitExcelComeo._
+                        owner : ActorRef,
+                        counter : ActorRef) extends Actor with ActorLogging {
 
     override def postRestart(reason: Throwable) : Unit = {
         // TODO : 计算次数，重新计算
-        count -= 1
-        // println(s"&&&&& ==> alSplitExcelComeo error times=${3-count} , reason=${reason}")
-        count match {
-            case 0 => new alMessageProxy().sendMsg("100", "username", Map("error" -> "alSplitExcelComeo error"))
-                // println("&&&&&& 重启3次后，依然未能正确执行 => alSplitExcelComeo &&&&&&")
-                self ! split_excel_end(false,"",Nil,null)
-            case _ => super.postRestart(reason); self ! split_excel_start_impl(file, par)
-        }
+        counter ! canIReStart(reason)
     }
 
     override def receive: Receive = {
@@ -66,6 +57,14 @@ class alSplitExcelComeo(file : String,
             } catch {
                 case _ : Exception => sender ! split_excel_end(false, "", Nil, c)
             }
+        }
+
+        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! split_excel_start_impl(file, par)
+
+        case cannotRestart(reason: Throwable) => {
+            new alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
+//            println(s"&&&&&& 重启3次后，依然未能正确执行 => error with actor=${self}, reason=${reason} &&&&&&")
+            self ! split_excel_end(false,"",Nil,null)
         }
     }
 

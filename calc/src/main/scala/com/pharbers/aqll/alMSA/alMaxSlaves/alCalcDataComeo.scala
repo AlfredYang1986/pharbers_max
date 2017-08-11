@@ -7,7 +7,7 @@ import akka.actor.SupervisorStrategy.{Escalate, Restart}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.calc_sum_result
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
@@ -20,16 +20,16 @@ import scala.concurrent.duration._
   */
 
 object alCalcDataComeo {
-    def props(c : alCalcParmary, lsp : alMaxProperty, originSender : ActorRef, owner : ActorRef) =
-        Props(new alCalcDataComeo(c, lsp, originSender, owner))
+    def props(c : alCalcParmary, lsp : alMaxProperty, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
+        Props(new alCalcDataComeo(c, lsp, originSender, owner, counter))
     val core_number = 4
-    var count = 3
 }
 
 class alCalcDataComeo (c : alCalcParmary,
                        op : alMaxProperty,
                        originSender : ActorRef,
-                       owner : ActorRef) extends Actor with ActorLogging {
+                       owner : ActorRef,
+                       counter : ActorRef) extends Actor with ActorLogging {
 
     var cur = 0
     var sed = 0
@@ -44,14 +44,7 @@ class alCalcDataComeo (c : alCalcParmary,
 
     override def postRestart(reason: Throwable) : Unit = {
         // TODO : 计算次数，重新计算
-        count -= 1
-//        println(s"&&&&& ==> alCalcDataComeo error times=${3-count} , reason=${reason}")
-        count match {
-            case 0 => new alMessageProxy().sendMsg("100", "username", Map("error" -> "alCalcDataComeo error"))
-//                println("&&&&&& 重启3次后，依然未能正确执行 => alCalcDataComeo &&&&&&")
-                self ! calc_data_end(false, r)
-            case _ => super.postRestart(reason); self ! calc_data_start_impl(op, c)
-        }
+        counter ! canIReStart(reason)
     }
 
     override def receive: Receive = {
@@ -106,6 +99,14 @@ class alCalcDataComeo (c : alCalcParmary,
                 sender ! calc_data_start_impl(alMaxProperty(r.parent, r.uuid, r.subs(sed) :: Nil), c)
                 sed += 1
             }
+        }
+
+        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calc_data_start_impl(op, c)
+
+        case cannotRestart(reason: Throwable) => {
+            new alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            //println(s"&&&&&& 重启3次后，依然未能正确执行 => error with actor=${self}, reason=${reason} &&&&&&")
+            self ! calc_data_end(false, r)
         }
     }
 

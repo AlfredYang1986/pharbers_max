@@ -16,9 +16,9 @@ object alMaxMaterEntry extends App {
 
     if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
         Cluster(system).registerOnMemberUp {
-            println("start system success")
-            val a = system.actorOf(alSingleAgentMaster.props, alSingleAgentMaster.name)
-            system.actorOf(alMaxMaster.props(a), alMaxMaster.name)
+            //println("start system success")
+//            val a = system.actorOf(alSingleAgentMaster.props, alSingleAgentMaster.name)
+            system.actorOf(alMaxMaster.props, alMaxMaster.name)
             system.actorOf(alAgentSingleton.props, alAgentSingleton.name)
             system.actorOf(Props[alMaxClusterLister], "akka-listener")
         }

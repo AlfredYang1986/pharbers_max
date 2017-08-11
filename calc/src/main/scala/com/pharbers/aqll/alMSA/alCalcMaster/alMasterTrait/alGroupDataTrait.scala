@@ -11,7 +11,6 @@ import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.common_jobs
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.query
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
 
@@ -41,19 +40,19 @@ trait alGroupDataTrait { this : Actor =>
         }
     }
 
-    def canSchduleGroupJob(act: ActorRef) : Boolean = {
-        import akka.pattern.ask
-        import scala.concurrent.Await
-        import scala.concurrent.duration._
-        implicit val timeout = Timeout(1 seconds)
-
-        val f = act ? query()
-        Await.result(f, 1 seconds).asInstanceOf[Boolean]
-//        true
+    def canSchduleGroupJob : Boolean = {
+//        import akka.pattern.ask
+//        import scala.concurrent.Await
+//        import scala.concurrent.duration._
+//        implicit val timeout = Timeout(1 seconds)
+//
+//        val f = act ? query()
+//        Await.result(f, 1 seconds).asInstanceOf[Boolean]
+        true
     }
 
-    def schduleGroupJob(act: ActorRef) = {
-        if (canSchduleGroupJob(act)) {
+    def schduleGroupJob = {
+        if (canSchduleGroupJob) {
             atomic { implicit thx =>
                 val tmp = group_jobs.single.get
 //                println(s"&&& group_jobs tmp ==> ${tmp}")

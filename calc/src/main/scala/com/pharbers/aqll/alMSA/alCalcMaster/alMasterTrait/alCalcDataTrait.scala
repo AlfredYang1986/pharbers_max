@@ -6,7 +6,6 @@ import akka.routing.BroadcastPool
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.query
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 
@@ -37,19 +36,19 @@ trait alCalcDataTrait { this : Actor =>
         }
     }
 
-    def canCalcGroupJob(act: ActorRef) : Boolean = {
-        import akka.pattern.ask
-        import scala.concurrent.Await
-        import scala.concurrent.duration._
-        implicit val timeout = Timeout(1 seconds)
-
-        val f = act ? query()
-        Await.result(f, 1 seconds).asInstanceOf[Boolean]
-//        true
+    def canCalcGroupJob : Boolean = {
+//        import akka.pattern.ask
+//        import scala.concurrent.Await
+//        import scala.concurrent.duration._
+//        implicit val timeout = Timeout(1 seconds)
+//
+//        val f = act ? query()
+//        Await.result(f, 1 seconds).asInstanceOf[Boolean]
+        true
     }
 
-    def schduleCalcJob(act: ActorRef) = {
-        if (canCalcGroupJob(act)) {
+    def schduleCalcJob = {
+        if (canCalcGroupJob) {
             atomic { implicit thx =>
                 val tmp = calc_jobs.single.get
 //                println(s"&&& calc_jobs tmp ==> ${tmp}")

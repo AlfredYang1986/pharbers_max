@@ -33,7 +33,8 @@ class alGroupDataSlave extends Actor with ActorLogging {
             sender ! group_data_hand()
         }
         case group_data_start_impl(sp) => {
-            val cur = context.actorOf(alGroupDataComeo.props(sp, sender, self))
+            val counter = context.actorOf(alCommonErrorCounter.props)
+            val cur = context.actorOf(alGroupDataComeo.props(sp, sender, self, counter))
             cur.tell(group_data_start_impl(sp), sender)
         }
         case cmd : group_data_end => {
