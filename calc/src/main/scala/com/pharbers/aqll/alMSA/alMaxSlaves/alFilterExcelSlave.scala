@@ -14,11 +14,17 @@ object alFilterExcelSlave {
     def props = Props[alFilterExcelSlave]
     def name = "filter-excel-slave"
 
+    import scala.concurrent.ExecutionContext.Implicits.global
+    case class state_agent(val isRunning : Boolean)
+    val stateAgent = Agent(state_agent(false))
+
+    case class slave_status(val canDoJob : Boolean)
+    val slaveStatus = Agent(slave_status(true))
 }
 
 class alFilterExcelSlave extends Actor with ActorLogging {
 
-    import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel._
+    import alFilterExcelSlave._
 
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Restart
@@ -26,7 +32,6 @@ class alFilterExcelSlave extends Actor with ActorLogging {
 
     override def receive: Receive = {
         case filter_excel_hand() => {
-//            println(s"接收到从Trail发来的filter_excel_hand命令 ##stateAgent结果 = ${stateAgent().isRunning}##")
             if (stateAgent().isRunning) {
                 Unit
             } else {
@@ -37,20 +42,15 @@ class alFilterExcelSlave extends Actor with ActorLogging {
             }
         }
         case filter_excel_start_impl(file, parmary) => {
-            //println("执行 filter_excel_start_impl ##")
             val counter = context.actorOf(alCommonErrorCounter.props)
             val cur = context.actorOf(alFilterExcelComeo.props(file, parmary, sender, self, counter))
-            //println(s"创建 counter = $counter ##\n创建 alFilterExcelComeo = $cur ##")
-            //println(s"Slave 下的 self = ${self}#即为Comeo的owner")
 //            context.watch(cur)
             cur.tell(filter_excel_start_impl(file, parmary), sender)
         }
         case cmd : filter_excel_end => {
-            //println("结束 Slave - filter_excel_end")
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! refundNodeForRole("splitfilterexcelslave")
             stateAgent send state_agent(false)
-            //println("释放 refundNodeForRole => splitfilterexcelslave ")
         }
     }
 }

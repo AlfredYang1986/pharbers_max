@@ -52,10 +52,10 @@ class alSplitExcelComeo(file : String,
             try {
                 val (p, sb) = result.map (x => x).getOrElse(throw new Exception("cal error"))
                 c.uuid = p.toString
-                sender ! split_excel_end(true, p.toString, sb.asInstanceOf[List[String]], c)
+                self ! split_excel_end(true, p.toString, sb.asInstanceOf[List[String]], c)
 
             } catch {
-                case _ : Exception => sender ! split_excel_end(false, "", Nil, c)
+                case _ : Exception => self ! split_excel_end(false, "", Nil, c)
             }
         }
 

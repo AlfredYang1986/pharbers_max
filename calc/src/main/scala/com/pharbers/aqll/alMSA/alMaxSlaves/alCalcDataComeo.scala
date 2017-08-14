@@ -53,7 +53,6 @@ class alCalcDataComeo (c : alCalcParmary,
             shutSlaveCameo(split_excel_timeout())
         }
         case calc_data_sum(sub_sum) => {
-//            println("comeo sum plue one")
             r.sum = r.sum ++: sub_sum
 
             sum += 1
@@ -68,7 +67,6 @@ class alCalcDataComeo (c : alCalcParmary,
             if (result) {
                 cur += 1
                 if (cur == core_number) {
-//                    println(s"return true")
                     val r = calc_data_end(true, p)
                     owner ! r
                     shutSlaveCameo(r)

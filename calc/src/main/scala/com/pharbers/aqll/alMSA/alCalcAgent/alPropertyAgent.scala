@@ -20,9 +20,6 @@ object alPropertyAgent {
     case class queryIdleNodeInstanceInSystemWithRole(role : String)
     case class takeNodeForRole(role : String)
     case class refundNodeForRole(role : String)
-
-    case class queryEnergy()
-
 }
 
 class alPropertyAgent extends Actor with ActorLogging {
@@ -44,20 +41,14 @@ class alPropertyAgent extends Actor with ActorLogging {
             val can = f.map (_._2 > 0).getOrElse(false)
             if (can) {
                 energy = energy.filterNot(x => x._1 == role) + (role -> (f.get._2 - 1))
-//                println(s"&&& 可以计算 占用一个算能后 takeNodeForRole&&&=${energy}")
                 sender ! true
-            } else /*println(s"&&* 算能${role}资源正在被占用!!请耐心等待... *&&");*/sender ! false
+            } else sender ! false
         }
         case refundNodeForRole(role) => {
             val f = energy.find(role == _._1)
-//            println(s"&& 查看 refundNodeForRole & energy.find(role) = ${f}")
             energy = energy.filterNot(x => x._1 == role) + (role -> (f.get._2 + 1))
-//            println(s"&&& 重置算能后 refundNodeForRole&&&=${energy}")
             sender ! true
         }
-//        case queryEnergy() => {
-//            sender() ! latestEnergy(energy)
-//        }
-
     }
+
 }

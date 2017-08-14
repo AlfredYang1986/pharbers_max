@@ -46,8 +46,6 @@ class alFilterExcelComeo(fp : String,
             shutSlaveCameo(filter_excel_timeout())
         }
         case result : filter_excel_end => {
-//            println("结束 alFilterExcelComeo - filter_excel_end")
-//            println(s"## owner = ${owner} ##\n## originSender = ${originSender} ##\n## sender = ${sender} ##\n## self = ${self} ##")
             owner forward result
             shutSlaveCameo(result)
         }
@@ -67,7 +65,7 @@ class alFilterExcelComeo(fp : String,
             lst match {
                 case None => {
                     log.info("File is None")
-                    sender ! filter_excel_end(false)
+                    self ! filter_excel_end(false)
                 }
                 case Some(x) =>
                     x.doCalc
@@ -77,17 +75,10 @@ class alFilterExcelComeo(fp : String,
                         case 1 =>
                             parmary.year = p.head._1.toInt
                             parmary.market = removeSpace(p.head._2)
-                            // act ! push_max_job(file, parmary)
-
-                            //Test the calculate resource is occupied!
-//                            Thread.sleep(10000)
-                            //println(" case 1 => 正常退出")
-                            stateAgent send state_agent(false)
-                            sender ! filter_excel_end(true)
+                            self ! filter_excel_end(true)
                         case n if n > 1 => {
                             log.info("需要分拆文件，再次读取")
-                            stateAgent send state_agent(false)
-                            sender ! filter_excel_end(false)
+                            self ! filter_excel_end(false)
                         }
                         case _ => ???
                     }
@@ -110,8 +101,7 @@ class alFilterExcelComeo(fp : String,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-//        println(s"停止 shutSlaveCameo => stop alFilterExcelComeo self = ${self} ##")
-//        originSender ! msg
+        originSender ! msg
         log.debug("stopping filter excel cameo")
         context.stop(self)
     }

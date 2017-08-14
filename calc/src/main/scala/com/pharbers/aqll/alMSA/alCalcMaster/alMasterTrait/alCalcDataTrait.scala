@@ -8,6 +8,7 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
+import alCalcDataSlave.{slaveStatus,slave_status}
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._
@@ -37,14 +38,7 @@ trait alCalcDataTrait { this : Actor =>
     }
 
     def canCalcGroupJob : Boolean = {
-//        import akka.pattern.ask
-//        import scala.concurrent.Await
-//        import scala.concurrent.duration._
-//        implicit val timeout = Timeout(1 seconds)
-//
-//        val f = act ? query()
-//        Await.result(f, 1 seconds).asInstanceOf[Boolean]
-        true
+        slaveStatus().canDoJob
     }
 
     def schduleCalcJob = {
@@ -56,6 +50,7 @@ trait alCalcDataTrait { this : Actor =>
                 else {
                     calcData(tmp.head._1, tmp.head._2, tmp.head._3)
                     calc_jobs() = calc_jobs().tail
+                    slaveStatus send slave_status(false)
                 }
             }
         }
@@ -154,6 +149,7 @@ class alCameoCalcData ( val c : alCalcParmary,
             property.finalUnit += u
         }
         case calc_data_end(result, mp) => {
+            slaveStatus send slave_status(true)
             if (result) {
                 cur += 1
                 if (cur == tol / core_number) {
