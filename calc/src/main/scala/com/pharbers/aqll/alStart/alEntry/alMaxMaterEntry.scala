@@ -3,7 +3,7 @@ package com.pharbers.aqll.alStart.alEntry
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import com.pharbers.aqll.alMSA.alCalcAgent.alAgentSingleton
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
+import com.pharbers.aqll.alMSA.alCalcMaster.{alMaxDriver, alMaxMaster}
 import com.pharbers.aqll.alMSA.alClusterLister.alMaxClusterLister
 import com.typesafe.config.ConfigFactory
 
@@ -18,6 +18,7 @@ object alMaxMaterEntry extends App {
         Cluster(system).registerOnMemberUp {
             println("start system success")
             system.actorOf(alMaxMaster.props, alMaxMaster.name)
+//            system.actorOf(alMaxDriver.props, alMaxDriver.name)
             system.actorOf(alAgentSingleton.props, alAgentSingleton.name)
             system.actorOf(Props[alMaxClusterLister], "akka-listener")
         }

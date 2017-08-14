@@ -32,11 +32,9 @@ class alFilterExcelComeo(fp : String,
     override def postRestart(reason: Throwable) : Unit = {
         // TODO : 计算次数，重新计算
         count -= 1
-        // println(s"&&&&& ==> alFilterExcelComeo error times=${3-count} , reason=${reason}")
         count match {
             case 0 => new alMessageProxy().sendMsg("100", "username", Map("error" -> "alFilterExcelComeo error"))
-                // println("&&&&&& 重启3次后，依然未能正确执行 => alFilterExcelComeo &&&&&&")
-                self ! filter_excel_end(false)
+                self ! filter_excel_end(false, fp, cp)
             case _ => super.postRestart(reason); self ! filter_excel_start_impl(fp, cp)
         }
     }
@@ -46,6 +44,7 @@ class alFilterExcelComeo(fp : String,
             log.debug("timeout occur")
             shutSlaveCameo(filter_excel_timeout())
         }
+        // TODO: 内存泄漏，稳定后修改
         case result : filter_excel_end => {
             owner forward result
             shutSlaveCameo(result)
@@ -60,7 +59,7 @@ class alFilterExcelComeo(fp : String,
             lst match {
                 case None => {
                     log.info("File is None")
-                    sender ! filter_excel_end(false)
+                    sender ! filter_excel_end(false, file, parmary)
                 }
                 case Some(x) =>
                     x.doCalc
@@ -70,11 +69,12 @@ class alFilterExcelComeo(fp : String,
                         case 1 =>
                             parmary.year = p.head._1.toInt
                             parmary.market = removeSpace(p.head._2)
-                            // act ! push_max_job(file, parmary)
-                            sender ! filter_excel_end(true)
+                            // TODO: 内存泄漏，稳定后修改
+//                            self ! filter_excel_end(true)
+                            sender ! filter_excel_end(true, file, parmary)
                         case n if n > 1 => {
                             log.info("需要分拆文件，再次读取")
-                            sender ! filter_excel_end(false)
+                            sender ! filter_excel_end(false, file, parmary)
                         }
                         case _ => ???
                     }

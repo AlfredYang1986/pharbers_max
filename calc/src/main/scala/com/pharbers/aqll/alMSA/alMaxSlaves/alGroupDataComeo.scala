@@ -107,10 +107,8 @@ class alGroupDataComeo (mp : alMaxProperty,
 
     def unionResult = {
         val common = common_jobs()
-//        common.cur = Some(alStage(mp.subs map (x => "config/group/" + x.uuid)))
         import com.pharbers.aqll.common.alFileHandler.fileConfig._
         common.cur = Some(alStage(mp.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
-//        common.cur = Some(alStage(mp.subs map (x => "/home/jeorch/work/max/files/group/" + x.uuid)))
         common.process = restore_grouped_data() ::
             do_calc() :: do_union() :: do_calc() ::
             do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil

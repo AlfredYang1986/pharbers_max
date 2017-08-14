@@ -43,7 +43,6 @@ trait alFilterExcelTrait { this : Actor =>
         if (canSchduleJob) {
             atomic { implicit thx =>
                 val tmp = filter_jobs.single.get
-//                println(s"&&& filter_jobs tmp ==> ${tmp}")
                 if (tmp.isEmpty) Unit
                 else {
                     filterExcel(tmp.head._1, tmp.head._2, tmp.head._3)
@@ -71,7 +70,7 @@ object alCameoFilterExcel {
     case class filter_excel_start()
     case class filter_excel_hand()
     case class filter_excel_start_impl(p : String, par : alCalcParmary)
-    case class filter_excel_end(result : Boolean)
+    case class filter_excel_end(result : Boolean, file: String, cp: alCalcParmary)
     case class filter_excel_timeout()
 
     def props(file : String,
@@ -103,6 +102,7 @@ class alCameoFilterExcel(val file : String,
                 sign = true
             }
         }
+        // TODO: 内存泄漏，稳定后修改
         case result : filter_excel_end => {
             owner forward result
             shutCameo(result)
