@@ -1,13 +1,18 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import akka.actor.{Actor, ActorLogging, FSM, Props}
+import akka.remote.routing.RemoteRouterConfig
+import akka.routing.{BroadcastGroup, BroadcastPool}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_calc_job_2, push_group_job, push_split_excel_job}
+import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.filter_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{push_filter_job, push_job, push_split_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import com.pharbers.aqll.alMSA.alClusterLister.alMaxAgentEnergy._
 
 
@@ -26,8 +31,11 @@ case object split_excel extends alPointState
 case object group_file extends alPointState
 case object calc_maxing extends alPointState
 
-trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]{this: Actor =>
+trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
+	                                              with alLoggerMsgTrait{ this: Actor =>
+	var sign = false
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
+
 	startWith(alDriverJobIdle, new alCalcParmary("", ""))
 	when(alDriverJobIdle) {
 		case Event(push_filter_job(file, cp), pr) => {
@@ -57,13 +65,13 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val mp = alMaxProperty(null, u, sub)
 			self ! push_group_job(mp)
 			goto(group_file) using pr
+			stay()
 		}
 	}
 	
 	when(group_file) {
 		case Event(push_group_job(mp), cp) => {
 			acts ! push_group_job(mp)
-//			agentEnergy() foreach ( x =>  context.actorSelection(x + "/user/driver-actor") ! push_group_job(mp))
 			stay()
 		}
 		case Event(group_data_end(r, mp), pr) => {
@@ -75,7 +83,6 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	when(calc_maxing) {
 		case Event(push_calc_job_2(mp, cp), pr) => {
 			acts ! push_calc_job_2(mp, cp)
-//			agentEnergy() foreach ( x =>  context.actorSelection(x + "/user/driver-actor") ! push_calc_job_2(mp, cp))
 			stay()
 		}
 		case Event(calc_data_end(r, mp), pr) => {
@@ -86,13 +93,13 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	
 	whenUnhandled {
 		case Event(_, _) => {
-			println("fuck")
+			logger.error("unkonw")
 			stay()
 		}
 	}
 	
 	def shutCameo() = {
-		println("stopping temp cameo")
+		logger.error("stopping temp cameo")
 		context.stop(self)
 	}
 }
