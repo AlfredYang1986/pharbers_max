@@ -7,7 +7,6 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import scala.concurrent.duration._
 import akka.util.Timeout
 import akka.pattern.ask
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.latestEnergy
 
 import scala.concurrent.Await
 
@@ -21,9 +20,6 @@ object alPropertyAgent {
     case class queryIdleNodeInstanceInSystemWithRole(role : String)
     case class takeNodeForRole(role : String)
     case class refundNodeForRole(role : String)
-
-    case class queryEnergy()
-
 }
 
 class alPropertyAgent extends Actor with ActorLogging {
@@ -51,9 +47,6 @@ class alPropertyAgent extends Actor with ActorLogging {
             energy = energy.filterNot(x => x._1 == role) + (role -> (f.get._2 + 1))
             sender ! true
         }
-        case queryEnergy() => {
-            sender() ! latestEnergy(energy)
-        }
-
     }
+
 }

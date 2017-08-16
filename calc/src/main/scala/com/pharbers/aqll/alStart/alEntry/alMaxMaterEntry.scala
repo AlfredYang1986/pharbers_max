@@ -2,9 +2,8 @@ package com.pharbers.aqll.alStart.alEntry
 
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver
 import com.pharbers.aqll.alMSA.alCalcAgent.alAgentSingleton
-import com.pharbers.aqll.alMSA.alCalcMaster.{alMaxDriver, alMaxMaster}
-import com.pharbers.aqll.alMSA.alCalcAgent.{alAgentSingleton, alSingleAgentMaster}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import com.pharbers.aqll.alMSA.alClusterLister.alMaxClusterLister
 import com.typesafe.config.ConfigFactory
@@ -15,7 +14,6 @@ import com.typesafe.config.ConfigFactory
 object alMaxMaterEntry extends App {
     val config = ConfigFactory.load("split-new-master")
     val system = ActorSystem("calc", config)
-
     if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
         Cluster(system).registerOnMemberUp {
             system.actorOf(alMaxMaster.props, alMaxMaster.name)

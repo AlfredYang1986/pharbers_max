@@ -8,6 +8,7 @@ import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, grouping_jobs}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
@@ -21,15 +22,15 @@ import scala.concurrent.duration._
   */
 
 object alGroupDataComeo {
-    def props(mp : alMaxProperty, originSender : ActorRef, owner : ActorRef) =
-        Props(new alGroupDataComeo(mp, originSender, owner))
+    def props(mp : alMaxProperty, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
+        Props(new alGroupDataComeo(mp, originSender, owner, counter))
     val core_number = 4
-    var count = 3
 }
 
 class alGroupDataComeo (mp : alMaxProperty,
                         originSender : ActorRef,
-                        owner : ActorRef) extends Actor with ActorLogging {
+                        owner : ActorRef,
+                        counter : ActorRef) extends Actor with ActorLogging {
 
     var cur = 0
     var sed = 0
@@ -44,14 +45,7 @@ class alGroupDataComeo (mp : alMaxProperty,
 
     override def postRestart(reason: Throwable) : Unit = {
         // TODO : 计算次数，重新计算
-        count -= 1
-        // println(s"&&&&& ==> alGroupDataComeo error times=${3-count} , reason=${reason}")
-        count match {
-            case 0 => new alMessageProxy().sendMsg("100", "username", Map("error" -> "alGroupDataComeo error"))
-                // println("&&&&&& 重启3次后，依然未能正确执行 => alGroupDataComeo &&&&&&")
-                self ! group_data_end(false, r)
-            case _ => super.postRestart(reason); self ! group_data_start_impl(mp)
-        }
+        counter ! canIReStart(reason)
     }
 
     import alGroupDataComeo._
@@ -91,6 +85,12 @@ class alGroupDataComeo (mp : alMaxProperty,
             val tmp = alMaxProperty(mp.uuid, mp.subs(sed).uuid, Nil)
             sender ! group_data_start_impl(tmp)
             sed += 1
+        }
+        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! group_data_start_impl(mp)
+
+        case cannotRestart(reason: Throwable) => {
+            new alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            self ! group_data_end(false, r)
         }
     }
 

@@ -6,10 +6,9 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.{latestEnergy, query}
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alFilterExcelSlave
+import alFilterExcelSlave.{slaveStatus,slave_status}
 
 import scala.concurrent.duration._
 import scala.concurrent.stm._
@@ -30,7 +29,7 @@ trait alFilterExcelTrait { this : Actor =>
                 allowLocalRoutees = false,
                 useRole = Some("splitfilterexcelslave")
             )
-        ).props(alFilterExcelSlave.props), name = "filter-excel-router");
+        ).props(alFilterExcelSlave.props), name = "filter-excel-router")
 
     val filter_router = createFilterExcelRouter
 
@@ -40,25 +39,19 @@ trait alFilterExcelTrait { this : Actor =>
         }
     }
 
-    def canSchduleJob(act: ActorRef) : Boolean = {
-        import akka.pattern.ask
-        import scala.concurrent.Await
-        import scala.concurrent.duration._
-        implicit val timeout = Timeout(1 seconds)
-
-        val f = act ? query()
-        Await.result(f, 1 seconds).asInstanceOf[Boolean]
-//        true
+    def canSchduleJob : Boolean = {
+        slaveStatus().canDoJob
     }
 
-    def schduleJob(act: ActorRef) = {
-        if (canSchduleJob(act)) {
+    def schduleJob = {
+        if (canSchduleJob) {
             atomic { implicit thx =>
                 val tmp = filter_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
                     filterExcel(tmp.head._1, tmp.head._2, tmp.head._3)
                     filter_jobs() = filter_jobs().tail
+                    slaveStatus send slave_status(false)
                 }
             }
         }
@@ -83,10 +76,6 @@ object alCameoFilterExcel {
     case class filter_excel_start_impl(p : String, par : alCalcParmary)
     case class filter_excel_end(result : Boolean, file: String, cp: alCalcParmary)
     case class filter_excel_timeout()
-
-    import scala.concurrent.ExecutionContext.Implicits.global
-    case class state_agent(val isRunning : Boolean)
-    val stateAgent = Agent(state_agent(false))
 
     def props(file : String,
               par : alCalcParmary,
@@ -119,9 +108,7 @@ class alCameoFilterExcel(val file : String,
         }
         // TODO: 内存泄漏，稳定后修改
         case result : filter_excel_end => {
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            a ! refundNodeForRole("splitfilterexcelslave")
-            stateAgent send state_agent(false)
+            slaveStatus send slave_status(true)
             owner forward result
             shutCameo(result)
         }

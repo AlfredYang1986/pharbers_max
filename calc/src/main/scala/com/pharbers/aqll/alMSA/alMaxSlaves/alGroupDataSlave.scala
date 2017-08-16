@@ -12,13 +12,18 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{grou
 object alGroupDataSlave {
     def props = Props[alGroupDataSlave]
     def name = "group-data-slave"
-}
-
-class alGroupDataSlave extends Actor with ActorLogging {
 
     import scala.concurrent.ExecutionContext.Implicits.global
     case class state_agent(val isRunning : Boolean)
     val stateAgent = Agent(state_agent(false))
+
+    case class slave_status(val canDoJob : Boolean)
+    val slaveStatus = Agent(slave_status(true))
+}
+
+class alGroupDataSlave extends Actor with ActorLogging {
+
+    import alGroupDataSlave._
 
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Restart
@@ -33,7 +38,8 @@ class alGroupDataSlave extends Actor with ActorLogging {
             sender ! group_data_hand()
         }
         case group_data_start_impl(sp) => {
-            val cur = context.actorOf(alGroupDataComeo.props(sp, sender, self))
+            val counter = context.actorOf(alCommonErrorCounter.props)
+            val cur = context.actorOf(alGroupDataComeo.props(sp, sender, self, counter))
             cur.tell(group_data_start_impl(sp), sender)
         }
         case cmd : group_data_end => {

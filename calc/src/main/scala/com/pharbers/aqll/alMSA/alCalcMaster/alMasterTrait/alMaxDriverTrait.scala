@@ -13,7 +13,6 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{push_filter_job, push_job, push_split_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
-import com.pharbers.aqll.alMSA.alClusterLister.alMaxAgentEnergy._
 
 
 trait alMaxDriverTrait { this : Actor =>

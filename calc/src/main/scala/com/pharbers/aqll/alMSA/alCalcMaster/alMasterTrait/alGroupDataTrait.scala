@@ -11,9 +11,9 @@ import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.common_jobs
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.query
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
+import alGroupDataSlave.{slaveStatus,slave_status}
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._
@@ -41,25 +41,19 @@ trait alGroupDataTrait { this : Actor =>
         }
     }
 
-    def canSchduleGroupJob(act: ActorRef) : Boolean = {
-        import akka.pattern.ask
-        import scala.concurrent.Await
-        import scala.concurrent.duration._
-        implicit val timeout = Timeout(1 seconds)
-
-        val f = act ? query()
-        Await.result(f, 1 seconds).asInstanceOf[Boolean]
-//        true
+    def canSchduleGroupJob : Boolean = {
+        slaveStatus().canDoJob
     }
 
-    def schduleGroupJob(act: ActorRef) = {
-        if (canSchduleGroupJob(act)) {
+    def schduleGroupJob = {
+        if (canSchduleGroupJob) {
             atomic { implicit thx =>
                 val tmp = group_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
                     groupData(tmp.head._1, tmp.head._2)
                     group_jobs() = group_jobs().tail
+                    slaveStatus send slave_status(false)
                 }
             }
         }
@@ -118,6 +112,7 @@ class alCameoGroupData (val property : alMaxProperty,
             }
         }
         case group_data_end(result, mp) => {
+            slaveStatus send slave_status(true)
             if (result) {
                 cur += 1
                 resetSubGrouping(mp)
