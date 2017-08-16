@@ -28,13 +28,14 @@ class alFilterExcelComeo(fp : String,
                          owner : ActorRef) extends Actor with ActorLogging {
 
     import alFilterExcelComeo._
+    import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel._
 
     override def postRestart(reason: Throwable) : Unit = {
         // TODO : 计算次数，重新计算
         count -= 1
         count match {
             case 0 => new alMessageProxy().sendMsg("100", "username", Map("error" -> "alFilterExcelComeo error"))
-                self ! filter_excel_end(false, fp, cp)
+                self ! filter_excel_end(false)
             case _ => super.postRestart(reason); self ! filter_excel_start_impl(fp, cp)
         }
     }
@@ -75,6 +76,12 @@ class alFilterExcelComeo(fp : String,
                         case n if n > 1 => {
                             log.info("需要分拆文件，再次读取")
                             sender ! filter_excel_end(false, file, parmary)
+                            stateAgent send state_agent(false)
+                            sender ! filter_excel_end(true)
+                        case n if n > 1 => {
+                            log.info("需要分拆文件，再次读取")
+                            stateAgent send state_agent(false)
+                            sender ! filter_excel_end(false)
                         }
                         case _ => ???
                     }
