@@ -74,7 +74,7 @@ object alCameoFilterExcel {
     case class filter_excel_start()
     case class filter_excel_hand()
     case class filter_excel_start_impl(p : String, par : alCalcParmary)
-    case class filter_excel_end(result : Boolean, file: String, cp: alCalcParmary)
+    case class filter_excel_end(result : Boolean, cp: alCalcParmary)
     case class filter_excel_timeout()
 
     def props(file : String,
