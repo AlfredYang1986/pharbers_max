@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
-import akka.actor.{Actor, ActorLogging, FSM, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.remote.routing.RemoteRouterConfig
 import akka.routing.{BroadcastGroup, BroadcastPool}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
@@ -13,6 +13,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{push_filter_job, push_job, push_split_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
+import com.pharbers.aqll.alMSA.alMaxMessage._
 
 
 trait alMaxDriverTrait { this : Actor =>
@@ -34,6 +35,8 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	                                              with alLoggerMsgTrait{ this: Actor =>
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
 	var path = ""
+	
+	def scpActor: ActorRef = context.actorOf(alFileActor.props())
 
 	startWith(alDriverJobIdle, new alCalcParmary("", ""))
 	when(alDriverJobIdle) {
@@ -44,6 +47,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			acts ! filter_excel_job_2(file, cp)
 			stay()
 		}
+		
 		case Event(filter_excel_end(r, cp), pr) => {
 			pr.market = cp.market
 			pr.year = cp.year

@@ -8,7 +8,8 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
-import alCalcDataSlave.{slaveStatus,slave_status}
+import alCalcDataSlave.{slaveStatus, slave_status}
+import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._
@@ -92,7 +93,7 @@ class alCameoCalcData ( val c : alCalcParmary,
 
     import alCameoCalcData._
 
-    val core_number = 4
+    val core_number = server_info.cpu
 
     var sum : List[ActorRef] = Nil
     var sed = 0

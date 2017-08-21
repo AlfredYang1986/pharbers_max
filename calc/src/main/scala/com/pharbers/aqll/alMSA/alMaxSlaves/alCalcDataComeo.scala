@@ -8,6 +8,7 @@ import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
@@ -22,7 +23,7 @@ import scala.concurrent.duration._
 object alCalcDataComeo {
     def props(c : alCalcParmary, lsp : alMaxProperty, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
         Props(new alCalcDataComeo(c, lsp, originSender, owner, counter))
-    val core_number = 4
+    val core_number = server_info.cpu
 }
 
 class alCalcDataComeo (c : alCalcParmary,
@@ -79,7 +80,7 @@ class alCalcDataComeo (c : alCalcParmary,
         }
         case calc_data_start_impl(_, _) => {
 
-            val core_number = 4
+            val core_number = server_info.cpu
             val mid = UUID.randomUUID.toString
             val lst = (1 to core_number).map (x => worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> op.uuid,
                                                    worker_calc_core_split_jobs.calc_uuid -> op.subs(0 * core_number + x - 1).uuid,
