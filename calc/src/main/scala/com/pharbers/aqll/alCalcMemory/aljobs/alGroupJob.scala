@@ -13,7 +13,6 @@ class alGroupJob(u : String, val parent : String) extends alJob {
     val ps = presist_data(Some(uuid))
 
     def init(args : Map[String, Any]) = {
-//        val restore_path = """config/sync/""" + parent + "/" + uuid
         val restore_path = s"${memorySplitFile}${sync}$parent/$uuid"
         cur = Some(alStage(restore_path))
         process = restore_data() :: split_data(core_split(Map(core_split.core_number -> 4))) :: ps :: Nil

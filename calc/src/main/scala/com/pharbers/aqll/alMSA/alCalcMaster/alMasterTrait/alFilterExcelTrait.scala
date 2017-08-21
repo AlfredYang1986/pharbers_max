@@ -74,7 +74,7 @@ object alCameoFilterExcel {
     case class filter_excel_start()
     case class filter_excel_hand()
     case class filter_excel_start_impl(p : String, par : alCalcParmary)
-    case class filter_excel_end(result : Boolean)
+    case class filter_excel_end(result : Boolean, cp: alCalcParmary)
     case class filter_excel_timeout()
 
     def props(file : String,
@@ -106,6 +106,7 @@ class alCameoFilterExcel(val file : String,
                 sign = true
             }
         }
+        // TODO: 内存泄漏，稳定后修改
         case result : filter_excel_end => {
             slaveStatus send slave_status(true)
             owner forward result

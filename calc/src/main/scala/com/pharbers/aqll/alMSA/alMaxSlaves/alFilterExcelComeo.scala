@@ -45,17 +45,12 @@ class alFilterExcelComeo(fp : String,
             log.debug("timeout occur")
             shutSlaveCameo(filter_excel_timeout())
         }
+        // TODO: 内存泄漏，稳定后修改
         case result : filter_excel_end => {
             owner forward result
             shutSlaveCameo(result)
         }
         case _ : filter_excel_start_impl => {
-            /**
-              * 异常测试
-            println(s"异常测试 sender会变化？ = ${sender}")
-            throw new Exception("&&& ==> Some alFilterExcelComeo Error！")
-              */
-
             val file = fp
             val parmary = cp
 
@@ -65,7 +60,7 @@ class alFilterExcelComeo(fp : String,
             lst match {
                 case None => {
                     log.info("File is None")
-                    self ! filter_excel_end(false)
+                    self ! filter_excel_end(false, cp)
                 }
                 case Some(x) =>
                     x.doCalc
@@ -75,10 +70,10 @@ class alFilterExcelComeo(fp : String,
                         case 1 =>
                             parmary.year = p.head._1.toInt
                             parmary.market = removeSpace(p.head._2)
-                            self ! filter_excel_end(true)
+                            self ! filter_excel_end(true, parmary)
                         case n if n > 1 => {
                             log.info("需要分拆文件，再次读取")
-                            self ! filter_excel_end(false)
+                            self ! filter_excel_end(false, cp)
                         }
                         case _ => ???
                     }
@@ -88,9 +83,9 @@ class alFilterExcelComeo(fp : String,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! filter_excel_start_impl(fp, cp)
 
         case cannotRestart(reason: Throwable) => {
-            new alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
-//            println(s"&&&&&& 重启3次后，依然未能正确执行 => error with actor=${self}, reason=${reason} &&&&&&")
-            self ! filter_excel_end(false)
+            // TODO: 张弛这里的消息内容有误
+//            new alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            self ! filter_excel_end(false, cp)
         }
 
     }

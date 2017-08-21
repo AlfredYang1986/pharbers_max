@@ -44,9 +44,9 @@ class alFilterExcelSlave extends Actor with ActorLogging {
         case filter_excel_start_impl(file, parmary) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
             val cur = context.actorOf(alFilterExcelComeo.props(file, parmary, sender, self, counter))
-//            context.watch(cur)
-            cur.tell(filter_excel_start_impl(file, parmary), sender)
+            cur ! filter_excel_start_impl(file, parmary)
         }
+        // TODO: 内存泄漏，稳定后修改
         case cmd : filter_excel_end => {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! refundNodeForRole("splitfilterexcelslave")
