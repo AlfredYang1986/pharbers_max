@@ -15,7 +15,6 @@ class alMaxJob extends alJob {
     def init(args : Map[String, Any]) = {
         val excel_file = args.get(max_excel_path).map (x => x.toString).getOrElse(throw new Exception("have to provide excel file"))
         cur = Some(alStage(excel_file))
-        import com.pharbers.aqll.alMSA.alClusterLister.alMaxAgentEnergy._
 //        val number = alServerHardware.strategy_hardware(server_info.memory)(alServerHardware.strategy_memeory)
         // TODO: 目前按照机器去分文件，现在按照内存分 在机器不够的情况下 会一直算不了
 //        process = read_excel() :: split_data(read_excel_split(Map(read_excel_split.section_number -> server_info.section.single.get))) :: ps :: Nil

@@ -77,8 +77,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
             val sub_uuid = tmp.subs.head.uuid
           
             val path = s"${memorySplitFile}${calc}$sub_uuid"
-//            val path = "config/calc/" + sub_uuid
-//            val path = "/home/jeorch/work/max/files/calc/" + sub_uuid
 
             val dir = alFileOpt(path)
             if (!dir.isExists)
@@ -165,8 +163,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
     def resignIntegratedData(parend_uuid: String)(group: alStorage): List[IntegratedData] = {
         val recall = common_jobs()
         val path = s"${memorySplitFile}${sync}$parend_uuid"
-//        val path = "config/sync/" + parend_uuid
-//        val path = "/home/jeorch/work/max/files/sync/" + parend_uuid
         recall.cur = Some(alStage(alFileOpt(path).exHideListFile))
         recall.process = restore_data() :: do_calc() :: do_union() ::
             do_map(alShareData.txt2IntegratedData(_)) :: do_filter { iter =>

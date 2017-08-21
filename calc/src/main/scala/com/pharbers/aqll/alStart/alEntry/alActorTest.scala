@@ -25,26 +25,28 @@ object alActorTest extends App{
 	
 	if(system.settings.config.getStringList("akka.cluster.roles").contains("splittest")) {
 		Cluster(system).registerOnMemberUp {
-			val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
+			val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
 			val path = fileBase + "2016-11.xlsx"
 			
-			val f = a ? push_split_excel_job(path, cp)
-			val r = Await.result(f, 2 minute).asInstanceOf[split_excel_end]
+			a ! push_filter_job(path, cp)
 			
-			val p = r.uuid
-			val subs = r.subs map (x => alMaxProperty(p, x, Nil))
-			val mp = alMaxProperty(null, p, subs)
-			
-			cp.uuid = r.uuid
-			
-			val fg = a ? push_group_job(mp)
-			val rg = Await.result(fg, 2 minute).asInstanceOf[group_data_end]
-			
-			val fff = a ? push_calc_job_2(mp, cp)
-			val rrr = Await.result(fff, 40 minute).asInstanceOf[calc_data_end]
-			
-	        println(rrr.property.finalValue)
-	        println(rrr.property.finalUnit)
+//			val f = a ? push_split_excel_job(path, cp)
+//			val r = Await.result(f, 2 minute).asInstanceOf[split_excel_end]
+//
+//			val p = r.uuid
+//			val subs = r.subs map (x => alMaxProperty(p, x, Nil))
+//			val mp = alMaxProperty(null, p, subs)
+//
+//			cp.uuid = r.uuid
+//
+//			val fg = a ? push_group_job(mp)
+//			val rg = Await.result(fg, 2 minute).asInstanceOf[group_data_end]
+//
+//			val fff = a ? push_calc_job_2(mp, cp)
+//			val rrr = Await.result(fff, 40 minute).asInstanceOf[calc_data_end]
+//
+//	        println(rrr.property.finalValue)
+//	        println(rrr.property.finalUnit)
 		}
 	}
 }

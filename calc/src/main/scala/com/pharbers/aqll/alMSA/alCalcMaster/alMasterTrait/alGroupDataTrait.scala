@@ -148,7 +148,6 @@ class alCameoGroupData (val property : alMaxProperty,
 
         import com.pharbers.aqll.common.alFileHandler.fileConfig._
         common.cur = Some(alStage(property.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
-        common.cur = Some(alStage(property.subs map (x => "/home/jeorch/work/max/files/group/" + x.uuid)))
 
         common.process = restore_grouped_data() ::
             do_calc() :: do_union() :: do_calc() ::

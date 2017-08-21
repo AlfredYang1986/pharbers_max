@@ -41,14 +41,7 @@ class alSplitExcelComeo(file : String,
         }
         case split_excel_start_impl(f, c) => {
             val result = max_jobs(file).result
-
-            /**
-              * Modified by Jeorch on 02/08/2017.
-              * 制造一个错误，检验错误计数，重算流程
-            println("start push error!")
-            throw new Exception("&&& ==> Some alSplitExcelComeo Error！")
-              */
-
+            
             try {
                 val (p, sb) = result.map (x => x).getOrElse(throw new Exception("cal error"))
                 c.uuid = p.toString
@@ -63,7 +56,6 @@ class alSplitExcelComeo(file : String,
 
         case cannotRestart(reason: Throwable) => {
             new alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
-//            println(s"&&&&&& 重启3次后，依然未能正确执行 => error with actor=${self}, reason=${reason} &&&&&&")
             self ! split_excel_end(false,"",Nil,null)
         }
     }

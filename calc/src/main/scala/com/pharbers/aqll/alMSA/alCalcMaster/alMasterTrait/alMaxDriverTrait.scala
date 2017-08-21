@@ -32,29 +32,29 @@ case object calc_maxing extends alPointState
 
 trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
 	                                              with alLoggerMsgTrait{ this: Actor =>
-	var sign = false
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
+	var path = ""
 
 	startWith(alDriverJobIdle, new alCalcParmary("", ""))
 	when(alDriverJobIdle) {
 		case Event(push_filter_job(file, cp), pr) => {
+			pr.company = cp.company
+			pr.uname = cp.uname
+			path = file
 			acts ! filter_excel_job_2(file, cp)
 			stay()
 		}
-		case Event(filter_excel_end(r, file, cp), pr) => {
-			pr.uuid = cp.uuid
-			pr.company = cp.company
+		case Event(filter_excel_end(r, cp), pr) => {
 			pr.market = cp.market
-			pr.uname = cp.uname
 			pr.year = cp.year
-			self ! push_split_job(file, cp)
+			self ! push_split_job(path)
 			goto(split_excel) using pr
 		}
 	}
 	
 	when(split_excel) {
-		case Event(push_split_job(file, cp), pr) => {
-			acts ! push_split_excel_job(file, cp)
+		case Event(push_split_job(file), pr) => {
+			acts ! push_split_excel_job(file, pr)
 			stay()
 		}
 		case Event(split_excel_end(r, u, subs, cp), pr) => {
@@ -64,7 +64,6 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val mp = alMaxProperty(null, u, sub)
 			self ! push_group_job(mp)
 			goto(group_file) using pr
-			stay()
 		}
 	}
 	
@@ -86,19 +85,22 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 		}
 		case Event(calc_data_end(r, mp), pr) => {
 			shutCameo()
+			println(mp.finalValue)
+            println(mp.finalUnit)
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
 	}
 	
 	whenUnhandled {
 		case Event(_, _) => {
-			logger.error("unkonw")
+			println("unkonw")
+			shutCameo()
 			stay()
 		}
 	}
 	
 	def shutCameo() = {
-		logger.error("stopping temp cameo")
+		println("stopping temp cameo")
 		context.stop(self)
 	}
 }
@@ -106,7 +108,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 object alCameoMaxDriver {
 	case class push_job(mp: alMaxProperty, cp: alCalcParmary)
 	case class push_filter_job(file: String, cp: alCalcParmary)
-	case class push_split_job(path : String, p: alCalcParmary)
+	case class push_split_job(path : String)
 	
 	def props = Props[alCameoMaxDriver]
 }
