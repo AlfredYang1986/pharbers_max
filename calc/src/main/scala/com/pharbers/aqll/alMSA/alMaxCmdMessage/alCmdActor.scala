@@ -1,11 +1,11 @@
-package com.pharbers.aqll.alMSA.alMaxMessage
+package com.pharbers.aqll.alMSA.alMaxCmdMessage
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 
-object alFileActor {
-	def props() = Props[alFileActor]
+object alCmdActor {
+	def props() = Props[alCmdActor]
 }
 
 case class scpmsg(file: String, target: String, host: String, user: String)
@@ -17,7 +17,7 @@ case class scpend(s: ActorRef) extends stop(0, "scp")
 case class pkgend(s: ActorRef) extends stop(1, "pkg")
 case class unpkgend(s: ActorRef) extends stop(2, "unpkg")
 
-class alFileActor extends Actor with ActorLogging {
+class alCmdActor extends Actor with ActorLogging {
 	
 	def msg: Receive = {
 		case scpmsg(file, target, host, user) => {

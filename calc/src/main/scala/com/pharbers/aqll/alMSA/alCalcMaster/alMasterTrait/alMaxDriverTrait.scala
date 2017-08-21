@@ -13,7 +13,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{push_filter_job, push_job, push_split_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
-import com.pharbers.aqll.alMSA.alMaxMessage._
+import com.pharbers.aqll.alMSA.alMaxCmdMessage._
 
 
 trait alMaxDriverTrait { this : Actor =>
@@ -36,7 +36,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
 	var path = ""
 	
-	def scpActor: ActorRef = context.actorOf(alFileActor.props())
+	def scpActor: ActorRef = context.actorOf(alCmdActor.props())
 
 	startWith(alDriverJobIdle, new alCalcParmary("", ""))
 	when(alDriverJobIdle) {
