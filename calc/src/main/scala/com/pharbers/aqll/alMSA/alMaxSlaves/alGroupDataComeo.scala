@@ -10,6 +10,7 @@ import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, grouping_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
+import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_hand, group_data_start_impl, group_data_timeout}
@@ -24,7 +25,7 @@ import scala.concurrent.duration._
 object alGroupDataComeo {
     def props(mp : alMaxProperty, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
         Props(new alGroupDataComeo(mp, originSender, owner, counter))
-    val core_number = 4
+    val core_number = server_info.cpu
 }
 
 class alGroupDataComeo (mp : alMaxProperty,
