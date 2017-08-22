@@ -1,6 +1,7 @@
 package com.pharbers.aqll.alStart.alHttpFunc
 
 import akka.actor.ActorSystem
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.{Directives, StandardRoute}
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alAkkaHttpJson.PlayJsonSupport
@@ -16,6 +17,7 @@ import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport,
 import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.push_filter_job
 
 /**
   * Created by qianpeng on 2017/6/5.
@@ -53,17 +55,46 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	implicit def executionContext: ExecutionContext
 	implicit def requestTimeout: Timeout
 	
-	val routes = Test ~ alSampleCheckDataFunc ~
-				 alCalcDataFunc ~ alModelOperationCommitFunc ~
-				 alFileUploadPythonFunc ~ alResultFileExportFunc ~
-				 alFileUploadPyBefore
+//	val routes = Test ~ alSampleCheckDataFunc ~
+//				 alCalcDataFunc ~ alModelOperationCommitFunc ~
+//				 alFileUploadPythonFunc ~ alResultFileExportFunc ~
+//				 alFileUploadPyBefore
+	val routes = Test ~ Test2 ~ alSampleCheckDataFunc ~
+		alCalcDataFunc ~ alModelOperationCommitFunc ~
+		alFileUploadPythonFunc ~ alResultFileExportFunc ~
+		alFileUploadPyBefore
 	
 	def Test = post {
-		path("src/test") {
+		path("test") {
 			entity(as[Item]) { item =>
-//				println(item.str)
-//				println(item.lst)
-				complete("""{"result": "OK"}""")
+				println(item.str)
+				println(item.lst)
+				val result = toJson(Map("result" -> "ok"))
+				complete(result)
+			}
+		}
+	}
+
+//	def Test2 = get {
+//		path("test2") {
+//			println("&&& test21")
+//			val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
+//			println("&&& test22")
+//			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
+//			val path = fileBase + "2016-11.xlsx"
+//			a ! push_filter_job(path, cp)
+//			println("&&& test23")
+//			complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
+//		}
+//	}
+	def Test2 = post {
+		path("test2") {
+			entity(as[alCalcItem]) {item =>
+				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
+				val cp = new alCalcParmary(item.company, item.uname)
+				val path = fileBase + item.filename
+				a ! push_filter_job(path, cp)
+				complete(toJson(successToJson().get))
 			}
 		}
 	}

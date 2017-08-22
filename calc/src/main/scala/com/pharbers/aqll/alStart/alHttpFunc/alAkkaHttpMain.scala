@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alStart.alHttpFunc
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
@@ -12,6 +12,9 @@ import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor
 import com.pharbers.aqll.alCalcEnergy.{alCalcRegisterActor, alDriverSingleton, alGroupRegisterActor}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile}
+import com.pharbers.aqll.alMSA.alCalcAgent.alAgentSingleton
+import com.pharbers.aqll.alMSA.alCalcMaster.{alMaxDriver, alMaxMaster}
+import com.pharbers.aqll.alMSA.alClusterLister.alMaxClusterLister
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.Future
@@ -40,34 +43,54 @@ object alAkkaHttpMain extends App with RequestTimeout {
 
 	bindingFuture.map { serverBinding =>
 		stubmain
+		println(s"serverBinding = ${serverBinding}")
 	}.onFailure {
 		case ex: Exception =>
 			system.terminate()
 	}
 
 	def stubmain = {
-		val config = ConfigFactory.load("split-master")
-		val system = ActorSystem("calc", config)
+//		val config = ConfigFactory.load("split-master")
+//		val system = ActorSystem("calc", config)
 //		val w = system.actorOf(alGroupActor.props)
 //		val c = system.actorOf(alCalcActor.props)
 //		val a = system.actorOf(alDriverSingleton.props, "splitreception")
-		system.actorOf(alDriverSingleton.props, "splitreception")
-		system.actorOf(alGroupRegisterActor.props, "registergroup")
-		system.actorOf(alCalcRegisterActor.props, "registercalc")
-		
-		import scala.concurrent.duration._
+
+		/* a test from jeorch
+		system.actorOf(alMaxMaster.props, alMaxMaster.name)
+		alAkkaSystemGloble.system = system
+		println("&&& stubmain &&& => succeed!")*/
+
+		val config = ConfigFactory.load("split-new-master")
+		val system = ActorSystem("calc", config)
 		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
 			Cluster(system).registerOnMemberUp {
 				alAkkaSystemGloble.system = system
-//				a ! group_register(w)
-//				a ! calc_register(c)
-//				a ! worker_register()
-				
-				val rm = system.actorOf(alScheduleRemoveFiles.props)
-				system.scheduler.schedule(0 seconds, 10 seconds, rm, new rmFile())
+				println("&&& stubmain &&& => succeed!")
+				system.actorOf(alMaxMaster.props, alMaxMaster.name)
+				system.actorOf(alMaxDriver.props, alMaxDriver.name)
+				system.actorOf(alAgentSingleton.props, alAgentSingleton.name)
+				system.actorOf(Props[alMaxClusterLister], "akka-listener")
 			}
-			system.actorOf(alAkkaMonitor.props, "akka-listener")
 		}
+
+//		system.actorOf(alDriverSingleton.props, "splitreception")
+//		system.actorOf(alGroupRegisterActor.props, "registergroup")
+//		system.actorOf(alCalcRegisterActor.props, "registercalc")
+//
+//		import scala.concurrent.duration._
+//		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
+//			Cluster(system).registerOnMemberUp {
+//				alAkkaSystemGloble.system = system
+////				a ! group_register(w)
+////				a ! calc_register(c)
+////				a ! worker_register()
+//
+//				val rm = system.actorOf(alScheduleRemoveFiles.props)
+//				system.scheduler.schedule(0 seconds, 10 seconds, rm, new rmFile())
+//			}
+//			system.actorOf(alAkkaMonitor.props, "akka-listener")
+//		}
 	}
 }
 
