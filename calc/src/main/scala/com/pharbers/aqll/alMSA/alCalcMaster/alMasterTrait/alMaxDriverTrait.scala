@@ -14,6 +14,8 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{push
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import com.pharbers.aqll.alMSA.alMaxCmdMessage._
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileTarGz, memorySplitFile, scpPath, sync}
+import com.pharbers.aqll.common.alFileHandler.serverConfig.{serverHost106, serverHost50, serverUser}
 
 
 trait alMaxDriverTrait { this : Actor =>
@@ -22,7 +24,7 @@ trait alMaxDriverTrait { this : Actor =>
 		val act = context.actorOf(alCameoMaxDriver.props)
 		act ! push_filter_job(file, cp)
 	}
-	
+
 }
 
 trait alPointState
@@ -36,7 +38,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
 	var path = ""
 	
-	def scpActor: ActorRef = context.actorOf(alCmdActor.props())
+	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
 
 	startWith(alDriverJobIdle, new alCalcParmary("", ""))
 	when(alDriverJobIdle) {
@@ -62,18 +64,35 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			stay()
 		}
 		case Event(split_excel_end(r, u, subs, cp), pr) => {
-			// TODO: 向各个机器上发送文件，执行计算文件 sync文件夹下的
+			// TODO: 先发送压缩命令
 			pr.uuid = u
 			val sub = subs map (x => alMaxProperty(u, x, Nil))
 			val mp = alMaxProperty(null, u, sub)
-			self ! push_group_job(mp)
-			goto(group_file) using pr
+			cmdActor ! pkgmsg(s"${memorySplitFile}${sync}$u" :: Nil, s"${memorySplitFile}${fileTarGz}$u")
+			//			self ! push_group_job(mp)
+			stay()
+		}
+		
+		case Event(pkgend(s), pr) => {
+			// TODO: 压缩命令结束后，Stop压缩Actor
+			// TODO: 发送SCP命令
+			context stop s
+			//			(s"${memorySplitFile}${fileTarGz}${pr.uuid}.tar.gz", s"${scpPath}", serverHost106, serverUser) ::
+			(s"${memorySplitFile}${fileTarGz}${pr.uuid}.tar.gz", s"${scpPath}", serverHost106, serverUser) :: Nil foreach ( x => cmdActor ! scpmsg(x._1, x._2, x._3, x._4))
+			stay()
+		}
+		case Event(scpend(s), pr) => {
+			// TODO: SCP命令结束后，Stop ScpActor
+			context stop s
+			self ! push_group_job(null)
+			stay()
 		}
 	}
 	
 	when(group_file) {
 		case Event(push_group_job(mp), cp) => {
-			acts ! push_group_job(mp)
+//			acts ! push_group_job(mp)
+			println(s"fuck ====.>>>> push_group_job")
 			stay()
 		}
 		case Event(group_data_end(r, mp), pr) => {
@@ -96,6 +115,11 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	}
 	
 	whenUnhandled {
+		case Event(push_group_job(mp), pr) => {
+			println(s"fuck =====>.... ${mp}")
+			self ! push_group_job(mp)
+			goto(group_file) using pr
+		}
 		case Event(_, _) => {
 			println("unkonw")
 			shutCameo()
