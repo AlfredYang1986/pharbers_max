@@ -10,6 +10,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_d
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 import alCalcDataSlave.{slaveStatus, slave_status}
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._
@@ -21,9 +22,9 @@ import scala.math.BigDecimal
 trait alCalcDataTrait { this : Actor =>
     def createCalcRouter =
         context.actorOf(
-            ClusterRouterPool(BroadcastPool(2),
+            ClusterRouterPool(BroadcastPool(1),
                 ClusterRouterPoolSettings(
-                    totalInstances = 2,
+                    totalInstances = 1,
                     maxInstancesPerNode = 1,
                     allowLocalRoutees = false,
                     useRole = Some("splitcalcslave")
@@ -74,7 +75,7 @@ object alCameoCalcData {
     case class calc_data_start_impl(subs : alMaxProperty, c : alCalcParmary)
     case class calc_data_sum(sum : List[(String, (Double, Double, Double))])
     case class calc_data_average(avg : List[(String, Double, Double)])
-    case class calc_data_result(v : Double, u : Double)
+    case class calc_data_result(sub_uuid : String, v : Double, u : Double)
     case class calc_data_end(result : Boolean, property : alMaxProperty)
     case class calc_data_timeout()
 
@@ -99,6 +100,7 @@ class alCameoCalcData ( val c : alCalcParmary,
     var sed = 0
     var cur = 0
     var tol = 0
+//    val calcing_jobs = Ref(List[alMaxProperty]())     // only for calcing jobs
 
     override def receive: Receive = {
         case calc_data_timeout() => {
@@ -140,7 +142,8 @@ class alCameoCalcData ( val c : alCalcParmary,
                 sum.foreach(_ ! calc_data_average(mapAvg))
             }
         }
-        case calc_data_result(v, u) => {
+
+        case calc_data_result(sub_uuid, v, u) => {
             property.finalValue += v
             property.finalUnit += u
         }
@@ -162,7 +165,7 @@ class alCameoCalcData ( val c : alCalcParmary,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val calc_timer = context.system.scheduler.scheduleOnce(30 minute) {
+    val calc_timer = context.system.scheduler.scheduleOnce(120 minute) {
         self ! calc_data_timeout()
     }
 
@@ -171,4 +174,5 @@ class alCameoCalcData ( val c : alCalcParmary,
         log.debug("stopping group data cameo")
         context.stop(self)
     }
+
 }

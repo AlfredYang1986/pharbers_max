@@ -14,6 +14,9 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{push
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import com.pharbers.aqll.alMSA.alMaxCmdMessage._
+import com.pharbers.aqll.alCalaHelp.dbcores._
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alRestoreColl, alWeightSum}
 
 
 trait alMaxDriverTrait { this : Actor =>
@@ -88,23 +91,37 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			stay()
 		}
 		case Event(calc_data_end(r, mp), pr) => {
+			finalSuccessWithWork(pr, mp)
+			new alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> mp.uuid, "company" -> pr.company, "type" -> "progress_calc"))
 			shutCameo()
-			println(mp.finalValue)
-            println(mp.finalUnit)
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
 	}
 	
 	whenUnhandled {
 		case Event(_, _) => {
-			println("unkonw")
+			println("unknown")
 			shutCameo()
 			stay()
 		}
 	}
+
+	def finalSuccessWithWork(cp : alCalcParmary, property : alMaxProperty) = {
+        property.subs.map{ p =>
+            p.isCalc = true
+            alRestoreColl().apply(cp.company+p.parent, p.uuid :: Nil)
+        }
+        property.isCalc = true
+		log.info(s"生成 临时表${cp.company+property.subs.head.parent}完成！！")
+        alWeightSum().apply(cp.company, cp.company+property.subs.head.parent)
+		log.info(s"生成 排序表${cp.company}完成！！")
+        log.info(s"开始删除临时表")
+        dbc.getCollection(cp.company+property.subs.head.parent).drop()
+        log.info(s"结束删除临时表")
+    }
 	
 	def shutCameo() = {
-		println("stopping temp cameo")
+		log.info("stopping temp cameo END")
 		context.stop(self)
 	}
 }
