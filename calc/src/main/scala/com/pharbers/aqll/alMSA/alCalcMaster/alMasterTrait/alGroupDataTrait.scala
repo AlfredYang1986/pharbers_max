@@ -24,9 +24,9 @@ import scala.concurrent.duration._
 trait alGroupDataTrait { this : Actor =>
     def createGroupRouter =
         context.actorOf(
-            ClusterRouterPool(BroadcastPool(2),
+            ClusterRouterPool(BroadcastPool(1),
                 ClusterRouterPoolSettings(
-                    totalInstances = 2,
+                    totalInstances = 1,
                     maxInstancesPerNode = 1,
                     allowLocalRoutees = false,
                     useRole = Some("splitgroupslave")
@@ -133,7 +133,7 @@ class alCameoGroupData (val property : alMaxProperty,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val group_timer = context.system.scheduler.scheduleOnce(10 minute) {
+    val group_timer = context.system.scheduler.scheduleOnce(120 minute) {
         self ! group_data_timeout()
     }
 

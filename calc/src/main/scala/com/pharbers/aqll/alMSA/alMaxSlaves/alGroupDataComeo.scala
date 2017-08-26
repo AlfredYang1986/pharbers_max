@@ -96,7 +96,7 @@ class alGroupDataComeo (mp : alMaxProperty,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val timeoutMessager = context.system.scheduler.scheduleOnce(10 minute) {
+    val timeoutMessager = context.system.scheduler.scheduleOnce(120 minute) {
         self ! group_data_timeout()
     }
 

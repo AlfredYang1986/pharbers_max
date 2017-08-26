@@ -10,10 +10,14 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alDumpcollScp
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig.singletonPaht
 
+import com.pharbers.aqll.alCalaHelp.dbcores._
+import com.pharbers.aqll.common.alFileHandler.serverConfig._
+import scala.concurrent.stm.Ref
 import scala.concurrent.duration._
 
 /**
@@ -63,7 +67,24 @@ class alCalcDataComeo (c : alCalcParmary,
             }
         }
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
-        case c : calc_data_result => originSender ! c
+        case calc_data_result(sub_uuid, v, u) => {
+
+             r.subs.find (x => x.uuid == sub_uuid).map { x =>
+                 x.isCalc = true
+                 x.finalValue = v
+                 x.finalUnit = u
+             }.getOrElse(Unit)
+
+             log.info(s"单个线程备份传输开始")
+             alDumpcollScp().apply(sub_uuid, serverHost215)
+             log.info(s"单个线程备份传输结束")
+
+             log.info(s"单个线程开始删除临时表")
+             dbc.getCollection(sub_uuid).drop()
+             log.info(s"单个线程结束删除临时表")
+
+            originSender ! calc_data_result(sub_uuid, v, u)
+        }
         case calc_data_end(result, p) => {
             if (result) {
                 cur += 1
@@ -110,7 +131,7 @@ class alCalcDataComeo (c : alCalcParmary,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val timeoutMessager = context.system.scheduler.scheduleOnce(10 minute) {
+    val timeoutMessager = context.system.scheduler.scheduleOnce(120 minute) {
         self ! calc_data_timeout()
     }
 
