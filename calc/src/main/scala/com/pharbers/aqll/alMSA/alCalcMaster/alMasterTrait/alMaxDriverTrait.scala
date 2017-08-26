@@ -6,6 +6,7 @@ import akka.routing.{BroadcastGroup, BroadcastPool}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_calc_job_2, push_group_job, push_split_excel_job}
 import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.filter_excel_end
@@ -34,13 +35,14 @@ case object group_file extends alPointState
 case object calc_maxing extends alPointState
 
 trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
-	                                              with alLoggerMsgTrait{ this: Actor =>
+	                                              with alLoggerMsgTrait { this: Actor =>
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
 	var path = ""
+	var almp: alMaxProperty = alMaxProperty("", "", Nil)
 	
 	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
 
-	startWith(alDriverJobIdle, new alCalcParmary("", ""))
+	startWith(alDriverJobIdle, alCalcParmary("", ""))
 	when(alDriverJobIdle) {
 		case Event(push_filter_job(file, cp), pr) => {
 			pr.company = cp.company
@@ -68,9 +70,11 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			pr.uuid = u
 			val sub = subs map (x => alMaxProperty(u, x, Nil))
 			val mp = alMaxProperty(null, u, sub)
-			cmdActor ! pkgmsg(s"${memorySplitFile}${sync}$u" :: Nil, s"${memorySplitFile}${fileTarGz}$u")
-			//			self ! push_group_job(mp)
-			stay()
+//			almp = mp
+//			cmdActor ! pkgmsg(s"${memorySplitFile}${sync}$u" :: Nil, s"${memorySplitFile}${fileTarGz}$u")
+//			stay()
+			self ! push_group_job(mp)
+			goto(group_file) using pr
 		}
 		
 		case Event(pkgend(s), pr) => {
@@ -84,15 +88,14 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 		case Event(scpend(s), pr) => {
 			// TODO: SCP命令结束后，Stop ScpActor
 			context stop s
-			self ! push_group_job(null)
-			stay()
+			self ! push_group_job(almp)
+			goto(group_file) using pr
 		}
 	}
 	
 	when(group_file) {
 		case Event(push_group_job(mp), cp) => {
-//			acts ! push_group_job(mp)
-			println(s"fuck ====.>>>> push_group_job")
+			acts ! push_group_job(mp)
 			stay()
 		}
 		case Event(group_data_end(r, mp), pr) => {
@@ -107,19 +110,15 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			stay()
 		}
 		case Event(calc_data_end(r, mp), pr) => {
-			shutCameo()
+			new alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> pr.uuid, "company" -> pr.company, "type" -> "progress_calc_result"))
 			println(mp.finalValue)
             println(mp.finalUnit)
+			shutCameo()
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
 	}
 	
 	whenUnhandled {
-		case Event(push_group_job(mp), pr) => {
-			println(s"fuck =====>.... ${mp}")
-			self ! push_group_job(mp)
-			goto(group_file) using pr
-		}
 		case Event(_, _) => {
 			println("unkonw")
 			shutCameo()
