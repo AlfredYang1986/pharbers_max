@@ -11,7 +11,7 @@ import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstance
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.filter_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{push_filter_job, push_job, push_split_job}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job, push_split_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import com.pharbers.aqll.alMSA.alMaxCmdMessage._
@@ -28,7 +28,11 @@ trait alMaxDriverTrait { this : Actor =>
 		val act = context.actorOf(alCameoMaxDriver.props)
 		act ! push_filter_job(file, cp)
 	}
-
+	
+	def max_calc_done_impl(mp: String Map String) = {
+		val act = context.actorOf(alCameoMaxDriver.props)
+		act ! max_calc_done(mp)
+	}
 }
 
 trait alPointState
@@ -36,6 +40,7 @@ case object alDriverJobIdle extends alPointState
 case object split_excel extends alPointState
 case object group_file extends alPointState
 case object calc_maxing extends alPointState
+case object calc_done extends alPointState
 
 trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
 	                                              with alLoggerMsgTrait { this: Actor =>
@@ -61,6 +66,10 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			self ! push_split_job(path)
 			goto(split_excel) using pr
 		}
+		
+		case Event(max_calc_done(mp), pr) =>
+			self ! max_calc_done(mp)
+			goto(calc_done) using pr
 	}
 	
 	when(split_excel) {
@@ -116,10 +125,21 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			println(mp.finalValue)
             println(mp.finalUnit)
 			finalSuccessWithWork(pr, mp)
-			new alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> mp.uuid, "company" -> pr.company, "type" -> "progress_calc"))
+			alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> mp.uuid, "company" -> pr.company, "type" -> "progress_calc"))
 			shutCameo()
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
+	}
+	when(calc_done) {
+		case Event(max_calc_done(mp), _) =>
+			val company = mp.get("company").getOrElse("")
+			val uuid = mp.get("uuid").getOrElse("")
+			val uname = mp.get("uname").getOrElse("")
+			alWeightSum().apply(company, s"$company$uuid")
+			alMessageProxy().sendMsg("100", uname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
+			dbc.getCollection(company + s"$company$uuid").drop()
+			shutCameo()
+			goto(alDriverJobIdle) using new alCalcParmary("", "")
 	}
 	
 	whenUnhandled {
@@ -133,15 +153,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	def finalSuccessWithWork(cp : alCalcParmary, property : alMaxProperty) = {
         property.subs.map{ p =>
             p.isCalc = true
-            alRestoreColl().apply(cp.company+p.parent, p.uuid :: Nil)
+            alRestoreColl().apply(s"${cp.company}${property.uuid}", p.uuid :: Nil)
         }
         property.isCalc = true
-		log.info(s"生成 临时表${cp.company+property.subs.head.parent}完成！！")
-        alWeightSum().apply(cp.company, cp.company+property.subs.head.parent)
-		log.info(s"生成 排序表${cp.company}完成！！")
-        log.info(s"开始删除临时表")
-        dbc.getCollection(cp.company+property.subs.head.parent).drop()
-        log.info(s"结束删除临时表")
     }
 	
 	def shutCameo() = {
@@ -151,10 +165,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 }
 
 object alCameoMaxDriver {
-	case class push_job(mp: alMaxProperty, cp: alCalcParmary)
 	case class push_filter_job(file: String, cp: alCalcParmary)
 	case class push_split_job(path : String)
-	
+	case class max_calc_done(mp: String Map String)
 	def props = Props[alCameoMaxDriver]
 }
 

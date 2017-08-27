@@ -69,11 +69,11 @@ class alCalcDataComeo (c : alCalcParmary,
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
         case calc_data_result(sub_uuid, v, u) => {
 
-             r.subs.find (x => x.uuid == sub_uuid).map { x =>
-                 x.isCalc = true
-                 x.finalValue = v
-                 x.finalUnit = u
-             }.getOrElse(Unit)
+             // r.subs.find (x => x.uuid == sub_uuid).map { x =>
+             //     x.isCalc = true
+             //     x.finalValue = v
+             //     x.finalUnit = u
+             // }.getOrElse(Unit)
 
              log.info(s"单个线程备份传输开始")
              alDumpcollScp().apply(sub_uuid, serverHost215)
@@ -124,8 +124,8 @@ class alCalcDataComeo (c : alCalcParmary,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calc_data_start_impl(op, c)
 
         case cannotRestart(reason: Throwable) => {
-            new alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
-            //println(s"&&&&&& 重启3次后，依然未能正确执行 => error with actor=${self}, reason=${reason} &&&&&&")
+            // TODO: @张弛 这里还有问题
+            alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
             self ! calc_data_end(false, r)
         }
     }

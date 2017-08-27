@@ -18,6 +18,7 @@ class alMaxDriver extends Actor with ActorLogging
 	
 	override def receive: Receive = {
 		case push_filter_job(file, cp) => push_filter_job_impl(file, cp)
+		case max_calc_done(mp) => max_calc_done_impl(mp)
 		case _ => ???
 	}
 }
