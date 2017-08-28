@@ -5,6 +5,7 @@ import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStra
 import akka.agent.Agent
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_hand, group_data_start_impl}
+import com.pharbers.aqll.alMSA.alMaxCmdMessage.{alCmdActor, unpkgend}
 
 /**
   * Created by alfredyang on 12/07/2017.
@@ -28,13 +29,22 @@ class alGroupDataSlave extends Actor with ActorLogging {
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Restart
     }
+    
+    def cmdActor = context.actorOf(alCmdActor.props())
 
     override def receive: Receive = {
         case group_data_hand() => if (stateAgent().isRunning) Unit
         else {
+            // TODO: 发送解压消息
+//            cmdActor ! unpkgmsg(s"${root}${scpPath}${property.uuid}", s"${root}${program}")
             stateAgent send state_agent(true)
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! takeNodeForRole("splitgroupslave")
+            sender ! group_data_hand()
+        }
+        case unpkgend(s) => {
+            // TODO: 销毁解压消息
+            context stop s
             sender ! group_data_hand()
         }
         case group_data_start_impl(sp) => {

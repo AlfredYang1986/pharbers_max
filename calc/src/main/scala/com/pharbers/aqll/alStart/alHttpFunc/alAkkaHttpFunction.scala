@@ -55,11 +55,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	implicit def executionContext: ExecutionContext
 	implicit def requestTimeout: Timeout
 	
-//	val routes = Test ~ alSampleCheckDataFunc ~
-//				 alCalcDataFunc ~ alModelOperationCommitFunc ~
-//				 alFileUploadPythonFunc ~ alResultFileExportFunc ~
-//				 alFileUploadPyBefore
-	val routes = Test ~ Test2 ~ alSampleCheckDataFunc ~
+	val routes = Test ~ alSampleCheckDataFunc ~
 		alCalcDataFunc ~ alModelOperationCommitFunc ~
 		alFileUploadPythonFunc ~ alResultFileExportFunc ~
 		alFileUploadPyBefore
@@ -75,29 +71,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		}
 	}
 
-//	def Test2 = get {
-//		path("test2") {
-//			println("&&& test21")
-//			val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-//			println("&&& test22")
-//			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
-//			val path = fileBase + "2016-11.xlsx"
-//			a ! push_filter_job(path, cp)
-//			println("&&& test23")
-//			complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
-//		}
-//	}
-	def Test2 = post {
-		path("test2") {
-			entity(as[alCalcItem]) {item =>
-				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-				val cp = new alCalcParmary(item.company, item.uname)
-				val path = fileBase + item.filename
-				a ! push_filter_job(path, cp)
-				complete(toJson(successToJson().get))
-			}
-		}
-	}
 	
 	def alFileUploadPyBefore = post {
 		path("uploadbefore") {

@@ -30,7 +30,6 @@ object alCalcDataImpl {
 
 class alCalcDataImpl extends Actor with ActorLogging {
 
-//    var uuid : String = ""
     var unit: Double = 0.0
 	var value: Double = 0.0
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
@@ -40,13 +39,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
     override def receive: Receive = {
         case calc_data_hand() => sender ! calc_data_hand()
         case calc_data_start_impl(p, c) => {
-
-            /**
-              * Modified by Jeorch on 01/08/2017.
-              * 制造一个错误，检验错误计数，重算流程
-            println("start push error!")
-            throw new Exception("&&& ==> Some calc_data_start_impl Error！")
-              */
 
             tmp = p
             val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> p.uuid, worker_core_calc_jobs.calc_uuid -> p.subs.head.uuid))
@@ -66,7 +58,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
             }).toList
 
-//            println(s"calcing sum is ${s}")
             sender ! calc_data_sum(s)
 //            sender ! calc_data_end(true, p)
         }
@@ -76,9 +67,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
 //            println("avg start")
             val sub_uuid = tmp.subs.head.uuid
 
-//            val path = "config/calc/" + sub_uuid
             val path = s"${memorySplitFile}${calc}$sub_uuid"
-//            val path = "/home/jeorch/work/max/files/calc/" + sub_uuid
 
             val dir = alFileOpt(path)
             if (!dir.isExists)
@@ -113,8 +102,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 }
                 log.info(s"calc done at $sub_uuid")
             }
-//            println(s"value is $value")
-//            println(s"unit is $unit")
 
             sender ! calc_data_result(sub_uuid, value, unit)
             sender ! calc_data_end(true, tmp)
@@ -143,9 +130,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
                     backfireData(mrd)(recall)
                 }
 
-//            val path = "config/calc/" + sub_uuid
             val path = s"${memorySplitFile}${calc}$sub_uuid"
-//            val path = "/home/jeorch/work/max/files/calc/" + sub_uuid
           
             val dir = alFileOpt(path)
             if (!dir.isExists)
@@ -161,9 +146,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
 
     def resignIntegratedData(parend_uuid: String)(group: alStorage): List[IntegratedData] = {
         val recall = common_jobs()
-//        val path = "config/sync/" + parend_uuid
         val path = s"${memorySplitFile}${sync}$parend_uuid"
-//        val path = "/home/jeorch/work/max/files/sync/" + parend_uuid
         recall.cur = Some(alStage(alFileOpt(path).exHideListFile))
         recall.process = restore_data() :: do_calc() :: do_union() ::
             do_map(alShareData.txt2IntegratedData(_)) :: do_filter { iter =>

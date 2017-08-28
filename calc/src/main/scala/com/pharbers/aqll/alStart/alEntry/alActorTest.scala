@@ -7,29 +7,30 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{push_cal
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.push_filter_job
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
-import com.pharbers.aqll.common.alFileHandler.fileConfig.fileBase
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{Upload_Secondstep_Filename, fileBase, program, root}
 import com.typesafe.config.ConfigFactory
 import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_end
+import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.Await
 
-object alActorTest extends App{
+object alActorTest extends App {
 	val config = ConfigFactory.load("split-test")
 	val system : ActorSystem = ActorSystem("calc", config)
 	val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
 	implicit val timeout = Timeout(30 minute)
-	
+
 	if(system.settings.config.getStringList("akka.cluster.roles").contains("splittest")) {
 		Cluster(system).registerOnMemberUp {
 			val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
 			val path = fileBase + "2016-11.xlsx"
-			
+
 			a ! push_filter_job(path, cp)
-			
+
 //			val f = a ? push_split_excel_job(path, cp)
 //			val r = Await.result(f, 2 minute).asInstanceOf[split_excel_end]
 //
@@ -49,4 +50,6 @@ object alActorTest extends App{
 //	        println(rrr.property.finalUnit)
 		}
 	}
+	
+//	pyCmd(s"~/FileBase/fea9f203d4f593a96f0d6faa91ba24ba",Upload_Secondstep_Filename, "2016#").excute
 }

@@ -8,7 +8,7 @@ import io.swagger.client.model.{Msg, MsgContent, UserName}
 /**
   * Created by qianpeng on 2017/5/24.
   */
-class alMessageProxy extends alMessage with alLoggerMsgTrait {
+case class alMessageProxy() extends alMessage with alLoggerMsgTrait {
 	
 	override def sendMsg(content: String, toUser: String, ext: Map[String, String] = Map.empty): Boolean = {
 		try {
