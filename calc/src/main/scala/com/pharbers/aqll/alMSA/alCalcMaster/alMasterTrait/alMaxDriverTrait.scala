@@ -64,6 +64,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			pr.market = cp.market
 			pr.year = cp.year
 			self ! push_split_job(path)
+			alMessageProxy().sendMsg("15", pr.uname, Map("uuid" -> "", "company" -> pr.company, "type" -> "progress"))
 			goto(split_excel) using pr
 		}
 		
@@ -85,6 +86,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 //			almp = mp
 //			cmdActor ! pkgmsg(s"${memorySplitFile}${sync}$u" :: Nil, s"${memorySplitFile}${fileTarGz}$u")
 //			stay()
+			alMessageProxy().sendMsg("15", pr.uname, Map("uuid" -> u, "company" -> pr.company, "type" -> "progress"))
 			self ! push_group_job(mp)
 			goto(group_file) using pr
 		}
@@ -111,6 +113,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			stay()
 		}
 		case Event(group_data_end(r, mp), pr) => {
+			alMessageProxy().sendMsg("15", pr.uname, Map("uuid" -> mp.uuid, "company" -> pr.company, "type" -> "progress"))
 			self ! push_calc_job_2(mp, pr)
 			goto(calc_maxing) using pr
 		}

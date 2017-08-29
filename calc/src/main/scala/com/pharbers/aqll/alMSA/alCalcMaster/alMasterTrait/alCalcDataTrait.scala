@@ -75,7 +75,7 @@ object alCameoCalcData {
     case class calc_data_start_impl(subs : alMaxProperty, c : alCalcParmary)
     case class calc_data_sum(sum : List[(String, (Double, Double, Double))])
     case class calc_data_average(avg : List[(String, Double, Double)])
-    case class calc_data_result(sub_uuid : String, v : Double, u : Double)
+    case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, property : alMaxProperty)
     case class calc_data_timeout()
 
@@ -143,7 +143,7 @@ class alCameoCalcData ( val c : alCalcParmary,
             }
         }
 
-        case calc_data_result(sub_uuid, v, u) => {
+        case calc_data_result(v, u) => {
             property.finalValue += v
             property.finalUnit += u
         }

@@ -101,9 +101,10 @@ class alCalcDataImpl extends Actor with ActorLogging {
                      }
                 }
                 log.info(s"calc done at $sub_uuid")
+                println(s"calc done at $sub_uuid")
             }
 
-            sender ! calc_data_result(sub_uuid, value, unit)
+            sender ! calc_data_result(value, unit)
             sender ! calc_data_end(true, tmp)
         }
     }
