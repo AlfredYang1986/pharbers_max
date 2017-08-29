@@ -67,26 +67,13 @@ class alCalcDataComeo (c : alCalcParmary,
             }
         }
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
-        case calc_data_result(sub_uuid, v, u) => {
-
-             // r.subs.find (x => x.uuid == sub_uuid).map { x =>
-             //     x.isCalc = true
-             //     x.finalValue = v
-             //     x.finalUnit = u
-             // }.getOrElse(Unit)
-
-             log.info(s"单个线程备份传输开始")
-             alDumpcollScp().apply(sub_uuid, serverHost215)
-             log.info(s"单个线程备份传输结束")
-
-             log.info(s"单个线程开始删除临时表")
-             dbc.getCollection(sub_uuid).drop()
-             log.info(s"单个线程结束删除临时表")
-
-            originSender ! calc_data_result(sub_uuid, v, u)
+        case calc_data_result(v, u) => {
+            originSender ! calc_data_result(v, u)
         }
         case calc_data_end(result, p) => {
             if (result) {
+                println(s"========>>>>>>>> Fuck${result}")
+                insertDbWithDrop(p)
                 cur += 1
                 if (cur == core_number) {
                     val r = calc_data_end(true, p)
@@ -128,6 +115,16 @@ class alCalcDataComeo (c : alCalcParmary,
             alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
             self ! calc_data_end(false, r)
         }
+    }
+    
+    def insertDbWithDrop(p: alMaxProperty) = {
+        log.info(s"单个线程备份传输开始")
+        alDumpcollScp().apply(p.subs.head.uuid, serverHost215)
+        log.info(s"单个线程备份传输结束")
+    
+        log.info(s"单个线程开始删除临时表")
+        dbc.getCollection(p.subs.head.uuid).drop()
+        log.info(s"单个线程结束删除临时表")
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
