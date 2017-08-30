@@ -44,7 +44,7 @@ class alFilterExcelSlave extends Actor with ActorLogging {
         case filter_excel_start_impl(file, parmary) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
             val cur = context.actorOf(alFilterExcelComeo.props(file, parmary, sender, self, counter))
-            cur ! filter_excel_start_impl(file, parmary)
+            cur.tell(filter_excel_start_impl(file, parmary), sender)
         }
         // TODO: 内存泄漏，稳定后修改
         case cmd : filter_excel_end => {

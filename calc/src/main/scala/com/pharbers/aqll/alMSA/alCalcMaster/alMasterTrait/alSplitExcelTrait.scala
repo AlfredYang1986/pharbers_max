@@ -102,7 +102,7 @@ class alCameoSplitExcel (val file : String,
         }
         case result : split_excel_end => {
             slaveStatus send slave_status(true)
-            owner forward result
+//            owner forward result
             shutCameo(result)
         }
     }
@@ -115,6 +115,7 @@ class alCameoSplitExcel (val file : String,
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping split excel cameo")
+        split_timer.cancel()
         context.stop(self)
     }
 }

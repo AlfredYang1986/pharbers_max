@@ -121,25 +121,26 @@ class alCameoGroupData (val property : alMaxProperty,
                     unionResult
 
                     val r = group_data_end(true, property)
-                    owner ! r
+//                    owner ! r
                     shutCameo(r)
                 }
             } else {
                 val r = group_data_end(false, property)
-                owner ! r
+//                owner ! r
                 shutCameo(r)
             }
         }
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val group_timer = context.system.scheduler.scheduleOnce(120 minute) {
+    val group_timer = context.system.scheduler.scheduleOnce(60 minute) {
         self ! group_data_timeout()
     }
 
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping group data cameo")
+        group_timer.cancel()
         context.stop(self)
     }
 

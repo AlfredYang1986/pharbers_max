@@ -38,6 +38,10 @@ trait alCalcDataTrait { this : Actor =>
             calc_jobs() = calc_jobs() :+ (property, c, s)
         }
     }
+    
+    def setSlaveStatus = {
+        slaveStatus send slave_status(true)
+    }
 
     def canCalcGroupJob : Boolean = {
         slaveStatus().canDoJob
@@ -78,6 +82,7 @@ object alCameoCalcData {
     case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, property : alMaxProperty)
     case class calc_data_timeout()
+    case class calc_slave_status()
 
     def props(c : alCalcParmary,
               property : alMaxProperty,
@@ -148,30 +153,31 @@ class alCameoCalcData ( val c : alCalcParmary,
             property.finalUnit += u
         }
         case calc_data_end(result, mp) => {
-            slaveStatus send slave_status(true)
             if (result) {
                 cur += 1
                 if (cur == tol / core_number) {
                     val r = calc_data_end(true, property)
-                    owner ! r
+//                    owner ! r
                     shutCameo(r)
                 }
             } else {
                 val r = calc_data_end(false, property)
-                owner ! r
+//                owner ! r
                 shutCameo(r)
             }
         }
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val calc_timer = context.system.scheduler.scheduleOnce(120 minute) {
+    val calc_timer = context.system.scheduler.scheduleOnce(60 minute) {
         self ! calc_data_timeout()
     }
 
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
+//        slaveStatus send slave_status(true)
         log.debug("stopping group data cameo")
+        calc_timer.cancel()
         context.stop(self)
     }
 

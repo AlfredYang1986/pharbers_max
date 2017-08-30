@@ -96,13 +96,14 @@ class alGroupDataComeo (mp : alMaxProperty,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val timeoutMessager = context.system.scheduler.scheduleOnce(120 minute) {
+    val timeoutMessager = context.system.scheduler.scheduleOnce(60 minute) {
         self ! group_data_timeout()
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("grouping data cameo")
+        timeoutMessager.cancel()
         context.stop(self)
     }
 

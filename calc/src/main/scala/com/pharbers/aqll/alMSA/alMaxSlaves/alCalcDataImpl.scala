@@ -48,23 +48,23 @@ class alCalcDataImpl extends Actor with ActorLogging {
 
             val recall = resignIntegratedData(p.parent)(concert)
             concert.data.zipWithIndex.foreach { x =>
+                
                 max_precess(x._1.asInstanceOf[IntegratedData],
                     p.subs.head.uuid,
-                    Some(x._2 + "/" + concert.data.length))(recall)(c)
+                    Some(s"${x._2}/${concert.data.length}"))(recall)(c)
             }
 
             log.info(s"concert uuid ${p.subs.head.uuid} end")
             val s = (maxSum.toList.groupBy(_._1) map { x =>
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
             }).toList
-
+    
+            println(s"sender =====..>>>> ${sender}")
             sender ! calc_data_sum(s)
-//            sender ! calc_data_end(true, p)
         }
         case calc_data_average(avg) => {
             import scala.math.BigDecimal
 
-//            println("avg start")
             val sub_uuid = tmp.subs.head.uuid
 
             val path = s"${memorySplitFile}${calc}$sub_uuid"
@@ -79,29 +79,22 @@ class alCalcDataImpl extends Actor with ActorLogging {
 
                     avg.find(p => p._1 == mrd.segment).map { x =>
                         if (mrd.ifPanelAll.equals("1")) {
-                            // mrd.set_finalResultsValue(BigDecimal(mrd.sumValue.toString).toDouble)
-                            // mrd.set_finalResultsUnit(BigDecimal(mrd.volumeUnit.toString).toDouble)
                             mrd.set_finalResultsValue(mrd.sumValue)
                             mrd.set_finalResultsUnit(mrd.volumeUnit)
                         } else {
-
                             mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
                             mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-
-                            // mrd.set_finalResultsValue(x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble)
-                            // mrd.set_finalResultsUnit(x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble)
                         }
 
                     }.getOrElse(Unit)
                     unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
                     value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
 
-                     atomic { implicit thx =>
-                         alInertDatabase().apply(mrd, sub_uuid)
-                     }
+//                     atomic { implicit thx =>
+//                         alInertDatabase().apply(mrd, sub_uuid)
+//                     }
                 }
                 log.info(s"calc done at $sub_uuid")
-                println(s"calc done at $sub_uuid")
             }
 
             sender ! calc_data_result(value, unit)
