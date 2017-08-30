@@ -68,6 +68,7 @@ class alSplitExcelComeo(file : String,
     def shutSlaveCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping split excel cameo")
+        timeoutMessager.cancel()
         context.stop(self)
     }
 }

@@ -109,7 +109,7 @@ class alCameoFilterExcel(val file : String,
         // TODO: 内存泄漏，稳定后修改
         case result : filter_excel_end => {
             slaveStatus send slave_status(true)
-            owner forward result
+//            owner forward result
             shutCameo(result)
         }
     }
@@ -122,6 +122,7 @@ class alCameoFilterExcel(val file : String,
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping filter excel cameo")
+        filter_timer.cancel()
         context.stop(self)
     }
 }

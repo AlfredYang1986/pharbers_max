@@ -22,14 +22,16 @@ object alActorTest extends App {
 	val config = ConfigFactory.load("split-test")
 	val system : ActorSystem = ActorSystem("calc", config)
 	val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
-	implicit val timeout = Timeout(30 minute)
+//	implicit val timeout = Timeout(30 minute)
 
 	if(system.settings.config.getStringList("akka.cluster.roles").contains("splittest")) {
 		Cluster(system).registerOnMemberUp {
 			val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
 			val path = fileBase + "2016-11.xlsx"
 
-			a ! push_filter_job(path, cp)
+			1 to 20 foreach(x => a ! push_filter_job(path, cp))
+
+			
 
 //			val f = a ? push_split_excel_job(path, cp)
 //			val r = Await.result(f, 2 minute).asInstanceOf[split_excel_end]
@@ -51,5 +53,11 @@ object alActorTest extends App {
 		}
 	}
 	
-//	pyCmd(s"~/FileBase/fea9f203d4f593a96f0d6faa91ba24ba",Upload_Secondstep_Filename, "2016#").excute
+//	val a = List(1,2,3)
+//	val b = List("a","b","c")
+//	val c = a union b
+//	val d = c.sliding(3,1).toList.flatten
+//	println(d)
+
+//	pyCmd(s"~/FileBase/fea9f203d4f593a96f0d6faa91ba24ba",Upload_Secondstep_Filename, "201611#").excute
 }

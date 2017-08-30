@@ -41,7 +41,6 @@ class alSplitExcelSlave extends Actor with ActorLogging {
         case split_excel_start_impl(file, parmary) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
             val cur = context.actorOf(alSplitExcelComeo.props(file, parmary, sender, self, counter))
-//            context.watch(cur)
             cur.tell(split_excel_start_impl(file, parmary), sender)
         }
         case cmd : split_excel_end => {

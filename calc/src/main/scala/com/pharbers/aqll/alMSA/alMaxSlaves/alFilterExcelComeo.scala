@@ -98,6 +98,7 @@ class alFilterExcelComeo(fp : String,
     def shutSlaveCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping filter excel cameo")
+        timeoutMessager.cancel()
         context.stop(self)
     }
 

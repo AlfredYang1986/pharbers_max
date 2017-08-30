@@ -58,8 +58,8 @@ class alCalcDataComeo (c : alCalcParmary,
             shutSlaveCameo(split_excel_timeout())
         }
         case calc_data_sum(sub_sum) => {
+            println(s"self =====..>>>> ${self}")
             r.sum = r.sum ++: sub_sum
-
             sum += 1
             if (sum == core_number) {
                 r.isSumed = true
@@ -68,11 +68,11 @@ class alCalcDataComeo (c : alCalcParmary,
         }
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
         case calc_data_result(v, u) => {
+            
             originSender ! calc_data_result(v, u)
         }
         case calc_data_end(result, p) => {
             if (result) {
-                println(s"========>>>>>>>> Fuck${result}")
                 insertDbWithDrop(p)
                 cur += 1
                 if (cur == core_number) {
@@ -128,13 +128,14 @@ class alCalcDataComeo (c : alCalcParmary,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val timeoutMessager = context.system.scheduler.scheduleOnce(120 minute) {
+    val timeoutMessager = context.system.scheduler.scheduleOnce(60 minute) {
         self ! calc_data_timeout()
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("shutting calc data cameo")
+        timeoutMessager.cancel()
         context.stop(self)
     }
 
