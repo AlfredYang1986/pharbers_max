@@ -6,11 +6,10 @@ import akka.routing.{BroadcastGroup, BroadcastPool}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_calc_job_2, push_group_job, push_split_excel_job}
 import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_end, calc_slave_status}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.filter_excel_end
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_error}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job, push_split_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
@@ -117,6 +116,11 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			self ! push_calc_job_2(mp, pr)
 			goto(calc_maxing) using pr
 		}
+		case Event(group_data_error(reason), pr) => {
+			new alMessageProxy().sendMsg("100", pr.uname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
+			shutCameo()
+			goto(alDriverJobIdle) using new alCalcParmary("", "")
+		}
 	}
 	
 	when(calc_maxing) {
@@ -149,7 +153,6 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	whenUnhandled {
 		case Event(_, _) => {
 			println("unknown")
-			println(s"sender = ${sender()}")
 			shutCameo()
 			stay()
 		}

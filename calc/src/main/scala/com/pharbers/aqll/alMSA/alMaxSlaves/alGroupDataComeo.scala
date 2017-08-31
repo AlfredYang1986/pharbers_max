@@ -13,7 +13,7 @@ import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefine
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_hand, group_data_start_impl, group_data_timeout}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
 
 import scala.concurrent.duration._
@@ -90,7 +90,7 @@ class alGroupDataComeo (mp : alMaxProperty,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! group_data_start_impl(mp)
 
         case cannotRestart(reason: Throwable) => {
-            new alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            originSender ! group_data_error(reason)
             self ! group_data_end(false, r)
         }
     }

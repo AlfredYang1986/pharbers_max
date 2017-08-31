@@ -55,7 +55,7 @@ class alSplitExcelComeo(file : String,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! split_excel_start_impl(file, par)
 
         case cannotRestart(reason: Throwable) => {
-            new alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            new alMessageProxy().sendMsg("100", par.uname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
             self ! split_excel_end(false,"",Nil,null)
         }
     }

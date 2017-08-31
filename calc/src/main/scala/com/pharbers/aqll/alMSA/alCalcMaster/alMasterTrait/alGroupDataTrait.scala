@@ -77,6 +77,7 @@ object alCameoGroupData {
     case class group_data_start_impl(sub : alMaxProperty)
     case class group_data_end(result : Boolean, property : alMaxProperty)
     case class group_data_timeout()
+    case class group_data_error(reason: Throwable)
 
     def props(property : alMaxProperty,
               originSender : ActorRef,
@@ -129,6 +130,9 @@ class alCameoGroupData (val property : alMaxProperty,
 //                owner ! r
                 shutCameo(r)
             }
+        }
+        case group_data_error(reason) => {
+            originSender ! group_data_error(reason)
         }
     }
 

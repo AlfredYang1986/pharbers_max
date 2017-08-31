@@ -110,8 +110,7 @@ class alCalcDataComeo (c : alCalcParmary,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calc_data_start_impl(op, c)
 
         case cannotRestart(reason: Throwable) => {
-            // TODO: @张弛 这里还有问题
-            alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            alMessageProxy().sendMsg("100", c.uname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
             self ! calc_data_end(false, r)
         }
     }
