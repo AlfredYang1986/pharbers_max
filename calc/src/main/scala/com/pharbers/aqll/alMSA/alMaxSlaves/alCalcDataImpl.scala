@@ -59,7 +59,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
             }).toList
     
-            println(s"sender =====..>>>> ${sender}")
             sender ! calc_data_sum(s)
         }
         case calc_data_average(avg) => {
@@ -90,9 +89,9 @@ class alCalcDataImpl extends Actor with ActorLogging {
                     unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
                     value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
 
-//                     atomic { implicit thx =>
-//                         alInertDatabase().apply(mrd, sub_uuid)
-//                     }
+                    atomic { implicit thx =>
+                        alInertDatabase().apply(mrd, sub_uuid)
+                    }
                 }
                 log.info(s"calc done at $sub_uuid")
             }

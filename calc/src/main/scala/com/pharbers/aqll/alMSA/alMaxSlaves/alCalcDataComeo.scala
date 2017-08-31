@@ -58,7 +58,6 @@ class alCalcDataComeo (c : alCalcParmary,
             shutSlaveCameo(split_excel_timeout())
         }
         case calc_data_sum(sub_sum) => {
-            println(s"self =====..>>>> ${self}")
             r.sum = r.sum ++: sub_sum
             sum += 1
             if (sum == core_number) {
