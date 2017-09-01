@@ -141,7 +141,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val uname = mp.get("uname").getOrElse("")
 			alWeightSum().apply(company, s"$company$uuid")
 			alMessageProxy().sendMsg("100", uname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
-			dbc.getCollection(company + s"$company$uuid").drop()
+			dbc.getCollection(s"$company$uuid").drop()
 			shutCameo()
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 	}
