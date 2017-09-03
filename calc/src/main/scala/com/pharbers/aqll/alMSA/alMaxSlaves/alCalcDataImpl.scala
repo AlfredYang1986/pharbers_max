@@ -39,7 +39,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
     override def receive: Receive = {
         case calc_data_hand() => sender ! calc_data_hand()
         case calc_data_start_impl(p, c) => {
-
             tmp = p
             val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> p.uuid, worker_core_calc_jobs.calc_uuid -> p.subs.head.uuid))
             cj.result

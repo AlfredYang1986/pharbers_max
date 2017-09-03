@@ -83,8 +83,7 @@ class alFilterExcelComeo(fp : String,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! filter_excel_start_impl(fp, cp)
 
         case cannotRestart(reason: Throwable) => {
-            // TODO: 张弛这里的消息内容有误
-//            new alMessageProxy().sendMsg("100", "username", Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            new alMessageProxy().sendMsg("100", cp.uname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
             self ! filter_excel_end(false, cp)
         }
 
