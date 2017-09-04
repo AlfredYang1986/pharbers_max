@@ -23,8 +23,6 @@ import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alRestoreColl, alWeight
 
 trait alMaxDriverTrait { this : Actor =>
 
-	val py_agent = context.actorOf(alPyQueueAgent.props)
-
 	def push_filter_job_impl(file: String, cp: alCalcParmary) = {
 		val act = context.actorOf(alCameoMaxDriver.props)
 		act ! push_filter_job(file, cp)
