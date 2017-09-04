@@ -3,7 +3,6 @@ package com.pharbers.aqll.alMSA.alCalcMaster
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alMaxDriverTrait, alPyQueueTrait}
-import com.pharbers.aqll.alMSA.alMaxSlaves.alPyJobComeo
 import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
 
 object alMaxDriver {
@@ -33,14 +32,6 @@ class alMaxDriver extends Actor with ActorLogging
 		case pushPyUlJobs(item) => push_py_ul_jobs(item)
 		case pyUbSchedule() => py_ub_schedule_jobs
 		case pyUlSchedule() => py_ul_schedule_jobs
-		case doPyUbJob(item) => {
-			val act = context.actorOf(alPyJobComeo.props)
-			act ! doPyUbJob(item)
-		}
-		case doPyUlJob(item) => {
-			val act = context.actorOf(alPyJobComeo.props)
-			act ! doPyUlJob(item)
-		}
 		case releasePyEnergy() => release_py_energy
 
 		case _ => ???
