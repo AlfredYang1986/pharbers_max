@@ -1,14 +1,6 @@
 package com.pharbers.aqll.alMSA.alCalcAgent
 
 import akka.actor.{Actor, ActorLogging, Props}
-import akka.agent.Agent
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-
-import scala.concurrent.duration._
-import akka.util.Timeout
-import akka.pattern.ask
-
-import scala.concurrent.Await
 
 /**
   * Created by alfredyang on 11/07/2017.
@@ -31,6 +23,7 @@ class alPropertyAgent extends Actor with ActorLogging {
                                         "splitcalcslave" -> 0,
                                         "splittest" -> 0)
     import alPropertyAgent._
+
     override def receive: Receive = {
         case queryIdleNodeInstanceInSystemWithRole(role) =>
             sender ! energy.get(role).map (x => x).getOrElse(-1)

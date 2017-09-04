@@ -3,7 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.Actor
 import akka.agent.Agent
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.{doPyUbJob, doPyUlJob, pyUbSchedule, pyUlSchedule}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alPyQueueAgent.{doPyUbJob, doPyUlJob, pyUbSchedule, pyUlSchedule}
 import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
 import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
