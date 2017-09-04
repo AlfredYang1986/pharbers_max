@@ -3,7 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.Actor
 import akka.agent.Agent
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alPyQueueAgent.{doPyUbJob, doPyUlJob, pyUbSchedule, pyUlSchedule}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.{doPyUbJob, doPyUlJob, pyUbSchedule, pyUlSchedule}
 import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
 import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
@@ -65,13 +65,8 @@ trait alPyQueueTrait { this : Actor =>
             }
         }
     }
-    def do_py_ub_job(item : alUpBeforeItem) = {
-        val result = pyCmd(s"$fileBase${item.company}" ,Upload_Firststep_Filename, "").excute
-        alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+    def release_py_energy = {
         pyLimit send py_energy(pyLimit().energy + 1)
     }
-    def do_py_ul_job(item : alUploadItem) = {
-        val result = pyCmd(s"$fileBase${item.company}",Upload_Secondstep_Filename, item.yms).excute
-        pyLimit send py_energy(pyLimit().energy + 1)
-    }
+
 }
