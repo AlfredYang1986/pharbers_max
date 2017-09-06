@@ -3,6 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alMaxDriverTrait, alPyQueueTrait}
+import com.pharbers.aqll.alMSA.alCalcMaster.alScpQueueActor.{ExcuteScanScpQueue}
 import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
 
 object alMaxDriver {
@@ -20,7 +21,8 @@ object alMaxDriver {
 
 class alMaxDriver extends Actor with ActorLogging
 								with alMaxDriverTrait
-								with alPyQueueTrait{
+								with alPyQueueTrait
+								with alMaxQueueTrait{
 
 	import alMaxDriver._
 
@@ -33,6 +35,7 @@ class alMaxDriver extends Actor with ActorLogging
 		case pyUbSchedule() => py_ub_schedule_jobs
 		case pyUlSchedule() => py_ul_schedule_jobs
 		case releasePyEnergy() => release_py_energy
+		case ExcuteScanScpQueue() => scanQueue()
 
 		case _ => ???
 	}
