@@ -15,6 +15,8 @@ object alJobTrigger {
       */
     case class worker_register()
     case class push_max_job(path : String, p: alCalcParmary)
+    case class push_split_excel_job(path : String, p: alCalcParmary)
+    case class push_group_job(property : alMaxProperty)
     case class finish_max_job(uuid : String)
     case class finish_max_group_job(uuid: String)
 
@@ -23,12 +25,14 @@ object alJobTrigger {
     case class schedule_calc()
 
     case class push_calc_job(p : alMaxProperty)
+    case class push_calc_job_2(p : alMaxProperty, c : alCalcParmary)
 
     case class group_register(a : ActorRef)
     case class calc_register(a : ActorRef)
 
     case class filter_excel_jobs(file: String, p: alCalcParmary, actorSelection: ActorSelection)
-    case class commit_finalresult_jobs(company: String)
+    case class filter_excel_job_2(file : String, p : alCalcParmary)
+    case class commit_finalresult_jobs(company: String, uuid: String)
     case class check_excel_jobs(company: String,filename: String)
     /**
       * for split excel
@@ -91,4 +95,11 @@ object alJobTrigger {
     case class crash_calc(uuid: String, msg: String)
     case class crash_group(uuid: String, msg: String)
     case class clean_crash_actor(uuid: String)
+
+    /**
+      * for reStart count
+      */
+    case class canIReStart(reason: Throwable)
+    case class canDoRestart(reason: Throwable)
+    case class cannotRestart(reason: Throwable)
 }

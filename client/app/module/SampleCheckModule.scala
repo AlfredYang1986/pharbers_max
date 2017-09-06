@@ -2,26 +2,44 @@ package module
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, CommonModule, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import module.common.alNearDecemberMonth
+import module.common.{alModularEnum, alNearDecemberMonth}
 import com.pharbers.aqll.common.alDao.data_connection
+
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import com.pharbers.aqll.dbmodule.MongoDBModule
+import module.common.alPageDefaultData.PageDefaultData
 
 object SampleCheckModuleMessage {
 	sealed class msg_CheckBaseQuery extends CommonMessage
+	
+	case class msg_reloadselectvalue(data: JsValue) extends msg_CheckBaseQuery
 	case class msg_samplecheck(data: JsValue) extends msg_CheckBaseQuery
 }
 
 object SampleCheckModule extends ModuleTrait {
 	import SampleCheckModuleMessage._
-	import controllers.common.default_error_handler.f
 
-	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm : CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-		case msg_samplecheck(data) => msg_check_func(data)
+	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+		case msg_reloadselectvalue(data) => reloadselect(data)
+		case msg_samplecheck(data) => msg_check_func(data)(pr)
+	}
+	
+	/*加载下拉框数据*/
+	def reloadselect(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			//多个公司进行计算的时候会出现问题，以后再改先记着
+			val defaultdata = PageDefaultData(alModularEnum.SC, db.basic, db.cores, false)
+			val temp = defaultdata._2.map( x => x.map(z => Map(z._1 -> toJson(z._2.toString.toLong))).toList).flatten.sliding(2,2).toList.map(x => x.head ++ x.last)
+			(successToJson(toJson(Map("marketlst" -> toJson(defaultdata._1), "datelst" -> toJson(temp)))), None)
+		} catch {
+			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
+		}
+		
 	}
 
 	/**
@@ -29,21 +47,19 @@ object SampleCheckModule extends ModuleTrait {
 		* @param data
 		* @return
 		*/
-	def msg_check_func(data: JsValue)(implicit error_handler : String => JsValue, cm: CommonModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		val database = cm.modules.get.get("db").get.asInstanceOf[data_connection]
+	def msg_check_func(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val market = (data \ "market").asOpt[String].getOrElse("")
 		val date = (data \ "date").asOpt[String].getOrElse("")
 		try {
+			val cur12_date = matchThisYearData(alNearDecemberMonth.diff12Month(date),queryNearTwelveMonth(db.cores,company,market,date))
+			val las12_date = matchLastYearData(alNearDecemberMonth.diff12Month(date),queryLastYearTwelveMonth(db.cores,company,market,date))
 
-			val cur12_date = matchThisYearData(alNearDecemberMonth.diff12Month(date),queryNearTwelveMonth(database,company,market,date))
-			val las12_date = matchLastYearData(alNearDecemberMonth.diff12Month(date),queryLastYearTwelveMonth(database,company,market,date))
+			val cur_data = query_cel_data(db.cores,query(company,market,date,"cur"))
+			val ear_data = query_cel_data(db.cores,query(company,market,date,"ear"))
+			val las_data = query_cel_data(db.cores,query(company,market,date,"las"))
 
-			val cur_data = query_cel_data(database,query(company,market,date,"cur"))
-			val ear_data = query_cel_data(database,query(company,market,date,"ear"))
-			val las_data = query_cel_data(database,query(company,market,date,"las"))
-
-			val mismatch_lst = misMatchHospital(database,query(company,market,date,"cur"));
+			val mismatch_lst = misMatchHospital(db.cores,query(company,market,date,"cur"));
 
 			(successToJson(toJson(Map(
 				"cur_data" -> cur_data,
@@ -52,9 +68,9 @@ object SampleCheckModule extends ModuleTrait {
 				"cur12_date" -> lsttoJson(cur12_date),
 				"las12_date" -> lsttoJson(las12_date),
 				"misMatchHospital" -> mismatch_lst
-			))), None)
+			) ++ pr.get)), None)
 		} catch {
-			case ex: Exception => (None, Some(error_handler(ex.getMessage())))
+			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
 	}
 

@@ -5,6 +5,7 @@ import com.pharbers.aqll.common.alDao.dataFactory._
 import com.pharbers.aqll.common.alDao.data_connection
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 
 object DefaultData {
 
@@ -13,7 +14,11 @@ object DefaultData {
         val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
         type targt = AdminHospitalDataBase
         val hospdatabase = new alExcelDataParser(new targt, hospdata_en_file, hospdata_ch_file)
+
         hospdatabase.prase(fileBase + company + hospitalData + path)("")
+//        hospdatabase.prase(fileBase + company + hospitalData + "bd7c19454e22af8d459bc7c88953fcec")("")
+//        hospdatabase.prase("/home/jeorch/work/max/files/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Hospital/bd7c19454e22af8d459bc7c88953fcec")("")
+
         hospdatabase.data.toList.asInstanceOf[List[targt]]
     }
 
@@ -34,10 +39,10 @@ trait DBList {
 
 // TODO 这个地方需要读取配置文件，如果都是默认的可以忽略，最好读取配置文件
 object dbcores extends DBList {
-    override implicit val dbc: data_connection =  getDataCores()
+    override implicit val dbc: data_connection =  getDataCores(dbhost, dbport.toInt, dbuser, dbpwd, db1)
 }
 
 // TODO 这个地方需要读取配置文件，如果都是默认的可以忽略，最好读取配置文件
 object dbbasic extends DBList {
-    override implicit val dbc: data_connection =  getDataBasic()
+    override implicit val dbc: data_connection =  getDataBasic(dbhost, dbport.toInt, dbuser, dbpwd, db2)
 }

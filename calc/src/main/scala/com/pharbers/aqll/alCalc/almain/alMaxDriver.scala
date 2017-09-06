@@ -20,6 +20,7 @@ import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, startDate}
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
+import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor._
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_filter_excel_jobs, max_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
@@ -35,28 +36,33 @@ object alMaxDriver {
 }
 
 class alMaxDriver extends Actor
-                     with ActorLogging
-                     with alMaxJobsSchedule
-                     with alGroupJobsSchedule
-                     with alCreateExcelSplitRouter
-                     with alGroupJobsManager 
-                     with alCalcJobsSchedule
-                     with alCalcJobsManager
-                     with alPkgJob {
+                    with ActorLogging
+                    with alMaxJobsSchedule
+                    with alGroupJobsSchedule
+                    with alCreateExcelSplitRouter
+                    with alGroupJobsManager
+                    with alCalcJobsSchedule
+                    with alCalcJobsManager
+                    with alPkgJob {
     val start = startDate()
     implicit val t = Timeout(0.5 second)
 
     override def receive = {
+        
         case crash_group(u, m) => {
-            group_router.single.get foreach (x => x ! clean_crash_actor(u))
+//            group_router.single.get foreach (x => x ! clean_crash_actor(u))
+            groupRouter foreach (x => x ! clean_crash_actor(u))
         }
         case crash_calc(u, m) => {
-            calc_router.single.get foreach (x => x ! clean_crash_actor(u))
+//            calc_router.single.get foreach (x => x ! clean_crash_actor(u))
+            calcRouter foreach (x => x ! clean_crash_actor(u))
         }
         case worker_register() =>
             log.info("worker_register")
             atomic { implicit txn => server_info.section() = server_info.section() + 1 }
-        case group_register(a) => registerGroupRouter(a)
+            
+//        case group_register(a) => registerGroupRouter(a)
+        
         case filter_excel_jobs(file, parmary, act) => {
             val cj = max_filter_excel_jobs(file)
             cj.result
@@ -123,12 +129,13 @@ class alMaxDriver extends Actor
         case schedule_group() => scheduleOneGroupJob
         case group_result(uuid, sub_uuid) => successWithGroup(uuid, sub_uuid)
        
-        case calc_register(a) => registerCalcRouter(a)
+//        case calc_register(a) => registerCalcRouter(a)
+        
         case push_calc_job(p) => pushCalcJobs(p)
         case schedule_calc() => scheduleOneCalcJob
         case calc_sum_result(uuid, sub_uuid, sum) => sumSuccessWithWork(uuid, sub_uuid, sum)
         case calc_final_result(uuid, sub_uuid, v, u) => finalSuccessWithWork(uuid, sub_uuid, v, u, start)
-        case commit_finalresult_jobs(company) => commit_finalresult_jobs_func(company)
+        case commit_finalresult_jobs(company, uuid) => commit_finalresult_jobs_func(company, uuid)
         case check_excel_jobs(company,filename) => check_excel_jobs_func(company,filename)
         case x : Any => {
             log.info(x.toString)

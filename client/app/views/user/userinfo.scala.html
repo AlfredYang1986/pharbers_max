@@ -1,0 +1,32 @@
+<div id="user-info" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="u_title">用户详情</h4>
+            </div>
+            <div class="modal-body" style="background-color: RGBA(60, 190, 164, 0.2)">
+                <div class="row">
+                    <div class="col-md-3 text-right"><img alt="image" width="124" height="124" style="background-color: #ffffff;" class="img-circle" src="@routes.Assets.versioned("images/boy-4.png")" /></div>
+                    <div class="col-md-9" style="font-size: 1.7em">
+                        <div class="col-md-6 text-right"><lable>登入名：</lable></div>
+                        <div class="col-md-6 text-left"><lable id="account"></lable></div>
+                        <div class="col-md-6 text-right"><lable>姓名：</lable></div>
+                        <div class="col-md-6 text-left"><lable id="name"></lable></div>
+                        <div class="col-md-6 text-right"><lable>公司(中文)：</lable></div>
+                        <div class="col-md-6 text-left"><lable id="company_ch"></lable></div>
+                        <div class="col-md-6 text-right"><lable>公司(英文)：</lable></div>
+                        <div class="col-md-6 text-left"><lable id="company_en"></lable></div>
+                        <div class="col-md-6 text-right"><lable>是否管理员：</lable></div>
+                        <div class="col-md-6 text-left"><lable id="isadmin"></lable></div>
+                        <div class="col-md-6 text-right"><lable>创建时间：</lable></div>
+                        <div class="col-md-6 text-left"><lable id="createtime"></lable></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>

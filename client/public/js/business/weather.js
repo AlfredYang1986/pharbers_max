@@ -6,9 +6,9 @@ $(function() {
 
 })
 
-window.onload = function() {
-    // weather($.cookie("ip"))
-}
+// window.onload = function() {
+//     // weather($.cookie("ip"))
+// }
 
 var weather = function(ip) {
     var showapi_appid = "36787"

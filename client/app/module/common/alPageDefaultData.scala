@@ -108,7 +108,7 @@ object alPageDefaultData {
       * @param cores 核心数据库
       * @return
       */
-    def queryOtherDates(cores: data_connection): Option[List[Map[String, Any]]] = {
-        Some(cores.getCollection("FactResult").find().toList.groupBy(x => x.get("Date")).map(y => Map("code" -> y._1.asInstanceOf[Number].longValue(), "name" -> Timestamp2yyyyMM(y._1.asInstanceOf[Number].longValue()))).toList)
+    def queryOtherDates(cores: data_connection): Option[List[Map[String, AnyVal]]] = {
+        Some(cores.getCollection("FactResult").find().toList.groupBy(x => x.get("Date")).map(y => Map("code" -> y._1.asInstanceOf[Number].longValue(), "name" -> Timestamp2yyyyMM(y._1.asInstanceOf[Number].longValue()).toLong)).toList.sortBy(_.head._2))
     }
 }

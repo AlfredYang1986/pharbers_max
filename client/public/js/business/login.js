@@ -1,15 +1,31 @@
 $(function(){
 	$("body").keydown(function(event) {
         if(event.which == 13){
+        	if($("#loginForm [name='name']").val() == ""){
+                $.tooltip("请输入登入名");
+                return false;
+			}
+			if($("#loginForm [name='password']").val() == "") {
+                $.tooltip("请输入登入密码");
+                return false;
+			}
             login();
             return false;
         }
 	});
 
 	$("#loginBtn").click(function(){
-		login();
+        if($("#loginForm [name='name']").val() == ""){
+            $.tooltip("请输入登入名");
+            return false;
+        }
+        if($("#loginForm [name='password']").val() == "") {
+            $.tooltip("请输入登入密码");
+            return false;
+        }
+        login();
 	});
-    loginInfo()
+    loginInfo();
 })
 
 function login() {
@@ -33,7 +49,7 @@ function login() {
 				$.cookie("user_token",user.User_Token);
 				$.cookie("user_name",user.UserName);
 				$.cookie("user_auth",user.UserAuth);
-				$.cookie("is_administrator",user.IsAdministrator);
+				$.cookie("auth",user.Auth);
 				$.cookie("token",user.Token);
 				$.cookie("company_name_ch",user.CompanyNameCh);
 				$.cookie("company_name_en",user.CompanyNameEn);
@@ -41,7 +57,7 @@ function login() {
 				$.cookie("ip",user.ip);
 				$.tooltip('OK, 登录成功！', 2500, true);
 				setTimeout(function () {
-					location = "index"
+					location = "newindex"
 				}, 1000 * 3)
 			}else{
 				$.tooltip(r.result.message);

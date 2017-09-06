@@ -124,7 +124,7 @@ function pageResult(page){
                 $('tbody[id="tbody"]').html(tbody);
                 Page(data);
             } else {
-                $.tooltip(r.result.message);
+                $.tooltip(data.result.message);
             }
         }
     });

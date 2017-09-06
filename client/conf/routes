@@ -13,15 +13,26 @@ GET		/register					        controllers.alMaxRouterController.register
 #   首页
 GET		/index						        controllers.alMaxRouterController.index
 POST	/index						        controllers.alMaxRouterController.index
+
+GET     /newindex                           controllers.alMaxRouterController.newindex
+#计算
+GET		/calculaData                        controllers.alMaxRouterController.calculaData
+#计算2
+GET     /calcdata                           controllers.alMaxRouterController.calcData
+
+#历史数据
+GET		/historyData                        controllers.alMaxRouterController.historyData
 #   文件上传
 GET		/filesupload				        controllers.alMaxRouterController.filesUpload
 GET     /pharbers/files/:name               controllers.FopController.downloadFile(name)
 POST	/pharbers/files/upload		        controllers.FopController.uploadFile
+#POST	/pharbers/files/upload		        controllers.FopController.upload
 POST    /filesUpload/scpCopyFiles           controllers.FilesUploadController.scpCopyFiles
 POST    /filesUpload/removeFiles            controllers.FilesUploadController.removeFiles
 #   样本检查
 GET		/samplecheck				        controllers.alMaxRouterController.sampleCheck
 POST	/samplecheck/check			        controllers.SampleCheckController.sampleCheck
+POST    /samplecheck/reloadselect           controllers.SampleCheckController.reloadSelect
 #   样本报告
 GET		/samplereport				        controllers.alMaxRouterController.samplereport
 POST	/samplereport/report		        controllers.SampleReportController.sampleReport
@@ -51,6 +62,7 @@ POST    /marketmanage/findOne               controllers.MarketManageController.f
 POST    /marketmanage/save                  controllers.MarketManageController.saveMarket
 #   公用部分
 POST    /callhttpServer                     controllers.CallAkkaHttpController.callHttpServer
+POST    /loadPageData                       controllers.PageInitializationController.loadPageData
 
 # new ember web pages
 GET     /new/*path                          controllers.alMaxRouterController.emberWebPage(path)

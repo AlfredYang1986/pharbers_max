@@ -1,16 +1,16 @@
 package controllers
 
 import javax.inject._
+
+import akka.actor.ActorSystem
 import com.pharbers.aqll.dbmodule.MongoDBModule
 import module.common.alModularEnum
 import module.common.alAdminEnum
 import module.common.alPageDefaultData._
 import play.api.mvc._
 
-@Singleton
-class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
-    implicit val basic = mdb.basic
-    implicit val cores = mdb.cores
+class alMaxRouterController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule) extends Controller {
+    implicit val as = as_inject
 
     //登录
     def login = Action { request =>
@@ -30,22 +30,48 @@ class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
             Ok(views.html.index(getAdminByCookies(request)))
         }
     }
+    
+    //首页2
+    
+    def newindex = Action { request =>
+        if (getUserTokenByCookies(request).equals("")) {
+            Ok(views.html.login())
+        } else {
+            Ok(views.html.newhome.index(getAdminByCookies(request)))
+        }
+    }
+
+    //计算
+    def calculaData = Action {
+        Ok(views.html.CalculaData(""))
+    }
+    
+    //计算2
+    def calcData = Action { request =>
+        Ok(views.html.newhome.calcData(getAdminByCookies(request)))
+    }
+
+    //历史数据
+    def historyData = Action { request =>
+        Ok(views.html.HistoryData(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, mdb.basic, mdb.cores)._1))
+    }
+
 
     //文件上传
     def filesUpload = Action { request =>
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            Ok(views.html.filesUpload(getAdminByCookies(request), PageDefaultData(alModularEnum.FU, basic, cores)._1))
+            Ok(views.html.filesUpload(getAdminByCookies(request), PageDefaultData(alModularEnum.FU, mdb.basic, mdb.cores)._1))
         }
     }
-
+    
     //样本检查
     def sampleCheck = Action { request =>
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            val defaultdata = PageDefaultData(alModularEnum.SC, basic, cores, false)
+            val defaultdata = PageDefaultData(alModularEnum.SC, mdb.basic, mdb.cores, false)
             Ok(views.html.sampleCheck(getAdminByCookies(request), defaultdata._1, defaultdata._2))
         }
     }
@@ -55,7 +81,7 @@ class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            Ok(views.html.sampleReport(getAdminByCookies(request), PageDefaultData(alModularEnum.SR, basic, cores)._1))
+            Ok(views.html.sampleReport(getAdminByCookies(request), PageDefaultData(alModularEnum.SR, mdb.basic, mdb.cores)._1))
         }
     }
 
@@ -64,7 +90,7 @@ class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            val defaultdata = PageDefaultData(alModularEnum.RC, basic, cores, false)
+            val defaultdata = PageDefaultData(alModularEnum.RC, mdb.basic, mdb.cores, false)
             Ok(views.html.resultCheck(getAdminByCookies(request), defaultdata._1, defaultdata._2))
         }
     }
@@ -74,7 +100,7 @@ class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            Ok(views.html.resultQuery(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, basic, cores)._1))
+            Ok(views.html.resultQuery(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, mdb.basic, mdb.cores)._1))
         }
     }
 
@@ -101,7 +127,7 @@ class alMaxRouterController @Inject()(mdb: MongoDBModule) extends Controller {
     }
 
     def getAdminByCookies(request: Request[AnyContent]): String = {
-        request.cookies.get("is_administrator").map(x => x.value).get.toInt match {
+        request.cookies.get("auth").map(x => x.value).get.toInt match {
             case 0 => alAdminEnum.users.toString
             case 1 => alAdminEnum.admin.toString
             case 2 => alAdminEnum.admin.toString

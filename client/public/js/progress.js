@@ -1,4 +1,5 @@
 var timeProgressInterval = null;
+var timeProgressTimeout = null;
 
 var progress2 = function() {
     var w = 300, h = 320;
@@ -114,11 +115,12 @@ var progress2 = function() {
     }
 }
 
-var setProgressStart = function(time){
-    var temp = msgIdentifying
+var setProgressStart = function(time) {
+    setCloseInterval()
+    var temp = msgIdentifying;
     var setP = function() {
         if(msgIdentifying == temp) {
-            p.setPercent(1)
+            p.setPercent(1);
         }else {
             setTimeout(function(){setProgressStop(time)}, 1000 * 3);
         }
@@ -127,16 +129,38 @@ var setProgressStart = function(time){
 }
 
 var setProgressStop = function(time) {
-    if(timeProgressInterval){
-        clearInterval(timeProgressInterval)
-        timeProgressInterval = null
+    if(timeProgressInterval) {
+        clearInterval(timeProgressInterval);
+        timeProgressInterval = null;
+        // timeProgressTimeout = setTimeout(function(){setProgressStart(time);}, 1000 * 30);
         setTimeout(function(){setProgressStart(time);}, 1000 * 30);
     }
 }
 
 var setCloseInterval = function() {
-    if(timeProgressInterval){
-        clearInterval(timeProgressInterval)
-        timeProgressInterval = null
+    // if(timeProgressInterval) {
+    //     clearInterval(timeProgressInterval);
+    //     timeProgressInterval = null;
+    // }
+    clearInterval(timeProgressInterval);
+    timeProgressInterval = null;
+
+    // var highestTimeoutId = setTimeout(";");
+    // for (var i = 0 ; i < highestTimeoutId ; i++) {
+    //     timeProgressTimeout = null;
+    //     clearTimeout(i);
+    // }
+    // var highestIntervalId = setInterval(";");
+    // for (var i = 0 ; i < highestIntervalId ; i++) {
+    //     timeProgressInterval = null;
+    //     clearInterval(i);
+    // }
+}
+
+var closeAllInterval = function() {
+    var highestIntervalId = setInterval(";");
+    for (var i = 0 ; i < highestIntervalId ; i++) {
+        timeProgressInterval = null;
+        clearInterval(i);
     }
 }

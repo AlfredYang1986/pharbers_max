@@ -1,8 +1,8 @@
-@(is_administrator: String,markets : List[String])
+@(auth: String,markets : List[String])
 @main("Max | 结果查询") {
 <body>
 	<div style="display: none;" class="progresstier">
-		<div class="progress">&nbsp;</div>
+		<div class="progress_circle">&nbsp;</div>
 		<div class="widgets">
 			<div class="shadow">
 				<div id="chart" class="chart-container"> </div>
@@ -20,11 +20,11 @@
 									<img alt="image" width="48" height="48" style="background-color: #ffffff;" class="img-circle" src="@routes.Assets.versioned("images/boy-4.png")" />
 								</span>
 							</div>
-							<div style="position: absolute; z-index: 9888; top: -10%; left: 40%;">
+								<!--<div style="position: absolute; z-index: 9888; top: -10%; left: 40%;">
 								<div class="tooltip-demo" id="weather">
 									<img src="http://appimg.showapi.com/images/weather/icon/day/00.png" style="cursor: pointer;" width="84px" height="84px" data-toggle="tooltip" data-placement="right" title="城市：北京，温度：21，天气：晴，风向：西南风，风力：3级">
 								</div>
-							</div>
+							</div>-->
 							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
 								<span class="clear">
 									<span class="block m-t-xs">
@@ -59,7 +59,7 @@
 					<li class="active">
 						<a href="resultquery"><i class="fa fa-table"></i> <span class="nav-label">5.结果查询</span></a>
 					</li>
-					@if(is_administrator.equals("Yes")){
+					@if(auth.equals("Yes")){
 						<li>
 							<a><i class="fa fa-gears"></i> <span class="nav-label">管理页面</span> <span class="fa arrow"></span></a>
 							<ul class="nav nav-second-level">
@@ -122,7 +122,7 @@
 												<select data-name="search-result-datatype" class="form-control">
 													<option>省份数据</option>
 													<option>城市数据</option>
-													@if(is_administrator.equals("Yes")){
+													@if(auth.equals("Yes")){
 														<option>医院数据</option>
 													}
 												</select>
@@ -182,11 +182,9 @@
 			</div>
 		</div>
 	</div>
-	@*<script src="https://cdn.bootcss.com/d3/3.5.5/d3.min.js"></script>*@
 	<script src="@routes.Assets.versioned("js/business/resultquery.js")"></script>
 	<script src="@routes.Assets.versioned("js/business/filesexport.js")"></script>
 	<script src="@routes.Assets.versioned("js/business/page/bootstrap-paginator.js")"></script>
 	<script src="@routes.Assets.versioned("js/business/page/page.js")"></script>
-	@*<script src="@routes.Assets.versioned("hDialog/js/jquery.hDialog.js")"></script>*@
 </body>
 }

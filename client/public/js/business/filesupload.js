@@ -16,37 +16,40 @@ $(function(){
         query_object["businessType"] = "/uploadbefore";
         $("#s_nextstepBtn").removeAttr("disabled");
             $.ajax({
-            url: "/callhttpServer",
-            type: 'POST',
-            dataType: 'json',
-            contentType: 'application/json, charset=utf-8',
-            data: JSON.stringify(query_object),
-            cache: false,
-            success: function(data) {
-                $('#resultDiv').show();
-                $("#upload_file").hide();
-                $("#generate_panel_file").show();
+                url: "/callhttpServer",
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json, charset=utf-8',
+                data: JSON.stringify(query_object),
+                timeout: 1000 * 60 * 10,
+                error: function(xhr){
+                    console.info(xhr);
+                },
+                success: function(data) {
+                    $('#resultDiv').show();
+                    $("#upload_file").hide();
+                    $("#generate_panel_file").show();
 
-                console.info(data)
-                var result = data.result
-                if(result.status == "success"){
-                    var arr = result.result.result.split("#");
-                    var html = "<div class='col-lg-6 text-left'>"
-                    for(var i in arr){
-                        var obj = arr[i];
-                        if(obj!=null && obj!=""){
-                            html += "<label class='checkbox-inline'><input type='checkbox' value='"+obj+"'> "+obj+"</label>";
+                    console.info(data)
+                    var result = data.result
+                    if(result.status == "success"){
+                        var arr = result.result.result.split("#");
+                        var html = "<div class='col-lg-6 text-left'>"
+                        for(var i in arr){
+                            var obj = arr[i];
+                            if(obj!=null && obj!=""){
+                                html += "<label class='checkbox-inline'><input type='checkbox' value='"+obj+"'> "+obj+"</label>";
+                            }
                         }
+                        html += "</div>";
+                        $('div[id="resultDiv"]')[0].innerHTML = html;
+                        $('label[id="generate_panel_content"]').text("文件检查通过，请勾选月份，继续点击下一步。");
+                    }else {
+                        $.cookie("calc_panel_file",null)
+                        $("#s_nextstepBtn").attr({"disabled":"disabled"});
+                        $('label[id="generate_panel_content"]').text("文件检查失败，请点击上一步，返回上传页面，重新上传文件。");
                     }
-                    html += "</div>";
-                    $('div[id="resultDiv"]')[0].innerHTML = html;
-                    $('label[id="generate_panel_content"]').text("文件检查通过，请勾选月份，继续点击下一步。");
-                }else{
-                    $.cookie("calc_panel_file",null)
-                    $("#s_nextstepBtn").attr({"disabled":"disabled"});
-                    $('label[id="generate_panel_content"]').text("文件检查失败，请点击上一步，返回上传页面，重新上传文件。");
                 }
-            }
         });
     });
 

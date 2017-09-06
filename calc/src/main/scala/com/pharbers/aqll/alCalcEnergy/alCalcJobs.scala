@@ -20,6 +20,7 @@ import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alWeightSum
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alCalaHelp.dbcores._
+import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor._
 
 /**
   * Created by qianpeng on 2017/5/17.
@@ -31,14 +32,13 @@ trait alCalcJobsSchedule { this: Actor =>
 }
 
 trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule with ActorLogging =>
-	
-	val calc_router = Ref(List[ActorRef]())
+//	val calc_router = Ref(List[ActorRef]())
 	var calc_nodenumber = -1
 	var section_number = -1
 
-	def registerCalcRouter(a : ActorRef) = atomic { implicit txn =>
-		calc_router() = calc_router() :+ a
-	}
+//	def registerCalcRouter(a : ActorRef) = atomic { implicit txn =>
+//		calc_router() = calc_router() :+ a
+//	}
 
 	def pushCalcJobs(cur : alMaxProperty) = atomic { implicit txn =>
 		waiting_calc() = waiting_calc() :+ cur
@@ -56,13 +56,15 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 
 	def canSignCalcJob(p : alMaxProperty): Boolean = {
 		implicit val t = Timeout(0.5 second)
-		val f = calc_router.single.get map (x => x ? can_sign_job())
+//		val f = calc_router.single.get map (x => x ? can_sign_job())
+		val f = calcRouter map (x => x ? can_sign_job())
 		p.subs.length / server_info.cpu <= (f.map (x => Await.result(x, 0.5 seconds)).count(x => x.isInstanceOf[sign_job_can_accept]))
 	}
 
 	def signCalcJob(p : alMaxProperty) = {
 		atomic { implicit tnx =>
-			siginEach(calc_router.single.get)
+//			siginEach(calc_router.single.get)
+			siginEach(calcRouter.toList)
 			waiting_calc() = waiting_calc().tail
 			calcing_jobs() = calcing_jobs() :+ p
 		}
@@ -109,10 +111,10 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 
 					val mapAvg = r.sum.map { x =>
 						(x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
-						//                        (x._1, (x._2._1 / x._2._3),(x._2._2 / x._2._3))
 					}
 
-					calc_router.single.get foreach ( x => x ! calc_avg_job(r.uuid, mapAvg))
+//					calc_router.single.get foreach ( x => x ! calc_avg_job(r.uuid, mapAvg))
+					calcRouter foreach ( x => x ! calc_avg_job(r.uuid, mapAvg))
 				}
 			}
 		}
@@ -131,7 +133,7 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 				val company = alCalcParmary.alParmary.single.get.find(_.uuid == uuid) match {
 					case None =>
 						log.info(s"not company")
-						//                        alRestoreColl("", sub_uuid :: Nil)
+//						alRestoreColl("", sub_uuid :: Nil)
 						("", "", "")
 					case Some(x) =>
 						val u = x.company+uuid
@@ -151,7 +153,7 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 					implicit val stmc = StmConf()
 					new Mail().sendTo(EmailForCompany(company._1).getEmail())
 					endDate("计算完成",start)
-					new alMessageProxy().sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
+					new alMessageProxy().sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress_calc"))
 					self ! finish_max_job(uuid)
 					atomic { implicit tnx =>
 						calcing_jobs() = calcing_jobs().tail
@@ -161,20 +163,21 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 		}
 	}
 
-	def commit_finalresult_jobs_func(company: String) = {
+	def commit_finalresult_jobs_func(company: String, uuid: String) = {
 		alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
 			case None => log.info(s"commit_finalresult_jobs_func not company")
 			case Some(x) =>
-				new alMessageProxy().sendMsg("30", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+//				new alMessageProxy().sendMsg("30", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				log.info(s"x.uuid = ${x.uuid}")
 				alWeightSum().apply(company, company + x.uuid)
-				new alMessageProxy().sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+//				new alMessageProxy().sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				log.info(s"开始删除临时表")
 				dbc.getCollection(company + x.uuid).drop()
 				log.info(s"结束删除临时表")
-				val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(x.uuid))
-				alCalcParmary.alParmary.single.get.remove(index)
-				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+				atomic { implicit txn =>
+					alCalcParmary.alParmary() = alCalcParmary.alParmary.single.get.filterNot(_.company.equals(x.company))
+				}
+				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
 		}
 	}
 
