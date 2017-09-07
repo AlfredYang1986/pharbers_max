@@ -17,8 +17,8 @@ class alPresistStagePrecess(val dirOpt : Option[String], val prefix : Option[Str
     def precess(j : alStage) : List[alStage] = {
 
         val dir = dirOpt.map (x => x).getOrElse(UUID.randomUUID.toString)
-        val syncdir = prefix.map (x => x).getOrElse(sync)
-	    val path = s"${memorySplitFile}$syncdir/$dir"
+        val prefixdir = prefix.map (x => x).getOrElse(sync)
+	    val path = s"${memorySplitFile}$prefixdir/$dir"
         val f = alFileOpt(path)
         f.createDir
         j.storages map { x =>
