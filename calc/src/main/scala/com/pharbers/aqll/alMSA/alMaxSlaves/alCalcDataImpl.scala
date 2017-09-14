@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
-import com.pharbers.aqll.alCalc.almain.alShareData
+import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
@@ -14,6 +14,7 @@ import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefine
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alInertDatabase
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
+import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
@@ -44,7 +45,9 @@ class alCalcDataImpl extends Actor with ActorLogging {
             cj.result
 
             val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
-
+            
+            println(s"concert.data = ${concert.data.size}")
+            
             val recall = resignIntegratedData(p.parent)(concert)
             concert.data.zipWithIndex.foreach { x =>
                 
@@ -57,8 +60,25 @@ class alCalcDataImpl extends Actor with ActorLogging {
             val s = (maxSum.toList.groupBy(_._1) map { x =>
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
             }).toList
+            
+            val uid = UUID.randomUUID().toString
+            val path = s"${memorySplitFile}${calc}$uid"
+            val temp = s map { x => alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3)}
     
-            sender ! calc_data_sum(s)
+            val dir = alFileOpt(path)
+            if (!dir.isExists)
+                dir.createDir
+            
+            val file = alFileOpt(path + "/" + "segmentData")
+            if (!file.isExists)
+                file.createFile
+    
+            file.appendData2File(temp)
+            
+            sender ! calc_data_sum2(path)
+            
+            // TODO : 超出传输界限
+//            sender ! calc_data_sum(s)
         }
         case calc_data_average(avg) => {
             import scala.math.BigDecimal
@@ -74,8 +94,11 @@ class alCalcDataImpl extends Actor with ActorLogging {
             if (source.isExists) {
                 source.enumDataWithFunc { line =>
                     val mrd = alShareData.txt2WestMedicineIncome2(line)
+                    val sheed = mrd.segment + mrd.minimumUnitCh //+ mrd.yearAndmonth.toString
 
-                    avg.find(p => p._1 == mrd.segment).map { x =>
+//                    avg.find(p => p._1 == mrd.segment).map { x =>
+//                    avg.find(p => p._1 == alEncryptionOpt.md5(mrd.segment + mrd.minimumUnitCh)).map { x =>
+                    avg.find(p => p._1 == sheed.toStream.map(x => x.toInt).sum.toString).map { x =>
                         if (mrd.ifPanelAll.equals("1")) {
                             mrd.set_finalResultsValue(mrd.sumValue)
                             mrd.set_finalResultsUnit(mrd.volumeUnit)
@@ -143,7 +166,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
         recall.process = restore_data() :: do_calc() :: do_union() ::
             do_map(alShareData.txt2IntegratedData(_)) :: do_filter { iter =>
             val t = iter.asInstanceOf[IntegratedData]
-            group.data.exists { g => true
+            group.data.exists { g => //true
                 val x = g.asInstanceOf[IntegratedData]
                 (x.getYearAndmonth == t.getYearAndmonth) && (x.getMinimumUnitCh == t.getMinimumUnitCh)
             }
@@ -154,26 +177,50 @@ class alCalcDataImpl extends Actor with ActorLogging {
     }
 
     def backfireData(mrd: westMedicineIncome)(inte_lst: List[IntegratedData]): westMedicineIncome = {
-        var t = mrd
-        val tmp = inte_lst.find(iter => mrd.yearAndmonth == iter.getYearAndmonth
+//        var t = mrd
+        
+        /**
+          * 根据年月 + 最小产品单位 + phaid 找到Panle文件中的sales 与 unit
+          * 回填到被放大的数据中
+          */
+//        val tmp = inte_lst.find(iter => mrd.yearAndmonth == iter.getYearAndmonth
+//            && mrd.minimumUnitCh == iter.getMinimumUnitCh
+//            && mrd.phaid == iter.getPhaid)
+//        tmp match {
+//            case Some(x) => {
+//                mrd.set_sumValue(x.getSumValue)
+//                mrd.set_volumeUnit(x.getVolumeUnit)
+//            }
+//            case None => Unit
+//        }
+        
+        val tmp2 = inte_lst.filter(iter => mrd.yearAndmonth == iter.getYearAndmonth
             && mrd.minimumUnitCh == iter.getMinimumUnitCh
             && mrd.phaid == iter.getPhaid)
 
-        tmp match {
-            case Some(x) => {
-                mrd.set_sumValue(x.getSumValue)
-                mrd.set_volumeUnit(x.getVolumeUnit)
+        tmp2 match {
+            case list => {
+                val sumValue = list.map(x => x.getSumValue.toDouble).sum
+                val sumUnits = list.map(x => x.getVolumeUnit.toDouble).sum
+                mrd.set_sumValue(sumValue)
+                mrd.set_volumeUnit(sumUnits)
             }
-            case None => Unit
+            case Nil => Unit
         }
-
+    
+        /**
+          * 进行segment的分组动作，并求和
+          */
         if (mrd.ifPanelTouse == "1") {
-            maxSum += mrd.segment ->
-                maxSum.find(p => p._1 == mrd.segment)
-                    .map { x =>
+//            maxSum += (alEncryptionOpt.md5(mrd.segment + mrd.minimumUnitCh)) ->
+            
+            val sheed = mrd.segment + mrd.minimumUnitCh //+ mrd.yearAndmonth.toString
+            
+            maxSum += sheed.toStream.map(x => x.toInt).sum.toString ->
+//                maxSum.find(p => p._1 == alEncryptionOpt.md5(mrd.segment + mrd.minimumUnitCh)).map { x =>
+                maxSum.find(p => p._1 == sheed.toStream.map(x => x.toInt).sum.toString).map { x =>
                         (x._2._1 + mrd.sumValue, x._2._2 + mrd.volumeUnit, x._2._3 + mrd.selectvariablecalculation.get._2)
-                    }
-                    .getOrElse((mrd.sumValue, mrd.volumeUnit, mrd.selectvariablecalculation.get._2))
+                }.getOrElse((mrd.sumValue, mrd.volumeUnit, mrd.selectvariablecalculation.get._2))
         }
         mrd.copy()
     }

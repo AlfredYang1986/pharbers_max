@@ -65,6 +65,16 @@ class alCalcDataComeo (c : alCalcParmary,
                 originSender ! calc_data_sum(r.sum)
             }
         }
+        case calc_data_sum2(path) => {
+            // TODO: 现在单机单线程情况，暂时不需要写多机器多线
+            r.isSumed = true
+            sum += 1
+            if (sum == core_number) {
+                r.isSumed = true
+                originSender ! calc_data_sum2(path)
+            }
+        }
+        
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
         case calc_data_result(v, u) => {
             
@@ -126,7 +136,7 @@ class alCalcDataComeo (c : alCalcParmary,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val timeoutMessager = context.system.scheduler.scheduleOnce(60 minute) {
+    val timeoutMessager = context.system.scheduler.scheduleOnce(600 minute) {
         self ! calc_data_timeout()
     }
 
