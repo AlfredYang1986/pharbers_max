@@ -39,7 +39,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
 
     var tmp : alMaxProperty = null
-
     override def receive: Receive = {
         case calc_data_hand() => sender ! calc_data_hand()
         case calc_data_start_impl(p, c) => {
@@ -99,32 +98,33 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 dir.createDir
             val source = alFileOpt(path + "/" + "data")
             if (source.isExists) {
-                source.enumDataWithFunc { line =>
-                    val mrd = alShareData.txt2WestMedicineIncome2(line)
-                    val sheed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+              
+                sender ! push_insert_db_job(source, avg, sub_uuid, sender, tmp)
 
-                    if (mrd.ifPanelAll == "1") {
-                        mrd.set_finalResultsValue(mrd.sumValue)
-                        mrd.set_finalResultsUnit(mrd.volumeUnit)
-                    }else {
-                        avg.find(p => p._1 == alEncryptionOpt.md5(sheed).toString).map { x =>
-                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                        }.getOrElse(Unit)
-                    }
-                    
-                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+                // source.enumDataWithFunc { line =>
+                //     val mrd = alShareData.txt2WestMedicineIncome2(line)
 
-                    atomic { implicit thx =>
-                        alInertDatabase().apply(mrd, sub_uuid)
-                    }
-                }
-                log.info(s"calc done at $sub_uuid")
+                //     avg.find(p => p._1 == mrd.segment).map { x =>
+                //         if (mrd.ifPanelAll.equals("1")) {
+                //             mrd.set_finalResultsValue(mrd.sumValue)
+                //             mrd.set_finalResultsUnit(mrd.volumeUnit)
+                //         } else {
+                //             mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                //             mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                //         }
+
+                //     }.getOrElse(Unit)
+                //     unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+                //     value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+
+                //    atomic { implicit thx =>
+                //        alInertDatabase().apply(mrd, sub_uuid)
+                //    }
+                // }
+                // log.info(s"calc done at $sub_uuid")
             }
-
-            sender ! calc_data_result(value, unit)
-            sender ! calc_data_end(true, tmp)
+            // sender ! calc_data_result(value, unit)
+            // sender ! calc_data_end(true, tmp)
         }
     }
     def max_precess(element2: IntegratedData, sub_uuid: String, longPath: Option[String] = None)(recall: List[IntegratedData])(c: alCalcParmary) = {

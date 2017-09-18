@@ -16,12 +16,11 @@ import scala.concurrent.stm._
   */
 trait alPyQueueTrait { this : Actor =>
 
-    var py_ub_jobs = Ref(List[alUpBeforeItem]())
-    var py_ul_jobs = Ref(List[alUploadItem]())
+    val py_ub_jobs = Ref(List[alUpBeforeItem]())
+    val py_ul_jobs = Ref(List[alUploadItem]())
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    case class py_energy(val energy : Int)
-    val pyLimit = Agent(py_energy(4))
+    val pyLimit = Ref(4)
 
     val py_ub_schedule = context.system.scheduler.schedule(1 second, 1 second, self, pyUbSchedule())
     val py_ul_schedule = context.system.scheduler.schedule(1 second, 1 second, self, pyUlSchedule())
@@ -37,12 +36,12 @@ trait alPyQueueTrait { this : Actor =>
         }
     }
     def py_ub_schedule_jobs = {
-        if (pyLimit().energy > 0) {
+        if (pyLimit.single.get > 0) {
             atomic { implicit thx =>
                 val tmp = py_ub_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    pyLimit send py_energy(pyLimit().energy - 1)
+                    pyLimit() = pyLimit.single.get - 1
                     py_ub_jobs() = py_ub_jobs().tail
                     do_py_ub_job(tmp.head)
                 }
@@ -50,12 +49,12 @@ trait alPyQueueTrait { this : Actor =>
         }
     }
     def py_ul_schedule_jobs = {
-        if (pyLimit().energy > 0) {
+        if (pyLimit.single.get > 0) {
             atomic { implicit thx =>
                 val tmp = py_ul_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    pyLimit send py_energy(pyLimit().energy - 1)
+                    pyLimit() = pyLimit.single.get - 1
                     py_ul_jobs() = py_ul_jobs().tail
                     do_py_ul_job(tmp.head)
                 }
@@ -71,7 +70,9 @@ trait alPyQueueTrait { this : Actor =>
         act ! doPyUlJob(item)
     }
     def release_py_energy = {
-        pyLimit send py_energy(pyLimit().energy + 1)
+        atomic { implicit thx =>
+            pyLimit() = pyLimit.single.get + 1
+        }
     }
 
 }
