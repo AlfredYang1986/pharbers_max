@@ -35,7 +35,7 @@ class alGroupDataSlave extends Actor with ActorLogging {
     override def receive: Receive = {
         case group_data_hand() => if (stateAgent().isRunning) Unit
         else {
-            // TODO: 发送解压消息
+            // TODO: 发送解压消息 解压Sync文件
 //            cmdActor ! unpkgmsg(s"${root}${scpPath}${property.uuid}", s"${root}${program}")
             stateAgent send state_agent(true)
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")

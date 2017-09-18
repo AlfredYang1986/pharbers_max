@@ -10,7 +10,7 @@ lazy val root = (project in file(".")).
 	settings(
 		name := "pharber-client",
 		fork in run := true,
-		javaOptions += "-Xmx4G"
+		javaOptions += "-Xmx2G"
 	)
 
 routesGenerator := InjectedRoutesGenerator

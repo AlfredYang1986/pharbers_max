@@ -55,7 +55,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	implicit def executionContext: ExecutionContext
 	implicit def requestTimeout: Timeout
 	
-	val routes = Test ~ alSampleCheckDataFunc ~
+	val routes =  alSampleCheckDataFunc ~
 		alNewCalcDataFunc ~ alNewModelOperationCommitFunc ~
 		alFileUploadPythonFunc ~ alResultFileExportFunc ~
 		alFileUploadPyBefore
@@ -153,13 +153,13 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alResultFileExportFunc = post {
 		path("dataexport") {
 			entity(as[alExportItem]) { item =>
-				val alExport = new alExport(item.datatype,
+				val alExportPram = alExport(item.datatype,
 					item.market,
 					item.staend,
 					item.company,
 					item.filetype,
 					item.uname)
-				val result = alFileExport().apply(alExport)
+				val result = alFileExport().apply(alExportPram)
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete(result)
 			}

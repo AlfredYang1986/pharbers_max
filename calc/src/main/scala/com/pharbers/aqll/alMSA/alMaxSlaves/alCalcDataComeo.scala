@@ -68,6 +68,16 @@ class alCalcDataComeo (c : alCalcParmary,
                 originSender ! calc_data_sum(r.sum)
             }
         }
+        case calc_data_sum2(path) => {
+            // TODO: 现在单机单线程情况，暂时不需要写多机器多线
+            r.isSumed = true
+            sum += 1
+            if (sum == core_number) {
+                r.isSumed = true
+                originSender ! calc_data_sum2(path)
+            }
+        }
+        
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
 
         case push_insert_db_job(source, avg, sub_uuid, insert_sender, tmp) => {
@@ -163,7 +173,7 @@ class alCalcDataComeo (c : alCalcParmary,
     val insert_db_jobs = Ref(List[(alFileOpt, List[(String, Double, Double)], String, ActorRef, alMaxProperty)]())
     val canInDb = Ref(1)
     val insert_db_schedule = context.system.scheduler.schedule(1 second, 1 second, self, insertDbSchedule())
-    val timeoutMessager = context.system.scheduler.scheduleOnce(60 minute) {
+    val timeoutMessager = context.system.scheduler.scheduleOnce(120 minute) {
         self ! calc_data_timeout()
     }
     

@@ -14,7 +14,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import com.pharbers.aqll.alMSA.alMaxCmdMessage._
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileTarGz, memorySplitFile, scpPath, sync}
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig.{serverHost106, serverHost50, serverUser}
 import com.pharbers.aqll.alCalaHelp.dbcores._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
@@ -94,7 +94,6 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			// TODO: 压缩命令结束后，Stop压缩Actor
 			// TODO: 发送SCP命令
 			context stop s
-			//			(s"${memorySplitFile}${fileTarGz}${pr.uuid}.tar.gz", s"${scpPath}", serverHost106, serverUser) ::
 			(s"${memorySplitFile}${fileTarGz}${pr.uuid}.tar.gz", s"${scpPath}", serverHost106, serverUser) :: Nil foreach ( x => cmdActor ! scpmsg(x._1, x._2, x._3, x._4))
 			stay()
 		}
@@ -112,8 +111,27 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			stay()
 		}
 		case Event(group_data_end(r, mp), pr) => {
+			pr.uuid = mp.uuid
 			alMessageProxy().sendMsg("15", pr.uname, Map("uuid" -> mp.uuid, "company" -> pr.company, "type" -> "progress"))
 			self ! push_calc_job_2(mp, pr)
+			goto(calc_maxing) using pr
+			
+			// TODO : 发送pkg的压缩Actor
+//			almp = mp
+//			cmdActor ! pkgmsg(s"${memorySplitFile}${group}${mp.uuid}" :: Nil, s"${memorySplitFile}${fileTarGz}${mp.uuid}")
+//			stay()
+		}
+		case Event(pkgend(s), pr) => {
+			// TODO: 压缩命令结束后，Stop压缩Actor
+			// TODO: 发送SCP命令
+			context stop s
+			(s"${memorySplitFile}${fileTarGz}${pr.uuid}.tar.gz", s"${scpPath}", serverHost106, serverUser) :: Nil foreach ( x => cmdActor ! scpmsg(x._1, x._2, x._3, x._4))
+			stay()
+		}
+		case Event(scpend(s), pr) => {
+			// TODO: SCP命令结束后，Stop ScpActor
+			context stop s
+			self ! push_calc_job_2(almp, pr)
 			goto(calc_maxing) using pr
 		}
 		case Event(group_data_error(reason), pr) => {
@@ -129,6 +147,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			stay()
 		}
 		case Event(calc_data_end(r, mp), pr) => {
+			pr.uuid  = mp.uuid
 			println(mp.finalValue)
             println(mp.finalUnit)
 			finalSuccessWithWork(pr, mp)
@@ -145,7 +164,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val uname = mp.get("uname").getOrElse("")
 			alWeightSum().apply(company, s"$company$uuid")
 			alMessageProxy().sendMsg("100", uname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
-			dbc.getCollection(company + s"$company$uuid").drop()
+			dbc.getCollection(s"$company$uuid").drop()
 			shutCameo()
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 	}
