@@ -8,6 +8,7 @@ package com.pharbers.aqll.common.alDao
 import com.mongodb.casbah.Imports.{MongoDBObject, _}
 import com.mongodb.casbah.{MongoClient, MongoCollection}
 import com.mongodb.{DBObject, MongoCredential}
+import com.pharbers.aqll.common.alDao._data_connection_cores_thread.{_conn, conn_name}
 
 import scala.concurrent.stm.{Ref, atomic}
 
@@ -37,6 +38,8 @@ object dataFactory {
     def getDataCores(host: String = "127.0.0.1", port: Int = 27017, user: String = "", pwd: String = "", dbname: String = "Max_Cores"): data_connection = new DataConnection(host, port, user, pwd, dbname)
 
     def getDataBasic(host: String = "127.0.0.1", port: Int = 27017, user: String = "", pwd: String = "", dbname: String = "Max_Basic"): data_connection = new DataConnection(host, port, user, pwd, dbname)
+    
+    def getDbThread(host: String = "127.0.0.1", port: Int = 27017, user: String = "", pwd: String = "", dbname: String): data_connection = new DataConnectionThread(host, port, user, pwd, dbname)
 }
 
 class DataConnection(host: String, port: Int, user: String, pwd: String, dbname: String) extends data_connection {
@@ -45,10 +48,33 @@ class DataConnection(host: String, port: Int, user: String, pwd: String, dbname:
     override def credentialsList: MongoCredential = MongoCredential.createScramSha1Credential(user, conn_name , pwd.toCharArray)
 }
 
+class DataConnectionThread(host: String, port: Int, user: String, pwd: String, dbname: String) extends data_connection {
+    override def conn_name: String = dbname
+    override def addr: ServerAddress = new ServerAddress(host, port)
+    override def credentialsList: MongoCredential = MongoCredential.createScramSha1Credential(user, conn_name , pwd.toCharArray)
+    
+    var conntion  = Ref(Map[String , MongoCollection]().empty)
+    
+    override def getCollection(coll_name : String) : MongoCollection = {
+        atomic { implicit thx =>
+            if (!conntion.single.get.contains(coll_name)){
+                conntion() = conntion() + (coll_name -> _conn(conn_name).apply(coll_name))
+            }
+            conntion.single.get.get(coll_name).get
+        }
+    }
+    
+    override def releaseConntions = {
+        atomic { implicit thx =>
+            conntion() = Map.empty
+        }
+    }
+}
+
 object _data_connection_cores_thread extends data_connection {
     override def conn_name: String = "Max_Cores"
 
-    override def addr: ServerAddress = new ServerAddress("127.0.0.1",2017)
+    override def addr: ServerAddress = new ServerAddress("127.0.0.1",27017)
     override def credentialsList: MongoCredential = MongoCredential.createScramSha1Credential("Pharbers", conn_name ,"Pharbers2017.".toCharArray)
 
     var conntion  = Ref(Map[String , MongoCollection]().empty)

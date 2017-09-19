@@ -163,7 +163,7 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 		}
 	}
 
-	def commit_finalresult_jobs_func(company: String) = {
+	def commit_finalresult_jobs_func(company: String, uuid: String) = {
 		alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
 			case None => log.info(s"commit_finalresult_jobs_func not company")
 			case Some(x) =>
@@ -174,9 +174,10 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 				log.info(s"开始删除临时表")
 				dbc.getCollection(company + x.uuid).drop()
 				log.info(s"结束删除临时表")
-				val index = alCalcParmary.alParmary.single.get.indexWhere(_.uuid.equals(x.uuid))
-				alCalcParmary.alParmary.single.get.remove(index)
-				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress_calc_result"))
+				atomic { implicit txn =>
+					alCalcParmary.alParmary() = alCalcParmary.alParmary.single.get.filterNot(_.company.equals(x.company))
+				}
+				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
 		}
 	}
 

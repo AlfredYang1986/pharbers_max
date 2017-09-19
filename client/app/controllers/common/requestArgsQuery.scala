@@ -1,5 +1,6 @@
 package controllers.common
 
+import java.io.File
 import javax.inject.Inject
 
 import play.api.mvc._
@@ -7,11 +8,13 @@ import play.api.libs.json.JsValue
 import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
 import akka.pattern.ask
+
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import com.pharbers.aqll.pattern.MessageRoutes
 import com.pharbers.aqll.pattern.excute
 import com.pharbers.aqll.pattern.RoutesActor
+import play.api.libs.Files
 import play.api.libs.Files.TemporaryFile
 
 object requestArgsQuery {
@@ -54,6 +57,23 @@ class requestArgsQuery @Inject() (implicit akkasys : ActorSystem) extends Contro
 			}.getOrElse (BadRequest("Bad Request for input"))
 		} catch {
 			case _ : Exception => BadRequest("Bad Request for input")
+		}
+	}
+	
+	//测试
+	def uploadRequestArgs2(request : Request[TemporaryFile]) : Result = {
+		try {
+//			println(request.body.file)
+//			request.body.moveTo(new File("/Users/qianpeng/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Client/CPA/aa.xlsx"), true)
+//			request.body.asMultipartFormData.map { x =>
+//				Ok(func(x))
+//			}.getOrElse (BadRequest("Bad Request for input"))
+			
+			Ok("File uploaded")
+		} catch {
+			case ex : Exception =>
+				println(ex)
+				BadRequest("Bad Request for input")
 		}
 	}
 }

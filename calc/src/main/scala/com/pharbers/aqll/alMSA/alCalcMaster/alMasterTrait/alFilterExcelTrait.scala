@@ -1,10 +1,14 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.agent.Agent
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
+import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alFilterExcelSlave
+import alFilterExcelSlave.{slaveStatus,slave_status}
 
 import scala.concurrent.duration._
 import scala.concurrent.stm._
@@ -14,6 +18,7 @@ import scala.concurrent.stm._
   */
 
 trait alFilterExcelTrait { this : Actor =>
+
     // TODO : query instance from agent
     def createFilterExcelRouter =
         context.actorOf(
@@ -35,7 +40,7 @@ trait alFilterExcelTrait { this : Actor =>
     }
 
     def canSchduleJob : Boolean = {
-        true
+        slaveStatus().canDoJob
     }
 
     def schduleJob = {
@@ -46,6 +51,7 @@ trait alFilterExcelTrait { this : Actor =>
                 else {
                     filterExcel(tmp.head._1, tmp.head._2, tmp.head._3)
                     filter_jobs() = filter_jobs().tail
+                    slaveStatus send slave_status(false)
                 }
             }
         }
@@ -53,7 +59,6 @@ trait alFilterExcelTrait { this : Actor =>
 
     def filterExcel(file : String, par : alCalcParmary, s : ActorRef) = {
         val cur = context.actorOf(alCameoFilterExcel.props(file, par, s, self, filter_router))
-//        context.watch(cur)
         import alCameoFilterExcel._
         cur ! filter_excel_start()
     }
@@ -69,7 +74,7 @@ object alCameoFilterExcel {
     case class filter_excel_start()
     case class filter_excel_hand()
     case class filter_excel_start_impl(p : String, par : alCalcParmary)
-    case class filter_excel_end(result : Boolean)
+    case class filter_excel_end(result : Boolean, cp: alCalcParmary)
     case class filter_excel_timeout()
 
     def props(file : String,
@@ -101,8 +106,10 @@ class alCameoFilterExcel(val file : String,
                 sign = true
             }
         }
+        // TODO: 内存泄漏，稳定后修改
         case result : filter_excel_end => {
-            owner forward result
+            slaveStatus send slave_status(true)
+//            owner forward result
             shutCameo(result)
         }
     }
@@ -115,6 +122,7 @@ class alCameoFilterExcel(val file : String,
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping filter excel cameo")
+        filter_timer.cancel()
         context.stop(self)
     }
 }

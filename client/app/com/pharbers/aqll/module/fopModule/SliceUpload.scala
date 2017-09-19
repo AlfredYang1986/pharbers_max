@@ -3,18 +3,21 @@ package com.pharbers.aqll.module.fopModule
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc.MultipartFormData
 import java.io._
+
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alString.alStringOpt
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import play.api.libs.Files
 
 /**
   * Created by liwei on 2017/4/7.
   */
 object SliceUpload {
 
+    // TODO ：不知道为啥报错，回头解决@我自己 钱鹏
     // TODO : 多文件上传后台代码
     // TODO : 多文件上传的核心是，前端的文件队列里面，文件一个一个排着队，等第一个文件上传完了，在上传第二个文件，
     // TODO : 前端反复多次调用这个方法，mulitiFIleFileName为当前正在上传的文件名
@@ -23,6 +26,30 @@ object SliceUpload {
             //var lst : List[JsValue] = Nil
             data.files.foreach { x =>
                 val t_lst = getPathByFileType(data)
+                val filename = t_lst.head match {
+                    case "Hospital" => {
+                        val company = data.dataParts.get("company").get.head
+                        val date = data.dataParts.get("date").get.head
+                        val market = data.dataParts.get("market").get.head
+                        alEncryptionOpt.md5(company + date + alStringOpt.removeSpace(market))
+                    }
+                    case _ => x.filename
+                }
+                MergeSliceFile(s"${t_lst.tail.head}$filename", x.ref.file)
+                //lst = lst :+ toJson(filename)
+            }
+            toJson(successToJson())
+        } catch {
+            case ex: Exception => errorToJson(ex.getMessage)
+        }
+    }
+    
+    //测试
+    def ManyFileSlice2(data: MultipartFormData[Files.TemporaryFile]): JsValue = {
+        try {
+            data.files.foreach { x =>
+                val t_lst = getPathByFileType(data)
+                println(t_lst)
                 val filename = t_lst.head match {
                     case "Hospital" => {
                         val company = data.dataParts.get("company").get.head
@@ -76,10 +103,14 @@ object SliceUpload {
         val filetype = data.dataParts.get("filetype").get.head
         val company = data.dataParts.get("company").get.head
         val outpath = filetype match {
-            case "CPA" => s"$root$program$fileBase$company$client_cpa_file"
-            case "GYCX" => s"$root$program$fileBase$company$client_gycx_file"
-            case "Manager" => s"$root$program$fileBase$company$manage_file"
-            case "Hospital" => s"$root$program$fileBase$company$hospitalData"
+//            case "CPA" => s"$root$program$fileBase$company$client_cpa_file"
+//            case "GYCX" => s"$root$program$fileBase$company$client_gycx_file"
+//            case "Manager" => s"$root$program$fileBase$company$manage_file"
+//            case "Hospital" => s"$root$program$fileBase$company$hospitalData"
+            case "CPA" => s"$fileBase$company$client_cpa_file"
+            case "GYCX" => s"$fileBase$company$client_gycx_file"
+            case "Manager" => s"$fileBase$company$manage_file"
+            case "Hospital" => s"$fileBase$company$hospitalData"
         }
         val dirfile = new File(outpath)
         if (!dirfile.exists()) {

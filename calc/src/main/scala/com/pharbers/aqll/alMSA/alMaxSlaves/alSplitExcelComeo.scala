@@ -4,7 +4,9 @@ import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_jobs
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.{split_excel_end, split_excel_start_impl, split_excel_timeout}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 
 import scala.concurrent.duration._
 
@@ -13,23 +15,19 @@ import scala.concurrent.duration._
   */
 
 object alSplitExcelComeo {
-    def props(file : String, par : alCalcParmary, originSender : ActorRef, owner : ActorRef) =
-        Props(new alSplitExcelComeo(file, par, originSender, owner))
+    def props(file : String, par : alCalcParmary, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
+        Props(new alSplitExcelComeo(file, par, originSender, owner, counter))
 }
 
 class alSplitExcelComeo(file : String,
                         par : alCalcParmary,
                         originSender : ActorRef,
-                        owner : ActorRef) extends Actor with ActorLogging {
-
-    override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
-        case _ => Restart
-    }
+                        owner : ActorRef,
+                        counter : ActorRef) extends Actor with ActorLogging {
 
     override def postRestart(reason: Throwable) : Unit = {
-        super.postRestart(reason)
-        // TODO : 计算次数，从新计算
-        self ! split_excel_start_impl(file, par)
+        // TODO : 计算次数，重新计算
+        counter ! canIReStart(reason)
     }
 
     override def receive: Receive = {
@@ -43,14 +41,22 @@ class alSplitExcelComeo(file : String,
         }
         case split_excel_start_impl(f, c) => {
             val result = max_jobs(file).result
+            
             try {
                 val (p, sb) = result.map (x => x).getOrElse(throw new Exception("cal error"))
                 c.uuid = p.toString
-                sender ! split_excel_end(true, p.toString, sb.asInstanceOf[List[String]], c)
+                self ! split_excel_end(true, p.toString, sb.asInstanceOf[List[String]], c)
 
             } catch {
-                case _ : Exception => sender ! split_excel_end(false, "", Nil, c)
+                case _ : Exception => self ! split_excel_end(false, "", Nil, c)
             }
+        }
+
+        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! split_excel_start_impl(file, par)
+
+        case cannotRestart(reason: Throwable) => {
+            new alMessageProxy().sendMsg("100", par.uname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            self ! split_excel_end(false,"",Nil,null)
         }
     }
 
@@ -62,6 +68,7 @@ class alSplitExcelComeo(file : String,
     def shutSlaveCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping split excel cameo")
+        timeoutMessager.cancel()
         context.stop(self)
     }
 }

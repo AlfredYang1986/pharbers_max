@@ -3,6 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
+import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
@@ -12,6 +13,7 @@ import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefine
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
+import alGroupDataSlave.{slaveStatus,slave_status}
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._
@@ -22,9 +24,9 @@ import scala.concurrent.duration._
 trait alGroupDataTrait { this : Actor =>
     def createGroupRouter =
         context.actorOf(
-            ClusterRouterPool(BroadcastPool(2),
+            ClusterRouterPool(BroadcastPool(1),
                 ClusterRouterPoolSettings(
-                    totalInstances = 2,
+                    totalInstances = 1,
                     maxInstancesPerNode = 1,
                     allowLocalRoutees = false,
                     useRole = Some("splitgroupslave")
@@ -40,7 +42,7 @@ trait alGroupDataTrait { this : Actor =>
     }
 
     def canSchduleGroupJob : Boolean = {
-        true
+        slaveStatus().canDoJob
     }
 
     def schduleGroupJob = {
@@ -51,6 +53,7 @@ trait alGroupDataTrait { this : Actor =>
                 else {
                     groupData(tmp.head._1, tmp.head._2)
                     group_jobs() = group_jobs().tail
+                    slaveStatus send slave_status(false)
                 }
             }
         }
@@ -74,6 +77,7 @@ object alCameoGroupData {
     case class group_data_start_impl(sub : alMaxProperty)
     case class group_data_end(result : Boolean, property : alMaxProperty)
     case class group_data_timeout()
+    case class group_data_error(reason: Throwable)
 
     def props(property : alMaxProperty,
               originSender : ActorRef,
@@ -109,6 +113,7 @@ class alCameoGroupData (val property : alMaxProperty,
             }
         }
         case group_data_end(result, mp) => {
+            slaveStatus send slave_status(true)
             if (result) {
                 cur += 1
                 resetSubGrouping(mp)
@@ -117,31 +122,38 @@ class alCameoGroupData (val property : alMaxProperty,
                     unionResult
 
                     val r = group_data_end(true, property)
-                    owner ! r
+//                    owner ! r
                     shutCameo(r)
                 }
             } else {
                 val r = group_data_end(false, property)
-                owner ! r
+//                owner ! r
                 shutCameo(r)
             }
+        }
+        case group_data_error(reason) => {
+            originSender ! group_data_error(reason)
         }
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val group_timer = context.system.scheduler.scheduleOnce(10 minute) {
+    val group_timer = context.system.scheduler.scheduleOnce(60 minute) {
         self ! group_data_timeout()
     }
 
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping group data cameo")
+        group_timer.cancel()
         context.stop(self)
     }
 
     def unionResult = {
         val common = common_jobs()
-        common.cur = Some(alStage(property.subs map (x => "config/group/" + x.uuid)))
+
+        import com.pharbers.aqll.common.alFileHandler.fileConfig._
+        common.cur = Some(alStage(property.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
+
         common.process = restore_grouped_data() ::
             do_calc() :: do_union() :: do_calc() ::
             do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil

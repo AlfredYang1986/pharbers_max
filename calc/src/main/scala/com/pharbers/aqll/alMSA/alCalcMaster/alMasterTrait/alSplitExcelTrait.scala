@@ -5,7 +5,7 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alMSA.alMaxSlaves.alSplitExcelSlave
-
+import alSplitExcelSlave.{slaveStatus, slave_status}
 import scala.concurrent.duration._
 import scala.concurrent.stm._
 
@@ -33,7 +33,7 @@ trait alSplitExcelTrait { this : Actor =>
     }
 
     def canSchduleSplitExcelJob : Boolean = {
-        true
+        slaveStatus().canDoJob
     }
 
     def schduleSplitExcelJob = {
@@ -42,9 +42,9 @@ trait alSplitExcelTrait { this : Actor =>
                 val tmp = split_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    println(s"head is ${tmp.head}")
                     splitExcel(tmp.head._1, tmp.head._2, tmp.head._3)
                     split_jobs() = split_jobs().tail
+                    slaveStatus send slave_status(false)
                 }
             }
         }
@@ -101,7 +101,8 @@ class alCameoSplitExcel (val file : String,
             }
         }
         case result : split_excel_end => {
-            owner forward result
+            slaveStatus send slave_status(true)
+//            owner forward result
             shutCameo(result)
         }
     }
@@ -114,6 +115,7 @@ class alCameoSplitExcel (val file : String,
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping split excel cameo")
+        split_timer.cancel()
         context.stop(self)
     }
 }

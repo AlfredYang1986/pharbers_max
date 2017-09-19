@@ -21,7 +21,6 @@ class alGroupSlaveImpl extends Actor with ActorLogging {
     override def receive: Receive = {
         case group_data_hand() => sender ! group_data_hand()
         case group_data_start_impl(p) => {
-            println(s"alfred grouping $p")
             val cj = concert_grouping_jobs(Map(concert_grouping_jobs.max_uuid -> p.parent, concert_grouping_jobs.group_uuid -> p.uuid))
             cj.result
             val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]

@@ -1,25 +1,16 @@
-@(auth: String,markets : List[String], dates : List[Map[String,Any]])
 <div class="wrapper wrapper-content animated fadeInRight" >
     <div class="wrapper wrapper-content animated fadeInRight" >
         <div class="row">
             <div class="col-sm-3 col-md-3">
                 <div class="form-group">
                     <label class="control-label" for="status">市场</label>
-                    <select data-name="search-result-market" id="result_check_market" class="form-control">
-                        @{markets map { market =>
-                            <option>{market}</option>
-                        }};
-                    </select>
+                    <select data-name="search-result-market" id="result_check_market" class="form-control"></select>
                 </div>
             </div>
             <div class="col-sm-3 col-md-3">
                 <div class="form-group">
                     <label class="control-label">日期</label>
-                    <select data-name="search-result-date" id="result_check_date" class="form-control">
-                        @{dates map { date =>
-                            <option>{date.get("name").get}</option>
-                        }};
-                    </select>
+                    <select data-name="search-result-date" id="result_check_date" class="form-control"></select>
                 </div>
             </div>
         </div>

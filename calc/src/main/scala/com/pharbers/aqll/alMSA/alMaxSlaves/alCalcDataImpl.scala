@@ -30,7 +30,6 @@ object alCalcDataImpl {
 
 class alCalcDataImpl extends Actor with ActorLogging {
 
-//    var uuid : String = ""
     var unit: Double = 0.0
 	var value: Double = 0.0
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
@@ -48,31 +47,29 @@ class alCalcDataImpl extends Actor with ActorLogging {
 
             val recall = resignIntegratedData(p.parent)(concert)
             concert.data.zipWithIndex.foreach { x =>
+                
                 max_precess(x._1.asInstanceOf[IntegratedData],
                     p.subs.head.uuid,
-                    Some(x._2 + "/" + concert.data.length))(recall)(c)
+                    Some(s"${x._2}/${concert.data.length}"))(recall)(c)
             }
 
             log.info(s"concert uuid ${p.subs.head.uuid} end")
             val s = (maxSum.toList.groupBy(_._1) map { x =>
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
             }).toList
-
-            println(s"calcing sum is ${s}")
+    
             sender ! calc_data_sum(s)
-//            sender ! calc_data_end(true, p)
         }
         case calc_data_average(avg) => {
             import scala.math.BigDecimal
 
-            println("avg start")
             val sub_uuid = tmp.subs.head.uuid
-//            val path = s"${memorySplitFile}${calc}$sub_uuid"
-            val path = "config/calc/" + sub_uuid
+
+            val path = s"${memorySplitFile}${calc}$sub_uuid"
+
             val dir = alFileOpt(path)
             if (!dir.isExists)
                 dir.createDir
-
             val source = alFileOpt(path + "/" + "data")
             if (source.isExists) {
                 source.enumDataWithFunc { line =>
@@ -80,33 +77,23 @@ class alCalcDataImpl extends Actor with ActorLogging {
 
                     avg.find(p => p._1 == mrd.segment).map { x =>
                         if (mrd.ifPanelAll.equals("1")) {
-                            // mrd.set_finalResultsValue(BigDecimal(mrd.sumValue.toString).toDouble)
-                            // mrd.set_finalResultsUnit(BigDecimal(mrd.volumeUnit.toString).toDouble)
                             mrd.set_finalResultsValue(mrd.sumValue)
                             mrd.set_finalResultsUnit(mrd.volumeUnit)
                         } else {
-
                             mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
                             mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-
-                            // mrd.set_finalResultsValue(x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble)
-                            // mrd.set_finalResultsUnit(x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble)
                         }
 
                     }.getOrElse(Unit)
-
                     unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
                     value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
 
-//                    atomic { implicit thx =>
-//                        alInertDatabase().apply(mrd, sub_uuid)
-//                    }
+                    atomic { implicit thx =>
+                        alInertDatabase().apply(mrd, sub_uuid)
+                    }
                 }
                 log.info(s"calc done at $sub_uuid")
             }
-
-            println(s"value is $value")
-            println(s"unit is $unit")
 
             sender ! calc_data_result(value, unit)
             sender ! calc_data_end(true, tmp)
@@ -135,8 +122,8 @@ class alCalcDataImpl extends Actor with ActorLogging {
                     backfireData(mrd)(recall)
                 }
 
-//            val path = s"${memorySplitFile}${calc}$sub_uuid"
-            val path = "config/calc/" + sub_uuid
+            val path = s"${memorySplitFile}${calc}$sub_uuid"
+          
             val dir = alFileOpt(path)
             if (!dir.isExists)
                 dir.createDir
@@ -151,8 +138,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
 
     def resignIntegratedData(parend_uuid: String)(group: alStorage): List[IntegratedData] = {
         val recall = common_jobs()
-//        val path = s"${memorySplitFile}${sync}$parend_uuid"
-        val path = "config/sync/" + parend_uuid
+        val path = s"${memorySplitFile}${sync}$parend_uuid"
         recall.cur = Some(alStage(alFileOpt(path).exHideListFile))
         recall.process = restore_data() :: do_calc() :: do_union() ::
             do_map(alShareData.txt2IntegratedData(_)) :: do_filter { iter =>

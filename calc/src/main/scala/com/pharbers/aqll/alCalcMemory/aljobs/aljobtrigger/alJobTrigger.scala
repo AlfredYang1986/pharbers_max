@@ -32,7 +32,7 @@ object alJobTrigger {
 
     case class filter_excel_jobs(file: String, p: alCalcParmary, actorSelection: ActorSelection)
     case class filter_excel_job_2(file : String, p : alCalcParmary)
-    case class commit_finalresult_jobs(company: String)
+    case class commit_finalresult_jobs(company: String, uuid: String)
     case class check_excel_jobs(company: String,filename: String)
     /**
       * for split excel
@@ -95,4 +95,11 @@ object alJobTrigger {
     case class crash_calc(uuid: String, msg: String)
     case class crash_group(uuid: String, msg: String)
     case class clean_crash_actor(uuid: String)
+
+    /**
+      * for reStart count
+      */
+    case class canIReStart(reason: Throwable)
+    case class canDoRestart(reason: Throwable)
+    case class cannotRestart(reason: Throwable)
 }

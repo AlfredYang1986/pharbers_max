@@ -26,11 +26,13 @@ GET		/historyData                        controllers.alMaxRouterController.histo
 GET		/filesupload				        controllers.alMaxRouterController.filesUpload
 GET     /pharbers/files/:name               controllers.FopController.downloadFile(name)
 POST	/pharbers/files/upload		        controllers.FopController.uploadFile
+#POST	/pharbers/files/upload		        controllers.FopController.upload
 POST    /filesUpload/scpCopyFiles           controllers.FilesUploadController.scpCopyFiles
 POST    /filesUpload/removeFiles            controllers.FilesUploadController.removeFiles
 #   样本检查
 GET		/samplecheck				        controllers.alMaxRouterController.sampleCheck
 POST	/samplecheck/check			        controllers.SampleCheckController.sampleCheck
+POST    /samplecheck/reloadselect           controllers.SampleCheckController.reloadSelect
 #   样本报告
 GET		/samplereport				        controllers.alMaxRouterController.samplereport
 POST	/samplereport/report		        controllers.SampleReportController.sampleReport

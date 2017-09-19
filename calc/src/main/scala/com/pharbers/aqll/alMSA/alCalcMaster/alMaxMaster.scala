@@ -1,11 +1,12 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alCalcDataTrait, alFilterExcelTrait, alGroupDataTrait, alSplitExcelTrait}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_slave_status
 
 /**
-  * Created by alfredyang on 11/07/2017.
+  * Created by alfredyang on 11/s07/2017.
   */
 object alMaxMaster {
     def props = Props[alMaxMaster]
@@ -31,5 +32,7 @@ class alMaxMaster extends Actor
 
         case push_calc_job_2(property, parmary) => pushCalcJob(property, parmary, sender)
         case calc_schedule() => schduleCalcJob
+        case calc_slave_status() => setSlaveStatus
     }
+
 }
