@@ -1,19 +1,20 @@
 package module
 
-import com.pharbers.aqll.dbmodule.MongoDBModule
 import com.mongodb.{BasicDBList, BasicDBObject, DBObject}
 import com.pharbers.aqll.common.alDao.data_connection
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import play.api.libs.json.JsValue
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
+import com.pharbers.aqll.common.{DBConection, alCommonEnum}
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import module.common.alCommonEnum
+import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.pharbers.bmpattern.ModuleTrait
 
 object UserManageModuleMessage {
-    sealed class msg_UserManageBase extends CommonMessage
+    sealed class msg_UserManageBase extends CommonMessage("usermanage", UserManageModule)
     case class msg_usermanage_query(data: JsValue) extends msg_UserManageBase
     case class msg_usermanage_delete(data: JsValue) extends msg_UserManageBase
     case class msg_usermanage_findOne(data: JsValue) extends msg_UserManageBase
@@ -22,21 +23,23 @@ object UserManageModuleMessage {
 
 object UserManageModule extends ModuleTrait {
     import UserManageModuleMessage._
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_usermanage_query(data) => query_user_func(data)
         case msg_usermanage_delete(data) => delete_user_func(data)
         case msg_usermanage_findOne(data) => findOne_user_func(data)
         case msg_usermanage_save(data) => save_user_func(data)
     }
 
-    def query_user_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def query_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+        implicit val db = DBConection.basic
         try {
             val Company_Id = (data \ "Company_Id").get.asOpt[String].get
             val result = Company_Id match {
-                case i if i.equals("788d4ff5836bcee2ebf4940fec882ac8") => db.basic.getCollection("Company").find().toList.map(x => queryUserDBObject(x: DBObject))
+                case i if i.equals("788d4ff5836bcee2ebf4940fec882ac8") => db.getCollection("Company").find().toList.map(x => queryUserDBObject(x: DBObject))
                 case _ => {
                     val query = MongoDBObject("Company_Id" -> Company_Id)
-                    db.basic.getCollection("Company").find(query).toList.map(x => queryUserDBObject(x: DBObject))
+                    db.getCollection("Company").find(query).toList.map(x => queryUserDBObject(x: DBObject))
                 }
             }
             (successToJson(toJson(result)), None)
@@ -65,11 +68,13 @@ object UserManageModule extends ModuleTrait {
         toJson(User_lst)
     }
 
-    def delete_user_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def delete_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+        implicit val db = DBConection.basic
         try {
             val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse("")
             val IDs = (data \ "IDs").get.asOpt[List[String]].getOrElse(Nil)
-            val companys = findOneByCompany(db.basic,Company_Id)
+            val companys = findOneByCompany(db,Company_Id)
             val com_head = companys.head
             val query = MongoDBObject("Company_Id" -> Company_Id)
             val document: BasicDBObject = new BasicDBObject()
@@ -97,11 +102,11 @@ object UserManageModule extends ModuleTrait {
                 }
             }
             document.put("User_lst",sub_user_list)
-            val del_result = db.basic.getCollection("Company").findAndRemove(query)
+            val del_result = db.getCollection("Company").findAndRemove(query)
             del_result match {
                 case None => throw new Exception("warn operation failed")
                 case _ => {
-                    db.basic.getCollection("Company").insert(document) getN match {
+                    db.getCollection("Company").insert(document) getN match {
                         case 0 => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
                         case _ => throw new Exception("warn operation failed")
                     }
@@ -112,8 +117,9 @@ object UserManageModule extends ModuleTrait {
         }
     }
 
-    def findOne_user_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        implicit val basic = db.basic
+    def findOne_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection")).basic
+        implicit val db = DBConection.basic
         import com.pharbers.aqll.common.alDao._
         try {
             val account = (data \ "account").asOpt[String]
@@ -177,7 +183,9 @@ object UserManageModule extends ModuleTrait {
         }
     }
 
-    def save_user_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def save_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+        implicit val db = DBConection.basic
         try {
             val au = (data \ "au").get.asOpt[String].getOrElse("")
             val Account = (data \ "Account").get.asOpt[String].getOrElse("")
@@ -198,7 +206,7 @@ object UserManageModule extends ModuleTrait {
                 "isadministrator" -> isadmin,
                 "Timestamp" -> System.currentTimeMillis()
             )
-            val companys = findOneByCompany(db.basic,Company_Id)
+            val companys = findOneByCompany(db,Company_Id)
             companys match {
                 case Nil => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
                 case _ => {
@@ -208,7 +216,7 @@ object UserManageModule extends ModuleTrait {
                             companys.find(x => x.get("User_ID").get.asInstanceOf[String].equals(ID)) match {
                                 case None => {
                                     val query = MongoDBObject("Company_Id" -> Company_Id)
-                                    db.basic.getCollection("Company").findAndRemove(query)
+                                    db.getCollection("Company").findAndRemove(query)
                                     val doc = MongoDBObject(
                                         "Company_Id" -> com_head.get("Company_Id").get.asInstanceOf[String],
                                         "Company_Name" -> MongoDBList(MongoDBObject(
@@ -228,7 +236,7 @@ object UserManageModule extends ModuleTrait {
                                                 "Timestamp" -> x.get("Timestamp").get.asInstanceOf[Number].longValue()
                                             )
                                         }))
-                                    db.basic.getCollection("Company").insert(doc) getN match {
+                                    db.getCollection("Company").insert(doc) getN match {
                                         case 0 => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
                                         case _ => throw new Exception("warn operation failed")
                                     }
@@ -261,7 +269,7 @@ object UserManageModule extends ModuleTrait {
                                     }
 
                                 })
-                            db.basic.getCollection("Company").update(query,sql).getN match {
+                            db.getCollection("Company").update(query,sql).getN match {
                                 case 1 => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
                                 case _ => throw new Exception("warn operation failed")
                             }

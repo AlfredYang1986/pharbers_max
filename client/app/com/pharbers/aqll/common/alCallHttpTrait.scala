@@ -1,8 +1,8 @@
-package module.common
+package com.pharbers.aqll.common
 
-import com.pharbers.aqll.common.HTTP
-import play.api.libs.json.JsValue
 import com.pharbers.aqll.common.alFileHandler.akkaConfig._
+import com.pharbers.http.HTTP
+import play.api.libs.json.JsValue
 
 /**
   * Created by liwei on 2017/5/17.

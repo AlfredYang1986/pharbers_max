@@ -1,4 +1,4 @@
-package module.common
+package com.pharbers.aqll.common
 
 /**
   * Created by liwei on 2017/5/22.

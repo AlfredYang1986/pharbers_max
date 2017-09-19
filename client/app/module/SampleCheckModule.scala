@@ -2,20 +2,22 @@ package module
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import module.common.{alModularEnum, alNearDecemberMonth}
+import module.common.alNearDecemberMonth
 import com.pharbers.aqll.common.alDao.data_connection
 
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.dbmodule.MongoDBModule
+import com.pharbers.aqll.common.{DBConection, alModularEnum}
+import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.pharbers.bmpattern.ModuleTrait
 import module.common.alPageDefaultData.PageDefaultData
 
 object SampleCheckModuleMessage {
-	sealed class msg_CheckBaseQuery extends CommonMessage
+	sealed class msg_CheckBaseQuery extends CommonMessage("samplecheck", SampleCheckModule)
 	
 	case class msg_reloadselectvalue(data: JsValue) extends msg_CheckBaseQuery
 	case class msg_samplecheck(data: JsValue) extends msg_CheckBaseQuery
@@ -24,16 +26,19 @@ object SampleCheckModuleMessage {
 object SampleCheckModule extends ModuleTrait {
 	import SampleCheckModuleMessage._
 
-	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_reloadselectvalue(data) => reloadselect(data)
 		case msg_samplecheck(data) => msg_check_func(data)(pr)
 	}
 	
 	/*加载下拉框数据*/
-	def reloadselect(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def reloadselect(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+//		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+		val basic = DBConection.basic
+		val cores = DBConection.cores
 		try {
 			//多个公司进行计算的时候会出现问题，以后再改先记着
-			val defaultdata = PageDefaultData(alModularEnum.SC, db.basic, db.cores, false)
+			val defaultdata = PageDefaultData(alModularEnum.SC, basic, cores, false)
 			val temp = defaultdata._2.map( x => x.map(z => Map(z._1 -> toJson(z._2.toString.toLong))).toList).flatten.sliding(2,2).toList.map(x => x.head ++ x.last)
 			(successToJson(toJson(Map("marketlst" -> toJson(defaultdata._1), "datelst" -> toJson(temp)))), None)
 		} catch {
@@ -47,19 +52,21 @@ object SampleCheckModule extends ModuleTrait {
 		* @param data
 		* @return
 		*/
-	def msg_check_func(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_check_func(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val market = (data \ "market").asOpt[String].getOrElse("")
 		val date = (data \ "date").asOpt[String].getOrElse("")
+//		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+		implicit val db = DBConection.cores
 		try {
-			val cur12_date = matchThisYearData(alNearDecemberMonth.diff12Month(date),queryNearTwelveMonth(db.cores,company,market,date))
-			val las12_date = matchLastYearData(alNearDecemberMonth.diff12Month(date),queryLastYearTwelveMonth(db.cores,company,market,date))
+			val cur12_date = matchThisYearData(alNearDecemberMonth.diff12Month(date),queryNearTwelveMonth(db,company,market,date))
+			val las12_date = matchLastYearData(alNearDecemberMonth.diff12Month(date),queryLastYearTwelveMonth(db,company,market,date))
 
-			val cur_data = query_cel_data(db.cores,query(company,market,date,"cur"))
-			val ear_data = query_cel_data(db.cores,query(company,market,date,"ear"))
-			val las_data = query_cel_data(db.cores,query(company,market,date,"las"))
+			val cur_data = query_cel_data(db,query(company,market,date,"cur"))
+			val ear_data = query_cel_data(db,query(company,market,date,"ear"))
+			val las_data = query_cel_data(db,query(company,market,date,"las"))
 
-			val mismatch_lst = misMatchHospital(db.cores,query(company,market,date,"cur"));
+			val mismatch_lst = misMatchHospital(db,query(company,market,date,"cur"));
 
 			(successToJson(toJson(Map(
 				"cur_data" -> cur_data,

@@ -15,11 +15,20 @@ lazy val root = (project in file(".")).
 
 routesGenerator := InjectedRoutesGenerator
 
+resolvers += Resolver.mavenLocal
+
 libraryDependencies ++= Seq(
 	jdbc,
 	cache,
 	ws,
-	"org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test"
+	"org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test",
+	"commons-httpclient" % "commons-httpclient" % "3.1",
+	"com.pharbers" % "pharbers-modules" % "0.1",
+	"com.pharbers" % "pharbers-pattern" % "0.1",
+	"com.pharbers" % "auth-token" % "0.1",
+	"com.pharbers" % "encrypt" % "0.1",
+	"com.pharbers" % "http" % "0.1",
+	"com.pharbers" % "errorcode" % "0.1"
 )
 
 

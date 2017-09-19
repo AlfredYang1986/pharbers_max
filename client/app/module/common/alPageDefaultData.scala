@@ -2,6 +2,7 @@ package module.common
 
 import com.pharbers.aqll.common.alDao.data_connection
 import com.pharbers.aqll.common.alDate.scala.alDateOpt._
+import com.pharbers.aqll.common.alModularEnum
 
 /**
   * Created by liwei on 2017/1/4.
