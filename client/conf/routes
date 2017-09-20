@@ -13,7 +13,12 @@
 #POST    /register/checkAuthTokenExpire              controllers.LogSysController.RegisterController.checkAuthTokenExpire
 
 POST    /register/user                               controllers.register.RegisterController.user_register
-POST    /register/querybd                               controllers.register.RegisterController.query_register_bd
+POST    /register/querybd                            controllers.register.RegisterController.query_register_bd
+
+
+POST    /user/push                                   controllers.users.UsersController.user_push
+POST    /user/delete                                 controllers.users.UsersController.user_delete
+POST    /user/querypage                              controllers.users.UsersController.user_query
 
 # 业务模块
 #   用户登录
