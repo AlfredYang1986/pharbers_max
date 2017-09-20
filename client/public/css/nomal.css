@@ -60,20 +60,24 @@
 .cer-mark{
 }
 .cenPanel-title{
-    padding: 10px 15px;
+    padding: 10px 20px;
     border-bottom: 1px solid transparent;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
-    height: 40px;
+    height: 50px;
 }
 
 .cenPanel-content{
     padding: 15px;
-    height: 300px;
+    height: 500px;
 }
 .box_size{
     margin-left: 30%;
     margin-right: 30%;
+}
+.form_tip_bottom{
+    height: 20px;
+    padding: 5px 3px;
 }
 /*********************微调通用*****************************/
 .toRight{
@@ -97,9 +101,23 @@
 
 }
 
+.line-80{
+    height: 1px;
+    padding:0px;
+    background-color:#009688;
+    overflow:hidden;
+    margin:10px 10%;
+
+}
+.user-img{
+    width:60px;
+    height:60px;
+    border-radius:50%
+}
+
 /*************************个性*******************************/
 .login_btn{
-    margin: 15px 30px;
+    margin: 12px 30px;
     background-color: #009688;
     color: #fff;
     white-space: nowrap;
@@ -113,5 +131,22 @@
     font-size: 18px;
 }
 .login_btn:hover{
+    background-color: #00796b;
+}
+.nomal_btn{
+    height: 34px;
+    margin: 0px 20px;
+    background-color: #009688;
+    color: #fff;
+    white-space: nowrap;
+    text-align: center;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: .9;
+    padding: 7px 0px 7px 0px;
+    font-size: 16px;
+}
+.nomal_btn:hover{
     background-color: #00796b;
 }
