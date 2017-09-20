@@ -30,8 +30,8 @@ object ResultCheckModule extends ModuleTrait {
 	}
 
 	def msg_linechart_func(data : JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-		implicit val db = conn.queryDBInstance("cli").get//DBConection.cores
+		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//		implicit val db = conn.queryDBInstance("cli").get//DBConection.cores
 		try {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
@@ -45,8 +45,8 @@ object ResultCheckModule extends ModuleTrait {
 	}
 
 	def msg_histogram_func(data : JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-//		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-		implicit val db = DBConection.cores
+		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//		implicit val db = DBConection.cores
 		try {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")

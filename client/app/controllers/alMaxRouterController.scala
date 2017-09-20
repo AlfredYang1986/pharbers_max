@@ -6,14 +6,18 @@ import akka.actor.ActorSystem
 import com.pharbers.aqll.common.{alAdminEnum, alModularEnum}
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.mongodbConnect.connection_instance
 import com.pharbers.token.AuthTokenTrait
 import module.common.alPageDefaultData._
 import play.api.mvc._
 
-class alMaxRouterController@Inject()(as_inject : ActorSystem, dbc : dbInstanceManager, att : AuthTokenTrait) extends Controller {
+class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstanceManager, att : AuthTokenTrait) extends Controller {
     implicit val as = as_inject
     implicit val db_cores : DBTrait = dbc.queryDBInstance("calc").get
     implicit val db_basic : DBTrait = dbc.queryDBInstance("cli").get
+
+    implicit val db_cores_connection : connection_instance = dbc.queryDBConnection("calc").get
+    implicit val db_basic_connection : connection_instance = dbc.queryDBConnection("cli").get
 
     //登录
     def login = Action { request =>
@@ -56,7 +60,7 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, dbc : dbInstanceMa
 
     //历史数据
     def historyData = Action { request =>
-        Ok(views.html.HistoryData(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, db_basic, db_basic)._1))
+        Ok(views.html.HistoryData(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, db_basic_connection, db_basic_connection)._1))
     }
 
 
@@ -65,7 +69,7 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, dbc : dbInstanceMa
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            Ok(views.html.filesUpload(getAdminByCookies(request), PageDefaultData(alModularEnum.FU, db_basic, db_basic)._1))
+            Ok(views.html.filesUpload(getAdminByCookies(request), PageDefaultData(alModularEnum.FU, db_basic_connection, db_basic_connection)._1))
         }
     }
     
@@ -74,7 +78,7 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, dbc : dbInstanceMa
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            val defaultdata = PageDefaultData(alModularEnum.SC, db_basic, db_basic, false)
+            val defaultdata = PageDefaultData(alModularEnum.SC, db_basic_connection, db_basic_connection, false)
             Ok(views.html.sampleCheck(getAdminByCookies(request), defaultdata._1, defaultdata._2))
         }
     }
@@ -84,7 +88,7 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, dbc : dbInstanceMa
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            Ok(views.html.sampleReport(getAdminByCookies(request), PageDefaultData(alModularEnum.SR, db_basic, db_basic)._1))
+            Ok(views.html.sampleReport(getAdminByCookies(request), PageDefaultData(alModularEnum.SR, db_basic_connection, db_basic_connection)._1))
         }
     }
 
@@ -93,7 +97,7 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, dbc : dbInstanceMa
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            val defaultdata = PageDefaultData(alModularEnum.RC, db_basic, db_basic, false)
+            val defaultdata = PageDefaultData(alModularEnum.RC, db_basic_connection, db_basic_connection, false)
             Ok(views.html.resultCheck(getAdminByCookies(request), defaultdata._1, defaultdata._2))
         }
     }
@@ -103,7 +107,7 @@ class alMaxRouterController@Inject()(as_inject : ActorSystem, dbc : dbInstanceMa
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
         } else {
-            Ok(views.html.resultQuery(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, db_basic, db_basic)._1))
+            Ok(views.html.resultQuery(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, db_basic_connection, db_basic_connection)._1))
         }
     }
 

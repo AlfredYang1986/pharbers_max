@@ -11,7 +11,7 @@ import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
-import com.pharbers.mongodbConnect.from
+import com.pharbers.mongodbConnect.{connection_instance, from}
 
 object LoginModuleMessage {
     sealed class msg_LoginBaseQuery extends CommonMessage("login", LoginModule)
@@ -26,8 +26,8 @@ object LoginModule extends ModuleTrait {
     }
 
     def login(data: JsValue, ip: String)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        implicit val db = conn.queryDBInstance("cli").get//DBConection.basic
+        implicit val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//        implicit val db = conn.queryDBInstance("cli").get//DBConection.basic
 //        val con = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
@@ -54,7 +54,6 @@ object LoginModule extends ModuleTrait {
                     conditions match {
                         case x: List[DBObject] =>
                             val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))
-                            println(t)
                             val tmp = (from db () in "Company" where t).selectAggregate(resultData(_, ip)).toList
                             tmp match {
                                 case Nil => throw new Exception("warn user not exist")
