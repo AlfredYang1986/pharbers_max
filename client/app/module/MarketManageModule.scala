@@ -9,6 +9,8 @@ import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.mongodbConnect.connection_instance
 
 object MarketManageModuleMessage {
     sealed class msg_MarketManageBase extends CommonMessage("marketmanage", MarketManageModule)
@@ -35,8 +37,8 @@ object MarketManageModule extends ModuleTrait {
       * @return
       */
     def queryMarkets_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-        implicit val db = DBConection.basic
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//        implicit val db = conn.queryDBInstance("cli").get//DBConection.basic
         try {
             val result = db.getCollection("Market").find().map(x =>
                 toJson(Map(
@@ -59,8 +61,8 @@ object MarketManageModule extends ModuleTrait {
       * @return
       */
     def deleteMarkets_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-        implicit val db = DBConection.basic
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//        implicit val db = DBConection.basic
         try {
             val market_ids = (data \ "Market_Id").get.asOpt[List[String]].getOrElse(throw new Exception("info select markets you want to delete"))
             val result = market_ids map (x => db.getCollection("Market").findAndRemove(MongoDBObject("Market_Id" -> x)))
@@ -81,8 +83,8 @@ object MarketManageModule extends ModuleTrait {
       * @return
       */
     def findOneMarket_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-        implicit val db = DBConection.basic
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//        implicit val db = DBConection.basic
         try {
             val Market_Id = (data \ "Market_Id").get.asOpt[String].getOrElse("")
             val query =MongoDBObject("Market_Id" -> Market_Id)
@@ -110,8 +112,8 @@ object MarketManageModule extends ModuleTrait {
       * @return
       */
     def saveMarket_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        implicit val db = DBConection.basic
-//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+//        implicit val db = DBConection.basic
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         try {
             val Market_Name = (data \ "Market_Name").get.asOpt[String].getOrElse("")
             val au = (data \ "au").get.asOpt[String].getOrElse("")

@@ -11,9 +11,9 @@ import com.pharbers.mongodbConnect.connection_instance
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.common.{DBConection, alModularEnum}
-import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
 import module.common.alPageDefaultData.PageDefaultData
 
 object SampleCheckModuleMessage {
@@ -33,9 +33,8 @@ object SampleCheckModule extends ModuleTrait {
 	
 	/*加载下拉框数据*/
 	def reloadselect(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-//		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-		val basic = DBConection.basic
-		val cores = DBConection.cores
+		val basic =cm.modules.get.get("cli").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+		val cores = cm.modules.get.get("calc").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
 		try {
 			//多个公司进行计算的时候会出现问题，以后再改先记着
 			val defaultdata = PageDefaultData(alModularEnum.SC, basic, cores, false)
@@ -56,8 +55,8 @@ object SampleCheckModule extends ModuleTrait {
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val market = (data \ "market").asOpt[String].getOrElse("")
 		val date = (data \ "date").asOpt[String].getOrElse("")
-//		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-		implicit val db = DBConection.cores
+		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//		implicit val db = DBConection.cores
 		try {
 			val cur12_date = matchThisYearData(alNearDecemberMonth.diff12Month(date),queryNearTwelveMonth(db,company,market,date))
 			val las12_date = matchLastYearData(alNearDecemberMonth.diff12Month(date),queryLastYearTwelveMonth(db,company,market,date))

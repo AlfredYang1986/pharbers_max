@@ -8,6 +8,8 @@ import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.mongodbConnect.connection_instance
 
 /**
   * Created by liwei on 2017/6/5.
@@ -42,15 +44,13 @@ object PageInitializationModule extends ModuleTrait {
     }
 
     def queryDefault(implicit cm: CommonModules) : JsValue = {
-//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-        implicit val db = DBConection.basic
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         val markets = db.getCollection("Market").find().toList.map(x => toJson(x.get("Market_Name").asInstanceOf[String]))
         toJson(Map("markets" -> toJson(markets),"dates" -> toJson("")))
     }
 
     def queryOther(implicit cm: CommonModules) : JsValue = {
-//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-        implicit val db = DBConection.cores
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         val markets = db.getCollection("FactResult").find().toList.groupBy(x => x.get("Market")).toList.map(y => toJson(y._1.asInstanceOf[String]))
         val dates = db.getCollection("FactResult").find().toList.groupBy(x => x.get("Date")).map(y => toJson(Map("code" -> toJson(y._1.asInstanceOf[Number].longValue()), "name" -> toJson(Timestamp2yyyyMM(y._1.asInstanceOf[Number].longValue()))))).toList
         toJson(Map("markets" -> toJson(markets),"dates" -> toJson(dates)))

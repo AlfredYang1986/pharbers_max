@@ -1,3 +1,6 @@
+import play.routes.compiler.InjectedRoutesGenerator
+import play.sbt.PlayScala
+
 def common = Seq(
 	scalaVersion := "2.11.8",
 	version := "1.0",
@@ -26,7 +29,8 @@ libraryDependencies ++= Seq(
 	"com.pharbers" % "pharbers-modules" % "0.1",
 	"com.pharbers" % "mongodb-connect" % "0.1",
 	"com.pharbers" % "mongodb-driver" % "0.1",
-	"com.pharbers" % "mongodb-manager" % "1.0",
+	"com.pharbers" % "mongodb-manager" % "0.1",
+	"com.pharbers" % "pharbers-cli-traits" % "0.1",
 	"com.pharbers" % "pharbers-pattern" % "0.1",
 	"com.pharbers" % "auth-token" % "0.1",
 	"com.pharbers" % "encrypt" % "0.1",

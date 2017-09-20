@@ -3,15 +3,15 @@ package module
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.Page._
-import com.pharbers.mongodbConnect.from
+import com.pharbers.mongodbConnect.{connection_instance, from}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.alString.alStringOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
 
 object ResultQueryModuleMessage {
 	sealed class msg_resultqueryBase extends CommonMessage("resultquery", ResultQueryModule)
@@ -28,8 +28,8 @@ object ResultQueryModule extends ModuleTrait {
 	def resultquery_func(data : JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		var markets = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(Nil)
 		var dates = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(Nil)
-//		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-		implicit val db = DBConection.cores
+		implicit val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//		implicit val db = conn.queryDBInstance("calc").get//DBConection.cores
 		markets = markets.map(x => removeSpace(x))
 
 		val conditions = markets match {

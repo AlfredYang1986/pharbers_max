@@ -220,6 +220,14 @@ class AMongoDBLINQ extends IDatabaseContext {
         nc
     }
 
+    def aggregate(group : MongoDBObject)(implicit dbc: data_connection) : DBObject = {
+        val pipeline = MongoDBList(MongoDBObject("$match" -> w)) ++
+                        MongoDBList(MongoDBObject("$group" -> group))
+    
+        val a = dbc._conn(dbc.conn_name)
+        a.command(MongoDBObject("aggregate" -> coll_name, "pipeline" -> pipeline))
+    }
+
     def selectCursor[U](cr: (com.mongodb.casbah.commons.MongoDBObject) => U)(implicit dbc: data_connection) : MongoCursor = {
         val mongoColl = openConnection
         mongoColl.find(w)

@@ -1,10 +1,7 @@
 package com.pharbers.aqll.alCalc.almain
 
-import java.io.File
-import java.util.UUID
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.routing.RoundRobinPool
+import akka.actor.{Actor, ActorLogging, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 

@@ -2,16 +2,16 @@ package module
 
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.common.DBConection
-import com.pharbers.mongodbConnect.from
+import com.pharbers.mongodbConnect.{connection_instance, from}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
 
 object SampleReportModuleMessage {
 	sealed class msg_ReportBaseQuery extends CommonMessage("samplereport", SampleReportModule)
@@ -27,8 +27,8 @@ object SampleReportModule extends ModuleTrait {
 	def msg_check_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val query = MongoDBObject("Company" -> company)
-//		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-		implicit val db = DBConection.cores
+		implicit val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//		implicit val db = conn.queryDBInstance("calc").get//DBConection.cores
 		try {
 			val market_lst = (from db() in "FactResult" where query).selectSort("Date")(MongoDBReport(_)).toList
 			val market_arr = market_lst.asInstanceOf[List[Map[String,Any]]].groupBy(x => x.get("Market").get)

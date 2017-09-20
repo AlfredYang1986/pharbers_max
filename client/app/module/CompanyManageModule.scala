@@ -10,6 +10,8 @@ import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.cliTraits.DBTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.mongodbConnect.connection_instance
 
 object CompanyManageModuleMessage {
@@ -30,7 +32,7 @@ object CompanyManageModule extends ModuleTrait {
     }
 
     def query_company_func(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        implicit val db = DBConection.basic
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         try {
             val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse(throw new Exception("warn input"))
             val result = Company_Id match {
@@ -59,7 +61,8 @@ object CompanyManageModule extends ModuleTrait {
     }
 
     def delete_company_func(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        implicit val db = DBConection.basic
+//        implicit val db = DBConection.basic
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         try {
             val ids = (data \ "Company_Id").get.asOpt[List[String]].getOrElse(throw new Exception("warn input"))
             val r = ids map(x => db.getCollection("Company").findAndRemove(MongoDBObject("Company_Id" -> x)))
@@ -73,7 +76,8 @@ object CompanyManageModule extends ModuleTrait {
     }
 
     def findOne_company_func(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        implicit val db = DBConection.basic
+//        implicit val db = DBConection.basic
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         try {
             (successToJson(findOneCompany(db,data)), None)
         } catch {
@@ -82,7 +86,8 @@ object CompanyManageModule extends ModuleTrait {
     }
 
     def save_company_func(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        implicit val db = DBConection.basic
+//        implicit val db = DBConection.basic
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         try {
             val au = (data \ "au").get.asOpt[String].getOrElse(throw new Exception("warn input"))
             val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse(throw new Exception("warn input"))
