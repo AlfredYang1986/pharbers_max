@@ -4,6 +4,6 @@
         <server_port value="27017" />
         <connect_name value="" />
         <connect_pwd value="" />
-        <conn_name value="baby_time_test" />
+        <conn_name value="Max_Basic" />
     </mongodb-connect>
 </pharbers-modules>
