@@ -5,9 +5,7 @@ import java.util.{Date, UUID}
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.DBConection
-import com.pharbers.aqll.common.MaxEnmeration.UserScope
 import module.users.UserMessage.msg_PushUserCommand
-import module.users.userdata.UserData
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.MergeJs._
@@ -19,7 +17,7 @@ import com.pharbers.dbManagerTrait.dbInstanceManager
 /**
   * Created by yym on 9/14/17.
   */
-object UserModule extends ModuleTrait with UserData {
+object UserModule extends ModuleTrait {
     implicit val con = DBConection.basic
     def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_PushUserCommand(data) => pushUser(data)(pr)
