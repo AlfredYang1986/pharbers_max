@@ -1,6 +1,6 @@
 package module.common
 
-import com.pharbers.aqll.common.alDao.data_connection
+import com.pharbers.mongodbConnect.connection_instance
 import com.pharbers.aqll.common.alDate.scala.alDateOpt._
 import com.pharbers.aqll.common.alModularEnum
 
@@ -18,7 +18,7 @@ object alPageDefaultData {
       * @param flag  是否是市场数据
       * @return
       */
-    def PageDefaultData(str: alModularEnum.Value, basic: data_connection, cores: data_connection, flag: Boolean = true): (List[String], List[Map[String, Any]]) = {
+    def PageDefaultData(str: alModularEnum.Value, basic: connection_instance, cores: connection_instance, flag: Boolean = true): (List[String], List[Map[String, Any]]) = {
         try {
             val marketsOpt = PageDefaultMarkets(str, basic, cores)
             val markets = marketsOpt match {
@@ -48,7 +48,7 @@ object alPageDefaultData {
       * @param cores 核心数据库
       * @return
       */
-    def PageDefaultMarkets(str: alModularEnum.Value, basic: data_connection, cores: data_connection): Option[List[String]] = {
+    def PageDefaultMarkets(str: alModularEnum.Value, basic: connection_instance, cores: connection_instance): Option[List[String]] = {
         try {
             str match {
                 case alModularEnum.FU => queryDefaultMarkets(basic)
@@ -70,11 +70,11 @@ object alPageDefaultData {
       * @param basic 静态数据库
       * @return
       */
-    def queryDefaultMarkets(basic: data_connection): Option[List[String]] = {
+    def queryDefaultMarkets(basic: connection_instance): Option[List[String]] = {
         Some(basic.getCollection("Market").find().toList.map(x => x.get("Market_Name").asInstanceOf[String]))
     }
 
-    def queryOtherMarkets(cores: data_connection): Option[List[String]] = {
+    def queryOtherMarkets(cores: connection_instance): Option[List[String]] = {
         Some(cores.getCollection("FactResult").find().toList.groupBy(x => x.get("Market")).toList.map(y => y._1.asInstanceOf[String]))
     }
 
@@ -87,7 +87,7 @@ object alPageDefaultData {
       * @param cores 核心数据库
       * @return
       */
-    def PageDefaultDates(str: alModularEnum.Value, basic: data_connection, cores: data_connection): Option[List[Map[String, Any]]] = {
+    def PageDefaultDates(str: alModularEnum.Value, basic: connection_instance, cores: connection_instance): Option[List[Map[String, Any]]] = {
         try {
             str match {
                 case alModularEnum.FU => None
@@ -109,7 +109,7 @@ object alPageDefaultData {
       * @param cores 核心数据库
       * @return
       */
-    def queryOtherDates(cores: data_connection): Option[List[Map[String, AnyVal]]] = {
+    def queryOtherDates(cores: connection_instance): Option[List[Map[String, AnyVal]]] = {
         Some(cores.getCollection("FactResult").find().toList.groupBy(x => x.get("Date")).map(y => Map("code" -> y._1.asInstanceOf[Number].longValue(), "name" -> Timestamp2yyyyMM(y._1.asInstanceOf[Number].longValue()).toLong)).toList.sortBy(_.head._2))
     }
 }

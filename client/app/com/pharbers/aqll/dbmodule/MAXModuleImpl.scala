@@ -2,7 +2,7 @@ package com.pharbers.aqll.dbmodule
 
 import javax.inject.Singleton
 
-import com.pharbers.aqll.dbmodule.db.MongoDB.MongoDBImpl
+import com.pharbers.mongodbDriver.MongoDB.MongoDBImpl
 import com.pharbers.token.tokenImpl.TokenImplTrait
 
 

@@ -6,12 +6,12 @@ import play.api.libs.json.Json.toJson
 import play.api.libs.json._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import module.common.alNearDecemberMonth
-import com.pharbers.aqll.common.alDao.data_connection
+import com.pharbers.mongodbConnect.connection_instance
 
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.common.{DBConection, alModularEnum}
-import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import module.common.alPageDefaultData.PageDefaultData
@@ -147,7 +147,7 @@ object SampleCheckModule extends ModuleTrait {
 		* @param query
 		* @return
 		*/
-	def query_cel_data(database: data_connection,query: DBObject): JsValue ={
+	def query_cel_data(database: connection_instance,query: DBObject): JsValue ={
 		val data = database.getCollection("FactResult").find(query)
 		var hospNum,productNum,marketNum = 0
 		var sales,units = 0.0
@@ -185,7 +185,7 @@ object SampleCheckModule extends ModuleTrait {
 		* @param date
 		* @return
 		*/
-	def queryNearTwelveMonth(database: data_connection,company: String,market: String,date: String): List[List[Map[String,AnyRef]]] = {
+	def queryNearTwelveMonth(database: connection_instance,company: String,market: String,date: String): List[List[Map[String,AnyRef]]] = {
 		val date_lst = alDateOpt.ArrayDate2ArrayTimeStamp(alNearDecemberMonth.diff12Month(date))
 		val query = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$in" -> date_lst))
 		val f_lst = database.getCollection("FactResult").find(query).sort(MongoDBObject("Date" -> 1))
@@ -208,7 +208,7 @@ object SampleCheckModule extends ModuleTrait {
 		* @param date
 		* @return
 		*/
-	def queryLastYearTwelveMonth(database: data_connection,company: String,market: String,date: String): List[Map[String,AnyRef]] = {
+	def queryLastYearTwelveMonth(database: connection_instance,company: String,market: String,date: String): List[Map[String,AnyRef]] = {
 		val date_lst = alDateOpt.ArrayDate2ArrayTimeStamp(alNearDecemberMonth.diff12Month(date))
 		val query = MongoDBObject("Company" -> company,"Market" -> market,"Date" -> MongoDBObject("$in" -> date_lst))
 		val lst = database.getCollection("SampleCheckResult").find(query).sort(MongoDBObject("Date" -> 1))
@@ -225,7 +225,7 @@ object SampleCheckModule extends ModuleTrait {
 		* @param query
 		* @return
 		*/
-	def misMatchHospital(database: data_connection,query: DBObject): JsValue ={
+	def misMatchHospital(database: connection_instance,query: DBObject): JsValue ={
 		val data = database.getCollection("FactResult").find(query)
 		val Mismatch = new ListBuffer[JsValue]()
 		while (data.hasNext) {

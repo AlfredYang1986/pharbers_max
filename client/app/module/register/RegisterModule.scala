@@ -10,7 +10,7 @@ import bmlogic.register.RegisterMessage._
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.MaxEnmeration.{RegisterStatus, UserScope}
-import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.aqll.common.MergeJs._
 import com.pharbers.aqll.common.sercurity.Sercurity
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}

@@ -1,6 +1,6 @@
 package com.pharbers.aqll.dbmodule
 
-import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.token.AuthTokenTrait
 import play.api.{Configuration, Environment}
 

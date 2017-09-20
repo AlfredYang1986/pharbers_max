@@ -5,12 +5,12 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
-import com.pharbers.aqll.common.alDao.from
 import play.api.libs.json.Json._
 import play.api.libs.json._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.mongodbConnect.from
 
 object LoginModuleMessage {
     sealed class msg_LoginBaseQuery extends CommonMessage("login", LoginModule)

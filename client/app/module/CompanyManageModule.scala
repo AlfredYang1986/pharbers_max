@@ -1,7 +1,6 @@
 package module
 
 import com.mongodb.{BasicDBList, DBObject}
-import com.pharbers.aqll.common.alDao.data_connection
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import play.api.libs.json.JsValue
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
@@ -11,6 +10,7 @@ import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.mongodbConnect.connection_instance
 
 object CompanyManageModuleMessage {
     sealed class msg_CompanyManageBase extends CommonMessage("companymanage", CompanyManageModule)
@@ -146,7 +146,7 @@ object CompanyManageModule extends ModuleTrait {
         }
     }
 
-    def findOneCompany(database: data_connection,data: JsValue): JsValue ={
+    def findOneCompany(database: connection_instance, data: JsValue): JsValue ={
         val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse(throw new Exception("warn input"))
         val query =MongoDBObject("Company_Id" -> Company_Id)
         val company = database.getCollection("Company").findOne(query)
