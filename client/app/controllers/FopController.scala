@@ -3,13 +3,13 @@ package controllers
 import javax.inject.Inject
 
 import akka.actor.ActorSystem
-import com.pharbers.aqll.dbmodule.MongoDBModule
+import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.token.AuthTokenTrait
 import play.api.mvc._
 import controllers.common.requestArgsQuery
 import com.pharbers.aqll.module.fopModule.{SliceUpload, fop}
 
-class FopController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule) extends Controller {
-    implicit val db = mdb
+class FopController@Inject()(as_inject : ActorSystem, dbt : DBTrait, att : AuthTokenTrait) extends Controller {
     implicit val as = as_inject
     def uploadFile = Action { request =>
         requestArgsQuery().uploadRequestArgs(request)(SliceUpload.ManyFileSlice)

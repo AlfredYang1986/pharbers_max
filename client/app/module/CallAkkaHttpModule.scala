@@ -1,21 +1,21 @@
 package module
 
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.common.alCallHttp
 import play.api.libs.json.JsValue
-import common.alCallHttp
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.dbmodule.MongoDBModule
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.pharbers.bmpattern.ModuleTrait
 /**
   * Created by qianpeng on 2017/2/13.
   */
 object CallAkkaHttpModuleMessage {
-	sealed class msg_CallHttp extends CommonMessage
+	sealed class msg_CallHttp extends CommonMessage("http", CallAkkaHttpModule)
 	case class msg_callHttpServer(data: JsValue) extends msg_CallHttp
 }
 
 object CallAkkaHttpModule extends ModuleTrait {
 	import CallAkkaHttpModuleMessage._
-	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_callHttpServer(data) => callHttpServer_func(data)
 		case _ => ???
 	}
@@ -25,7 +25,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 		* @param data
 		* @return
 		*/
-	def callHttpServer_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def callHttpServer_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val businessType = (data \ "businessType").get.asOpt[String].getOrElse("error input")
 			val result = alCallHttp(businessType, data).call

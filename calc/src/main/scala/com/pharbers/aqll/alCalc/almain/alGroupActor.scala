@@ -46,6 +46,8 @@ class alGroupActor extends Actor
                      with alCreateConcretGroupRouter
 					 with alPkgJob {
 
+    import alGroupActor.core_number
+
     startWith(alMasterJobIdle, new alCalcParmary("", ""))
 
     var maxProperty: alMaxProperty = null
@@ -180,7 +182,7 @@ class alGroupActor extends Actor
                 sender() ! concert_adjust_result(adjust_index())
             }
 
-            if (adjust_index.single.get == 3) {
+            if (adjust_index.single.get == core_number - 1) {
                 concert_router ! concert_group(result_ref.single.get.get)
             }
             stay()
@@ -208,7 +210,7 @@ class alGroupActor extends Actor
 }
 
 trait alCreateConcretGroupRouter extends alCalcSupervisorStrategy { this : Actor =>
-    import alCalcActor.core_number
+    import alGroupActor.core_number
     def CreateConcretGroupRouter =
         context.actorOf(BroadcastPool(core_number).props(alConcertGroupActor.props), name = "concert-group-router")
 }

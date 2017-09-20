@@ -12,13 +12,18 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_
 object alCalcDataSlave {
     def props = Props[alCalcDataSlave]
     def name = "clac-data-slave"
-}
-
-class alCalcDataSlave extends Actor with ActorLogging {
 
     import scala.concurrent.ExecutionContext.Implicits.global
     case class state_agent(val isRunning : Boolean)
     val stateAgent = Agent(state_agent(false))
+
+    case class slave_status(val canDoJob : Boolean)
+    val slaveStatus = Agent(slave_status(true))
+}
+
+class alCalcDataSlave extends Actor with ActorLogging {
+
+    import alGroupDataSlave._
 
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Restart
@@ -33,8 +38,8 @@ class alCalcDataSlave extends Actor with ActorLogging {
             sender ! calc_data_hand()
         }
         case calc_data_start_impl(lsp, c) => {
-//            println(s"property are ${lsp}")
-            val cur = context.actorOf(alCalcDataComeo.props(c, lsp, sender, self))
+            val counter = context.actorOf(alCommonErrorCounter.props)
+            val cur = context.actorOf(alCalcDataComeo.props(c, lsp, sender, self, counter))
             cur.tell(calc_data_start_impl(lsp, c), sender)
         }
         case cmd : calc_data_end => {

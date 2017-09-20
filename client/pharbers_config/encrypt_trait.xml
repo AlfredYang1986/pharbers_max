@@ -1,0 +1,6 @@
+<pharbers-modules>
+    <encrypt-trait>
+        <db_key value="encrypt_config" />
+        <project value="Dongda" />
+    </encrypt-trait>
+</pharbers-modules>

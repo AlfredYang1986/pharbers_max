@@ -3,28 +3,30 @@ package module
 import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alDao.from
 import play.api.libs.json.Json._
 import play.api.libs.json._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.dbmodule.MongoDBModule
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.pharbers.bmpattern.ModuleTrait
 
 object LoginModuleMessage {
-    sealed class msg_LoginBaseQuery extends CommonMessage
+    sealed class msg_LoginBaseQuery extends CommonMessage("login", LoginModule)
     case class msg_login(data: JsValue, ip: String) extends msg_LoginBaseQuery
 }
 
 object LoginModule extends ModuleTrait {
     import LoginModuleMessage._
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_login(data, ip) => login(data, ip)
         case _ => ???
     }
 
-    def login(data: JsValue, ip: String)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        implicit val basic = db.basic
+    def login(data: JsValue, ip: String)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+        implicit val db = DBConection.basic
+//        val con = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) => {
