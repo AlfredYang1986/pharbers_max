@@ -20,6 +20,11 @@ POST    /user/push                                   controllers.users.UsersCont
 POST    /user/delete                                 controllers.users.UsersController.user_delete
 POST    /user/querypage                              controllers.users.UsersController.user_query
 
+GET     /register/code                               controllers.alMaxRouterController.codeRegistration
+GET     /register/info                               controllers.alMaxRouterController.infoRegistration
+GET     /login/db                                    controllers.alMaxRouterController.dbLogin
+GET     /login/confrim                               controllers.alMaxRouterController.userInfoConfirm
+
 # 业务模块
 #   用户登录
 GET     /                                   controllers.alMaxRouterController.login

@@ -17,30 +17,33 @@
 
         <link rel="stylesheet" href="@routes.Assets.versioned("bootstrap/css/bootstrap.min.css")" >
         <link rel="stylesheet" href="@routes.Assets.versioned("bootstrap/css/bootstrap-theme.min.css")" >
-		<script src="@routes.Assets.versioned("bootstrap/js/bootstrap.min.js")" />
+        <link rel="stylesheet" href="@routes.Assets.versioned("css/login/nomal.css")" >
 
-	    <link href="@routes.Assets.versioned("css/style.css")" rel="stylesheet">
-		<link href="@routes.Assets.versioned("css/progress.css")" rel="stylesheet" >
+        <script src="@routes.Assets.versioned("bootstrap/js/bootstrap.min.js")" />
+
+	    @*<link href="@routes.Assets.versioned("css/style.css")" rel="stylesheet">*@
+		@*<link href="@routes.Assets.versioned("css/progress.css")" rel="stylesheet" >*@
 		<!--新的上传样式-->
-		<link href="@routes.Assets.versioned("css/extlib/bspfileinput/fileinput.css")" rel="stylesheet" >
+		@*<link href="@routes.Assets.versioned("css/extlib/bspfileinput/fileinput.css")" rel="stylesheet" >*@
+        @*<link href="@routes.Assets.versioned("layui/css/layui.css")" rel="stylesheet" >*@
 	    @*通用CSS 结束*@
 	    <!-- Mainly scripts -->
 
 		<!-- jQuery UI -->
-		<script src="@routes.Assets.versioned("js/plugins/jquery-ui/jquery-ui.min.js")"></script>
+		@*<script src="@routes.Assets.versioned("js/plugins/jquery-ui/jquery-ui.min.js")"></script>*@
 		<!-- 引入 ECharts3.0 文件 -->
-		<script src="@routes.Assets.versioned("eachars3.0/echarts.js")" type="text/javascript"></script>
-		<script src="@routes.Assets.versioned("js/plugins/select/bootstrap-select.js")" type="text/javascript"></script>
+		@*<script src="@routes.Assets.versioned("eachars3.0/echarts.js")" type="text/javascript"></script>*@
+		@*<script src="@routes.Assets.versioned("js/plugins/select/bootstrap-select.js")" type="text/javascript"></script>*@
     	<!-- 用户Longin -->
-    	<script src="@routes.Assets.versioned("js/business/login.js")"></script>
+    	@*<script src="@routes.Assets.versioned("js/business/login.js")"></script>*@
     	<!-- Ajax全部返回自动分页数据表格 -->
-    	<script src="@routes.Assets.versioned("js/datatable/datatable.js")"></script>
+    	@*<script src="@routes.Assets.versioned("js/datatable/datatable.js")"></script>*@
     	<!-- jQuery处理Cookie -->
     	<script src="@routes.Assets.versioned("js/jquery.cookie.js")"></script>
 		<!-- loader -->
-		<script src="@routes.Assets.versioned("js/plugins/loader/svgloader.js")"></script>
+		@*<script src="@routes.Assets.versioned("js/plugins/loader/svgloader.js")"></script>*@
 		<!-- progress -->
-		<script src="@routes.Assets.versioned("js/progress.js")"></script>
+		@*<script src="@routes.Assets.versioned("js/progress.js")"></script>*@
 		<!-- Web-IM -->
 		<script src="@routes.Assets.versioned("js/web-im/strophe-1.2.8.js")"></script>
 		<script src="@routes.Assets.versioned("js/web-im/webim.config.js")"></script>
@@ -72,6 +75,8 @@
 		<!-- d3组件，用于圆形进度展示 End-->
 
 		<script src="@routes.Assets.versioned("js/business/userinfo.js")"></script>
+
+        <script src="@routes.Assets.versioned("layui/layui.all.js")"></script>
     	@*通用JS 结束*@
 	</head>
    @content

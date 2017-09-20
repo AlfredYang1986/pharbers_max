@@ -24,6 +24,22 @@ class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstance
         Ok(views.html.login())
     }
 
+    def codeRegistration = Action { request =>
+        Ok(views.html.codeRegistration())
+    }
+
+    def infoRegistration = Action { request =>
+        Ok(views.html.infoRegistration())
+    }
+
+    def dbLogin = Action { request =>
+        Ok(views.html.dblogin())
+    }
+
+    def userInfoConfirm = Action { request =>
+        Ok(views.html.userInfoConfirm())
+    }
+
     //注册
     def register = Action {
         Ok(views.html.register())
