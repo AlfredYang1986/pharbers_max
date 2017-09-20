@@ -12,8 +12,9 @@
         <error reason="user not exist" code="-203" description="用户不存在" />
         <error reason="info input password" code="-204" description="请输入密码" />
         <error reason="info input phone" code="-205" description="请输入手机号码" />
-        <error reason="info input company email" code="-206" description="请输入公司联系邮箱" />
+        <error reason="info input email" code="-206" description="请输入联系邮箱" />
         <error reason="info input company name" code="-207" description="请输入公司名称" />
+        <error reason="info input linkman name" code="-208" description="请输入联系人" />
 
         <error reason="reg push error" code="-301" description="验证码发送失败" />
         <error reason="reg phone or code error" code="-302" description="电话号码或者验证码出错" />

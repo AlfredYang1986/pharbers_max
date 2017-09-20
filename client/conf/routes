@@ -2,15 +2,18 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 ######################client#######################
-POST    /register/pushAdmin                         controllers.LogSysController.RegisterController.pushAdminController
-POST    /register/pushRegisterWithoutCheck          controllers.LogSysController.RegisterController.pushRegisterWithoutCheck
-POST    /register/queryRegisterWithID               controllers.LogSysController.RegisterController.queryRegisterWithID
-POST    /register/queryAllRegisters                 controllers.LogSysController.RegisterController.queryAllRegisters
-POST    /register/checkRegisterStatus               controllers.LogSysController.RegisterController.checkRegisterStatus
-POST    /register/deleteRegister                    controllers.LogSysController.RegisterController.deleteRegister
-POST    /register/cryptRegisterCode                 controllers.LogSysController.RegisterController.cryptRegisterCode
-POST    /register/decryptRegisterCode               controllers.LogSysController.RegisterController.decryptRegisterCode
-POST    /register/checkAuthTokenExpire              controllers.LogSysController.RegisterController.checkAuthTokenExpire
+#POST    /register/pushAdmin                         controllers.LogSysController.RegisterController.pushAdminController
+#POST    /register/pushRegisterWithoutCheck          controllers.LogSysController.RegisterController.pushRegisterWithoutCheck
+#POST    /register/queryRegisterWithID               controllers.LogSysController.RegisterController.queryRegisterWithID
+#POST    /register/queryAllRegisters                 controllers.LogSysController.RegisterController.queryAllRegisters
+#POST    /register/checkRegisterStatus               controllers.LogSysController.RegisterController.checkRegisterStatus
+#POST    /register/deleteRegister                    controllers.LogSysController.RegisterController.deleteRegister
+#POST    /register/cryptRegisterCode                 controllers.LogSysController.RegisterController.cryptRegisterCode
+#POST    /register/decryptRegisterCode               controllers.LogSysController.RegisterController.decryptRegisterCode
+#POST    /register/checkAuthTokenExpire              controllers.LogSysController.RegisterController.checkAuthTokenExpire
+
+POST    /register/user                               controllers.register.RegisterController.user_register
+POST    /register/querybd                               controllers.register.RegisterController.query_register_bd
 
 # 业务模块
 #   用户登录
