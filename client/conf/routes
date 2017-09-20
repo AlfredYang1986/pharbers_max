@@ -18,6 +18,7 @@ POST    /register/querybd                            controllers.register.Regist
 GET     /register/code                               controllers.alMaxRouterController.codeRegistration
 GET     /register/info                               controllers.alMaxRouterController.infoRegistration
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
+GET     /login/confrim                               controllers.alMaxRouterController.userInfoConfirm
 
 # 业务模块
 #   用户登录
