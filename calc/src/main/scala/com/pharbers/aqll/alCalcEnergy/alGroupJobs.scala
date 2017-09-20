@@ -126,7 +126,7 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 	}
 
 	def groupJobFailed(uuid : String) = {
-
+	
 	}
 
 	def canSignGroupJob(p : alMaxProperty): Boolean = {

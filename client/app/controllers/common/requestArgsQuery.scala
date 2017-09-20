@@ -8,12 +8,11 @@ import play.api.libs.json.JsValue
 import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
 import akka.pattern.ask
+import com.pharbers.bmmessages.{MessageRoutes, excute}
+import com.pharbers.bmpattern.RoutesActor
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
-import com.pharbers.aqll.pattern.MessageRoutes
-import com.pharbers.aqll.pattern.excute
-import com.pharbers.aqll.pattern.RoutesActor
 import play.api.libs.Files
 import play.api.libs.Files.TemporaryFile
 

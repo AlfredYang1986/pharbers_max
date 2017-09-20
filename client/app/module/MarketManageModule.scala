@@ -1,16 +1,19 @@
 package module
 
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.common.DBConection
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.dbmodule.MongoDBModule
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.mongodbConnect.connection_instance
 
 object MarketManageModuleMessage {
-    sealed class msg_MarketManageBase extends CommonMessage
+    sealed class msg_MarketManageBase extends CommonMessage("marketmanage", MarketManageModule)
     case class msg_marketmanage_query(data: JsValue) extends msg_MarketManageBase
     case class msg_marketmanage_delete(data: JsValue) extends msg_MarketManageBase
     case class msg_marketmanage_findOne(data: JsValue) extends msg_MarketManageBase
@@ -19,7 +22,7 @@ object MarketManageModuleMessage {
 
 object MarketManageModule extends ModuleTrait {
     import MarketManageModuleMessage._
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_marketmanage_query(data) => queryMarkets_func(data)
         case msg_marketmanage_delete(data) => deleteMarkets_func(data)
         case msg_marketmanage_findOne(data) => findOneMarket_func(data)
@@ -33,9 +36,11 @@ object MarketManageModule extends ModuleTrait {
       * @param data
       * @return
       */
-    def queryMarkets_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def queryMarkets_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//        implicit val db = conn.queryDBInstance("cli").get//DBConection.basic
         try {
-            val result = db.basic.getCollection("Market").find().map(x =>
+            val result = db.getCollection("Market").find().map(x =>
                 toJson(Map(
                     "Market_Id" -> toJson(x.get("Market_Id").asInstanceOf[String]),
                     "Market_Name" -> toJson(x.get("Market_Name").asInstanceOf[String]),
@@ -55,10 +60,12 @@ object MarketManageModule extends ModuleTrait {
       * @param data
       * @return
       */
-    def deleteMarkets_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def deleteMarkets_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//        implicit val db = DBConection.basic
         try {
             val market_ids = (data \ "Market_Id").get.asOpt[List[String]].getOrElse(throw new Exception("info select markets you want to delete"))
-            val result = market_ids map (x => db.basic.getCollection("Market").findAndRemove(MongoDBObject("Market_Id" -> x)))
+            val result = market_ids map (x => db.getCollection("Market").findAndRemove(MongoDBObject("Market_Id" -> x)))
             result.size match {
                 case i if i.equals(market_ids.size) => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
                 case _ => throw new Exception("warn operation failed")
@@ -75,11 +82,13 @@ object MarketManageModule extends ModuleTrait {
       * @param data
       * @return
       */
-    def findOneMarket_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def findOneMarket_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//        implicit val db = DBConection.basic
         try {
             val Market_Id = (data \ "Market_Id").get.asOpt[String].getOrElse("")
             val query =MongoDBObject("Market_Id" -> Market_Id)
-            val dbo = db.basic.getCollection("Market").findOne(query)
+            val dbo = db.getCollection("Market").findOne(query)
             dbo match {
                 case None => throw new Exception("warn target does not exist")
                 case _ => {
@@ -102,17 +111,19 @@ object MarketManageModule extends ModuleTrait {
       * @param data
       * @return
       */
-    def saveMarket_func(data: JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def saveMarket_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+//        implicit val db = DBConection.basic
+        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         try {
             val Market_Name = (data \ "Market_Name").get.asOpt[String].getOrElse("")
             val au = (data \ "au").get.asOpt[String].getOrElse("")
             au match {
                 case "add" => {
                     val query = MongoDBObject("Market_Name" -> Market_Name)
-                    db.basic.getCollection("Market").findOne(query) match {
+                    db.getCollection("Market").findOne(query) match {
                         case None => {
                             val doc = MongoDBObject("Market_Id" -> md5(Market_Name),"Market_Name"-> Market_Name,"Date" -> System.currentTimeMillis())
-                            db.basic.getCollection("Market").insert(doc).getN match {
+                            db.getCollection("Market").insert(doc).getN match {
                                 case 0 => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
                                 case _ => throw new Exception("warn operation failed")
                             }
@@ -124,7 +135,7 @@ object MarketManageModule extends ModuleTrait {
                     val Market_Id = (data \ "Market_Id").get.asOpt[String].getOrElse("")
                     val query = MongoDBObject("Market_Id" -> Market_Id)
                     val update = MongoDBObject("Market_Id" -> md5(Market_Name),"Market_Name" -> Market_Name,"Date" -> System.currentTimeMillis())
-                    db.basic.getCollection("Market").update(query,update).getN match {
+                    db.getCollection("Market").update(query,update).getN match {
                         case 1 => (successToJson(toJson(getErrorMessageByName("warn operation success"))), None)
                         case _ => throw new Exception("warn operation failed")
                     }

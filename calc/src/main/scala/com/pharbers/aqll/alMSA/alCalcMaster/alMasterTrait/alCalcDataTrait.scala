@@ -6,9 +6,13 @@ import akka.routing.BroadcastPool
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.query
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_start
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_start, calc_data_sum2}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
+import alCalcDataSlave.{slaveStatus, slave_status}
+import com.pharbers.aqll.alCalc.almain.alShareData
+import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl
+import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._
@@ -20,9 +24,9 @@ import scala.math.BigDecimal
 trait alCalcDataTrait { this : Actor =>
     def createCalcRouter =
         context.actorOf(
-            ClusterRouterPool(BroadcastPool(2),
+            ClusterRouterPool(BroadcastPool(1),
                 ClusterRouterPoolSettings(
-                    totalInstances = 2,
+                    totalInstances = 1,
                     maxInstancesPerNode = 1,
                     allowLocalRoutees = false,
                     useRole = Some("splitcalcslave")
@@ -36,27 +40,24 @@ trait alCalcDataTrait { this : Actor =>
             calc_jobs() = calc_jobs() :+ (property, c, s)
         }
     }
-
-    def canCalcGroupJob(act: ActorRef) : Boolean = {
-        import akka.pattern.ask
-        import scala.concurrent.Await
-        import scala.concurrent.duration._
-        implicit val timeout = Timeout(1 seconds)
-
-        val f = act ? query()
-        Await.result(f, 1 seconds).asInstanceOf[Boolean]
-//        true
+    
+    def setSlaveStatus = {
+        slaveStatus send slave_status(true)
     }
 
-    def schduleCalcJob(act: ActorRef) = {
-        if (canCalcGroupJob(act)) {
+    def canCalcGroupJob : Boolean = {
+        slaveStatus().canDoJob
+    }
+
+    def schduleCalcJob = {
+        if (canCalcGroupJob) {
             atomic { implicit thx =>
                 val tmp = calc_jobs.single.get
-//                println(s"&&& calc_jobs tmp ==> ${tmp}")
                 if (tmp.isEmpty) Unit
                 else {
                     calcData(tmp.head._1, tmp.head._2, tmp.head._3)
                     calc_jobs() = calc_jobs().tail
+                    slaveStatus send slave_status(false)
                 }
             }
         }
@@ -79,10 +80,12 @@ object alCameoCalcData {
     case class calc_data_hand()
     case class calc_data_start_impl(subs : alMaxProperty, c : alCalcParmary)
     case class calc_data_sum(sum : List[(String, (Double, Double, Double))])
+    case class calc_data_sum2(path: String)
     case class calc_data_average(avg : List[(String, Double, Double)])
     case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, property : alMaxProperty)
     case class calc_data_timeout()
+    case class calc_slave_status()
 
     def props(c : alCalcParmary,
               property : alMaxProperty,
@@ -99,12 +102,13 @@ class alCameoCalcData ( val c : alCalcParmary,
 
     import alCameoCalcData._
 
-    val core_number = 4
+    val core_number = server_info.cpu
 
     var sum : List[ActorRef] = Nil
     var sed = 0
     var cur = 0
     var tol = 0
+//    val calcing_jobs = Ref(List[alMaxProperty]())     // only for calcing jobs
 
     override def receive: Receive = {
         case calc_data_timeout() => {
@@ -115,9 +119,6 @@ class alCameoCalcData ( val c : alCalcParmary,
             val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> property.uuid))
             val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
             property.subs = sb map (x => alMaxProperty(p, x, Nil))
-
-//            println(s"preperty subs length is ${property.subs.length}")
-
             tol = property.subs.length
             router ! calc_data_hand()
         }
@@ -145,11 +146,32 @@ class alCameoCalcData ( val c : alCalcParmary,
                 val mapAvg = property.sum.map { x =>
                     (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
                 }
-
                 log.info(s"done for avg $mapAvg")
                 sum.foreach(_ ! calc_data_average(mapAvg))
             }
         }
+        case calc_data_sum2(path) => {
+            // TODO: 开始读取segment分组文件
+            println(s"path = $path")
+            property.sum = property.sum ++: readSegmentGroupData(path)
+            
+            sum = sender :: sum
+            if (sum.length == tol / core_number) {
+                property.isSumed = true
+                property.sum = (property.sum.groupBy(_._1) map { x =>
+                    (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+                }).toList
+        
+                log.info(s"done for suming ${property.sum}")
+        
+                val mapAvg = property.sum.filterNot(x => x._2._1 == 0 && x._2._2 == 0).map { x =>
+                    (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
+                }
+                log.info(s"done for avg $mapAvg")
+                sum.foreach(_ ! calc_data_average(mapAvg))
+            }
+        }
+
         case calc_data_result(v, u) => {
             property.finalValue += v
             property.finalUnit += u
@@ -159,25 +181,43 @@ class alCameoCalcData ( val c : alCalcParmary,
                 cur += 1
                 if (cur == tol / core_number) {
                     val r = calc_data_end(true, property)
-                    owner ! r
+//                    owner ! r
                     shutCameo(r)
                 }
             } else {
                 val r = calc_data_end(false, property)
-                owner ! r
+//                owner ! r
                 shutCameo(r)
             }
         }
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val calc_timer = context.system.scheduler.scheduleOnce(30 minute) {
+    val calc_timer = context.system.scheduler.scheduleOnce(600 minute) {
         self ! calc_data_timeout()
     }
 
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
+//        slaveStatus send slave_status(true)
         log.debug("stopping group data cameo")
+        calc_timer.cancel()
         context.stop(self)
+    }
+    
+    def readSegmentGroupData(path: String) = {
+        var segmentLst: List[(String, (Double, Double, Double))] = Nil
+        val dir = alFileOpt(path)
+        if (!dir.isExists)
+            dir.createDir
+        
+        val source = alFileOpt(path + "/" + "segmentData")
+        if (source.isExists) {
+            source.enumDataWithFunc { line =>
+                val s = alShareData.txtSegmentGroupData(line)
+                segmentLst = segmentLst :+ (s.segement, (s.sales, s.units, s.calc))
+            }
+        }
+        segmentLst
     }
 }

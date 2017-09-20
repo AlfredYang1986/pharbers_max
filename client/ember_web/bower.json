@@ -1,8 +1,0 @@
-{
-  "name": "em",
-  "dependencies": {
-    "bootstrap": "3.3.7",
-    "d3": "4.2.6",
-    "bootstrap-datepicker": "^1.6.4"
-  }
-}

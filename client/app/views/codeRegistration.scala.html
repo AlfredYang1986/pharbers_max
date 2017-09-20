@@ -1,0 +1,55 @@
+@main("Max | Login") {
+    <body>
+        <div class="title"></div>
+        <div class="content row">
+            <div class="cenPanel col-xs-8 col-xs-offset-2">
+                <div class="row cenPanel-title">
+                    <span class="toLeft"><i class="layui-icon" style="font-size: 30px; ">&#xe65c;</i></span>
+                    <span class="cer-title-info col-xs-11">快速预约体验</span>
+                </div>
+                <div class="row cenPanel-content">
+                    <div class="row middle_info">
+                        <span>欢迎加入MAX!</span>
+                        <br>
+                        <span>请输入您的授权码,进行验证</span>
+                    </div>
+                    <form class="layui-form layui-form-pane" method="post" action="">
+                        <div class="box_form box_size">
+                                <div class="form-group">
+                                    <input class="form-control" type="text" name="code" placeholder="请输入授权码">
+                                </div>
+                                <div type="button" class="login_btn layui-btn btn-submit" lay-submit="" lay-filter="sub">提交验证</div>
+                            <div class="row"><div class="small_info tohref toRight" onclick="">如何得到授权码?</div></div>
+                            <div class="row"><div class="small_info tohref toRight" onclick="">授权码过期?</div></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
+        </div>
+    </body>
+
+    <script type="text/javascript">
+        layui.use(['form', 'layer'], function () {
+            var $ = layui.jquery,form = layui.form,layer = layui.layer;
+            // 验证
+            form.verify({
+                code: function (value) {
+                    if (value == "") {
+                        return "验证码";
+                    }
+                }
+            });
+
+            // 提交监听
+            form.on('submit(sub)', function (data) {
+                layer.alert(JSON.stringify(data.field), {
+                    title: '最终的提交信息'
+                });
+                return false;
+            })
+        })
+    </script>
+}
