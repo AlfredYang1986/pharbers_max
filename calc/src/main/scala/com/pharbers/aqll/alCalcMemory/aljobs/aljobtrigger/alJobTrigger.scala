@@ -95,4 +95,11 @@ object alJobTrigger {
     case class crash_calc(uuid: String, msg: String)
     case class crash_group(uuid: String, msg: String)
     case class clean_crash_actor(uuid: String)
+
+    /**
+      * for reStart count
+      */
+    case class canIReStart(reason: Throwable)
+    case class canDoRestart(reason: Throwable)
+    case class cannotRestart(reason: Throwable)
 }

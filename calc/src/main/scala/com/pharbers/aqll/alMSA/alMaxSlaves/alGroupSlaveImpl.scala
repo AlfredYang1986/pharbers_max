@@ -21,15 +21,6 @@ class alGroupSlaveImpl extends Actor with ActorLogging {
     override def receive: Receive = {
         case group_data_hand() => sender ! group_data_hand()
         case group_data_start_impl(p) => {
-//            println(s"alfred grouping $p")
-
-            /**
-              * Modified by Jeorch on 02/08/2017.
-              * 制造一个错误，检验错误计数，重算流程
-            println("start push error!")
-            throw new Exception("&&& ==> Some alGroupSlaveImpl Error！")
-              */
-
             val cj = concert_grouping_jobs(Map(concert_grouping_jobs.max_uuid -> p.parent, concert_grouping_jobs.group_uuid -> p.uuid))
             cj.result
             val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]

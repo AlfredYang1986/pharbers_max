@@ -9,5 +9,5 @@ case class dbdumpCmd(db: String,
                      userPassword: String,
                      ip: String= "127.0.0.1",
                      port: Int = 27017) extends alShellOtherCmdExce {
-   override def cmd = "/usr/bin/mongodump " + DBConfig(db, coll, out, Some(ip), Some(port), Some(userName), Some(userPassword)).toArgs
+   override def cmd = "mongodump " + DBConfig(db, coll, out, Some(ip), Some(port), Some(userName), Some(userPassword)).toArgs
 }

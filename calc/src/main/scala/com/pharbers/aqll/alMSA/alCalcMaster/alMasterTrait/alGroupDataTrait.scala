@@ -11,9 +11,9 @@ import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.common_jobs
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.query
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
+import alGroupDataSlave.{slaveStatus,slave_status}
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._
@@ -24,9 +24,9 @@ import scala.concurrent.duration._
 trait alGroupDataTrait { this : Actor =>
     def createGroupRouter =
         context.actorOf(
-            ClusterRouterPool(BroadcastPool(2),
+            ClusterRouterPool(BroadcastPool(1),
                 ClusterRouterPoolSettings(
-                    totalInstances = 2,
+                    totalInstances = 1,
                     maxInstancesPerNode = 1,
                     allowLocalRoutees = false,
                     useRole = Some("splitgroupslave")
@@ -41,26 +41,19 @@ trait alGroupDataTrait { this : Actor =>
         }
     }
 
-    def canSchduleGroupJob(act: ActorRef) : Boolean = {
-        import akka.pattern.ask
-        import scala.concurrent.Await
-        import scala.concurrent.duration._
-        implicit val timeout = Timeout(1 seconds)
-
-        val f = act ? query()
-        Await.result(f, 1 seconds).asInstanceOf[Boolean]
-//        true
+    def canSchduleGroupJob : Boolean = {
+        slaveStatus().canDoJob
     }
 
-    def schduleGroupJob(act: ActorRef) = {
-        if (canSchduleGroupJob(act)) {
+    def schduleGroupJob = {
+        if (canSchduleGroupJob) {
             atomic { implicit thx =>
                 val tmp = group_jobs.single.get
-//                println(s"&&& group_jobs tmp ==> ${tmp}")
                 if (tmp.isEmpty) Unit
                 else {
                     groupData(tmp.head._1, tmp.head._2)
                     group_jobs() = group_jobs().tail
+                    slaveStatus send slave_status(false)
                 }
             }
         }
@@ -84,6 +77,7 @@ object alCameoGroupData {
     case class group_data_start_impl(sub : alMaxProperty)
     case class group_data_end(result : Boolean, property : alMaxProperty)
     case class group_data_timeout()
+    case class group_data_error(reason: Throwable)
 
     def props(property : alMaxProperty,
               originSender : ActorRef,
@@ -119,6 +113,7 @@ class alCameoGroupData (val property : alMaxProperty,
             }
         }
         case group_data_end(result, mp) => {
+            slaveStatus send slave_status(true)
             if (result) {
                 cur += 1
                 resetSubGrouping(mp)
@@ -127,35 +122,37 @@ class alCameoGroupData (val property : alMaxProperty,
                     unionResult
 
                     val r = group_data_end(true, property)
-                    owner ! r
+//                    owner ! r
                     shutCameo(r)
                 }
             } else {
                 val r = group_data_end(false, property)
-                owner ! r
+//                owner ! r
                 shutCameo(r)
             }
+        }
+        case group_data_error(reason) => {
+            originSender ! group_data_error(reason)
         }
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val group_timer = context.system.scheduler.scheduleOnce(10 minute) {
+    val group_timer = context.system.scheduler.scheduleOnce(60 minute) {
         self ! group_data_timeout()
     }
 
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping group data cameo")
+        group_timer.cancel()
         context.stop(self)
     }
 
     def unionResult = {
         val common = common_jobs()
-//        common.cur = Some(alStage(property.subs map (x => "config/group/" + x.uuid)))
 
         import com.pharbers.aqll.common.alFileHandler.fileConfig._
-//        common.cur = Some(alStage(property.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
-        common.cur = Some(alStage(property.subs map (x => "/home/jeorch/work/max/files/group/" + x.uuid)))
+        common.cur = Some(alStage(property.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
 
         common.process = restore_grouped_data() ::
             do_calc() :: do_union() :: do_calc() ::
