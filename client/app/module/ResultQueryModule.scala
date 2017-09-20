@@ -3,13 +3,13 @@ package module
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.Page._
-import com.pharbers.aqll.common.alDao.from
+import com.pharbers.mongodbConnect.from
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.alString.alStringOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 

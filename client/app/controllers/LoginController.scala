@@ -3,7 +3,7 @@ package controllers
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
-import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
 import com.pharbers.bmpattern.LogMessage.msg_log
 import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage

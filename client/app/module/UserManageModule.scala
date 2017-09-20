@@ -1,7 +1,7 @@
 package module
 
 import com.mongodb.{BasicDBList, BasicDBObject, DBObject}
-import com.pharbers.aqll.common.alDao.data_connection
+import com.pharbers.mongodbConnect.{connection_instance, from}
 import play.api.libs.json.JsValue
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.Json.toJson
@@ -9,7 +9,7 @@ import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
 import com.pharbers.aqll.common.{DBConection, alCommonEnum}
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 
@@ -120,7 +120,6 @@ object UserManageModule extends ModuleTrait {
     def findOne_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 //        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection")).basic
         implicit val db = DBConection.basic
-        import com.pharbers.aqll.common.alDao._
         try {
             val account = (data \ "account").asOpt[String]
             val companyid = (data \ "cid").asOpt[String]
@@ -282,7 +281,7 @@ object UserManageModule extends ModuleTrait {
         }
     }
 
-    def findOneByCompany(database: data_connection,companyid: String): List[Map[String,Any]] ={
+    def findOneByCompany(database: connection_instance,companyid: String): List[Map[String,Any]] ={
         val lst = database.getCollection("Company").find(MongoDBObject("Company_Id" -> companyid)).toList
         lst match {
             case Nil => Nil

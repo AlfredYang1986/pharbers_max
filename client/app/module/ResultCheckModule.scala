@@ -3,7 +3,7 @@ package module
 import com.mongodb.casbah.Imports.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.common.{DBConection, alCallHttp}
-import com.pharbers.aqll.common.alDao.data_connection
+import com.pharbers.mongodbConnect.connection_instance
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -11,7 +11,7 @@ import module.common.alNearDecemberMonth
 
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 
@@ -74,7 +74,7 @@ object ResultCheckModule extends ModuleTrait {
 		* @param olm
 		* @return
 		*/
-	def queryCELData(database: data_connection,company: String,market: String,date: String,temp_coll: String,ces: String)(ols: Option[List[String]],olm: Option[List[Map[String,Any]]]): (List[Map[String,Any]],Option[List[String]],Option[List[Map[String,Any]]]) = {
+	def queryCELData(database: connection_instance,company: String,market: String,date: String,temp_coll: String,ces: String)(ols: Option[List[String]],olm: Option[List[Map[String,Any]]]): (List[Map[String,Any]],Option[List[String]],Option[List[Map[String,Any]]]) = {
 		val query = queryDBObject(market,date,ces,ols)
 		val temp_data = database.getCollection(temp_coll).find(query).sort(MongoDBObject("City" -> 1))
 		val result = temp_data.size match {
@@ -144,7 +144,7 @@ object ResultCheckModule extends ModuleTrait {
 		* @param temp_coll
 		* @return
 		*/
-	def queryNearTwelveMonth(database: data_connection,company: String,market: String,date: String,temp_coll: String): List[Map[String,Any]] ={
+	def queryNearTwelveMonth(database: connection_instance,company: String,market: String,date: String,temp_coll: String): List[Map[String,Any]] ={
 		val date_lst_str = alNearDecemberMonth.diff12Month(date)
 		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> alDateOpt.ArrayDate2ArrayTimeStamp(alNearDecemberMonth.diff12Month(date))))
 		database.getCollection(temp_coll).count() match {

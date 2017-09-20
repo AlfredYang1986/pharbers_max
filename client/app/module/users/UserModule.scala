@@ -6,7 +6,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.MaxEnmeration.UserScope
-import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.mongodbDriver.DBTrait
 import module.users.UserMessage.msg_PushUserCommand
 import module.users.userdata.UserData
 import play.api.libs.json.JsValue

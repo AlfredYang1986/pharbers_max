@@ -4,7 +4,7 @@ import javax.inject._
 
 import akka.actor.ActorSystem
 import com.pharbers.aqll.common.{DBConection, alAdminEnum, alModularEnum}
-import com.pharbers.aqll.dbmodule.db.DBTrait
+import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.token.AuthTokenTrait
 import module.common.alPageDefaultData._
 import play.api.mvc._
