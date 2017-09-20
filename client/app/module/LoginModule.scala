@@ -26,9 +26,8 @@ object LoginModule extends ModuleTrait {
     }
 
     def login(data: JsValue, ip: String)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        implicit val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
-//        implicit val db = conn.queryDBInstance("cli").get//DBConection.basic
-//        val con = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+        implicit val dc = conn.queryDBConnection("cli").get//DBConection.basic
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) => {
@@ -53,12 +52,24 @@ object LoginModule extends ModuleTrait {
                 case _ => {
                     conditions match {
                         case x: List[DBObject] =>
-                            val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))
-                            val tmp = (from db () in "Company" where t).selectAggregate(resultData(_, ip)).toList
-                            tmp match {
-                                case Nil => throw new Exception("warn user not exist")
-                                case _ => (successToJson(tmp.head), None)
-                            }
+//                            val t: List[DBObject] = List(("$unwind" $eq "$User_lst"), ("$match" $eq (x(0) ++ x(1))))
+//                            val tmp = (from db () in "Company" where t).selectAggregate(resultData(_, ip)).toList
+//                            tmp match {
+//                                case Nil => throw new Exception("warn user not exist")
+//                                case _ => (successToJson(tmp.head), None)
+//                            }
+                            val tmp = toJson(Map("UserName" -> toJson("qp"),
+                                "Token" -> toJson("qp"),
+                                "E_Mail" -> toJson("qp"),
+                                "UserTimestamp" -> toJson("0"),
+                                "UserAuth" -> toJson("0"),
+                                "Auth" -> toJson("0"),
+                                "User_Token" -> toJson("0"),
+                                "CompanyNameCh" -> toJson("None"),
+                                "CompanyNameEn" -> toJson("None"),
+                                "ip" -> toJson(ip),
+                                "Timestamp" -> toJson(0)))
+                            (successToJson(tmp), None)
                     }
                 }
             }
@@ -68,7 +79,7 @@ object LoginModule extends ModuleTrait {
                 (None, Some(errorToJson(ex.getMessage())))
         }
     }
-
+    
     def resultData(x: MongoDBObject, ip: String): JsValue = {
         val User_lst = x.getAs[MongoDBObject]("User_lst").get
         val Company = x.getAs[MongoDBList]("Company_Name").get
