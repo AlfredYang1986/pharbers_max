@@ -14,7 +14,7 @@ import play.api.libs.json.Json.toJson
 import play.api.mvc.{Controller, _}
 import controllers.common.requestArgsQuery
 
-class CallAkkaHttpController@Inject()(as_inject : ActorSystem, dbc : dbInstanceManager, att : AuthTokenTrait, dbt: DBTrait) extends Controller {
+class CallAkkaHttpController@Inject()(as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait) extends Controller {
 //    implicit val db = mdb
     implicit val as = as_inject
     def callHttpServer = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>

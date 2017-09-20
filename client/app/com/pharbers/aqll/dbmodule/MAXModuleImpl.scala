@@ -16,6 +16,3 @@ class MAXDBManager extends dbInstanceManager
 
 @Singleton
 class MAXTokenInjectModule extends TokenImplTrait
-
-@Singleton
-class MAXDBTrait extends MongoDBImpl

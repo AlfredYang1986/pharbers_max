@@ -12,8 +12,6 @@ class MAXModules extends play.api.inject.Module {
     def bindings(env : Environment, conf : Configuration) = {
         Seq(
             bind[dbInstanceManager].to[MAXDBManager],
-            bind[AuthTokenTrait].to[MAXTokenInjectModule],
-            bind[MongoDBImpl].to[MAXDBTrait]
-        )
+            bind[AuthTokenTrait].to[MAXTokenInjectModule])
     }
 }
