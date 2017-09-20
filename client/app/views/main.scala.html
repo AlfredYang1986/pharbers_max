@@ -13,116 +13,21 @@
         <title>@title</title>
         
         @*通用CSS 开始*@
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="@routes.Assets.versioned("js/jquery-2.1.1.js")"></script>
 
-	    <link href="@routes.Assets.versioned("font-awesome/css/font-awesome.css")" rel="stylesheet">
-	    <link href="@routes.Assets.versioned("css/plugins/dataTables/datatables.min.css")" rel="stylesheet">
-	    <link href="@routes.Assets.versioned("css/plugins/iCheck/custom.css")" rel="stylesheet">
-	    <link href="@routes.Assets.versioned("css/plugins/chosen/chosen.css")" rel="stylesheet">
-	    @*<link href="@routes.Assets.versioned("css/plugins/colorpicker/bootstrap-colorpicker.min.css")" rel="stylesheet">*@
-	    <link href="@routes.Assets.versioned("css/plugins/cropper/cropper.min.css")" rel="stylesheet">
-	    <link href="@routes.Assets.versioned("css/plugins/switchery/switchery.css")" rel="stylesheet">
-	    @*<link href="@routes.Assets.versioned("css/plugins/jasny/jasny-bootstrap.min.css")" rel="stylesheet">*@
-	    <link href="@routes.Assets.versioned("css/plugins/nouslider/jquery.nouislider.css")" rel="stylesheet">
-	    <link href="@routes.Assets.versioned("css/plugins/datapicker/datepicker3.css")" rel="stylesheet">
-	    <link href="@routes.Assets.versioned("css/plugins/ionRangeSlider/ion.rangeSlider.css")" rel="stylesheet">
-	    <link href="@routes.Assets.versioned("css/plugins/ionRangeSlider/ion.rangeSlider.skinFlat.css")" rel="stylesheet">
-	    @*<link href="@routes.Assets.versioned("css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css")" rel="stylesheet">*@
-	    <link href="@routes.Assets.versioned("css/plugins/clockpicker/clockpicker.css")" rel="stylesheet">
-	    <link href="@routes.Assets.versioned("css/plugins/daterangepicker/daterangepicker-bs3.css")" rel="stylesheet">
-	    <link href="@routes.Assets.versioned("css/plugins/select2/select2.min.css")" rel="stylesheet">
-	    @*<link href="@routes.Assets.versioned("css/plugins/touchspin/jquery.bootstrap-touchspin.min.css")" rel="stylesheet">*@
+        <link rel="stylesheet" href="@routes.Assets.versioned("bootstrap/css/bootstrap.min.css")" >
+        <link rel="stylesheet" href="@routes.Assets.versioned("bootstrap/css/bootstrap-theme.min.css")" >
+		<script src="@routes.Assets.versioned("bootstrap/js/bootstrap.min.js")" />
+
 	    <link href="@routes.Assets.versioned("css/style.css")" rel="stylesheet">
-		<link href="@routes.Assets.versioned("css/plugins/toastr/toastr.min.css")" rel="stylesheet">
-		<link href="@routes.Assets.versioned("js/plugins/gritter/jquery.gritter.css")" rel="stylesheet">
-		<link href="@routes.Assets.versioned("js/plugins/gritter/jquery.gritter.css")" rel="stylesheet">
-			<!-- orris -->
-		<link href="@routes.Assets.versioned("css/plugins/morris/morris-0.4.3.min.css")" rel="stylesheet">
-		@*<link href="@routes.Assets.versioned("css/plugins/select/bootstrap-select.css")" rel="stylesheet">*@
-		<link href="@routes.Assets.versioned("css/business/resultQueryTable.css")" rel="stylesheet">
-		<link rel="stylesheet" href="@routes.Assets.versioned("hDialog/css/animate.min.css")">
-		<link rel="stylesheet" href="@routes.Assets.versioned("hDialog/css/common.css")">
-		<link href="@routes.Assets.versioned("css/progress.css")" rel="stylesheet">
+		<link href="@routes.Assets.versioned("css/progress.css")" rel="stylesheet" >
 		<!--新的上传样式-->
-		<link href="@routes.Assets.versioned("css/extlib/bspfileinput/fileinput.css")" rel="stylesheet">
+		<link href="@routes.Assets.versioned("css/extlib/bspfileinput/fileinput.css")" rel="stylesheet" >
 	    @*通用CSS 结束*@
 	    <!-- Mainly scripts -->
 
-
-	    <script src="@routes.Assets.versioned("js/jquery-2.1.1.js")"></script>
 		<!-- jQuery UI -->
 		<script src="@routes.Assets.versioned("js/plugins/jquery-ui/jquery-ui.min.js")"></script>
-	    @*<script src="@routes.Assets.versioned("js/bootstrap.min.js")"></script>*@
-		@*<script src="@routes.Assets.versioned("js/plugins/wow/wow.min.js")"></script>*@
-	    <!-- Mainly scripts -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/metisMenu/jquery.metisMenu.js")"></script>*@
-	    @*<script src="@routes.Assets.versioned("js/plugins/slimscroll/jquery.slimscroll.min.js")"></script>*@
-		@*<script src="@routes.Assets.versioned("js/plugins/jeditable/jquery.jeditable.js")"></script>*@
-	    @*<script src="@routes.Assets.versioned("js/plugins/dataTables/datatables.min.js")"></script>*@
-	    <!-- FooTable -->
-    	@*<script src="@routes.Assets.versioned("js/plugins/footable/footable.all.min.js")"></script>*@
-	    <!-- Flot -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/flot/jquery.flot.js")"></script>*@
-	    @*<script src="@routes.Assets.versioned("js/plugins/flot/jquery.flot.tooltip.min.js")"></script>*@
-	    @*<script src="@routes.Assets.versioned("js/plugins/flot/jquery.flot.spline.js")"></script>*@
-	    @*<script src="@routes.Assets.versioned("js/plugins/flot/jquery.flot.resize.js")"></script>*@
-	    @*<script src="@routes.Assets.versioned("js/plugins/flot/jquery.flot.pie.js")"></script>*@
-	    @*<script src="@routes.Assets.versioned("js/plugins/flot/jquery.flot.symbol.js")"></script>*@
-    	@*<script src="@routes.Assets.versioned("js/plugins/flot/jquery.flot.time.js")"></script>*@
-	    <!-- Peity -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/peity/jquery.peity.min.js")"></script>*@
-	    @*<script src="@routes.Assets.versioned("js/demo/peity-demo.js")"></script>*@
-	    <!-- Custom and plugin javascript -->
-	    @*<script src="@routes.Assets.versioned("js/inspinia.js")"></script>*@
-	    @*<script src="@routes.Assets.versioned("js/plugins/pace/pace.min.js")"></script>*@
-
-	    <!-- GITTER -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/gritter/jquery.gritter.min.js")"></script>*@
-	    <!-- Sparkline -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/sparkline/jquery.sparkline.min.js")"></script>*@
-	    <!-- ChartJS-->
-	    @*<script src="@routes.Assets.versioned("js/plugins/chartJs/Chart.min.js")"></script>*@
-	    <!-- Toastr -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/toastr/toastr.min.js")"></script>*@
-    	@*<script src="@routes.Assets.versioned("js/plugins/iCheck/icheck.min.js")"></script>*@
-	    <!-- Chosen -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/chosen/chosen.jquery.js")"></script>*@
-	    <!-- JSKnob -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/jsKnob/jquery.knob.js")"></script>*@
-	    <!-- Input Mask-->
-	    @*<script src="@routes.Assets.versioned("js/plugins/jasny/jasny-bootstrap.min.js")"></script>*@
-	    <!-- Data picker -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/datapicker/bootstrap-datepicker-ch.js")"></script>*@
-	    <!-- NouSlider -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/nouslider/jquery.nouislider.min.js")"></script>*@
-	    <!-- Switchery -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/switchery/switchery.js")"></script>*@
-	    <!-- IonRangeSlider -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/ionRangeSlider/ion.rangeSlider.min.js")"></script>*@
-	    <!-- Color picker -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/colorpicker/bootstrap-colorpicker.min.js")"></script>*@
-	    <!-- Clock picker -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/clockpicker/clockpicker.js")"></script>*@
-	    <!-- Image cropper -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/cropper/cropper.min.js")"></script>*@
-	    <!-- Date range use moment.js same as full calendar plugin -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/fullcalendar/moment.min.js")"></script>*@
-	    <!-- Date range picker -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/daterangepicker/daterangepicker.js")"></script>*@
-	    <!-- Select2 -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/select2/select2.full.min.js")"></script>*@
-	    <!-- TouchSpin -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/touchspin/jquery.bootstrap-touchspin.min.js")"></script>*@
-	    <!-- Morris -->
-	    @*<script src="@routes.Assets.versioned("js/plugins/morris/raphael-2.1.0.min.js")"></script>*@
-	    @*<script src="@routes.Assets.versioned("js/plugins/morris/morris.js")"></script>*@
-    	<!-- FileUpload -->
-    	@*<script src="@routes.Assets.versioned("jquery-Upload/js/fileinput.min.js")"></script>*@
-		@*<script src="@routes.Assets.versioned("jquery-Upload/js/fileinput_locale_zh.js")"></script>*@
-		@*<script src="@routes.Assets.versioned("js/extlib/bspfileinput/fileinput.js")"></script>*@
-		@*<script src="@routes.Assets.versioned("js/extlib/bspfileinput/fileinput_locale_zh.js")"></script>*@
 		<!-- 引入 ECharts3.0 文件 -->
 		<script src="@routes.Assets.versioned("eachars3.0/echarts.js")" type="text/javascript"></script>
 		<script src="@routes.Assets.versioned("js/plugins/select/bootstrap-select.js")" type="text/javascript"></script>
@@ -144,9 +49,6 @@
 
 		<script src="@routes.Assets.versioned("pharbersuploader/md5.min.js")"></script>
 
-		<!-- Weather -->
-		@*<script src="@routes.Assets.versioned("js/business/weather.js")"></script>*@
-
 		<!-- Upload Start -->
 		<!--<link href="@routes.Assets.versioned("pharbersuploader/webuploader/webuploader.css")" rel="stylesheet" type="text/css" />
 		<link href="@routes.Assets.versioned("pharbersuploader/PharbersWebUploader.css")" rel="stylesheet" type="text/css" />
@@ -156,7 +58,6 @@
 		<!-- <script type="text/javascript" src="@routes.Assets.versioned("js/business/filesupload.js")"></script> -->
 
 		<script type="text/javascript" src="@routes.Assets.versioned("js/common/bspfileinput.js")"></script>
-
 
 		<!-- Upload End -->
 		<!--TAB流程进度 Start-->
@@ -171,15 +72,14 @@
 		<!-- d3组件，用于圆形进度展示 End-->
 
 		<script src="@routes.Assets.versioned("js/business/userinfo.js")"></script>
-
     	@*通用JS 结束*@
 	</head>
    @content
 
 	<!-- 弹框组件 Start-->
-	<script src="@routes.Assets.versioned("hDialog/js/jquery.hDialog.js")"></script>
+	@*<script src="@routes.Assets.versioned("hDialog/js/jquery.hDialog.js")"></script>*@
 	<!-- 弹框组件 End-->
 
 	<!-- <script src="@routes.Assets.versioned("js/business/samplecheck.js")"></script> -->
-	<script src="@routes.Assets.versioned("js/plugins/sparkline/jquery.sparkline.min.js")"></script>
+	@*<script src="@routes.Assets.versioned("js/plugins/sparkline/jquery.sparkline.min.js")"></script>*@
 </html>

@@ -142,7 +142,7 @@ class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstance
     }
 
     //EmberWebPage
-    def emberWebPage(path: String) = Action {
-        Ok(views.html.new_web())
-    }
+//    def emberWebPage(path: String) = Action {
+//        Ok(views.html.new_web())
+//    }
 }
