@@ -4,9 +4,9 @@ import javax.inject.Inject
 
 import akka.actor.ActorSystem
 import bmlogic.register.RegisterMessage._
-import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
 import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
+import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
 import play.api.mvc.{Action, Controller}
@@ -14,7 +14,7 @@ import play.api.mvc.{Action, Controller}
 /**
   * Created by yym on 9/17/17.
   */
-class RegisterController @Inject () (as_inject : ActorSystem, dbt : DBTrait, att : AuthTokenTrait) extends Controller {
+class RegisterController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait) extends Controller {
     implicit val as = as_inject
     
     def pushAdminController = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>

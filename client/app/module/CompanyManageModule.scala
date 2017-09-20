@@ -10,6 +10,7 @@ import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.mongodbConnect.connection_instance
 
 object CompanyManageModuleMessage {
@@ -30,7 +31,8 @@ object CompanyManageModule extends ModuleTrait {
     }
 
     def query_company_func(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        implicit val db = DBConection.basic
+        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+        implicit val db = conn.queryDBInstance("cli").get//DBConection.basic
         try {
             val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse(throw new Exception("warn input"))
             val result = Company_Id match {

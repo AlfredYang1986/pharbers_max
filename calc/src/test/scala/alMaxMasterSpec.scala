@@ -111,7 +111,7 @@ class alMaxMasterSpec extends Specification with AfterAll{
 
     def e5 = {
         val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
-        val path = fileBase + "2016-01.xlsx"
+        val path = fileBase + "2016-11.xlsx"
         val f = a ? push_split_excel_job(path, cp)
         val r = Await.result(f, 2 minute).asInstanceOf[split_excel_end]
 
@@ -133,8 +133,8 @@ class alMaxMasterSpec extends Specification with AfterAll{
         val fff = a ? push_calc_job_2(mp, cp)
         val rrr = Await.result(fff, 40 minute).asInstanceOf[calc_data_end]
 
-//        println(rrr.property.finalValue)
-//        println(rrr.property.finalUnit)
+        println(rrr.property.finalValue)
+        println(rrr.property.finalUnit)
         rrr.result must_== true
     }
 }

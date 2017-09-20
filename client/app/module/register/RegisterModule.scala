@@ -10,11 +10,11 @@ import bmlogic.register.RegisterMessage._
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.MaxEnmeration.{RegisterStatus, UserScope}
-import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.aqll.common.MergeJs._
 import com.pharbers.aqll.common.sercurity.Sercurity
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.cliTraits.DBTrait
 import com.pharbers.token.AuthTokenTrait
 /**
   * Created by yym on 9/14/17.
@@ -37,9 +37,11 @@ object RegisterModule extends ModuleTrait with RegisterData {
     def pushAdmin(data : JsValue)
                  (pr : Option[Map[String, JsValue]])
                  (implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+        
+        implicit val dbc = cm.modules.get.get("dbc").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+        val db = cm.modules.get.get("dbt").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
         try {
             val js = dataMergeWithPr(data, pr)
-            val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
             val uuid = UUID.randomUUID().toString
             val id = Sercurity.md5Hash(uuid)
             val date = new Date().getTime
@@ -73,9 +75,10 @@ object RegisterModule extends ModuleTrait with RegisterData {
     def pushRegisterWithoutCheck(data : JsValue)
                  (pr : Option[Map[String, JsValue]])
                  (implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+        implicit val dbc = cm.modules.get.get("dbc").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+        val db = cm.modules.get.get("dbt").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
         try {
             val js = dataMergeWithPr(data, pr)
-            val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
             val uuid = UUID.randomUUID().toString
             val id = Sercurity.md5Hash(uuid)
             val date = new Date().getTime
@@ -108,9 +111,10 @@ object RegisterModule extends ModuleTrait with RegisterData {
     def queryRegisterWithID(data : JsValue)
                            (pr : Option[Map[String, JsValue]])
                            (implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+        implicit val dbc = cm.modules.get.get("dbc").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+        val db = cm.modules.get.get("dbt").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
         try {
             val js = dataMergeWithPr(data, pr)
-            val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
             val reg_id = (js \ "reg_id").asOpt[String].map (x => x).getOrElse(throw new Exception("input error"))
             val result = db.queryObject(MongoDBObject("reg_id" -> reg_id), "reg_apply")
             if (result.isEmpty) throw new Exception("unkonwn error")
@@ -127,9 +131,10 @@ object RegisterModule extends ModuleTrait with RegisterData {
     def queryAllRegisters(data : JsValue)
                          (pr : Option[Map[String, JsValue]])
                          (implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+        implicit val dbc = cm.modules.get.get("dbc").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+        val db = cm.modules.get.get("dbt").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
         try {
             val js = dataMergeWithPr(data, pr)
-            val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
             val take = (js \ "take").asOpt[Int].map (x => x).getOrElse(20)
             val skip = (js \ "skip").asOpt[Int].map (x => x).getOrElse(0)
             val result = db.queryMultipleObject(MongoDBObject(), "reg_apply","date", take,skip)
@@ -147,9 +152,10 @@ object RegisterModule extends ModuleTrait with RegisterData {
     def checkRegisterStatus(data : JsValue)
                      (pr : Option[Map[String, JsValue]])
                      (implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+        implicit val dbc = cm.modules.get.get("dbc").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+        val db = cm.modules.get.get("dbt").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
         try {
             val js = dataMergeWithPr(data, pr)
-            val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
             val reg_id = (js \ "reg_id").asOpt[String].map (x => x).getOrElse(throw new Exception("input error"))
             val status = (js \ "status").asOpt[String].map(x =>x).getOrElse(throw new Exception("input error"))
             val result  = db.queryObject(MongoDBObject("reg_id" -> reg_id), "reg_apply")
@@ -168,9 +174,10 @@ object RegisterModule extends ModuleTrait with RegisterData {
     def deleteRegister(data : JsValue)
                            (pr : Option[Map[String, JsValue]])
                            (implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+        implicit val dbc = cm.modules.get.get("dbc").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
+        val db = cm.modules.get.get("dbt").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
         try {
             val js = dataMergeWithPr(data, pr)
-            val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
             val reg_id = (js \ "reg_id").asOpt[String].map (x => x).getOrElse(throw new Exception("input error"))
             
            

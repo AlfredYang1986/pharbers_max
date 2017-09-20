@@ -9,9 +9,9 @@ import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
 import com.pharbers.aqll.common.{DBConection, alCommonEnum}
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.mongodbDriver.DBTrait
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
 
 object UserManageModuleMessage {
     sealed class msg_UserManageBase extends CommonMessage("usermanage", UserManageModule)
@@ -31,8 +31,8 @@ object UserManageModule extends ModuleTrait {
     }
 
     def query_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-        implicit val db = DBConection.basic
+        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+        implicit val db = conn.queryDBInstance("cli").get//DBConection.basic
         try {
             val Company_Id = (data \ "Company_Id").get.asOpt[String].get
             val result = Company_Id match {
@@ -69,8 +69,8 @@ object UserManageModule extends ModuleTrait {
     }
 
     def delete_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-//        val db = cm.modules.get.get("db").map (x => x.asInstanceOf[DBTrait]).getOrElse(throw new Exception("no db connection"))
-        implicit val db = DBConection.basic
+        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+        implicit val db = conn.queryDBInstance("cli").get//DBConection.basic
         try {
             val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse("")
             val IDs = (data \ "IDs").get.asOpt[List[String]].getOrElse(Nil)

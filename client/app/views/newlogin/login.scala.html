@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="layui/css/layui.css">
+
+    <link rel="stylesheet" href="css/nomal.css">
+
+    <script src="js/jquery-1.9.1.min.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="layui/layui.all.js"></script>
+
+
+    <title></title>
+</head>
+<body>
+    <div class="title"></div>
+    <div class="content">
+        <div class="row">
+            <div class="col-xs-4 col-xs-offset-4 box_log">
+                <div class="row large_title">
+                    MAX
+                </div>
+                <div class="row small_info">
+                    <span>让每个决策都精彩</span>
+                    <br>
+                    <span>EMPOWER YOUR DECISION MAKING</span>
+                </div>
+                <div class="row">
+                    <div class="box_form">
+                        <div class="form-group">
+                            <input class="form-control" type="text" name="email" placeholder="企业邮箱">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="password" name="pwd" placeholder="密码">
+                        </div>
+                    </div>
+                </div>
+                <div class="row"><div class="small_info toRight tohref" onclick="">忘记密码</div></div>
+                <div class="login_btn" onclick="openLay()">登&nbsp陆</div>
+                <div class="row"><div class="small_info tohref" onclick="">没有账号?快速体验</div></div>
+
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
+    </div>
+
+</body>
+<div id="popLayer" class="cenPanel col-xs-8 col-xs-offset-2">
+    <div class="row cenPanel-title">
+        <span class="cer-title-info col-xs-11">授权码验证</span>
+    </div>
+    <div class="row cenPanel-content">
+        <div class="row middle_info">
+            <span>欢迎加入MAX!</span>
+            <br>
+            <span>请输入您的授权码,进行验证</span>
+        </div>
+        <div class="box_form box_size">
+            <div class="form-group">
+                <input class="form-control" type="text" name="code" placeholder="请输入授权码">
+            </div>
+            <div class="login_btn" onclick=" ">提交验证</div>
+            <div class="row"><div class="small_info tohref toRight" onclick="">如何得到授权码?</div></div>
+            <div class="row"><div class="small_info tohref toRight" onclick="">授权码过期?</div></div>
+        </div>
+    </div>
+</div>
+<script>
+var openLay = function(){
+    var index = layer.open({
+        type: 1,
+        skin: 'layui-layer-demo',
+        area: '800px',
+        shade: [0.8, '#393D49'],
+        content: $('#popLayer'),
+        cancel: function(index, layero){
+            layer.close(index)
+            $('#popLayer').hide();
+        }
+    });
+    layer.title("信息验证", index)
+    layer.style(index, {
+        width: '1000px',
+        top: '10px',
+        color: '#fff'
+    });
+}
+</script>
+<script src="js/nomal.js"></script>
+</html>

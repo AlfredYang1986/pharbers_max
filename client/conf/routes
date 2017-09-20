@@ -12,14 +12,6 @@ POST    /register/cryptRegisterCode                 controllers.LogSysController
 POST    /register/decryptRegisterCode               controllers.LogSysController.RegisterController.decryptRegisterCode
 POST    /register/checkAuthTokenExpire              controllers.LogSysController.RegisterController.checkAuthTokenExpire
 
-
-
-
-
-
-
-
-
 # 业务模块
 #   用户登录
 GET     /                                   controllers.alMaxRouterController.login

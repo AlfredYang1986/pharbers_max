@@ -81,7 +81,8 @@ case class alFileExport() {
       def createFile(filetype: String): File = {
         val file_f : File = new File(root + program + fileBase + export_file)
         if(!file_f.exists()) file_f.mkdir()
-        new File(root+ program + fileBase + export_file + UUID.randomUUID + filetype)
+//        new File(root+ program + fileBase + export_file + UUID.randomUUID + filetype)
+          new File(fileBase + export_file + UUID.randomUUID + filetype)
       }
 
       /**
