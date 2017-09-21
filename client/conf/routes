@@ -1,31 +1,39 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
-# ~~~~
-######################client#######################
-#POST    /register/pushAdmin                         controllers.LogSysController.RegisterController.pushAdminController
-#POST    /register/pushRegisterWithoutCheck          controllers.LogSysController.RegisterController.pushRegisterWithoutCheck
-#POST    /register/queryRegisterWithID               controllers.LogSysController.RegisterController.queryRegisterWithID
-#POST    /register/queryAllRegisters                 controllers.LogSysController.RegisterController.queryAllRegisters
-#POST    /register/checkRegisterStatus               controllers.LogSysController.RegisterController.checkRegisterStatus
-#POST    /register/deleteRegister                    controllers.LogSysController.RegisterController.deleteRegister
-#POST    /register/cryptRegisterCode                 controllers.LogSysController.RegisterController.cryptRegisterCode
-#POST    /register/decryptRegisterCode               controllers.LogSysController.RegisterController.decryptRegisterCode
-#POST    /register/checkAuthTokenExpire              controllers.LogSysController.RegisterController.checkAuthTokenExpire
 
+# 用户申请注册
 POST    /register/user                               controllers.register.RegisterController.user_register
+# BD用户登入分页查询申请接口
 POST    /register/querybd                            controllers.register.RegisterController.query_register_bd
 
-
+# 新增用户
 POST    /user/push                                   controllers.users.UsersController.user_push
+# 删除用户
 POST    /user/delete                                 controllers.users.UsersController.user_delete
+# 分页查询用户
 POST    /user/querypage                              controllers.users.UsersController.user_query
 
+# 用户登入
 POST    /auth/authWithPassword                       controllers.auth.AuthController.authWithPassword
+#POST    /auth/user/                                  controllers.alMaxRouterController.auth_user
 
 GET     /register/code                               controllers.alMaxRouterController.codeRegistration
 GET     /register/info                               controllers.alMaxRouterController.infoRegistration
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
 GET     /login/confrim                               controllers.alMaxRouterController.userInfoConfirm
+
+#快速预约成功
+GET     /order/success                               controllers.alMaxRouterController.postSuccess
+
+#授权成功
+GET     /register/success                            controllers.alMaxRouterController.registerSuccess
+
+
+
+
+
+
+
 
 # 业务模块
 #   用户登录
@@ -94,10 +102,3 @@ POST    /loadPageData                       controllers.PageInitializationContro
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)
-
-
-#快速预约成功
-GET     /order/success                     controllers.LogSysController.PagesController.postSuccess
-
-#授权成功
-GET     /register/success                   controllers.LogSysController.PagesController.registerSuccess
