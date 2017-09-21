@@ -71,7 +71,7 @@ object AuthModule extends ModuleTrait {
 	def authTokenParser(data: JsValue)(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 		try {
-			val auth_token = (data \ "token").asOpt[String].map (x => x).getOrElse(throw new Exception("input error"))
+			val auth_token = (data \ "user_token").asOpt[String].map (x => x).getOrElse(throw new Exception("input error"))
 			val auth = att.decrypt2JsValue(auth_token)
 			(Some(Map("auth" -> auth)), None)
 			

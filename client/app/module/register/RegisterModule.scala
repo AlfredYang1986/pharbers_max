@@ -10,7 +10,6 @@ import bmlogic.register.RegisterMessage._
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.MaxEnmeration.{alRegisterStatus, alUserScope}
-import com.pharbers.aqll.common.MergeJs._
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.sercurity.Sercurity
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}

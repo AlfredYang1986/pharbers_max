@@ -11,14 +11,23 @@ import com.pharbers.token.AuthTokenTrait
 import module.common.alPageDefaultData._
 import play.api.mvc._
 
-class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstanceManager, att : AuthTokenTrait) extends Controller {
+class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait) extends Controller {
     implicit val as = as_inject
-    implicit val db_cores : DBTrait = dbc.queryDBInstance("calc").get
-    implicit val db_basic : DBTrait = dbc.queryDBInstance("cli").get
+    implicit val db_cores : DBTrait = dbt.queryDBInstance("calc").get
+    implicit val db_basic : DBTrait = dbt.queryDBInstance("cli").get
 
-    implicit val db_cores_connection : connection_instance = dbc.queryDBConnection("calc").get
-    implicit val db_basic_connection : connection_instance = dbc.queryDBConnection("cli").get
+    implicit val db_cores_connection : connection_instance = dbt.queryDBConnection("calc").get
+    implicit val db_basic_connection : connection_instance = dbt.queryDBConnection("cli").get
     
+    def auth_user = Action { request =>
+        val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
+        (att.decrypt2JsValue(token) \ "scope").asOpt[List[String]].getOrElse(Nil) match {
+            case Nil => Redirect("/index")
+            case head :: tail if(head == "BD") => Redirect("/login/db")
+            case _ => ???
+        }
+    }
+
     //登录
     def login = Action { request =>
         Ok(views.html.login())

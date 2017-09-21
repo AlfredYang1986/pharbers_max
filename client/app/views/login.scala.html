@@ -78,12 +78,19 @@
             // 提交监听
             form.on('submit(sub)', function (data) {
                 var json = JSON.stringify(data.field)
-                ajaxData("auth/authWithPassword", json, "POST", function(result){
-                    console.info(result)
-                    location.href = "/index"
+                ajaxData('auth/authWithPassword', json, 'POST', function(r){
+                    if(r.status === 'ok') {
+                        $.cookie('user_token', r.result.auth_token);
+                        $.cookie('name', r.result.user.name);
+                        $.cookie('email', r.result.user.email);
+                        location = "/auth/user/"
+                    }else{
+                        layer.msg('用户名或密码错误！');
+                    }
                 }, function(e){console.error(e)})
             })
         })
+
     </script>
 </body>
 }
