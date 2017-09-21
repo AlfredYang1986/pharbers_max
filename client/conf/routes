@@ -20,7 +20,7 @@ POST    /user/push                                   controllers.users.UsersCont
 POST    /user/delete                                 controllers.users.UsersController.user_delete
 POST    /user/querypage                              controllers.users.UsersController.user_query
 
-POST    /user/login                                  controllers.login.LoginController.user_login
+POST    /auth/authWithPassword                       controllers.auth.AuthController.authWithPassword
 
 GET     /register/code                               controllers.alMaxRouterController.codeRegistration
 GET     /register/info                               controllers.alMaxRouterController.infoRegistration
@@ -94,3 +94,10 @@ POST    /loadPageData                       controllers.PageInitializationContro
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)
+
+
+#快速预约成功
+GET     /order/success                     controllers.LogSysController.PagesController.postSuccess
+
+#授权成功
+GET     /register/success                   controllers.LogSysController.PagesController.registerSuccess

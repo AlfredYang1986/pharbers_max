@@ -13,4 +13,11 @@ class PagesController extends Controller{
 //    def gomaxServiceDetail = Action{
 //        Ok(views.html.maxServiceDetail())
 //    }
+    
+    def postSuccess = Action{
+        Ok(views.html.success_post())
+    }
+    def registerSuccess = Action{
+        Ok(views.html.success_register())
+    }
 }
