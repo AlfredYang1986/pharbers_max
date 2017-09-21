@@ -19,8 +19,6 @@ class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstance
     implicit val db_cores_connection : connection_instance = dbc.queryDBConnection("calc").get
     implicit val db_basic_connection : connection_instance = dbc.queryDBConnection("cli").get
     
-    
-
     //登录
     def login = Action { request =>
         Ok(views.html.login())
@@ -87,7 +85,9 @@ class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstance
 
     //历史数据
     def historyData = Action { request =>
-        Ok(views.html.HistoryData(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, db_basic_connection, db_basic_connection)._1))
+        Ok(views.html.HistoryData())
+//            getAdminByCookies(request),
+//            PageDefaultData(alModularEnum.RQ, db_basic_connection, db_basic_connection)._1))
     }
 
 
