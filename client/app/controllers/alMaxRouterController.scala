@@ -72,7 +72,8 @@ class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstance
     
     //计算2
     def calcData = Action { request =>
-        Ok(views.html.newhome.calcData(getAdminByCookies(request)))
+//        Ok(views.html.newhome.calcData(getAdminByCookies(request)))
+        Ok(views.html.newhome.calcData(""))
     }
 
     //历史数据

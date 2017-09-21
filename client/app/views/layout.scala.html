@@ -35,17 +35,14 @@
                 <div class="layui-side-scroll">
                         <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
                     <ul class="layui-nav layui-nav-tree"  lay-filter="main_menu">
-                        <li class="layui-nav-item layui-nav-itemed" pharbers-filter="file-upload">
-                            <a href="javascript:;">文件上传</a>
+                        <li class="layui-nav-item layui-nav-itemed" pharbers-filter="des">
+                            <a href="javascript:;">首页</a>
                         </li>
-                        <li class="layui-nav-item" pharbers-filter="sample-check">
-                            <a href="javascript:;">样本检查</a>
+                        <li class="layui-nav-item" pharbers-filter="calc">
+                            <a href="javascript:;">计算</a>
                         </li>
-                        <li class="layui-nav-item" pharbers-filter="result-check">
-                            <a href="javascript:;">结果检查</a>
-                        </li>
-                        <li class="layui-nav-item" pharbers-filter="result-query">
-                            <a href="javascript:;">结果查询</a>
+                        <li class="layui-nav-item" pharbers-filter="history">
+                            <a href="javascript:;">历史结果</a>
                         </li>
                     </ul>
                 </div>
@@ -69,22 +66,20 @@
 
                 element.on('nav(main_menu)', function(elem){
                     var item = elem.attr('pharbers-filter')
-                    if (item == "file-upload") {
-                        location = ""
+                    if (item == "des") {
+                        location = "/index"
 
-                    } else if (item == "sample-check") {
+                    } else if (item == "calc") {
+                        location = "/calcdata"
 
-                    } else if (item == "result-check") {
-
-                    } else if (item == "reqult-query") {
+                    } else if (item == "history") {
 
                     } else {
 
                     }
                 });
             });
-
-            @script
         </script>
+        @script
     </body>
 }
