@@ -78,7 +78,7 @@
             // 提交监听
             form.on('submit(sub)', function (data) {
                 var json = JSON.stringify(data.field)
-                ajaxData("user/login", json, "POST", function(result){
+                ajaxData("auth/authWithPassword", json, "POST", function(result){
                     console.info(result)
 //                    location = "http://www.baidu.com"
                 }, function(e){console.error(e)})

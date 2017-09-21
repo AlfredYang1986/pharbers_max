@@ -20,7 +20,7 @@ POST    /user/push                                   controllers.users.UsersCont
 POST    /user/delete                                 controllers.users.UsersController.user_delete
 POST    /user/querypage                              controllers.users.UsersController.user_query
 
-POST    /user/login                                  controllers.login.LoginController.user_login
+POST    /auth/authWithPassword                       controllers.auth.AuthController.authWithPassword
 
 GET     /register/code                               controllers.alMaxRouterController.codeRegistration
 GET     /register/info                               controllers.alMaxRouterController.infoRegistration
