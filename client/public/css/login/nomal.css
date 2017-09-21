@@ -29,7 +29,10 @@ dl.layui-nav-child > dd {
     text-align: center;
     color: #494c57;
 }
-
+.font_big_size{
+    font-size: 130px;
+    padding: 10px;
+}
 /************************层次设置**************************/
 .title{
     height: 150px;
@@ -65,24 +68,31 @@ dl.layui-nav-child > dd {
     font-size: 20px;
     font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
 }
-.cer-mark{
-}
 .cenPanel-title{
-    padding: 10px 15px;
+    padding: 10px 20px;
     border-bottom: 1px solid transparent;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
-    height: 40px;
+    height: 50px;
 }
 
 .cenPanel-content{
     padding: 15px;
-    height: 300px;
+    height: 500px;
 }
 .box_size{
     margin-left: 30%;
     margin-right: 30%;
 }
+.box_size_upDown{
+    margin-top: 30%;
+    margin-bottom: 30%;
+}
+.form_tip_bottom{
+    height: 20px;
+    padding: 5px 3px;
+}
+
 /*********************微调通用*****************************/
 .toRight{
     text-align: right;
@@ -104,13 +114,30 @@ dl.layui-nav-child > dd {
     text-align: center;
 
 }
+.default_color{
+    color: #009688;
+}
+
+.line-80{
+    height: 1px;
+    padding:0px;
+    background-color:#009688;
+    overflow:hidden;
+    margin:10px 10%;
+
+}
+.user-img{
+    width:60px;
+    height:60px;
+    border-radius:50%
+}
 
 /*************************个性*******************************/
 .login_btn{
-    margin: 15px 30px;
+    margin: 12px 30px;
     background-color: #009688;
     color: #fff;
-    white-space: nowrap;
+    white-space:  nowrap;
     text-align: center;
     border: none;
     border-radius: 3px;
@@ -121,5 +148,22 @@ dl.layui-nav-child > dd {
     font-size: 18px;
 }
 .login_btn:hover{
+    background-color: #00796b;
+}
+.nomal_btn{
+    height: 34px;
+    margin: 0px 20px;
+    background-color: #009688;
+    color: #fff;
+    white-space: nowrap;
+    text-align: center;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: .9;
+    padding: 7px 0px 7px 0px;
+    font-size: 16px;
+}
+.nomal_btn:hover{
     background-color: #00796b;
 }
