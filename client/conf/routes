@@ -27,7 +27,10 @@ GET     /order/success                               controllers.alMaxRouterCont
 
 #授权成功
 GET     /register/success                            controllers.alMaxRouterController.registerSuccess
-
+#授权码验证
+GET    /registerCode/verification                   controllers.alMaxRouterController.verificationRegister
+#邮箱激活
+GET   /email/invocation                             controllers.alMaxRouterController.emailInvocation
 
 
 

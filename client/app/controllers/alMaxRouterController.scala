@@ -41,7 +41,14 @@ class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstance
     def userInfoConfirm = Action { request =>
         Ok(views.html.userInfoConfirm())
     }
-
+    //验证授权码
+    def verificationRegister = Action { request =>
+        Ok(views.html.register_verification())
+    }
+    //邮箱激活
+    def emailInvocation = Action { request =>
+        Ok(views.html.invocation_email())
+    }
     //注册
     def register = Action {
         Ok(views.html.register())

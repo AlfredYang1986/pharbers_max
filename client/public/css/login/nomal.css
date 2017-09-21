@@ -131,7 +131,9 @@ dl.layui-nav-child > dd {
     height:60px;
     border-radius:50%
 }
-
+.space-height{
+    height:34px;
+}
 /*************************个性*******************************/
 .login_btn{
     margin: 12px 30px;
