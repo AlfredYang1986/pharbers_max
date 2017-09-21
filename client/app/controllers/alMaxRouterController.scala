@@ -18,6 +18,8 @@ class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstance
 
     implicit val db_cores_connection : connection_instance = dbc.queryDBConnection("calc").get
     implicit val db_basic_connection : connection_instance = dbc.queryDBConnection("cli").get
+    
+    
 
     //登录
     def login = Action { request =>
@@ -157,6 +159,16 @@ class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstance
             case 1 => alAdminEnum.admin.toString
             case 2 => alAdminEnum.admin.toString
         }
+    }
+    
+    //授权成功
+    def postSuccess = Action{
+        Ok(views.html.success_post())
+    }
+    
+    //快速预约成功
+    def registerSuccess = Action{
+        Ok(views.html.success_register())
     }
 
     //EmberWebPage
