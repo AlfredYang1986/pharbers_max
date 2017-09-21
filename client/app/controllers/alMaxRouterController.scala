@@ -47,11 +47,12 @@ class alMaxRouterController @Inject() (as_inject : ActorSystem, dbc : dbInstance
 
     //首页
     def index = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.index(getAdminByCookies(request)))
-        }
+//        if (getUserTokenByCookies(request).equals("")) {
+//            Ok(views.html.login())
+//        } else {
+//            Ok(views.html.index(getAdminByCookies(request)))
+            Ok(views.html.index())
+//        }
     }
     
     //首页2
