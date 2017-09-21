@@ -34,17 +34,17 @@
             <div class="layui-side layui-bg-black">
                 <div class="layui-side-scroll">
                         <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
-                    <ul class="layui-nav layui-nav-tree"  lay-filter="test">
-                        <li class="layui-nav-item layui-nav-itemed">
+                    <ul class="layui-nav layui-nav-tree"  lay-filter="main_menu">
+                        <li class="layui-nav-item layui-nav-itemed" pharbers-filter="file-upload">
                             <a href="javascript:;">文件上传</a>
                         </li>
-                        <li class="layui-nav-item">
+                        <li class="layui-nav-item" pharbers-filter="sample-check">
                             <a href="javascript:;">样本检查</a>
                         </li>
-                        <li class="layui-nav-item">
+                        <li class="layui-nav-item" pharbers-filter="result-check">
                             <a href="javascript:;">结果检查</a>
                         </li>
-                        <li class="layui-nav-item">
+                        <li class="layui-nav-item" pharbers-filter="result-query">
                             <a href="javascript:;">结果查询</a>
                         </li>
                     </ul>
@@ -53,7 +53,7 @@
 
             <div class="layui-body">
                 <!-- 内容主体区域 -->
-                <div style="padding: 15px;">内容主体区域</div>
+                @*<div style="padding: 15px;">内容主体区域</div>*@
                 @content
             </div>
 
@@ -66,6 +66,22 @@
             //JavaScript代码区域
             layui.use('element', function(){
                 var element = layui.element;
+
+                element.on('nav(main_menu)', function(elem){
+                    var item = elem.attr('pharbers-filter')
+                    if (item == "file-upload") {
+                        location = ""
+
+                    } else if (item == "sample-check") {
+
+                    } else if (item == "result-check") {
+
+                    } else if (item == "reqult-query") {
+
+                    } else {
+
+                    }
+                });
             });
 
             @script
