@@ -97,4 +97,7 @@ GET     /assets/*file                        controllers.Assets.versioned(path="
 
 
 #快速预约成功
-GET     /register/success                     controllers.LogSysController.PagesController.postSuccess
+GET     /order/success                     controllers.LogSysController.PagesController.postSuccess
+
+#授权成功
+GET     /register/success                   controllers.LogSysController.PagesController.registerSuccess
