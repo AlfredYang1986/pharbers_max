@@ -1,6 +1,5 @@
 package com.pharbers.aqll.common.sercurity
 
-import java.security._
 import java.util.Date
 import scala.Array.canBuildFrom
 

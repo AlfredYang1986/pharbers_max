@@ -19,9 +19,7 @@ import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.mongodbConnect.from
 import com.pharbers.token.AuthTokenTrait
-/**
-  * Created by yym on 9/14/17.
-  */
+
 object RegisterModule extends ModuleTrait {
     def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_user_register(data: JsValue) => user_register(data)
