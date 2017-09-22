@@ -3,6 +3,7 @@
  */
 $(document).ready(function(){
     $('#popLayer').hide();
+    $('#openTextValidate').hide();
 })
 
 var openTextValidate = function(){
