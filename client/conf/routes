@@ -15,9 +15,14 @@ POST    /user/querypage                              controllers.users.UsersCont
 
 # 用户登入
 POST    /auth/authWithPassword                       controllers.auth.AuthController.authWithPassword
+
+# 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
 
+# 授权吗页面
 GET     /register/code                               controllers.alMaxRouterController.codeRegistration
+
+# 路人申请体验页面
 GET     /register/info                               controllers.alMaxRouterController.infoRegistration
 # BD 登入选择
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
@@ -39,6 +44,9 @@ POST    /phonecode/send                             controllers.phonecode.PhoneS
 
 # phone 验证 验证码
 POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
+
+
+
 
 # 业务模块
 #   用户登录

@@ -20,28 +20,28 @@
                         <div class="box_form">
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" name="code" placeholder="企业名称">
+                                    <input class="form-control" type="text" name="comapny" lay-verify="comapny" required placeholder="企业名称">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" name="contact" placeholder="联系人">
+                                    <input class="form-control" type="text" name="linkman" lay-verify="linkman" required placeholder="联系人">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" name="email" placeholder="联系人邮箱">
+                                    <input class="form-control" type="text" name="email" lay-verify="email" required placeholder="联系人邮箱">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" name="phone" placeholder="联系人手机号">
+                                    <input class="form-control" type="text" name="phone" lay-verify="phone" required placeholder="联系人手机号">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
@@ -65,24 +65,38 @@
                     var $ = layui.jquery,form = layui.form,layer = layui.layer;
                     // 验证
                     form.verify({
-                        account: function (value) {
+                        comapny: function (value) {
                             if (value == "") {
-                                return "请输入用户名";
+                                return "请输入企业名称";
                             }
                         },
-                        password: function (value) {
+                        linkman: function (value) {
                             if (value == "") {
-                                return "请输入密码";
+                                return "请输入联系人";
+                            }
+                        },
+                        email: function (value) {
+                            if (value == "") {
+                                return "请输入邮箱";
+                            }
+                        },
+                        phone: function (value) {
+                            if (value == "") {
+                                return "请输入手机号";
                             }
                         }
                     });
 
                     // 提交监听
                     form.on('submit(sub)', function (data) {
-                        layer.alert(JSON.stringify(data.field), {
-                            title: '最终的提交信息'
-                        });
-                        return false;
+                        var json = JSON.stringify(data.field)
+                        ajaxData('/register/user', json, 'POST', function(r){
+                            if(r.status === 'ok' && r.result.registers === "ok") {
+                                location = "/order/success "
+                            }else {
+                                layer.msg('出现未知错误，请联系管理员！');
+                            }
+                        }, function(e){console.error(e)})
                     })
                 })
         </script>
