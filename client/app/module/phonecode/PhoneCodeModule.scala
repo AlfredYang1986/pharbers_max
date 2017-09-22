@@ -32,7 +32,7 @@ object PhoneCodeModule extends ModuleTrait with PhoneCodeData {
 				case None => db.insertObject(o, "phonecode", "phone")
 				case Some(one) => db.updateObject(o, "phonecode", "phone")
 			}
-			val result = toJson(d2m(o))
+			val result = toJson(d2m(o) - "code" ++ Map("flag" -> toJson("ok")))
 			(Some(Map("reg" -> result)), None)
 		} catch {
 			case ex : Exception =>

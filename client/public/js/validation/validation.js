@@ -6,7 +6,6 @@ if(typeof validateType  == "undefined"){
     validateType.isEmp = 0;
     validateType.email = 1;
     validateType.phone = 2;
-
 }
 var validateEmail = function (idName, errMes) {
     var regexp =/^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
@@ -42,7 +41,6 @@ var postValidation = function (idName, validateType) {
     if(validateType == "phone"){
         var res = validateMobilePhone(idName, "手机号码输入错误");
         warning(res);
-
     }else if(validateType == "email"){
         var res =validateEmail(idName, "邮箱输入格式错误");
         warning(res);
