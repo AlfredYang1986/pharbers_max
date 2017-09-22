@@ -2,7 +2,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alMaxDriverTrait, alPyQueueTrait}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alMaxDriverTrait, alGeneratePanelQueueTrait}
 import com.pharbers.aqll.alMSA.alCalcMaster.alScpQueueActor.{ExcuteScanScpQueue}
 import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
 
@@ -10,18 +10,18 @@ object alMaxDriver {
 	def props = Props[alMaxDriver]
 	def name = "portion-actor"
 
-	case class pushPyUbJobs(item : alUpBeforeItem)
-	case class pushPyUlJobs(item : alUploadItem)
-	case class pyUbSchedule()
-	case class pyUlSchedule()
-	case class doPyUbJob(item : alUpBeforeItem)
-	case class doPyUlJob(item : alUploadItem)
+	case class pushCalcYMJobs(item : alUpBeforeItem)
+	case class pushGeneratePanelJobs(item : alUploadItem)
+	case class calcYMSchedule()
+	case class generatePanelSchedule()
+	case class calcYMJob(item : alUpBeforeItem)
+	case class generatePanelJob(item : alUploadItem)
 	case class releasePyEnergy()
 }
 
 class alMaxDriver extends Actor with ActorLogging
 								with alMaxDriverTrait
-								with alPyQueueTrait
+								with alGeneratePanelQueueTrait
 								with alMaxQueueTrait{
 
 	import alMaxDriver._
@@ -30,10 +30,10 @@ class alMaxDriver extends Actor with ActorLogging
 		case push_filter_job(file, cp) => push_filter_job_impl(file, cp)
 		case max_calc_done(mp) => max_calc_done_impl(mp)
 
-		case pushPyUbJobs(item) => push_py_ub_jobs(item)
-		case pushPyUlJobs(item) => push_py_ul_jobs(item)
-		case pyUbSchedule() => py_ub_schedule_jobs
-		case pyUlSchedule() => py_ul_schedule_jobs
+		case pushCalcYMJobs(item) => push_calc_ym_jobs(item)
+		case pushGeneratePanelJobs(item) => push_generate_panel_jobs(item)
+		case calcYMSchedule() => calc_ym_schedule_jobs
+		case generatePanelSchedule() => generate_panel_schedule_jobs
 		case releasePyEnergy() => release_py_energy
 		case ExcuteScanScpQueue() => scanQueue()
 

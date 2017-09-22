@@ -1,8 +1,7 @@
 package com.pharbers.aqll.alStart.alHttpFunc
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.{Directives, StandardRoute}
+import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alAkkaHttpJson.PlayJsonSupport
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
@@ -10,14 +9,15 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
-import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
+import com.pharbers.pfizer.impl.phPfizerHandleImpl
+import play.api.libs.json.JsString
+
+import scala.collection.immutable.Map
 
 /**
   * Created by qianpeng on 2017/6/5.
@@ -29,8 +29,8 @@ class alAkkaHttpFunctionApi(system: ActorSystem, timeout: Timeout) extends alAkk
 
 case class Item(str: String, lst: List[String])
 
-case class alUpBeforeItem(company: String, uname: String)
-case class alUploadItem(company: String, yms: String, uname: String)
+case class alUpBeforeItem(company: String, user: String, cpas: String, gycxs: String)
+case class alUploadItem(company: String, user: String, cpas: String, gycxs: String, ym: String)
 case class alCheckItem(company: String, filename: String, uname: String)
 case class alCalcItem(filename: String, company: String, uname: String)
 case class alCommitItem(company: String, uuid: String, uname: String)
@@ -75,10 +75,14 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alFileUploadPyBefore = post {
 		path("uploadbefore") {
 			entity(as[alUpBeforeItem]) { item =>
-//				val result = pyCmd(s"$root$program$fileBase${item.company}" ,Upload_Firststep_Filename, "").excute
-				val result = pyCmd(s"$fileBase${item.company}" ,Upload_Firststep_Filename, "").excute
-//				toJson(Map("status" -> toJson("success"), "result" -> toJson(Map("result" -> "2016#", "page" -> ""))))
-				alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+                val args: Map[String, List[String]] = Map(
+                    "company" -> List(item.company),
+                    "user" -> List(item.user),
+                    "cpas" -> item.cpas.split("&").toList,
+                    "gycxs" -> item.gycxs.split("&").toList
+                )
+                val result = new phPfizerHandleImpl(args).calcYM
+                alMessageProxy().sendMsg(result.asInstanceOf[JsString].value, item.user, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete(result)
 			}
 		}
@@ -87,9 +91,15 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alFileUploadPythonFunc = post {
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
-//				val result = pyCmd(s"$root$program$fileBase${item.company}",Upload_Secondstep_Filename, item.yms).excute
-				val result = pyCmd(s"$fileBase${item.company}",Upload_Secondstep_Filename, item.yms).excute
-				complete(result)
+                val args: Map[String, List[String]] = Map(
+                    "company" -> List(item.company),
+                    "user" -> List(item.user),
+                    "cpas" -> item.cpas.split("&").toList,
+                    "gycxs" -> item.gycxs.split("&").toList
+                )
+                val result = new phPfizerHandleImpl(args).generatePanelFile(item.ym)
+                alMessageProxy().sendMsg(result.asInstanceOf[JsString].value, item.user, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+                complete(result)
 			}
 		}
 	}
