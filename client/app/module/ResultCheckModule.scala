@@ -2,55 +2,60 @@ package module
 
 import com.mongodb.casbah.Imports.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.common.alDao.data_connection
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
+import com.pharbers.aqll.common.{DBConection, alCallHttp}
+import com.pharbers.mongodbConnect.connection_instance
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.common.alNearDecemberMonth
-import module.common.alCallHttp
 
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.dbmodule.MongoDBModule
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
 
 object ResultCheckModuleMessage {
-	sealed class msg_resultCheckBase extends CommonMessage
+	sealed class msg_resultCheckBase extends CommonMessage("resultcheck", ResultCheckModule)
 	case class msg_linechart(data : JsValue) extends msg_resultCheckBase
 	case class msg_histogram(data : JsValue) extends msg_resultCheckBase
 }
 
 object ResultCheckModule extends ModuleTrait {
 	import ResultCheckModuleMessage._
-	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_linechart(data) => msg_linechart_func(data)
 		case msg_histogram(data) => msg_histogram_func(data)
 		case _ => ???
 	}
 
-	def msg_linechart_func(data : JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_linechart_func(data : JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//		implicit val db = conn.queryDBInstance("cli").get//DBConection.cores
 		try {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
 			val uuid = (data \ "uuid").asOpt[String].getOrElse("0")
-			val result = lsttoJson(queryNearTwelveMonth(db.cores,company,market,date,s"$company$uuid"),1)
+			val result = lsttoJson(queryNearTwelveMonth(db,company,market,date,s"$company$uuid"),1)
 			(successToJson(result), None)
 		} catch {
 			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
 		}
 	}
 
-	def msg_histogram_func(data : JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def msg_histogram_func(data : JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
+//		implicit val db = DBConection.cores
 		try {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
 			val date = (data \ "date").asOpt[String].getOrElse("")
 			val uuid = (data \ "uuid").asOpt[String].getOrElse("0")
 			val temp_coll = s"$company$uuid"
-			val cur_top6 = queryCELData(db.cores,company,market,date,temp_coll,"cur")(None,None)
-			val ear_top6 = queryCELData(db.cores,company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
-			val las_top6 = queryCELData(db.cores,company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
+			val cur_top6 = queryCELData(db,company,market,date,temp_coll,"cur")(None,None)
+			val ear_top6 = queryCELData(db,company,market,date,temp_coll,"ear")(cur_top6._2,cur_top6._3)
+			val las_top6 = queryCELData(db,company,market,date,temp_coll,"las")(cur_top6._2,cur_top6._3)
 			val result = toJson(Map("cur_top6" -> lsttoJson(cur_top6._1,2),"ear_top6" -> lsttoJson(ear_top6._1,2),"las_top6" -> lsttoJson(las_top6._1,2)))
 			(successToJson(result), None)
 		} catch {
@@ -69,7 +74,7 @@ object ResultCheckModule extends ModuleTrait {
 		* @param olm
 		* @return
 		*/
-	def queryCELData(database: data_connection,company: String,market: String,date: String,temp_coll: String,ces: String)(ols: Option[List[String]],olm: Option[List[Map[String,Any]]]): (List[Map[String,Any]],Option[List[String]],Option[List[Map[String,Any]]]) = {
+	def queryCELData(database: connection_instance,company: String,market: String,date: String,temp_coll: String,ces: String)(ols: Option[List[String]],olm: Option[List[Map[String,Any]]]): (List[Map[String,Any]],Option[List[String]],Option[List[Map[String,Any]]]) = {
 		val query = queryDBObject(market,date,ces,ols)
 		val temp_data = database.getCollection(temp_coll).find(query).sort(MongoDBObject("City" -> 1))
 		val result = temp_data.size match {
@@ -139,7 +144,7 @@ object ResultCheckModule extends ModuleTrait {
 		* @param temp_coll
 		* @return
 		*/
-	def queryNearTwelveMonth(database: data_connection,company: String,market: String,date: String,temp_coll: String): List[Map[String,Any]] ={
+	def queryNearTwelveMonth(database: connection_instance,company: String,market: String,date: String,temp_coll: String): List[Map[String,Any]] ={
 		val date_lst_str = alNearDecemberMonth.diff12Month(date)
 		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> alDateOpt.ArrayDate2ArrayTimeStamp(alNearDecemberMonth.diff12Month(date))))
 		database.getCollection(temp_coll).count() match {

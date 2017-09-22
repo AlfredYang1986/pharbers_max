@@ -1,6 +1,44 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
-# ~~~~
+
+# 用户申请注册
+POST    /register/user                               controllers.register.RegisterController.user_register
+# BD用户登入分页查询申请接口
+POST    /register/querybd                            controllers.register.RegisterController.query_register_bd
+
+# 新增用户
+POST    /user/push                                   controllers.users.UsersController.user_push
+# 删除用户
+POST    /user/delete                                 controllers.users.UsersController.user_delete
+# 分页查询用户
+POST    /user/querypage                              controllers.users.UsersController.user_query
+
+# 用户登入
+POST    /auth/authWithPassword                       controllers.auth.AuthController.authWithPassword
+GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
+
+GET     /register/code                               controllers.alMaxRouterController.codeRegistration
+GET     /register/info                               controllers.alMaxRouterController.infoRegistration
+# BD 登入选择
+GET     /login/db                                    controllers.alMaxRouterController.dbLogin
+GET     /login/confrim                               controllers.alMaxRouterController.userInfoConfirm
+
+#快速预约成功
+GET     /order/success                               controllers.alMaxRouterController.postSuccess
+
+#授权成功
+GET     /register/success                            controllers.alMaxRouterController.registerSuccess
+
+#授权码验证
+GET    /registerCode/verification                   controllers.alMaxRouterController.verificationRegister
+#邮箱激活
+GET    /email/invocation                            controllers.alMaxRouterController.emailInvocation
+
+# phone 发送验证码
+POST    /phonecode/send                             controllers.phonecode.PhoneSMSController.sendSMSCode
+
+# phone 验证 验证码
+POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
 
 # 业务模块
 #   用户登录
@@ -65,7 +103,7 @@ POST    /callhttpServer                     controllers.CallAkkaHttpController.c
 POST    /loadPageData                       controllers.PageInitializationController.loadPageData
 
 # new ember web pages
-GET     /new/*path                          controllers.alMaxRouterController.emberWebPage(path)
+# GET     /new/*path                          controllers.alMaxRouterController.emberWebPage(path)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)

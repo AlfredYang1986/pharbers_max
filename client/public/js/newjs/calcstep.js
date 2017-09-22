@@ -3,7 +3,6 @@
  */
 
 var p;
-
 (function ($, g, d) {
     "use strict";
     var flagnext = false;
@@ -13,7 +12,6 @@ var p;
         conn.listen({
             onTextMessage: function ( message ) {
                 var ext = message.ext;
-                console.info(message)
                 if (ext != null) {
                     var result = searchExtJson(ext)("type");
                     if(result == "progress") {
@@ -25,7 +23,7 @@ var p;
                         }
                     }else if(result == "txt") {
                         console.info(message.data);
-                    }else if(result == "progress_calc" && gycxflag != 0){
+                    }else if(result == "progress_calc"){
                         $.cookie("uuid", searchExtJson(ext)("uuid"));
                         var r = p.setPercent(parseInt(message.data));
                         msgIdentifying = parseInt(message.data);
@@ -36,18 +34,22 @@ var p;
                             loadresultcheck();
                             $(".next a").click();
                         }
-                    }else if(result == "progress_calc_result") {
+                    }else if(result == "progress_calc_result"){
                         var r = p.setPercent(parseInt(message.data));
                         msgIdentifying = parseInt(message.data);
                         if(parseInt(message.data) >= 100 || r >= 100) {
                             setCloseInterval();
                             setTimeout(function(){$(".progresstier").css("display", "none");p.setPercent(0);document.getElementById("jgcx").click();}, 1000 * 1);
                         }
+                    }else {
+                        console.info("No Type");
+                        console.info(message.data);
                     }
                 }
             }
         });
     }
+     // $.cookie("calc_panel_file","CPA_GYCX_Others_panel.xlsx");
 
     /*加载function*/
     var loadFun = function() {
@@ -188,8 +190,7 @@ var p;
         loadselect();
 
         /*样本检查change事件*/
-        $("#sample_market").change(function(){loadsamplepage();})
-        $("#sample_date").change(function(){loadsamplepage();})
+        $("#sample_market,#sample_date").change(function(){loadsamplepage();})
     }
 
     /*样本检查图标*/
@@ -383,7 +384,10 @@ var p;
     /*********结果检查 开始********/
     /*加载结果检查数据*/
     var loadresultcheck = function() {
-
+        /*结果检查change事件*/
+        $("#result_check_market,#result_check_date").change(function(){
+            loadresultpage();
+        });
         var loadselect = function () {
             $('#result_check_market').empty();
             $('#result_check_date').empty();
@@ -610,10 +614,6 @@ var p;
         }
 
         loadselect()
-
-        /*结果检查change事件*/
-        $("#result_check_market").change(function(){loadresultpage();});
-        $("#result_check_date").change(function(){loadresultpage();});
     }
 
     //点击进入历史按钮
@@ -621,7 +621,6 @@ var p;
         var dataMap = JSON.stringify({
             "company": $.cookie("token"),
             "uuid": $.cookie('uuid'),
-            "uname": $.cookie('webim_user'),
             "businessType": "/datacommit"
         });
         ajaxData("/callhttpServer", dataMap, "POST", function(d){
@@ -648,7 +647,7 @@ var p;
             'previousSelector': '.previous',
             onNext: function(tab, navigation, index) {
                 if(index <= navigation.find('li').length - 1) {
-                    if(index == 1) {
+                    if(index == 1){
                         if($.cookie("next") != "true") {
                             $.tooltip('还没上传文件不能进行下一步操作');
                             return false;
@@ -712,8 +711,7 @@ var p;
         });
     }
 
-    $(function(){
-        loadFun();
-    })
+    loadFun();
+
 }(jQuery, this, document))
 

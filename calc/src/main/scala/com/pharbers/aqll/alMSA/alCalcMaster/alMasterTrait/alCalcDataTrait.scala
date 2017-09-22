@@ -6,11 +6,13 @@ import akka.routing.BroadcastPool
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_start
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_start, calc_data_sum2}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 import alCalcDataSlave.{slaveStatus, slave_status}
+import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl
+import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._
@@ -78,7 +80,12 @@ object alCameoCalcData {
     case class calc_data_hand()
     case class calc_data_start_impl(subs : alMaxProperty, c : alCalcParmary)
     case class calc_data_sum(sum : List[(String, (Double, Double, Double))])
+    case class calc_data_sum2(path: String)
     case class calc_data_average(avg : List[(String, Double, Double)])
+    case class push_insert_db_job(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, insert_sender: ActorRef, tmp: alMaxProperty)
+    case class insertDbSchedule()
+    case class do_insert_db(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, insert_sender: ActorRef, tmp: alMaxProperty)
+    case class after_insert_db()
     case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, property : alMaxProperty)
     case class calc_data_timeout()
@@ -100,6 +107,7 @@ class alCameoCalcData ( val c : alCalcParmary,
     import alCameoCalcData._
 
     val core_number = server_info.cpu
+//    val core_number = 4
 
     var sum : List[ActorRef] = Nil
     var sed = 0
@@ -147,6 +155,27 @@ class alCameoCalcData ( val c : alCalcParmary,
                 sum.foreach(_ ! calc_data_average(mapAvg))
             }
         }
+        case calc_data_sum2(path) => {
+            // TODO: 开始读取segment分组文件
+            println(s"fuck => path = $path")
+            property.sum = property.sum ++: readSegmentGroupData(path)
+            
+            sum = sender :: sum
+            if (sum.length == tol / core_number) {
+                property.isSumed = true
+                property.sum = (property.sum.groupBy(_._1) map { x =>
+                    (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+                }).toList
+        
+                log.info(s"done for suming ${property.sum}")
+        
+                val mapAvg = property.sum.filterNot(x => x._2._1 == 0 && x._2._2 == 0).map { x =>
+                    (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
+                }
+                log.info(s"done for avg $mapAvg")
+                sum.foreach(_ ! calc_data_average(mapAvg))
+            }
+        }
 
         case calc_data_result(v, u) => {
             property.finalValue += v
@@ -169,7 +198,7 @@ class alCameoCalcData ( val c : alCalcParmary,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val calc_timer = context.system.scheduler.scheduleOnce(60 minute) {
+    val calc_timer = context.system.scheduler.scheduleOnce(600 minute) {
         self ! calc_data_timeout()
     }
 
@@ -180,5 +209,20 @@ class alCameoCalcData ( val c : alCalcParmary,
         calc_timer.cancel()
         context.stop(self)
     }
-
+    
+    def readSegmentGroupData(path: String) = {
+        var segmentLst: List[(String, (Double, Double, Double))] = Nil
+        val dir = alFileOpt(path)
+        if (!dir.isExists)
+            dir.createDir
+        
+        val source = alFileOpt(path + "/" + "segmentData")
+        if (source.isExists) {
+            source.enumDataWithFunc { line =>
+                val s = alShareData.txtSegmentGroupData(line)
+                segmentLst = segmentLst :+ (s.segement, (s.sales, s.units, s.calc))
+            }
+        }
+        segmentLst
+    }
 }

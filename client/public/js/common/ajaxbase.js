@@ -15,6 +15,7 @@ var ajaxData = function(url, data, type, successfun, errorfun) {
         cache: false,
         data: data,
         contentType: "application/json,charset=utf-8",
+        Accept: "application/json,charset=utf-8",
         success: function (data) {
             successfun(data)
         },
