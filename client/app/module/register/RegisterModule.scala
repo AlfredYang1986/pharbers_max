@@ -44,8 +44,8 @@ object RegisterModule extends ModuleTrait {
                                          "reg_content" -> reg_content,
                                          "status" -> alRegisterStatus.posted.id,
                                          "date" -> new Date().getTime)
-            db.insertObject(register, "reg_apply", id)
-            (None, Some(toJson(Map("register" -> "ok"))))
+            db.insertObject(register, "reg_apply", "reg_id")
+            (Some(Map("registers" -> toJson("ok"))), None)
         } catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }

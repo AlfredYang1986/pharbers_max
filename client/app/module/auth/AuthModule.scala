@@ -2,7 +2,7 @@ package module.auth
 
 import java.util.Date
 
-import com.mongodb.casbah.Imports.{MongoDBList, MongoDBObject}
+import com.mongodb.casbah.Imports._
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
@@ -11,7 +11,6 @@ import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.token.AuthTokenTrait
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.mongodb.casbah.Imports._
 import module.auth.AuthMessage._
 
 import scala.collection.immutable.Map
@@ -32,7 +31,7 @@ object AuthModule extends ModuleTrait {
 		try {
 			val email = (data \ "email").asOpt[String].getOrElse("")
 			val pwd = (data \ "password").asOpt[String].getOrElse("")
-			val map = Map("profile.email" -> email, "profile.secret" -> alEncryptionOpt.md5(s"$email$pwd"))
+			val map = DBObject("profile.email" -> email, "profile.secret" -> alEncryptionOpt.md5(s"$email$pwd"))
 			val date = new Date().getTime
 			val result = db.queryObject(map, "users") { x =>
 				val profile = x.as[MongoDBObject]("profile")
