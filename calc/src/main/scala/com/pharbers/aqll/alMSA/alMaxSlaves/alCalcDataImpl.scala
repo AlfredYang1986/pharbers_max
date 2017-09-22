@@ -65,8 +65,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
             atomic { implicit txn =>
                 sumSender() = sumSender.single.get :+ sender()
                 sumSegment() = sumSegment.single.get ++ s
-                log.info(s"calc_data_start_impl sumSegment=${sumSegment.single.get.size}")
-                log.info(s"calc_data_start_impl sumSender.size=${sumSender.single.get.size}")
                 if(sumSender.single.get.size == server_info.cpu) {
                     val uid = UUID.randomUUID().toString
                     val path = s"${memorySplitFile}${calc}$uid"
@@ -86,8 +84,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
 
                     sumSender() = sumSender.single.get.drop(sumSender.single.get.size)
                     sumSegment() = sumSegment.single.get.drop(sumSegment.single.get.size)
-                    log.info(s"calc_data_start_impl sumSegment=${sumSegment.single.get.size}")
-                    log.info(s"calc_data_start_impl sumSender.size=${sumSender.single.get.size}")
                 }
             }
             // TODO : 超出传输界限

@@ -52,7 +52,12 @@ object PhoneCodeModule extends ModuleTrait with PhoneCodeData {
 			val reg_token = (data \ "reg_token").asOpt[String].map (x => x).getOrElse(throw new Exception("wrong input"))
 			if (!Sercurity.getTimeSpanWithPast10Minutes.map (x => Sercurity.md5Hash(phoneNo + x)).contains(reg_token)) throw new Exception("token exprie")
 			val condition = MongoDBObject("phone" -> phoneNo, "code" -> code)
-			db.deleteObject(condition, "phonecode", "phone")
+			db.queryObject(condition, "phonecode") match {
+				case None => throw new Exception("reg phone or code error")
+				case Some(_) =>
+					db.deleteObject(condition, "phonecode", "phone")
+					(Some(Map("result" -> toJson("success"))), None)
+			}
 			(Some(Map("result" -> toJson("success"))), None)
 		} catch {
 			case ex : Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))

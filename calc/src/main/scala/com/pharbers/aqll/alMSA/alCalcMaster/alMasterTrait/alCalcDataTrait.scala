@@ -107,7 +107,6 @@ class alCameoCalcData ( val c : alCalcParmary,
     import alCameoCalcData._
 
     val core_number = server_info.cpu
-//    val core_number = 4
 
     var sum : List[ActorRef] = Nil
     var sed = 0
@@ -157,7 +156,6 @@ class alCameoCalcData ( val c : alCalcParmary,
         }
         case calc_data_sum2(path) => {
             // TODO: 开始读取segment分组文件
-            println(s"fuck => path = $path")
             property.sum = property.sum ++: readSegmentGroupData(path)
             
             sum = sender :: sum

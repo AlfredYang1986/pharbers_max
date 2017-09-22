@@ -47,6 +47,8 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	var path = ""
 	var almp: alMaxProperty = alMaxProperty("", "", Nil)
 	
+	def acts = context.actorOf()
+	
 	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
 
 	startWith(alDriverJobIdle, alCalcParmary("", ""))
