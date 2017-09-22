@@ -134,6 +134,10 @@ dl.layui-nav-child > dd {
 .space-height{
     height:34px;
 }
+.input_alert{
+    border-color: #953b39;
+}
+
 /*************************个性*******************************/
 .login_btn{
     margin: 12px 30px;

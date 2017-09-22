@@ -20,7 +20,7 @@
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-12">
-                                    <div class="login_btn" onclick="">专用账号</div>
+                                    <div class="login_btn" onclick="openTextValidate()">专用账号</div>
                                     <div class="form_tip_bottom"></div>
                                 </div>
                             </div>
@@ -39,4 +39,23 @@
         <div class="footer">
             <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
         </div>
+        <div id="popTextValidate">
+            <div class="box_size">
+                <div><span class="small_info toLeft">已发送至</span><span class="phone">142543554356</span></div>
+                <div><span class="small_info toLeft">请填写该验证码登入。</span></div>
+                <div class="space-height"></div>
+                <div><span class="small_info toLeft">若修改绑定手机，</span></div>
+                @*toDo 手机号现在还未知*@
+                <div><span class="small_info toLeft">请联系:329834848</span></div>
+                <div class="space-height"></div>
+                <div class="form-group row">
+                    <div class="col-xs-6">
+                        <input class="form-control" type="text" name="code" placeholder="请填入手机验证码">
+                        <div class="form_tip_bottom"></div>
+                    </div>
+                    <div class="nomal_btn col-xs-2">点击获取</div>
+                    <div class="col-xs-2"></div>
+            </div>
+        </div>
+    <body>
 }
