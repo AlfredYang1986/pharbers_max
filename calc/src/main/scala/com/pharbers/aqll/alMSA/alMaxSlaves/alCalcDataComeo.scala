@@ -92,7 +92,7 @@ class alCalcDataComeo (c : alCalcParmary,
                     if (tmp.isEmpty) Unit
                     else {
                         canInDb() = canInDb.single.get - 1
-                        log.info(s"&&${tmp.head._3}开始入库")
+                        log.info(s"&& ${tmp.head._3}开始入库")
                         insert_db_jobs() = insert_db_jobs().tail
                         do_insert_db_job(tmp.head._1, tmp.head._2, tmp.head._3, tmp.head._4, tmp.head._5)
                     }
@@ -172,8 +172,8 @@ class alCalcDataComeo (c : alCalcParmary,
     import scala.concurrent.ExecutionContext.Implicits.global
     val insert_db_jobs = Ref(List[(alFileOpt, List[(String, Double, Double)], String, ActorRef, alMaxProperty)]())
     val canInDb = Ref(1)
-    val insert_db_schedule = context.system.scheduler.schedule(1 second, 1 second, self, insertDbSchedule())
-    val timeoutMessager = context.system.scheduler.scheduleOnce(120 minute) {
+    // val insert_db_schedule = context.system.scheduler.schedule(1 second, 1 second, self, insertDbSchedule())
+    val timeoutMessager = context.system.scheduler.scheduleOnce(600 minute) {
         self ! calc_data_timeout()
     }
     
@@ -181,10 +181,10 @@ class alCalcDataComeo (c : alCalcParmary,
         originSender ! msg
         log.debug("shutting calc data cameo")
         val a = timeoutMessager.cancel()
-        val b = insert_db_schedule.cancel()
-        println(s"a =======>>>>> $a")
-        println(s"b =======>>>>> $b")
-        println("=> shutSlaveCameo <= shutting calc data cameo")
+        // val b = insert_db_schedule.cancel()
+        log.info(s"a =======>>>>> $a")
+        // println(s"b =======>>>>> $b")
+        log.info("=> shutSlaveCameo <= shutting calc data cameo")
         context.stop(self)
     }
 

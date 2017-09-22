@@ -142,7 +142,7 @@ class alConcertCalcActor extends Actor with ActorLogging {
 		recall.process = restore_data() :: do_calc() :: do_union() ::
 			do_map(alShareData.txt2IntegratedData(_)) :: do_filter { iter =>
 			val t = iter.asInstanceOf[IntegratedData]
-			group.data.exists { g => true
+			group.data.exists { g => //true
 				val x = g.asInstanceOf[IntegratedData]
 				(x.getYearAndmonth == t.getYearAndmonth) && (x.getMinimumUnitCh == t.getMinimumUnitCh)
 			}

@@ -5,8 +5,8 @@ import java.util.UUID
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
-import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
+import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_calc_core_split_jobs, worker_core_calc_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.concert_calc_result
@@ -65,6 +65,8 @@ class alCalcDataImpl extends Actor with ActorLogging {
             atomic { implicit txn =>
                 sumSender() = sumSender.single.get :+ sender()
                 sumSegment() = sumSegment.single.get ++ s
+                log.info(s"calc_data_start_impl sumSegment=${sumSegment.single.get.size}")
+                log.info(s"calc_data_start_impl sumSender.size=${sumSender.single.get.size}")
                 if(sumSender.single.get.size == server_info.cpu) {
                     val uid = UUID.randomUUID().toString
                     val path = s"${memorySplitFile}${calc}$uid"
@@ -81,6 +83,11 @@ class alCalcDataImpl extends Actor with ActorLogging {
                     file.appendData2File(temp)
     
                     sumSender.single.get.foreach(_ ! calc_data_sum2(path))
+
+                    sumSender() = sumSender.single.get.drop(sumSender.single.get.size)
+                    sumSegment() = sumSegment.single.get.drop(sumSegment.single.get.size)
+                    log.info(s"calc_data_start_impl sumSegment=${sumSegment.single.get.size}")
+                    log.info(s"calc_data_start_impl sumSender.size=${sumSender.single.get.size}")
                 }
             }
             // TODO : 超出传输界限
@@ -98,33 +105,35 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 dir.createDir
             val source = alFileOpt(path + "/" + "data")
             if (source.isExists) {
-              
-                sender ! push_insert_db_job(source, avg, sub_uuid, sender, tmp)
 
-                // source.enumDataWithFunc { line =>
-                //     val mrd = alShareData.txt2WestMedicineIncome2(line)
+                source.enumDataWithFunc { line =>
 
-                //     avg.find(p => p._1 == mrd.segment).map { x =>
-                //         if (mrd.ifPanelAll.equals("1")) {
-                //             mrd.set_finalResultsValue(mrd.sumValue)
-                //             mrd.set_finalResultsUnit(mrd.volumeUnit)
-                //         } else {
-                //             mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                //             mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                //         }
+                    val mrd = alShareData.txt2WestMedicineIncome2(line)
+                    val sheed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
 
-                //     }.getOrElse(Unit)
-                //     unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-                //     value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+                    if (mrd.ifPanelAll == "1") {
+                        mrd.set_finalResultsValue(mrd.sumValue)
+                        mrd.set_finalResultsUnit(mrd.volumeUnit)
+                    }else {
+                        avg.find(p => p._1 == alEncryptionOpt.md5(sheed).toString).map { x =>
+                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                        }.getOrElse(Unit)
+                    }
 
-                //    atomic { implicit thx =>
-                //        alInertDatabase().apply(mrd, sub_uuid)
-                //    }
-                // }
-                // log.info(s"calc done at $sub_uuid")
+                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+
+                    atomic { implicit thx =>
+                        alInertDatabase().apply(mrd, sub_uuid)
+                    }
+
+                }
+                log.info(s"calc done at ${sub_uuid}")
+//                sender ! push_insert_db_job(source, avg, sub_uuid, sender, tmp)
             }
-            // sender ! calc_data_result(value, unit)
-            // sender ! calc_data_end(true, tmp)
+            sender() ! calc_data_result(value, unit)
+            sender() ! calc_data_end(true, tmp)
         }
     }
     def max_precess(element2: IntegratedData, sub_uuid: String, longPath: Option[String] = None)(recall: List[IntegratedData])(c: alCalcParmary) = {
