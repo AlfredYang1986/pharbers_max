@@ -59,13 +59,7 @@
         <div class="footer row">
             <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
         </div>
-        <div id="popErr" class="row">
-            <div class="space-height row"></div>
-            <div class="col-xs-4"></div>
-            <div class="col-xs-6">
-                <i class="layui-icon err">&#x1007;</i>
-            </div>
-        </div>
+
 
         <script type="text/javascript">
                 $(document).ready(function(){
@@ -109,24 +103,7 @@
                         }, function(e){console.error(e)})
                     })
                 })
-                var errInfo = function(){
-                    var index = layer.open({
-                        type: 1,
-                        skin: 'layui-layer-demo',
-                        area: '400px',
-                        shade: [0.8, '#393D49'],
-                        content: $('#popErr'),
-                        cancel: function(index, layero){
-                            layer.close(index)
-                            $('#popErr').hide();
-                        }
-                    });
-                    layer.title("信息验证错误", index)
-                    layer.style(index, {
-                        top: '10px',
-                        color: '#fff'
-                    });
-                }
+
         </script>
 
     </body>
