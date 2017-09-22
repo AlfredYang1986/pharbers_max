@@ -36,7 +36,6 @@ dl.layui-nav-child > dd {
 /************************层次设置**************************/
 .title{
     height: 150px;
-    margin-bottom:10px;
 }
 .footer{
     margin-top: 100px;
@@ -136,6 +135,10 @@ dl.layui-nav-child > dd {
 }
 .input_alert{
     border-color: #953b39;
+}
+.err{
+    color: #953b39;
+    font-size: 60px;
 }
 
 /*************************个性*******************************/
