@@ -10,8 +10,12 @@ POST    /register/querybd                            controllers.register.Regist
 POST    /user/push                                   controllers.users.UsersController.user_push
 # 删除用户
 POST    /user/delete                                 controllers.users.UsersController.user_delete
+# 修改用户
+POST    /user/update                                 controllers.users.UsersController.user_update
 # 分页查询用户
 POST    /user/querypage                              controllers.users.UsersController.user_query
+# 查询单个用户信息与详情
+POST    /user/queryinfo                              controllers.users.UsersController.user_query_info
 
 # 用户登入
 POST    /auth/authWithPassword                       controllers.auth.AuthController.authWithPassword
