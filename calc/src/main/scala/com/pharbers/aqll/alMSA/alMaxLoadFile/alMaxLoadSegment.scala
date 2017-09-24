@@ -8,7 +8,7 @@ object alMaxLoadSegment {
 	def apply(p: String): alMaxLoadSegment =new alMaxLoadSegment(p)
 }
 
-class alMaxLoadSegment(p: String) extends alLoadFile{
+class alMaxLoadSegment(p: String) extends alLoadFile {
 	
 	override lazy val path: String = p
 	

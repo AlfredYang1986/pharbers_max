@@ -1,10 +1,13 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import akka.actor.{Actor, ActorLogging, Props}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxProperty
+import com.pharbers.aqll.alCalaHelp.dbcores.dbc
 import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alInertDatabase
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alDumpcollScp, alInertDatabase}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
+import com.pharbers.aqll.common.alFileHandler.serverConfig.serverHost215
 
 import scala.concurrent.stm.atomic
 import scala.math.BigDecimal
@@ -13,7 +16,7 @@ import scala.math.BigDecimal
   */
 
 object alDoInsertDbComeo {
-    def props = Props[alDoInsertDbComeo]
+    def props: Props = Props[alDoInsertDbComeo]
 }
 
 class alDoInsertDbComeo extends Actor with ActorLogging {
@@ -22,7 +25,7 @@ class alDoInsertDbComeo extends Actor with ActorLogging {
     var value: Double = 0.0
 
     override def receive: Receive = {
-        case do_insert_db(source, avg, sub_uuid, insert_sender, tmp) => {
+        case do_insert_db(source, avg, sub_uuid, tmp) => {
             source.enumDataWithFunc { line =>
 
                 val mrd = alShareData.txt2WestMedicineIncome2(line)
@@ -46,10 +49,22 @@ class alDoInsertDbComeo extends Actor with ActorLogging {
                 }
 
             }
+            insertDbWithDrop(tmp)
             log.info(s"calc done at $sub_uuid")
-            sender ! after_insert_db()
-            sender() ! calc_data_result(value, unit)
-            sender() ! calc_data_end(true, tmp)
+            sender ! calc_data_result(value, unit)
+            sender ! calc_data_end(true, tmp)
+//            context stop self
         }
+    }
+    
+    def insertDbWithDrop(p: alMaxProperty) = {
+        log.info(s"单个线程备份传输开始")
+        alDumpcollScp().apply(p.subs.head.uuid, serverHost215)
+        log.info(s"单个线程备份传输结束")
+        
+        log.info(s"单个线程开始删除临时表")
+        dbc.getCollection(p.subs.head.uuid).drop()
+        log.info(s"单个线程结束删除临时表")
+        
     }
 }
