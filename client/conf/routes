@@ -16,12 +16,17 @@ POST    /user/update                                 controllers.users.UsersCont
 POST    /user/querypage                              controllers.users.UsersController.user_query
 # 查询单个用户信息与详情
 POST    /user/queryinfo                              controllers.users.UsersController.user_query_info
+# 忘记密码
+POST    /user/forgetWithPassword                     controllers.users.UsersController.user_forget_password
 
 # 用户登入
 POST    /auth/authWithPassword                       controllers.auth.AuthController.authWithPassword
 
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
+
+# 验证GET连接的有效市场并跳转相应页面
+GET     /validation/token/:parm                      controllers.alMaxRouterController.validation_token(parm)
 
 # 授权吗页面
 GET     /register/code                               controllers.alMaxRouterController.codeRegistration

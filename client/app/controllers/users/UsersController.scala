@@ -45,4 +45,10 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("user_query_info"))), jv) :: msg_user_query_info(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
+	
+	def user_forget_password = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
+		import com.pharbers.bmpattern.LogMessage.common_log
+		import com.pharbers.bmpattern.ResultMessage.common_result
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("forgetWithPassword"))), jv) :: msg_user_email_check(jv) :: msg_user_forget_password(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+	})
 }

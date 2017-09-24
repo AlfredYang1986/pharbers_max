@@ -22,4 +22,5 @@ class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManage
 		
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("authWithPassword"))), jv) :: msg_user_auth(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
+	
 }
