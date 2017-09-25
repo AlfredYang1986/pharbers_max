@@ -45,7 +45,8 @@ GET     /register/info                               controllers.alMaxRouterCont
 # BD 登入选择
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
 GET     /login/confrim                               controllers.alMaxRouterController.userInfoConfirm
-
+#Max账户激活
+GET     /account/active                              controllers.alMaxRouterController.inEmail
 #快速预约成功
 GET     /order/success                               controllers.alMaxRouterController.postSuccess
 
@@ -60,7 +61,7 @@ GET    /email/invocation                            controllers.alMaxRouterContr
 #找回密码
 GET     /password/find                              controllers.alMaxRouterController.findpwd
 GET     /password/find/success                      controllers.alMaxRouterController.findpwd_success
-
+GET     /password/new                               controllers.alMaxRouterController.new_pwd
 
 
 # 业务模块

@@ -21,7 +21,7 @@ dl.layui-nav-child > dd {
     font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
     font-size: 13px;
     text-align: center;
-    color: #494c57;
+    color: #8a8e9c;
 }
 .middle_info{
     font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
@@ -157,6 +157,9 @@ dl.layui-nav-child > dd {
 }
 .errColor{
     color: #953b39;
+}
+.succColor{
+    color: #009688;
 }
 
 /*************************个性*******************************/

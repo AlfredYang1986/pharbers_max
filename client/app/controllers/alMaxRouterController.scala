@@ -81,6 +81,13 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def findpwd_success = Action{
         Ok(views.html.success_findpwd())
     }
+    def new_pwd = Action{
+        Ok(views.html.newPassword())
+    }
+    //邮箱激活页面
+    def inEmail = Action{
+        Ok(views.html.inEmail())
+    }
     //首页
     def index = Action { request =>
 //        if (getUserTokenByCookies(request).equals("")) {

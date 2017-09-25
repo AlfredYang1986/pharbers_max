@@ -49,12 +49,12 @@
                                 <div class="col-xs-2"></div>
                             </div>
                             <div class="row">
-                                @*<div class="col-xs-10"><div class="login_btn">提交</div></div>*@
-                                <div class="col-xs-10">
-                                    <div class="login_btn btn-submit" lay-submit="" lay-filter="sub">
-                                        提交
-                                    </div>
-                                </div>
+                                <div class="col-xs-10"><div class="login_btn" onclick="errShow()">提交</div></div>
+                                @*<div class="col-xs-10">*@
+                                    @*<div class="login_btn btn-submit" lay-submit="" lay-filter="sub">*@
+                                        @*提交*@
+                                    @*</div>*@
+                                @*</div>*@
                             </div>
                         </div>
                         </form>
@@ -67,8 +67,35 @@
         </div>
         <div></div>
     </body>
-
+    <div class="box_size_upDown" id="alert_err">
+        <div class="toCenter">
+            <i class="glyphicon glyphicon-remove-sign err"></i>
+        </div>
+        <div class="toCenter">
+            <span>申请失败</span>
+            <br>
+            <span>请与您的业务人员联系</span>
+        </div>
+    </div>
     <script type="text/javascript">
+            $(document).ready(function () {
+                $("#alert_err").hide();
+            });
+            var errShow = function(){
+                var index = layer.open({
+                    type: 1,
+                    skin: 'layui-layer-demo',
+                    area: ['400px','450px'],
+                    shade: [0.8, '#393D49'],
+                    content: $('#alert_err'),
+                    cancel: function(index, layero){
+                        layer.close(index)
+                        $('#alert_err').hide();
+                    }
+                });
+                layer.title("信息验证错误", index);
+
+            }
 
             layui.use(['form', 'layer'], function () {
                 var $ = layui.jquery,form = layui.form,layer = layui.layer;
