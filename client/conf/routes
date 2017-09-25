@@ -26,6 +26,11 @@ POST    /auth/createToken                             controllers.auth.AuthContr
 # 根据授权码添加用户
 POST    /auth/pushUser                                controllers.auth.AuthController.auth_token_push_user
 
+# phone 发送验证码
+POST    /phonecode/send                             controllers.phonecode.PhoneSMSController.sendSMSCode
+# phone 验证 验证码
+POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
+
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
 
@@ -51,13 +56,6 @@ GET     /register/success                            controllers.alMaxRouterCont
 GET    /registerCode/verification                   controllers.alMaxRouterController.verificationRegister
 #邮箱激活
 GET    /email/invocation                            controllers.alMaxRouterController.emailInvocation
-
-# phone 发送验证码
-POST    /phonecode/send                             controllers.phonecode.PhoneSMSController.sendSMSCode
-
-# phone 验证 验证码
-POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
-
 
 #找回密码
 GET     /password/find                              controllers.alMaxRouterController.findpwd
