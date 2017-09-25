@@ -26,7 +26,9 @@ libraryDependencies ++= Seq(
 	ws,
 	"org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test",
 	"commons-httpclient" % "commons-httpclient" % "3.1",
-	"com.pharbers" % "pharbers-modules" % "0.1",
+	// https://mvnrepository.com/artifact/org.mongodb/casbah_2.11
+	"org.mongodb" % "casbah_2.11" % "3.1.1",
+    "com.pharbers" % "pharbers-modules" % "0.1",
 	"com.pharbers" % "mongodb-connect" % "0.1",
 	"com.pharbers" % "mongodb-driver" % "0.1",
 	"com.pharbers" % "mongodb-manager" % "0.1",
