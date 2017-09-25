@@ -21,7 +21,7 @@ dl.layui-nav-child > dd {
     font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
     font-size: 13px;
     text-align: center;
-    color: #494c57;
+    color: #8a8e9c;
 }
 .middle_info{
     font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
@@ -86,6 +86,10 @@ dl.layui-nav-child > dd {
 .box_size{
     margin-left: 30%;
     margin-right: 30%;
+}
+.box_size_20{
+    margin-left: 20%;
+    margin-right: 20%;
 }
 .box_size_upDown{
     margin-top: 30%;
@@ -158,6 +162,9 @@ dl.layui-nav-child > dd {
 .errColor{
     color: #953b39;
 }
+.succColor{
+    color: #009688;
+}
 
 /*************************个性*******************************/
 .login_btn{
@@ -194,3 +201,18 @@ dl.layui-nav-child > dd {
 .nomal_btn:hover{
     background-color: #00796b;
 }
+.ban_btn{
+    height: 34px;
+    margin: 0px 20px;
+    background-color: #c2c6d4;
+    color: #8a8e9c;
+    white-space: nowrap;
+    text-align: center;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: .9;
+    padding: 7px 0px 7px 0px;
+    font-size: 16px;
+}
+

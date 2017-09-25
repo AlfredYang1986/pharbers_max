@@ -13,22 +13,50 @@
             <br>
             <span>请输入您的授权码,进行验证</span>
           </div>
-          <div class="box_form box_size">
-            <div class="form-group">
-              <input class="form-control" type="text" name="code" placeholder="请输入授权码">
-              <div class="form_tip_bottom">
-                <span class="small_info"></span>
+          <form class="layui-form layui-form-pane" method="post">
+            <div class="box_form box_size">
+              <div class="form-group">
+                <input class="form-control" type="text" lay-verify="user_token" required name="user_token" placeholder="请输入授权码">
+                <div class="form_tip_bottom">
+                  <span class="small_info"></span>
+                </div>
               </div>
+              <div class="login_btn" lay-submit="" lay-filter="sub">提交验证</div>
+              <div class="row"><div class="small_info tohref toRight" onclick="">如何得到授权码?</div></div>
+              <div class="row"><div class="small_info tohref toRight" onclick="">授权码过期?</div></div>
             </div>
-            <div class="login_btn" onclick="">提交验证</div>
-            <div class="row"><div class="small_info tohref toRight" onclick="">如何得到授权码?</div></div>
-            <div class="row"><div class="small_info tohref toRight" onclick="">授权码过期?</div></div>
-          </div>
+          </form>
         </div>
       </div>
     </div>
     <div class="footer">
       <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
     </div>
+
+    <script type="text/javascript">
+            layui.use(['form', 'layer'], function () {
+              var $ = layui.jquery,form = layui.form,layer = layui.layer;
+              // 验证
+              form.verify({
+                user_token: function (value) {
+                  if (value === "") {
+                    return "请输入授权码";
+                  }
+                }
+              });
+
+              // 提交监听
+              form.on('submit(sub)', function (data) {
+                var json = JSON.stringify(data.field)
+                ajaxData('/auth/pushUser', json, 'POST', function(r){
+                  if(r.status === 'ok' && r.result.tokenpush === 'ok') {
+                    location = "/register/success"
+                  }else{
+                    layer.msg('授权码错误或过期！');
+                  }
+                }, function(e){console.error(e)})
+              })
+            });
+    </script>
   </body>
 }

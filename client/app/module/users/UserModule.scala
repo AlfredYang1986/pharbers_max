@@ -126,6 +126,7 @@ object UserModule extends ModuleTrait with UserData {
                     val reVal = one.map(x => x) + ("expire_in" -> toJson(new Date().getTime +  60 * 1000 * 10)) + ("action" -> toJson("forget_password"))
                     val token = java.net.URLEncoder.encode(att.encrypt2Token(toJson(reVal)), "ISO-8859-1")
                     val url = s"http://127.0.0.1:9000/validation/token/$token"
+                    println(url)
                     //原本是一个整个html的，因页面没有所以暂时只做url
                     (Some(Map("urltoken" -> toJson("ok"))), None)
             }
