@@ -79,6 +79,10 @@ dl.layui-nav-child > dd {
     padding: 15px;
     height: 500px;
 }
+.cenPanel-content-small{
+    padding: 15px;
+    height: 300px;
+}
 .box_size{
     margin-left: 30%;
     margin-right: 30%;
@@ -86,6 +90,10 @@ dl.layui-nav-child > dd {
 .box_size_upDown{
     margin-top: 30%;
     margin-bottom: 30%;
+}
+.box_size_upDown_big{
+    margin-top: 20%;
+    margin-bottom: 20%;
 }
 .form_tip_bottom{
     height: 20px;
@@ -150,6 +158,7 @@ dl.layui-nav-child > dd {
 .errColor{
     color: #953b39;
 }
+
 /*************************个性*******************************/
 .login_btn{
     margin: 12px 30px;

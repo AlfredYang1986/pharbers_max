@@ -55,6 +55,10 @@ POST    /phonecode/send                             controllers.phonecode.PhoneS
 POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
 
 
+#找回密码
+GET     /password/find                              controllers.alMaxRouterController.findpwd
+GET     /password/find/success                      controllers.alMaxRouterController.findpwd_success
+
 
 
 # 业务模块
