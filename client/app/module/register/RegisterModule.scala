@@ -30,8 +30,6 @@ object RegisterModule extends ModuleTrait with RegisterData {
         
     }
     
-    
-    
     def query_bd(data: JsValue)(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
         val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
         val db = conn.queryDBInstance("cli").get
@@ -47,4 +45,5 @@ object RegisterModule extends ModuleTrait with RegisterData {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
     }
+    
 }

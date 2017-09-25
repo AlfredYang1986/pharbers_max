@@ -127,7 +127,7 @@ object UserModule extends ModuleTrait with UserData {
                     val token = java.net.URLEncoder.encode(att.encrypt2Token(toJson(reVal)), "ISO-8859-1")
                     val url = s"http://127.0.0.1:9000/validation/token/$token"
                     //原本是一个整个html的，因页面没有所以暂时只做url
-                    (Some(Map("url" -> toJson(url))), None)
+                    (Some(Map("urltoken" -> toJson("ok"))), None)
             }
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))

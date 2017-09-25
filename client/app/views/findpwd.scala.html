@@ -15,13 +15,13 @@
                 <br>
                 <span class="small_info">请拨打电话，联系您的业务人员</span>
                 <div class="space-height"></div>
-                <input id="" class="form-control" name="" placeholder="请输入注册邮箱找回密码">
+                <input id="" class="form-control" name="email" placeholder="请输入注册邮箱找回密码">
                 <div class="form_tip_bottom" id="pwd_tip"></div>
               </div>
             </div>
             <div class="row">
               <div class="col-xs-2"></div>
-              <div class="col-xs-8 col-xs-offset-2 nomal_btn" onclick="">提交申请</div>
+              <div class="col-xs-8 col-xs-offset-2 nomal_btn" onclick="forget_passsword()">提交申请</div>
             </div>
           </div>
         </div>
@@ -30,5 +30,19 @@
     <div class="footer">
       <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
     </div>
+    <script type="text/javascript">
+        var forget_passsword = function() {
+            var json = JSON.stringify(
+                    {
+                      "email" : $('input[name="email"]')
+                    }
+            );
+          ajaxData("/user/forgetWithPassword",json,"POST", function(r){
+              if(r.status === "ok" && r.result.urltoken === "ok") {
+                  location = "/password/find/success"
+              }
+            }, function(e){})
+        }
+    </script>
   </body>
 }

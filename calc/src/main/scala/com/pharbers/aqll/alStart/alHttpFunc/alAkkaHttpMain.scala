@@ -12,6 +12,7 @@ import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile
 import com.pharbers.aqll.alMSA.alCalcAgent.alAgentSingleton
 import com.pharbers.aqll.alMSA.alCalcMaster.{alMaxDriver, alMaxMaster}
 import com.pharbers.aqll.alMSA.alClusterLister.alMaxClusterLister
+import com.pharbers.aqll.alStart.alEntry.alMaxMaterEntry.system
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.Future
@@ -45,17 +46,13 @@ object alAkkaHttpMain extends App with RequestTimeout {
 	def stubmain = {
 		val config = ConfigFactory.load("split-new-master")
 		val system = ActorSystem("calc", config)
-		system.actorOf(alDriverSingleton.props, "splitreception")
-		system.actorOf(alGroupRegisterActor.props, "registergroup")
-		system.actorOf(alCalcRegisterActor.props, "registercalc")
 		
-		import scala.concurrent.duration._
 		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
 			Cluster(system).registerOnMemberUp {
+				system.actorOf(alMaxMaster.props, alMaxMaster.name)
+				system.actorOf(alMaxDriver.props, alMaxDriver.name)
+				system.actorOf(alAgentSingleton.props, alAgentSingleton.name)
 				alAkkaSystemGloble.system = system
-
-				val rm = system.actorOf(alScheduleRemoveFiles.props)
-				system.scheduler.schedule(0 seconds, 10 seconds, rm, new rmFile())
 			}
 			system.actorOf(Props[alMaxClusterLister], "akka-listener")
 		}
