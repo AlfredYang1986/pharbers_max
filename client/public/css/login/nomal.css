@@ -201,3 +201,18 @@ dl.layui-nav-child > dd {
 .nomal_btn:hover{
     background-color: #00796b;
 }
+.ban_btn{
+    height: 34px;
+    margin: 0px 20px;
+    background-color: #c2c6d4;
+    color: #8a8e9c;
+    white-space: nowrap;
+    text-align: center;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: .9;
+    padding: 7px 0px 7px 0px;
+    font-size: 16px;
+}
+
