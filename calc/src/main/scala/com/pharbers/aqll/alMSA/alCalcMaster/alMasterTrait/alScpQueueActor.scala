@@ -70,7 +70,6 @@ class alScpQueueActor(s: ActorRef) extends Actor with ActorLogging{
     }
 
     def shutCameo() = {
-        println(s"stopping scp cameo END self === $self")
         context.stop(self)
     }
 }

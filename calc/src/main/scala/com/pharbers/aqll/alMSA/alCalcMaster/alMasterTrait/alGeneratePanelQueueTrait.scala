@@ -2,9 +2,11 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.agent.Agent
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
 import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
 import com.pharbers.pfizer.impl.phPfizerHandleImpl
+import play.api.libs.json.JsString
 
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
@@ -94,7 +96,8 @@ class alPanelJobComeo extends Actor with ActorLogging {
             "cpas" -> item.cpas.split("&").toList,
             "gycxs" -> item.gycxs.split("&").toList
         )
-        val result = new phPfizerHandleImpl(args).calcYM
+        val result = new phPfizerHandleImpl(args).calcYM.asInstanceOf[JsString].value
+        alMessageProxy().sendMsg(result, item.user, Map("type" -> "txt"))
         sender ! releasePyEnergy()
     }
 
@@ -105,8 +108,8 @@ class alPanelJobComeo extends Actor with ActorLogging {
             "cpas" -> item.cpas.split("&").toList,
             "gycxs" -> item.gycxs.split("&").toList
         )
-//        val result = new phPfizerHandleImpl(args).generatePanelFile(item.ym)
-        println("fuckfuck")
+        val result = new phPfizerHandleImpl(args).generatePanelFile(item.ym).asInstanceOf[JsString].value
+        alMessageProxy().sendMsg(result, item.user, Map("type" -> "txt"))
         sender ! releasePyEnergy()
     }
 
