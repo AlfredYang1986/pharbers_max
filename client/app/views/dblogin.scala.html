@@ -20,8 +20,7 @@
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-12">
-                                    @*<div class="login_btn" onclick="openTextValidate(),phone_code()">专用账号</div>*@
-                                    <div class="login_btn" onclick="errInfo(),phone_code()">专用账号</div>
+                                    <div class="login_btn" onclick="openTextValidate(),phone_code()">专用账号</div>
                                     <div class="form_tip_bottom"></div>
                                 </div>
                             </div>
@@ -88,10 +87,10 @@
             layui.use(['form', 'layer'], function () {})
 
             var phone_code = function() {
-                var token = JSON.stringify({"user_token": $.cookie('user_token')})
+                var token = JSON.stringify({'user_token': $.cookie('user_token')})
                 ajaxData('/phonecode/send', token, 'POST', function(r){
-                    if(r.status === 'ok' && r.result.reg.flag === "ok") {
-                        $.cookie("reg_token", r.result.reg.reg_token)
+                    if(r.status === 'ok' && r.result.reg.flag === 'ok') {
+                        $.cookie('reg_token', r.result.reg.reg_token)
                     }else {
                         layer.msg('出现未知错误，请联系管理员！');
                     }
@@ -100,18 +99,19 @@
 
             var check_code = function() {
                 $('input[name="code"]').keyup(function(){
-                    var num = $(this).val()
-                    if(num.length == $(this).attr("maxlength")) {
-                        var json = JSON.stringify({"reg_token": $.cookie("reg_token"),
-                                                   "code": num,
-                                                   "user_token": $.cookie("user_token")})
+                    var num = $(this).val();
+                    if(num.length == $(this).attr('maxlength')) {
+                        var json = JSON.stringify({'reg_token': $.cookie('reg_token'),
+                                                   'code': num,
+                                                   'user_token': $.cookie('user_token')})
                         ajaxData('/phonecode/check', json, 'POST', function(r){
-                            if(r.status === 'ok' && r.result.result === "success") {
-                                location = "/index"
+                            if(r.status === 'ok' && r.result.result === 'success') {
+                                location = '/index';
                             }else {
-                                errornum++
+                                errornum++;
                                 if(errornum >= 5) {
-                                    errInfo()
+                                    $('input[name="code"]').blur();
+                                    errInfo();
                                 }else{
                                     layer.msg("验证忙错误或超出验证时间！");
                                 }
