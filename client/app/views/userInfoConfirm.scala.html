@@ -1,0 +1,98 @@
+@main("Max | Login") {
+    <body>
+        <div class="title"></div>
+        <div class="content row">
+            <div class="cenPanel col-xs-8 col-xs-offset-2">
+                <div class="row cenPanel-title">
+                    <span class="toLeft col-xs-1"><i class="layui-icon toLeft" style="font-size: 30px; ">&#xe65c;</i></span>
+                    <span class="cer-title-info col-xs-8 col-xs-offset-1">信息验证</span>
+                </div>
+                <div class="row cenPanel-content">
+                    <div class="col-xs-1"></div>
+                    <div class="col-xs-10 col-xs-offset-1">
+                        <div class="row box_form">
+                            <span class="middle_info toRight">请输入以下信息(皆为必填,我们将对您的资料进行审核)</span>
+                            <br>
+                            <span class="middle_info toRight">审核通过后,将发送新的授权码至您的邮箱.</span>
+                            <br>
+                            <span class="middle_info toRight">提示:若您忘记以下信息,请与您的业务人员联系</span>
+                        </div>
+                        <form class="layui-form layui-form-pane" method="post" action="">
+                        <div class="box_form">
+                            <div class="form-group row">
+                                <div class="col-xs-10">
+                                    <input class="form-control" type="text" name="email" placeholder="企业邮箱(账号)">
+                                    <div class="form_tip_bottom"></div>
+                                </div>
+                                <div class="col-xs-2"></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-xs-10">
+                                    <input class="form-control" type="text" name="name" placeholder="您的姓名">
+                                    <div class="form_tip_bottom"></div>
+                                </div>
+                                <div class="col-xs-2"></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-xs-10">
+                                    <input class="form-control" type="text" name="phone" placeholder="您的手机号码">
+                                    <div class="form_tip_bottom"></div>
+                                </div>
+                                <div class="col-xs-2"></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-xs-6">
+                                    <input class="form-control" type="text" name="code" placeholder="请填入手机验证码">
+                                    <div class="form_tip_bottom"></div>
+                                </div>
+                                <div class="nomal_btn col-xs-2">点击获取</div>
+                                <div class="col-xs-2"></div>
+                            </div>
+                            <div class="row">
+                                @*<div class="col-xs-10"><div class="login_btn">提交</div></div>*@
+                                <div class="col-xs-10">
+                                    <div class="login_btn btn-submit" lay-submit="" lay-filter="sub">
+                                        提交
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
+        </div>
+        <div></div>
+    </body>
+
+    <script type="text/javascript">
+
+            layui.use(['form', 'layer'], function () {
+                var $ = layui.jquery,form = layui.form,layer = layui.layer;
+                // 验证
+                form.verify({
+                    account: function (value) {
+                        if (value == "") {
+                            return "请输入用户名";
+                        }
+                    },
+                    password: function (value) {
+                        if (value == "") {
+                            return "请输入密码";
+                        }
+                    }
+                });
+
+                // 提交监听
+                form.on('submit(sub)', function (data) {
+                    layer.alert(JSON.stringify(data.field), {
+                        title: '最终的提交信息'
+                    });
+                    return false;
+                })
+            })
+    </script>
+}

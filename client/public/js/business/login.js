@@ -2,11 +2,11 @@ $(function(){
 	$("body").keydown(function(event) {
         if(event.which == 13){
         	if($("#loginForm [name='name']").val() == ""){
-                $.tooltip("请输入登入名");
+                // $.tooltip("请输入登入名");
                 return false;
 			}
 			if($("#loginForm [name='password']").val() == "") {
-                $.tooltip("请输入登入密码");
+                // $.tooltip("请输入登入密码");
                 return false;
 			}
             login();
@@ -16,11 +16,11 @@ $(function(){
 
 	$("#loginBtn").click(function(){
         if($("#loginForm [name='name']").val() == ""){
-            $.tooltip("请输入登入名");
+            // $.tooltip("请输入登入名");
             return false;
         }
         if($("#loginForm [name='password']").val() == "") {
-            $.tooltip("请输入登入密码");
+            // $.tooltip("请输入登入密码");
             return false;
         }
         login();
@@ -55,7 +55,7 @@ function login() {
 				$.cookie("company_name_en",user.CompanyNameEn);
 				$.cookie("email",user.E_Mail)
 				$.cookie("ip",user.ip);
-				$.tooltip('OK, 登录成功！', 2500, true);
+				// $.tooltip('OK, 登录成功！', 2500, true);
 				setTimeout(function () {
 					location = "newindex"
 				}, 1000 * 3)
@@ -67,9 +67,9 @@ function login() {
 }
 
 function logout() {
-    conn.close();
+    // conn.close();
     cleanAllCookie();
-	location = "login"
+	location = "/login"
 }
 
 
