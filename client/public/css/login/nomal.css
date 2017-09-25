@@ -136,11 +136,20 @@ dl.layui-nav-child > dd {
 .input_alert{
     border-color: #953b39;
 }
+.input_success{
+
+    border-color: #009688;
+}
 .err{
     color: #953b39;
     font-size: 60px;
 }
-
+.inCentre{
+    margin: 20px auto;
+}
+.errColor{
+    color: #953b39;
+}
 /*************************个性*******************************/
 .login_btn{
     margin: 12px 30px;

@@ -20,7 +20,8 @@
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-12">
-                                    <div class="login_btn" onclick="openTextValidate(),phone_code()">专用账号</div>
+                                    @*<div class="login_btn" onclick="openTextValidate(),phone_code()">专用账号</div>*@
+                                    <div class="login_btn" onclick="errInfo(),phone_code()">专用账号</div>
                                     <div class="form_tip_bottom"></div>
                                 </div>
                             </div>
@@ -59,10 +60,18 @@
             </div>
         </div>
         <div id="popErr" class="row">
-            <div class="space-height row"></div>
-            <div class="col-xs-4"></div>
-            <div class="col-xs-6">
-                <i class="layui-icon err">&#x1007;</i>
+            <div>
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <span class="small_info">连续输入五次错误，</span>
+                <br>
+                <span class="small_info">系统将强制登出并锁定！</span>
+                <br>
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <span class="small_info">如遇问题请致电：249320495</span>
+                <div class="space-height"></div>
             </div>
         </div>
     </body>
@@ -70,7 +79,7 @@
 
 
         <script type="text/javascript">
-            var errornum = 1
+            var errornum = 1;
             $(document).ready(function(){
                 $('#popTextValidate').hide();
                 $('#popErr').hide();
@@ -135,7 +144,7 @@
                 var index = layer.open({
                     type: 1,
                     skin: 'layui-layer-demo',
-                    area: '400px',
+                    area: ['400px','450px'],
                     shade: [0.8, '#393D49'],
                     content: $('#popErr'),
                     cancel: function(index, layero){
@@ -143,11 +152,8 @@
                         $('#popErr').hide();
                     }
                 });
-                layer.title("信息验证错误", index)
-                layer.style(index, {
-                    top: '10px',
-                    color: '#fff'
-                });
+                layer.title("信息验证错误", index);
+
             }
         </script>
 }
