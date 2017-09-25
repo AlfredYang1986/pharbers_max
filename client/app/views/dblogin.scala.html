@@ -20,7 +20,7 @@
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-12">
-                                    <div class="login_btn" onclick="openTextValidate()">专用账号</div>
+                                    <div class="login_btn" onclick="openTextValidate(),phone_code()">专用账号</div>
                                     <div class="form_tip_bottom"></div>
                                 </div>
                             </div>
@@ -38,74 +38,122 @@
         <div class="footer">
             <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
         </div>
-    </body>
-        <div id="popTextValidate" class="row">
+
+        <div id="popTextValidate">
             <div class="col-xs-2"></div>
             <div class="col-xs-6">
                 <div class="space-height row"></div>
-                <div class="row"><span class="small_info toLeft">已发送至</span><span class="phone small_info">142543554356</span></div>
+                <div class="row"><span class="small_info toLeft">已发送至</span>
+                    <span class="phone small_info">0000000000</span>
+                </div>
                 <div class="row"><span class="small_info toLeft">请填写该验证码登入。</span></div>
                 <div class="space-height"></div>
                 <div class="row"><span class="small_info toLeft">若修改绑定手机，</span></div>
-                @*toDo 手机号现在还未知*@
-                <div class="row"><span class="small_info toLeft">请联系:329834848</span></div>
+                <div class="row"><span class="small_info toLeft">请联系:000000000000</span></div>
                 <div class="space-height"></div>
                 <div class="form-group row">
-                        <input class="form-control" type="text" name="code" placeholder="请填入手机验证码">
-                        <div class="form_tip_bottom"></div>
-                    <div class="nomal_btn row">点击获取</div>
+                    <input class="form-control" type="text" name="code" maxlength="4" placeholder="请填入手机验证码">
+                    <div class="form_tip_bottom"></div>
+                    <div type="button" class="nomal_btn btn-submit" lay-submit="" lay-filter="sub" onclick="phone_code()" >点击获取</div>
                 </div>
             </div>
         </div>
+        <div id="popErr" class="row">
+            <div>
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <span class="small_info">连续输入五次错误，</span>
+                <br>
+                <span class="small_info">系统将强制登出并锁定！</span>
+                <br>
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <span class="small_info">如遇问题请致电：249320495</span>
+                <div class="space-height"></div>
+            </div>
+        </div>
+    </body>
+
 
 
         <script type="text/javascript">
-                $(document).ready(function(){
-                    $('#popTextValidate').hide();
-                })
-                layui.use(['form', 'layer'], function () {
-                    var $ = layui.jquery,form = layui.form,layer = layui.layer;
-                    // 验证
-                    form.verify({
-                        code: function (value) {
-                            if (value == "") {
-                                return "请输入4位数字验证码";
-                            }
-                        }
-                    });
+            var errornum = 1;
+            $(document).ready(function(){
+                $('#popTextValidate').hide();
+                $('#popErr').hide();
+                check_code()
+            })
+            layui.use(['form', 'layer'], function () {})
 
-                    // 提交监听
-                    form.on('submit(sub)', function (data) {
-                        var json = JSON.stringify(data.field)
-                        ajaxData('', json, 'POST', function(r){
-                            if(r.status === 'ok' && r.result.registers === "ok") {
-                                location = "/order/success "
+            var phone_code = function() {
+                var token = JSON.stringify({'user_token': $.cookie('user_token')})
+                ajaxData('/phonecode/send', token, 'POST', function(r){
+                    if(r.status === 'ok' && r.result.reg.flag === 'ok') {
+                        $.cookie('reg_token', r.result.reg.reg_token)
+                    }else {
+                        layer.msg('出现未知错误，请联系管理员！');
+                    }
+                }, function(e){console.error(e)})
+            }
+
+            var check_code = function() {
+                $('input[name="code"]').keyup(function(){
+                    var num = $(this).val();
+                    if(num.length == $(this).attr('maxlength')) {
+                        var json = JSON.stringify({'reg_token': $.cookie('reg_token'),
+                                                   'code': num,
+                                                   'user_token': $.cookie('user_token')})
+                        ajaxData('/phonecode/check', json, 'POST', function(r){
+                            if(r.status === 'ok' && r.result.result === 'success') {
+                                location = '/index';
                             }else {
-                                layer.msg('出现未知错误，请联系管理员！');
+                                errornum++;
+                                if(errornum >= 5) {
+                                    $('input[name="code"]').blur();
+                                    errInfo();
+                                }else{
+                                    layer.msg("验证忙错误或超出验证时间！");
+                                }
                             }
                         }, function(e){console.error(e)})
-                    })
+                    }
+
                 })
+            }
 
-                var openTextValidate = function(){
-                    var index = layer.open({
-                        type: 1,
-                        skin: 'layui-layer-demo',
-                        area: '400px',
-                        shade: [0.8, '#393D49'],
-                        content: $('#popTextValidate'),
-                        cancel: function(index, layero){
-                            layer.close(index)
-                            $('#popTextValidate').hide();
-                        }
-                    });
-                    layer.title("信息验证", index)
-                    layer.style(index, {
-                        top: '10px',
-                        color: '#fff'
-                    });
-                }
+            var openTextValidate = function(){
+                var index = layer.open({
+                    type: 1,
+                    skin: 'layui-layer-demo',
+                    area: '400px',
+                    shade: [0.8, '#393D49'],
+                    content: $('#popTextValidate'),
+                    cancel: function(index, layero){
+                        layer.close(index)
+                        $('#popTextValidate').hide();
+                    }
+                });
+                layer.title("信息验证", index)
+                layer.style(index, {
+                    top: '20%',
+                    color: '#fff'
+                });
+            }
+            var errInfo = function(){
+                var index = layer.open({
+                    type: 1,
+                    skin: 'layui-layer-demo',
+                    area: ['400px','450px'],
+                    shade: [0.8, '#393D49'],
+                    content: $('#popErr'),
+                    cancel: function(index, layero){
+                        layer.close(index)
+                        $('#popErr').hide();
+                    }
+                });
+                layer.title("信息验证错误", index);
 
+            }
         </script>
-
 }

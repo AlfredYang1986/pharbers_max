@@ -82,9 +82,9 @@ object alCameoCalcData {
     case class calc_data_sum(sum : List[(String, (Double, Double, Double))])
     case class calc_data_sum2(path: String)
     case class calc_data_average(avg : List[(String, Double, Double)])
-    case class push_insert_db_job(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, insert_sender: ActorRef, tmp: alMaxProperty)
+    case class push_insert_db_job(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String,  tmp: alMaxProperty)
     case class insertDbSchedule()
-    case class do_insert_db(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, insert_sender: ActorRef, tmp: alMaxProperty)
+    case class do_insert_db(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, tmp: alMaxProperty)
     case class after_insert_db()
     case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, property : alMaxProperty)
@@ -107,7 +107,6 @@ class alCameoCalcData ( val c : alCalcParmary,
     import alCameoCalcData._
 
     val core_number = server_info.cpu
-//    val core_number = 4
 
     var sum : List[ActorRef] = Nil
     var sed = 0
@@ -157,7 +156,6 @@ class alCameoCalcData ( val c : alCalcParmary,
         }
         case calc_data_sum2(path) => {
             // TODO: 开始读取segment分组文件
-            println(s"fuck => path = $path")
             property.sum = property.sum ++: readSegmentGroupData(path)
             
             sum = sender :: sum

@@ -45,6 +45,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	                                              with alLoggerMsgTrait { this: Actor =>
 
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
+//	val acts = context.actorOf(alMaxMaster.props)
 	var path = ""
 	var almp: alMaxProperty = alMaxProperty("", "", Nil)
 

@@ -10,4 +10,7 @@ object UserMessage {
     case class msg_user_update(data: JsValue) extends msg_UserCommand
     case class msg_user_query(data: JsValue) extends msg_UserCommand
     case class msg_user_query_info(data: JsValue) extends msg_UserCommand
+    
+    case class msg_user_forget_password(data: JsValue) extends msg_UserCommand
+    case class msg_user_email_check(data: JsValue) extends msg_UserCommand
 }

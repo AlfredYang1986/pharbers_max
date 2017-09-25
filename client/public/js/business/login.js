@@ -67,9 +67,9 @@ function login() {
 }
 
 function logout() {
-    conn.close();
+    // conn.close();
     cleanAllCookie();
-	location = "login"
+	location = "/login"
 }
 
 

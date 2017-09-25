@@ -1,5 +1,6 @@
 package controllers
 
+import java.util.Date
 import javax.inject._
 
 import akka.actor.ActorSystem
@@ -19,12 +20,25 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     implicit val db_cores_connection : connection_instance = dbt.queryDBConnection("calc").get
     implicit val db_basic_connection : connection_instance = dbt.queryDBConnection("cli").get
     
+    //从cookie中取出token验证用户角色
     def auth_user = Action { request =>
         val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
         (att.decrypt2JsValue(token) \ "scope").asOpt[List[String]].getOrElse(Nil) match {
             case Nil => Redirect("/index")
             case head :: tail if(head == "BD") => Redirect("/login/db")
             case _ => ???
+        }
+    }
+    
+    //验证GET URL中的功能对应跳转页面
+    def validation_token(parm: String) = Action { request =>
+        val token = att.decrypt2JsValue(parm)
+        val expire_in = (token \ "expire_in").asOpt[Long].map (x => x).getOrElse(throw new Exception("token parse error"))
+        if (new Date().getTime > expire_in) Redirect("/expire_out")
+        else
+        (token \ "action").asOpt[String].getOrElse(None) match {
+            case None => Redirect("/error")
+            case "forget_password" => Redirect("/fuck")
         }
     }
 
@@ -60,7 +74,13 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def register = Action {
         Ok(views.html.register())
     }
-
+    //密码
+    def findpwd = Action{
+        Ok(views.html.findpwd())
+    }
+    def findpwd_success = Action{
+        Ok(views.html.success_findpwd())
+    }
     //首页
     def index = Action { request =>
 //        if (getUserTokenByCookies(request).equals("")) {
