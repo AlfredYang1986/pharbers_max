@@ -87,6 +87,10 @@ dl.layui-nav-child > dd {
     margin-left: 30%;
     margin-right: 30%;
 }
+.box_size_20{
+    margin-left: 20%;
+    margin-right: 20%;
+}
 .box_size_upDown{
     margin-top: 30%;
     margin-bottom: 30%;
