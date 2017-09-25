@@ -16,11 +16,21 @@ import play.api.mvc.Action
 class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait){
 	implicit val as = as_inject
 	
-	def authWithPassword = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
+	def auth_with_password = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("authWithPassword"))), jv) :: msg_user_auth(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
+	def auth_create_token = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
+		import com.pharbers.bmpattern.LogMessage.common_log
+		import com.pharbers.bmpattern.ResultMessage.common_result
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_create_token"))), jv) :: msg_auth_create_token(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+	})
+	
+	def auth_token_push_user = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
+		import com.pharbers.bmpattern.LogMessage.common_log
+		import com.pharbers.bmpattern.ResultMessage.common_result
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_push_user"))), jv) :: msg_auth_token_parser(jv) :: msg_auth_token_expire(jv) :: msg_auth_token_push_user(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+	})
 }

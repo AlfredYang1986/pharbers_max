@@ -20,7 +20,11 @@ POST    /user/queryinfo                              controllers.users.UsersCont
 POST    /user/forgetWithPassword                     controllers.users.UsersController.user_forget_password
 
 # 用户登入
-POST    /auth/authWithPassword                       controllers.auth.AuthController.authWithPassword
+POST    /auth/authWithPassword                       controllers.auth.AuthController.auth_with_password
+# 生成授权码
+POST    /auth/createToken                             controllers.auth.AuthController.auth_create_token
+# 根据授权码添加用户
+POST    /auth/pushUser                                controllers.auth.AuthController.auth_token_push_user
 
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
