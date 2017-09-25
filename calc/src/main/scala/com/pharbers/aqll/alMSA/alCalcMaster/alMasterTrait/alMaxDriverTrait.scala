@@ -12,14 +12,13 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.fil
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_error}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job, push_split_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
-import com.pharbers.aqll.alMSA.alCalcMaster.{alMaxMaster, alScpQueueActor}
 import com.pharbers.aqll.alMSA.alMaxCmdMessage._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig.{serverHost106, serverHost50, serverUser}
 import com.pharbers.aqll.alCalaHelp.dbcores._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alRestoreColl, alWeightSum}
-import com.pharbers.aqll.alMSA.alCalcMaster.alScpQueueActor.{ExcuteScanScpQueue, PushToScpQueue, residue_run_number, scpQueue}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor.PushToScpQueue
 
 import scala.concurrent.stm.atomic
 

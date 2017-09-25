@@ -2,13 +2,9 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.agent.Agent
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
 import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
-import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.pfizer.impl.phPfizerHandleImpl
-import play.api.libs.json.JsString
 
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
@@ -86,26 +82,32 @@ object alPanelJobComeo {
 class alPanelJobComeo extends Actor with ActorLogging {
 
     override def receive: Receive = {
-        case calcYMJob(item) => {
-            val args: Map[String, List[String]] = Map(
-                "company" -> List(item.company),
-                "user" -> List(item.user),
-                "cpas" -> item.cpas.split("&").toList,
-                "gycxs" -> item.gycxs.split("&").toList
-            )
-            val result = new phPfizerHandleImpl(args).calcYM
-            sender ! releasePyEnergy
-        }
-        case generatePanelJob(item) => {
-            val args: Map[String, List[String]] = Map(
-                "company" -> List(item.company),
-                "user" -> List(item.user),
-                "cpas" -> item.cpas.split("&").toList,
-                "gycxs" -> item.gycxs.split("&").toList
-            )
-            val result = new phPfizerHandleImpl(args).generatePanelFile(item.ym)
-            sender ! releasePyEnergy
-        }
+        case calcYMJob(item) => calcYM(item)
+        case generatePanelJob(item) => generatePanel(item)
+        case _ => Unit
+    }
+
+    def calcYM(item: alUpBeforeItem) = {
+        val args: Map[String, List[String]] = Map(
+            "company" -> List(item.company),
+            "user" -> List(item.user),
+            "cpas" -> item.cpas.split("&").toList,
+            "gycxs" -> item.gycxs.split("&").toList
+        )
+        val result = new phPfizerHandleImpl(args).calcYM
+        sender ! releasePyEnergy()
+    }
+
+    def generatePanel(item: alUploadItem) = {
+        val args: Map[String, List[String]] = Map(
+            "company" -> List(item.company),
+            "user" -> List(item.user),
+            "cpas" -> item.cpas.split("&").toList,
+            "gycxs" -> item.gycxs.split("&").toList
+        )
+//        val result = new phPfizerHandleImpl(args).generatePanelFile(item.ym)
+        println("fuckfuck")
+        sender ! releasePyEnergy()
     }
 
 }

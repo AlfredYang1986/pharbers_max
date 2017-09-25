@@ -2,8 +2,8 @@ package com.pharbers.aqll.alMSA.alCalcMaster
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alMaxDriverTrait, alGeneratePanelQueueTrait}
-import com.pharbers.aqll.alMSA.alCalcMaster.alScpQueueActor.{ExcuteScanScpQueue}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor.ExcuteScanScpQueue
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alGeneratePanelQueueTrait, alMaxDriverTrait, alScpQueueTrait}
 import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
 
 object alMaxDriver {
@@ -22,7 +22,7 @@ object alMaxDriver {
 class alMaxDriver extends Actor with ActorLogging
 								with alMaxDriverTrait
 								with alGeneratePanelQueueTrait
-								with alMaxQueueTrait{
+								with alScpQueueTrait {
 
 	import alMaxDriver._
 
