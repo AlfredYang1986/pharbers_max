@@ -12,13 +12,4 @@ abstract class msg_RegisterCommand extends CommonMessage("register", RegisterMod
 object RegisterMessage {
     case class msg_user_register(data: JsValue) extends msg_RegisterCommand
     case class msg_query_register_bd(data: JsValue) extends msg_RegisterCommand
-//    case class msg_pushAdminCommand(data : JsValue) extends msg_RegisterCommand
-//    case class msg_pushRegisterWithoutCheckCommand(data : JsValue) extends msg_RegisterCommand
-//    case class msg_queryRegisterWithIDCommand(data : JsValue) extends msg_RegisterCommand
-//    case class msg_queryAllRegistersCommand(data : JsValue) extends msg_RegisterCommand
-//    case class msg_checkRegisterStatusCommand(data : JsValue) extends msg_RegisterCommand
-//    case class msg_deleteRegisterCommand(data : JsValue) extends msg_RegisterCommand
-//    case class msg_cryptRegisterCodeCommand(data : JsValue) extends msg_RegisterCommand
-//    case class msg_decryptRegisterCodeCommand(data : JsValue) extends msg_RegisterCommand
-//    case class msg_checkAuthTokenExpireCommand(data : JsValue) extends msg_RegisterCommand
 }

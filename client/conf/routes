@@ -20,7 +20,16 @@ POST    /user/queryinfo                              controllers.users.UsersCont
 POST    /user/forgetWithPassword                     controllers.users.UsersController.user_forget_password
 
 # 用户登入
-POST    /auth/authWithPassword                       controllers.auth.AuthController.authWithPassword
+POST    /auth/authWithPassword                       controllers.auth.AuthController.auth_with_password
+# 生成授权码
+POST    /auth/createToken                             controllers.auth.AuthController.auth_create_token
+# 根据授权码添加用户
+POST    /auth/pushUser                                controllers.auth.AuthController.auth_token_push_user
+
+# phone 发送验证码
+POST    /phonecode/send                             controllers.phonecode.PhoneSMSController.sendSMSCode
+# phone 验证 验证码
+POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
 
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
@@ -36,7 +45,8 @@ GET     /register/info                               controllers.alMaxRouterCont
 # BD 登入选择
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
 GET     /login/confrim                               controllers.alMaxRouterController.userInfoConfirm
-
+#Max账户激活
+GET     /account/active                              controllers.alMaxRouterController.inEmail
 #快速预约成功
 GET     /order/success                               controllers.alMaxRouterController.postSuccess
 
@@ -48,17 +58,10 @@ GET    /registerCode/verification                   controllers.alMaxRouterContr
 #邮箱激活
 GET    /email/invocation                            controllers.alMaxRouterController.emailInvocation
 
-# phone 发送验证码
-POST    /phonecode/send                             controllers.phonecode.PhoneSMSController.sendSMSCode
-
-# phone 验证 验证码
-POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
-
-
 #找回密码
 GET     /password/find                              controllers.alMaxRouterController.findpwd
 GET     /password/find/success                      controllers.alMaxRouterController.findpwd_success
-
+GET     /password/new                               controllers.alMaxRouterController.new_pwd
 
 
 # 业务模块
