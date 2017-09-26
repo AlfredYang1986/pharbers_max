@@ -54,14 +54,11 @@ GET     /register/code                               controllers.alMaxRouterCont
 GET     /register/info                               controllers.alMaxRouterController.infoRegistration
 # BD 登入选择
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
-<<<<<<< Updated upstream
 # 授权码验证失败页面
 GET     /login/confrim                               controllers.alMaxRouterController.userInfoConfirm
 # Max账户激活
-=======
 GET     /login/confirm                               controllers.alMaxRouterController.userInfoConfirm
 #Max账户激活
->>>>>>> Stashed changes
 GET     /account/active                              controllers.alMaxRouterController.inEmail
 # 快速预约成功
 GET     /order/success                               controllers.alMaxRouterController.postSuccess
@@ -78,7 +75,6 @@ GET     /email/invocation                            controllers.alMaxRouterCont
 GET     /password/find                              controllers.alMaxRouterController.findpwd
 # 找回密码邮件发送成功
 GET     /password/find/success                      controllers.alMaxRouterController.findpwd_success
-<<<<<<< Updated upstream
 # 修改密码页面
 GET     /password/new/:token                        controllers.alMaxRouterController.new_pwd(token)
 
