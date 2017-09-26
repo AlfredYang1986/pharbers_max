@@ -1,31 +1,37 @@
 package module.auth.AuthData
 
-import com.mongodb.DBObject
-import com.mongodb.casbah.Imports._
+
+import com.mongodb.casbah.Imports.{DBObject, _}
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
 trait AuthData {
 
-	def jv2m(js: JsValue): Map[String, JsValue] = {
+	def jv2m(data: JsValue): Map[String, JsValue] = {
 		Map(
-			"email" -> toJson((js \ "email").asOpt[String].map(x => x).getOrElse("")),
-			"name" -> toJson((js \ "name").asOpt[String].map(x => x).getOrElse("")),
-			"phone" -> toJson((js \ "phone").asOpt[String].map(x => x).getOrElse("")),
-			"scope" -> toJson((js \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil))
+			"email" -> toJson((data \ "reginfo" \ "email").asOpt[String].map(x => x).getOrElse("")),
+			"name" -> toJson((data \ "reginfo" \ "name").asOpt[String].map(x => x).getOrElse("")),
+			"phone" -> toJson((data \ "reginfo" \ "phone").asOpt[String].map(x => x).getOrElse("")),
+			"scope" -> toJson((data \ "reginfo" \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil))
 		)
 	}
 	
-	def conditions(data: JsValue): DBObject = {
+	def reg_content(data: JsValue): DBObject = {
 		val builder = MongoDBObject.newBuilder
 		
-		(data \ "email").asOpt[String].map(x => builder += "email" -> x).getOrElse(Unit)
-		(data \ "name").asOpt[String].map(x => builder += "name" -> x).getOrElse(Unit)
-		(data \ "phone").asOpt[String].map(x => builder += "phone" -> x).getOrElse(Unit)
-		(data \ "scope").asOpt[List[String]].map(x => builder += "scope" -> x).getOrElse(Unit)
+		builder.result
+	}
+	
+	def reg_conditions(data: JsValue): DBObject = {
+		val builder = MongoDBObject.newBuilder
 		
-		builder.result()
+		(data \ "email").asOpt[String].map(x => builder += "reg_content.email" -> x).getOrElse(Unit)
+		(data \ "name").asOpt[String].map(x => builder += "reg_content.linkman" -> x).getOrElse(Unit)
+		(data \ "phone").asOpt[String].map(x => builder += "reg_content.phone" -> x).getOrElse(Unit)
+		(data \ "scope").asOpt[List[String]].map(x => builder += "reg_content.scope" -> x).getOrElse(Unit)
+		
+		builder.result
 	}
 	
 	implicit val m2d: JsValue => DBObject = { js =>
@@ -34,7 +40,7 @@ trait AuthData {
 		val pwd = (js \ "password").asOpt[String].map(x => x).getOrElse("")
 		builder += "profile.email" -> email
 		builder += "profile.secret" -> alEncryptionOpt.md5(s"$email$pwd")
-		builder.result()
+		builder.result
 	}
 	
 	implicit val d2m: DBObject => Map[String, JsValue] = { obj =>
@@ -43,5 +49,13 @@ trait AuthData {
 			"name" -> toJson(profile.getAs[String]("name").map(x => x).getOrElse("")),
 			"phone" -> toJson(profile.getAs[String]("phone").map(x => x).getOrElse("")),
 			"scope" -> toJson(profile.as[MongoDBList]("scope").toList.asInstanceOf[List[String]]))
+	}
+	
+	def reg_d2m(obj: DBObject) = {
+		val reg_content = obj.as[MongoDBObject]("reg_content")
+		Map("email" -> toJson(reg_content.getAs[String]("email").map(x => x).getOrElse("")),
+			"name" -> toJson(reg_content.getAs[String]("name").map(x => x).getOrElse("")),
+			"phone" -> toJson(reg_content.getAs[String]("phone").map(x => x).getOrElse("")),
+			"scope" -> toJson(reg_content.as[MongoDBList]("scope").toList.asInstanceOf[List[String]]))
 	}
 }

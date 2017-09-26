@@ -4,14 +4,26 @@
             <div class="ibox-title">
                 <h5>CPA<small> 模块说明性文字预留（小字）</small></h5>
             </div>
-            <div class="ibox-content">
-                <form enctype="multipart/form-data">
-                    @*<input id="cpa" name="file" type="file" multiple>*@
-                    <button type="button" class="layui-btn" id="cpa">
-                        <i class="layui-icon">&#xe67c;</i>上传图片
-                    </button>
-                </form>
+            <br>
+
+            <div class="layui-upload">
+                <button type="button" class="layui-btn layui-btn-normal" id="select_cpa_btn">选择文件</button>
+                <div class="layui-upload-list">
+                    <table class="layui-table">
+                        <thead>
+                            <tr><th>文件名</th>
+                                <th>大小</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr></thead>
+                        <tbody id="cpa_lst"></tbody>
+                    </table>
+                </div>
+                <button type="button" class="layui-btn" id="upload_cap_btn">
+                    <i class="layui-icon">&#xe67c;</i>上传
+                </button>
             </div>
+
         </div>
     </div>
 </div>

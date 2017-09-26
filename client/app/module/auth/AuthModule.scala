@@ -11,6 +11,7 @@ import module.auth.AuthData._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.auth.AuthMessage._
+import com.mongodb.casbah.Imports._
 
 import scala.collection.immutable.Map
 
@@ -20,8 +21,8 @@ object AuthModule extends ModuleTrait with AuthData {
 		case msg_user_auth(data) => authWithPassword(data)
 		case msg_auth_token_parser(data) => authTokenParser(data)
 		case msg_auth_token_expire(data) => checkAuthTokenExpire(data)(pr)
-		case msg_auth_create_token(data) => authCreateToken(data)
-		case msg_auth_token_push_user(data) => authWithTokenPushUser(data)(pr)
+		case msg_auth_create_token(data) => authCreateToken(data)(pr)
+		case msg_auth_token_defeat(data) => authWithTokenDefeat(data)
 		case _ => throw new Exception("function is not impl")
 	}
 	
@@ -72,10 +73,13 @@ object AuthModule extends ModuleTrait with AuthData {
 		}
 	}
 	
-	def authCreateToken(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def authCreateToken(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 		try {
-			val o = jv2m(data)
+			val o = pr match {
+				case None => jv2m(data)
+				case Some(one) => jv2m(toJson(one))
+			}
 			val reVal = att.encrypt2Token(toJson(o + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000))))
 			// 直接返回一个授权码
 			(Some(Map("token" -> toJson(reVal))), None)
@@ -84,17 +88,15 @@ object AuthModule extends ModuleTrait with AuthData {
 		}
 	}
 	
-	def authWithTokenPushUser(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def authWithTokenDefeat(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 		val db = conn.queryDBInstance("cli").get
-		try {
-			val jv = pr match {
-				case None => throw new Exception("pr data not exist")
-				case Some(one) => one.get("auth").map(x => x).getOrElse(throw new Exception("data not exist"))
+		try{
+			val o = reg_conditions(data)
+			db.queryObject($and(o), "reg_apply")(reg_d2m) match {
+				case None => throw new Exception("data not exist")
+				case Some(one) => (Some(Map("reginfo" -> toJson(one))), None)
 			}
-			val o = conditions(jv)
-			db.insertObject(o, "users", "user_id")
-			(Some(Map("tokenpush" -> toJson("ok"))), None)
 		}catch {
 			case ex: Exception => (None, Some(toJson(ErrorCode.errorToJson(ex.getMessage))))
 		}

@@ -16,20 +16,30 @@ POST    /user/update                                 controllers.users.UsersCont
 POST    /user/querypage                              controllers.users.UsersController.user_query
 # 查询单个用户信息与详情
 POST    /user/queryinfo                              controllers.users.UsersController.user_query_info
-# 忘记密码
+# 解析token用户信息
+POST    /user/tokenop                                controllers.users.UsersController.user_token_op
+# 忘记密码生成token
 POST    /user/forgetWithPassword                     controllers.users.UsersController.user_forget_password
+# 忘记密码，修改密码
+POST    /user/changepwd                              controllers.users.UsersController.user_token_chang_pwd
 
 # 用户登入
 POST    /auth/authWithPassword                       controllers.auth.AuthController.auth_with_password
 # 生成授权码
-POST    /auth/createToken                             controllers.auth.AuthController.auth_create_token
+POST    /auth/createToken                            controllers.auth.AuthController.auth_create_token
+# 成授权码失效
+POST    /auth/tokenDefeat                            controllers.auth.AuthController.auth_token_defeat
+
 # 根据授权码添加用户
-POST    /auth/pushUser                                controllers.auth.AuthController.auth_token_push_user
+POST    /auth/pushUser                               controllers.auth.AuthController.auth_token_push_user
 
 # phone 发送验证码
 POST    /phonecode/send                             controllers.phonecode.PhoneSMSController.sendSMSCode
 # phone 验证 验证码
 POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
+
+
+
 
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
@@ -44,25 +54,32 @@ GET     /register/code                               controllers.alMaxRouterCont
 GET     /register/info                               controllers.alMaxRouterController.infoRegistration
 # BD 登入选择
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
-GET     /login/confrim                               controllers.alMaxRouterController.userInfoConfirm
+# 授权码验证失败页面
+GET     /login/confirm                               controllers.alMaxRouterController.userInfoConfirm
 #Max账户激活
 GET     /account/active                              controllers.alMaxRouterController.inEmail
-#快速预约成功
+# 快速预约成功
 GET     /order/success                               controllers.alMaxRouterController.postSuccess
 
-#授权成功
+# 授权成功
 GET     /register/success                            controllers.alMaxRouterController.registerSuccess
 
-#授权码验证
-GET    /registerCode/verification                   controllers.alMaxRouterController.verificationRegister
-#邮箱激活
-GET    /email/invocation                            controllers.alMaxRouterController.emailInvocation
+# 授权码验证
+GET     /registerCode/verification                   controllers.alMaxRouterController.verificationRegister
+# 邮箱激活
+GET     /email/invocation                            controllers.alMaxRouterController.emailInvocation
 
-#找回密码
+# 找回密码
 GET     /password/find                              controllers.alMaxRouterController.findpwd
+# 找回密码邮件发送成功
 GET     /password/find/success                      controllers.alMaxRouterController.findpwd_success
-GET     /password/new                               controllers.alMaxRouterController.new_pwd
+# 修改密码页面
+GET     /password/new/:token                        controllers.alMaxRouterController.new_pwd(token)
 
+GET     /password/set                               controllers.alMaxRouterController.set_pwd
+
+##测试##
+GET     /test                               controllers.alMaxRouterController.test
 
 # 业务模块
 #   用户登录
