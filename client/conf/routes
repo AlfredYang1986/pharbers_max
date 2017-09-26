@@ -78,6 +78,8 @@ GET     /password/new/:token                        controllers.alMaxRouterContr
 
 GET     /password/set                               controllers.alMaxRouterController.set_pwd
 
+##测试##
+GET     /test                               controllers.alMaxRouterController.test
 
 # 业务模块
 #   用户登录

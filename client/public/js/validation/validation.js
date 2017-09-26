@@ -10,9 +10,7 @@ if(typeof validateType  == "undefined"){
 var validateEmail = function (idName, errMes) {
     var regexp =/^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
     var email = $('#'+idName).val();
-    console.log(email)
     var res = regexp.test(email);
-    console.log(res)
     if(res) {
         return [true, "ok"];
     }
@@ -21,6 +19,7 @@ var validateEmail = function (idName, errMes) {
 
 var validateMobilePhone = function (idName, errMes) {
     var regexp = /^1(3|4|5|7|8)[0-9]\d{8}$/;
+    var phone =  $('#'+idName).val();
     var res = regexp.test(phone);
     if(res) return [true, "ok"];
     else return [false, errMes];
@@ -33,10 +32,17 @@ var formIsEmpty = function (idName) {
     else return[true, "ok"]
 }
 
+var validatePassword = function (idName, errMes) {
+    var regexp = /^[a-zA-Z0-9]{7,21}$/;
+    var pwd = $('#'+idName).val();
+    var res = regexp.test(pwd);
+    if(res) return [true, "ok"];
+    else return [false, errMes];
+}
+
 var changeClass = function (old, newOne, idName) {
     var elem = $('#'+idName)
     if(elem.hasClass(old)){
-
         elem.removeClass(old);
         elem.addClass(newOne);
     }else {
@@ -47,14 +53,12 @@ var changeClass = function (old, newOne, idName) {
 
 var dealInfo = function (idName, res, succClass,errClass) {
     var elem = $('#' + idName);
-    console.log(res)
     if(res[0] == false){
-        console.log("sad")
         changeClass(succClass, errClass, idName)
-        elem.next(".form_tip_bottom").text(res[1]);
+        elem.next(".form_tip_bottom").html('<i class="layui-icon">&#xe69c;</i>'+'<span>&nbsp'+res[1]+'</span>');
     }else{
         changeClass(errClass, succClass, idName)
-        elem.next(".form_tip_bottom").text("");
+        elem.next(".form_tip_bottom").empty();
     }
 }
 
@@ -66,7 +70,10 @@ var postValidation = function (idName, validateType,succ, err ) {
     }else if(validateType == "email"){
         var res =validateEmail(idName, "邮箱输入格式错误");
         dealInfo(idName, res, succ, err);
-    }else {
+    }else if(validateType == "pwd"){
+        var res =validatePassword(idName, "请输入6~20位字母或数字");
+        dealInfo(idName, res, succ, err);
+    } else{
         var res = formIsEmpty(idName);
         dealInfo(idName, res, succ, err);
     }

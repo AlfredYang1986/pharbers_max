@@ -91,6 +91,11 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def inEmail = Action{
         Ok(views.html.inEmail())
     }
+    
+    //测试
+    def test = Action{
+        Ok(views.html.DOME.test())
+    }
     //首页
     def index = Action { request =>
 //        if (getUserTokenByCookies(request).equals("")) {

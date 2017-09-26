@@ -1,0 +1,49 @@
+@main("Max | test") {
+  <body  class="gray-bg">
+
+    <div class="title"></div>
+    <div class="content">
+        <div class="box_size">
+          <div class="form-group row">
+            <div class="col-xs-12">
+              <input id="email" class="form-control"  type="text"  placeholder="邮箱">
+              <div class="form_tip_bottom" id="user_tip"></div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-xs-12">
+              <input id="pwd" class="form-control" type="text"  placeholder="密码">
+              <div class="form_tip_bottom" id="user_tip"></div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-xs-12">
+              <input id="phone" class="form-control" type="text"  placeholder="电话">
+              <div class="form_tip_bottom" id="user_tip"></div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-xs-12">
+              <input id="emp" class="form-control"  type="text"  placeholder="空">
+              <div class="form_tip_bottom" id="user_tip"></div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="footer">
+      <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
+    </div>
+
+
+
+    <script type="text/javascript">
+            $(document).ready(function () {
+              input_blur("email", "email");
+              input_blur("pwd", "pwd");
+              input_blur("phone", "phone");
+              input_blur("emp", "isEmp");
+            })
+
+    </script>
+  </body>
+}
