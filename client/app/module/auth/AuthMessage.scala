@@ -14,4 +14,6 @@ object AuthMessage {
 	case class msg_auth_create_token(data: JsValue) extends msg_AuthCommand
 	
 	case class msg_auth_token_push_user(data: JsValue) extends msg_AuthCommand
+	
+	case class msg_auth_token_defeat(data: JsValue) extends msg_AuthCommand
 }

@@ -26,19 +26,19 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         (att.decrypt2JsValue(token) \ "scope").asOpt[List[String]].getOrElse(Nil) match {
             case Nil => Redirect("/index")
             case head :: tail if(head == "BD") => Redirect("/login/db")
-            case _ => ???
         }
     }
     
     //验证GET URL中的功能对应跳转页面
     def validation_token(parm: String) = Action { request =>
         val token = att.decrypt2JsValue(parm)
+        val temp = java.net.URLEncoder.encode(parm, "ISO-8859-1")
         val expire_in = (token \ "expire_in").asOpt[Long].map (x => x).getOrElse(throw new Exception("token parse error"))
         if (new Date().getTime > expire_in) Redirect("/expire_out")
         else
         (token \ "action").asOpt[String].getOrElse(None) match {
             case None => Redirect("/error")
-            case "forget_password" => Redirect("/fuck")
+            case "forget_password" => Redirect("/password/new/"+temp)
         }
     }
 
@@ -81,7 +81,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def findpwd_success = Action{
         Ok(views.html.success_findpwd())
     }
-    def new_pwd = Action{
+    def new_pwd(token: String) = Action{
         Ok(views.html.newPassword())
     }
     //邮箱激活页面
