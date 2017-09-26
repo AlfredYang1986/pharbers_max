@@ -84,6 +84,9 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def new_pwd(token: String) = Action{
         Ok(views.html.newPassword())
     }
+    def set_pwd = Action{
+        Ok(views.html.setPassword())
+    }
     //邮箱激活页面
     def inEmail = Action{
         Ok(views.html.inEmail())

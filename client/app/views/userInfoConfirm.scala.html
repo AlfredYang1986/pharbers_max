@@ -78,20 +78,27 @@
             $(document).ready(function () {
                 $("#alert_err").hide();
             });
-            var errShow = function(){
-                var index = layer.open({
-                    type: 1,
-                    skin: 'layui-layer-demo',
-                    area: ['400px','450px'],
-                    shade: [0.8, '#393D49'],
-                    content: $('#alert_err'),
-                    cancel: function(index, layero){
-                        layer.close(index)
-                        $('#alert_err').hide();
-                    }
-                });
-                layer.title("信息验证错误", index);
 
+
+            var errShow = function(){
+                layui.use('layer' ,function () {
+                    var index = layer.open({
+                        type: 1,
+                        skin: 'layer-ext-errLay',
+                        area: ['400px','450px'],
+                        shade: [0.8, '#393D49'],
+                        content: $('#alert_err'),
+                        title: ['信息验证错误', ' background:#953b39;margin_left:50px;color: white;font-size: 20px;text-align: center;'],
+                        cancel: function(index, layero){
+                            layer.close(index)
+                        $('#alert_err').hide();
+                        }
+                    });
+                    layer.title("信息验证错误", index);
+                    layer.config({
+                        skin: 'layer-ext-errLay'
+                    })
+                })
             }
 
             layui.use(['form', 'layer'], function () {
@@ -142,6 +149,7 @@
                         }, function(e){console.error(e)});
                     };
                     return false;
+
                 });
 
                 form.on('submit(pull_phone_code)', function (data) {
@@ -161,5 +169,9 @@
                     return false;
                 });
             });
+                })
+            })
+
+
     </script>
 }
