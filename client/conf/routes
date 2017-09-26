@@ -56,8 +56,6 @@ GET     /register/info                               controllers.alMaxRouterCont
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
 # 授权码验证失败页面
 GET     /login/confrim                               controllers.alMaxRouterController.userInfoConfirm
-# Max账户激活
-GET     /login/confirm                               controllers.alMaxRouterController.userInfoConfirm
 #Max账户激活
 GET     /account/active                              controllers.alMaxRouterController.inEmail
 # 快速预约成功
@@ -78,7 +76,6 @@ GET     /password/find/success                      controllers.alMaxRouterContr
 # 修改密码页面
 GET     /password/new/:token                        controllers.alMaxRouterController.new_pwd(token)
 
-GET     /password/new                               controllers.alMaxRouterController.new_pwd
 GET     /password/set                               controllers.alMaxRouterController.set_pwd
 
 
