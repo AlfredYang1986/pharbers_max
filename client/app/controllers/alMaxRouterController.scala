@@ -38,7 +38,8 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         else
         (token \ "action").asOpt[String].getOrElse(None) match {
             case None => Redirect("/error")
-            case "forget_password" => Redirect("/password/new/"+temp)
+            case "forget_password" => Redirect(s"/password/new/$temp")
+            case "first_login" => Redirect(s"/password/set/$temp/${(token \ "email").as[String]}")
         }
     }
 
@@ -84,8 +85,8 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def new_pwd(token: String) = Action{
         Ok(views.html.newPassword())
     }
-    def set_pwd = Action{
-        Ok(views.html.setPassword())
+    def set_pwd(token: String, email: String) = Action{
+        Ok(views.html.setPassword(email))
     }
     //邮箱激活页面
     def inEmail = Action{

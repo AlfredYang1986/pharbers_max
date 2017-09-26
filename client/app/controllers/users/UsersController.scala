@@ -50,7 +50,7 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 	def user_forget_password = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("forgetWithPassword"))), jv) :: msg_user_email_check(jv) :: msg_user_forget_password(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("user_forget_password"))), jv) :: msg_user_email_check(jv) :: msg_user_forget_password(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
 	def user_token_op = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
@@ -59,7 +59,7 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("user_token_op"))), jv) :: msg_auth_token_parser(jv) :: msg_auth_token_expire(jv) :: msg_user_token_op(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
-	// 单纯给忘记密码使用
+	// 单纯给忘记密码与第一次登入使用
 	def user_token_chang_pwd = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result

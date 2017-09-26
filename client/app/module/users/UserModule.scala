@@ -127,12 +127,12 @@ object UserModule extends ModuleTrait with UserData {
             pr match {
                 case None => throw new Exception("pr data not exist")
                 case Some(one) =>
-                    val reVal = one.map(x => x) + ("expire_in" -> toJson(new Date().getTime +  60 * 1000 * 10)) + ("action" -> toJson("forget_password"))
+                    val map = one.get("info").map(x => x).get.as[Map[String, JsValue]]
+                    val reVal = map + ("expire_in" -> toJson(new Date().getTime +  60 * 1000 * 10)) + ("action" -> toJson("forget_password"))
                     val token = java.net.URLEncoder.encode(att.encrypt2Token(toJson(reVal)), "ISO-8859-1")
                     val url = s"http://127.0.0.1:9000/validation/token/$token"
-                    println(url)
                     //原本是一个整个html的，因页面没有所以暂时只做url
-                    (Some(Map("urltoken" -> toJson("ok"))), None)
+                    (Some(Map("urltoken" -> toJson(url))), None)
             }
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -157,7 +157,7 @@ object UserModule extends ModuleTrait with UserData {
         try {
             val user = pr match {
                 case None => throw new Exception("pr data not exist")
-                case Some(one) => one.get("user_info").map(x => x.as[Map[String, JsValue]].get("info").map(z => z).getOrElse(throw new Exception("data not exist"))).getOrElse(throw new Exception("data not exist"))
+                case Some(one) => one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist"))
              }
             val o = m2d(toJson(user.as[Map[String, JsValue]] ++ Map("password" -> toJson((data \ "password").asOpt[String].getOrElse("")))))
             db.updateObject(o, "users", "user_id")

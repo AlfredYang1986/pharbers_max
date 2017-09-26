@@ -21,19 +21,19 @@ class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManage
 	def auth_with_password = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("authWithPassword"))), jv) :: msg_user_auth(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_with_password"))), jv) :: msg_user_auth(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
 	def auth_create_token = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_create_token"))), jv) :: msg_auth_create_token(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+		MessageRoutes(msg_auth_create_token(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
 	def auth_token_push_user = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_push_user"))), jv) :: msg_auth_token_parser(jv) :: msg_auth_token_expire(jv) :: msg_user_token_op(jv) :: msg_user_push(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_push_user"))), jv) :: msg_auth_token_parser(jv) :: msg_auth_token_expire(jv) :: msg_user_token_op(jv) :: msg_user_push(jv) :: msg_auth_code_push_success(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
 	def auth_token_defeat = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
@@ -41,4 +41,10 @@ class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManage
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_defeat"))), jv) :: msg_auth_token_defeat(jv) :: msg_auth_create_token(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
+	
+//	def auth_first_login = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
+//		import com.pharbers.bmpattern.LogMessage.common_log
+//		import com.pharbers.bmpattern.ResultMessage.common_result
+//		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_first_login"))), jv) :: msg_auth_code_push_success(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+//	})
 }
