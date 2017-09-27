@@ -41,10 +41,4 @@ class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManage
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_defeat"))), jv) :: msg_auth_token_defeat(jv) :: msg_auth_create_token(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
-	
-//	def auth_first_login = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
-//		import com.pharbers.bmpattern.LogMessage.common_log
-//		import com.pharbers.bmpattern.ResultMessage.common_result
-//		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_first_login"))), jv) :: msg_auth_code_push_success(jv) ::  msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
-//	})
 }

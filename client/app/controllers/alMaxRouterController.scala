@@ -48,10 +48,6 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         Ok(views.html.login())
     }
 
-    def codeRegistration = Action { request =>
-        Ok(views.html.codeRegistration())
-    }
-
     def infoRegistration = Action { request =>
         Ok(views.html.infoRegistration())
     }

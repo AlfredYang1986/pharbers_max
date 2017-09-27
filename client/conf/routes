@@ -45,8 +45,6 @@ POST    /phonecode/check                            controllers.phonecode.PhoneS
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
 # 验证GET连接的有效市场并跳转相应页面
 GET     /validation/token/:parm                      controllers.alMaxRouterController.validation_token(parm)
-# 授权吗页面
-GET     /register/code                               controllers.alMaxRouterController.codeRegistration
 # 路人申请体验页面
 GET     /register/info                               controllers.alMaxRouterController.infoRegistration
 # BD 登入选择

@@ -117,15 +117,4 @@ object AuthModule extends ModuleTrait with AuthData {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
-	
-	def authFirstLogin(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
-		try {
-			
-			println(data)
-			(Some(Map("token" -> toJson(""))), None)
-		}catch {
-			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
-		}
-	}
 }
