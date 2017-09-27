@@ -1,10 +1,10 @@
 @(auth: String)
 
 @layout("Max | Home") {
-    <link href="@routes.Assets.versioned("/css/style.default.css")" rel="stylesheet">
-
+    <link href="@routes.Assets.versioned("css/style.default.css")" rel="stylesheet">
+    <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
     <body>
-         <div class="layui-tab" lay-filter="step">
+        <div class="layui-tab" lay-filter="step">
             <ul class="layui-tab-title">
                 <li class="layui-this">CPA文件上传</li>
                 <li>GYCX文件上传</li>
@@ -12,117 +12,279 @@
                 <li>结果检查</li>
             </ul>
             <div class="layui-tab-content">
+                <div class="layui-tab-item ">
+                @upload.cpaUpload()
+                </div>
+                <div class="layui-tab-item">
+                @upload.gycxUpload()
+                </div>
                 <div class="layui-tab-item layui-show">
-                    @upload.cpaUpload()
+                @sample.sampleCheck()
                 </div>
                 <div class="layui-tab-item">
-                    @upload.gycxUpload()
-                </div>
-                <div class="layui-tab-item">
-                    @sample.sampleCheck()
-                </div>
-                <div class="layui-tab-item">
-                    @result.resultCheck()
+                @result.resultCheck()
                 </div>
             </div>
         </div>
     </body>
-    @*<script type="text/javascript" src="@routes.Assets.versioned("js/newjs/calcstep.js")"></script>*@
 } {
     <script type="text/javascript" >
-        $(function(){
-            $('li[pharbers-filter="calc"]').addClass("layui-this")
-        })
-
+            $(function () {
+                $('li[pharbers-filter="calc"]').addClass("layui-this")
+            })
     </script>
     <script>
-        //JavaScript代码区域
-        layui.use('element', function(){
-            var element = layui.element;
-
-            element.on('tab(step)', function(elem){
-//                var item = elem.attr('pharbers-filter')
-//                if (item == "des") {
-//                    location = "/index"
-//
-//                } else if (item == "calc") {
-//                    location = "/calcdata"
-//
-//                }
-                console.log(elem)
+            layui.use('element', function () {
+                var element = layui.element;
+                element.on('tab(step)', function (elem) {
+                    console.log(elem);
+                });
             });
-        });
 
-        layui.use('upload', function(){
-            var upload = layui.upload;
+            layui.use('upload', function () {
+                var upload = layui.upload;
+                var cpa_lst = $('#cpa_lst');
+                upload.render({
+                    elem: '#select_cpa_btn',
+                    url: '/api/upload/',
+                    auto: false, //选择文件后不自动上传
+//                multiple: true,
+                    accept: 'file',
+                    exts: 'xlsx',
+                    bindAction: '#upload_cap_btn',
+                    choose: function (obj) {
+                        if (cpa_lst.html() !== "") {
+                            layer.open({
+                                title: '提示',
+                                content: '只能上传一个CPA数据源'
+                            });
+                        } else {
+                            var files = obj.pushFile();
+                            obj.preview(function (index, file, result) {
+                                var tr = $(['<tr id="upload-' + index + '">'
+                                    , '<td>' + file.name + '</td>'
+                                    , '<td>' + (file.size / 1024 / 1024).toFixed(1) + 'MB</td>'
+                                    , '<td>等待上传</td>'
+                                    , '<td>'
+                                    , '<button class="layui-btn layui-btn-mini demo-reload layui-hide">重传</button>'
+                                    , '<button class="layui-btn layui-btn-mini layui-btn-danger demo-delete">删除</button>'
+                                    , '</td>'
+                                    , '</tr>'].join(''));
 
-            upload.render({
-                elem: '#cpa'
-                ,url: '/api/upload/'
-                ,auto: false //选择文件后不自动上传
-                ,bindAction: '#testListAction' //指向一个按钮触发上传
-                ,choose: function(obj){
-                    //将每次选择的文件追加到文件队列
-                    var files = obj.pushFile();
+                                tr.find('.demo-reload').on('click', function () {
+                                    obj.upload(index, file);
+                                });
 
-                    //预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
-                    obj.preview(function(index, file, result) {
-                        console.log(index); //得到文件索引
-                        console.log(file); //得到文件对象
-                        console.log(result); //得到文件base64编码，比如图片
+                                tr.find('.demo-delete').on('click', function () {
+                                    delete files[index];
+                                    tr.remove();
+                                });
 
-                        //这里还可以做一些 append 文件列表 DOM 的操作
-
-                        //obj.upload(index, file); //对上传失败的单个文件重新上传，一般在某个事件中使用
-                        //delete files[index]; //删除列表中对应的文件，一般在某个事件中使用
-                    });
-                }
-                ,before: function(obj) { //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
-                    layer.load(); //上传loading
-                }
-                ,done: function(res, index, upload) {
-                    layer.closeAll('loading'); //关闭loading
-                }
-                ,error: function(index, upload) {
-                    layer.closeAll('loading'); //关闭loading
-                }
+                                cpa_lst.append(tr);
+                            });
+                        }
+                    },
+                    done: function (res, index, upload) {
+                        if (res.code == 0) { //上传成功
+                            var tr = cpa_lst.find('tr#upload-' + index);
+                            var tds = tr.children();
+                            tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                            tds.eq(3).html(''); //清空操作
+                            delete files[index]; //删除文件队列已经上传成功的文件
+                            return;
+                        }
+                        this.error(index, upload);
+                    },
+                    error: function (index, upload) {
+                        var tr = cpa_lst.find('tr#upload-' + index);
+                        var tds = tr.children();
+                        tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                        tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+                    }
+                });
             });
-        });
 
-        layui.use('upload', function(){
-            var upload = layui.upload;
+            layui.use('upload', function () {
+                var upload = layui.upload;
+                var gycx_lst = $('#gycx_lst');
+                upload.render({
+                    elem: '#select_gycx_btn',
+                    url: '/api/upload/',
+                    auto: false, //选择文件后不自动上传
+//                multiple: true,
+                    accept: 'file',
+                    exts: 'xlsx',
+                    bindAction: '#upload_gycx_btn',
+                    choose: function (obj) {
+                        if (gycx_lst.html() !== "") {
+                            layer.open({
+                                title: '提示',
+                                content: '只能上传一个CPA数据源'
+                            });
+                        } else {
+                            var files = obj.pushFile();
+                            obj.preview(function (index, file, result) {
+                                var tr = $(['<tr id="upload-' + index + '">'
+                                    , '<td>' + file.name + '</td>'
+                                    , '<td>' + (file.size / 1024 / 1024).toFixed(1) + 'MB</td>'
+                                    , '<td>等待上传</td>'
+                                    , '<td>'
+                                    , '<button class="layui-btn layui-btn-mini demo-reload layui-hide">重传</button>'
+                                    , '<button class="layui-btn layui-btn-mini layui-btn-danger demo-delete">删除</button>'
+                                    , '</td>'
+                                    , '</tr>'].join(''));
 
-            upload.render({
-                elem: '#gycx'
-                ,url: '/api/upload/'
-                ,auto: false //选择文件后不自动上传
-                ,bindAction: '#testListAction' //指向一个按钮触发上传
-                ,choose: function(obj){
-                    //将每次选择的文件追加到文件队列
-                    var files = obj.pushFile();
+                                tr.find('.demo-reload').on('click', function () {
+                                    obj.upload(index, file);
+                                });
 
-                    //预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
-                    obj.preview(function(index, file, result) {
-                        console.log(index); //得到文件索引
-                        console.log(file); //得到文件对象
-                        console.log(result); //得到文件base64编码，比如图片
+                                tr.find('.demo-delete').on('click', function () {
+                                    delete files[index];
+                                    tr.remove();
+                                });
 
-                        //这里还可以做一些 append 文件列表 DOM 的操作
-
-                        //obj.upload(index, file); //对上传失败的单个文件重新上传，一般在某个事件中使用
-                        //delete files[index]; //删除列表中对应的文件，一般在某个事件中使用
-                    });
-                }
-                ,before: function(obj) { //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
-                    layer.load(); //上传loading
-                }
-                ,done: function(res, index, upload) {
-                    layer.closeAll('loading'); //关闭loading
-                }
-                ,error: function(index, upload) {
-                    layer.closeAll('loading'); //关闭loading
-                }
+                                gycx_lst.append(tr);
+                            });
+                        }
+                    },
+                    done: function (res, index, upload) {
+                        if (res.code == 0) { //上传成功
+                            var tr = gycx_lst.find('tr#upload-' + index);
+                            var tds = tr.children();
+                            tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                            tds.eq(3).html(''); //清空操作
+                            delete files[index]; //删除文件队列已经上传成功的文件
+                            return;
+                        }
+                        this.error(index, upload);
+                    },
+                    error: function (index, upload) {
+                        var tr = gycx_lst.find('tr#upload-' + index);
+                        var tds = tr.children();
+                        tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                        tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+                    }
+                });
             });
-        });
-    </script>
+    </script><!--cpa gycx upload-->
+    <script>
+            var form = layui.form;
+            layui.use('form', function () {
+//            form.on('select(sample_market)', function(data){
+//                console.log(data.elem); //得到select原始DOM对象
+//                console.log(data.value); //得到被选中的值
+//                console.log(data.othis); //得到美化后的DOM对象
+//            });
+            });
+            var sample_market = ["market1", "market2", "market3"];
+            var sample_date = ["date1", "date2", "date3"];
+            $.each(sample_market, function (i) {
+                $('#sample_market').append(new Option(sample_market[i]));
+            });
+            $.each(sample_date, function (i) {
+                $('#sample_date').append(new Option(sample_date[i]));
+            });
+
+            $('#Current_Month_HospitalNum').text("912");
+            $('#Early_Month_HospitalNum').text("0");
+            $('#Last_Year_HospitalNum').text("0");
+            $('#Current_Month_ProductNum').text("2331");
+            $('#Early_Month_ProductNum').text("0");
+            $('#Last_Year_ProductNum').text("0");
+            $('#Current_Month_MarketNum').text("1");
+            $('#Early_Month_MarketNum').text("0");
+            $('#Last_Year_MarketNum').text("0");
+
+    </script><!-- select box and ###-->
+    <script>
+        var hospline_chart = echarts.init(document.getElementById('hospline'));
+        // 指定图表的配置项和数据
+        var option = {
+            xAxis: {},
+            yAxis: {},
+            series: [{
+                type: 'line',
+                data: [
+                    [0, 0],
+                    [5, 0],
+                    [10, 0],
+                    [15, 0],
+                    [20, 0],
+                    [25, 0],
+                    [30, 0],
+                    [35, 6]
+                ]
+            }]
+        };
+        hospline_chart.setOption(option);
+
+        var prodline_chart = echarts.init(document.getElementById('prodline'));
+        // 指定图表的配置项和数据
+        var option = {
+            xAxis: {},
+            yAxis: {},
+            series: [{
+                type: 'line',
+                data: [
+                    [0, 0],
+                    [5, 0],
+                    [10, 0],
+                    [15, 0],
+                    [20, 0],
+                    [25, 0],
+                    [30, 0],
+                    [35, 6]
+                ]
+            }]
+        };
+        prodline_chart.setOption(option);
+
+        var markline_chart = echarts.init(document.getElementById('markline'));
+        // 指定图表的配置项和数据
+        var option = {
+            xAxis: {},
+            yAxis: {},
+            series: [{
+                type: 'line',
+                data: [
+                    [0, 0],
+                    [5, 0],
+                    [10, 0],
+                    [15, 0],
+                    [20, 0],
+                    [25, 0],
+                    [30, 0],
+                    [35, 6]
+                ]
+            }]
+        };
+        markline_chart.setOption(option);
+    </script><!--  row2 eachars  -->
+
+    <script>
+        var sales_chart = echarts.init(document.getElementById('Sales'));
+        // 指定图表的配置项和数据
+        var option = {
+            xAxis: {},
+            yAxis: {},
+            series: [{
+                type: 'line',
+                data: [
+                    [201512, 0],
+                    [201601, 0],
+                    [201602, 0],
+                    [201603, 0],
+                    [201604, 0],
+                    [201605, 0],
+                    [201606, 0],
+                    [201607, 0],
+                    [201608, 0],
+                    [201609, 0],
+                    [201610, 0],
+                    [201611, 5888]
+                ]
+            }]
+        };
+        sales_chart.setOption(option);
+    </script><!--  row3 eachars  -->
 }
