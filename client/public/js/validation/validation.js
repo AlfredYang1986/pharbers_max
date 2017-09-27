@@ -24,6 +24,25 @@ var validateMobilePhone = function (idName, errMes) {
     if(res) return [true, "ok"];
     else return [false, errMes];
 }
+var vaildateCompanyName = function (idName, errMes) {
+    var regexp = /^[\u4e00-\u9fa5]{6,30}$/;
+    var name =  $('#'+idName).val();
+    var res = regexp.test(name);
+    if(res) {
+        return [true, "ok"];
+    }
+    else return [false, errMes];
+}
+
+var vaildateName = function (idName, errMes) {
+    var regexp = /^[\u4e00-\u9fa5]{2,4}$/;
+    var name =  $('#'+idName).val();
+    var res = regexp.test(name);
+    if(res) {
+        return [true, "ok"];
+    }
+    else return [false, errMes];
+}
 
 var formIsEmpty = function (idName) {
     var elem = $('#' + idName);
@@ -73,7 +92,13 @@ var postValidation = function (idName, validateType,succ, err ) {
     }else if(validateType == "pwd"){
         var res =validatePassword(idName, "请输入6~20位字母或数字");
         dealInfo(idName, res, succ, err);
-    } else{
+    } else if(validateType == "cName"){
+        var res =vaildateCompanyName(idName, "请输入公司全称（中文6~30字）");
+        dealInfo(idName, res, succ, err);
+    } else if(validateType == "name"){
+        var res =vaildateName(idName, "请输入自己正确的名字（中文）");
+        dealInfo(idName, res, succ, err);
+    }else{
         var res = formIsEmpty(idName);
         dealInfo(idName, res, succ, err);
     }
