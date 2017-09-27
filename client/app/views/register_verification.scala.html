@@ -51,10 +51,10 @@
                         var json = JSON.stringify({'user_token': data.field.code})
                         ajaxData('/auth/pushUser', json, 'POST', function (r) {
                             if (r.status === 'ok' && r.result.url !== undefined) {
+                                // TODO ： 演示增加弹出框
                                 layer.open({
                                     content: r.result.url,
                                     yes: function(index, layero){
-                                        //按钮【按钮一】的回调
                                         location = "/register/success"
                                     }
                                 });
