@@ -96,7 +96,7 @@ var postValidation = function (idName, validateType,succ, err ) {
         var res =vaildateCompanyName(idName, "请输入公司全称（中文6~30字）");
         dealInfo(idName, res, succ, err);
     } else if(validateType == "name"){
-        var res =vaildateName(idName, "请输入自己正确的名字（中文）");
+        var res =vaildateName(idName, "请输入自己正确的名字（中文2~4字）");
         dealInfo(idName, res, succ, err);
     }else{
         var res = formIsEmpty(idName);
