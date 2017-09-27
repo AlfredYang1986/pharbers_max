@@ -2,7 +2,6 @@ package module.auth.AuthData
 
 
 import com.mongodb.casbah.Imports.{DBObject, _}
-import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
@@ -39,7 +38,7 @@ trait AuthData {
 		val email = (js \ "email").asOpt[String].map(x => x).getOrElse("")
 		val pwd = (js \ "password").asOpt[String].map(x => x).getOrElse("")
 		builder += "profile.email" -> email
-		builder += "profile.secret" -> alEncryptionOpt.md5(s"$email$pwd")
+		builder += "profile.secret" -> pwd      //alEncryptionOpt.md5(s"$email$pwd")
 		builder.result
 	}
 	
