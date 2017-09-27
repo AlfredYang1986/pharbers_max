@@ -1,19 +1,23 @@
 <div class="wrapper wrapper-content animated fadeInRight" >
     <div class="wrapper wrapper-content animated fadeInRight" >
-        <div class="row">
+
+        <div class="row layui-form">
             <div class="col-sm-3 col-md-3">
-                <div class="form-group">
-                    <label class="control-label" for="status">市场</label>
-                    <select data-name="search-result-market" id="result_check_market" class="form-control"></select>
+                <div class="layui-form-item">
+                    <label class="control-label" for="result_check_market">Market</label>
+                    <select id="result_check_market" lay-filter="result_check_market" lay-search>
+                    </select>
                 </div>
             </div>
             <div class="col-sm-3 col-md-3">
-                <div class="form-group">
-                    <label class="control-label">日期</label>
-                    <select data-name="search-result-date" id="result_check_date" class="form-control"></select>
+                <div class="layui-form-item">
+                    <label class="control-label" for="result_check_date">Date</label>
+                    <select id="result_check_date" lay-filter="result_check_date" lay-search>
+                    </select>
                 </div>
             </div>
-        </div>
+        </div><!-- row 1-->
+
         <div class="row">
             <div class="col-lg-12">
                 <div class="ibox float-e-margins">

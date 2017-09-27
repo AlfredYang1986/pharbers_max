@@ -12,16 +12,16 @@
                 <li>结果检查</li>
             </ul>
             <div class="layui-tab-content">
-                <div class="layui-tab-item ">
+                <div class="layui-tab-item">
                 @upload.cpaUpload()
                 </div>
                 <div class="layui-tab-item">
                 @upload.gycxUpload()
                 </div>
-                <div class="layui-tab-item layui-show">
+                <div class="layui-tab-item">
                 @sample.sampleCheck()
                 </div>
-                <div class="layui-tab-item">
+                <div class="layui-tab-item layui-show">
                 @result.resultCheck()
                 </div>
             </div>
@@ -166,16 +166,9 @@
                     }
                 });
             });
-    </script><!--cpa gycx upload-->
+    </script> <!--cpa gycx upload-->
     <script>
             var form = layui.form;
-            layui.use('form', function () {
-//            form.on('select(sample_market)', function(data){
-//                console.log(data.elem); //得到select原始DOM对象
-//                console.log(data.value); //得到被选中的值
-//                console.log(data.othis); //得到美化后的DOM对象
-//            });
-            });
             var sample_market = ["market1", "market2", "market3"];
             var sample_date = ["date1", "date2", "date3"];
             $.each(sample_market, function (i) {
@@ -195,96 +188,240 @@
             $('#Early_Month_MarketNum').text("0");
             $('#Last_Year_MarketNum').text("0");
 
-    </script><!-- select box and ###-->
+    </script> <!-- select box and ###-->
     <script>
-        var hospline_chart = echarts.init(document.getElementById('hospline'));
-        // 指定图表的配置项和数据
-        var option = {
-            xAxis: {},
-            yAxis: {},
-            series: [{
-                type: 'line',
-                data: [
-                    [0, 0],
-                    [5, 0],
-                    [10, 0],
-                    [15, 0],
-                    [20, 0],
-                    [25, 0],
-                    [30, 0],
-                    [35, 6]
-                ]
-            }]
-        };
-        hospline_chart.setOption(option);
+            var hospline_chart = echarts.init(document.getElementById('hospline'));
+            // 指定图表的配置项和数据
+            var option = {
+                xAxis: {
+                    show: false
+                },
+                yAxis: {
+                    show: false
+                },
+                series: [{
+                    type: 'line',
+                    data: [
+                        [0, 0],
+                        [5, 0],
+                        [10, 0],
+                        [15, 0],
+                        [20, 0],
+                        [25, 0],
+                        [30, 160000]
+                    ]
+                }]
+            };
+            hospline_chart.setOption(option);
 
-        var prodline_chart = echarts.init(document.getElementById('prodline'));
-        // 指定图表的配置项和数据
-        var option = {
-            xAxis: {},
-            yAxis: {},
-            series: [{
-                type: 'line',
-                data: [
-                    [0, 0],
-                    [5, 0],
-                    [10, 0],
-                    [15, 0],
-                    [20, 0],
-                    [25, 0],
-                    [30, 0],
-                    [35, 6]
-                ]
-            }]
-        };
-        prodline_chart.setOption(option);
+            var prodline_chart = echarts.init(document.getElementById('prodline'));
+            // 指定图表的配置项和数据
+            var option = {
+                xAxis: {
+                    show: false
+                },
+                yAxis: {
+                    show: false
+                },
+                series: [{
+                    type: 'line',
+                    data: [
+                        [0, 0],
+                        [5, 0],
+                        [10, 0],
+                        [15, 0],
+                        [20, 0],
+                        [25, 0],
+                        [30, 6]
 
-        var markline_chart = echarts.init(document.getElementById('markline'));
-        // 指定图表的配置项和数据
-        var option = {
-            xAxis: {},
-            yAxis: {},
-            series: [{
-                type: 'line',
-                data: [
-                    [0, 0],
-                    [5, 0],
-                    [10, 0],
-                    [15, 0],
-                    [20, 0],
-                    [25, 0],
-                    [30, 0],
-                    [35, 6]
-                ]
-            }]
-        };
-        markline_chart.setOption(option);
-    </script><!--  row2 eachars  -->
+                    ]
+                }]
+            };
+            prodline_chart.setOption(option);
 
+            var markline_chart = echarts.init(document.getElementById('markline'));
+            // 指定图表的配置项和数据
+            var option = {
+                xAxis: {
+                    show: false
+                },
+                yAxis: {
+                    show: false
+                },
+                series: [{
+                    type: 'line',
+                    data: [
+                        [0, 0],
+                        [5, 0],
+                        [10, 0],
+                        [15, 0],
+                        [20, 0],
+                        [25, 0],
+                        [30, 6]
+                    ]
+                }]
+            };
+            markline_chart.setOption(option);
+    </script> <!--  row3 three eachars  -->
     <script>
-        var sales_chart = echarts.init(document.getElementById('Sales'));
-        // 指定图表的配置项和数据
-        var option = {
-            xAxis: {},
-            yAxis: {},
-            series: [{
-                type: 'line',
-                data: [
-                    [201512, 0],
-                    [201601, 0],
-                    [201602, 0],
-                    [201603, 0],
-                    [201604, 0],
-                    [201605, 0],
-                    [201606, 0],
-                    [201607, 0],
-                    [201608, 0],
-                    [201609, 0],
-                    [201610, 0],
-                    [201611, 5888]
-                ]
-            }]
-        };
-        sales_chart.setOption(option);
-    </script><!--  row3 eachars  -->
+            var sales_chart = echarts.init(document.getElementById('Sales'));
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '今年Vs去年(近12月销售额)',
+                    left: 'center'
+                },
+                xAxis: {
+                    name: '日期',
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['201512', '201601', '201602', '201603', '201604', '201605', '201606',
+                        '201607', '201608', '201609', '201610', '201611']
+                },
+                yAxis: {
+                    name: '销售额(万)',
+                    type: 'value'
+                },
+                series: [{
+                    type: 'line',
+                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5555]
+                }]
+            };
+            sales_chart.setOption(option);
+    </script> <!--  row4 Sales eachars  -->
+    <script>
+            var units_chart = echarts.init(document.getElementById('Units'));
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '今年Vs去年(近12月销售量)',
+                    left: 'center'
+                },
+                xAxis: {
+                    name: '日期',
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['201512', '201601', '201602', '201603', '201604', '201605', '201606',
+                        '201607', '201608', '201609', '201610', '201611']
+                },
+                yAxis: {
+                    name: '销售量(万)',
+                    type: 'value'
+                },
+                series: [{
+                    type: 'line',
+                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2555]
+                }]
+            };
+            units_chart.setOption(option);
+    </script> <!--  row5 Units eachars  -->
+    <script>
+            layui.use('table', function () {
+                var table = layui.table;
+
+                table.render({
+                    elem: '#semple_table',
+                    cols: [[
+                        {align: 'center', title: '样本医院检查结果', colspan: 6}
+                    ], [
+                        {field: 'id', title: '序号', align: 'center', sort: true, rowspan: 1, width:100},
+                        {field: 'hosp_name', title: '医院名称', align: 'center', sort: true, rowspan: 2, width:200},
+                        {field: 'provinces', title: '省份', align: 'center', sort: true, rowspan: 1, width:200},
+                        {field: 'city', title: '城市', align: 'center', sort: true, rowspan: 1, width:200},
+                        {field: 'level', title: '城市级别', align: 'center', sort: true, rowspan: 1, width:200}
+                    ]],
+                    data: [
+                        {"id": "a1", "hosp_name": "a2", "provinces": "a3", "city": "a4", "level": "a5"},
+                        {"id": "b1", "hosp_name": "b2", "provinces": "b3", "city": "b4", "level": "b5"},
+                        {"id": "c1", "hosp_name": "c2", "provinces": "c3", "city": "e4", "level": "c5"},
+                        {"id": "d1", "hosp_name": "d2", "provinces": "d3", "city": "d4", "level": "d5"},
+                        {'id': "e1", 'hosp_name': "e2", 'provinces': "e3", 'city': "e4", 'level': "e5"},
+                        {'id': "a2", "hosp_name": "b2", "provinces": "a3", "city": "a4", "level": "a5"},
+                        {'id': "a3", "hosp_name": "a2", "provinces": "a3", "city": "a4", "level": "a5"},
+                        {'id': "a4", "hosp_name": "a2", "provinces": "a3", "city": "a4", "level": "a5"},
+                        {"id": "a5", "hosp_name": "a2", "provinces": "a3", "city": "a4", "level": "a5"}
+                    ],
+                    page: true , //是否显示分页
+                    limits: [5, 7, 10],
+                    limit: 5 //每页默认显示的数量
+                });
+            });
+    </script> <!--  row6 table  -->
+    <script>
+            var result_check_market = ["market1", "market2", "market3"];
+            var result_check_date = ["date1", "date2", "date3"];
+            $.each(result_check_market, function (i) {
+                $('#result_check_market').append(new Option(result_check_market[i]));
+            });
+            $.each(result_check_date, function (i) {
+                $('#result_check_date').append(new Option(result_check_date[i]));
+            });
+    </script> <!-- page 4 select box-->
+    <script>
+            var bar1_chart = echarts.init(document.getElementById('bar1'));
+            // 指定图表的配置项和数据
+            var option = {
+                xAxis: {
+                    name: '日期',
+                    data: ['201512', '201601', '201602', '201603', '201604', '201605', '201606',
+                        '201607', '201608', '201609', '201610', '201611']
+                },
+                yAxis: {
+                    name: '销售额(万)',
+                    type: 'value'
+                },
+                series: [{
+                    type: 'bar',
+                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8555]
+                }]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            bar1_chart.setOption(option);
+
+
+            var bar2_chart = echarts.init(document.getElementById('bar2'));
+            // 指定图表的配置项和数据
+            var option = {
+                xAxis: {
+                    name: '城市',
+                    data: ['北京市', '上海市', '成都市', '广州市', '南京市', '合肥市',
+                        '北京市', '上海市', '成都市', '广州市', '南京市', '合肥市']
+                },
+                yAxis: {
+                    name: '销售额(万)',
+                    type: 'value'
+                },
+                series: [{
+                    type: 'bar',
+                    data: [1350, 750, 400, 390, 380, 250, 0, 0, 0, 0, 0, 0, 0]
+                }]
+            };
+            bar2_chart.setOption(option);
+
+
+            var bar3_chart = echarts.init(document.getElementById('bar3'));
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '今年Vs去年(近12月销售额)',
+                    left: 'center'
+                },
+                xAxis: {
+                    name: '日期',
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['201512', '201601', '201602', '201603', '201604', '201605', '201606',
+                        '201607', '201608', '201609', '201610', '201611']
+                },
+                yAxis: {
+                    name: '销售额(万)',
+                    type: 'value'
+                },
+                series: [{
+                    type: 'bar',
+                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5555]
+                }]
+            };
+            bar3_chart.setOption(option);
+    </script> <!-- page 4 Sales eachars  -->
 }
