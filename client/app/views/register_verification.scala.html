@@ -51,6 +51,7 @@
                         var json = JSON.stringify({'user_token': data.field.code})
                         ajaxData('/auth/pushUser', json, 'POST', function (r) {
                             if (r.status === 'ok' && r.result.url !== undefined) {
+                                console.info(r.result.url)
                                 location = "/register/success"
                             } else {
                                 layer.msg('授权码错误或过期！');
