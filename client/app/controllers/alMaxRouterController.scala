@@ -4,6 +4,7 @@ import java.util.Date
 import javax.inject._
 
 import akka.actor.ActorSystem
+import com.pharbers.aqll.common.email.{Mail, StmConf}
 import com.pharbers.aqll.common.{alAdminEnum, alModularEnum}
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
@@ -38,17 +39,14 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         else
         (token \ "action").asOpt[String].getOrElse(None) match {
             case None => Redirect("/error")
-            case "forget_password" => Redirect("/password/new/"+temp)
+            case "forget_password" => Redirect(s"/password/new/$temp")
+            case "first_login" => Redirect(s"/password/set/$temp/${(token \ "email").as[String]}")
         }
     }
 
     //登录
     def login = Action { request =>
         Ok(views.html.login())
-    }
-
-    def codeRegistration = Action { request =>
-        Ok(views.html.codeRegistration())
     }
 
     def infoRegistration = Action { request =>
@@ -84,12 +82,15 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def new_pwd(token: String) = Action{
         Ok(views.html.newPassword())
     }
-    def set_pwd = Action{
-        Ok(views.html.setPassword())
+    def set_pwd(token: String, email: String) = Action{
+        Ok(views.html.setPassword(email))
     }
     //邮箱激活页面
     def inEmail = Action{
-        Ok(views.html.inEmail())
+        val a = views.html.inEmail("钱鹏", "www.baidu.com")
+        implicit val stmc = StmConf()
+        Mail().setContext(a.toString).sendTo("pqian@pharbers.com")
+        Ok(views.html.inEmail("钱鹏", "www.baidu.com"))
     }
     
     //测试

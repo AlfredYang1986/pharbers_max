@@ -36,7 +36,8 @@ libraryDependencies ++= Seq(
 	"com.pharbers" % "auth-token" % "0.1",
 	"com.pharbers" % "encrypt" % "0.1",
 	"com.pharbers" % "http" % "0.1",
-	"com.pharbers" % "errorcode" % "0.1"
+	"com.pharbers" % "errorcode" % "0.1",
+	"org.apache.commons" % "commons-email" % "1.4"
 )
 
 

@@ -52,7 +52,7 @@
                 <div class="row"><span class="small_info toLeft">请联系:000000000000</span></div>
                 <div class="space-height"></div>
                 <div class="form-group row">
-                    <input class="form-control" type="text" name="code" maxlength="4" placeholder="请填入手机验证码">
+                    <input id="phone_validation" class="form-control" type="text" name="code" maxlength="4" placeholder="请填入手机验证码">
                     <div class="form_tip_bottom"></div>
                     <div type="button" class="nomal_btn btn-submit" lay-submit="" lay-filter="sub" onclick="phone_code()" >点击获取</div>
                 </div>
@@ -84,7 +84,9 @@
             $(document).ready(function(){
                 $('#popTextValidate').hide();
                 $('#popErr').hide();
-                check_code()
+                check_code();
+                input_blur("phone_validation", "isEmp")
+
             })
             layui.use(['form', 'layer'], function () {})
 

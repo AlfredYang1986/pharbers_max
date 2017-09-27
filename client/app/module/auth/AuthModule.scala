@@ -23,6 +23,7 @@ object AuthModule extends ModuleTrait with AuthData {
 		case msg_auth_token_expire(data) => checkAuthTokenExpire(data)(pr)
 		case msg_auth_create_token(data) => authCreateToken(data)(pr)
 		case msg_auth_token_defeat(data) => authWithTokenDefeat(data)
+		case msg_auth_code_push_success(data) => authCodePushSuccess(data)
 		case _ => throw new Exception("function is not impl")
 	}
 	
@@ -99,6 +100,21 @@ object AuthModule extends ModuleTrait with AuthData {
 			}
 		}catch {
 			case ex: Exception => (None, Some(toJson(ErrorCode.errorToJson(ex.getMessage))))
+		}
+	}
+	
+	def authCodePushSuccess(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
+		try {
+			//第一次登入发送邮件，邮件发送滞后
+			val token = (data \ "user_token").asOpt[String].map(x => x).getOrElse("")
+			val js = att.decrypt2JsValue(token)
+			val emial = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
+			val reVal = att.encrypt2Token(toJson(js.as[Map[String, JsValue]] + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000)) + ("action" -> toJson("first_login"))))
+			val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(reVal, "ISO-8859-1")}"
+			(Some(Map("url" -> toJson(url))), None)
+		}catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
 }

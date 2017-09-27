@@ -6,3 +6,6 @@ $(document).ready(function(){
     $('#popTextValidate').hide();
 })
 
+var goBack = function () {
+    window.history.go(-1)
+}
