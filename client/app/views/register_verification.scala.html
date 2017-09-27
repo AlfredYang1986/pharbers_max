@@ -51,13 +51,8 @@
                         var json = JSON.stringify({'user_token': data.field.code})
                         ajaxData('/auth/pushUser', json, 'POST', function (r) {
                             if (r.status === 'ok' && r.result.url !== undefined) {
-                                // TODO ： 演示增加弹出框
-                                layer.open({
-                                    content: r.result.url,
-                                    yes: function(index, layero){
-                                        location = "/register/success"
-                                    }
-                                });
+                                layer.msg('2后跳转页面');
+                                setTimeout(function(){location = "/register/success"}, 2000)
                             } else if(r.status === 'error'){
                                 layer.msg(r.error.message);
                             } else {

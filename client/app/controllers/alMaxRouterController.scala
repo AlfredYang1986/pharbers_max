@@ -4,7 +4,6 @@ import java.util.Date
 import javax.inject._
 
 import akka.actor.ActorSystem
-import com.pharbers.aqll.common.email.{Mail, StmConf}
 import com.pharbers.aqll.common.{alAdminEnum, alModularEnum}
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
@@ -87,9 +86,6 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
     //邮箱激活页面
     def inEmail = Action{
-        val a = views.html.inEmail("钱鹏", "www.baidu.com")
-        implicit val stmc = StmConf()
-        Mail().setContext(a.toString).sendTo("pqian@pharbers.com")
         Ok(views.html.inEmail("钱鹏", "www.baidu.com"))
     }
     

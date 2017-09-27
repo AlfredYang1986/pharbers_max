@@ -12,6 +12,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.auth.AuthMessage._
 import com.mongodb.casbah.Imports._
+import com.pharbers.aqll.common.email.{Mail, StmConf}
 
 import scala.collection.immutable.Map
 
@@ -82,6 +83,10 @@ object AuthModule extends ModuleTrait with AuthData {
 				case Some(one) => jv2m(toJson(one))
 			}
 			val reVal = att.encrypt2Token(toJson(o + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000))))
+			val email = o.get("email").map(x => x.as[String]).getOrElse("")
+			val html = views.html.authcode(email, reVal)
+			implicit val stm = StmConf()
+			Mail().setContext(html.toString).setSubject("授权码").sendTo(email)
 			// 直接返回一个授权码
 			(Some(Map("token" -> toJson(reVal))), None)
 		}catch {
@@ -109,9 +114,12 @@ object AuthModule extends ModuleTrait with AuthData {
 			//第一次登入发送邮件，邮件发送滞后
 			val token = (data \ "user_token").asOpt[String].map(x => x).getOrElse("")
 			val js = att.decrypt2JsValue(token)
-			val emial = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
+			val email = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
 			val reVal = att.encrypt2Token(toJson(js.as[Map[String, JsValue]] + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000)) + ("action" -> toJson("first_login"))))
 			val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(reVal, "ISO-8859-1")}"
+			val html = views.html.inEmail(email, url)
+			implicit val stm = StmConf()
+			Mail().setContext(html.toString).setSubject("登入链接").sendTo(email)
 			(Some(Map("url" -> toJson(url))), None)
 		}catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))

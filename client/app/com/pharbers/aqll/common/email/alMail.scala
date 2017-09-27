@@ -23,7 +23,7 @@ trait MailTrait {
 	def setSubject(sub: String): Mail
 
 	def setContext(cont: String): Mail
-
+	
 	def sendTo(mail: String)(implicit stmc: StmConf): String
 }
 
@@ -38,9 +38,9 @@ case class Mail() extends MailTrait {
 		this.context = cont
 		this
 	}
-
+	
 	override def sendTo(mail: String)(implicit stmc: StmConf): String = {
-		val email = new SimpleEmail
+		val email = new HtmlEmail
 		email.setHostName(stmc.host)
 		email.setSSLOnConnect(stmc.ssl)
 		email.setAuthentication(stmc.from, stmc.pwd)
@@ -49,7 +49,8 @@ case class Mail() extends MailTrait {
 		email.addTo(mail)
 		email.setSubject(subject)
 //		email.setMsg(context)
-		email.setContent(context, EmailConstants.TEXT_HTML)
+		email.setHtmlMsg(context)
+		email.setCharset("UTF-8")
 		email.send()
 	}
 }

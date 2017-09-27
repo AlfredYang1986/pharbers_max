@@ -51,8 +51,6 @@ GET     /register/info                               controllers.alMaxRouterCont
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
 # 授权码验证失败页面
 GET     /login/confirm                               controllers.alMaxRouterController.userInfoConfirm
-#Max账户激活
-GET     /account/active                              controllers.alMaxRouterController.inEmail
 # 快速预约成功
 GET     /order/success                               controllers.alMaxRouterController.postSuccess
 # 授权成功
