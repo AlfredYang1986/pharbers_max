@@ -21,28 +21,28 @@
                         <div class="box_form">
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" lay-verify="email" required name="email" placeholder="企业邮箱(账号)" value="">
+                                    <input id="email_user" class="form-control" type="text" lay-verify="email" required name="email" placeholder="企业邮箱(账号)" value="">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" lay-verify="name" required name="name" placeholder="您的姓名" value="">
+                                    <input id="name_user" class="form-control" type="text" lay-verify="name" required name="name" placeholder="您的姓名" value="">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" lay-verify="phone" required name="phone" placeholder="您的手机号码" value="">
+                                    <input id="phone_user" class="form-control" type="text" lay-verify="phone" required name="phone" placeholder="您的手机号码" value="">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-6">
-                                    <input class="form-control" type="text" name="code" placeholder="请填入手机验证码">
+                                    <input id="code_user" class="form-control" type="text" name="code" placeholder="请填入手机验证码">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="nomal_btn col-xs-2" lay-submit lay-filter="pull_phone_code">点击获取</div><!-- onclick="pull_phone_code()" -->
@@ -77,6 +77,12 @@
     <script type="text/javascript">
             $(document).ready(function () {
                 $("#alert_err").hide();
+                input_blur("email_user", "email");
+                input_blur("name_user", "isEmp");
+                input_blur("phone_user", "phone");
+                input_blur("code_user", "idEmp");
+
+
             });
 
 

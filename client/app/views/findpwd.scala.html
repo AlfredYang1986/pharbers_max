@@ -15,7 +15,7 @@
                 <br>
                 <span class="small_info">请拨打电话，联系您的业务人员</span>
                 <div class="space-height"></div>
-                <input id="" class="form-control" name="email" placeholder="请输入注册邮箱找回密码">
+                <input id="email_findpwd" class="form-control" name="email" placeholder="请输入注册邮箱找回密码">
                 <div class="form_tip_bottom" id="pwd_tip"></div>
               </div>
             </div>
@@ -31,6 +31,10 @@
       <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
     </div>
     <script type="text/javascript">
+        $(document).ready(function () {
+            input_blur("email_findpwd", "email");
+
+        });
         var forget_passsword = function() {
             var json = JSON.stringify(
                     {

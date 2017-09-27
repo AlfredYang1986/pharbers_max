@@ -1,4 +1,4 @@
-@main("Max | Login") {
+@main("Max | 快速预约体验") {
     <body>
         <div class="title row"></div>
         <div class="content row">
@@ -20,28 +20,28 @@
                         <div class="box_form">
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" name="comapny" lay-verify="comapny" required placeholder="企业名称">
+                                    <input id="company_info" class="form-control" type="text" name="comapny" lay-verify="comapny" required placeholder="企业名称">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" name="linkman" lay-verify="linkman" required placeholder="联系人">
+                                    <input id="linkman" class="form-control" type="text" name="linkman" lay-verify="linkman" required placeholder="联系人">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" name="email" lay-verify="email" required placeholder="联系人邮箱">
+                                    <input id="email_info" class="form-control" type="text" name="email" lay-verify="email" required placeholder="联系人邮箱">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" name="phone" lay-verify="phone" required placeholder="联系人手机号">
+                                    <input id="phone_info" class="form-control" type="text" name="phone" lay-verify="phone" required placeholder="联系人手机号">
                                     <div class="form_tip_bottom"></div>
                                 </div>
                                 <div class="col-xs-2"></div>
@@ -64,6 +64,12 @@
         <script type="text/javascript">
                 $(document).ready(function(){
                     $('#popErr').hide();
+                    input_blur("company_info", "isEmp");
+                    input_blur("linkman", "isEmp");
+                    input_blur("email_info", "email");
+                    input_blur("phone_info", "phone");
+
+
                 })
                 layui.use(['form', 'layer'], function () {
                     var $ = layui.jquery,form = layui.form,layer = layui.layer;
