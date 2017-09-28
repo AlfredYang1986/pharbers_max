@@ -62,8 +62,8 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         Ok(views.html.register_verification())
     }
     //邮箱激活
-    def emailInvocation = Action { request =>
-        Ok(views.html.invocation_email())
+    def emailInvocation(name:String, email:String) = Action { request =>
+        Ok(views.html.invocation_email(name, email))
     }
     //注册
     def register = Action {
@@ -212,7 +212,10 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
     
     //快速预约成功
-    def registerSuccess = Action{
-        Ok(views.html.success_register())
+//    def registerSuccess() = Action{
+//        Ok(views.html.success_register())
+//    }
+    def registerSuccess(name:String,email:String) = Action{
+        Ok(views.html.success_register(name,email))
     }
 }

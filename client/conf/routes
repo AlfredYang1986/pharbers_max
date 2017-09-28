@@ -51,11 +51,12 @@ GET     /login/confirm                               controllers.alMaxRouterCont
 # 快速预约成功
 GET     /order/success                               controllers.alMaxRouterController.postSuccess
 # 授权成功
-GET     /register/success                            controllers.alMaxRouterController.registerSuccess
+#GET     /register/success                           controllers.alMaxRouterController.registerSuccess
+GET     /register/success/:name/:email               controllers.alMaxRouterController.registerSuccess(name,email)
 # 授权码验证
-GET     /registerCode/verification                   controllers.alMaxRouterController.verificationRegister
+GET     /registerCode/verification                  controllers.alMaxRouterController.verificationRegister
 # 邮箱激活
-GET     /email/invocation                            controllers.alMaxRouterController.emailInvocation
+GET     /email/invocation/:name/:email              controllers.alMaxRouterController.emailInvocation(name,email)
 # 找回密码
 GET     /password/find                              controllers.alMaxRouterController.findpwd
 # 找回密码邮件发送成功

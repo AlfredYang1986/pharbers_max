@@ -48,11 +48,13 @@
 
                     // 提交监听
                     form.on('submit(sub)', function (data) {
-                        var json = JSON.stringify({'user_token': data.field.code})
+                        var json = JSON.stringify({'user_token': data.field.code});
+
                         ajaxData('/auth/pushUser', json, 'POST', function (r) {
+                            console.log(r)
                             if (r.status === 'ok' && r.result.url !== undefined) {
                                 layer.msg('2后跳转页面');
-                                setTimeout(function(){location = "/register/success"}, 2000)
+                                setTimeout(function(){location = "/register/success/" + encodeURI(r.result.name)+"/" + encodeURI(r.result.email)}, 2000)
                             } else if(r.status === 'error'){
                                 layer.msg(r.error.message);
                             } else {

@@ -1,3 +1,4 @@
+@(name:String, email:String)
 @main("Max | Register"){
 	<body>
 		<div class="title"></div>
@@ -16,9 +17,9 @@
 							<i class="glyphicon glyphicon-envelope default_color" style="font-size: 40px; "></i>
 						</div>
 						<div class="col-xs-8 middle_info toLeft">
-							<span class="userName">xxxx</span><span>您好</span>
+							<span class="userName">@name</span><span>您好</span>
 							<div class="space-height"></div>
-							<span>欢迎加入Max,我们已经向您的邮箱（</span><span class="email">XXXXXemail.com</span><span>）</span>
+							<span>欢迎加入Max,我们已经向您的邮箱（</span><span class="email">@email</span><span>）</span>
 							<div class="space-height"></div>
 							<span>发送激活邮件，请前往激活账号。</span>
 							<div class="space-height"></div>
@@ -30,7 +31,7 @@
 							<div class="space-height"></div>
 							<span class="small_info">如果点击按钮没有反映，</span>
 							<br>
-							<span class="small_info">请进入您的邮箱（</span><span class="small_info">XXXXXemail.com</span><span class="small_info">)完成激活操作</span>
+							<span class="small_info">请进入您的邮箱（</span><span class="small_info">@email</span><span class="small_info">)完成激活操作</span>
 						</div>
 					</div>
 
