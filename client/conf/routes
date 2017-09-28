@@ -38,9 +38,6 @@ POST    /phonecode/send                             controllers.phonecode.PhoneS
 # phone 验证 验证码
 POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
 
-
-
-
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
 # 验证GET连接的有效市场并跳转相应页面

@@ -38,7 +38,7 @@ trait AuthData {
 		val email = (js \ "email").asOpt[String].map(x => x).getOrElse("")
 		val pwd = (js \ "password").asOpt[String].map(x => x).getOrElse("")
 		builder += "profile.email" -> email
-		builder += "profile.secret" -> pwd      //alEncryptionOpt.md5(s"$email$pwd")
+		builder += "profile.secret" -> pwd
 		builder.result
 	}
 	

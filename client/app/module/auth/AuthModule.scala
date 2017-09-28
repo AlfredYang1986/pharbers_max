@@ -111,7 +111,6 @@ object AuthModule extends ModuleTrait with AuthData {
 	def authCodePushSuccess(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 		try {
-			//第一次登入发送邮件，邮件发送滞后
 			val token = (data \ "user_token").asOpt[String].map(x => x).getOrElse("")
 			val js = att.decrypt2JsValue(token)
 			val email = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))

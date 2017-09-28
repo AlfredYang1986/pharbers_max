@@ -218,9 +218,4 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def registerSuccess = Action{
         Ok(views.html.success_register())
     }
-
-    //EmberWebPage
-//    def emberWebPage(path: String) = Action {
-//        Ok(views.html.new_web())
-//    }
 }
