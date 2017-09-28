@@ -79,16 +79,15 @@ object AuthModule extends ModuleTrait with AuthData {
 		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 		try {
 			val o = pr match {
-				case None => jv2m(data)
-				case Some(one) => jv2m(toJson(one))
+				case None => throw new Exception("") // jv2m(data)
+				case Some(one) => jv2m(toJson(Map("reginfo" -> one.get("apply").get)))
 			}
 			val reVal = att.encrypt2Token(toJson(o + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000))))
 			val email = o.get("email").map(x => x.as[String]).getOrElse("")
 			val html = views.html.authcode(email, reVal)
-			implicit val stm = StmConf()
-			Mail().setContext(html.toString).setSubject("授权码").sendTo(email)
+			Mail().setContext(html.toString).setSubject("授权码").sendTo(email)(StmConf())
 			// 直接返回一个授权码
-			(Some(Map("token" -> toJson(reVal))), None)
+			(Some(Map("apply" -> toJson(o), "token" -> toJson(reVal))), None)
 		}catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}

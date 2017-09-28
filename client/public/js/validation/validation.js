@@ -52,7 +52,7 @@ var formIsEmpty = function (idName) {
 }
 
 var validatePassword = function (idName, errMes) {
-    var regexp = /^[a-zA-Z0-9]{7,21}$/;
+    var regexp = /^[a-zA-Z0-9]{6,20}$/;
     var pwd = $('#'+idName).val();
     var res = regexp.test(pwd);
     if(res) return [true, "ok"];
