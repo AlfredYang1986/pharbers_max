@@ -11,7 +11,7 @@ import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
 import module.auth.AuthMessage._
 import module.register.RegisterMessage._
-import module.users.UserMessage.{msg_user_push, msg_user_token_op}
+import module.users.UserMessage.{msg_user_query_info, msg_user_token_op}
 import play.api.libs.json.Json.toJson
 import play.api.mvc.Action
 
@@ -38,7 +38,13 @@ class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManage
 	def auth_token_push_user = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_push_user"))), jv) :: msg_auth_token_parser(jv) :: msg_auth_token_expire(jv) :: msg_user_token_op(jv) :: msg_user_push(jv) :: msg_auth_code_push_success(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_push_user"))), jv)
+            :: msg_auth_token_parser(jv) :: msg_auth_token_expire(jv)
+            :: msg_user_token_op(jv)
+//            :: msg_user_push(jv)
+//            :: msg_user_query_info(jv)
+            :: msg_auth_code_push_success(jv)
+            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
 	def auth_token_defeat = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>

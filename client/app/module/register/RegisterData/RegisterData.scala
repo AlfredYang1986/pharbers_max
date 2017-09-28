@@ -14,7 +14,7 @@ trait RegisterData {
 		val builder = MongoDBObject.newBuilder
 
         builder += "reg_content.email" -> (data \ "reginfo" \ "email").asOpt[String].get
-        builder += "status" -> 0
+//        builder += "status" -> 0
 
 		builder.result
 	}
