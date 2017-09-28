@@ -171,7 +171,7 @@ object UserModule extends ModuleTrait with UserData {
             val o = m2d(toJson(user.as[Map[String, JsValue]] ++ Map("password" -> toJson((data \ "password").asOpt[String].getOrElse("")))))
             db.updateObject(o, "users", "user_id")
             
-            (Some(Map("user_info" -> toJson("ok"))), None)
+            (Some(Map("user_info" -> toJson(o))), None)
         }catch {
             case ex: Exception =>
                 println(ex)
