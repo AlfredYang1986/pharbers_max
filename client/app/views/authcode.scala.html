@@ -1,4 +1,4 @@
-@(name: String, url: String)
+@(name: String, code: String)
 <html>
     <head>
         <meta charset="utf-8">
@@ -10,8 +10,10 @@
     </head>
     <body style="margin: 0; padding: 0;">
         <div>
-            <p>跳转链接：</p>
-            <p><a href="@url">@url</a></p>
+            <p>授权码：</p>
+            <p>@code</p>
+            <p>授权码注册链接：</p>
+            <p><a href="http://127.0.0.1:9000/registerCode/verification">http://127.0.0.1:9000/registerCode/verification</a></p>
         </div>
     </body>
 </html>

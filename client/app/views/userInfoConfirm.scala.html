@@ -148,7 +148,7 @@
                     var again = function () {
                         ajaxData('/auth/tokenDefeat', json, 'POST', function(r){
                             if(r.status === "ok" && r.result.token !== undefined){
-                                location = "/register/success"
+                                location = "/register/success";
                             }else {
                                 layer.msg('信息填写错误！');
                             }

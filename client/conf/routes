@@ -38,9 +38,6 @@ POST    /phonecode/send                             controllers.phonecode.PhoneS
 # phone 验证 验证码
 POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
 
-
-
-
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
 # 验证GET连接的有效市场并跳转相应页面
@@ -51,16 +48,15 @@ GET     /register/info                               controllers.alMaxRouterCont
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
 # 授权码验证失败页面
 GET     /login/confirm                               controllers.alMaxRouterController.userInfoConfirm
-#Max账户激活
-GET     /account/active                              controllers.alMaxRouterController.inEmail
 # 快速预约成功
 GET     /order/success                               controllers.alMaxRouterController.postSuccess
 # 授权成功
-GET     /register/success                            controllers.alMaxRouterController.registerSuccess
+#GET     /register/success                           controllers.alMaxRouterController.registerSuccess
+GET     /register/success/:name/:email               controllers.alMaxRouterController.registerSuccess(name,email)
 # 授权码验证
-GET     /registerCode/verification                   controllers.alMaxRouterController.verificationRegister
+GET     /registerCode/verification                  controllers.alMaxRouterController.verificationRegister
 # 邮箱激活
-GET     /email/invocation                            controllers.alMaxRouterController.emailInvocation
+GET     /email/invocation/:name/:email              controllers.alMaxRouterController.emailInvocation(name,email)
 # 找回密码
 GET     /password/find                              controllers.alMaxRouterController.findpwd
 # 找回密码邮件发送成功
@@ -70,9 +66,8 @@ GET     /password/new/:token                        controllers.alMaxRouterContr
 # 第一次登入修改密码
 GET     /password/set/:token/:email                 controllers.alMaxRouterController.set_pwd(token, email)
 
-##测试##
-GET     /test                               controllers.alMaxRouterController.test
-
+#激活失败
+GET     /token/fail                                 controllers.alMaxRouterController.tokenFail
 # 业务模块
 #   用户登录
 GET     /                                   controllers.alMaxRouterController.login

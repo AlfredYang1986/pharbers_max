@@ -4,7 +4,6 @@ import java.util.Date
 import javax.inject._
 
 import akka.actor.ActorSystem
-import com.pharbers.aqll.common.email.{Mail, StmConf}
 import com.pharbers.aqll.common.{alAdminEnum, alModularEnum}
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
@@ -24,10 +23,8 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     //从cookie中取出token验证用户角色
     def auth_user = Action { request =>
         val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
-        (att.decrypt2JsValue(token) \ "scope").asOpt[List[String]].getOrElse(Nil) match {
-            case Nil => Redirect("/index")
-            case head :: tail if(head == "BD") => Redirect("/login/db")
-        }
+        if ((att.decrypt2JsValue(token) \ "scope").asOpt[List[String]].getOrElse(Nil).contains("BD")) Redirect("/login/db")
+        else Redirect("/index")
     }
     
     //验证GET URL中的功能对应跳转页面
@@ -35,7 +32,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         val token = att.decrypt2JsValue(parm)
         val temp = java.net.URLEncoder.encode(parm, "ISO-8859-1")
         val expire_in = (token \ "expire_in").asOpt[Long].map (x => x).getOrElse(throw new Exception("token parse error"))
-        if (new Date().getTime > expire_in) Redirect("/expire_out")
+        if (new Date().getTime > expire_in) Redirect("/token/fail")
         else
         (token \ "action").asOpt[String].getOrElse(None) match {
             case None => Redirect("/error")
@@ -64,9 +61,13 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def verificationRegister = Action { request =>
         Ok(views.html.register_verification())
     }
+    //过期
+    def tokenFail = Action { request =>
+        Ok(views.html.fail_token())
+    }
     //邮箱激活
-    def emailInvocation = Action { request =>
-        Ok(views.html.invocation_email())
+    def emailInvocation(name:String, email:String) = Action { request =>
+        Ok(views.html.invocation_email(name, email))
     }
     //注册
     def register = Action {
@@ -87,16 +88,10 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
     //邮箱激活页面
     def inEmail = Action{
-        val a = views.html.inEmail("钱鹏", "www.baidu.com")
-        implicit val stmc = StmConf()
-        Mail().setContext(a.toString).sendTo("pqian@pharbers.com")
         Ok(views.html.inEmail("钱鹏", "www.baidu.com"))
     }
     
-    //测试
-    def test = Action{
-        Ok(views.html.DOME.test())
-    }
+
     //首页
     def index = Action { request =>
 //        if (getUserTokenByCookies(request).equals("")) {
@@ -108,7 +103,6 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
     
     //首页2
-    
     def newindex = Action { request =>
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
@@ -219,12 +213,10 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
     
     //快速预约成功
-    def registerSuccess = Action{
-        Ok(views.html.success_register())
-    }
-
-    //EmberWebPage
-//    def emberWebPage(path: String) = Action {
-//        Ok(views.html.new_web())
+//    def registerSuccess() = Action{
+//        Ok(views.html.success_register())
 //    }
+    def registerSuccess(name:String,email:String) = Action{
+        Ok(views.html.success_register(name,email))
+    }
 }

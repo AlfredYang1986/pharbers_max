@@ -61,6 +61,23 @@ dl.layui-nav-child > dd {
     background-color: #009688;
     border-color: #009688;
 }
+
+
+.cenPanelerr{
+    margin-bottom: 20px;
+    background-color: #fff;
+    border: 1px solid #953b39;
+    border-radius: 2px;
+    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    /*border-color:1px solid #bce8f1;*/
+}
+.cenPanelerr > .cenPanel-title{
+    color: #fff;
+    background-color: #953b39;
+    border-color: #953b39;
+}
+
 .cer-title-info{
     color:#fff;
     text-align: center;
@@ -183,6 +200,23 @@ dl.layui-nav-child > dd {
 }
 .login_btn:hover{
     background-color: #00796b;
+}
+.err_btn{
+    height: 34px;
+    margin: 0px 20px;
+    background-color: #953b39;
+    color: #fff;
+    white-space: nowrap;
+    text-align: center;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: .9;
+    padding: 7px 0px 7px 0px;
+    font-size: 16px;
+}
+.err_btn:hover{
+    background-color: #7b3331;
 }
 .nomal_btn{
     height: 34px;

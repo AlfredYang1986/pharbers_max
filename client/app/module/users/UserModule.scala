@@ -3,6 +3,7 @@ package module.users
 import java.util.Date
 
 import com.pharbers.ErrorCode
+import com.pharbers.aqll.common.email.{Mail, StmConf}
 import module.users.UserMessage._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -39,7 +40,10 @@ object UserModule extends ModuleTrait with UserData {
         try {
             val o = pr match {
                 case None => m2d(data)
-                case Some(one) => m2d(one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist")))
+                case Some(one) =>
+                    val tmp=one.get("user_info").get
+                    println(tmp)
+                    m2d(one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist")))
             }
             db.insertObject(o, "users", "user_id")
             (Some(Map("push_user" -> toJson("ok"))), None)
@@ -131,8 +135,13 @@ object UserModule extends ModuleTrait with UserData {
                     val reVal = map + ("expire_in" -> toJson(new Date().getTime +  60 * 1000 * 10)) + ("action" -> toJson("forget_password"))
                     val token = java.net.URLEncoder.encode(att.encrypt2Token(toJson(reVal)), "ISO-8859-1")
                     val url = s"http://127.0.0.1:9000/validation/token/$token"
+    
+                    val email = map.get("email").map(x => x.as[String]).getOrElse("")
+                    val html = views.html.inEmail(email, url)
+                    implicit val stm = StmConf()
+                    Mail().setContext(html.toString).setSubject("忘记密码").sendTo(email)
                     //原本是一个整个html的，因页面没有所以暂时只做url
-                    (Some(Map("urltoken" -> toJson(url))), None)
+                    (Some(Map("urltoken" -> toJson("ok"))), None)
             }
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
