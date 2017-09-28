@@ -66,9 +66,8 @@ GET     /password/new/:token                        controllers.alMaxRouterContr
 # 第一次登入修改密码
 GET     /password/set/:token/:email                 controllers.alMaxRouterController.set_pwd(token, email)
 
-##测试##
-GET     /test                               controllers.alMaxRouterController.test
-
+#激活失败
+GET     /token/fail                                 controllers.alMaxRouterController.tokenFail
 # 业务模块
 #   用户登录
 GET     /                                   controllers.alMaxRouterController.login

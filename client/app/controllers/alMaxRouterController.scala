@@ -61,6 +61,10 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def verificationRegister = Action { request =>
         Ok(views.html.register_verification())
     }
+    //过期
+    def tokenFail = Action { request =>
+        Ok(views.html.fail_token())
+    }
     //邮箱激活
     def emailInvocation(name:String, email:String) = Action { request =>
         Ok(views.html.invocation_email(name, email))
@@ -87,10 +91,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         Ok(views.html.inEmail("钱鹏", "www.baidu.com"))
     }
     
-    //测试
-    def test = Action{
-        Ok(views.html.DOME.test())
-    }
+
     //首页
     def index = Action { request =>
 //        if (getUserTokenByCookies(request).equals("")) {
