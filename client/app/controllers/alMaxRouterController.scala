@@ -23,10 +23,8 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     //从cookie中取出token验证用户角色
     def auth_user = Action { request =>
         val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
-        (att.decrypt2JsValue(token) \ "scope").asOpt[List[String]].getOrElse(Nil) match {
-            case Nil => Redirect("/index")
-            case head :: tail if(head == "BD") => Redirect("/login/db")
-        }
+        if ((att.decrypt2JsValue(token) \ "scope").asOpt[List[String]].getOrElse(Nil).contains("BD")) Redirect("/login/db")
+        else Redirect("/index")
     }
     
     //验证GET URL中的功能对应跳转页面
@@ -104,7 +102,6 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
     
     //首页2
-    
     def newindex = Action { request =>
         if (getUserTokenByCookies(request).equals("")) {
             Ok(views.html.login())
