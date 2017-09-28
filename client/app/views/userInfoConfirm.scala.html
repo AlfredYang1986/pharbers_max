@@ -134,7 +134,9 @@
                 var again = function () {
                     ajaxData('/auth/tokenDefeat', json, 'POST', function(r){
                         if(r.status === "ok" && r.result.token !== undefined){
-                            location = "/register/success";
+                            var name = r.result.apply.name
+                            var email = r.result.apply.email
+                            location = "/register/success/" + name + "/" + email;
                         }else {
                             layer.msg('信息填写错误！');
                         }
@@ -145,7 +147,10 @@
             });
 
             form.on('submit(pull_phone_code)', function (data) {
-                var json = JSON.stringify(data.field);
+//                var json = JSON.stringify(data.field);
+                var obj = new Object()
+                obj['reginfo'] = data.field
+                var json = JSON.stringify(obj);
                 ajaxData('/auth/createToken', json, 'POST', function(r){
                     if(r.status === "ok"){
                         $.cookie('user_token', r.result.token);

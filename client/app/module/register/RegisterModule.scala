@@ -23,6 +23,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
         val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
         val db = conn.queryDBInstance("cli").get
         try {
+            println(data)
             val o : DBObject = conditions(data)
             db.queryObject(o, "reg_apply")(detail2map).map { x =>
                 (Some(Map("apply" -> toJson(x))), None)

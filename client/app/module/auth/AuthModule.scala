@@ -78,10 +78,13 @@ object AuthModule extends ModuleTrait with AuthData {
 	def authCreateToken(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 		try {
+//			println(data)
+//			println(pr)
 			val o = pr match {
-				case None => throw new Exception("") // jv2m(data)
+				case None => jv2m(data)
 				case Some(one) => jv2m(toJson(Map("reginfo" -> one.get("apply").get)))
 			}
+//			println(o)
 			val reVal = att.encrypt2Token(toJson(o + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000))))
 			val email = o.get("email").map(x => x.as[String]).getOrElse("")
 			val html = views.html.authcode(email, reVal)
@@ -98,9 +101,9 @@ object AuthModule extends ModuleTrait with AuthData {
 		val db = conn.queryDBInstance("cli").get
 		try{
 			val o = reg_conditions(data)
-			db.queryObject($and(o), "reg_apply")(reg_d2m) match {
+			db.queryObject(o, "reg_apply")(reg_d2m) match {
 				case None => throw new Exception("data not exist")
-				case Some(one) => (Some(Map("reginfo" -> toJson(one))), None)
+				case Some(one) => println(one); (Some(Map("apply" -> toJson(one))), None)
 			}
 		}catch {
 			case ex: Exception => (None, Some(toJson(ErrorCode.errorToJson(ex.getMessage))))

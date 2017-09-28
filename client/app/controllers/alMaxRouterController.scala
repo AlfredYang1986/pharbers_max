@@ -23,7 +23,6 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     //从cookie中取出token验证用户角色
     def auth_user = Action { request =>
         val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
-        println(token)
         if ((att.decrypt2JsValue(token) \ "scope").asOpt[List[String]].getOrElse(Nil).contains("BD")) Redirect("/login/db")
         else Redirect("/index")
     }
