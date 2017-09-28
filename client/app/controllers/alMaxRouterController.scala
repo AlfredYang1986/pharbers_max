@@ -32,7 +32,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         val token = att.decrypt2JsValue(parm)
         val temp = java.net.URLEncoder.encode(parm, "ISO-8859-1")
         val expire_in = (token \ "expire_in").asOpt[Long].map (x => x).getOrElse(throw new Exception("token parse error"))
-        if (new Date().getTime > expire_in) Redirect("/expire_out")
+        if (new Date().getTime > expire_in) Redirect("/token/fail")
         else
         (token \ "action").asOpt[String].getOrElse(None) match {
             case None => Redirect("/error")

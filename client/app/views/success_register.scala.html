@@ -1,4 +1,5 @@
-@(name:String, email:String)
+@(name : String, email : String)
+
 @main("Max | Register") {
     <body>
         <div class="title"></div>
@@ -28,12 +29,11 @@
             <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
         </div>
         <script type="text/javascript">
-
-                setTimeout(function () {
-                    var name= "@name";
-                    var email="@email";
-                    location = "/email/invocation/"+name+"/"+email;
-                }, 1000 * 2)
+            setTimeout(function () {
+                var name= "@name";
+                var email="@email";
+                location = "/email/invocation/"+name+"/"+email;
+            }, 1000 * 2)
         </script>
     </body>
 }
