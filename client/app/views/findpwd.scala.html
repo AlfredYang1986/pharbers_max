@@ -33,6 +33,8 @@
     <script type="text/javascript">
         var validate = new ValidateHandler();
         $(document).ready(function () {
+            var $input = $("input");
+            $input[0].focus();
             validate.input_blur("email_findpwd", "email");
         });
         var forget_passsword = function() {

@@ -52,11 +52,12 @@
 
         <script src="@routes.Assets.versioned("js/common/md5.min.js")"></script>
         <script type="text/javascript">
+                var validate = new ValidateHandler();
                 $(document).ready(function () {
                     var $input = $("input");
                     $input[0].focus();
-                    input_blur("userName", "email");
-                    input_blur("pwd", "isEmp");
+                    validate.input_blur("userName", "email");
+                    validate.input_blur("pwd", "isEmp");
                 });
 
                 layui.use(['form', 'layer'], function () {
@@ -82,18 +83,20 @@
                             "email": data.field.email,
                             "password": md5(data.field.email + data.field.password)
                         });
-                        ajaxData('auth/authWithPassword', json, 'POST', function (r) {
-                            if (r.status === 'ok') {
-                                $.setCookie("user_token", r.result.auth_token);
-                                $.setCookie("name", r.result.user.name);
-                                $.setCookie('email', r.result.user.email);
-                                location = "/auth/user/"
-                            } else {
-                                layer.msg('用户名或密码错误！');
-                            }
-                        }, function (e) {
-                            console.error(e)
-                        });
+                       if(validate.finalResult()){
+                           ajaxData('auth/authWithPassword', json, 'POST', function (r) {
+                               if (r.status === 'ok') {
+                                   $.setCookie("user_token", r.result.auth_token);
+                                   $.setCookie("name", r.result.user.name);
+                                   $.setCookie('email', r.result.user.email);
+                                   location = "/auth/user/"
+                               } else {
+                                   layer.msg('用户名或密码错误！');
+                               }
+                           }, function (e) {
+                               console.error(e)
+                           });
+                       }
                     });
 
                     $('.layui-form').keydown(function (event) {

@@ -78,12 +78,15 @@
     </body>
 
     <script type="text/javascript">
+        var validate = new ValidateHandler();
         var errornum = 1;
         $(document).ready(function(){
+            var $input = $("input");
+            $input[0].focus();
             $('#popTextValidate').hide();
             $('#popErr').hide();
             check_code();
-            input_blur("phone_validation", "isEmp")
+            validate.input_blur("phone_validation", "isEmp")
 
         })
         layui.use(['form', 'layer'], function () {})
@@ -106,19 +109,21 @@
                     var json = JSON.stringify({'reg_token': $.cookie('reg_token'),
                                                'code': num,
                                                'user_token': $.cookie('user_token')})
-                    ajaxData('/phonecode/check', json, 'POST', function(r){
-                        if(r.status === 'ok' && r.result.result === 'success') {
-                            location = '/index';
-                        }else {
-                            errornum++;
-                            if(errornum >= 5) {
-                                $('input[name="code"]').blur();
-                                errInfo();
-                            }else{
-                                layer.msg("验证忙错误或超出验证时间！");
+                    if(validate.finalResult()){
+                        ajaxData('/phonecode/check', json, 'POST', function(r){
+                            if(r.status === 'ok' && r.result.result === 'success') {
+                                location = '/index';
+                            }else {
+                                errornum++;
+                                if(errornum >= 5) {
+                                    $('input[name="code"]').blur();
+                                    errInfo();
+                                }else{
+                                    layer.msg("验证忙错误或超出验证时间！");
+                                }
                             }
-                        }
-                    }, function(e){console.error(e)})
+                        }, function(e){console.error(e)})
+                    }
                 }
 
             })

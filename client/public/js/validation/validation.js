@@ -109,7 +109,7 @@ ValidateHandler.prototype.finalResult = function () {
     return result;
 }
 
-ValidateHandler.prototype.finalResult = function (ext) {
+ValidateHandler.prototype.finalResultWithExt = function (ext) {
     var result = true;
     var that = this;
     $.each(this.ele_arr, function(index, iter) {
