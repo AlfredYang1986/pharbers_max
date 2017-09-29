@@ -44,8 +44,6 @@ object UserModule extends ModuleTrait with UserData {
             val o = pr match {
                 case None => m2d(data)
                 case Some(one) =>
-                    val tmp=one.get("user_info").get
-                    println(tmp)
                     m2d(one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist")))
             }
             db.insertObject(o, "users", "user_id")
