@@ -26,7 +26,7 @@ trait RegisterData {
 		val linkman = (js \ "linkman").asOpt[String].map(x => x).getOrElse(throw new Exception("info input linkman name"))
 		val email = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("info input email"))
 		val phone = (js \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
-		val id = Sercurity.md5Hash(company + email)
+		val id = Sercurity.md5Hash(company + email + new Date().getTime)
 		
 		val reg_content = Map(
 							"company" -> company,
