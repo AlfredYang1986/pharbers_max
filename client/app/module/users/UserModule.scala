@@ -181,12 +181,14 @@ object UserModule extends ModuleTrait with UserData {
              }
             val o = m2d(toJson(user.as[Map[String, JsValue]] ++ Map("password" -> toJson((data \ "password").asOpt[String].getOrElse("")))))
 
-            val one = db.queryObject(o, "users")(d2m) match {
+            val email = o.getAs[MongoDBObject]("profile").get.getAs[String]("email").get
+            val one = db.queryObject(DBObject("profile.email" -> email), "users")(d2m) match {
                 case None => {
                     db.insertObject(o, "users", "user_id")
                     o
                 }
-                case _ => {
+                case Some(tmp) => {
+                    println(tmp)
                     db.updateObject(o, "users", "user_id")
                     o
                 }

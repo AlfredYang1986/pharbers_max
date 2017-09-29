@@ -24,10 +24,16 @@ object RegisterModule extends ModuleTrait with RegisterData {
         val db = conn.queryDBInstance("cli").get
         try {
             val o : DBObject = conditions(data)
-            db.queryObject(o, "reg_apply")(detail2map).map { x =>
-                (Some(Map("apply" -> toJson(x))), None)
 
-            }.getOrElse(throw new Exception(""))
+            db.queryMultipleObject(o, "reg_apply")(detail2map) match {
+                case Nil => throw new Exception("")
+                case x :: _ => (Some(Map("apply" -> toJson(x))), None)
+            }
+
+//            db.queryObject(o, "reg_apply")(detail2map).map { x =>
+//                (Some(Map("apply" -> toJson(x))), None)
+//
+//            }.getOrElse(throw new Exception(""))
 
         } catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
