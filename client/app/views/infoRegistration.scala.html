@@ -50,14 +50,16 @@
     </div>
 
     <script type="text/javascript">
+        var validate = new ValidateHandler();
         $(document).ready(function(){
             $('#popErr').hide();
             var $input = $("input");
             $input[0].focus();
-            input_blur("company_info", "cName");
-            input_blur("linkman", "name");
-            input_blur("email_info", "email");
-            input_blur("phone_info", "phone");
+            $('#popErr').hide();
+            validate.input_blur("company_info", "cName");
+            validate.input_blur("linkman", "name");
+            validate.input_blur("email_info", "email");
+            validate.input_blur("phone_info", "phone");
         })
 
         layui.use(['form', 'layer'], function () {
@@ -89,13 +91,16 @@
             // 提交监听
             form.on('submit(sub)', function (data) {
                 var json = JSON.stringify(data.field)
-                ajaxData('/register/user', json, 'POST', function(r){
-                    if(r.status === 'ok' && r.result.registers === "ok") {
-                        location = "/order/success "
-                    }else {
-                        layer.msg('出现未知错误，请联系管理员！');
-                    }
-                }, function(e){console.error(e)})
+
+                if (validate.finalResult()) {
+                    ajaxData('/register/user', json, 'POST', function(r){
+                        if(r.status === 'ok' && r.result.registers === "ok") {
+                            location = "/order/success "
+                        }else {
+                            layer.msg('出现未知错误，请联系管理员！');
+                        }
+                    }, function(e){console.error(e)})
+                }
             });
 
             $('.layui-form').keydown(function (event) {
