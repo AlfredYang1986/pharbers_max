@@ -38,12 +38,12 @@
         var forget_passsword = function() {
             var json = JSON.stringify(
                     {
-                      "email" : $('input[name="email"]')
+                      "email" : $('input[name="email"]').val()
                     }
             );
           ajaxData("/user/forgetWithPassword",json,"POST", function(r){
               if(r.status === "ok" && r.result.urltoken === "ok") {
-                  location = "/password/find/success"
+                  //location = "/password/find/success"
               }
             }, function(e){})
         }

@@ -69,5 +69,9 @@ GET     /password/set/:token/:email                 controllers.alMaxRouterContr
 #激活失败
 GET     /token/fail                                 controllers.alMaxRouterController.tokenFail
 
+GET     /                                           controllers.alMaxRouterController.login
+GET		/login						                controllers.alMaxRouterController.login
+GET		/index						                controllers.alMaxRouterController.index
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)
