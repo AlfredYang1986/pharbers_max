@@ -155,7 +155,7 @@
                 var json = JSON.stringify(obj);
 
 
-                if (validate.finalResult(["code"])) {
+                if (validate.finalResultWithExt(["code"])) {
                     ajaxData('/auth/createToken', json, 'POST', function(r){
                         if(r.status === "ok"){
                             $.cookie('user_token', r.result.token);

@@ -90,8 +90,9 @@ ValidateHandler.prototype.postValidation = function (idName, validateType, succ,
 
 ValidateHandler.prototype.input_blur = function (idName, validateType) {
     var elem = $('#' + idName);
+    var that = this;
     elem.blur(function () {
-        this.postValidation(idName, validateType, 'input_success', 'input_alert');
+        that.postValidation(idName, validateType, 'input_success', 'input_alert');
     })
     var obj = new Object()
     obj['idName'] = idName;
@@ -101,18 +102,18 @@ ValidateHandler.prototype.input_blur = function (idName, validateType) {
 
 ValidateHandler.prototype.finalResult = function () {
     var result = true;
-    var that = this
+    var that = this;
     $.each(this.ele_arr, function(index, iter) {
         result &= that.postValidation(iter['idName'], iter['validateType'], 'input_success', 'input_alert');
     });
     return result;
 }
 
-ValidateHandler.prototype.finalResult = function (ext) {
+ValidateHandler.prototype.finalResultWithExt = function (ext) {
     var result = true;
-    var that = this
+    var that = this;
     $.each(this.ele_arr, function(index, iter) {
-        if (ext.indexOf(iter['idName']) == -1)
+        if (ext.toArray().indexOf(iter['idName']) == -1)
             result &= that.postValidation(iter['idName'], iter['validateType'], 'input_success', 'input_alert');
     });
     return result;
