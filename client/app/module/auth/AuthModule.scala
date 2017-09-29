@@ -78,13 +78,10 @@ object AuthModule extends ModuleTrait with AuthData {
 	def authCreateToken(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 		try {
-//			println(data)
-//			println(pr)
 			val o = pr match {
 				case None => jv2m(data)
 				case Some(one) => jv2m(toJson(Map("reginfo" -> one.get("apply").get)))
 			}
-//			println(o)
 			val reVal = att.encrypt2Token(toJson(o + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000))))
 			val email = o.get("email").map(x => x.as[String]).getOrElse("")
 			val html = views.html.authcode(email, reVal)
