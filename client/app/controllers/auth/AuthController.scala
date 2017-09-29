@@ -11,7 +11,7 @@ import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
 import module.auth.AuthMessage._
 import module.register.RegisterMessage._
-import module.users.UserMessage.{msg_user_query_info, msg_user_token_op}
+import module.users.UserMessage.{msg_user_not_exist, msg_user_token_op}
 import play.api.libs.json.Json.toJson
 import play.api.mvc.Action
 
@@ -28,6 +28,7 @@ class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManage
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_create_token"))), jv)
+			:: msg_user_not_exist(jv)
 			:: msg_is_user_register(jv)
 			:: msg_auth_create_token(jv)
 			:: msg_approve_reg(jv)
