@@ -35,7 +35,7 @@ dl.layui-nav-child > dd {
 }
 /************************层次设置**************************/
 .title{
-    height: 150px;
+    height: 125px;
 }
 .footer{
     margin-top: 100px;
@@ -132,7 +132,8 @@ dl.layui-nav-child > dd {
 .toCenter{
     text-align: center;
 }
-.tohref{
+.tohref {
+    color: #0f5a53;
     cursor: pointer;
 }
 .footer_info{

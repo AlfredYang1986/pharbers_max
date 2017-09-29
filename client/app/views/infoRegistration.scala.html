@@ -51,6 +51,8 @@
 
     <script type="text/javascript">
         $(document).ready(function(){
+            var $input = $("input");
+            $input[0].focus();
             $('#popErr').hide();
             input_blur("company_info", "cName");
             input_blur("linkman", "name");
@@ -62,23 +64,23 @@
             var $ = layui.jquery,form = layui.form,layer = layui.layer;
             // 验证
             form.verify({
-                comapny: function (value) {
-                    if (value == "") {
+                company: function (value) {
+                    if (value === "") {
                         return "请输入企业名称";
                     }
                 },
                 linkman: function (value) {
-                    if (value == "") {
+                    if (value === "") {
                         return "请输入联系人";
                     }
                 },
                 email: function (value) {
-                    if (value == "") {
+                    if (value === "") {
                         return "请输入邮箱";
                     }
                 },
                 phone: function (value) {
-                    if (value == "") {
+                    if (value === "") {
                         return "请输入手机号";
                     }
                 }

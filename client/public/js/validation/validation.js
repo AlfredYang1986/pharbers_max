@@ -73,29 +73,29 @@ var changeClass = function (old, newOne, idName) {
 var dealInfo = function (idName, res, succClass,errClass) {
     var elem = $('#' + idName);
     if(res[0] == false){
-        changeClass(succClass, errClass, idName)
+        changeClass(succClass, errClass, idName);
         elem.next(".form_tip_bottom").html('<i class="layui-icon">&#xe69c;</i>'+'<span>&nbsp'+res[1]+'</span>');
     }else{
-        changeClass(errClass, succClass, idName)
+        changeClass(errClass, succClass, idName);
         elem.next(".form_tip_bottom").empty();
     }
 }
 
 //需要验证的 input id,  验证类型， 正确样式，错误样式
 var postValidation = function (idName, validateType,succ, err ) {
-    if(validateType == "phone"){
+    if(validateType === "phone"){
         var res = validateMobilePhone(idName, "手机号码输入错误");
         dealInfo(idName, res, succ, err);
-    }else if(validateType == "email"){
+    }else if(validateType === "email"){
         var res =validateEmail(idName, "邮箱输入格式错误");
         dealInfo(idName, res, succ, err);
-    }else if(validateType == "pwd"){
+    }else if(validateType === "pwd"){
         var res =validatePassword(idName, "请输入6~20位字母或数字");
         dealInfo(idName, res, succ, err);
-    } else if(validateType == "cName"){
+    } else if(validateType === "cName"){
         var res =vaildateCompanyName(idName, "请输入公司全称（中文6~30字）");
         dealInfo(idName, res, succ, err);
-    } else if(validateType == "name"){
+    } else if(validateType === "name"){
         var res =vaildateName(idName, "请输入自己正确的名字（中文2~4字）");
         dealInfo(idName, res, succ, err);
     }else{
