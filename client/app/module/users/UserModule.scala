@@ -32,6 +32,7 @@ object UserModule extends ModuleTrait with UserData {
 
         case msg_user_token_op(data) => token_op_user(data)(pr)
         case msg_user_chang_pwd(data) => change_user_pwd(data)(pr)
+        case msg_user_not_exist(data) => user_not_exist(data)
         
         case _ => throw new Exception("function is not impl")
     }
@@ -168,7 +169,7 @@ object UserModule extends ModuleTrait with UserData {
         }
     }
     
-    def change_user_pwd(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def change_user_pwd(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
         val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
         val db = conn.queryDBInstance("cli").get
         try {
@@ -201,6 +202,22 @@ object UserModule extends ModuleTrait with UserData {
             case ex: Exception =>
                 println(ex)
                 (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+        }
+    }
+
+    def user_not_exist(data : JsValue)(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+        try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
+
+            val js = (data \ "reginfo").asOpt[JsValue].get
+            val o = conditions(js)
+            db.queryObject(o, "users") match {
+                case None => (Some(Map("not_exist" -> toJson("ok"))), None)
+                case Some(_) => throw new Exception("")
+            }
+        }catch {
+            case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
     }
 }
