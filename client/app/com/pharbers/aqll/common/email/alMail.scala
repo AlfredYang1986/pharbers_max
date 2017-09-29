@@ -6,10 +6,12 @@ import org.apache.commons.mail.HtmlEmail
   * Created by qianpeng on 2017/5/23.
   */
 
-case class StmConf(from: String = "project@pharbers.com",
-                   pwd: String = "project",
+//case class StmConf(from: String = "project@pharbers.com",
+case class StmConf(from: String = "yangyuanpig@163.com",
+                   pwd: String = "Abcde196125",
                    port: Int = 25,
-                   host: String = "smtp.ym.163.com",
+//                   host: String = "smtp.ym.163.com",
+				   host: String = "smtp.163.com",
                    tls: Boolean = false,
                    ssl: Boolean = false)
 

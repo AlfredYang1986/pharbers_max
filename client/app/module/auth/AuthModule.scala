@@ -11,7 +11,6 @@ import module.auth.AuthData._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.auth.AuthMessage._
-import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.common.email.{Mail, StmConf}
 
 import scala.collection.immutable.Map
@@ -89,7 +88,7 @@ object AuthModule extends ModuleTrait with AuthData {
 			// 直接返回一个授权码
 			(Some(Map("apply" -> toJson(o), "token" -> toJson(reVal))), None)
 		}catch {
-			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+			case ex: Exception => ex.printStackTrace(); (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
 	
