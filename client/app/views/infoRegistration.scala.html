@@ -51,9 +51,9 @@
 
     <script type="text/javascript">
         $(document).ready(function(){
+            $('#popErr').hide();
             var $input = $("input");
             $input[0].focus();
-            $('#popErr').hide();
             input_blur("company_info", "cName");
             input_blur("linkman", "name");
             input_blur("email_info", "email");
