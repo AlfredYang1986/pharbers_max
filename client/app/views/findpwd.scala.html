@@ -1,59 +1,54 @@
 @main("Max | 找回密码") {
-    <body>
-        <div class="title"></div>
-        <div class="content row">
-            <div class="cenPanel col-xs-4 col-xs-offset-4">
-                <div class="row cenPanel-title">
-                    <span class="toLeft col-xs-1"><i class="layui-icon toLeft tohref" style="font-size: 30px; " onclick="javascript:window.history.go(-1)">&#xe65c;</i></span>
-                    <span class="cer-title-info col-xs-8 col-xs-offset-1">找回密码</span>
-                </div>
-                <div class="row cenPanel-content-small">
-                    <div class="box_size_upDown_big col-xs-10">
-                        <div class="row form-group ">
-                            <div class="col-xs-10 col-xs-offset-2">
-                                <span class="small_info">若您忘记注册邮箱，</span>
-                                <br>
-                                <span class="small_info">请拨打电话，联系您的业务人员</span>
-                                <div class="space-height"></div>
-                                <input id="email_findpwd" class="form-control" name="email" placeholder="请输入注册邮箱找回密码">
-                                <div class="form_tip_bottom" id="pwd_tip"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-2"></div>
-                            <div class="col-xs-8 col-xs-offset-2 nomal_btn" onclick="forget_passsword()">提交申请</div>
-                        </div>
-                    </div>
-                </div>
+  <body>
+    <div class="title"></div>
+    <div class="content row">
+      <div class="cenPanel col-xs-4 col-xs-offset-4">
+        <div class="row cenPanel-title">
+            <span class="toLeft col-xs-1"><i class="layui-icon toLeft tohref" style="font-size: 30px; " onclick="javascript:window.history.go(-1)">&#xe65c;</i></span>
+          <span class="cer-title-info col-xs-8 col-xs-offset-1">找回密码</span>
+        </div>
+        <div class="row cenPanel-content-small">
+          <div class="box_size_upDown_big col-xs-10">
+            <div class="row form-group ">
+              <div class="col-xs-10 col-xs-offset-2">
+                <span class="small_info">若您忘记注册邮箱，</span>
+                <br>
+                <span class="small_info">请拨打电话，联系您的业务人员</span>
+                <div class="space-height"></div>
+                <input id="email_findpwd" class="form-control" name="email" placeholder="请输入注册邮箱找回密码">
+                <div class="form_tip_bottom" id="pwd_tip"></div>
+              </div>
             </div>
+            <div class="row">
+              <div class="col-xs-2"></div>
+              <div class="col-xs-8 col-xs-offset-2 nomal_btn" onclick="forget_passsword()">提交申请</div>
+            </div>
+          </div>
         </div>
-        <div class="footer">
-            <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
-        </div>
-        <script type="text/javascript">
-                $(document).ready(function () {
-                    input_blur("email_findpwd", "email");
-                });
-                var forget_passsword = function () {
-                    var json = JSON.stringify(
-                            {
-                                "email": $('input[name="email"]')
-                            }
-                    );
-                    ajaxData("/user/forgetWithPassword", json, "POST", function (r) {
-                        if (r.status === "ok" && r.result.urltoken === "ok") {
-                            location = "/password/find/success"
-                        }
-                    }, function (e) {
-                    })
-                };
-
-                $('.box_size_upDown_big').keydown(function (event) {
-                    if (event.keyCode === 13) {
-                        $(".nomal_btn").click();
-                        return false;
+      </div>
+    </div>
+    <div class="footer">
+      <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
+    </div>
+    <script type="text/javascript">
+        val validate = new ValidateHandler();
+        $(document).ready(function () {
+            validate.input_blur("email_findpwd", "email");
+        });
+        var forget_passsword = function() {
+            var json = JSON.stringify(
+                {
+                    "email" : $('input[name="email"]')
+                }
+            );
+            if (validate.finalResult()) {
+                ajaxData("/user/forgetWithPassword",json,"POST", function(r){
+                    if(r.status === "ok" && r.result.urltoken === "ok") {
+                        location = "/password/find/success"
                     }
-                });
-        </script>
-    </body>
+                }, function(e){})
+            }
+        }
+    </script>
+  </body>
 }
