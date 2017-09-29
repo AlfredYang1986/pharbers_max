@@ -85,7 +85,7 @@ ValidateHandler.prototype.postValidation = function (idName, validateType, succ,
     }
 
     this.dealInfo(idName, res, succ, err);
-    res[0]
+    return res[0];
 }
 
 ValidateHandler.prototype.input_blur = function (idName, validateType) {
@@ -101,7 +101,7 @@ ValidateHandler.prototype.input_blur = function (idName, validateType) {
 }
 
 ValidateHandler.prototype.finalResult = function () {
-    var result = true;
+    var result = 1;
     var that = this;
     $.each(this.ele_arr, function(index, iter) {
         result &= that.postValidation(iter['idName'], iter['validateType'], 'input_success', 'input_alert');
@@ -110,7 +110,7 @@ ValidateHandler.prototype.finalResult = function () {
 }
 
 ValidateHandler.prototype.finalResultWithExt = function (ext) {
-    var result = true;
+    var result = 1;
     var that = this;
     $.each(this.ele_arr, function(index, iter) {
         if (ext.toArray().indexOf(iter['idName']) == -1)
