@@ -58,6 +58,7 @@
                     input_blur("userName", "email");
                     input_blur("pwd", "isEmp");
                 });
+
                 layui.use(['form', 'layer'], function () {
                     var $ = layui.jquery,
                             form = layui.form,
@@ -93,7 +94,14 @@
                         }, function (e) {
                             console.error(e)
                         });
-                    })
+                    });
+
+                    $('.layui-form').keydown(function (event) {
+                        if (event.keyCode === 13) {
+                            $(".login_btn").click();
+                            return false;
+                        }
+                    });
                 });
 
                 var forget_pwd_location = function () {

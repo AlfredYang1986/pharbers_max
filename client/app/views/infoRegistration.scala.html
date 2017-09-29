@@ -96,7 +96,14 @@
                         layer.msg('出现未知错误，请联系管理员！');
                     }
                 }, function(e){console.error(e)})
-            })
+            });
+
+            $('.layui-form').keydown(function (event) {
+                if (event.keyCode === 13) {
+                    $(".login_btn").click();
+                    return false;
+                }
+            });
         })
     </script>
 }
