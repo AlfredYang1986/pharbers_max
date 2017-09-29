@@ -165,6 +165,13 @@
                 };
                 return false;
             });
+
+            $('.layui-form').keydown(function (event) {
+                if (event.keyCode === 13) {
+                    $(".btn-submit").click();
+                    return false;
+                }
+            });
         });
     </script>
 }
