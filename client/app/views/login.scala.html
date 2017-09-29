@@ -75,7 +75,6 @@
                             }
                         }
                     });
-
                     // 提交监听
                     form.on('submit(sub)', function (data) {
                         var json = JSON.stringify({
@@ -84,9 +83,9 @@
                         });
                         ajaxData('auth/authWithPassword', json, 'POST', function (r) {
                             if (r.status === 'ok') {
-                                $.cookie('user_token', r.result.auth_token);
-                                $.cookie('name', r.result.user.name);
-                                $.cookie('email', r.result.user.email);
+                                $.setCookie("user_token", r.result.auth_token);
+                                $.setCookie("name", r.result.user.name);
+                                $.setCookie('email', r.result.user.email);
                                 location = "/auth/user/"
                             } else {
                                 layer.msg('用户名或密码错误！');
