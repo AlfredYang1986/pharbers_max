@@ -12,7 +12,7 @@ import module.register.RegisterMessage._
 
 object RegisterModule extends ModuleTrait with RegisterData {
     def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-        case (data: JsValue) => user_register(data)
+        case msg_user_register(data: JsValue) => user_register(data)
         case msg_query_register_bd(data: JsValue) => query_bd(data)
         case msg_is_user_register(data : JsValue) => user_is_register(data)
         case msg_approve_reg(data : JsValue) => approve_reg(data)(pr)
@@ -23,7 +23,6 @@ object RegisterModule extends ModuleTrait with RegisterData {
         val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
         val db = conn.queryDBInstance("cli").get
         try {
-            println(data)
             val o : DBObject = conditions(data)
             db.queryObject(o, "reg_apply")(detail2map).map { x =>
                 (Some(Map("apply" -> toJson(x))), None)

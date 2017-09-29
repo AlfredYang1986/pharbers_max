@@ -62,6 +62,7 @@ trait RegisterData {
         Map("email" -> toJson(reg_content.getAs[String]("email").map(x => x).getOrElse("")),
             "company" -> toJson(reg_content.getAs[String]("company").map(x => x).getOrElse("")),
             "linkman" -> toJson(reg_content.getAs[String]("linkman").map(x => x).getOrElse("")),
+			"name" -> toJson(reg_content.getAs[String]("linkman").map(x => x).getOrElse("")),
             "phone" -> toJson(reg_content.getAs[String]("phone").map(x => x).getOrElse("")),
             "scope" -> toJson(reg_content.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)))
     }
