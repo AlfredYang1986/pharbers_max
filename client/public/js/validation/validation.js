@@ -99,7 +99,16 @@ ValidateHandler.prototype.input_blur = function (idName, validateType) {
     this.ele_arr.push(obj);
 }
 
-ValidateHandler.prototype.finalResult = function (ext = []) {
+ValidateHandler.prototype.finalResult = function () {
+    var result = true;
+    var that = this
+    $.each(this.ele_arr, function(index, iter) {
+        result &= that.postValidation(iter['idName'], iter['validateType'], 'input_success', 'input_alert');
+    });
+    return result;
+}
+
+ValidateHandler.prototype.finalResult = function (ext) {
     var result = true;
     var that = this
     $.each(this.ele_arr, function(index, iter) {
