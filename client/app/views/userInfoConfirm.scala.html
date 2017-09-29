@@ -63,14 +63,14 @@
     </div>
 
     <script type="text/javascript">
+        var validate = new ValidateHandler();
         $(document).ready(function () {
             $("#alert_err").hide();
-            input_blur("email_user", "email");
-            input_blur("name_user", "name");
-            input_blur("phone_user", "phone");
-            input_blur("code_user", "isEmp");
+            validate.input_blur("email_user", "email");
+            validate.input_blur("name_user", "name");
+            validate.input_blur("phone_user", "phone");
+            validate.input_blur("code_user", "isEmp");
         });
-
 
         var errShow = function(){
             layui.use('layer' ,function () {
@@ -123,27 +123,29 @@
             form.on('submit(sub)', function (data) {
                 var json = JSON.stringify(data.field);
                 var check = JSON.stringify({"user_token": $.cookie('user_token'), "code": data.field.code, "reg_token": $.cookie('reg_token')})
-                ajaxData('/phonecode/check', check, 'POST', function(r){
-                    if(r.status === 'ok' && r.result.result === 'success') {
-                        again();
-                    }else {
-                        $('input[name="code"]').blur();
-                        layer.msg("验证忙错误或超出验证时间！");
-                    }
-                }, function(e){console.error(e)});
-                var again = function () {
-                    ajaxData('/auth/tokenDefeat', json, 'POST', function(r){
-                        if(r.status === "ok" && r.result.token !== undefined){
-                            var name = r.result.apply.name
-                            var email = r.result.apply.email
-                            location = "/register/success/" + name + "/" + email;
+
+                if (validate.finalResult()) {
+                    ajaxData('/phonecode/check', check, 'POST', function(r){
+                        if(r.status === 'ok' && r.result.result === 'success') {
+                            again();
                         }else {
-                            layer.msg('信息填写错误！');
+                            $('input[name="code"]').blur();
+                            layer.msg("验证忙错误或超出验证时间！");
                         }
                     }, function(e){console.error(e)});
-                };
-                return false;
-
+                    var again = function () {
+                        ajaxData('/auth/tokenDefeat', json, 'POST', function(r){
+                            if(r.status === "ok" && r.result.token !== undefined){
+                                var name = r.result.apply.name
+                                var email = r.result.apply.email
+                                location = "/register/success/" + name + "/" + email;
+                            }else {
+                                layer.msg('信息填写错误！');
+                            }
+                        }, function(e){console.error(e)});
+                    };
+                    return false;
+                }
             });
 
             form.on('submit(pull_phone_code)', function (data) {
@@ -151,19 +153,23 @@
                 var obj = new Object()
                 obj['reginfo'] = data.field
                 var json = JSON.stringify(obj);
-                ajaxData('/auth/createToken', json, 'POST', function(r){
-                    if(r.status === "ok"){
-                        $.cookie('user_token', r.result.token);
-                        send()
-                    }
-                }, function(e){console.error(e)});
-                var send = function() {
-                    var m = JSON.stringify({"user_token": $.cookie('user_token')})
-                    ajaxData('/phonecode/send', m, 'POST', function(r){
-                        $.cookie('reg_token', r.result.reg.reg_token)
-                    }, function(e){console.error(e)})
-                };
-                return false;
+
+
+                if (validate.finalResult(["code"])) {
+                    ajaxData('/auth/createToken', json, 'POST', function(r){
+                        if(r.status === "ok"){
+                            $.cookie('user_token', r.result.token);
+                            send()
+                        }
+                    }, function(e){console.error(e)});
+                    var send = function() {
+                        var m = JSON.stringify({"user_token": $.cookie('user_token')})
+                        ajaxData('/phonecode/send', m, 'POST', function(r){
+                            $.cookie('reg_token', r.result.reg.reg_token)
+                        }, function(e){console.error(e)})
+                    };
+                    return false;
+                }
             });
 
             $('.layui-form').keydown(function (event) {
