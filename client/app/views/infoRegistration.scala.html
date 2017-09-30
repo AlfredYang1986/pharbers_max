@@ -60,7 +60,7 @@
             validate.input_blur("linkman", "name");
             validate.input_blur("email_info", "email");
             validate.input_blur("phone_info", "phone");
-        })
+        });
 
         layui.use(['form', 'layer'], function () {
             var $ = layui.jquery,form = layui.form,layer = layui.layer;
@@ -90,7 +90,7 @@
 
             // 提交监听
             form.on('submit(sub)', function (data) {
-                var json = JSON.stringify(data.field)
+                var json = JSON.stringify(data.field);
 
                 if (validate.finalResult()) {
                     ajaxData('/register/user', json, 'POST', function(r){

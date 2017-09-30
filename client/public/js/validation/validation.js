@@ -79,7 +79,7 @@ ValidateHandler.prototype.postValidation = function (idName, validateType, succ,
     } else if(validateType === "cName"){
         res = this.vaildateCompanyName(idName, "请输入公司全称（中文6~30字）");
     } else if(validateType === "name"){
-        res = this.vaildateName(idName, "请输入自己正确的名字（中文2~4字）");
+        res = this.vaildateName(idName, "请输入正确的名字（中文2~4字）");
     }else{
         res = this.formIsEmpty(idName);
     }
