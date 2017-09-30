@@ -5,13 +5,14 @@ import java.util.UUID
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.agent.Agent
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
-import com.pharbers.aqll.alCalc.almain.alShareData
+import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_calc_core_split_jobs, worker_core_calc_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.concert_calc_result
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
+import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alInertDatabase
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
@@ -27,11 +28,13 @@ import scala.concurrent.duration._
   */
 
 object alCalcDataImpl {
+    val sumSender = Ref(List[ActorRef]())
+    val sumSegment = Ref(List[(String, (Double, Double, Double))]())
     def props = Props[alCalcDataImpl]
 }
 
 class alCalcDataImpl extends Actor with ActorLogging {
-
+    import alCalcDataImpl._
     var unit: Double = 0.0
 	var value: Double = 0.0
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
@@ -58,8 +61,33 @@ class alCalcDataImpl extends Actor with ActorLogging {
             val s = (maxSum.toList.groupBy(_._1) map { x =>
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
             }).toList
-    
-            sender ! calc_data_sum(s)
+
+            atomic { implicit txn =>
+                sumSender() = sumSender.single.get :+ sender()
+                sumSegment() = sumSegment.single.get ++ s
+                if(sumSender.single.get.size == server_info.cpu) {
+                    val uid = UUID.randomUUID().toString
+                    val path = s"${memorySplitFile}${calc}$uid"
+                    val temp = sumSegment.single.get map { x => alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3)}
+
+                    val dir = alFileOpt(path)
+                    if (!dir.isExists)
+                        dir.createDir
+
+                    val file = alFileOpt(path + "/" + "segmentData")
+                    if (!file.isExists)
+                        file.createFile
+
+                    file.appendData2File(temp)
+
+
+                    sumSender.single.get.foreach(_ ! calc_data_sum2(path))
+                    sumSender() = Nil
+                    sumSegment() = Nil
+                }
+            }
+
+//            sender ! calc_data_sum(s)
         }
         case calc_data_average(avg) => {
             import scala.math.BigDecimal
@@ -74,29 +102,30 @@ class alCalcDataImpl extends Actor with ActorLogging {
             val source = alFileOpt(path + "/" + "data")
             if (source.isExists) {
 
-                sender ! push_insert_db_job(source, avg, sub_uuid, sender, tmp)
+                sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
 
-                // source.enumDataWithFunc { line =>
-                //     val mrd = alShareData.txt2WestMedicineIncome2(line)
-
-                //     avg.find(p => p._1 == mrd.segment).map { x =>
-                //         if (mrd.ifPanelAll.equals("1")) {
-                //             mrd.set_finalResultsValue(mrd.sumValue)
-                //             mrd.set_finalResultsUnit(mrd.volumeUnit)
-                //         } else {
-                //             mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                //             mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                //         }
-
-                //     }.getOrElse(Unit)
-                //     unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-                //     value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
-
-                //    atomic { implicit thx =>
-                //        alInertDatabase().apply(mrd, sub_uuid)
-                //    }
-                // }
-                // log.info(s"calc done at $sub_uuid")
+//                source.enumDataWithFunc { line =>
+//                    val mrd = alShareData.txt2WestMedicineIncome2(line)
+//                    val sheed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+//
+//                    if (mrd.ifPanelAll == "1") {
+//                        mrd.set_finalResultsValue(mrd.sumValue)
+//                        mrd.set_finalResultsUnit(mrd.volumeUnit)
+//                    }else {
+//                        avg.find(p => p._1 == alEncryptionOpt.md5(sheed).toString).map { x =>
+//                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+//                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+//                        }.getOrElse(Unit)
+//                    }
+//
+//                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+//                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+//
+//                    atomic { implicit thx =>
+//                        alInertDatabase().apply(mrd, sub_uuid)
+//                    }
+//                }
+//                log.info(s"calc done at $sub_uuid")
             }
             // sender ! calc_data_result(value, unit)
             // sender ! calc_data_end(true, tmp)
@@ -146,7 +175,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
         recall.process = restore_data() :: do_calc() :: do_union() ::
             do_map(alShareData.txt2IntegratedData(_)) :: do_filter { iter =>
             val t = iter.asInstanceOf[IntegratedData]
-            group.data.exists { g => true
+            group.data.exists { g => //true
                 val x = g.asInstanceOf[IntegratedData]
                 (x.getYearAndmonth == t.getYearAndmonth) && (x.getMinimumUnitCh == t.getMinimumUnitCh)
             }
@@ -157,26 +186,39 @@ class alCalcDataImpl extends Actor with ActorLogging {
     }
 
     def backfireData(mrd: westMedicineIncome)(inte_lst: List[IntegratedData]): westMedicineIncome = {
-        var t = mrd
-        val tmp = inte_lst.find(iter => mrd.yearAndmonth == iter.getYearAndmonth
+
+        /**
+          * 根据年月 + 最小产品单位 + phaid 找到Panle文件中的sales 与 unit
+          * 回填到被放大的数据中
+          */
+        val tmp2 = inte_lst.filter(iter => mrd.yearAndmonth == iter.getYearAndmonth
             && mrd.minimumUnitCh == iter.getMinimumUnitCh
             && mrd.phaid == iter.getPhaid)
 
-        tmp match {
-            case Some(x) => {
-                mrd.set_sumValue(x.getSumValue)
-                mrd.set_volumeUnit(x.getVolumeUnit)
+        tmp2 match {
+            case Nil => Unit
+            case list => {
+                val sumValue = list.map(x => x.getSumValue.toDouble).sum
+                val sumUnits = list.map(x => x.getVolumeUnit.toDouble).sum
+                mrd.set_sumValue(sumValue)
+                mrd.set_volumeUnit(sumUnits)
+                //                list.filter(x => x.getPhaid == "PHA0021108").foreach( x =>
+                //                    println(s"backfireData => phaid = ${mrd.phaid}  ， sumValue = ${mrd.sumValue}  ， sumUnits = ${mrd.volumeUnit}  ,  product = ${mrd.minimumUnitCh}")
+                //                )
             }
-            case None => Unit
         }
 
+        /**
+          * 进行segment的分组动作，并求和
+          */
         if (mrd.ifPanelTouse == "1") {
-            maxSum += mrd.segment ->
-                maxSum.find(p => p._1 == mrd.segment)
-                    .map { x =>
-                        (x._2._1 + mrd.sumValue, x._2._2 + mrd.volumeUnit, x._2._3 + mrd.selectvariablecalculation.get._2)
-                    }
-                    .getOrElse((mrd.sumValue, mrd.volumeUnit, mrd.selectvariablecalculation.get._2))
+
+            val sheed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+
+            maxSum += alEncryptionOpt.md5(sheed).toString ->
+                maxSum.find(p => p._1 == alEncryptionOpt.md5(sheed).toString).map { x =>
+                    (x._2._1 + mrd.sumValue, x._2._2 + mrd.volumeUnit, x._2._3 + mrd.selectvariablecalculation.get._2)
+                }.getOrElse((mrd.sumValue, mrd.volumeUnit, mrd.selectvariablecalculation.get._2))
         }
         mrd.copy()
     }

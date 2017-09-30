@@ -68,23 +68,33 @@ class alCalcDataComeo (c : alCalcParmary,
                 originSender ! calc_data_sum(r.sum)
             }
         }
+        case calc_data_sum2(path) => {
+            // TODO: 现在单机单线程情况，暂时不需要写多机器多线
+            r.isSumed = true
+            sum += 1
+
+            if (sum == core_number) {
+                r.isSumed = true
+                originSender ! calc_data_sum2(path)
+            }
+        }
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
 
-        case push_insert_db_job(source, avg, sub_uuid, insert_sender, tmp) => {
+        case push_insert_db_job(source, avg, sub_uuid, tmp) => {
             atomic { implicit thx =>
-                insert_db_jobs() = insert_db_jobs() :+ (source, avg, sub_uuid, insert_sender, tmp)
+                insert_db_jobs() = insert_db_jobs() :+ (source, avg, sub_uuid, tmp)
             }
         }
         case insertDbSchedule() => {
             atomic { implicit thx =>
-                if (canInDbValue > 0){
+                if (canInDb.single.get > 0){
                     val tmp = insert_db_jobs.single.get
                     if (tmp.isEmpty) Unit
                     else {
                         canInDb() = canInDb.single.get - 1
                         log.info(s"&&${tmp.head._3}开始入库")
                         insert_db_jobs() = insert_db_jobs().tail
-                        do_insert_db_job(tmp.head._1, tmp.head._2, tmp.head._3, tmp.head._4, tmp.head._5)
+                        do_insert_db_job(tmp.head._1, tmp.head._2, tmp.head._3, tmp.head._4)
                     }
                 }
             }
@@ -100,11 +110,15 @@ class alCalcDataComeo (c : alCalcParmary,
                 cur += 1
                 if (cur == core_number) {
                     val r = calc_data_end(true, p)
+                    val b = insert_db_schedule.cancel()
+                    println(s"calc_data_end==b =======>>>>> $b")
                     owner ! r
                     shutSlaveCameo(r)
                 }
             } else {
                 val r = calc_data_end(false, p)
+                val b = insert_db_schedule.cancel()
+                println(s"calc_data_end==b =======>>>>> $b")
                 owner ! r
                 shutSlaveCameo(r)
             }
@@ -112,7 +126,6 @@ class alCalcDataComeo (c : alCalcParmary,
         case calc_data_start_impl(_, _) => {
 
             val core_number = server_info.cpu
-//            val core_number = 4
             val mid = UUID.randomUUID.toString
             val lst = (1 to core_number).map (x => worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> op.uuid,
                                                    worker_calc_core_split_jobs.calc_uuid -> op.subs(0 * core_number + x - 1).uuid,
@@ -140,13 +153,9 @@ class alCalcDataComeo (c : alCalcParmary,
         }
     }
 
-    def canInDbValue : Int = {
-        canInDb.single.get
-    }
-
-    def do_insert_db_job(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, insert_sender: ActorRef, tmp: alMaxProperty) = {
+    def do_insert_db_job(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, tmp: alMaxProperty) = {
         val act = context.actorOf(alDoInsertDbComeo.props)
-        act ! do_insert_db(source, avg, sub_uuid, insert_sender, tmp)
+        act ! do_insert_db(source, avg, sub_uuid, tmp)
     }
 
     def insertDbWithDrop(p: alMaxProperty) = {
@@ -160,20 +169,20 @@ class alCalcDataComeo (c : alCalcParmary,
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val insert_db_jobs = Ref(List[(alFileOpt, List[(String, Double, Double)], String, ActorRef, alMaxProperty)]())
-    val canInDb = Ref(1)
+    val insert_db_jobs = Ref(List[(alFileOpt, List[(String, Double, Double)], String, alMaxProperty)]())
+    val canInDb = Ref(4)
     val insert_db_schedule = context.system.scheduler.schedule(1 second, 1 second, self, insertDbSchedule())
-    val timeoutMessager = context.system.scheduler.scheduleOnce(60 minute) {
+    val timeoutMessager = context.system.scheduler.scheduleOnce(600 minute) {
         self ! calc_data_timeout()
     }
     
     def shutSlaveCameo(msg : AnyRef) = {
         originSender ! msg
-        log.debug("shutting calc data cameo")
+        log.info("shutting calc data cameo")
         val a = timeoutMessager.cancel()
-        val b = insert_db_schedule.cancel()
+        // val b = insert_db_schedule.cancel()
         println(s"a =======>>>>> $a")
-        println(s"b =======>>>>> $b")
+        // println(s"b =======>>>>> $b")
         println("=> shutSlaveCameo <= shutting calc data cameo")
         context.stop(self)
     }

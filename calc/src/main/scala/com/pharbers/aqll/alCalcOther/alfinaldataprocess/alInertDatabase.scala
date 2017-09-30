@@ -28,9 +28,16 @@ case class alInertDatabase(){
 			builder += "f_units" -> mrd.finalResultsUnit
 			builder += "f_sales" -> mrd.finalResultsValue
 			builder += "Date" -> DateUtil.getDateLong(mrd.yearAndmonth.toString)
-			builder += "prov_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString+mrd.getV("market1Ch").toString+mrd.minimumUnitCh+mrd.yearAndmonth)
-			builder += "city_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString+mrd.getV("prefecture").toString+mrd.getV("market1Ch").toString+mrd.minimumUnitCh+mrd.yearAndmonth)
-			builder += "hosp_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString+mrd.getV("prefecture").toString+mrd.phaid+mrd.getV("market1Ch").toString+mrd.minimumUnitCh+mrd.yearAndmonth)
+			builder += "prov_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString))
+			builder += "city_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("prefecture").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString))
+
+			builder += "hosp_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString +
+				mrd.getV("prefecture").toString +
+				mrd.phaid +
+				mrd.getV("market1Ch").toString +
+				mrd.minimumUnitCh +
+				DateUtil.getDateLong(mrd.yearAndmonth.toString))
+
 			_data_connection_cores_thread.getCollection(sub_uuid) += builder.result()
 			toJson(successToJson())
 		} catch {
