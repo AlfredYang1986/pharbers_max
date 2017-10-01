@@ -80,18 +80,18 @@ class alSegmentGroup {
     def sales: Double = getV("sales") match {
         case d: Double => d
         case s: String => s.toString.toDouble
-        case _ => ???
+        case _ => println("sales fuck");???
     }
     
     def units: Double = getV("unit") match {
         case d: Double => d
         case s: String => s.toString.toDouble
-        case _ => ???
+        case _ => println("unit fuck");???
     }
     
     def calc: Double = getV("calc") match {
         case d: Double => d
         case s: String => s.toString.toDouble
-        case _ => ???
+        case _ => println("calc fuck");???
     }
 }

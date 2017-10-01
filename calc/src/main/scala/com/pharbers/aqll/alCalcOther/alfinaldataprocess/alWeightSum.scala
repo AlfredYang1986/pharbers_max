@@ -11,8 +11,8 @@ import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.alCalaHelp.dbcores._
 
 /**
-	* Created by liwei on 17-3-17.
-	*/
+  * Created by liwei on 17-3-17.
+  */
 case class alWeightSum() {
 
 	def apply(company : String, u: String): JsValue = {

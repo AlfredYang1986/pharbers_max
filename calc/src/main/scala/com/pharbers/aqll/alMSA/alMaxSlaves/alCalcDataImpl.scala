@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import java.util.{Base64, UUID}
+import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
@@ -9,14 +9,12 @@ import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_calc_core_split_jobs, worker_core_calc_jobs}
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.concert_calc_result
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alDumpcollScp, alInertDatabase}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
-import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
@@ -29,9 +27,9 @@ import scala.concurrent.stm.{Ref, atomic}
   */
 
 object alCalcDataImpl {
-    def props = Props[alCalcDataImpl]
     val sumSender = Ref(List[ActorRef]())
     val sumSegment = Ref(List[(String, (Double, Double, Double))]())
+    def props = Props[alCalcDataImpl]
 }
 
 class alCalcDataImpl extends Actor with ActorLogging {
@@ -63,7 +61,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
             val s = (maxSum.toList.groupBy(_._1) map { x =>
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
             }).toList
-    
             atomic { implicit txn =>
                 sumSender() = sumSender.single.get :+ sender()
                 sumSegment() = sumSegment.single.get ++ s
@@ -71,19 +68,12 @@ class alCalcDataImpl extends Actor with ActorLogging {
                     val uid = UUID.randomUUID().toString
                     val path = s"${memorySplitFile}${calc}$uid"
                     val temp = sumSegment.single.get map { x => alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3)}
-    
                     val dir = alFileOpt(path)
-                    if (!dir.isExists)
-                        dir.createDir
-    
+                    if(!dir.isExists) dir.createDir
                     val file = alFileOpt(path + "/" + "segmentData")
-                    if (!file.isExists)
-                        file.createFile
-    
+                    if (!file.isExists) file.createFile
                     file.appendData2File(temp)
-    
                     sumSender.single.get.foreach(_ ! calc_data_sum2(path))
-
                     sumSender() = Nil
                     sumSegment() = Nil
                 }
@@ -103,38 +93,33 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 dir.createDir
             val source = alFileOpt(path + "/" + "data")
             if (source.isExists) {
-
-                source.enumDataWithFunc { line =>
-
-                    val mrd = alShareData.txt2WestMedicineIncome2(line)
-                    val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
-                    val base = new String(Base64.getEncoder.encode(seed.getBytes("UTF-8")))
-                    if (mrd.ifPanelAll == "1") {
-                        mrd.set_finalResultsValue(mrd.sumValue)
-                        mrd.set_finalResultsUnit(mrd.volumeUnit)
-                    }else {
-                         avg.find(p => p._1 == seed.hashCode.toString).map { x =>
-//                         avg.find(p => p._1 == base.substring(0, base.length - 1)).map { x =>
-//                       avg.find(p => p._1 == alEncryptionOpt.md5(seed).toString).map { x =>
-                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                        }.getOrElse(Unit)
-                    }
-
-                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
-
-                    atomic { implicit thx =>
-                        alInertDatabase().apply(mrd, sub_uuid)
-                    }
-
-                }
-                log.info(s"calc done at ${sub_uuid}")
-//                sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
+//                source.enumDataWithFunc { line =>
+//                    val mrd = alShareData.txt2WestMedicineIncome2(line)
+//                    val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+//                    if (mrd.ifPanelAll == "1") {
+//                        mrd.set_finalResultsValue(mrd.sumValue)
+//                        mrd.set_finalResultsUnit(mrd.volumeUnit)
+//                    }else {
+//                         avg.find(p => p._1 == seed.hashCode.toString).map { x =>
+//                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+//                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+//                        }.getOrElse(Unit)
+//                    }
+//
+//                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+//                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+//
+//                    atomic { implicit thx =>
+//                        alInertDatabase().apply(mrd, sub_uuid)
+//                    }
+//
+//                }
+//                log.info(s"calc done at ${sub_uuid}")
+                sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
             }
-            insertDbWithDrop(tmp)
-            sender() ! calc_data_result(value, unit)
-            sender() ! calc_data_end(true, tmp)
+//            insertDbWithDrop(tmp)
+//            sender() ! calc_data_result(value, unit)
+//            sender() ! calc_data_end(true, tmp)
         }
     }
     
@@ -203,7 +188,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
     }
 
     def backfireData(mrd: westMedicineIncome)(inte_lst: List[IntegratedData]): westMedicineIncome = {
-        
         /**
           * 根据年月 + 最小产品单位 + phaid 找到Panle文件中的sales 与 unit
           * 回填到被放大的数据中
@@ -221,19 +205,14 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 mrd.set_volumeUnit(sumUnits)
             }
         }
-    
+
         /**
           * 进行segment的分组动作，并求和
           */
         if (mrd.ifPanelTouse == "1") {
             
             val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
-            val base = new String(Base64.getEncoder.encode(seed.getBytes("UTF-8")))
-//           maxSum += alEncryptionOpt.md5(seed).toString ->
-//             maxSum += base.substring(0, base.length - 1) ->
              maxSum += seed.hashCode.toString ->
-//               maxSum.find(p => p._1 == alEncryptionOpt.md5(seed).toString).map { x =>
-//                 maxSum.find(p => p._1 == base.substring(0, base.length - 1)).map { x =>
                  maxSum.find(p => p._1 == seed.hashCode.toString).map { x =>
                         (x._2._1 + mrd.sumValue, x._2._2 + mrd.volumeUnit, x._2._3 + mrd.selectvariablecalculation.get._2)
                 }.getOrElse((mrd.sumValue, mrd.volumeUnit, mrd.selectvariablecalculation.get._2))

@@ -44,10 +44,10 @@ case object calc_done extends alPointState
 trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
 	                                              with alLoggerMsgTrait { this: Actor =>
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
-//	val acts = context.actorOf(alMaxMaster.props)
 	var path = ""
 	var almp: alMaxProperty = alMaxProperty("", "", Nil)
 	val s1 = startDate()
+	import alCameoMaxDriver._
 	
 	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
 
@@ -154,6 +154,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
             println(mp.finalUnit)
 			finalSuccessWithWork(pr, mp)
 			acts ! calc_slave_status()
+			test_num = test_num + 1
 			alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> mp.uuid, "company" -> pr.company, "type" -> "progress_calc"))
 			endDate("e1", s1)
 			shutCameo()
@@ -190,6 +191,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	
 	def shutCameo() = {
 		log.info("stopping temp cameo END")
+		Runtime.getRuntime().gc()
 		context.stop(self)
 	}
 }
@@ -199,6 +201,7 @@ object alCameoMaxDriver {
 	case class push_split_job(path : String)
 	case class max_calc_done(mp: String Map String)
 	def props = Props[alCameoMaxDriver]
+	var test_num: Int = 0
 }
 
 class alCameoMaxDriver extends Actor with ActorLogging
