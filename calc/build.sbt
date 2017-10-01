@@ -23,5 +23,5 @@ lazy val root = (project in file(".")).
   settings(
 	name := "pharber-calc",
 	fork in run := true,
-	javaOptions += "-Xmx4G"
+	javaOptions += "-Xmx2G"
   )

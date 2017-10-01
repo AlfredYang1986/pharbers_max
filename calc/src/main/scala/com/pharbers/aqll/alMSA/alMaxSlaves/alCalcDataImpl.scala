@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import java.util.UUID
+import java.util.{Base64, UUID}
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
@@ -104,47 +104,49 @@ class alCalcDataImpl extends Actor with ActorLogging {
             val source = alFileOpt(path + "/" + "data")
             if (source.isExists) {
 
-//                source.enumDataWithFunc { line =>
-//
-//                    val mrd = alShareData.txt2WestMedicineIncome2(line)
-//                    val sheed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
-//
-//                    if (mrd.ifPanelAll == "1") {
-//                        mrd.set_finalResultsValue(mrd.sumValue)
-//                        mrd.set_finalResultsUnit(mrd.volumeUnit)
-//                    }else {
-//                        avg.find(p => p._1 == alEncryptionOpt.md5(sheed).toString).map { x =>
-//                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-//                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-//                        }.getOrElse(Unit)
-//                    }
-//
-//                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-//                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
-//
-//                    atomic { implicit thx =>
-//                        alInertDatabase().apply(mrd, sub_uuid)
-//                    }
-//
-//                }
-//                log.info(s"calc done at ${sub_uuid}")
-                sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
+                source.enumDataWithFunc { line =>
+
+                    val mrd = alShareData.txt2WestMedicineIncome2(line)
+                    val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+                    val base = new String(Base64.getEncoder.encode(seed.getBytes("UTF-8")))
+                    if (mrd.ifPanelAll == "1") {
+                        mrd.set_finalResultsValue(mrd.sumValue)
+                        mrd.set_finalResultsUnit(mrd.volumeUnit)
+                    }else {
+                         avg.find(p => p._1 == seed.hashCode.toString).map { x =>
+//                         avg.find(p => p._1 == base.substring(0, base.length - 1)).map { x =>
+//                       avg.find(p => p._1 == alEncryptionOpt.md5(seed).toString).map { x =>
+                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                        }.getOrElse(Unit)
+                    }
+
+                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+
+                    atomic { implicit thx =>
+                        alInertDatabase().apply(mrd, sub_uuid)
+                    }
+
+                }
+                log.info(s"calc done at ${sub_uuid}")
+//                sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
             }
-//            insertDbWithDrop(tmp)
-//            sender() ! calc_data_result(value, unit)
-//            sender() ! calc_data_end(true, tmp)
+            insertDbWithDrop(tmp)
+            sender() ! calc_data_result(value, unit)
+            sender() ! calc_data_end(true, tmp)
         }
     }
     
-//    def insertDbWithDrop(p: alMaxProperty) = {
-//        log.info(s"单个线程备份传输开始")
-//        alDumpcollScp().apply(p.subs.head.uuid, serverHost215)
-//        log.info(s"单个线程备份传输结束")
-//
-//        log.info(s"单个线程开始删除临时表")
-//        dbc.getCollection(p.subs.head.uuid).drop()
-//        log.info(s"单个线程结束删除临时表")
-//    }
+    def insertDbWithDrop(p: alMaxProperty) = {
+        log.info(s"单个线程备份传输开始")
+        alDumpcollScp().apply(p.subs.head.uuid, serverHost215)
+        log.info(s"单个线程备份传输结束")
+
+        log.info(s"单个线程开始删除临时表")
+        dbc.getCollection(p.subs.head.uuid).drop()
+        log.info(s"单个线程结束删除临时表")
+    }
     
     def max_precess(element2: IntegratedData, sub_uuid: String, longPath: Option[String] = None)(recall: List[IntegratedData])(c: alCalcParmary) = {
         if (!longPath.isEmpty) {
@@ -225,10 +227,14 @@ class alCalcDataImpl extends Actor with ActorLogging {
           */
         if (mrd.ifPanelTouse == "1") {
             
-            val sheed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
-            
-            maxSum += alEncryptionOpt.md5(sheed).toString ->
-                maxSum.find(p => p._1 == alEncryptionOpt.md5(sheed).toString).map { x =>
+            val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+            val base = new String(Base64.getEncoder.encode(seed.getBytes("UTF-8")))
+//           maxSum += alEncryptionOpt.md5(seed).toString ->
+//             maxSum += base.substring(0, base.length - 1) ->
+             maxSum += seed.hashCode.toString ->
+//               maxSum.find(p => p._1 == alEncryptionOpt.md5(seed).toString).map { x =>
+//                 maxSum.find(p => p._1 == base.substring(0, base.length - 1)).map { x =>
+                 maxSum.find(p => p._1 == seed.hashCode.toString).map { x =>
                         (x._2._1 + mrd.sumValue, x._2._2 + mrd.volumeUnit, x._2._3 + mrd.selectvariablecalculation.get._2)
                 }.getOrElse((mrd.sumValue, mrd.volumeUnit, mrd.selectvariablecalculation.get._2))
         }

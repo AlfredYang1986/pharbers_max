@@ -3,7 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.remote.routing.RemoteRouterConfig
 import akka.routing.{BroadcastGroup, BroadcastPool}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_calc_job_2, push_group_job, push_split_excel_job}
 import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
@@ -47,6 +47,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 //	val acts = context.actorOf(alMaxMaster.props)
 	var path = ""
 	var almp: alMaxProperty = alMaxProperty("", "", Nil)
+	val s1 = startDate()
 	
 	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
 
@@ -154,6 +155,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			finalSuccessWithWork(pr, mp)
 			acts ! calc_slave_status()
 			alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> mp.uuid, "company" -> pr.company, "type" -> "progress_calc"))
+			endDate("e1", s1)
 			shutCameo()
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
@@ -201,5 +203,4 @@ object alCameoMaxDriver {
 
 class alCameoMaxDriver extends Actor with ActorLogging
 									 with alCameoMaxDriverTrait2{
-	import alCameoMaxDriver._
 }
