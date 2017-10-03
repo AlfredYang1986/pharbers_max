@@ -64,7 +64,7 @@ trait alCalcAtomicTrait { this: Actor =>
 object alCalcDataComeo {
     def props(c : alCalcParmary, lsp : alMaxProperty, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
         Props(new alCalcDataComeo(c, lsp, originSender, owner, counter))
-    val core_number = server_info.cpu
+    val core_number: Int = server_info.cpu
 }
 
 class alCalcDataComeo (c : alCalcParmary,
@@ -110,6 +110,26 @@ class alCalcDataComeo (c : alCalcParmary,
                 originSender ! calc_data_sum2(path)
             }
         }
+        case calc_data_average(avg) => impl_router ! calc_data_average(avg)
+
+        case push_insert_db_job(source, avg, sub_uuid, tmp) => {
+            atomic { implicit thx =>
+                insert_db_jobs() = insert_db_jobs() :+ (source, avg, sub_uuid, tmp)
+            }
+        }
+        case insertDbSchedule() => {
+            atomic { implicit thx =>
+                if (canInDb.single.get > 0){
+                    val tmp = insert_db_jobs.single.get
+                    if (tmp.isEmpty) Unit
+                    else {
+                        canInDb() = canInDb.single.get - 1
+                        insert_db_jobs() = insert_db_jobs().tail
+                        do_insert_db_job(tmp.head._1, tmp.head._2, tmp.head._3, tmp.head._4)
+                    }
+                }
+            }
+        }
         
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
 
@@ -125,11 +145,13 @@ class alCalcDataComeo (c : alCalcParmary,
                 cur += 1
                 if (cur == core_number) {
                     val r = calc_data_end(true, p)
+                    val b = insert_db_schedule.cancel()
                     owner ! r
                     shutSlaveCameo(r)
                 }
             } else {
                 val r = calc_data_end(false, p)
+                val b = insert_db_schedule.cancel()
                 owner ! r
                 shutSlaveCameo(r)
             }
@@ -162,8 +184,8 @@ class alCalcDataComeo (c : alCalcParmary,
             self ! calc_data_end(false, r)
         }
     }
-    
-    
+
+    import scala.concurrent.ExecutionContext.Implicits.global
     val timeoutMessager = context.system.scheduler.scheduleOnce(600 minute) {
         self ! calc_data_timeout()
     }

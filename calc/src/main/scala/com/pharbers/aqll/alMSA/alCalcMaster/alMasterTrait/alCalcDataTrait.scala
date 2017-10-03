@@ -40,7 +40,7 @@ trait alCalcDataTrait { this : Actor =>
             calc_jobs() = calc_jobs() :+ (property, c, s)
         }
     }
-    
+
     def setSlaveStatus = {
         slaveStatus send slave_status(true)
     }
@@ -85,7 +85,7 @@ object alCameoCalcData {
     case class push_insert_db_job(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String,  tmp: alMaxProperty)
     case class insertDbSchedule()
     case class do_insert_db(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, tmp: alMaxProperty)
-    case class after_insert_db()
+    
     case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, property : alMaxProperty)
     case class calc_data_timeout()
@@ -112,7 +112,7 @@ class alCameoCalcData ( val c : alCalcParmary,
     var sed = 0
     var cur = 0
     var tol = 0
-//    val calcing_jobs = Ref(List[alMaxProperty]())     // only for calcing jobs
+    //    val calcing_jobs = Ref(List[alMaxProperty]())     // only for calcing jobs
 
     override def receive: Receive = {
         case calc_data_timeout() => {
@@ -157,7 +157,6 @@ class alCameoCalcData ( val c : alCalcParmary,
         case calc_data_sum2(path) => {
             // TODO: 开始读取segment分组文件
             property.sum = property.sum ++: readSegmentGroupData(path)
-            
             sum = sender :: sum
             if (sum.length == tol / core_number) {
                 property.isSumed = true
@@ -166,7 +165,6 @@ class alCameoCalcData ( val c : alCalcParmary,
                 }).toList
         
                 log.info(s"done for suming ${property.sum}")
-        
                 val mapAvg = property.sum.filterNot(x => x._2._1 == 0 && x._2._2 == 0).map { x =>
                     (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
                 }
@@ -184,12 +182,12 @@ class alCameoCalcData ( val c : alCalcParmary,
                 cur += 1
                 if (cur == tol / core_number) {
                     val r = calc_data_end(true, property)
-//                    owner ! r
+                    //                    owner ! r
                     shutCameo(r)
                 }
             } else {
                 val r = calc_data_end(false, property)
-//                owner ! r
+                //                owner ! r
                 shutCameo(r)
             }
         }
@@ -202,7 +200,7 @@ class alCameoCalcData ( val c : alCalcParmary,
 
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
-//        slaveStatus send slave_status(true)
+        //        slaveStatus send slave_status(true)
         log.debug("stopping group data cameo")
         calc_timer.cancel()
         context.stop(self)
@@ -213,7 +211,6 @@ class alCameoCalcData ( val c : alCalcParmary,
         val dir = alFileOpt(path)
         if (!dir.isExists)
             dir.createDir
-        
         val source = alFileOpt(path + "/" + "segmentData")
         if (source.isExists) {
             source.enumDataWithFunc { line =>

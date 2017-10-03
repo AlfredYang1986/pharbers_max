@@ -1,5 +1,7 @@
 package com.pharbers.aqll.alCalaHelp.alMaxDefines
 
+import java.util.Calendar
+
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.stm.Ref
 
@@ -26,7 +28,9 @@ object startDate {def apply() = System.currentTimeMillis}
 object endDate {
 	def apply(content: String, startDate: Long) = {
 		val endDate = System.currentTimeMillis
-		println(s"$content 耗时 ${((endDate - startDate) / 1000)} 秒")
+		val c = Calendar.getInstance
+		c.setTimeInMillis(endDate - startDate)
+		println(s"$content 耗时 : ${c.get(Calendar.MINUTE)} 分, ${c.get(Calendar.SECOND)} 秒, ${c.get(Calendar.MILLISECOND)} 毫秒")
 	}
 }
 
