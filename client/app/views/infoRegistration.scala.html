@@ -50,7 +50,8 @@
     </div>
 
     <script type="text/javascript">
-        var validate = new ValidateHandler();
+        var f = new Facade();
+        var validate = f.validationModule();
         $(document).ready(function(){
             $('#popErr').hide();
             var $input = $("input");

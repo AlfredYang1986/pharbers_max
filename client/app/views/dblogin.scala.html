@@ -20,7 +20,7 @@
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-12">
-                                    <div class="login_btn" onclick="openTextValidate(),phone_code()">专用账号</div>
+                                    <div class="login_btn" onclick="openTextValidate()">专用账号</div>
                                     <div class="form_tip_bottom"></div>
                                 </div>
                             </div>
@@ -78,8 +78,8 @@
     </body>
 
     <script type="text/javascript">
-        var validate = new ValidateHandler();
-        var errornum = 1;
+        var f = new Facade();
+        var validate = f.validationModule();
         $(document).ready(function(){
             var $input = $("input");
             $input[0].focus();
@@ -103,6 +103,7 @@
         }
 
         var check_code = function() {
+            var errornum = 1;
             $('input[name="code"]').keyup(function(){
                 var num = $(this).val();
                 if(num.length == $(this).attr('maxlength')) {

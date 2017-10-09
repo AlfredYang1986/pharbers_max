@@ -63,7 +63,8 @@
     </div>
 
     <script type="text/javascript">
-        var validate = new ValidateHandler();
+        var f = new Facade();
+        var validate = f.validationModule();
         $(document).ready(function () {
             $("#alert_err").hide();
             validate.input_blur("email_user", "email");

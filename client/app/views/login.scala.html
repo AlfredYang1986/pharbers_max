@@ -51,9 +51,13 @@
 
 
         <script src="@routes.Assets.versioned("js/common/md5.min.js")"></script>
+
         <script type="text/javascript">
-                var validate = new ValidateHandler();
+                var f = new Facade();
+                var validate = f.validationModule();
                 $(document).ready(function () {
+                    $('#popLayer').hide();
+                    $('#popTextValidate').hide();
                     var $input = $("input");
                     $input[0].focus();
                     validate.input_blur("userName", "email");

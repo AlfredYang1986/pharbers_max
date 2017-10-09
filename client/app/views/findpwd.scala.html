@@ -31,7 +31,8 @@
             <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
         </div>
         <script type="text/javascript">
-                var validate = new ValidateHandler();
+                var f = new Facade();
+                var validate = f.validationModule();
                 $(document).ready(function () {
                     var $input = $("input");
                     $input[0].focus();
