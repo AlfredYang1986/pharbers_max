@@ -1,7 +1,7 @@
 package com.pharbers.aqll.dbmodule
 
 import com.pharbers.dbManagerTrait.dbInstanceManager
-import com.pharbers.mongodbDriver.MongoDB.MongoDBImpl
+import com.pharbers.message.email.MailTrait
 import com.pharbers.token.AuthTokenTrait
 import play.api.{Configuration, Environment}
 
@@ -12,7 +12,8 @@ class MAXModules extends play.api.inject.Module {
     def bindings(env : Environment, conf : Configuration) = {
         Seq(
             bind[dbInstanceManager].to[MAXDBManager],
-            bind[AuthTokenTrait].to[MAXTokenInjectModule]
+            bind[AuthTokenTrait].to[MAXTokenInjectModule],
+            bind[MailTrait].to[MAXEmailInjectModule]
         )
     }
 }
