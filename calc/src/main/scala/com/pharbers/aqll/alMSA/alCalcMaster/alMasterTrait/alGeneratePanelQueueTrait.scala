@@ -99,6 +99,7 @@ class alPanelJobComeo extends Actor with ActorLogging {
         val result = new phPfizerHandleImpl(args).calcYM.asInstanceOf[JsString].value
         alMessageProxy().sendMsg(result, item.user, Map("type" -> "txt"))
         sender ! releasePyEnergy()
+        sender ! calcYMResult(result)
     }
 
     def generatePanel(item: alUploadItem) = {
@@ -111,6 +112,7 @@ class alPanelJobComeo extends Actor with ActorLogging {
         val result = new phPfizerHandleImpl(args).generatePanelFile(item.ym).asInstanceOf[JsString].value
         alMessageProxy().sendMsg(result, item.user, Map("type" -> "txt"))
         sender ! releasePyEnergy()
+        sender ! generatePanelResult(result)
     }
 
 }

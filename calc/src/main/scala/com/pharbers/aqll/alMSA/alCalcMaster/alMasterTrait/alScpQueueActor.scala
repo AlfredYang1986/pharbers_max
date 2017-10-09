@@ -17,7 +17,6 @@ trait alScpQueueTrait { this: Actor =>
 
     def scanQueue() = {
         if(residue_run_number.single.get > 0){
-            println(s"residue_run_number = $residue_run_number")
             scpQueue.single.get match {
                 case head :: tail => {
                     atomic{implicit what =>
