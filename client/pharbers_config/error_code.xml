@@ -21,6 +21,7 @@
 
         <error reason="reg push error" code="-301" description="验证码发送失败" />
         <error reason="reg phone or code error" code="-302" description="电话号码或者验证码出错" />
+        <error reason="please try in 10 minutes" code="-303" description="请十分钟后再次尝试" />
 
         <error reason="im error parameter" code="-401" description="IM参数错误" />
         <error reason="im error server" code="-402" description="IM消息服务器异常" />

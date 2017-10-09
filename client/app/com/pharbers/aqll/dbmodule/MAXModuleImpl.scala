@@ -2,8 +2,8 @@ package com.pharbers.aqll.dbmodule
 
 import javax.inject.Singleton
 
-import com.pharbers.message.email.MailTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.message.send.SendMessageTrait
 import com.pharbers.token.tokenImpl.TokenImplTrait
 
 /**
@@ -16,4 +16,4 @@ class MAXDBManager extends dbInstanceManager
 class MAXTokenInjectModule extends TokenImplTrait
 
 @Singleton
-class MAXEmailInjectModule extends MailTrait
+class MAXMessageInjectModule extends SendMessageTrait
