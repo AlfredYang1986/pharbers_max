@@ -3,7 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
 import akka.remote.routing.RemoteRouterConfig
 import akka.routing.{BroadcastGroup, BroadcastPool}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{filter_excel_job_2, push_calc_job_2, push_group_job, push_split_excel_job}
 import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
@@ -45,12 +45,13 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	                                              with alLoggerMsgTrait { this: Actor =>
 
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
-//	val acts = context.actorOf(alMaxMaster.props)
 	var path = ""
 	var almp: alMaxProperty = alMaxProperty("", "", Nil)
-
 	val queueActor = context.actorOf(alScpQueueActor.props(self))
-
+	val s1 = startDate()
+	import alCameoMaxDriver._
+	
+	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
 	startWith(alDriverJobIdle, alCalcParmary("", ""))
 	when(alDriverJobIdle) {
 		case Event(push_filter_job(file, cp), pr) => {
@@ -163,7 +164,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
             println(mp.finalUnit)
 			finalSuccessWithWork(pr, mp)
 			acts ! calc_slave_status()
+			test_num = test_num + 1
 			alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> mp.uuid, "company" -> pr.company, "type" -> "progress_calc"))
+			endDate("e1", s1)
 			shutCameo()
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
@@ -199,6 +202,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 
 	def shutCameo() = {
 		log.info("stopping temp cameo END")
+		Runtime.getRuntime().gc()
 		context.stop(self)
 	}
 }
@@ -208,9 +212,9 @@ object alCameoMaxDriver {
 	case class push_split_job(path : String)
 	case class max_calc_done(mp: String Map String)
 	def props = Props[alCameoMaxDriver]
+	var test_num: Int = 0
 }
 
 class alCameoMaxDriver extends Actor with ActorLogging
 									 with alCameoMaxDriverTrait2{
-	import alCameoMaxDriver._
 }
