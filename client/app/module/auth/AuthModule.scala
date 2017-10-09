@@ -80,15 +80,14 @@ object AuthModule extends ModuleTrait with AuthData {
 		try {
 			val o = pr match {
 				case None => jv2m(data)
-				case Some(one) => jv2m(toJson(one))
+				case Some(one) => jv2m(toJson(Map("reginfo" -> one.get("apply").get)))
 			}
 			val reVal = att.encrypt2Token(toJson(o + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000))))
 			val email = o.get("email").map(x => x.as[String]).getOrElse("")
 			val html = views.html.authcode(email, reVal)
-			implicit val stm = StmConf()
-			Mail().setContext(html.toString).setSubject("授权码").sendTo(email)
+			Mail().setContext(html.toString).setSubject("授权码").sendTo(email)(StmConf())
 			// 直接返回一个授权码
-			(Some(Map("token" -> toJson(reVal))), None)
+			(Some(Map("apply" -> toJson(o), "token" -> toJson(reVal))), None)
 		}catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
@@ -99,9 +98,9 @@ object AuthModule extends ModuleTrait with AuthData {
 		val db = conn.queryDBInstance("cli").get
 		try{
 			val o = reg_conditions(data)
-			db.queryObject($and(o), "reg_apply")(reg_d2m) match {
+			db.queryObject(o, "reg_apply")(reg_d2m) match {
 				case None => throw new Exception("data not exist")
-				case Some(one) => (Some(Map("reginfo" -> toJson(one))), None)
+				case Some(one) => println(one); (Some(Map("apply" -> toJson(one))), None)
 			}
 		}catch {
 			case ex: Exception => (None, Some(toJson(ErrorCode.errorToJson(ex.getMessage))))

@@ -20,7 +20,7 @@
                     <li class="layui-nav-item">
                         <a href="javascript:;">
                             <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
-                            AlfredYang
+                            <span id="username"></span>
                         </a>
                         <dl class="layui-nav-child">
                             <dd><a href="">基本资料</a></dd>
@@ -61,6 +61,7 @@
         </div>
         <script>
             //JavaScript代码区域
+            $("#username").text($.cookie("name"))
             layui.use('element', function(){
                 var element = layui.element;
 

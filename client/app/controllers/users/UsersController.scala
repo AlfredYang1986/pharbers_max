@@ -20,7 +20,8 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 	def user_push = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_user_push(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("user_register"))), jv)
+			:: msg_user_push(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
 	def user_delete = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
@@ -63,6 +64,11 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 	def user_token_chang_pwd = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_auth_token_parser(jv) :: msg_auth_token_expire(jv) :: msg_user_token_op(jv) :: msg_user_chang_pwd(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("change pwd"))), jv)
+			:: msg_auth_token_parser(jv)
+			:: msg_auth_token_expire(jv)
+			:: msg_user_token_op(jv)
+			:: msg_user_chang_pwd(jv)
+			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 }
