@@ -113,7 +113,7 @@ ValidateHandler.prototype.finalResultWithExt = function (ext) {
     var result = 1;
     var that = this;
     $.each(this.ele_arr, function(index, iter) {
-        if (ext.indexOf(iter['idName']) == -1)
+        if (ext.indexOf(iter['idName']) === -1)
             result &= that.postValidation(iter['idName'], iter['validateType'], 'input_success', 'input_alert');
     });
     return result;

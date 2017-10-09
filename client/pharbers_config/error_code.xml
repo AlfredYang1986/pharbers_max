@@ -8,6 +8,7 @@
         <error reason="data duplicate" code="-104" description="搜索结果不唯一, 请用query multiple搜索" />
         <error reason="function is not impl" code="-105" description="函数未实现" />
         <error reason="pr data not exist" code="-106" description="pr数据不存在" />
+        <error reason="not instance data" code="-107" description="无实例数据" />
 
         <error reason="user have no email" code="-201" description="无用户邮箱" />
         <error reason="user have no secret" code="-202" description="无用户密码" />
