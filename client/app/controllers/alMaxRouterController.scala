@@ -7,12 +7,13 @@ import akka.actor.ActorSystem
 import com.pharbers.aqll.common.{alAdminEnum, alModularEnum}
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.message.email.MailTrait
 import com.pharbers.mongodbConnect.connection_instance
 import com.pharbers.token.AuthTokenTrait
 import module.common.alPageDefaultData._
 import play.api.mvc._
 
-class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait) extends Controller {
+class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait, em: MailTrait) extends Controller {
     implicit val as = as_inject
     implicit val db_cores : DBTrait = dbt.queryDBInstance("calc").get
     implicit val db_basic : DBTrait = dbt.queryDBInstance("cli").get
