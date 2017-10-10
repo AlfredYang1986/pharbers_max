@@ -1,9 +1,9 @@
 <pharbers-modules>
     <data-parse>
-        <contrast_file_path value="/home/clock/workSpace/blackMirror/dependence/program/"/>
-        <product_vs_ims_file value="/file/Manage/产品标准化 vs IMS_Pfizer_6市场others.xlsx"/>
-        <universe_inf_file value="/file/Manage/universe_inf.xlsx"/>
-        <markets_file value="/file/Manage/按辉瑞采购清单中的通用名划分6市场others.xlsx"/>
-        <output_file value="/file/"/>
+        <contrast_file_path value="config/FileBase/"/>
+        <product_vs_ims_file value="/Manage/产品标准化 vs IMS_Pfizer_6市场others.xlsx"/>
+        <universe_inf_file value="/Manage/universe_inf.xlsx"/>
+        <markets_file value="/Manage/按辉瑞采购清单中的通用名划分6市场others.xlsx"/>
+        <output_file value="/Output/"/>
     </data-parse>
 </pharbers-modules>
