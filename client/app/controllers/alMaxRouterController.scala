@@ -69,10 +69,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def emailInvocation(name:String, email:String) = Action { request =>
         Ok(views.html.invocation_email(name, email))
     }
-    //注册
-    def register = Action {
-        Ok(views.html.register())
-    }
+
     //密码
     def findpwd = Action{
         Ok(views.html.findpwd())

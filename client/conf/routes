@@ -74,8 +74,7 @@ GET     /                                   controllers.alMaxRouterController.lo
 GET		/login						        controllers.alMaxRouterController.login
 POST	/login						        controllers.alMaxRouterController.login
 POST	/login/start			            controllers.LoginController.Login
-#   用户注册
-GET		/register					        controllers.alMaxRouterController.register
+
 #   首页
 GET		/index						        controllers.alMaxRouterController.index
 POST	/index						        controllers.alMaxRouterController.index
