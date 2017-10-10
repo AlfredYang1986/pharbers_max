@@ -102,11 +102,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
             Ok(views.html.newhome.index(getAdminByCookies(request)))
         }
     }
-
-    //计算
-    def calculaData = Action {
-        Ok(views.html.CalculaData(""))
-    }
+    
     
     //计算2
     def calcData = Action { request =>
