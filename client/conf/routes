@@ -96,7 +96,6 @@ POST    /filesUpload/removeFiles            controllers.FilesUploadController.re
 POST	/samplecheck/check			        controllers.SampleCheckController.sampleCheck
 POST    /samplecheck/reloadselect           controllers.SampleCheckController.reloadSelect
 #   样本报告
-GET		/samplereport				        controllers.alMaxRouterController.samplereport
 POST	/samplereport/report		        controllers.SampleReportController.sampleReport
 #   结果检查
 POST	/resultcheck/linechart	            controllers.ResultCheckController.resultChecklinechart

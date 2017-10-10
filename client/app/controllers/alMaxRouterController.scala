@@ -121,14 +121,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
 
     
 
-    //样本报告
-    def samplereport = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.sampleReport(getAdminByCookies(request), PageDefaultData(alModularEnum.SR, db_basic_connection, db_basic_connection)._1))
-        }
-    }
+
 
     
 
