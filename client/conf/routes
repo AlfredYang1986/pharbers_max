@@ -103,7 +103,6 @@ POST	/resultcheck/histogram              controllers.ResultCheckController.resul
 #   结果查询
 POST 	/resultquery/search			        controllers.ResultQueryController.resultQuerySearch
 #   公司管理
-GET     /usermanage                         controllers.alMaxRouterController.usermanage
 POST    /usermanage/company/query           controllers.CompanyManageController.queryCompanys
 POST    /usermanage/company/delete          controllers.CompanyManageController.deleteCompany
 POST    /usermanage/company/findOne         controllers.CompanyManageController.findOneCompany
