@@ -120,15 +120,6 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
 
 
     
-    //样本检查
-    def sampleCheck = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            val defaultdata = PageDefaultData(alModularEnum.SC, db_basic_connection, db_basic_connection, false)
-            Ok(views.html.sampleCheck(getAdminByCookies(request), defaultdata._1, defaultdata._2))
-        }
-    }
 
     //样本报告
     def samplereport = Action { request =>

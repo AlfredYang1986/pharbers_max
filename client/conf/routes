@@ -93,7 +93,6 @@ POST	/pharbers/files/upload		        controllers.FopController.uploadFile
 POST    /filesUpload/scpCopyFiles           controllers.FilesUploadController.scpCopyFiles
 POST    /filesUpload/removeFiles            controllers.FilesUploadController.removeFiles
 #   样本检查
-GET		/samplecheck				        controllers.alMaxRouterController.sampleCheck
 POST	/samplecheck/check			        controllers.SampleCheckController.sampleCheck
 POST    /samplecheck/reloadselect           controllers.SampleCheckController.reloadSelect
 #   样本报告
@@ -103,7 +102,6 @@ POST	/samplereport/report		        controllers.SampleReportController.sampleRepo
 POST	/resultcheck/linechart	            controllers.ResultCheckController.resultChecklinechart
 POST	/resultcheck/histogram              controllers.ResultCheckController.resultCheckhistogram
 #   结果查询
-GET		/resultquery				        controllers.alMaxRouterController.resultQuery
 POST 	/resultquery/search			        controllers.ResultQueryController.resultQuerySearch
 #   公司管理
 GET     /usermanage                         controllers.alMaxRouterController.usermanage
