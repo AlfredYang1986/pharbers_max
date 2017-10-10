@@ -100,7 +100,6 @@ POST    /samplecheck/reloadselect           controllers.SampleCheckController.re
 GET		/samplereport				        controllers.alMaxRouterController.samplereport
 POST	/samplereport/report		        controllers.SampleReportController.sampleReport
 #   结果检查
-GET		/resultcheck				        controllers.alMaxRouterController.resultcheck
 POST	/resultcheck/linechart	            controllers.ResultCheckController.resultChecklinechart
 POST	/resultcheck/histogram              controllers.ResultCheckController.resultCheckhistogram
 #   结果查询
