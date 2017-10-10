@@ -118,14 +118,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
 
 
-    //文件上传
-    def filesUpload = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.filesUpload(getAdminByCookies(request), PageDefaultData(alModularEnum.FU, db_basic_connection, db_basic_connection)._1))
-        }
-    }
+
     
     //样本检查
     def sampleCheck = Action { request =>

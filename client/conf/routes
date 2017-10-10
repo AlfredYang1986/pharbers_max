@@ -87,7 +87,6 @@ GET     /calcdata                           controllers.alMaxRouterController.ca
 #历史数据
 GET		/historyData                        controllers.alMaxRouterController.historyData
 #   文件上传
-GET		/filesupload				        controllers.alMaxRouterController.filesUpload
 GET     /pharbers/files/:name               controllers.FopController.downloadFile(name)
 POST	/pharbers/files/upload		        controllers.FopController.uploadFile
 #POST	/pharbers/files/upload		        controllers.FopController.upload
