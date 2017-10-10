@@ -139,16 +139,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         }
     }
 
-
-
-    //结果查询
-    def resultQuery = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.resultQuery(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, db_basic_connection, db_basic_connection)._1))
-        }
-    }
+    
 
     //用户管理页面
     def usermanage = Action { request =>
