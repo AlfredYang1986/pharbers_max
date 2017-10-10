@@ -118,7 +118,6 @@ POST    /usermanage/user/delete             controllers.UserManageController.del
 POST    /usermanage/user/findOne            controllers.UserManageController.findOneUser
 POST    /usermanage/user/save               controllers.UserManageController.saveUser
 #   市场管理
-GET     /marketmanage                       controllers.alMaxRouterController.marketmanage
 POST    /marketmanage/query                 controllers.MarketManageController.queryMarkets
 POST    /marketmanage/delete                controllers.MarketManageController.deleteMarket
 POST    /marketmanage/findOne               controllers.MarketManageController.findOneMarket

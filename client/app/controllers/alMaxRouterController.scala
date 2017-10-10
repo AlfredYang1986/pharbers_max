@@ -167,14 +167,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         }
     }
 
-    //市场管理页面
-    def marketmanage = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.marketManage(getAdminByCookies(request)))
-        }
-    }
+
 
     def getUserTokenByCookies(request: Request[AnyContent]): String = {
         request.cookies.get("user_token").map(x => x.value).getOrElse("")
