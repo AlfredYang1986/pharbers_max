@@ -57,7 +57,7 @@ function login() {
 				$.cookie("ip",user.ip);
 				// $.tooltip('OK, 登录成功！', 2500, true);
 				setTimeout(function () {
-					location = "newindex"
+					location = "index"
 				}, 1000 * 3)
 			}else{
 				$.tooltip(r.result.message);

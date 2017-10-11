@@ -139,7 +139,7 @@ object UserModule extends ModuleTrait with UserData {
                     val url = s"http://127.0.0.1:9000/validation/token/$token"
     
                     val email = map.get("email").map(x => x.as[String]).getOrElse("")
-                    val html = views.html.pwdEmail(email, url)
+                    val html = views.html.emailContent.resetPassword(email, url)
                     implicit val stm = StmConf()
                     Mail().setContext(html.toString).setSubject("忘记密码").sendTo(email)
                     //原本是一个整个html的，因页面没有所以暂时只做url

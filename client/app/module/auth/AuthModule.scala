@@ -85,7 +85,7 @@ object AuthModule extends ModuleTrait with AuthData {
 			}
 			val reVal = att.encrypt2Token(toJson(o + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000))))
 			val email = o.get("email").map(x => x.as[String]).getOrElse("")
-			val html = views.html.authcode(email, reVal)
+			val html = views.html.emailContent.authcode(email, reVal)
 			Mail().setContext(html.toString).setSubject("授权码").sendTo(email)(StmConf())
 			// 直接返回一个授权码
 			(Some(Map("apply" -> toJson(o), "token" -> toJson(reVal))), None)
@@ -120,7 +120,7 @@ object AuthModule extends ModuleTrait with AuthData {
 			val name = (js \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
 			val reVal = att.encrypt2Token(toJson(js.as[Map[String, JsValue]] + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000)) + ("action" -> toJson("first_login"))))
 			val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(reVal, "ISO-8859-1")}"
-			val html = views.html.inEmail(email, url)
+			val html = views.html.emailContent.activeAccount(email, url)
 			implicit val stm = StmConf()
 			Mail().setContext(html.toString).setSubject("登入链接").sendTo(email)
 			val o: DBObject = DBObject("token" -> token)

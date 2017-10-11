@@ -1,0 +1,121 @@
+@main("Max | Login") {
+    <body class="gray-bg">
+        <div class="title"></div>
+        <div class="container">
+            <form class="layui-form layui-form-pane" method="post">
+                <div class="row">
+                    <div class="col-xs-4 col-xs-offset-4 box_log">
+                        <div class="large_title">
+                            MAX
+                        </div>
+
+                        <div class="small_info">
+                            <span>让每个决策都精彩</span>
+                            <br>
+                            <span>EMPOWER YOUR DECISION MAKING</span>
+                        </div>
+
+                        <div class="row">
+                            <div class="box_form">
+                                <div class="form-group row">
+                                    <div class="col-xs-12">
+                                        <input id="userName" class="form-control" lay-verify="email" required type="text" name="email" placeholder="企业邮箱">
+                                        <div class="form_tip_bottom" id="user_tip"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-xs-12">
+                                        <input id="pwd" class="form-control" lay-verify="password" required type="password" name="password" placeholder="密码">
+                                        <div class="form_tip_bottom" id="pwd_tip"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row"><div class="small_info toRight tohref" onclick="forget_pwd_location()">
+                            忘记密码</div></div>
+                        <div type="button" class="btn-submit login_btn" lay-submit="" lay-filter="sub">登&nbsp陆</div>
+                        <div class="row">
+                            <div class="small_info">没有账号?&nbsp&nbsp&nbsp&nbsp
+                                <a class="tohref" href="/register/info">快速预约体验</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="footer">
+            <div class="footer_info">京ICP备14013665号-2 © 2014-2017</div>
+        </div>
+
+
+        <script src="@routes.Assets.versioned("../../../public/js/common/md5.min.js")"></script>
+
+        <script type="text/javascript">
+                var f = new Facade();
+                var validate = f.validationModule();
+                var ajax = f.ajaxModule();
+                $(document).ready(function () {
+                    $('#popLayer').hide();
+                    $('#popTextValidate').hide();
+                    var $input = $("input");
+                    $input[0].focus();
+                    validate.input_blur("userName", "email");
+                    validate.input_blur("pwd", "isEmp");
+                });
+
+                layui.use(['form', 'layer'], function () {
+                    var $ = layui.jquery,
+                            form = layui.form,
+                            layer = layui.layer;
+                    // 验证
+                    form.verify({
+                        email: function (value) {
+                            if (value === "") {
+                                return "请输入用户名";
+                            }
+                        },
+                        password: function (value) {
+                            if (value === "") {
+                                return "请输入密码";
+                            }
+                        }
+                    });
+                    // 提交监听
+                    form.on('submit(sub)', function (data) {
+                        var json = JSON.stringify({
+                            "email": data.field.email,
+                            "password": md5(data.field.email + data.field.password)
+                        });
+                       if(validate.finalResult()){
+                           ajax.baseCall('auth/authWithPassword', json, 'POST', function (r) {
+                               if (r.status === 'ok') {
+                                   $.setCookie("user_token", r.result.auth_token);
+                                   $.setCookie("name", r.result.user.name);
+                                   $.setCookie('email', r.result.user.email);
+                                   $.setCookie('phone', r.result.user.phone);
+                                   location = "/auth/user/"
+                               } else {
+                                   layer.msg('用户名或密码错误！');
+                               }
+                           }, function (e) {
+                               console.error(e)
+                           });
+                       }
+                    });
+
+                    $('.layui-form').keydown(function (event) {
+                        if (event.keyCode === 13) {
+                            $(".login_btn").click();
+                            return false;
+                        }
+                    });
+                });
+
+                var forget_pwd_location = function () {
+                    location = "/password/find"
+                };
+        </script>
+    </body>
+}
