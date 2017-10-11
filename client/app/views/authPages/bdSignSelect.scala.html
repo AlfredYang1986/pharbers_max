@@ -88,8 +88,7 @@
         layui.use(['form', 'layer'], function () {})
 
         var phone_code = function() {
-            var phone = JSON.stringify({'phone': $('.phone').text(),
-                                        'reg_token': $.cookie('reg_token') == null || $.cookie('reg_token') == undefined ? Math.random().toString(36).substr(2) : $.cookie('reg_token')})
+            var phone = JSON.stringify({'phone': $('.phone').text()});
             ajaxData('/phonecode/send', phone, 'POST', function(r){
                 if(r.status === 'ok' && r.result.reg.flag === 'ok') {
                     $.setCookie('reg_token', r.result.reg.reg_token)
