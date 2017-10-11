@@ -55,6 +55,7 @@
         <script type="text/javascript">
                 var f = new Facade();
                 var validate = f.validationModule();
+                var ajax = f.ajaxModule();
                 $(document).ready(function () {
                     $('#popLayer').hide();
                     $('#popTextValidate').hide();
@@ -88,7 +89,7 @@
                             "password": md5(data.field.email + data.field.password)
                         });
                        if(validate.finalResult()){
-                           ajaxData('auth/authWithPassword', json, 'POST', function (r) {
+                           ajax.baseCall('auth/authWithPassword', json, 'POST', function (r) {
                                if (r.status === 'ok') {
                                    $.setCookie("user_token", r.result.auth_token);
                                    $.setCookie("name", r.result.user.name);

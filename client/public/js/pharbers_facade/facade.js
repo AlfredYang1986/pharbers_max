@@ -8,3 +8,7 @@ var Facade = function () {
 Facade.prototype.validationModule = function () {
     return new ValidateHandler();
 }
+
+Facade.prototype.ajaxModule = function () {
+    return new Ajax();
+}
