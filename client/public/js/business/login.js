@@ -1,4 +1,4 @@
-var f = new Facade();
+
 $(function(){
 	$("body").keydown(function(event) {
         if(event.which == 13){
@@ -26,7 +26,7 @@ $(function(){
         }
         login();
 	});
-    loginInfo();
+    loginInfo("#Name", "#company");
 })
 
 function login() {
@@ -74,12 +74,12 @@ function logout() {
 	location = "/login"
 }
 
-function loginInfo() {
+function loginInfo(name, compony ) {
 	if($.cookie("user_name") == undefined) {
-        $("#Name").text("未知")
-        $("#company").text("未知")
+        $(name).text("未知")
+        $(compony).text("未知")
 	}else {
-		$("#Name").text($.cookie("user_name"))
-        $("#company").text($.cookie("company_name_ch"))
+		$(name).text($.cookie("user_name"))
+        $(compony).text($.cookie("company_name_ch"))
 	}
 }
