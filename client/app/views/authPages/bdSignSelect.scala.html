@@ -80,6 +80,7 @@
     <script type="text/javascript">
         var f = new Facade();
         var validate = f.validationModule();
+        var ajax = f.ajaxModule()
         $(document).ready(function(){
             var $input = $("input");
             $input[0].focus();
@@ -93,7 +94,7 @@
 
         var phone_code = function() {
             var token = JSON.stringify({'user_token': $.cookie('user_token')})
-            ajaxData('/phonecode/send', token, 'POST', function(r){
+            ajax.baseCall('/phonecode/send', token, 'POST', function(r){
                 if(r.status === 'ok' && r.result.reg.flag === 'ok') {
                     $.cookie('reg_token', r.result.reg.reg_token)
                 }else {
@@ -111,7 +112,7 @@
                                                'code': num,
                                                'user_token': $.cookie('user_token')})
                     if(validate.finalResult()){
-                        ajaxData('/phonecode/check', json, 'POST', function(r){
+                        ajax.baseCall('/phonecode/check', json, 'POST', function(r){
                             if(r.status === 'ok' && r.result.result === 'success') {
                                 location = '/index';
                             }else {

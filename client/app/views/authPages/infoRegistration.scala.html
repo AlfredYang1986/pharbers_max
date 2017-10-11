@@ -52,6 +52,7 @@
     <script type="text/javascript">
         var f = new Facade();
         var validate = f.validationModule();
+        var ajax = f.ajaxModule();
         $(document).ready(function(){
             $('#popErr').hide();
             var $input = $("input");
@@ -94,7 +95,7 @@
                 var json = JSON.stringify(data.field);
 
                 if (validate.finalResult()) {
-                    ajaxData('/register/user', json, 'POST', function(r){
+                    ajax.baseCall('/register/user', json, 'POST', function(r){
                         if(r.status === 'ok' && r.result.registers === "ok") {
                             location = "/order/success "
                         }else {
