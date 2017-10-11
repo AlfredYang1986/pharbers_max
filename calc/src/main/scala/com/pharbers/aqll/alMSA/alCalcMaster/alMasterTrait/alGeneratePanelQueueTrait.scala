@@ -109,10 +109,10 @@ class alPanelJobComeo extends Actor with ActorLogging {
             "cpas" -> item.cpas.split("&").toList,
             "gycxs" -> item.gycxs.split("&").toList
         )
-        val result = new phPfizerHandleImpl(args).generatePanelFile(item.ym).asInstanceOf[JsString].value
-        alMessageProxy().sendMsg(result, item.user, Map("type" -> "txt"))
+        val file_path = new phPfizerHandleImpl(args).generatePanelFile(item.ym).asInstanceOf[JsString].value
+        alMessageProxy().sendMsg(file_path, item.user, Map("type" -> "txt"))
         sender ! releasePyEnergy()
-        sender ! generatePanelResult(result)
+        sender ! generatePanelResult(file_path)
     }
 
 }

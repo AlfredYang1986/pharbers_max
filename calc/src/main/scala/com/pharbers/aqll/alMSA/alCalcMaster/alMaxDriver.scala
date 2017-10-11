@@ -20,7 +20,7 @@ object alMaxDriver {
 	case class generatePanelJob(item : alUploadItem)
 	case class releasePyEnergy()
 	case class calcYMResult(ym:String)
-	case class generatePanelResult(file_name:String)
+	case class generatePanelResult(file_path:String)
 }
 
 class alMaxDriver extends Actor with ActorLogging
@@ -41,10 +41,10 @@ class alMaxDriver extends Actor with ActorLogging
 		case releasePyEnergy() => release_py_energy
 		case ExcuteScanScpQueue() => scanQueue()
 		case calcYMResult(ym) => sender ! calcYMResult(ym)
-		case generatePanelResult(file_name) => {
+		case generatePanelResult(file_path) => {
 			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
-			println("panel文件位置 = " + fileBase + outPut + file_name)
-			self ! push_filter_job(fileBase + file_name,cp)
+			println("panel文件位置 = " + file_path)
+			self ! push_filter_job(file_path,cp)
 		}
 
 		case _ => ???
