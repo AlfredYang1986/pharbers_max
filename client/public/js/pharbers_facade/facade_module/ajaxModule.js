@@ -1,11 +1,18 @@
 /**
  * Created by yym on 10/11/17.
  */
+
 var Ajax = function () {
 
 };
+//异步post
+Ajax.prototype.asyncPost = function (url, data, successFun, errorFun, beforeFun, completeFun) {
+    var errorFun = errorFun || function (e) {
+        console.log(e)
+    };
+    var beforeFun = beforeFun || function () {};
+    var completeFun = completeFun ||function () {};
 
-Ajax.prototype.asyncPost = function (url, data, successfun, errorfun) {
     $.ajax({
         url : url,
         type : "POST",
@@ -16,17 +23,28 @@ Ajax.prototype.asyncPost = function (url, data, successfun, errorfun) {
         cache : false,
         async : true,
         success : function (data) {
-            successfun(data);
+            successFun(data);
         },
-        error : function (data) {
-            errorfun(data);
+        error : function (e) {
+            errorFun(e);
+        },
+        beforeSend : function () {
+            beforeFun();
+        },
+        complete : function () {
+            completeFun();
         }
-
 
     })
 };
+//同步post
+Ajax.prototype.syncPost = function (url, data, successFun, errorFun, beforeFun, completeFun) {
+    var errorFun = errorFun || function (e) {
+            console.log(e)
+        };
+    var beforeFun = beforeFun || function () {};
+    var completeFun = completeFun ||function () {};
 
-Ajax.prototype.syncPost = function (url, data, successfun, errorfun) {
     $.ajax({
         url : url,
         type : "POST",
@@ -37,17 +55,27 @@ Ajax.prototype.syncPost = function (url, data, successfun, errorfun) {
         cache : false,
         async : false,
         success : function (data) {
-            successfun(data);
+            successFun(data);
         },
-        error : function (data) {
-            errorfun(data);
+        error : function (e) {
+            errorFun(e);
+        },
+        beforeSend : function () {
+            beforeFun();
+        },
+        complete : function () {
+            completeFun();
         }
-
 
     })
 };
 
-Ajax.prototype.baseCall = function (url, data, type, successfun, errorfun) {
+Ajax.prototype.baseCall = function (url, data, type, successFun, errorFun, beforeFun, completeFun) {
+    var errorFun = errorFun || function (e) {
+            console.log(e)
+    };
+    var beforeFun = beforeFun || function () {};
+    var completeFun = completeFun ||function () {};
     $.ajax({
         type: type,
         url: url,
@@ -57,10 +85,17 @@ Ajax.prototype.baseCall = function (url, data, type, successfun, errorfun) {
         contentType: "application/json,charset=utf-8",
         Accept: "application/json,charset=utf-8",
         success: function (data) {
-            successfun(data)
+            successFun(data)
         },
         error: function (e) {
-                errorfun(e)
-            }
-        });
+                errorFun(e)
+        },
+        beforeSend : function () {
+            beforeFun();
+        },
+        complete : function () {
+            completeFun();
+        }
+    });
+
 };
