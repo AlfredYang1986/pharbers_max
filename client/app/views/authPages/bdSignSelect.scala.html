@@ -91,7 +91,7 @@
         var phone_code = function() {
 
             var phone = JSON.stringify({'phone': $('.phone').text()});
-            ajax.baseCall('/phonecode/send', token, 'POST', function(r){
+            ajax.baseCall('/phonecode/send', phone, 'POST', function(r){
                 if(r.status === 'ok' && r.result.reg.flag === 'ok') {
                     $.setCookie('reg_token', r.result.reg.reg_token)
                 }else if(r.status === 'error') {

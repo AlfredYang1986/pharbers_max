@@ -46,20 +46,10 @@ trait RegisterData {
 		val reg_content = obj.as[MongoDBObject]("reg_content")
 		Map("email" -> toJson(reg_content.getAs[String]("email").map(x => x).getOrElse("")),
 			"company" -> toJson(reg_content.getAs[String]("company").map(x => x).getOrElse("")),
-			"linkman" -> toJson(reg_content.getAs[String]("linkman").map(x => x).getOrElse("")),
+			"name" -> toJson(reg_content.getAs[String]("linkman").map(x => x).getOrElse("")),
 			"phone" -> toJson(reg_content.getAs[String]("phone").map(x => x).getOrElse("")),
 			"status" -> toJson(obj.getAs[Int]("status").map(x => x).getOrElse(0)),
 			"scope" -> toJson(reg_content.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)),
 			"date" -> toJson(obj.getAs[Number]("date").map(x => x).getOrElse(0).toString.toLong))
 	}
-
-    def detail2map(obj : DBObject) : Map[String, JsValue] = {
-        val reg_content = obj.as[MongoDBObject]("reg_content")
-        Map("email" -> toJson(reg_content.getAs[String]("email").map(x => x).getOrElse("")),
-            "company" -> toJson(reg_content.getAs[String]("company").map(x => x).getOrElse("")),
-            "linkman" -> toJson(reg_content.getAs[String]("linkman").map(x => x).getOrElse("")),
-			"name" -> toJson(reg_content.getAs[String]("linkman").map(x => x).getOrElse("")),
-            "phone" -> toJson(reg_content.getAs[String]("phone").map(x => x).getOrElse("")),
-            "scope" -> toJson(reg_content.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)))
-    }
 }

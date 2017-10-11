@@ -21,7 +21,7 @@ class RegisterController @Inject () (as_inject : ActorSystem, dbt : dbInstanceMa
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("user_register"))), jv)
 			:: msg_user_filter_register(jv) :: msg_user_register(jv)
-			::  msg_CommonResultMessage() :: Nil, None)(
+			:: msg_CommonResultMessage() :: Nil, None)(
 				CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
@@ -33,5 +33,4 @@ class RegisterController @Inject () (as_inject : ActorSystem, dbt : dbInstanceMa
 			:: msg_query_register_bd(jv) ::  msg_CommonResultMessage() :: Nil, None)(
 				CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
-	
 }

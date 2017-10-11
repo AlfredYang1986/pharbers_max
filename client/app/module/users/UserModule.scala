@@ -38,9 +38,10 @@ object UserModule extends ModuleTrait with UserData {
     }
     
     def push_user(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        
         try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
             val o = pr match {
                 case None => m2d(data)
                 case Some(one) =>
@@ -54,9 +55,10 @@ object UserModule extends ModuleTrait with UserData {
     }
     
     def delete_user(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        
         try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
             val o = conditions(data)
             db.deleteObject(o, "users", "user_id")
             (Some(Map("delete_user" -> toJson("ok"))), None)
@@ -66,9 +68,10 @@ object UserModule extends ModuleTrait with UserData {
     }
     
     def update_user(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        
         try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
             val o = pr match {
                 case None => m2d(data)
                 case Some(one) => m2d(one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist")))
@@ -82,9 +85,10 @@ object UserModule extends ModuleTrait with UserData {
     }
     
     def query_user(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        
         try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
             val skip = (data \ "skip").asOpt[Int].map (x => x).getOrElse(0)
             val take = (data \ "take").asOpt[Int].map (x => x).getOrElse(20)
             val o = conditions(data)
@@ -99,9 +103,10 @@ object UserModule extends ModuleTrait with UserData {
     }
     
     def query_user_info(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        
         try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
             val o = conditions(data)
             db.queryObject(o, "users") match {
                 case None => throw new Exception("data not exist")
@@ -113,9 +118,10 @@ object UserModule extends ModuleTrait with UserData {
     }
     
     def check_user_email(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        
         try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
             val o = conditions(data)
             db.queryObject(o, "users") match {
                 case None => throw new Exception("data not exist")
@@ -128,8 +134,9 @@ object UserModule extends ModuleTrait with UserData {
     }
     
     def forget_password_user(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
+        
         try {
+            val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
             pr match {
                 case None => throw new Exception("pr data not exist")
                 case Some(one) =>
@@ -140,9 +147,8 @@ object UserModule extends ModuleTrait with UserData {
     
                     val email = map.get("email").map(x => x.as[String]).getOrElse("")
                     val html = views.html.emailContent.resetPassword(email, url)
-                    implicit val stm = StmConf()
-                    Mail().setContext(html.toString).setSubject("忘记密码").sendTo(email)
-                    //原本是一个整个html的，因页面没有所以暂时只做url
+                    
+                    Mail().setContext(html.toString).setSubject("忘记密码").sendTo(email)(StmConf())
                     (Some(Map("urltoken" -> toJson("ok"))), None)
             }
         }catch {
@@ -163,9 +169,10 @@ object UserModule extends ModuleTrait with UserData {
     }
     
     def change_user_pwd(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        
         try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
             val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 
             val user = pr match {
@@ -181,7 +188,6 @@ object UserModule extends ModuleTrait with UserData {
                     o
                 }
                 case Some(tmp) => {
-                    println(tmp)
                     db.updateObject(o, "users", "user_id")
                     o
                 }
@@ -192,9 +198,7 @@ object UserModule extends ModuleTrait with UserData {
 			val auth_token = att.encrypt2Token(toJson(reVal))
 			(Some(Map("user" -> toJson(one - "scope"), "auth_token" -> toJson(auth_token))), None)
         }catch {
-            case ex: Exception =>
-                println(ex)
-                (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+            case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
     }
 
