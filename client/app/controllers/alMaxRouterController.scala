@@ -51,7 +51,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
 
     def dbLogin = Action { request =>
-        Ok(views.html.dblogin())
+        Ok(views.html.bdSignSelect())
     }
 
     def userInfoConfirm = Action { request =>
@@ -59,23 +59,23 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
     //验证授权码
     def verificationRegister = Action { request =>
-        Ok(views.html.register_verification())
+        Ok(views.html.registerCodeValidation())
     }
     //过期
     def tokenFail = Action { request =>
         Ok(views.html.fail_token())
     }
     //邮箱激活
-    def emailInvocation(name:String, email:String) = Action { request =>
-        Ok(views.html.invocation_email(name, email))
+    def emailInvocation(name : String, email : String) = Action { request =>
+        Ok(views.html.emailBeenSend(name, email))
     }
 
     //密码
     def findpwd = Action{
-        Ok(views.html.findpwd())
+        Ok(views.html.findPassword())
     }
     def findpwd_success = Action{
-        Ok(views.html.success_findpwd())
+        Ok(views.html.findPasswordSuccess())
     }
     def new_pwd(token: String) = Action{
         Ok(views.html.newPassword())
@@ -123,14 +123,14 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     
     //授权成功
     def postSuccess = Action{
-        Ok(views.html.success_post())
+        Ok(views.html.successEmailPost())
     }
     
     //快速预约成功
 //    def registerSuccess() = Action{
-//        Ok(views.html.success_register())
+//        Ok(views.html.successRegister())
 //    }
-    def registerSuccess(name:String,email:String) = Action{
-        Ok(views.html.success_register(name,email))
+    def registerSuccess(name : String, email : String) = Action{
+        Ok(views.html.successRegister(name, email))
     }
 }
