@@ -65,6 +65,7 @@
     <script type="text/javascript">
         var f = new Facade();
         var validate = f.validationModule();
+        var ajax = f.ajaxModule();
         $(document).ready(function () {
             $("#alert_err").hide();
             validate.input_blur("email_user", "email");
@@ -126,7 +127,7 @@
                 var check = JSON.stringify({"user_token": $.cookie('user_token'), "code": data.field.code, "reg_token": $.cookie('reg_token')})
 
                 if (validate.finalResult()) {
-                    ajaxData('/phonecode/check', check, 'POST', function(r){
+                    ajax.baseCall('/phonecode/check', check, 'POST', function(r){
                         if(r.status === 'ok' && r.result.result === 'success') {
                             again();
                         }else {
@@ -135,7 +136,7 @@
                         }
                     }, function(e){console.error(e)});
                     var again = function () {
-                        ajaxData('/auth/tokenDefeat', json, 'POST', function(r){
+                        ajax.baseCall('/auth/tokenDefeat', json, 'POST', function(r){
                             if(r.status === "ok" && r.result.token !== undefined){
                                 var name = r.result.apply.name;
                                 var email = r.result.apply.email;
@@ -153,11 +154,12 @@
                 var json = JSON.stringify({"reginfo": data.field});
 
                 if (validate.finalResultWithExt(["phone"])) {
-                    console.info()
+                    console.info(json)
 //                    var m = JSON.stringify({"phone": $('input[name="phone"]').val()})
-//                    ajaxData('/phonecode/send', m, 'POST', function(r){
+//                    ajax.baseCall('/phonecode/send', m, 'POST', function(r){
 //                        $.cookie('reg_token', r.result.reg.reg_token)
 //                    }, function(e){console.error(e)})
+
                     return false;
                 }
             });

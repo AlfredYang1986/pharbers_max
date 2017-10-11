@@ -77,6 +77,7 @@
     <script type="text/javascript">
         var f = new Facade();
         var validate = f.validationModule();
+        var ajax = f.ajaxModule()
         $(document).ready(function(){
             $('.phone').text($.cookie('phone'))
             $('#popTextValidate').hide();
@@ -88,8 +89,9 @@
         layui.use(['form', 'layer'], function () {})
 
         var phone_code = function() {
+
             var phone = JSON.stringify({'phone': $('.phone').text()});
-            ajaxData('/phonecode/send', phone, 'POST', function(r){
+            ajax.baseCall('/phonecode/send', token, 'POST', function(r){
                 if(r.status === 'ok' && r.result.reg.flag === 'ok') {
                     $.setCookie('reg_token', r.result.reg.reg_token)
                 }else if(r.status === 'error') {
@@ -109,7 +111,7 @@
                                                'code': num,
                                                'phone': $('.phone').text()})
                     if(validate.finalResult()){
-                        ajaxData('/phonecode/check', json, 'POST', function(r){
+                        ajax.baseCall('/phonecode/check', json, 'POST', function(r){
                             if(r.status === 'ok' && r.result.result === 'success') {
                                 location = '/index';
                             }else {
