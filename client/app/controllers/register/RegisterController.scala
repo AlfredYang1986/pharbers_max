@@ -20,10 +20,12 @@ class RegisterController @Inject () (as_inject : ActorSystem, dbt : dbInstanceMa
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("user_register"))), jv)
-			:: msg_user_register(jv) ::  msg_CommonResultMessage() :: Nil, None)(
+			:: msg_user_filter_register(jv) :: msg_user_register(jv)
+			::  msg_CommonResultMessage() :: Nil, None)(
 				CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
+	// TODO: 准备新增条件过滤，还未实现
 	def query_register_bd = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result

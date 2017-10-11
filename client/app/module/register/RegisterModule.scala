@@ -16,47 +16,72 @@ object RegisterModule extends ModuleTrait with RegisterData {
         case msg_query_register_bd(data: JsValue) => query_bd(data)
         case msg_is_user_register(data : JsValue) => user_is_register(data)
         case msg_approve_reg(data : JsValue) => approve_reg(data)(pr)
+        case msg_user_filter_register(data: JsValue) => user_filter_register(data)
+        case msg_user_register_status(data: JsValue) => user_register_status(data)
         case _ => throw new Exception("function is not impl")
     }
 
     def user_is_register(data : JsValue)(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
         try {
+	        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
             val o : DBObject = conditions(data)
-
             db.queryMultipleObject(o, "reg_apply")(detail2map) match {
-                case Nil => throw new Exception("")
+                case Nil => throw new Exception("user not exist")
                 case x :: _ => (Some(Map("apply" -> toJson(x))), None)
             }
-
-//            db.queryObject(o, "reg_apply")(detail2map).map { x =>
-//                (Some(Map("apply" -> toJson(x))), None)
-//
-//            }.getOrElse(throw new Exception(""))
-
+        } catch {
+            case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+        }
+    }
+    
+    def user_register_status(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+        try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
+            val o : DBObject = conditions(data)
+            db.queryMultipleObject(o, "reg_apply") match {
+                case Nil => throw new Exception("user not exist")
+                case x :: _ => x.get("status").map(x => x.as[Int]).getOrElse(throw new Exception("data not exist")) match {
+                    case 0 => (Some(Map("apply" -> toJson(x))), None)
+                    case 1 => throw new Exception("successful application")
+                }
+            }
+        } catch {
+            case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+        }
+    }
+	
+    def user_filter_register(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+        try {
+            val conn = cm.modules.get.get("db").map(x =>x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
+            val o: DBObject = conditions(data)
+            db.queryMultipleObject(o, "reg_apply")(detail2map) match {
+                case Nil => (Some(Map("apply" -> toJson("ok"))), None)
+                case _ => throw new Exception("user is repeat")
+            }
         } catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
     }
     
     def user_register(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
         try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
             val o: DBObject = m2d(data)
             db.insertObject(o, "reg_apply", "reg_id")
             (Some(Map("registers" -> toJson("ok"))), None)
         } catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
-        
     }
     
     def query_bd(data: JsValue)(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-        val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
         try {
+            val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
             val skip = (data \ "skip").asOpt[Int].map (x => x).getOrElse(0)
             val take = (data \ "take").asOpt[Int].map (x => x).getOrElse(20)
             val o = conditions(data)
@@ -72,7 +97,6 @@ object RegisterModule extends ModuleTrait with RegisterData {
     def approve_reg(data : JsValue)
                    (pr : Option[Map[String, JsValue]])
                    (implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-
         try {
             val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
             val db = conn.queryDBInstance("cli").get
@@ -86,9 +110,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
                 db.updateObject(x, "reg_apply", "reg_id")
                 x
             }
-
             (Some(Map("token" -> toJson(token))), None)
-
         } catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }

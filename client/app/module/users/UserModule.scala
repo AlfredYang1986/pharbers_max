@@ -5,7 +5,7 @@ import java.util.Date
 import com.mongodb.casbah.Imports._
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.email.{Mail, StmConf}
-import com.pharbers.aqll.common.sercurity.Sercurity
+import com.pharbers.sercuity.Sercurity
 import module.users.UserMessage._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -69,15 +69,10 @@ object UserModule extends ModuleTrait with UserData {
         val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
         val db = conn.queryDBInstance("cli").get
         try {
-            println(data)
-            println(pr)
-
             val o = pr match {
                 case None => m2d(data)
                 case Some(one) => m2d(one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist")))
             }
-
-            println(o)
 
             db.updateObject(o, "users", "user_id")
             (Some(Map("push_user" -> toJson("ok"))), None)
@@ -196,8 +191,6 @@ object UserModule extends ModuleTrait with UserData {
             val reVal = one + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 			val auth_token = att.encrypt2Token(toJson(reVal))
 			(Some(Map("user" -> toJson(one - "scope"), "auth_token" -> toJson(auth_token))), None)
-
-//            (Some(Map("user_info" -> toJson(d2m(o)))), None)
         }catch {
             case ex: Exception =>
                 println(ex)
@@ -214,7 +207,7 @@ object UserModule extends ModuleTrait with UserData {
             val o = conditions(js)
             db.queryObject(o, "users") match {
                 case None => (Some(Map("not_exist" -> toJson("ok"))), None)
-                case Some(_) => throw new Exception("")
+                case Some(_) => throw new Exception("user already exists")
             }
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))

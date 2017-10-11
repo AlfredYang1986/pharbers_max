@@ -10,8 +10,7 @@ trait AuthData {
 	def jv2m(data: JsValue): Map[String, JsValue] = {
 		Map(
 			"email" -> toJson((data \ "reginfo" \ "email").asOpt[String].map(x => x).getOrElse("")),
-//			"name" -> toJson((data \ "reginfo" \ "name").asOpt[String].map(x => x).getOrElse("")),
-			"name" -> toJson((data \ "reginfo" \ "name").asOpt[String].map(x => x).getOrElse("")),
+			"name" -> toJson((data \ "reginfo" \ "name").asOpt[String].map(x => x).getOrElse((data \ "reginfo" \ "linkman").asOpt[String].map(x => x).getOrElse(""))),
 			"phone" -> toJson((data \ "reginfo" \ "phone").asOpt[String].map(x => x).getOrElse("")),
 			"scope" -> toJson((data \ "reginfo" \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil))
 		)

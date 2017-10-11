@@ -1,6 +1,6 @@
 <pharbers-modules>
     <error_code>
-        <error reason="input error" code="-1" description="输入的参数有错误" />
+        <error reason="wrong input" code="-1" description="输入的参数有错误" />
 
         <error reason="url get error" code="-101" description="URL 有误" />
         <error reason="primary key error" code="-102" description="主键重复创建或者主键出错" />
@@ -9,6 +9,7 @@
         <error reason="function is not impl" code="-105" description="函数未实现" />
         <error reason="pr data not exist" code="-106" description="pr数据不存在" />
         <error reason="not instance data" code="-107" description="无实例数据" />
+        <error reason="time bound error" code="-108" description="时间界限错误" />
 
         <error reason="user have no email" code="-201" description="无用户邮箱" />
         <error reason="user have no secret" code="-202" description="无用户密码" />
@@ -18,6 +19,13 @@
         <error reason="info input email" code="-206" description="请输入联系邮箱" />
         <error reason="info input company name" code="-207" description="请输入公司名称" />
         <error reason="info input linkman name" code="-208" description="请输入联系人" />
+        <error reason="user is repeat" code="-209" description="用户重复" />
+        <error reason="user is not BD" code="-210" description="该用户不是BD人员" />
+        <error reason="user is not AD" code="-211" description="该用户不是AD人员" />
+        <error reason="user already exists" code="-212" description="用户已存在, 请尝试登入" />
+        <error reason="successful application" code="-213" description="授权码已经申请成功，请走授权码过期流程" />
+        <error reason="phone code time is lt 60 seconds" code="-213" description="请60秒过后再次尝试发送手机验证码" />
+        <error reason="authorizationcode already used" code="-214" description="授权码已经被使用" />
 
         <error reason="reg push error" code="-301" description="验证码发送失败" />
         <error reason="reg phone or code error" code="-302" description="电话号码或者验证码出错" />

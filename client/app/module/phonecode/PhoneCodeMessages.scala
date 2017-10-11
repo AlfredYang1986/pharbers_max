@@ -8,4 +8,5 @@ abstract class msg_PhoneCodeCommand extends CommonMessage("phoneCode", PhoneCode
 object PhoneCodeMessages {
 	case class msg_send_sms_code(data : JsValue) extends msg_PhoneCodeCommand
 	case class msg_check_sms_code(data : JsValue) extends msg_PhoneCodeCommand
+	case class msg_check_send_time(data: JsValue) extends msg_PhoneCodeCommand
 }

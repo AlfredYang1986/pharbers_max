@@ -20,7 +20,7 @@
                             </div>
                             <div class="form-group row">
                                 <div class="col-xs-12">
-                                    <div class="login_btn" onclick="openTextValidate(),phone_code()">专用账号</div>
+                                    <div class="login_btn" onclick="openTextValidate()">专用账号</div>
                                     <div class="form_tip_bottom"></div>
                                 </div>
                             </div>
@@ -49,7 +49,7 @@
                 <div class="row"><span class="small_info toLeft">请填写该验证码登入。</span></div>
                 <div class="space-height"></div>
                 <div class="row"><span class="small_info toLeft">若修改绑定手机，</span></div>
-                <div class="row"><span class="small_info toLeft">请联系:000000000000</span></div>
+                <div class="row"><span class="small_info toLeft">请联系:010-84244216</span></div>
                 <div class="space-height"></div>
                 <div class="form-group row">
                     <input id="phone_validation" class="form-control" type="text" name="code" maxlength="4" placeholder="请填入手机验证码">
@@ -64,15 +64,12 @@
                 <div class="space-height"></div>
                 <span class="small_info">连续输入五次错误，</span>
                 <br>
-                <span class="small_info">系统将强制登出并锁定！</span>
+                <span class="small_info">系统将在5秒后强制登出！</span>
                 <br>
                 <div class="space-height"></div>
                 <div class="space-height"></div>
-                <span class="small_info">如遇问题请致电：249320495</span>
-                <div class="space-height"></div>
-                <div class="inCentre">
-                    <div class="nomal_btn" style="background-color: #953b39" onclick="">关闭</div>
-                </div>
+                <span class="small_info">如遇问题请致电：010-84244216</span>
+
             </div>
         </div>
     </body>
@@ -81,8 +78,7 @@
         var validate = new ValidateHandler();
         var errornum = 1;
         $(document).ready(function(){
-            var $input = $("input");
-            $input[0].focus();
+            $('.phone').text($.cookie('phone'))
             $('#popTextValidate').hide();
             $('#popErr').hide();
             check_code();
@@ -92,10 +88,13 @@
         layui.use(['form', 'layer'], function () {})
 
         var phone_code = function() {
-            var token = JSON.stringify({'user_token': $.cookie('user_token')})
-            ajaxData('/phonecode/send', token, 'POST', function(r){
+            var phone = JSON.stringify({'phone': $('.phone').text(),
+                                        'reg_token': $.cookie('reg_token') == null || $.cookie('reg_token') == undefined ? Math.random().toString(36).substr(2) : $.cookie('reg_token')})
+            ajaxData('/phonecode/send', phone, 'POST', function(r){
                 if(r.status === 'ok' && r.result.reg.flag === 'ok') {
-                    $.cookie('reg_token', r.result.reg.reg_token)
+                    $.setCookie('reg_token', r.result.reg.reg_token)
+                }else if(r.status === 'error') {
+                    layer.msg(r.error.message);
                 }else {
                     layer.msg('出现未知错误，请联系管理员！');
                 }
@@ -105,10 +104,10 @@
         var check_code = function() {
             $('input[name="code"]').keyup(function(){
                 var num = $(this).val();
-                if(num.length == $(this).attr('maxlength')) {
+                if(num.length.toString() === $(this).attr('maxlength')) {
                     var json = JSON.stringify({'reg_token': $.cookie('reg_token'),
                                                'code': num,
-                                               'user_token': $.cookie('user_token')})
+                                               'phone': $('.phone').text()})
                     if(validate.finalResult()){
                         ajaxData('/phonecode/check', json, 'POST', function(r){
                             if(r.status === 'ok' && r.result.result === 'success') {
@@ -146,6 +145,7 @@
                 top: '20%',
                 color: '#fff'
             });
+            $('input[name="code"]').focus();
         }
         var errInfo = function(){
             var index = layer.open({
@@ -153,14 +153,10 @@
                 skin: 'layui-layer-demo',
                 area: ['400px','450px'],
                 shade: [0.8, '#393D49'],
-                content: $('#popErr'),
-                cancel: function(index, layero){
-                    layer.close(index)
-                    $('#popErr').hide();
-                }
+                content: $('#popErr')
             });
             layer.title("信息验证错误", index);
-
+            setTimeout(function(){logout();}, 5000)
         }
     </script>
 }

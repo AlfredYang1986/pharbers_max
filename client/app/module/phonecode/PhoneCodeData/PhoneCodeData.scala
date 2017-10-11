@@ -2,11 +2,18 @@ package module.phonecode.PhoneCodeData
 
 import com.mongodb.DBObject
 import com.mongodb.casbah.Imports._
-import com.pharbers.aqll.common.sercurity.Sercurity
+import com.pharbers.sercuity.Sercurity
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
 trait PhoneCodeData {
+	
+	def conditions(data: JsValue): DBObject = {
+		val build = MongoDBObject.newBuilder
+		(data \ "phone").asOpt[String].map(x => build += "phone" -> x).getOrElse(Unit)
+		build.result
+	}
+	
 	implicit val m2d : JsValue => DBObject = { js =>
 		val builder = MongoDBObject.newBuilder
 		

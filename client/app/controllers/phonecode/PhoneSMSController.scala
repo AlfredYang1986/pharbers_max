@@ -20,12 +20,12 @@ class PhoneSMSController @Inject () (as_inject : ActorSystem, dbt : dbInstanceMa
 	def sendSMSCode = Action (request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		import com.pharbers.bmpattern.LogMessage.common_log
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("send sms code"))), jv) :: msg_auth_token_parser(jv) :: msg_auth_token_expire(jv) :: msg_send_sms_code(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("send sms code"))), jv) :: msg_check_send_time(jv) ::  msg_send_sms_code(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
 	def checkSMSCode = Action (request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		import com.pharbers.bmpattern.LogMessage.common_log
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("check sms code"))), jv) :: msg_auth_token_parser(jv) :: msg_auth_token_expire(jv) :: msg_check_sms_code(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("check sms code"))), jv) :: msg_check_sms_code(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 }

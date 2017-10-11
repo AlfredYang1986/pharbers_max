@@ -89,6 +89,7 @@
                                    $.setCookie("user_token", r.result.auth_token);
                                    $.setCookie("name", r.result.user.name);
                                    $.setCookie('email', r.result.user.email);
+                                   $.setCookie('phone', r.result.user.phone);
                                    location = "/auth/user/"
                                } else {
                                    layer.msg('用户名或密码错误！');

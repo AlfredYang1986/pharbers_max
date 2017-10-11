@@ -4,7 +4,7 @@ import java.util.Date
 
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.aqll.common.sercurity.Sercurity
+import com.pharbers.sercuity.Sercurity
 import com.pharbers.token.AuthTokenTrait
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson

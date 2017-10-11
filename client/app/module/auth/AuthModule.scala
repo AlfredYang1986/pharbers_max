@@ -1,7 +1,7 @@
 package module.auth
 
 import java.util.Date
-
+import com.mongodb.casbah.Imports._
 import com.pharbers.ErrorCode
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
@@ -10,8 +10,7 @@ import com.pharbers.token.AuthTokenTrait
 import module.auth.AuthData._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import module.auth.AuthMessage._
-import com.mongodb.casbah.Imports._
+import module.auth.AuthMessage.{msg_auth_token_type, _}
 import com.pharbers.aqll.common.email.{Mail, StmConf}
 
 import scala.collection.immutable.Map
@@ -25,14 +24,16 @@ object AuthModule extends ModuleTrait with AuthData {
 		case msg_auth_create_token(data) => authCreateToken(data)(pr)
 		case msg_auth_token_defeat(data) => authWithTokenDefeat(data)
 		case msg_auth_code_push_success(data) => authCodePushSuccess(data)
+		case msg_auth_token_type(data) => authTokenType(data)(pr)
+		case msg_auth_token_used(data) => checkAuthTokenUsed(data)
 		case _ => throw new Exception("function is not impl")
 	}
 	
 	def authWithPassword(data : JsValue)(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-		val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-		val db = conn.queryDBInstance("cli").get
-		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 		try {
+			val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = conn.queryDBInstance("cli").get
+			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val map = m2d(data)
 			val date = new Date().getTime
 			db.queryObject(map, "users") match {
@@ -64,8 +65,8 @@ object AuthModule extends ModuleTrait with AuthData {
 	}
 	
 	def authTokenParser(data: JsValue)(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 		try {
+			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val auth_token = (data \ "user_token").asOpt[String].map (x => x).getOrElse(throw new Exception("input error"))
 			val auth = att.decrypt2JsValue(auth_token)
 			(Some(Map("auth" -> auth)), None)
@@ -76,8 +77,8 @@ object AuthModule extends ModuleTrait with AuthData {
 	}
 	
 	def authCreateToken(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 		try {
+			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val o = pr match {
 				case None => jv2m(data)
 				case Some(one) => jv2m(toJson(Map("reginfo" -> one.get("apply").get)))
@@ -94,9 +95,9 @@ object AuthModule extends ModuleTrait with AuthData {
 	}
 	
 	def authWithTokenDefeat(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-		val db = conn.queryDBInstance("cli").get
 		try{
+			val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = conn.queryDBInstance("cli").get
 			val o = reg_conditions(data)
 			db.queryObject(o, "reg_apply")(reg_d2m) match {
 				case None => throw new Exception("data not exist")
@@ -108,8 +109,11 @@ object AuthModule extends ModuleTrait with AuthData {
 	}
 	
 	def authCodePushSuccess(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 		try {
+			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
+			val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = conn.queryDBInstance("cli").get
+			
 			val token = (data \ "user_token").asOpt[String].map(x => x).getOrElse("")
 			val js = att.decrypt2JsValue(token)
 			val email = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
@@ -119,11 +123,47 @@ object AuthModule extends ModuleTrait with AuthData {
 			val html = views.html.inEmail(email, url)
 			implicit val stm = StmConf()
 			Mail().setContext(html.toString).setSubject("登入链接").sendTo(email)
+			val o: DBObject = DBObject("token" -> token)
+			db.insertObject(o, "authorizationcode", "token")
 			(Some(Map("url" -> toJson(url),
 				"name" -> toJson(name),
 				"email" -> toJson(email)
 			)), None)
 		}catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	def checkAuthTokenUsed(data: JsValue)(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
+		try {
+			val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = conn.queryDBInstance("cli").get
+			val token = (data \ "user_token").asOpt[String].getOrElse(throw new Exception(""))
+			val o: DBObject = DBObject("token" -> token)
+			db.queryObject(o, "authorizationcode"){ x =>
+				Map("token" -> toJson(x.getAs[String]("token")))
+			} match {
+				case None => (Some(Map("used" -> toJson("ok"))), None)
+				case _ => throw new Exception("authorizationcode already used")
+			}
+			
+		} catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	
+	def authTokenType(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			pr match {
+				case None => throw new Exception("")
+				case Some(one) =>
+					val reVal = one.get("auth").get.as[Map[String, JsValue]]
+					val lst = reVal.get("scope").map(x => x.as[List[String]]).getOrElse(throw new Exception(""))
+					if(lst.contains("BD")) (Some(Map("user_type" -> toJson(lst))), None)
+					else throw new Exception("user is not BD")
+			}
+		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}

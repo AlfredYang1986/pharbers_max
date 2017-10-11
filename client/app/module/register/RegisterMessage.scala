@@ -13,4 +13,6 @@ object RegisterMessage {
     case class msg_user_register(data: JsValue) extends msg_RegisterCommand
     case class msg_query_register_bd(data: JsValue) extends msg_RegisterCommand
     case class msg_approve_reg(data : JsValue) extends msg_RegisterCommand
+    case class msg_user_filter_register(data: JsValue) extends msg_RegisterCommand
+    case class msg_user_register_status(data: JsValue) extends msg_RegisterCommand
 }
