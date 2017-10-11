@@ -64,14 +64,12 @@
 
     <script type="text/javascript">
         var f = new Facade();
-        var validate = f.validationModule();
-        var ajax = f.ajaxModule();
         $(document).ready(function () {
             $("#alert_err").hide();
-            validate.input_blur("email_user", "email");
-            validate.input_blur("name_user", "name");
-            validate.input_blur("phone_user", "phone");
-            validate.input_blur("code_user", "isEmp");
+            f.validationModule.input_blur("email_user", "email");
+            f.validationModule.input_blur("name_user", "name");
+            f.validationModule.input_blur("phone_user", "phone");
+            f.validationModule.input_blur("code_user", "isEmp");
         });
 
         var errShow = function(){
@@ -126,8 +124,8 @@
                 var json = JSON.stringify(data.field);
                 var check = JSON.stringify({"user_token": $.cookie('user_token'), "code": data.field.code, "reg_token": $.cookie('reg_token')})
 
-                if (validate.finalResult()) {
-                    ajax.baseCall('/phonecode/check', check, 'POST', function(r){
+                if (f.validationModule.finalResult()) {
+                    f.ajaxModule.baseCall('/phonecode/check', check, 'POST', function(r){
                         if(r.status === 'ok' && r.result.result === 'success') {
                             again();
                         }else {
@@ -136,7 +134,7 @@
                         }
                     }, function(e){console.error(e)});
                     var again = function () {
-                        ajax.baseCall('/auth/tokenDefeat', json, 'POST', function(r){
+                        f.ajaxModule.baseCall('/auth/tokenDefeat', json, 'POST', function(r){
                             if(r.status === "ok" && r.result.token !== undefined){
                                 var name = r.result.apply.name
                                 var email = r.result.apply.email
@@ -157,8 +155,8 @@
                 var json = JSON.stringify(obj);
 
 
-                if (validate.finalResultWithExt(["code"])) {
-                    ajax.baseCall('/auth/createToken', json, 'POST', function(r){
+                if (f.validationModule.finalResultWithExt(["code"])) {
+                    f.ajaxModule.baseCall('/auth/createToken', json, 'POST', function(r){
                         if(r.status === "ok"){
                             $.cookie('user_token', r.result.token);
                             send()
@@ -166,7 +164,7 @@
                     }, function(e){console.error(e)});
                     var send = function() {
                         var m = JSON.stringify({"user_token": $.cookie('user_token')})
-                        ajax.baseCall('/phonecode/send', m, 'POST', function(r){
+                        f.ajaxModule.baseCall('/phonecode/send', m, 'POST', function(r){
                             $.cookie('reg_token', r.result.reg.reg_token)
                         }, function(e){console.error(e)})
                     };

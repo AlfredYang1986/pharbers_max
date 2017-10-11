@@ -2,11 +2,11 @@
  * Created by yym on 10/11/17.
  */
 
-var Ajax = function () {
+var AjaxCall = function () {
 
 };
 //异步post
-Ajax.prototype.asyncPost = function (url, data, successFun, errorFun, beforeFun, completeFun) {
+AjaxCall.prototype.asyncPost = function (url, data, successFun, errorFun, beforeFun, completeFun) {
     var errorFun = errorFun || function (e) {
         console.log(e)
     };
@@ -38,7 +38,7 @@ Ajax.prototype.asyncPost = function (url, data, successFun, errorFun, beforeFun,
     })
 };
 //同步post
-Ajax.prototype.syncPost = function (url, data, successFun, errorFun, beforeFun, completeFun) {
+AjaxCall.prototype.syncPost = function (url, data, successFun, errorFun, beforeFun, completeFun) {
     var errorFun = errorFun || function (e) {
             console.log(e)
         };
@@ -70,7 +70,7 @@ Ajax.prototype.syncPost = function (url, data, successFun, errorFun, beforeFun, 
     })
 };
 
-Ajax.prototype.baseCall = function (url, data, type, successFun, errorFun, beforeFun, completeFun) {
+AjaxCall.prototype.baseCall = function (url, data, type, successFun, errorFun, beforeFun, completeFun) {
     var errorFun = errorFun || function (e) {
             console.log(e)
     };

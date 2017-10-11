@@ -54,15 +54,13 @@
 
         <script type="text/javascript">
                 var f = new Facade();
-                var validate = f.validationModule();
-                var ajax = f.ajaxModule();
                 $(document).ready(function () {
                     $('#popLayer').hide();
                     $('#popTextValidate').hide();
                     var $input = $("input");
                     $input[0].focus();
-                    validate.input_blur("userName", "email");
-                    validate.input_blur("pwd", "isEmp");
+                    f.validationModule.input_blur("userName", "email");
+                    f.validationModule.input_blur("pwd", "isEmp");
                 });
 
                 layui.use(['form', 'layer'], function () {
@@ -88,12 +86,12 @@
                             "email": data.field.email,
                             "password": md5(data.field.email + data.field.password)
                         });
-                       if(validate.finalResult()){
-                           ajax.asyncPost('auth/authWithPassword', json, function (r) {
+                       if(f.validationModule.finalResult()){
+                           f.ajaxModule.asyncPost('auth/authWithPassword', json, function (r) {
                                if (r.status === 'ok') {
-                                   $.setCookie("user_token", r.result.auth_token);
-                                   $.setCookie("name", r.result.user.name);
-                                   $.setCookie('email', r.result.user.email);
+                                   f.cookieModule.setCookie("user_token", r.result.auth_token);
+                                   f.cookieModule.setCookie("name", r.result.user.name);
+                                   f.cookieModule.setCookie('email', r.result.user.email);
                                    location = "/auth/user/"
                                } else {
                                    layer.msg('用户名或密码错误！');

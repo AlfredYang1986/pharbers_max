@@ -26,7 +26,6 @@
 
     <script type="text/javascript">
         var f = new Facade();
-        var ajax = f.ajaxModule();
         function goRegiInfoPage() {
             location.href = "/register/info"
         }
@@ -50,7 +49,7 @@
             form.on('submit(sub)', function (data) {
                 var json = JSON.stringify({'user_token': data.field.code});
 
-                ajax.baseCall('/auth/pushUser', json, 'POST', function (r) {
+                f.ajaxModule.baseCall('/auth/pushUser', json, 'POST', function (r) {
                     if (r.status === 'ok' && r.result.url !== undefined) {
                         layer.msg('2后跳转页面');
                         setTimeout(function(){location = "/register/success/" + encodeURIComponent(r.result.name)+"/" + encodeURIComponent(r.result.email)}, 2000)

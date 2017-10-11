@@ -79,22 +79,20 @@
 
     <script type="text/javascript">
         var f = new Facade();
-        var validate = f.validationModule();
-        var ajax = f.ajaxModule()
         $(document).ready(function(){
             var $input = $("input");
             $input[0].focus();
             $('#popTextValidate').hide();
             $('#popErr').hide();
             check_code();
-            validate.input_blur("phone_validation", "isEmp")
+            f.validationModule.input_blur("phone_validation", "isEmp")
 
         })
         layui.use(['form', 'layer'], function () {})
 
         var phone_code = function() {
             var token = JSON.stringify({'user_token': $.cookie('user_token')})
-            ajax.baseCall('/phonecode/send', token, 'POST', function(r){
+            f.ajaxModule.baseCall('/phonecode/send', token, 'POST', function(r){
                 if(r.status === 'ok' && r.result.reg.flag === 'ok') {
                     $.cookie('reg_token', r.result.reg.reg_token)
                 }else {
@@ -111,8 +109,8 @@
                     var json = JSON.stringify({'reg_token': $.cookie('reg_token'),
                                                'code': num,
                                                'user_token': $.cookie('user_token')})
-                    if(validate.finalResult()){
-                        ajax.baseCall('/phonecode/check', json, 'POST', function(r){
+                    if(f.validationModule.finalResult()){
+                        f.ajaxModule.baseCall('/phonecode/check', json, 'POST', function(r){
                             if(r.status === 'ok' && r.result.result === 'success') {
                                 location = '/index';
                             }else {

@@ -1,3 +1,4 @@
+var f = new Facade();
 $(function(){
 	$("body").keydown(function(event) {
         if(event.which == 13){
@@ -68,7 +69,7 @@ function login() {
 
 function logout() {
     // conn.close();
-    $.cleanAllCookie()
+    f.cookieModule.cleanAllCookie();
 	// cleanAllCookie();
 	location = "/login"
 }
