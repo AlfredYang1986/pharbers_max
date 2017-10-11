@@ -2,16 +2,16 @@
  * Created by yym on 10/11/17.
  */
 
-var Ajax = function () {
+var AjaxCall = function () {
 
 };
 //异步post
-Ajax.prototype.asyncPost = function (url, data, successFun, errorFun, beforeFun, completeFun) {
+AjaxCall.prototype.asyncPost = function (url, data, successFun, errorFun, beforeFun, completeFun) {
     var errorFun = errorFun || function (e) {
         console.log(e)
     };
     var beforeFun = beforeFun || function () {};
-    var completeFun = completeFun ||function () {};
+    var completeFun = completeFun || function () {};
 
     $.ajax({
         url : url,
@@ -37,45 +37,14 @@ Ajax.prototype.asyncPost = function (url, data, successFun, errorFun, beforeFun,
 
     })
 };
-//同步post
-Ajax.prototype.syncPost = function (url, data, successFun, errorFun, beforeFun, completeFun) {
-    var errorFun = errorFun || function (e) {
-            console.log(e)
-        };
-    var beforeFun = beforeFun || function () {};
-    var completeFun = completeFun ||function () {};
 
-    $.ajax({
-        url : url,
-        type : "POST",
-        data : data,
-        dataType : "json",
-        contentType : "application/json,charset=utf-8",
-        Accept : "application/json,charset=utf-8",
-        cache : false,
-        async : false,
-        success : function (data) {
-            successFun(data);
-        },
-        error : function (e) {
-            errorFun(e);
-        },
-        beforeSend : function () {
-            beforeFun();
-        },
-        complete : function () {
-            completeFun();
-        }
 
-    })
-};
-
-Ajax.prototype.baseCall = function (url, data, type, successFun, errorFun, beforeFun, completeFun) {
+AjaxCall.prototype.baseCall = function (url, data, type, successFun, errorFun, beforeFun, completeFun) {
     var errorFun = errorFun || function (e) {
             console.log(e)
     };
     var beforeFun = beforeFun || function () {};
-    var completeFun = completeFun ||function () {};
+    var completeFun = completeFun || function () {};
     $.ajax({
         type: type,
         url: url,
@@ -88,7 +57,7 @@ Ajax.prototype.baseCall = function (url, data, type, successFun, errorFun, befor
             successFun(data)
         },
         error: function (e) {
-                errorFun(e)
+            errorFun(e)
         },
         beforeSend : function () {
             beforeFun();

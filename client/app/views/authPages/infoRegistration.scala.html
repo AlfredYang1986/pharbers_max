@@ -51,17 +51,15 @@
 
     <script type="text/javascript">
         var f = new Facade();
-        var validate = f.validationModule();
-        var ajax = f.ajaxModule();
         $(document).ready(function(){
             $('#popErr').hide();
             var $input = $("input");
             $input[0].focus();
             $('#popErr').hide();
-            validate.input_blur("company_info", "cName");
-            validate.input_blur("linkman", "name");
-            validate.input_blur("email_info", "email");
-            validate.input_blur("phone_info", "phone");
+            f.validationModule.input_blur("company_info", "cName");
+            f.validationModule.input_blur("linkman", "name");
+            f.validationModule.input_blur("email_info", "email");
+            f.validationModule.input_blur("phone_info", "phone");
         });
 
         layui.use(['form', 'layer'], function () {
@@ -94,8 +92,8 @@
             form.on('submit(sub)', function (data) {
                 var json = JSON.stringify({"reginfo": data.field});
 
-                if (validate.finalResult()) {
-                    ajax.baseCall('/register/user', json, 'POST', function(r){
+                if (f.validationModule.finalResult()) {
+                    f.ajaxModule.baseCall('/register/user', json, 'POST', function(r){
                         if(r.status === 'ok' && r.result.registers === "ok") {
                             location = "/order/success "
                         }else if(r.status === 'error') {

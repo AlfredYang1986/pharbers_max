@@ -1,6 +1,11 @@
-// 获取地址栏后端参数
-(function ($) {
-    $.getUrlParam = function(name, flag) {
+/**
+ * Created by yym on 10/11/17.
+ */
+var URLHandler = function () {
+
+}
+
+URLHandler.prototype.getURLParam = function (name, flag) {
     var uri = location.href;
     if(flag) {
         return uri.substring(uri.lastIndexOf('/') + 1)
@@ -8,4 +13,3 @@
         return uri.substring(uri.indexOf(name) + name.length, uri.lastIndexOf('/'))
     }
 }
-})(jQuery);

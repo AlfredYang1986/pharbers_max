@@ -62,16 +62,14 @@
     </div>
 
     <script type="text/javascript">
-            var f = new Facade();
-            var validate = f.validationModule();
-            var ajax = f.ajaxModule();
-            $(document).ready(function () {
-                $("#alert_err").hide();
-                validate.input_blur("email_user", "email");
-                validate.input_blur("name_user", "name");
-                validate.input_blur("phone_user", "phone");
-
-            });
+        var f = new Facade();
+        $(document).ready(function () {
+            $("#alert_err").hide();
+            f.validationModule.input_blur("email_user", "email");
+            f.validationModule.input_blur("name_user", "name");
+            f.validationModule.input_blur("phone_user", "phone");
+            f.validationModule.input_blur("code_user", "isEmp");
+        });
 
             var errShow = function () {
                 layui.use('layer', function () {
@@ -130,18 +128,17 @@
                         "phone": data.field.phone
                     })
 
-                    if (validate.finalResult()) {
-                        ajax.baseCall('/phonecode/check', check, 'POST', function (r) {
-                            console.info(r)
-                            if (r.status === 'ok' && r.result.result === 'success') {
-                                verify_register_user()
-                            } else {
-                                $('input[name="code"]').blur();
-                                layer.msg("验证码错误或超出验证时间！");
-                            }
-                        }, function (e) {
-                            console.error(e)
-                        });
+
+                if (f.validationModule.finalResult()) {
+                    f.ajaxModule.baseCall('/phonecode/check', check, 'POST', function(r){
+                        if(r.status === 'ok' && r.result.result === 'success') {
+                            verify_register_user();
+                        }else {
+                            $('input[name="code"]').blur();
+                            layer.msg("验证忙错误或超出验证时间！");
+                        }
+                    }, function(e){console.error(e)});
+
                         var verify_register_user = function () {
                             ajax.baseCall('/auth/tokenDefeat', json, 'POST', function (r) {
                                 if (r.status === "ok") {
@@ -162,15 +159,12 @@
                 });
 
                 form.on('submit(pull_phone_code)', function (data) {
-
-
-                    if (validate.finalResultWithExt(["phone"])) {
-
+                    if (f.validationModule.finalResultWithExt(["phone"])) {
                         var phone = JSON.stringify({"phone": data.field.phone});
-                        ajax.baseCall('/phonecode/send', phone, 'POST', function (r) {
+                        f.validationModule.baseCall('/phonecode/send', phone, 'POST', function (r) {
                             if (r.status === 'ok' && r.result.reg.flag === 'ok') {
                                 layer.msg('验证码已发送请注意查收');
-                                $.setCookie('reg_token', r.result.reg.reg_token)
+                                f.cookieModule.setCookie('reg_token', r.result.reg.reg_token)
                             } else if (r.status === 'error') {
                                 layer.msg(r.error.message);
                             } else {
