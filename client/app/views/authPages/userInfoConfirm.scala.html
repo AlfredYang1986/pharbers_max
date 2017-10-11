@@ -38,7 +38,7 @@
                         <input id="code_user" class="form-control" type="text" name="code" placeholder="请填入手机验证码">
                         <div class="form_tip_bottom"></div>
                     </div>
-                    <div class="nomal_btn col-xs-2" lay-submit lay-filter="pull_phone_code">点击获取</div><!-- onclick="pull_phone_code()" -->
+                    <div class="nomal_btn col-xs-2" lay-submit lay-filter="pull_phone_code">点击获取</div>
                     <div class="col-xs-2"></div>
                 </div>
                 <div class="row">
@@ -137,8 +137,8 @@
                     var again = function () {
                         ajaxData('/auth/tokenDefeat', json, 'POST', function(r){
                             if(r.status === "ok" && r.result.token !== undefined){
-                                var name = r.result.apply.name
-                                var email = r.result.apply.email
+                                var name = r.result.apply.name;
+                                var email = r.result.apply.email;
                                 location = "/register/success/" + name + "/" + email;
                             }else {
                                 layer.msg('信息填写错误！');
@@ -150,25 +150,14 @@
             });
 
             form.on('submit(pull_phone_code)', function (data) {
-//                var json = JSON.stringify(data.field);
-                var obj = new Object()
-                obj['reginfo'] = data.field
-                var json = JSON.stringify(obj);
+                var json = JSON.stringify({"reginfo": data.field});
 
-
-                if (validate.finalResultWithExt(["code"])) {
-                    ajaxData('/auth/createToken', json, 'POST', function(r){
-                        if(r.status === "ok"){
-                            $.cookie('user_token', r.result.token);
-                            send()
-                        }
-                    }, function(e){console.error(e)});
-                    var send = function() {
-                        var m = JSON.stringify({"user_token": $.cookie('user_token')})
-                        ajaxData('/phonecode/send', m, 'POST', function(r){
-                            $.cookie('reg_token', r.result.reg.reg_token)
-                        }, function(e){console.error(e)})
-                    };
+                if (validate.finalResultWithExt(["phone"])) {
+                    console.info()
+//                    var m = JSON.stringify({"phone": $('input[name="phone"]').val()})
+//                    ajaxData('/phonecode/send', m, 'POST', function(r){
+//                        $.cookie('reg_token', r.result.reg.reg_token)
+//                    }, function(e){console.error(e)})
                     return false;
                 }
             });
