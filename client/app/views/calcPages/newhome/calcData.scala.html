@@ -1,6 +1,6 @@
 @(auth: String)
 
-@layout("Max | Home") {
+@pageLayout.HomePageLayout.contentPanel("Max | Home") {
     <link href="@routes.Assets.versioned("css/style.default.css")" rel="stylesheet">
     <body>
         <div class="layui-tab layui-tab-card" lay-filter="step">
@@ -28,16 +28,16 @@
             <br>
             <div class="layui-tab-content">
                 <div class="layui-tab-item layui-show">
-                @upload.cpaUpload()
+                @calcPages.upload.cpaUpload()
                 </div>
                 <div class="layui-tab-item">
-                @upload.gycxUpload()
+                @calcPages.upload.gycxUpload()
                 </div>
                 <div class="layui-tab-item">
-                @sample.sampleCheck()
+                @calcPages.sample.sampleCheck()
                 </div>
                 <div class="layui-tab-item">
-                @result.resultCheck()
+                @calcPages.result.resultCheck()
                 </div>
             </div>
         </div>

@@ -4,12 +4,11 @@ import java.util.Date
 import javax.inject._
 
 import akka.actor.ActorSystem
-import com.pharbers.aqll.common.{alAdminEnum, alModularEnum}
+import com.pharbers.aqll.common.alAdminEnum
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.mongodbConnect.connection_instance
 import com.pharbers.token.AuthTokenTrait
-import module.common.alPageDefaultData._
 import play.api.mvc._
 
 class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait) extends Controller {
@@ -40,44 +39,44 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
 
     def login = Action { request =>
-        Ok(views.html.login())
+        Ok(views.html.authPages.login())
     }
 
     def infoRegistration = Action { request =>
-        Ok(views.html.infoRegistration())
+        Ok(views.html.authPages.infoRegistration())
     }
 
     def dbLogin = Action { request =>
-        Ok(views.html.bdSignSelect())
+        Ok(views.html.authPages.bdSignSelect())
     }
 
     def userInfoConfirm = Action { request =>
-        Ok(views.html.userInfoConfirm())
+        Ok(views.html.authPages.userInfoConfirm())
     }
 
     def verificationRegister = Action { request =>
-        Ok(views.html.registerCodeValidation())
+        Ok(views.html.authPages.registerCodeValidation())
     }
 
     def tokenFail = Action { request =>
-        Ok(views.html.activeAccountFailed())
+        Ok(views.html.authPages.activeAccountFailed())
     }
 
     def emailInvocation(name : String, email : String) = Action { request =>
-        Ok(views.html.emailBeenSend(name, email))
+        Ok(views.html.authPages.emailBeenSend(name, email))
     }
 
     def findpwd = Action{
-        Ok(views.html.findPassword())
+        Ok(views.html.authPages.findPassword())
     }
     def findpwd_success = Action{
-        Ok(views.html.findPasswordSuccess())
+        Ok(views.html.authPages.findPasswordSuccess())
     }
     def new_pwd(token: String) = Action{
-        Ok(views.html.newPassword())
+        Ok(views.html.authPages.newPassword())
     }
     def set_pwd(token: String, email: String) = Action{
-        Ok(views.html.setPassword(email))
+        Ok(views.html.authPages.setPassword(email))
     }
 
     def index = Action { request =>
@@ -85,17 +84,17 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
 //            Ok(views.html.login())
 //        } else {
 //            Ok(views.html.index(getAdminByCookies(request)))
-            Ok(views.html.index())
+            Ok(views.html.calcPages.index())
 //        }
     }
     
     def calcData = Action { request =>
 //        Ok(views.html.newhome.calcData(getAdminByCookies(request)))
-        Ok(views.html.newhome.calcData(""))
+        Ok(views.html.calcPages.newhome.calcData(""))
     }
 
     def historyData = Action { request =>
-        Ok(views.html.historyData())
+        Ok(views.html.calcPages.historyData())
 //            getAdminByCookies(request),
 //            PageDefaultData(alModularEnum.RQ, db_basic_connection, db_basic_connection)._1))
     }
@@ -114,7 +113,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
     
     def postSuccess = Action{
-        Ok(views.html.successEmailPost())
+        Ok(views.html.authPages.successEmailPost())
     }
     
 //    def registerSuccess() = Action{
@@ -122,6 +121,6 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
 //    }
 
     def registerSuccess(name : String, email : String) = Action{
-        Ok(views.html.successRegister(name, email))
+        Ok(views.html.authPages.successRegister(name, email))
     }
 }
