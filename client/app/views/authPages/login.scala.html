@@ -89,7 +89,7 @@
                             "password": md5(data.field.email + data.field.password)
                         });
                        if(validate.finalResult()){
-                           ajax.baseCall('auth/authWithPassword', json, 'POST', function (r) {
+                           ajax.asyncPost('auth/authWithPassword', json, function (r) {
                                if (r.status === 'ok') {
                                    $.setCookie("user_token", r.result.auth_token);
                                    $.setCookie("name", r.result.user.name);
