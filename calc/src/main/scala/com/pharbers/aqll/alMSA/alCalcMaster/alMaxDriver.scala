@@ -45,7 +45,7 @@ class alMaxDriver extends Actor with ActorLogging
 		case generatePanelResult(file_path) => {
 			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
 			println("panel文件位置 = " + file_path)
-//			self ! push_filter_job(file_path, cp)
+			self ! push_filter_job(file_path, cp)
 		}
 
 		case _ => ???
