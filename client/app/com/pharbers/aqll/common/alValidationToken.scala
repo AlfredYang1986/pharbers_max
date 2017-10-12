@@ -21,7 +21,7 @@ case class alValidationToken(token: String)(implicit att : AuthTokenTrait) {
 					case None => TokenError()
 					case "forget_password" => TokenForgetPassword()
 					case "first_login" => TokenFirstLogin()
-					case _ => throw new Exception("token content error")
+					case _ => throw new Exception("token content action error")
 				}
 		}
 	}

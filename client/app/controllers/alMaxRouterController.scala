@@ -1,13 +1,11 @@
 package controllers
 
-import java.util.Date
 import javax.inject._
 
 import akka.actor.ActorSystem
 import com.pharbers.aqll.common._
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
-import com.pharbers.message.send.SendMessageTrait
 import com.pharbers.mongodbConnect.connection_instance
 import com.pharbers.token.AuthTokenTrait
 import play.api.mvc._
