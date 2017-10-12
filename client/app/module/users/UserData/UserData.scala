@@ -4,7 +4,7 @@ import java.util.Date
 
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.aqll.common.sercurity.Sercurity
+import com.pharbers.sercuity.Sercurity
 import com.pharbers.token.AuthTokenTrait
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -25,12 +25,12 @@ trait UserData {
 		val builder = MongoDBObject.newBuilder
 		val email = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("info input email"))
 		val password = (js \ "password").asOpt[String].map(x => x).getOrElse(email)
-		val secret = Sercurity.md5Hash(s"$email$password")
+//		val secret = Sercurity.md5Hash(s"$email$password")
 		val name = (js \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("info input linkman name"))
 		val phone = (js \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
 		val scope = (js \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil)
 		val id = (js \ "user_id").asOpt[String].map(x => x).getOrElse(Sercurity.md5Hash(s"$email"))
-		val profile = DBObject("email" -> email, "secret" -> secret, "name" -> name, "phone" -> phone, "scope" -> scope)
+		val profile = DBObject("email" -> email, "secret" -> password, "name" -> name, "phone" -> phone, "scope" -> scope)
 		
 		builder += "user_id" -> id
 		builder += "profile" -> profile

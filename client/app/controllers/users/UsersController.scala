@@ -9,7 +9,8 @@ import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
-import module.auth.AuthMessage.{msg_auth_token_expire, msg_auth_token_parser}
+import module.auth.AuthMessage.{msg_auth_check_token_action, msg_auth_token_expire, msg_auth_token_parser}
+import module.register.RegisterMessage.msg_first_push_user
 import module.users.UserMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, Controller}
@@ -65,10 +66,12 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("change pwd"))), jv)
+			:: msg_auth_check_token_action(jv)
 			:: msg_auth_token_parser(jv)
 			:: msg_auth_token_expire(jv)
 			:: msg_user_token_op(jv)
 			:: msg_user_chang_pwd(jv)
+			:: msg_first_push_user(jv)
 			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 }

@@ -28,8 +28,12 @@ class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManage
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_create_token"))), jv)
+			:: msg_auth_token_parser(jv)
+			:: msg_auth_token_expire(jv)
+			:: msg_auth_token_type(jv)
 			:: msg_user_not_exist(jv)
 			:: msg_is_user_register(jv)
+			:: msg_register_token_create(jv)
 			:: msg_auth_create_token(jv)
 			:: msg_approve_reg(jv)
 			:: msg_CommonResultMessage() :: Nil, None)(
@@ -40,10 +44,10 @@ class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManage
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_push_user"))), jv)
-            :: msg_auth_token_parser(jv) :: msg_auth_token_expire(jv)
+			:: msg_auth_token_used(jv)
+            :: msg_auth_token_parser(jv)
+			:: msg_auth_token_expire(jv)
             :: msg_user_token_op(jv)
-//            :: msg_user_push(jv)
-//            :: msg_user_query_info(jv)
             :: msg_auth_code_push_success(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
@@ -52,6 +56,7 @@ class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManage
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_defeat"))), jv)
+			:: msg_register_token_defeat(jv)
             :: msg_auth_token_defeat(jv)
             :: msg_auth_create_token(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))

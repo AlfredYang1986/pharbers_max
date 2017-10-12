@@ -1,3 +1,4 @@
+
 $(function(){
 	$("body").keydown(function(event) {
         if(event.which == 13){
@@ -25,7 +26,7 @@ $(function(){
         }
         login();
 	});
-    loginInfo();
+    loginInfo("#Name", "#company");
 })
 
 function login() {
@@ -57,7 +58,7 @@ function login() {
 				$.cookie("ip",user.ip);
 				// $.tooltip('OK, 登录成功！', 2500, true);
 				setTimeout(function () {
-					location = "newindex"
+					location = "index"
 				}, 1000 * 3)
 			}else{
 				$.tooltip(r.result.message);
@@ -67,18 +68,19 @@ function login() {
 }
 
 function logout() {
+    var f = new Facade();
     // conn.close();
-    $.cleanAllCookie()
+    f.cookieModule.cleanAllCookie();
 	// cleanAllCookie();
 	location = "/login"
 }
 
-function loginInfo() {
+function loginInfo(name, compony ) {
 	if($.cookie("user_name") == undefined) {
-        $("#Name").text("未知")
-        $("#company").text("未知")
+        $(name).text("未知")
+        $(compony).text("未知")
 	}else {
-		$("#Name").text($.cookie("user_name"))
-        $("#company").text($.cookie("company_name_ch"))
+		$(name).text($.cookie("user_name"))
+        $(compony).text($.cookie("company_name_ch"))
 	}
 }

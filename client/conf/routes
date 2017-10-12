@@ -62,7 +62,7 @@ GET     /password/find                              controllers.alMaxRouterContr
 # 找回密码邮件发送成功
 GET     /password/find/success                      controllers.alMaxRouterController.findpwd_success
 # 修改密码页面
-GET     /password/new/:token                        controllers.alMaxRouterController.new_pwd(token)
+GET     /password/new/:token/:email                 controllers.alMaxRouterController.new_pwd(token, email)
 # 第一次登入修改密码
 GET     /password/set/:token/:email                 controllers.alMaxRouterController.set_pwd(token, email)
 
