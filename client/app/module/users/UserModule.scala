@@ -128,7 +128,6 @@ object UserModule extends ModuleTrait with UserData {
                 case None => throw new Exception("data not exist")
                 case Some(one) => (Some(Map("info" -> toJson(one))), None)
             }
-            
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }

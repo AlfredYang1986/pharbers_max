@@ -15,10 +15,10 @@ trait UserData {
 	
 	def conditions(data: JsValue): DBObject = {
 		val builder = MongoDBObject.newBuilder
-		(data \ "user_id").asOpt[String].map(x => builder += "user_id" -> x).getOrElse(Unit)
-		(data \ "email").asOpt[String].map(x => builder += "profile.email" -> x).getOrElse(Unit)
-		(data \ "name").asOpt[String].map(x => builder += "profile.name" -> x).getOrElse(Unit)
-		(data \ "phone").asOpt[String].map(x => builder += "profile.phone" -> x).getOrElse(Unit)
+		(data \ "condition" \ "user_id").asOpt[String].map(x => builder += "user_id" -> x).getOrElse(Unit)
+		(data \ "condition" \ "email").asOpt[String].map(x => builder += "profile.email" -> x).getOrElse(Unit)
+		(data \ "condition" \ "name").asOpt[String].map(x => builder += "profile.name" -> x).getOrElse(Unit)
+		(data \ "condition" \ "phone").asOpt[String].map(x => builder += "profile.phone" -> x).getOrElse(Unit)
 		builder.result
 	}
 	
@@ -27,7 +27,6 @@ trait UserData {
 		val builder = MongoDBObject.newBuilder
 		val email = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("info input email"))
 		val password = (js \ "password").asOpt[String].map(x => x).getOrElse(email)
-//		val secret = Sercurity.md5Hash(s"$email$password")
 		val name = (js \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("info input linkman name"))
 		val phone = (js \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
 		val scope = (js \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil)
@@ -53,7 +52,7 @@ trait UserData {
 	}
 	
 	def emailResetPassword(email: String, token: String)(implicit msg: SendMessageTrait, db: DBTrait): String = {
-		// TODO: 携程配置文件
+		// TODO: 写成配置文件
 		val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
 		val html = views.html.emailContent.resetPassword(email, url)
 		msg.sendMailMessage(email).sendHtmlMail.setSubTheme("忘记密码").setContext(html.toString).sendToEmail

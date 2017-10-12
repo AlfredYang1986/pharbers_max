@@ -68,7 +68,6 @@
             f.validationModule.input_blur("email_user", "email");
             f.validationModule.input_blur("name_user", "name");
             f.validationModule.input_blur("phone_user", "phone");
-            f.validationModule.input_blur("code_user", "isEmp");
         });
 
             var errShow = function () {
@@ -120,14 +119,11 @@
 
                 // 提交监听
                 form.on('submit(sub)', function (data) {
-                    validate.input_blur("code_user", "isEmp");
+                    f.validationModule.input_blur("code_user", "isEmp");
                     var json = JSON.stringify({"reginfo": data.field});
-                    var check = JSON.stringify({
-                        "code": data.field.code,
-                        "reg_token": $.cookie('reg_token'),
-                        "phone": data.field.phone
-                    })
 
+                    var map = {"code": data.field.code, "reg_token": $.cookie('reg_token'), "phone": data.field.phone};
+                    var check = JSON.stringify(f.parameterPrefix.condition(map))
 
                 if (f.validationModule.finalResult()) {
                     f.ajaxModule.baseCall('/phonecode/check', check, 'POST', function(r){
@@ -140,7 +136,7 @@
                     }, function(e){console.error(e)});
 
                         var verify_register_user = function () {
-                            ajax.baseCall('/auth/tokenDefeat', json, 'POST', function (r) {
+                            f.ajaxModule.baseCall('/auth/tokenDefeat', json, 'POST', function (r) {
                                 if (r.status === "ok") {
                                     var name = r.result.apply.name;
                                     var email = r.result.apply.email;
@@ -150,9 +146,7 @@
                                 } else {
                                     layer.msg('出现未知错误，请联系管理员！');
                                 }
-                            }, function (e) {
-                                console.error(e)
-                            });
+                            }, function (e) {console.error(e)});
                         };
                         return false;
                     }
@@ -160,8 +154,9 @@
 
                 form.on('submit(pull_phone_code)', function (data) {
                     if (f.validationModule.finalResultWithExt(["phone"])) {
-                        var phone = JSON.stringify({"phone": data.field.phone});
-                        f.validationModule.baseCall('/phonecode/send', phone, 'POST', function (r) {
+                        var map = {"phone": data.field.phone}
+                        var json = JSON.stringify(f.parameterPrefix.condition(map));
+                        f.ajaxModule.baseCall('/phonecode/send', json, 'POST', function (r) {
                             if (r.status === 'ok' && r.result.reg.flag === 'ok') {
                                 layer.msg('验证码已发送请注意查收');
                                 f.cookieModule.setCookie('reg_token', r.result.reg.reg_token)
@@ -170,9 +165,8 @@
                             } else {
                                 layer.msg('出现未知错误，请联系管理员！');
                             }
-                        }, function (e) {
-                            console.error(e)
-                        })
+                        }, function (e) {console.error(e)});
+                        f.validationModule.input_blur("code_user", "isEmp");
                         return false;
                     }
                 });
