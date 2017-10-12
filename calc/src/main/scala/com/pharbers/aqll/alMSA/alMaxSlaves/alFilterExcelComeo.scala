@@ -10,7 +10,7 @@ import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aldata.alStorage
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_filter_excel_jobs
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_filter_csv_jobs, max_filter_excel_jobs}
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.common.alString.alStringOpt.removeSpace
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
@@ -55,7 +55,8 @@ class alFilterExcelComeo(fp : String,
             val file = fp
             val parmary = cp
 
-            val cj = max_filter_excel_jobs(file)
+//            val cj = max_filter_excel_jobs(file)
+            val cj = max_filter_csv_jobs(file)
             cj.result
             val lst = Option(cj.cur.get.storages.head.asInstanceOf[alStorage])
             lst match {

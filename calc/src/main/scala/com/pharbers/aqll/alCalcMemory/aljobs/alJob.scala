@@ -22,12 +22,29 @@ object alJob {
             tmp
         }
     }
+
+    object max_filter_csv_jobs extends job_defines(7, "read csv year market") {
+        val filter_csv_path = "csv_path"
+        def apply(path : String) : alFilterCsvJob = {
+            val tmp = new alFilterCsvJob
+            tmp.init(Map(filter_csv_path -> path))
+            tmp
+        }
+    }
     
     object max_jobs extends job_defines(0, "max calc") {
         val max_excel_path = "max_excel_path"
         def apply(path : String) : alMaxJob = {
             val tmp = new alMaxJob
             tmp.init(Map(max_excel_path -> path))
+            tmp
+        }
+    }
+    object max_split_csv_jobs extends job_defines(8, "max split csv") {
+        val max_csv_path = "max_csv_path"
+        def apply(path : String) : alMaxSplitCsvJob = {
+            val tmp = new alMaxSplitCsvJob
+            tmp.init(Map(max_csv_path -> path))
             tmp
         }
     }
