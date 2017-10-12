@@ -12,6 +12,7 @@ import play.api.libs.json.Json.toJson
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.message.send.SendMessageTrait
 import com.pharbers.token.AuthTokenTrait
 import module.users.UserData._
 
@@ -137,18 +138,20 @@ object UserModule extends ModuleTrait with UserData {
         
         try {
             val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
+            val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            implicit val db = conn.queryDBInstance("cli").get
+            implicit val msg = cm.modules.get.get("msg").map(x => x.asInstanceOf[SendMessageTrait]).getOrElse(throw new Exception("no message impl"))
             pr match {
                 case None => throw new Exception("pr data not exist")
                 case Some(one) =>
                     val map = one.get("info").map(x => x).get.as[Map[String, JsValue]]
                     val reVal = map + ("expire_in" -> toJson(new Date().getTime +  60 * 1000 * 10)) + ("action" -> toJson("forget_password"))
-                    val token = java.net.URLEncoder.encode(att.encrypt2Token(toJson(reVal)), "ISO-8859-1")
-                    val url = s"http://127.0.0.1:9000/validation/token/$token"
+                    val token = att.encrypt2Token(toJson(reVal))
     
                     val email = map.get("email").map(x => x.as[String]).getOrElse("")
-                    val html = views.html.emailContent.resetPassword(email, url)
                     
-                    Mail().setContext(html.toString).setSubject("忘记密码").sendTo(email)(StmConf())
+	                emailResetPassword(email, token)
+                    
                     (Some(Map("urltoken" -> toJson("ok"))), None)
             }
         }catch {
@@ -217,4 +220,5 @@ object UserModule extends ModuleTrait with UserData {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
     }
+    
 }

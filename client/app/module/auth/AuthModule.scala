@@ -14,6 +14,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.auth.AuthMessage.{msg_auth_token_type, _}
 import com.pharbers.aqll.common.email.{Mail, StmConf}
+import com.pharbers.message.send.SendMessageTrait
 
 import scala.collection.immutable.Map
 
@@ -82,17 +83,17 @@ object AuthModule extends ModuleTrait with AuthData {
 	def authCreateToken(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
+			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			implicit val db = conn.queryDBInstance("cli").get
+			implicit val msg = cm.modules.get.get("msg").map(x => x.asInstanceOf[SendMessageTrait]).getOrElse(throw new Exception("no message impl"))
+			
 			val o = pr match {
 				case None => jv2m(data)
 				case Some(one) => jv2m(toJson(Map("reginfo" -> one.get("apply").get)))
 			}
 			val reVal = att.encrypt2Token(toJson(o + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000))))
-			
 			val email = o.get("email").map(x => x.as[String]).getOrElse("")
-			val html = views.html.emailContent.authcode(email, reVal)
-			
-			Mail().setContext(html.toString).setSubject("授权码").sendTo(email)(StmConf())
-			
+			emailAuthCode(email, reVal)
 			(Some(Map("apply" -> toJson(o - "scope" - "phone"), "token" -> toJson(reVal) )), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -117,19 +118,17 @@ object AuthModule extends ModuleTrait with AuthData {
 		try {
 			val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-			val db = conn.queryDBInstance("cli").get
+			implicit val db = conn.queryDBInstance("cli").get
+			implicit val msg = cm.modules.get.get("msg").map(x => x.asInstanceOf[SendMessageTrait]).getOrElse(throw new Exception("no message impl"))
 			
 			val token = (data \ "user_token").asOpt[String].map(x => x).getOrElse("")
 			val js = att.decrypt2JsValue(token)
 			val email = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
 			val name = (js \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
+			//TODO 还未知该URL参数是否有用，暂时不删除
 			val reVal = att.encrypt2Token(toJson(js.as[Map[String, JsValue]] + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000)) + ("action" -> toJson("first_login"))))
-			
-			val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(reVal, "ISO-8859-1")}"
-			val html = views.html.emailContent.activeAccount(email, url)
-			
-			Mail().setContext(html.toString).setSubject("登入链接").sendTo(email)(StmConf())
-			
+			val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
+			emailAtiveAccount(email, reVal)
 			val o: DBObject = DBObject("token" -> token)
 			db.insertObject(o, "authorizationcode", "token")
 			(Some(Map("url" -> toJson(url),

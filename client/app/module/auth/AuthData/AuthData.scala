@@ -2,8 +2,11 @@ package module.auth.AuthData
 
 
 import com.mongodb.casbah.Imports.{DBObject, _}
+import com.pharbers.cliTraits.DBTrait
+import com.pharbers.message.send.SendMessageTrait
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
+import play.twirl.api.HtmlFormat
 
 trait AuthData {
 
@@ -56,5 +59,17 @@ trait AuthData {
 			"name" -> toJson(reg_content.getAs[String]("linkman").map(x => x).getOrElse("")),
 			"phone" -> toJson(reg_content.getAs[String]("phone").map(x => x).getOrElse("")),
 			"scope" -> toJson(reg_content.as[MongoDBList]("scope").toList.asInstanceOf[List[String]]))
+	}
+	
+	def emailAuthCode(email: String, token: String)(implicit msg: SendMessageTrait, db: DBTrait): String = {
+		val html = views.html.emailContent.authcode(email, token)
+		msg.sendMailMessage(email).sendHtmlMail.setSubTheme("授权码").setContext(html.toString).sendToEmail
+	}
+	
+	def emailAtiveAccount(email: String, token: String)(implicit msg: SendMessageTrait, db: DBTrait): String = {
+		// TODO： 改成配置文件
+		val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
+		val html = views.html.emailContent.activeAccount(email, url)
+		msg.sendMailMessage(email).sendHtmlMail.setSubTheme("快速登入").setContext(html.toString).sendToEmail
 	}
 }

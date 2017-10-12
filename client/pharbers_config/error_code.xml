@@ -50,6 +50,7 @@
         <error reason="token expired" code="-9005" description="token过期" />
         <error reason="db aggregation error " code="-9006" description="数据Map Reduce操作发生错误" />
         <error reason="actor system get error" code="-9007" description="后去系统Actor System失败" />
+        <error reason="no message impl" code="-9008" description="没有Message实例" />
 
         <error reason="unknown error" code="-9999" description="unknown error" />
     </error_code>

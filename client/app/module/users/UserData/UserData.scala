@@ -4,6 +4,8 @@ import java.util.Date
 
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
+import com.pharbers.cliTraits.DBTrait
+import com.pharbers.message.send.SendMessageTrait
 import com.pharbers.sercuity.Sercurity
 import com.pharbers.token.AuthTokenTrait
 import play.api.libs.json.JsValue
@@ -48,5 +50,12 @@ trait UserData {
 			"phone" -> toJson(profile.getAs[String]("phone").map(x => x).getOrElse("0")),
 			"date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(obj.getAs[Number]("date").getOrElse(0).toString.toLong)),
 			"scope" -> toJson(profile.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)))
+	}
+	
+	def emailResetPassword(email: String, token: String)(implicit msg: SendMessageTrait, db: DBTrait): String = {
+		// TODO: 携程配置文件
+		val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
+		val html = views.html.emailContent.resetPassword(email, url)
+		msg.sendMailMessage(email).sendHtmlMail.setSubTheme("忘记密码").setContext(html.toString).sendToEmail
 	}
 }
