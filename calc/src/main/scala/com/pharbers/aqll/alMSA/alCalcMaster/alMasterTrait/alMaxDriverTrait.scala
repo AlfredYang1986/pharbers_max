@@ -48,7 +48,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	var path = ""
 	var almp: alMaxProperty = alMaxProperty("", "", Nil)
 	val queueActor = context.actorOf(alScpQueueActor.props(self))
-	val s1 = startDate()
+	var s1 = startDate()
 	import alCameoMaxDriver._
 	
 	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
@@ -166,7 +166,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			acts ! calc_slave_status()
 			test_num = test_num + 1
 			alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> mp.uuid, "company" -> pr.company, "type" -> "progress_calc"))
-			endDate("e1", s1)
+			endDate("test"+test_num, s1)
 			shutCameo()
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
@@ -203,6 +203,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	def shutCameo() = {
 		log.info("stopping temp cameo END")
 		Runtime.getRuntime().gc()
+		s1 = startDate()
 		context.stop(self)
 	}
 }

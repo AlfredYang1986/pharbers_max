@@ -2,10 +2,8 @@ package com.pharbers.aqll.dbmodule
 
 import javax.inject.Singleton
 
-import com.pharbers.mongodbDriver.MongoDB.MongoDBImpl
-
-//import com.pharbers.mongodbDriver.MongoDB.MongoDBImpl
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.message.send.SendMessageTrait
 import com.pharbers.token.tokenImpl.TokenImplTrait
 
 /**
@@ -16,3 +14,6 @@ class MAXDBManager extends dbInstanceManager
 
 @Singleton
 class MAXTokenInjectModule extends TokenImplTrait
+
+@Singleton
+class MAXMessageInjectModule extends SendMessageTrait

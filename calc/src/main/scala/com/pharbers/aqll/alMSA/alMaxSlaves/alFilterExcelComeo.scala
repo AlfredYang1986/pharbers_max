@@ -51,6 +51,7 @@ class alFilterExcelComeo(fp : String,
             shutSlaveCameo(result)
         }
         case _ : filter_excel_start_impl => {
+            println(s"&& alFilterExcelComeo.filter_excel_start_impl")
             val file = fp
             val parmary = cp
 
@@ -65,6 +66,7 @@ class alFilterExcelComeo(fp : String,
                 case Some(x) =>
                     x.doCalc
                     val p = x.data.asInstanceOf[List[IntegratedData]].filterNot(x => x.getYearAndmonth ==0 && !x.getMarket1Ch.isEmpty).map( x => (x.getYearAndmonth.toString.substring(0, 4), x.getMarket1Ch)).distinct
+                    println(s"&& alFilterExcelComeo.filter_excel_start_impl.p.size=${p.size}")
                     x.isCalc = false
                     p.size match {
                         case 1 =>
@@ -75,7 +77,7 @@ class alFilterExcelComeo(fp : String,
                             log.info("需要分拆文件，再次读取")
                             self ! filter_excel_end(false, cp)
                         }
-                        case _ => ???
+                        case ex : Int => log.info(s"Warning! filter_excel_start_impl lst match error. filter_excel_start_impl.p.size=${ex}")
                     }
             }
         }

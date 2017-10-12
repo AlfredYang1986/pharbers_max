@@ -136,6 +136,7 @@ class alCalcDataComeo (c : alCalcParmary,
     
     def insertDbScheduleImpl = {
         atomic { implicit thx =>
+            println(s"canInDb.single.get=${canInDb.single.get}")
             if (canInDb.single.get > 0){
                 val tmp = insert_db_jobs.single.get
                 if (tmp.isEmpty) Unit

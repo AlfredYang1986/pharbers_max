@@ -2,11 +2,11 @@ package com.pharbers.aqll.alStart.alEntry
 
 import akka.actor.ActorSystem
 import akka.cluster.Cluster
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, endDate, startDate}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.pushGeneratePanelJobs
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.push_filter_job
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import com.pharbers.aqll.alStart.alHttpFunc.alUploadItem
 import com.typesafe.config.ConfigFactory
-import com.pharbers.aqll.alCalc.almain.alShareData
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 
 object alActorTest extends App {
 	val config = ConfigFactory.load("split-test")
@@ -16,39 +16,18 @@ object alActorTest extends App {
 	if(system.settings.config.getStringList("akka.cluster.roles").contains("splittest")) {
 		Cluster(system).registerOnMemberUp {
 			val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-			val path = fileBase + "2017-05.xlsx"
 
-			1 to 20 foreach(x => a ! push_filter_job(path, cp))
-//			a ! push_filter_job(path, cp)
+			val calc_path = "config/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Output/a.xlsx"
+
+			val path = "config/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Client"
+			val cpa_file_local = path + "/CPA/1705 CPA.xlsx"
+			val gycx_file_local = path + "/GYCX/1705 GYC.xlsx"
+
+			// 1 to 20 foreach(x => a ! push_filter_job(calc_path, cp))
+			1 to 6 foreach(x => {
+					a ! pushGeneratePanelJobs(alUploadItem("fea9f203d4f593a96f0d6faa91ba24ba", "user", cpa_file_local, gycx_file_local, "201705"))
+				})
+			
 		}
 	}
-// 	val s1 = startDate()
-// 	var t = ""
-// 	val a = "201705" + "纷乐片剂100MG14上海医药集团股份有限公司" + "北京" + "北京市" + "PHA0000001" + "INF"
-// 	val c = a :: Nil
-// 	//new String(Base64.getEncoder.encode(a))
-////	val temp = a.getBytes("UTF-8")
-////	val aa = new String(Base64.getEncoder.encode(temp))
-////	println(aa.substring(0, aa.length - 1))
-//	1 to 1000 foreach { x =>
-//		println(a.hashCode.toString)
-//	}
-////	println(a.hashCode)
-
-// 		c foreach { x =>
-// //			val out = new  ByteArrayOutputStream
-// //			val b = new GZIPOutputStream(out)
-// //			b.write(a.getBytes())
-// //			b.close()
-// //			println(out.toString("UTF-8"))
-// //			println(out.toString("UTF-8").length)
-// 	//		val a = alEncryptionOpt.md5("201705" + "纷乐片剂100MG14上海医药集团股份有限公司")
-// 	//		t = a
-// 	//		if(t == a ) {Unit}
-// //			alEncryptionOpt.md5(a)
-// 			val temp = Base64.getEncoder.encode(x.getBytes())
-// 			val str = new String(temp)
-// 			println(str)
-// 		}
-// 	endDate("e1", s1)
 }

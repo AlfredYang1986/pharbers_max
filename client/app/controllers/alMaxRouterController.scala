@@ -7,6 +7,7 @@ import akka.actor.ActorSystem
 import com.pharbers.aqll.common.{alAdminEnum, alModularEnum}
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.message.send.SendMessageTrait
 import com.pharbers.mongodbConnect.connection_instance
 import com.pharbers.token.AuthTokenTrait
 import module.common.alPageDefaultData._
@@ -19,6 +20,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
 
     implicit val db_cores_connection : connection_instance = dbt.queryDBConnection("calc").get
     implicit val db_basic_connection : connection_instance = dbt.queryDBConnection("cli").get
+    
     
     //从cookie中取出token验证用户角色
     def auth_user = Action { request =>
