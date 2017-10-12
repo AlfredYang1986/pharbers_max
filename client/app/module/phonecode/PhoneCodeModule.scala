@@ -74,7 +74,6 @@ object PhoneCodeModule extends ModuleTrait with PhoneCodeData {
 			db.queryObject(condition, "phonecode") match {
 				case None => throw new Exception("reg phone or code error")
 				case Some(_) =>
-					//					db.deleteObject(condition, "phonecode", "phone")
 					(Some(Map("result" -> toJson("success"))), None)
 			}
 		} catch {
