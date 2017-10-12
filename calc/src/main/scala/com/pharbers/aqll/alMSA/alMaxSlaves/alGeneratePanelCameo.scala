@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import scala.concurrent.duration._
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_start_impl, generate_panel_timeout}
@@ -41,7 +41,8 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
             )
             val file_path = new phPfizerHandleImpl(args).generatePanelFile(panel_job.ym).asInstanceOf[JsString].value
             alMessageProxy().sendMsg(file_path, panel_job.user, Map("type" -> "txt"))
-            log.info(s"generate panel done! file_path=${file_path}")
+//            log.info(s"generate panel done! file_path=${file_path}")
+            println("4.生成完成")
             self ! generate_panel_end(true, file_path)
         }
         case generate_panel_end(result, file_path) => {
@@ -73,6 +74,7 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
         originSender ! msg
         log.info("stopping generate panel cameo")
         timeoutMessager.cancel()
-        context.stop(self)
+//        context.stop(self)
+        self ! PoisonPill
     }
 }

@@ -6,7 +6,6 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor.ExcuteScanScpQueue
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alCalcYMTrait, alGeneratePanelTrait, alMaxDriverTrait, alScpQueueTrait}
 import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileBase, outPut}
 
 object alMaxDriver {
 	def props = Props[alMaxDriver]
@@ -44,8 +43,8 @@ class alMaxDriver extends Actor with ActorLogging
 		case calcYMResult(ym) => log.info(s"calcYM=${ym}")//sender ! calcYMResult(ym)
 		case generatePanelResult(file_path) => {
 			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
-			println("panel文件位置 = " + file_path)
-//			self ! push_filter_job(file_path, cp)
+//			println("panel文件位置 = " + file_path)
+			self ! push_filter_job(file_path, cp)
 		}
 
 		case _ => ???

@@ -1,17 +1,11 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.routing.BroadcastPool
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
-import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
-import com.pharbers.pfizer.impl.phPfizerHandleImpl
-import play.api.libs.json.JsString
-
-import scala.collection.immutable.Map
+import com.pharbers.aqll.alStart.alHttpFunc.alUploadItem
 import scala.concurrent.duration._
 import scala.concurrent.stm._
 
@@ -36,11 +30,12 @@ trait alGeneratePanelTrait { this : Actor =>
     val generate_panel_jobs = Ref(List[(alUploadItem, ActorRef)]())
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val panelLimit = Ref(2)
+    val panelLimit = Ref(1)
 
     val generate_panel_schedule = context.system.scheduler.schedule(1 second, 1 second, self, generatePanelSchedule())
 
     def push_generate_panel_jobs(item : alUploadItem, s : ActorRef) = {
+        println("1.push_generate_panel_jobs")
         atomic { implicit thx =>
             generate_panel_jobs() = generate_panel_jobs() :+ (item, s)
         }
@@ -61,6 +56,7 @@ trait alGeneratePanelTrait { this : Actor =>
     def do_generate_panel_job(panel_job : alUploadItem, s : ActorRef) = {
         val cur = context.actorOf(alCameoGeneratePanel.props(panel_job, s, self, panel_router))
         import alCameoGeneratePanel._
+        println("2.do_generate_panel_job")
         cur ! generate_panel_start()
     }
     def release_panel_energy = {
@@ -113,6 +109,7 @@ class alCameoGeneratePanel(val panel_job : alUploadItem,
 //        originSender ! msg
         log.info("stopping generate panel cameo")
         generate_panel_timer.cancel()
-        context.stop(self)
+//        context.stop(self)
+        self ! PoisonPill
     }
 }
