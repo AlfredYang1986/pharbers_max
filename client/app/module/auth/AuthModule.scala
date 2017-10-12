@@ -1,8 +1,10 @@
 package module.auth
 
 import java.util.Date
+
 import com.mongodb.casbah.Imports._
 import com.pharbers.ErrorCode
+import com.pharbers.aqll.common.alValidationToken
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
@@ -26,6 +28,7 @@ object AuthModule extends ModuleTrait with AuthData {
 		case msg_auth_code_push_success(data) => authCodePushSuccess(data)
 		case msg_auth_token_type(data) => authTokenType(data)(pr)
 		case msg_auth_token_used(data) => checkAuthTokenUsed(data)
+		case msg_auth_check_token_action(data) => authCheckTokenAction(data)
 		case _ => throw new Exception("function is not impl")
 	}
 	
@@ -167,6 +170,20 @@ object AuthModule extends ModuleTrait with AuthData {
 					if (lst.contains("BD")) (Some(Map("user_type" -> toJson(lst))), None)
 					else throw new Exception("user is not BD")
 			}
+		} catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	def authCheckTokenAction(data: JsValue)(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
+		try {
+			implicit val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
+			val reVal = (data \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exist"))
+			alValidationToken(reVal).validation match {
+				case tem => (Some(Map("action" -> toJson(tem.str))), None)
+				case _ => throw new Exception("data not exist")
+			}
+			
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
