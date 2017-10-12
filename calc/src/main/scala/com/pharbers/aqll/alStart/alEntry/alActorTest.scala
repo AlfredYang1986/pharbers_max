@@ -22,12 +22,9 @@ object alActorTest extends App {
 			val path = "config/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Client"
 			val cpa_file_local = path + "/CPA/1705 CPA.xlsx"
 			val gycx_file_local = path + "/GYCX/1705 GYC.xlsx"
-
-			// 1 to 20 foreach(x => a ! push_filter_job(calc_path, cp))
-			1 to 6 foreach(x => {
-					a ! pushGeneratePanelJobs(alUploadItem("fea9f203d4f593a96f0d6faa91ba24ba", "user", cpa_file_local, gycx_file_local, "201705"))
-				})
-			
+			(1 to 5).foreach {_ =>
+				a ! pushGeneratePanelJobs(alUploadItem("fea9f203d4f593a96f0d6faa91ba24ba", "user", cpa_file_local, gycx_file_local, "201705"))
+			}
 		}
 	}
 }
