@@ -158,7 +158,6 @@ object AuthModule extends ModuleTrait with AuthData {
 		}
 	}
 	
-	
 	def authTokenType(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			pr match {
