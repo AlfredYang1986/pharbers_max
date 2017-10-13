@@ -79,11 +79,7 @@
                     // 提交监听
                     form.on('submit(sub)', function (data) {
                         var map = {"email": data.field.email, "password": md5(data.field.email + data.field.password)};
-                        var json  = JSON.stringify(f.parameterPrefix.condition(map))
-//                        var json = JSON.stringify({
-//                            "email": data.field.email,
-//                            "password": md5(data.field.email + data.field.password)
-//                        });
+                        var json  = JSON.stringify(f.parameterPrefix.conditions(map))
                        if(f.validationModule.finalResult()){
                            f.ajaxModule.asyncPost('auth/authWithPassword', json, function (r) {
                                if (r.status === 'ok') {

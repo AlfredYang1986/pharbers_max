@@ -27,12 +27,12 @@ object PhoneCodeModule extends ModuleTrait with PhoneCodeData {
 			val db = conn.queryDBInstance("cli").get
 			val o: DBObject = conditions(data)
 			db.queryObject(o, "phonecode") match {
-				case None => (Some(Map("reg" -> toJson("ok"))), None)
+				case None => (Some(Map("condition" -> toJson("ok"))), None)
 				case Some(x) =>
 					val reg_token = x.get("reg_token").get.as[String]
 					val phoneNo = (data \ "condition" \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("wrong input"))
 					if (Sercurity.getTimeSpanWithPastMinutes(1).map(x => Sercurity.md5Hash(phoneNo + x)).contains(reg_token)) throw new Exception("phone code time is lt 60 seconds")
-					else (Some(Map("reg" -> toJson("ok"))), None)
+					else (Some(Map("condition" -> toJson("ok"))), None)
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -53,7 +53,7 @@ object PhoneCodeModule extends ModuleTrait with PhoneCodeData {
 				case Some(_) => db.updateObject(o, "phonecode", "phone")
 			}
 			val result = toJson(d2m(o) - "code" ++ Map("flag" -> toJson("ok")))
-			(Some(Map("reg" -> result)), None)
+			(Some(Map("condition" -> result)), None)
 		} catch {
 			case ex: Exception =>
 				println(ex)
@@ -74,7 +74,7 @@ object PhoneCodeModule extends ModuleTrait with PhoneCodeData {
 			db.queryObject(condition, "phonecode") match {
 				case None => throw new Exception("reg phone or code error")
 				case Some(_) =>
-					(Some(Map("result" -> toJson("success"))), None)
+					(Some(Map("condition" -> toJson("success"))), None)
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))

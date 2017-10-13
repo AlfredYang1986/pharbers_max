@@ -47,7 +47,7 @@
 
             // 提交监听
             form.on('submit(sub)', function (data) {
-                var json = JSON.stringify({'user_token': data.field.code});
+                var json = JSON.stringify(f.parameterPrefix.conditions({'user_token': data.field.code}))
                 f.ajaxModule.baseCall('/auth/pushUser', json, 'POST', function (r) {
                     if (r.status === 'ok') {
                         layer.msg('2后跳转页面');

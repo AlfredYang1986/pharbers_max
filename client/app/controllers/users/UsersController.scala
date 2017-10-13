@@ -22,8 +22,7 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 	def user_push = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("user_register"))), jv)
-			:: msg_user_push(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
+		MessageRoutes(msg_user_push(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
 	
 	def user_delete = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>

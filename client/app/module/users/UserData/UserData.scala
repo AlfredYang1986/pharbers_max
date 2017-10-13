@@ -25,12 +25,12 @@ trait UserData {
 	
 	implicit val m2d: JsValue => DBObject = { js =>
 		val builder = MongoDBObject.newBuilder
-		val email = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("info input email"))
-		val password = (js \ "password").asOpt[String].map(x => x).getOrElse(email)
-		val name = (js \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("info input linkman name"))
-		val phone = (js \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
-		val scope = (js \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil)
-		val id = (js \ "user_id").asOpt[String].map(x => x).getOrElse(Sercurity.md5Hash(s"$email"))
+		val email = (js \ "user" \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("info input email"))
+		val password = (js \ "user" \ "password").asOpt[String].map(x => x).getOrElse(email)
+		val name = (js \ "user" \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("info input linkman name"))
+		val phone = (js \ "user" \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
+		val scope = (js \ "user" \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil)
+		val id = (js \ "user" \ "user_id").asOpt[String].map(x => x).getOrElse(Sercurity.md5Hash(s"$email"))
 		val profile = DBObject("email" -> email, "secret" -> password, "name" -> name, "phone" -> phone, "scope" -> scope)
 		
 		builder += "user_id" -> id

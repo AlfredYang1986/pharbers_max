@@ -88,10 +88,10 @@
 
         var phone_code = function() {
             var map = {"phone": $('.phone').text()}
-            var json = JSON.stringify(f.parameterPrefix.condition(map));
+            var json = JSON.stringify(f.parameterPrefix.conditions(map));
             f.ajaxModule.baseCall('/phonecode/send', json, 'POST', function(r){
-                if(r.status === 'ok' && r.result.reg.flag === 'ok') {
-                    f.cookieModule.setCookie('reg_token', r.result.reg.reg_token)
+                if(r.status === 'ok' && r.result.condition.flag === 'ok') {
+                    f.cookieModule.setCookie('reg_token', r.result.condition.reg_token)
                 }else if(r.status === 'error') {
                     layer.msg(r.error.message);
                 }else {
@@ -106,10 +106,10 @@
                 var num = $(this).val();
                 if(num.length.toString() === $(this).attr('maxlength')) {
                     var map = {'reg_token': $.cookie('reg_token'), 'code': num, 'phone': $('.phone').text()}
-                    var json = JSON.stringify(f.parameterPrefix.condition(map));
+                    var json = JSON.stringify(f.parameterPrefix.conditions(map));
                     if(f.validationModule.finalResult()){
                         f.ajaxModule.baseCall('/phonecode/check', json, 'POST', function(r){
-                            if(r.status === 'ok' && r.result.result === 'success') {
+                            if(r.status === 'ok' && r.result.condition === 'success') {
                                 location = '/index';
                             }else {
                                 errornum++;

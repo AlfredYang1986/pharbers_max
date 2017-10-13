@@ -43,11 +43,12 @@ object UserModule extends ModuleTrait with UserData {
         try {
             val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
             val db = conn.queryDBInstance("cli").get
-            val o = pr match {
-                case None => m2d(data)
-                case Some(one) =>
-                    m2d(one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist")))
-            }
+//            val o = pr match {
+//                case None => m2d(data)
+//                case Some(one) =>
+//                    m2d(one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist")))
+//            }
+            val o = m2d(data)
             db.insertObject(o, "users", "user_id")
             (Some(Map("push_user" -> toJson("ok"))), None)
         }catch {
@@ -73,11 +74,11 @@ object UserModule extends ModuleTrait with UserData {
         try {
             val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
             val db = conn.queryDBInstance("cli").get
-            val o = pr match {
-                case None => m2d(data)
-                case Some(one) => m2d(one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist")))
-            }
-
+//            val o = pr match {
+//                case None => m2d(data)
+//                case Some(one) => m2d(one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist")))
+//            }
+            val o =m2d(data)
             db.updateObject(o, "users", "user_id")
             (Some(Map("push_user" -> toJson("ok"))), None)
         }catch {
@@ -126,7 +127,7 @@ object UserModule extends ModuleTrait with UserData {
             val o = conditions(data)
             db.queryObject(o, "users") match {
                 case None => throw new Exception("data not exist")
-                case Some(one) => (Some(Map("info" -> toJson(one))), None)
+                case Some(one) => (Some(Map("condition" -> toJson(one))), None)
             }
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -143,15 +144,12 @@ object UserModule extends ModuleTrait with UserData {
             pr match {
                 case None => throw new Exception("pr data not exist")
                 case Some(one) =>
-                    val map = one.get("info").map(x => x).get.as[Map[String, JsValue]]
+                    val map = one.get("condition").map(x => x).get.as[Map[String, JsValue]]
                     val reVal = map + ("expire_in" -> toJson(new Date().getTime +  60 * 1000 * 10)) + ("action" -> toJson("forget_password"))
                     val token = att.encrypt2Token(toJson(reVal))
-    
                     val email = map.get("email").map(x => x.as[String]).getOrElse("")
-                    
 	                emailResetPassword(email, token)
-                    
-                    (Some(Map("urltoken" -> toJson("ok"))), None)
+                    (Some(Map("condition" -> toJson(email))), None)
             }
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -164,7 +162,7 @@ object UserModule extends ModuleTrait with UserData {
                     case None => throw new Exception("pr data not exist")
                     case Some(one) => one.get("auth").map( x => x ).getOrElse(throw new Exception("data not exist"))
                 }
-            (Some(Map("user_info" -> toJson(token))), None)
+            (Some(Map("user" -> toJson(token))), None)
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
@@ -179,9 +177,11 @@ object UserModule extends ModuleTrait with UserData {
 
             val user = pr match {
                 case None => throw new Exception("pr data not exist")
-                case Some(one) => one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist"))
+                case Some(one) => one.get("user").map(x => x).getOrElse(throw new Exception("data not exist"))
              }
-            val o = m2d(toJson(user.as[Map[String, JsValue]] ++ Map("password" -> toJson((data \ "password").asOpt[String].getOrElse("")))))
+            
+            val condition = toJson(Map("user" -> toJson(user.as[Map[String, JsValue]] ++ Map("password" -> toJson((data \ "user" \ "password").asOpt[String].getOrElse(""))))))
+            val o = m2d(condition)
 
             val email = o.getAs[MongoDBObject]("profile").get.getAs[String]("email").get
             val one = db.queryObject(DBObject("profile.email" -> email), "users")(d2m) match {
@@ -189,7 +189,7 @@ object UserModule extends ModuleTrait with UserData {
                     db.insertObject(o, "users", "user_id")
                     o
                 }
-                case Some(tmp) => {
+                case Some(_) => {
                     db.updateObject(o, "users", "user_id")
                     o
                 }
@@ -209,8 +209,8 @@ object UserModule extends ModuleTrait with UserData {
             val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
             val db = conn.queryDBInstance("cli").get
 
-            val js = (data \ "reginfo").asOpt[JsValue].get
-            val o = conditions(js)
+//            val js = (data \ "condition").asOpt[JsValue].get
+            val o = conditions(data)
             db.queryObject(o, "users") match {
                 case None => (Some(Map("not_exist" -> toJson("ok"))), None)
                 case Some(_) => throw new Exception("user already exists")

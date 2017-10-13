@@ -79,7 +79,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val db = conn.queryDBInstance("cli").get
 			val o: DBObject = conditions(data)
 			db.queryMultipleObject(o, "reg_apply") match {
-				case Nil => (Some(Map("apply" -> toJson("ok"))), None)
+				case Nil => (Some(Map("condition" -> toJson("ok"))), None)
 				case _ => throw new Exception("user is repeat")
 			}
 		} catch {
@@ -92,8 +92,9 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("cli").get
 			val o: DBObject = m2d(data)
+			val name = (data \ "user").asOpt[String].map(x => x).getOrElse("")
 			db.insertObject(o, "reg_apply", "reg_id")
-			(Some(Map("registers" -> toJson("ok"))), None)
+			(Some(Map("user" -> toJson(name))), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
@@ -123,7 +124,6 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val db = conn.queryDBInstance("cli").get
 			
 			val app = pr.get.get("apply").get
-			val token = pr.get.get("token").get
 			
 			val email = (app \ "email").asOpt[String].get
 			val name = (app \ "name").asOpt[String].get
@@ -132,7 +132,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 				db.updateObject(x, "reg_apply", "reg_id")
 				x
 			}
-			(Some(Map("token" -> toJson(token))), None)
+			(Some(Map("condition" -> toJson(email))), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
