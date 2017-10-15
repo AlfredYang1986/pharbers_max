@@ -1,7 +1,6 @@
 package module
 
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.Page._
 import com.pharbers.mongodbConnect.{connection_instance, from}
 import play.api.libs.json.JsValue
@@ -29,7 +28,6 @@ object ResultQueryModule extends ModuleTrait {
 		var markets = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(Nil)
 		var dates = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(Nil)
 		implicit val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
-//		implicit val db = conn.queryDBInstance("calc").get//DBConection.cores
 		markets = markets.map(x => removeSpace(x))
 
 		val conditions = markets match {

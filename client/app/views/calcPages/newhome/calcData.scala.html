@@ -1,6 +1,6 @@
-@(auth: String)
+@(auth: String, name: String)
 
-@pageLayout.HomePageLayout.contentPanel("Max | Home") {
+@pageLayout.HomePageLayout.contentPanel("Max | Home", name) {
     <link href="@routes.Assets.versioned("css/style.default.css")" rel="stylesheet">
     <body>
         <div class="layui-tab layui-tab-card" lay-filter="step">

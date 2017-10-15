@@ -3,7 +3,6 @@ package module.register.RegisterData
 import java.util.Date
 
 import com.mongodb.casbah.Imports.{DBObject, _}
-import com.pharbers.aqll.common.MaxEnmeration.alRegisterStatus
 import com.pharbers.sercuity.Sercurity
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -36,7 +35,7 @@ trait RegisterData {
 
 		builder += "reg_id" -> id
 		builder += "reg_content" -> reg_content
-		builder += "status" -> alRegisterStatus.posted.id
+		builder += "status" -> 0.asInstanceOf[Number]
 		builder += "date" -> new Date().getTime
 		
 		builder.result
@@ -44,7 +43,8 @@ trait RegisterData {
 	
 	implicit val d2m: DBObject => Map[String, JsValue] = { obj =>
 		val reg_content = obj.as[MongoDBObject]("reg_content")
-		Map("email" -> toJson(reg_content.getAs[String]("email").map(x => x).getOrElse("")),
+		Map("reg_id" -> toJson(obj.getAs[String]("reg_id").map(x => x).getOrElse("")),
+			"email" -> toJson(reg_content.getAs[String]("email").map(x => x).getOrElse("")),
 			"company" -> toJson(reg_content.getAs[String]("company").map(x => x).getOrElse("")),
 			"name" -> toJson(reg_content.getAs[String]("linkman").map(x => x).getOrElse("")),
 			"phone" -> toJson(reg_content.getAs[String]("phone").map(x => x).getOrElse("")),

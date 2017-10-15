@@ -55,9 +55,7 @@ object PhoneCodeModule extends ModuleTrait with PhoneCodeData {
 			val result = toJson(d2m(o) - "code" ++ Map("flag" -> toJson("ok")))
 			(Some(Map("condition" -> result)), None)
 		} catch {
-			case ex: Exception =>
-				println(ex)
-				(None, Some(ErrorCode.errorToJson(ex.getMessage)))
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
 	

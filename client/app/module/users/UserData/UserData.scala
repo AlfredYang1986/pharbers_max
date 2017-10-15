@@ -5,9 +5,8 @@ import java.util.Date
 import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.cliTraits.DBTrait
-import com.pharbers.message.send.SendMessageTrait
+import com.pharbers.message.send.{EmailResetPasswordType, SendMessageTrait}
 import com.pharbers.sercuity.Sercurity
-import com.pharbers.token.AuthTokenTrait
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
@@ -55,6 +54,6 @@ trait UserData {
 		// TODO: 写成配置文件
 		val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
 		val html = views.html.emailContent.resetPassword(email, url)
-		msg.sendMailMessage(email).sendHtmlMail.setSubTheme("忘记密码").setContext(html.toString).sendToEmail
+		msg.sendMailMessage(email, EmailResetPasswordType()).sendHtmlMail.setSubTheme("忘记密码").setContext(html.toString).sendToEmail
 	}
 }

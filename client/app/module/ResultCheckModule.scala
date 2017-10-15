@@ -2,7 +2,6 @@ package module
 
 import com.mongodb.casbah.Imports.DBObject
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.common.{DBConection, alCallHttp}
 import com.pharbers.mongodbConnect.connection_instance
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import play.api.libs.json.JsValue
@@ -13,7 +12,6 @@ import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
-import com.pharbers.dbManagerTrait.dbInstanceManager
 
 object ResultCheckModuleMessage {
 	sealed class msg_resultCheckBase extends CommonMessage("resultcheck", ResultCheckModule)
@@ -31,7 +29,6 @@ object ResultCheckModule extends ModuleTrait {
 
 	def msg_linechart_func(data : JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
-//		implicit val db = conn.queryDBInstance("cli").get//DBConection.cores
 		try {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")
@@ -46,7 +43,6 @@ object ResultCheckModule extends ModuleTrait {
 
 	def msg_histogram_func(data : JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
-//		implicit val db = DBConection.cores
 		try {
 			val company = (data \ "company").asOpt[String].getOrElse("")
 			val market = (data \ "market").asOpt[String].getOrElse("")

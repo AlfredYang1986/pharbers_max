@@ -1,7 +1,6 @@
 package module
 
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.common.DBConection
 import com.pharbers.mongodbConnect.{connection_instance, from}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json._
@@ -28,7 +27,6 @@ object SampleReportModule extends ModuleTrait {
 		val company = (data \ "company").asOpt[String].getOrElse("")
 		val query = MongoDBObject("Company" -> company)
 		implicit val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
-//		implicit val db = conn.queryDBInstance("calc").get//DBConection.cores
 		try {
 			val market_lst = (from db() in "FactResult" where query).selectSort("Date")(MongoDBReport(_)).toList
 			val market_arr = market_lst.asInstanceOf[List[Map[String,Any]]].groupBy(x => x.get("Market").get)

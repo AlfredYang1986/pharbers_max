@@ -127,6 +127,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			
 			val email = (app \ "email").asOpt[String].get
 			val name = (app \ "name").asOpt[String].get
+			
 			db.queryObject(DBObject("reg_content.email" -> email, "reg_content.linkman" -> name), "reg_apply") { x =>
 				x += "status" -> 1.asInstanceOf[Number]
 				db.updateObject(x, "reg_apply", "reg_id")
@@ -156,4 +157,5 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
+	
 }

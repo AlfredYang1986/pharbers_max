@@ -4,7 +4,7 @@ import java.util.Date
 
 import com.mongodb.casbah.Imports._
 import com.pharbers.ErrorCode
-import com.pharbers.aqll.common.alValidationToken
+import com.pharbers.aqll.common.{MergeStepResult, alValidationToken}
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
@@ -13,7 +13,6 @@ import module.auth.AuthData._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.auth.AuthMessage.{msg_auth_token_type, _}
-import com.pharbers.aqll.common.email.{Mail, StmConf}
 import com.pharbers.message.send.SendMessageTrait
 
 import scala.collection.immutable.Map
@@ -43,9 +42,10 @@ object AuthModule extends ModuleTrait with AuthData {
 			db.queryObject(map, "users") match {
 				case None => throw new Exception("data not exist")
 				case Some(one) =>
-					val reVal = one + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
+					val o = one - "email" - "phone" - "name"
+					val reVal = o + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 					val auth_token = att.encrypt2Token(toJson(reVal))
-					(Some(Map("user" -> toJson(one - "scope"), "auth_token" -> toJson(auth_token))), None)
+					(Some(Map("auth_token" -> toJson(auth_token))), None)
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -56,10 +56,8 @@ object AuthModule extends ModuleTrait with AuthData {
 	                        (pr: Option[Map[String, JsValue]])
 	                        (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			val auth = pr match {
-				case None => throw new Exception("pr data not exist")
-				case Some(one) => one.get("auth").map(x => x).getOrElse(throw new Exception("token parse error"))
-			}
+			val auth = (MergeStepResult(data, pr) \ "auth").asOpt[JsValue].map(x => x).getOrElse(throw new Exception("token parse error"))
+			
 			val expire_in = (auth \ "expire_in").asOpt[Long].map(x => x).getOrElse(throw new Exception("token parse error"))
 			if (new Date().getTime > expire_in) throw new Exception("token expired")
 			else (pr, None)
@@ -86,11 +84,8 @@ object AuthModule extends ModuleTrait with AuthData {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			implicit val db = conn.queryDBInstance("cli").get
 			implicit val msg = cm.modules.get.get("msg").map(x => x.asInstanceOf[SendMessageTrait]).getOrElse(throw new Exception("no message impl"))
-			val o = pr match {
-				case None => jv2m(data)
-				case Some(one) => jv2m(toJson(Map("condition" -> one.get("apply").get)))
-			}
 			
+			val o = (MergeStepResult(data, pr) \ "apply").asOpt[JsValue].map(x => jv2m(toJson(Map("condition" -> x)))).getOrElse(jv2m(data))
 			val reVal = att.encrypt2Token(toJson(o + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000))))
 			val email = o.get("email").map(x => x.as[String]).getOrElse("")
 			emailAuthCode(email, reVal)
@@ -125,6 +120,8 @@ object AuthModule extends ModuleTrait with AuthData {
 			val js = att.decrypt2JsValue(token)
 			val email = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
 			val name = (js \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
+			println(data)
+			println(js)
 			//TODO 还未知该URL参数是否有用，暂时不删除
 			val reVal = att.encrypt2Token(toJson(js.as[Map[String, JsValue]] + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000)) + ("action" -> toJson("first_login"))))
 			val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
@@ -160,14 +157,12 @@ object AuthModule extends ModuleTrait with AuthData {
 	
 	def authTokenType(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
-			pr match {
-				case None => throw new Exception("")
-				case Some(one) =>
-					val reVal = one.get("auth").get.as[Map[String, JsValue]]
-					val lst = reVal.get("scope").map(x => x.as[List[String]]).getOrElse(throw new Exception(""))
-					if (lst.contains("BD")) (Some(Map("user_type" -> toJson(lst))), None)
-					else throw new Exception("user is not BD")
-			}
+			
+			val reVal = (MergeStepResult(data, pr) \ "auth").asOpt[JsValue].map(x => x.as[String Map JsValue]).getOrElse(throw new Exception(""))
+			val lst = reVal.get("scope").map(x => x.as[List[String]]).getOrElse(throw new Exception(""))
+			if(lst.contains("BD")) (Some(Map("user_type" -> toJson(lst))), None)
+			else throw new Exception("user is not BD")
+			
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
