@@ -4,9 +4,11 @@ import com.mongodb.casbah.Imports._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.pharbers.ErrorCode
+import com.pharbers.aqll.common.MergeStepResult
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.token.AuthTokenTrait
 import module.register.RegisterData._
 import module.register.RegisterMessage._
 
@@ -142,11 +144,20 @@ object RegisterModule extends ModuleTrait with RegisterData {
 	def user_first_push(data: JsValue)(pr: Option[String Map JsValue])(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val db = conn.queryDBInstance("cli").get
-			val app = pr.get.get("user").get
-			val email = (app \ "email").as[String]
-			val name = (app \ "name").as[String]
-			db.queryObject(DBObject("reg_content.email" -> email, "reg_content.linkman" -> name), "reg_apply") { x =>
+			
+			
+			val app = pr.get.get("user_token").get
+			val token = app.as[String]
+			val reVal = att.decrypt2JsValue(token)
+			val regid = (reVal \ "user_id").as[String]
+			println(regid)
+//			val app = pr.get.get("user").get
+//			val email = (app \ "email").as[String]
+//			val name = (app \ "name").as[String]
+//			db.queryObject(DBObject("reg_content.email" -> email, "reg_content.linkman" -> name), "reg_apply") { x =>
+			db.queryObject(DBObject("reg_id" -> regid), "reg_apply") { x =>
 				x += "status" -> 2.asInstanceOf[Number]
 				db.updateObject(x, "reg_apply", "reg_id")
 				x

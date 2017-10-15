@@ -172,7 +172,7 @@ object UserModule extends ModuleTrait with UserData {
             
             val condition = toJson(Map("user" -> toJson(user.as[Map[String, JsValue]] ++ Map("password" -> toJson((data \ "user" \ "password").asOpt[String].getOrElse(""))))))
             val o = m2d(condition)
-
+            
             val email = o.getAs[MongoDBObject]("profile").get.getAs[String]("email").get
             val one = db.queryObject(DBObject("profile.email" -> email), "users")(d2m) match {
                 case None => {
@@ -188,7 +188,7 @@ object UserModule extends ModuleTrait with UserData {
             val date = new Date().getTime
             val reVal = one - "name" - "email" - "phone" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 			val auth_token = att.encrypt2Token(toJson(reVal))
-			(Some(Map("auth_token" -> toJson(auth_token))), None)
+			(Some(Map("user_token" -> toJson(auth_token))), None)
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
