@@ -152,11 +152,6 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val token = app.as[String]
 			val reVal = att.decrypt2JsValue(token)
 			val regid = (reVal \ "user_id").as[String]
-			println(regid)
-//			val app = pr.get.get("user").get
-//			val email = (app \ "email").as[String]
-//			val name = (app \ "name").as[String]
-//			db.queryObject(DBObject("reg_content.email" -> email, "reg_content.linkman" -> name), "reg_apply") { x =>
 			db.queryObject(DBObject("reg_id" -> regid), "reg_apply") { x =>
 				x += "status" -> 2.asInstanceOf[Number]
 				db.updateObject(x, "reg_apply", "reg_id")
