@@ -8,7 +8,8 @@
     var current_li = 0;
     var tab_arr = ['panel-li', 'sample-li', 'result-li'];
     $('li[pharbers-filter="calc"]').addClass("layui-this");
-
+    var f = new Facade();
+    var company = "";
 
     layui.use('element', function () {
         var element = layui.element;
@@ -18,11 +19,11 @@
             if (data.index === 0) {
                 current_li = 0;
                 load_panel_tab('#panel-lst');
+            } else if (data.index === 1) {
+                current_li = 1;
+                load_sample_check_tab(sample_market, sample_date)
             } else if (data.index === 2) {
                 current_li = 2;
-                load_sample_check_tab(sample_market, sample_date)
-            } else if (data.index === 3) {
-                current_li = 3;
                 load_result_check_tab()
             } else {
             }
@@ -70,11 +71,15 @@
                 elem: '#select-panel-btn',
                 url: '/panel/upload',
                 drag: false,
+                data: {"company": company},
                 auto: false, //选择文件后不自动上传
                 multiple: true,
                 accept: 'file',
                 exts: 'xlsx',
                 bindAction: '#upload-panel-btn',
+                before: function () {
+                    query_company();
+                },
                 choose: function (obj) {
                     var files = obj.pushFile();
                     obj.preview(function (index, file, result) {
@@ -110,6 +115,12 @@
                                 '</div>';
                         tds.eq(3).html(p); //清空操作
                         // setProgress(50); // 设置计算进度条
+                        var json = JSON.stringify({"businessType": "/modelcalc",
+                                                    "company": company,
+                                                    "filename": res.result[0],
+                                                    "uname": "fuck"
+                                                  });
+                        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)})
                         return;
                     }
                     this.error(index, upload);
@@ -405,6 +416,20 @@
             };
             bar3_chart.setOption(option);
         }
+    }
+
+    var query_company = function() {
+        layui.use('layer', function () {});
+        var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
+        f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
+            if(r.status === 'ok') {
+                company = r.result.user.company;
+            } else if (r.status === 'error') {
+                layer.msg(r.error.message);
+            } else {
+                layer.msg('服务出错请联系管理员！');
+            }
+        }, function(e){console.error(e)})
     }
 
     var binding = function(opera, btn, preBtn, postBtn, cssClass) {

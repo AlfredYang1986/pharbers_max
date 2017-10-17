@@ -16,6 +16,7 @@ trait UserData {
 		val builder = MongoDBObject.newBuilder
 		(data \ "condition" \ "user_id").asOpt[String].map(x => builder += "user_id" -> x).getOrElse(Unit)
 		(data \ "condition" \ "email").asOpt[String].map(x => builder += "profile.email" -> x).getOrElse(Unit)
+		(data \ "condition" \ "company").asOpt[String].map(x => builder += "profile.company" -> x).getOrElse(Unit)
 		(data \ "condition" \ "name").asOpt[String].map(x => builder += "profile.name" -> x).getOrElse(Unit)
 		(data \ "condition" \ "phone").asOpt[String].map(x => builder += "profile.phone" -> x).getOrElse(Unit)
 		builder.result
@@ -29,8 +30,9 @@ trait UserData {
 		val name = (js \ "user" \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("info input linkman name"))
 		val phone = (js \ "user" \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
 		val scope = (js \ "user" \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil)
+		val company = (js \ "user" \ "company").asOpt[String].map(x => x).getOrElse("")
 		val id = (js \ "user" \ "user_id").asOpt[String].map(x => x).getOrElse(Sercurity.md5Hash(s"$email"))
-		val profile = DBObject("email" -> email, "secret" -> password, "name" -> name, "phone" -> phone, "scope" -> scope)
+		val profile = DBObject("email" -> email, "secret" -> password, "company" -> Sercurity.md5Hash(company), "name" -> name, "phone" -> phone, "scope" -> scope)
 		
 		builder += "user_id" -> id
 		builder += "profile" -> profile
@@ -45,6 +47,7 @@ trait UserData {
 		Map("user_id" -> toJson(obj.getAs[String]("user_id").map(x => x).getOrElse("")),
 			"name" -> toJson(profile.getAs[String]("name").map(x => x).getOrElse("")),
 			"email" -> toJson(profile.getAs[String]("email").map(x => x).getOrElse("")),
+			"company" -> toJson(profile.getAs[String]("company").map(x => x).getOrElse("")),
 			"phone" -> toJson(profile.getAs[String]("phone").map(x => x).getOrElse("0")),
 			"date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(obj.getAs[Number]("date").getOrElse(0).toString.toLong)),
 			"scope" -> toJson(profile.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)))

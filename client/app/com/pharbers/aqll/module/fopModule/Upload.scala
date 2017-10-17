@@ -4,6 +4,7 @@ import java.io.File
 import java.util.UUID
 
 import com.pharbers.ErrorCode
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.json.Json.toJson
@@ -15,11 +16,15 @@ object Upload {
 				var lst : List[JsValue] = Nil
 				data.files.foreach { x =>
 				val uuid = UUID.randomUUID
-				val file = new File("files/")
+				val company = data.dataParts.get("company").get.headOption.map(x => x).getOrElse("")
+//				val path = s"$fileBase$company$outPut"
+				val path = s"/Users/qianpeng/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Output"
+				val file = new File(path)
 				if(!file.exists()) {
+					println(file.exists())
 					file.mkdir()
 				}
-				new TemporaryFile(x.ref.file).moveTo(new File(s"files/$uuid"), true)
+				new TemporaryFile(x.ref.file).moveTo(new File(s"$path/$uuid"), true)
 						lst = lst :+ toJson(uuid.toString)
 				}
 				Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))

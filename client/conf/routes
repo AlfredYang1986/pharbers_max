@@ -40,6 +40,10 @@ POST    /phonecode/check                            controllers.phonecode.PhoneS
 
 # 上传文件
 POST    /panel/upload                               controllers.upload.FopController.uploadFile
+POST    /upload/queryUserCompnay                    controllers.upload.FopController.queryUserCompnay
+
+# Call Http
+POST    /calc/callhttp                              controllers.callhttp.CallHttpController.callHttpServer
 
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user

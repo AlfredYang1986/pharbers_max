@@ -186,7 +186,7 @@ object UserModule extends ModuleTrait with UserData {
             }
 
             val date = new Date().getTime
-            val reVal = one - "name" - "email" - "phone" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
+            val reVal = one - "name" - "email" - "phone" - "company" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 			val auth_token = att.encrypt2Token(toJson(reVal))
 			(Some(Map("user_token" -> toJson(auth_token))), None)
         }catch {

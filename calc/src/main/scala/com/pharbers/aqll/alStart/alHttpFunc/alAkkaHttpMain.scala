@@ -45,16 +45,16 @@ object alAkkaHttpMain extends App with RequestTimeout {
 
 	def stubmain = {
 		val config = ConfigFactory.load("split-new-master")
-		val system = ActorSystem("calc", config)
+		val calcSystem: ActorSystem = ActorSystem("calc", config)
 		
-		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
-			Cluster(system).registerOnMemberUp {
-				system.actorOf(alMaxMaster.props, alMaxMaster.name)
-				system.actorOf(alMaxDriver.props, alMaxDriver.name)
-				system.actorOf(alAgentSingleton.props, alAgentSingleton.name)
-				alAkkaSystemGloble.system = system
+		if(calcSystem.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
+			Cluster(calcSystem).registerOnMemberUp {
+				alAkkaSystemGloble.system = calcSystem
+				calcSystem.actorOf(alMaxMaster.props, alMaxMaster.name)
+				calcSystem.actorOf(alMaxDriver.props, alMaxDriver.name)
+				calcSystem.actorOf(alAgentSingleton.props, alAgentSingleton.name)
+				calcSystem.actorOf(Props[alMaxClusterLister], "akka-listener")
 			}
-			system.actorOf(Props[alMaxClusterLister], "akka-listener")
 		}
 	}
 }
