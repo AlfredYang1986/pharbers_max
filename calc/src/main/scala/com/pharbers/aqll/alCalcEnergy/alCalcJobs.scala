@@ -13,7 +13,7 @@ import com.pharbers.aqll.alCalcOther.alMail.{EmailForCompany, Mail, StmConf}
 import com.pharbers.aqll.common.alFileHandler.mailConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alRestoreColl, alWeightSum}
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alWeightSum

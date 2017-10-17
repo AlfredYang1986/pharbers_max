@@ -1,9 +1,10 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
+import com.pharbers.alCalcMemory.aljobs.alJob
+import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_filter_csv_jobs._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.{do_map, restore_data}
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
 
 /**
   * Created by jeorch on 17-10-12.

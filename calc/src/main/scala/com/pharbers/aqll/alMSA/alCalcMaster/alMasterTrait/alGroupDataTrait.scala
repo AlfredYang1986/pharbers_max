@@ -7,13 +7,13 @@ import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.common_jobs
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
-import alGroupDataSlave.{slaveStatus,slave_status}
+import alGroupDataSlave.{slaveStatus, slave_status}
+import com.pharbers.alCalcMemory.aldata.alStorage
+import com.pharbers.alCalcMemory.alstages.alStage
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._

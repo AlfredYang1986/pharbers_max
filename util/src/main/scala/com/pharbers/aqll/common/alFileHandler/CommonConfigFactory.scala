@@ -1,6 +1,5 @@
 package com.pharbers.aqll.common.alFileHandler
 
-import com.pharbers.aqll.common.alFileHandler.fileConfig.file
 import com.typesafe.config.ConfigFactory
 
 /**

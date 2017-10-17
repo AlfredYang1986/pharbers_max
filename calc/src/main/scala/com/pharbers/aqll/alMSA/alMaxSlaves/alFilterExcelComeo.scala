@@ -7,9 +7,9 @@ import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, Supe
 import akka.pattern.ask
 import akka.agent.Agent
 import akka.util.Timeout
+import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_filter_csv_jobs, max_filter_excel_jobs}
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.common.alString.alStringOpt.removeSpace

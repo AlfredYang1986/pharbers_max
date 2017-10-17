@@ -1,11 +1,10 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
-import akka.actor.{Actor, ActorSystem}
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy._
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy._
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import akka.pattern.ask
@@ -13,6 +12,7 @@ import akka.pattern.ask
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.util.Timeout
+import com.pharbers.alCalcMemory.aljobs.alJob
 import com.pharbers.aqll.alStart.alHttpFunc.alAkkaSystemGloble
 
 

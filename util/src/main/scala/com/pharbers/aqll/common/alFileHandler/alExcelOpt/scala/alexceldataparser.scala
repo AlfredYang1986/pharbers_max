@@ -3,7 +3,7 @@ package com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala
 import java.io.FileOutputStream
 
 import akka.actor.ActorRef
-import com.pharbers.aqll.common.alFileHandler.alFileHandler
+import com.pharbers.alCalcMemory.alOther.alFileHandler.alFileHandler
 
 /**
   * Created by qianpeng on 2017/5/11.

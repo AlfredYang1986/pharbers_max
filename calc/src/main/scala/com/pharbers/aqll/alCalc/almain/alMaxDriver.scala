@@ -4,6 +4,7 @@ package com.pharbers.aqll.alCalc.almain
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.pattern.ask
 import akka.util.Timeout
+import com.pharbers.alCalcMemory.aldata.alStorage
 
 import scala.concurrent.Await
 import scala.concurrent.stm.atomic
@@ -18,11 +19,10 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, startDate}
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor._
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_filter_excel_jobs, max_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.do_pkg
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 
 /**
   * Created by Alfred on 10/03/2017.

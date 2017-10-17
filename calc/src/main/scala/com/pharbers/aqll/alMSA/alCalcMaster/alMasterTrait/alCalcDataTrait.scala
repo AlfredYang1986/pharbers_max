@@ -10,7 +10,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 import alCalcDataSlave.{slaveStatus, slave_status}
 import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
