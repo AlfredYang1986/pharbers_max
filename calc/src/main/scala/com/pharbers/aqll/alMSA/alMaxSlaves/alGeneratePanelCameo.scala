@@ -7,7 +7,7 @@ import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_start_impl, generate_panel_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alUploadItem
 import com.pharbers.pfizer.impl.phPfizerHandleImpl
-import play.api.libs.json.JsString
+import play.api.libs.json.{JsString, JsValue}
 
 import scala.collection.immutable.Map
 
@@ -33,21 +33,27 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
     override def receive: Receive = {
 
         case generate_panel_start_impl(panel_job) => {
+            println("4.开始生成panel")
             val args: Map[String, List[String]] = Map(
                 "company" -> List(panel_job.company),
                 "user" -> List(panel_job.user),
                 "cpas" -> panel_job.cpas.split("&").toList,
                 "gycxs" -> panel_job.gycxs.split("&").toList
             )
-            val file_path = new phPfizerHandleImpl(args).generatePanelFile(panel_job.ym).asInstanceOf[JsString].value
-            alMessageProxy().sendMsg(file_path, panel_job.user, Map("type" -> "txt"))
-//            log.info(s"generate panel done! file_path=${file_path}")
-            println("4.生成完成")
-            self ! generate_panel_end(true, file_path)
+            val data_parse = new phPfizerHandleImpl(args)
+            val yms = data_parse.calcYM.asInstanceOf[JsString].value
+            val lst = yms.split("#").toList
+            println("ym = " + lst)
+            val result = data_parse.getPanelFile(lst)
+            val panelLst = result.as[Map[String, Map[String, JsValue]]]
+                    .values.flatMap(_.values).map(_.as[String]).toList
+            alMessageProxy().sendMsg(panelLst.toString, panel_job.user, Map("type" -> "txt"))
+            println("5.panel生成完成")
+            self ! generate_panel_end(true, panelLst)
         }
-        case generate_panel_end(result, file_path) => {
-            owner forward generate_panel_end(result, file_path)
-            shutSlaveCameo(generate_panel_end(result, file_path))
+        case generate_panel_end(result, paths) => {
+            owner forward generate_panel_end(result, paths)
+            shutSlaveCameo(generate_panel_end(result, paths))
         }
         case generate_panel_timeout() => {
             log.debug("timeout occur")
@@ -59,7 +65,7 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
         case cannotRestart(reason: Throwable) => {
             new alMessageProxy().sendMsg("cannot generate panel", panel_job.user, Map("type" -> "txt"))
             log.info(s"reason is ${reason}")
-            self ! generate_panel_end(false, "cannot generate panel")
+            self ! generate_panel_end(false, "cannot generate panel" :: Nil)
         }
 
         case msg : AnyRef => log.info(s"Warning! Message not delivered. alGeneratePanelCameo.received_msg=${msg}")

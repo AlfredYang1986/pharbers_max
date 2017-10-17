@@ -41,7 +41,6 @@ trait alGeneratePanelTrait { this : Actor =>
         }
     }
     def generate_panel_schedule_jobs = {
-        println(s"panelLimit.single.get=${panelLimit.single.get}")
         if (panelLimit.single.get > 0) {
             atomic { implicit thx =>
                 val tmp = generate_panel_jobs.single.get
@@ -73,7 +72,7 @@ object alCameoGeneratePanel {
     case class generate_panel_start()
     case class generate_panel_hand()
     case class generate_panel_start_impl(panel_job: alUploadItem)
-    case class generate_panel_end(result : Boolean, file_path : String)
+    case class generate_panel_end(result : Boolean, paths : List[String])
     case class generate_panel_timeout()
 
     def props(panel_job : alUploadItem,
@@ -93,11 +92,11 @@ class alCameoGeneratePanel(val panel_job : alUploadItem,
 
         case generate_panel_start() => router ! generate_panel_hand()
         case generate_panel_hand() => sender ! generate_panel_start_impl(panel_job)
-        case generate_panel_end(result, file_path) => {
+        case generate_panel_end(result, paths) => {
             println(s"3.alCameoGeneratePanel.generate_panel_end")
             owner ! releasePanelEnergy()
-            owner ! generatePanelResult(file_path)
-            shutCameo(generate_panel_end(result, file_path))
+            owner ! generatePanelResult(paths)
+            shutCameo(generate_panel_end(result, paths))
         }
         case msg : AnyRef => log.info(s"Warning! Message not delivered. alCameoGeneratePanel.received_msg=${msg}")
     }

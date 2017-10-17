@@ -97,7 +97,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
                     "cpas" -> item.cpas.split("&").toList,
                     "gycxs" -> item.gycxs.split("&").toList
                 )
-                val result = new phPfizerHandleImpl(args).generatePanelFile(item.ym)
+                val result = new phPfizerHandleImpl(args).getPanelFile(item.ym :: Nil)
                 alMessageProxy().sendMsg(result.asInstanceOf[JsString].value, item.user, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
                 complete(result)
 			}

@@ -18,7 +18,7 @@ object alMaxDriver {
 	case class releasePanelEnergy()
 	case class releaseCalcYMEnergy()
 	case class calcYMResult(ym : String)
-	case class generatePanelResult(file_path : String)
+	case class generatePanelResult(paths : List[String])
 }
 
 class alMaxDriver extends Actor with ActorLogging
@@ -41,10 +41,12 @@ class alMaxDriver extends Actor with ActorLogging
 		case releasePanelEnergy() => release_panel_energy
 		case ExcuteScanScpQueue() => scanQueue()
 		case calcYMResult(ym) => log.info(s"calcYM=${ym}")//sender ! calcYMResult(ym)
-		case generatePanelResult(file_path) => {
+		case generatePanelResult(paths) => {
 			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
-//			println("panel文件位置 = " + file_path)
-			self ! push_filter_job(file_path, cp)
+			paths.foreach {x =>
+				println("panel文件位置 = " + x)
+				self ! push_filter_job(x, cp)
+			}
 		}
 
 		case _ => ???

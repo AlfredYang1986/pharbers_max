@@ -1,8 +1,5 @@
 package com.pharbers.aqll.alStart.alEntry
 
-import java.text.SimpleDateFormat
-import java.util.Date
-
 import akka.actor.ActorSystem
 import akka.cluster.Cluster
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.pushGeneratePanelJobs
@@ -22,12 +19,9 @@ object alActorTest extends App {
 			val path = "config/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Client"
 			val cpa_file_local = path + "/CPA/1705 CPA.xlsx"
 			val gycx_file_local = path + "/GYCX/1705 GYC.xlsx"
-			val dateformat = new SimpleDateFormat("MM-dd HH:mm:ss")
-			println(s"生成panel开始时间" + dateformat.format(new Date()))
 			(1 to 50).foreach {_ =>
 				a ! pushGeneratePanelJobs(alUploadItem("fea9f203d4f593a96f0d6faa91ba24ba", "user", cpa_file_local, gycx_file_local, "201705"))
 			}
-			println(s"生成50个panel完成时间" + dateformat.format(new Date()))
 		}
 	}
 }

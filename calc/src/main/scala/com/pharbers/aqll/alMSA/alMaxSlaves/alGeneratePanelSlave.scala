@@ -31,7 +31,7 @@ class alGeneratePanelSlave extends Actor with ActorLogging {
             val cur = context.actorOf(alGeneratePanelCameo.props(panel_job, sender, self, counter))
             cur.tell(generate_panel_start_impl(panel_job), sender)
         }
-        case generate_panel_end(result, file_path) => {
+        case generate_panel_end(result, paths) => {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! refundNodeForRole("splitgeneratepanelslave")
         }
