@@ -7,6 +7,17 @@ import com.pharbers.sercuity.Sercurity
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
+object regStatus {
+    object regNotified extends regStatusDefine(0, "通知")
+    object regApproved extends regStatusDefine(1, "同意发送验证码")
+    object regDone extends regStatusDefine(2, "用户操作验证码，已经成为用户")
+
+    object regCommunicated extends regStatusDefine(9, "沟通，销售过程")
+    object regExpired extends regStatusDefine(10, "过期了")
+}
+
+sealed case class regStatusDefine(val t : Int, val d : String)
+
 trait RegisterData {
 	
 	def conditions(data: JsValue): DBObject = {
@@ -35,7 +46,7 @@ trait RegisterData {
 
 		builder += "reg_id" -> id
 		builder += "reg_content" -> reg_content
-		builder += "status" -> 0.asInstanceOf[Number]
+		builder += "status" -> regStatus.regNotified.t // 0.asInstanceOf[Number]
 		builder += "date" -> new Date().getTime
 		
 		builder.result
