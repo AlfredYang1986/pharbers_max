@@ -22,6 +22,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 		case msg_register_token_create(data: JsValue) => user_register_create_token(data)
 		case msg_register_token_defeat(data: JsValue) => user_register_token_defeat(data)
 		case msg_first_push_user(data: JsValue) => user_first_push(data)(pr)
+		case MsgUpdateRegisterUser(data: JsValue) => userRegisterUpdate(data)
 		case _ => throw new Exception("function is not impl")
 	}
 	
@@ -42,15 +43,13 @@ object RegisterModule extends ModuleTrait with RegisterData {
 	def user_register_create_token(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-			val db = conn.queryDBInstance("cli").get
-			val o: DBObject = conditions(data)
-			db.queryMultipleObject(o, "reg_apply") match {
-				case Nil => throw new Exception("user not exist")
-				case x :: _ => x.get("status").map(x => x.as[Int]).getOrElse(throw new Exception("data not exist")) match {
-					case 0 => (Some(Map("apply" -> toJson(x))), None)
-					case 1 => throw new Exception("successful application")
-					case 2 => throw new Exception("successful application please login")
-				}
+			implicit val db = conn.queryDBInstance("cli").get
+			
+			queryRegisterUser(data) match {
+				case regStatus.regNotified(_) => throw new Exception("successful application fail BD or AD")
+				case regStatus.regApproved(_) => throw new Exception("successful application")
+				case regStatus.regDone(_) => throw new Exception("successful application please login")
+				case regStatus.regCommunicated(details) => (Some(Map("apply" -> toJson(details))), None)
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -60,15 +59,14 @@ object RegisterModule extends ModuleTrait with RegisterData {
 	def user_register_token_defeat(data: JsValue)(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-			val db = conn.queryDBInstance("cli").get
+			implicit val db = conn.queryDBInstance("cli").get
 			val o: DBObject = conditions(data)
-			db.queryMultipleObject(o, "reg_apply") match {
-				case Nil => throw new Exception("user not exist")
-				case x :: _ => x.get("status").map(x => x.as[Int]).getOrElse(throw new Exception("data not exist")) match {
-					case 0 => throw new Exception("successful application fail BD or AD")
-					case 1 => (Some(Map("apply" -> toJson(x))), None)
-					case 2 => throw new Exception("successful application please login")
-				}
+			
+			queryRegisterUser(data) match {
+				case regStatus.regNotified(_) => throw new Exception("successful application fail BD or AD")
+				case regStatus.regApproved(details) => (Some(Map("apply" -> toJson(details))), None)
+				case regStatus.regDone(_) => throw new Exception("successful application please login")
+				case regStatus.regCommunicated(details) => throw new Exception("successful application discuss")
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -97,6 +95,18 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val name = (data \ "user").asOpt[String].map(x => x).getOrElse("")
 			db.insertObject(o, "reg_apply", "reg_id")
 			(Some(Map("user" -> toJson(name))), None)
+		} catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	def userRegisterUpdate(data: JsValue)(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
+		try {
+			val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = conn.queryDBInstance("cli").get
+			val o = m2d(data)
+			db.updateObject(o, "reg_apply", "reg_id")
+			(Some(Map("reg_user" -> toJson("ok"))), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
@@ -141,6 +151,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 		}
 	}
 	
+	
 	def user_first_push(data: JsValue)(pr: Option[String Map JsValue])(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
@@ -152,11 +163,6 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val token = app.as[String]
 			val reVal = att.decrypt2JsValue(token)
 			val regid = (reVal \ "user_id").as[String]
-			println(regid)
-//			val app = pr.get.get("user").get
-//			val email = (app \ "email").as[String]
-//			val name = (app \ "name").as[String]
-//			db.queryObject(DBObject("reg_content.email" -> email, "reg_content.linkman" -> name), "reg_apply") { x =>
 			db.queryObject(DBObject("reg_id" -> regid), "reg_apply") { x =>
 				x += "status" -> 2.asInstanceOf[Number]
 				db.updateObject(x, "reg_apply", "reg_id")

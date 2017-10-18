@@ -5,6 +5,8 @@
 POST    /register/user                               controllers.register.RegisterController.user_register
 # BD用户登入分页查询申请接口
 POST    /register/querybd                            controllers.register.RegisterController.query_register_bd
+# 更改注册用户
+POST    /register/update                             controllers.register.RegisterController.updateRegisterUser
 
 # 新增用户
 POST    /user/push                                   controllers.users.UsersController.user_push
