@@ -29,6 +29,7 @@
         <error reason="authorizationcode already used" code="-216" description="授权码已经被使用" />
         <error reason="successful application fail BD or AD" code="-216" description="申请未经BD或AD审核通过" />
         <error reason="token content action error" code="-217" description="token动作内容解析出错" />
+        <error reason="successful application discuss" code="-216" description="目前还在沟通商讨中" />
 
         <error reason="reg push error" code="-301" description="验证码发送失败" />
         <error reason="reg phone or code error" code="-302" description="电话号码或者验证码出错" />

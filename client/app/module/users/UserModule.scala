@@ -77,9 +77,9 @@ object UserModule extends ModuleTrait with UserData {
 //                case None => m2d(data)
 //                case Some(one) => m2d(one.get("user_info").map(x => x).getOrElse(throw new Exception("data not exist")))
 //            }
-            val o =m2d(data)
+            val o = m2d(data)
             db.updateObject(o, "users", "user_id")
-            (Some(Map("push_user" -> toJson("ok"))), None)
+            (Some(Map("update_user" -> toJson("ok"))), None)
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }

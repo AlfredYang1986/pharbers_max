@@ -10,6 +10,7 @@ import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
+import module.auth.AuthMessage.{msg_auth_token_expire, msg_auth_token_parser, msg_auth_token_type}
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, Controller}
 
@@ -25,12 +26,26 @@ class RegisterController @Inject () (as_inject : ActorSystem, dbt : dbInstanceMa
 				CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
-	// TODO: 准备新增条件过滤，还未实现
 	def query_register_bd = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("query_register_bd"))), jv)
+			:: msg_auth_token_parser(jv)
+			:: msg_auth_token_expire(jv)
+			:: msg_auth_token_type(jv)
 			:: msg_query_register_bd(jv) ::  msg_CommonResultMessage() :: Nil, None)(
 				CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+	})
+	
+	def updateRegisterUser = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+		import com.pharbers.bmpattern.LogMessage.common_log
+		import com.pharbers.bmpattern.ResultMessage.common_result
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("updateRegisterUser"))), jv)
+			:: msg_auth_token_parser(jv)
+			:: msg_auth_token_expire(jv)
+			:: msg_auth_token_type(jv)
+			:: MsgUpdateRegisterUser(jv) ::  msg_CommonResultMessage() :: Nil, None)(
+			CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+		
 	})
 }
