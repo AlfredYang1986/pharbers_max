@@ -12,6 +12,7 @@
     var files;
     var isCalcDone = false;
     var f = new Facade();
+    var tables = [];
 
     layui.use('element', function () {
         var element = layui.element;
@@ -76,6 +77,7 @@
                     } else if(reVal === 'progress_calc') {
                         if(message.data === "100") {
                             temp = temp + 1;
+                            tables.push(window.im_object.searchExtJson(ext)('tables'));
                             if(num === temp){
                                 $('.mask-layer').hide();
                                 $('.loading').hide();

@@ -7,4 +7,5 @@ var Facade = function () {
     this.URLModule = new URLHandler();
     this.cookieModule = new CookieHandler();
     this.parameterPrefix = new ParameterPrefix();
+    this.alertModule = new alertHandlers();
 };

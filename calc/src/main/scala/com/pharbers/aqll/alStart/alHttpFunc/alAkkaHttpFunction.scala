@@ -119,7 +119,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 			entity(as[alCalcItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
 				val path = fileBase + item.company + outPut + item.filename
-				println(path)
 				a ! push_filter_job(path, new alCalcParmary(item.company, item.uname))
 				complete(toJson(successToJson().get))
 			}
