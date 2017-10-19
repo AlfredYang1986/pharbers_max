@@ -12,6 +12,7 @@ import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.message.send.SendMessageTrait
+import com.pharbers.sercuity.Sercurity
 import com.pharbers.token.AuthTokenTrait
 import module.users.UserData._
 
@@ -188,7 +189,8 @@ object UserModule extends ModuleTrait with UserData {
             val date = new Date().getTime
             val reVal = one - "name" - "email" - "phone" - "company" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 			val auth_token = att.encrypt2Token(toJson(reVal))
-			(Some(Map("user_token" -> toJson(auth_token))), None)
+            val uuid = Sercurity.md5Hash(one.getAs[String]("email").get)
+			(Some(Map("user_token" -> toJson(auth_token), "uuid" -> toJson(uuid))), None)
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }

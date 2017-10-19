@@ -50,6 +50,7 @@
         </div>
         <script type="text/javascript">
                 var f = new Facade();
+
                 $(document).ready(function () {
                     $('#popLayer').hide();
                     $('#popTextValidate').hide();
@@ -84,7 +85,8 @@
                            f.ajaxModule.asyncPost('auth/authWithPassword', json, function (r) {
                                if (r.status === 'ok') {
                                    f.cookieModule.setCookie("user_token", r.result.auth_token);
-                                   location = "/auth/user/"
+                                   window.im_object.login_im(r.result.uuid, r.result.uuid);
+                                   setTimeout(function(){location = "/auth/user/"}, 1000)
                                } else {
                                    layer.msg('用户名或密码错误！');
                                }

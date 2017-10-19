@@ -4,30 +4,30 @@
 
 (function ($) {
     'use strict';
-    var total = $('ul[pharbers-ul="calc-tab"]').find('li').length
+    var total = $('ul[pharbers-ul="calc-tab"]').find('li').length;
     var current_li = 0;
-    var tab_arr = ['panel-li', 'sample-li', 'result-li'];
+    var tab_arr = ['panel-li', 'calc-li', 'result-li'];
     $('li[pharbers-filter="calc"]').addClass("layui-this");
-    var f = new Facade();
     var company = "";
+    var files;
+    var isCalcDone = false;
+    var f = new Facade();
 
     layui.use('element', function () {
         var element = layui.element;
-        var sample_market = ["market1", "market2", "market3"];
-        var sample_date = ["date1", "date2", "date3"];
         element.on('tab(step)', function (data) {
             if (data.index === 0) {
                 current_li = 0;
-                load_panel_tab('#panel-lst');
             } else if (data.index === 1) {
                 current_li = 1;
-                load_sample_check_tab(sample_market, sample_date)
             } else if (data.index === 2) {
                 current_li = 2;
                 load_result_check_tab()
             } else {
             }
         });
+        load_panel_tab('#panel-lst');
+        callback();
         setProgress();
     });
 
@@ -35,30 +35,75 @@
         if (btn === "pre" && current_li > 0) {
             current_li = current_li - 1;
             $(nextBtn).removeClass(disableCss);
-            binding('#next-btn', 'next', '#next-btn', '#previous-btn', 'layui-btn-disabled');
+            binding('#next-btn.operation', 'next', '#next-btn', '#previous-btn', 'layui-btn-disabled');
             if (current_li === 0) {
                 $(preBtn).addClass(disableCss);
-                unbinding('#previous-btn', 'click');
+                unbinding('#previous-btn.operation', 'click');
             }
         } else if (btn === "next" && current_li < 2) {
+            var panel_lst = $('#panel-lst').children();
+            if(panel_lst.length === 0)
+                return;
             current_li = current_li + 1;
-            binding('#previous-btn', 'pre', '#next-btn', '#previous-btn', 'layui-btn-disabled');
+            binding('#previous-btn.operation', 'pre', '#next-btn', '#previous-btn', 'layui-btn-disabled');
             $(preBtn).removeClass(disableCss);
             if (current_li === 2) {
                 $(nextBtn).addClass(disableCss);
-                unbinding('#next-btn', 'click');
+                unbinding('#next-btn.operation', 'click');
             }
         }
         setProgress();
     };
 
-    var setProgress = function (num) {
+    var callback = function() {
+        var conn = window.im_object.conns();
+        var temp = 0;
+        conn.listen({
+            onOpened: function ( message ) {},
+            onClosed: function ( message ) {},         //连接关闭回调
+            onTextMessage: function ( message ) {
+                var num = $('#panel-lst').children().length;
+                var ext = message.ext;
+                if(ext !== null) {
+                    var reVal = window.im_object.searchExtJson(ext)('type');
+                    var fileName = window.im_object.searchExtJson(ext)('file');
+                    var step = window.im_object.searchExtJson(ext)('step');
+                    var lay_filter = 'calc-progress-' + fileName;
+                    var span = $('div[lay-filter= '+ lay_filter +']').parent().prev().children('span');
+                    span.text(step);
+                    if(reVal === 'progress') {
+                        setProgress(lay_filter, message.data);
+                    } else if(reVal === 'progress_calc') {
+                        if(message.data === "100") {
+                            temp = temp + 1;
+                            if(num === temp){
+                                $('.mask-layer').hide();
+                                $('.loading').hide();
+                                isCalcDone = true
+                            }
+                            setProgress(lay_filter, message.data);
+                        }
+                    } else if(reVal === 'txt') {
+                        console.info(data.data);
+                    } else {
+                        console.warn("No Type");
+                        console.warn(message.data);
+                    }
+                }
+            },    //收到文本消息
+            onOnline: function () {},                  //本机网络连接成功
+            onOffline: function () {},                 //本机网络掉线
+            onError: function ( message ) { console.error(message) }          //失败回调
+        });
+    }
+
+    var setProgress = function (flag, num) {
         layui.use("element", function () {
             var element = layui.element;
             var progress = (((current_li + 1) / total) * 100) + "%";
             element.tabChange('step', tab_arr[current_li]);
             element.progress('calc-progress-step', progress);
-            element.progress('calc-progress', num + '%');
+            element.progress(flag, num + '%');
         });
     }
 
@@ -66,28 +111,33 @@
         layui.use('upload', function () {
             var upload = layui.upload;
             var panel_lst = $(uploadid);
+            var panel_calc_lst = $('#panel-calc-lst');
 
             upload.render({
                 elem: '#select-panel-btn',
                 url: '/panel/upload',
                 drag: false,
-                data: {"company": company},
+                data: {"company": company} ,
                 auto: false, //选择文件后不自动上传
-                multiple: true,
+                multiple: true ,
                 accept: 'file',
                 exts: 'xlsx',
-                bindAction: '#upload-panel-btn',
+                bindAction: '#next-btn' ,//#upload-panel-btn
                 before: function () {
                     query_company();
+                    if(!isCalcDone) {
+                        $('.mask-layer').show();
+                        $('.loading').show();
+                    }
                 },
                 choose: function (obj) {
-                    var files = obj.pushFile();
+                    files = obj.pushFile();
                     obj.preview(function (index, file, result) {
                         var tr = $(['<tr id="upload-' + index + '">'
                             , '<td>' + file.name + '</td>'
                             , '<td>' + (file.size / 1024 / 1024).toFixed(1) + 'MB</td>'
                             , '<td>等待上传</td>'
-                            , '<td>'
+                            , '<td class="opretion">'
                             , '<button class="layui-btn layui-btn-mini demo-reload layui-hide">重传</button>'
                             , '<button class="layui-btn layui-btn-mini layui-btn-danger demo-delete">删除</button>'
                             , '</td>'
@@ -101,26 +151,36 @@
                             delete files[index];
                             tr.remove();
                         });
-
+                        panel_calc_lst.empty();
                         panel_lst.append(tr);
+                        panel_calc_lst.append(panel_lst.children().clone());
                     });
                 },
                 done: function (res, index, upload) {
                     if (res.status === 'ok') { //上传成功
+                        var fileName = res.result[0];
                         var tr = panel_lst.find('tr#upload-' + index);
                         var tds = tr.children();
-                        tds.eq(2).html('<span style="color: #008B7D;">上传成功</span>');
-                        var p = '<div class="layui-progress" lay-filter="calc-progress">\n' +
-                                '    <div class="layui-progress-bar layui-bg-green" lay-percent="50%"></div>\n' +
-                                '</div>';
-                        tds.eq(3).html(p); //清空操作
-                        // setProgress(50); // 设置计算进度条
+                        tds.eq(2).html('<span style="color: #008B7D;">上传完成</span>');
+                        tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
+
+                        var calc_tr = panel_calc_lst.find('tr#upload-' + index);
+                        var calc_tds = calc_tr.children();
+                        calc_tds.eq(2).html('<span style="color: #008B7D;">等待计算</span>');
+                        var lay_filter = 'calc-progress-' + fileName;
+
+                        var p = '<div class="layui-progress" lay-filter= '+ lay_filter +'>\n' +
+                            '    <div class="layui-progress-bar layui-bg-green" lay-percent="0%"></div>\n' +
+                            '</div>';
+                        calc_tds.eq(3).html(p);
+                        delete files[index];
+
                         var json = JSON.stringify({"businessType": "/modelcalc",
                                                     "company": company,
                                                     "filename": res.result[0],
-                                                    "uname": "fuck"
+                                                    "uname": $.cookie('webim_user')
                                                   });
-                        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)})
+                        // f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
                         return;
                     }
                     this.error(index, upload);
@@ -133,191 +193,6 @@
                 }
             });
         });
-    }
-
-    var load_sample_check_tab = function () {
-        //TODO 通过js获得
-        var sample_market = ["market1", "market2", "market3"];
-        var sample_date = ["date1", "date2", "date3"];
-        $('#Current_Month_HospitalNum').text("912");
-        $('#Early_Month_HospitalNum').text("0");
-        $('#Last_Year_HospitalNum').text("0");
-        $('#Current_Month_ProductNum').text("2331");
-        $('#Early_Month_ProductNum').text("0");
-        $('#Last_Year_ProductNum').text("0");
-        $('#Current_Month_MarketNum').text("1");
-        $('#Early_Month_MarketNum').text("0");
-        $('#Last_Year_MarketNum').text("0");
-
-        var hosp_line_data = [[0, 0], [5, 0], [10, 0], [15, 0], [20, 0], [25, 0], [30, 160000]];
-        var prod_line_data = [[0, 0], [5, 0], [10, 0], [15, 0], [20, 0], [25, 0], [30, 6]];
-        var mark_line_data = [[0, 0], [5, 0], [10, 0], [15, 0], [20, 0], [25, 0], [30, 6]];
-        var sales_data = [];
-        var units_data = [];
-        var semple_table_data = [];
-
-        layui.use('form', function () {
-            var form = layui.form;
-
-            load_select_box('#sample_market','#sample_date');
-            load_hosp_line();
-            load_prodline_chart();
-            load_markline_chart();
-            load_sales_chart();
-            load_units_chart();
-            load_semple_table();
-
-            form.render();
-        });
-
-        function load_select_box(market, date) {
-            $(market).append(new Option());
-            $.each(sample_market, function (i) {
-                $(market).append(new Option(sample_market[i]));
-            });
-            $(date).append(new Option());
-            $.each(sample_date, function (i) {
-                $(date).append(new Option(sample_date[i]));
-            });
-        }
-
-        function load_hosp_line() {
-            var hospline_chart = echarts.init(document.getElementById('hospline'));
-            var option = {
-                xAxis: {
-                    show: false
-                },
-                yAxis: {
-                    show: false
-                },
-                series: [{
-                    type: 'line',
-                    data: hosp_line_data
-                }]
-            };
-            hospline_chart.setOption(option);
-        }
-
-        function load_prodline_chart() {
-            var prodline_chart = echarts.init(document.getElementById('prodline'));
-            var option = {
-                xAxis: {
-                    show: false
-                },
-                yAxis: {
-                    show: false
-                },
-                series: [{
-                    type: 'line',
-                    data: prod_line_data
-                }]
-            };
-            prodline_chart.setOption(option);
-        }
-
-        function load_markline_chart() {
-            var markline_chart = echarts.init(document.getElementById('markline'));
-            var option = {
-                xAxis: {
-                    show: false
-                },
-                yAxis: {
-                    show: false
-                },
-                series: [{
-                    type: 'line',
-                    data: mark_line_data
-                }]
-            };
-            markline_chart.setOption(option);
-        }
-
-        function load_sales_chart() {
-            var sales_chart = echarts.init(document.getElementById('Sales'));
-            // 指定图表的配置项和数据
-            var option = {
-                title: {
-                    text: '今年Vs去年(近12月销售额)',
-                    left: 'center'
-                },
-                xAxis: {
-                    name: '日期',
-                    type: 'category',
-                    boundaryGap: false,
-                    data: ['201512', '201601', '201602', '201603', '201604', '201605', '201606',
-                        '201607', '201608', '201609', '201610', '201611']
-                },
-                yAxis: {
-                    name: '销售额(万)',
-                    type: 'value'
-                },
-                series: [{
-                    type: 'line',
-                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5555]
-                }]
-            };
-            sales_chart.setOption(option);
-        }
-
-        function load_units_chart() {
-            var units_chart = echarts.init(document.getElementById('Units'));
-            // 指定图表的配置项和数据
-            var option = {
-                title: {
-                    text: '今年Vs去年(近12月销售量)',
-                    left: 'center'
-                },
-                xAxis: {
-                    name: '日期',
-                    type: 'category',
-                    boundaryGap: false,
-                    data: ['201512', '201601', '201602', '201603', '201604', '201605', '201606',
-                        '201607', '201608', '201609', '201610', '201611']
-                },
-                yAxis: {
-                    name: '销售量(万)',
-                    type: 'value'
-                },
-                series: [{
-                    type: 'line',
-                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2555]
-                }]
-            };
-            units_chart.setOption(option);
-        }
-
-        function load_semple_table() {
-            layui.use('table', function () {
-                var table = layui.table;
-
-                table.render({
-                    elem: '#semple_table',
-                    cols: [[
-                        {align: 'center', title: '样本医院检查结果', colspan: 6}
-                    ], [
-                        {field: 'id', title: '序号', align: 'center', sort: true, rowspan: 1, width: 100},
-                        {field: 'hosp_name', title: '医院名称', align: 'center', sort: true, rowspan: 2, width: 200},
-                        {field: 'provinces', title: '省份', align: 'center', sort: true, rowspan: 1, width: 200},
-                        {field: 'city', title: '城市', align: 'center', sort: true, rowspan: 1, width: 200},
-                        {field: 'level', title: '城市级别', align: 'center', sort: true, rowspan: 1, width: 200}
-                    ]],
-                    data: [
-                        {"id": "a1", "hosp_name": "a2", "provinces": "a3", "city": "a4", "level": "a5"},
-                        {"id": "b1", "hosp_name": "b2", "provinces": "b3", "city": "b4", "level": "b5"},
-                        {"id": "c1", "hosp_name": "c2", "provinces": "c3", "city": "e4", "level": "c5"},
-                        {"id": "d1", "hosp_name": "d2", "provinces": "d3", "city": "d4", "level": "d5"},
-                        {'id': "e1", 'hosp_name': "e2", 'provinces': "e3", 'city': "e4", 'level': "e5"},
-                        {'id': "a2", "hosp_name": "b2", "provinces": "a3", "city": "a4", "level": "a5"},
-                        {'id': "a3", "hosp_name": "a2", "provinces": "a3", "city": "a4", "level": "a5"},
-                        {'id': "a4", "hosp_name": "a2", "provinces": "a3", "city": "a4", "level": "a5"},
-                        {"id": "a5", "hosp_name": "a2", "provinces": "a3", "city": "a4", "level": "a5"}
-                    ],
-                    page: true, //是否显示分页
-                    limits: [5, 7, 10],
-                    limit: 5 //每页默认显示的数量
-                });
-            });
-        }
     }
 
     var load_result_check_tab = function () {

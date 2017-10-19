@@ -9,14 +9,15 @@ import scala.concurrent.stm.Ref
   * Created by BM on 11/03/2017.
   */
 
-case class alMaxCrash(val uuid: String)
+case class alMaxCrash(uuid: String)
 
 case class alCalcParmary(var company: String,
                          var uname: String,
                          var uuid: String = "",
                          var market: String = "",
+                         var fileName: String = "",
                          var year: Int = 0,
-                         val maxTimeTry: Int = 3,
+                         maxTimeTry: Int = 3,
                          var faultTimes: Int = 0)
 
 object alCalcParmary {
