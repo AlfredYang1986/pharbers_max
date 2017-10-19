@@ -1,0 +1,282 @@
+/****************************微调*****************************/
+.full {
+    margin: 0px;
+    padding: 0px;
+}
+
+.center-box {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.light {
+    color: white;
+}
+.horiz-line{
+    background-color:#494c57 ;
+    width: 100%;
+    height: 1px;
+    margin: 15px 0px;
+}
+
+.tip-box{
+    height: 38px;
+    line-height: 38px;
+    font-size: 15px;
+    padding: 0px 6px;
+    border:1px solid #C9C9C9;
+    border-radius: 4px;
+    background-color:#fff;
+    color:#555;
+    min-width:40px;
+    max-width: 80px;
+}
+.line-90{
+    height: 2px;
+    padding:0px;
+    background-color:#555;
+    overflow:hidden;
+    margin:5px 2%;
+
+}
+.space-height-16{
+    height: 16px;
+    width: 100%;
+}
+
+.box-line{
+    border-bottom: 2px solid #494c57;
+}
+.black{
+    color: #494c57;
+}
+.black :hover{
+    color: #ffffff;
+}
+.over{
+    overflow: auto;
+}
+/****************************块******************************/
+
+.left-tool {
+    position: fixed;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    overflow-x: hidden;
+    z-index: 1000;
+}
+
+.cer-content {
+    position: relative;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    overflow-x: hidden;
+    z-index: 1000;
+}
+.center-content{
+    position: fixed;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow-x: hidden;
+    z-index: 1000;
+}
+.main-content{
+    padding: 20px 0px;
+}
+.right-content{
+    position: fixed;
+    top: 60px;
+    bottom: 0;
+    left: 200px;
+    height: 100%;
+    overflow-x: hidden;
+    z-index: 1000;
+}
+.sub-tool{
+    padding: 10px 0px;
+}
+.logo {
+    top:0px;
+    left: 0px;
+    position: fixed;
+    height: 60px;
+    width: 100%;
+    line-height: 60px;
+    padding: 0 20px;
+    background-color: #ffffff;
+}
+.logo-user{
+    top:0px;
+    right: -80px;
+    position: fixed;
+    height: 60px;
+    width: 100%;
+    line-height: 60px;
+    padding: 0 20px;
+    background-color: #ffffff;
+}
+.logo-font{
+    color: #494c57;
+    border-radius: 2px;
+    font-size: 2em;
+}
+.logo-title{
+    float: left;
+    position: relative;
+    height: 60px;
+}
+.login-info{
+    float: left;
+    position: relative;
+    height: 60px;
+
+}
+
+
+
+/**************************用户面板**************************/
+.user-panel > .dropdown-menu > li {
+    text-decoration: none;
+    cursor: pointer;
+    color: #494c57;
+    background-color: #fff;
+    text-align: center;
+    padding: 10px 15px;
+}
+
+.user-panel > .dropdown-menu > li > a:hover {
+    cursor: pointer;
+    background-color: #eee;
+
+}
+
+.person-info{
+    min-width:80px;
+    height: 60px;
+    padding: 5px 10px;
+    border-bottom: 2px solid #494c57;
+}
+.person-name{
+    height: 25px;
+    line-height: 25px;
+    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
+    font-size: 18px;
+    text-align: center;
+    color: #494c57;
+}
+.person-company{
+    height: 23px;
+    line-height: 15px;
+    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
+    font-size: 13px;
+    text-align: center;
+    color: #494c57;
+    padding: 4px 0px;
+
+}
+
+.persons-info{
+    height: 50px;
+    padding: 5px 10px;
+}
+.persons-info>.persons-status{
+    height: 40px;
+    width: 40px;
+    border: 1px solid #494c57;
+}
+
+.persons-name{
+    height: 40px;
+    line-height: 40px;
+    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
+    font-size: 18px;
+    text-align: center;
+    color: #494c57;
+}
+.persons-company{
+    height: 40px;
+    line-height: 40px;
+    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
+    font-size: 18px;
+    text-align: center;
+    color: #494c57;
+}
+.persons-opera{
+    padding-top: 8px;
+}
+
+/**************************************form*********************************/
+.form-content{
+    max-width: 400px;
+    min-width: 350px;
+    margin:20px  auto ;
+
+}
+.form-title{
+    height: 60px;
+    width: 100%;
+    top:0px;
+    left: 0px;
+    font-size: 2em;
+    line-height: 60px;
+    text-align: center;
+    color: #494c57;
+}
+.form-tip{
+    height: 20px;
+    line-height: 20px;
+    margin: 10px 0px;
+}
+.form-btn{
+    position: fixed;
+    height: 50px;
+    width: 100%;
+    background-color: #8D8D8D;
+    left:0px;
+    bottom:0px;
+    padding: 10px 0px;
+
+}
+.bottom-line{
+    height: 50px;
+    width: 100%;
+}
+
+.center-box{
+    margin-top:100px ;
+    margin-left: auto;
+    margin-right: auto;
+    width: 500px;
+}
+/**********************左导航********************/
+.left-list{
+    padding: 20px 0px;
+    height: 200px;
+    min-width: 200px;
+    max-width: 300px;
+}
+.right-form{
+    padding: 20px 0px;
+    max-width: 600px;
+}
+/*****************other****************
+ */
+.inCenParent{
+    text-align: center;
+}
+.inCenChild{
+    display: inline-block;
+}

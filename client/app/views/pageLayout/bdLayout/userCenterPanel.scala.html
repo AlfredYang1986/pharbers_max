@@ -1,0 +1,20 @@
+@(title: String)(subTitle : String)(content: Html)
+@pageLayout.bdLayout.bdPanel(title) {
+    <div class="row sub-tool box-line">
+        <div class="col-xs-3">
+            <div><i class="layui-icon middle_info">&#xe613;</i><span class="middle_info">@subTitle</span></div>
+        </div>
+        <div class="col-xs-offset-4 col-xs-5">
+            <div class="row">
+                <div class="col-xs-6">
+                    <button class="layui-btn layui-btn-primary">预约通知&nbsp&nbsp<i class="layui-icon">&#xe62a;</i></button>
+                </div>
+                <div class="col-xs-6">
+                    <button class="layui-btn layui-btn-primary">添加成员&nbsp&nbsp<i class="layui-icon">&#xe654;</i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @content
+
+}
