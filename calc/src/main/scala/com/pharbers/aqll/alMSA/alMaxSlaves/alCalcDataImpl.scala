@@ -94,33 +94,33 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 dir.createDir
             val source = alFileOpt(path + "/" + "data")
             if (source.isExists) {
-//                source.enumDataWithFunc { line =>
-//                    val mrd = alShareData.txt2WestMedicineIncome2(line)
-//                    val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
-//                    if (mrd.ifPanelAll == "1") {
-//                        mrd.set_finalResultsValue(mrd.sumValue)
-//                        mrd.set_finalResultsUnit(mrd.volumeUnit)
-//                    }else {
-//                         avg.find(p => p._1 == seed.hashCode.toString).map { x =>
-//                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-//                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-//                        }.getOrElse(Unit)
+               source.enumDataWithFunc { line =>
+                   val mrd = alShareData.txt2WestMedicineIncome2(line)
+                   val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+                   if (mrd.ifPanelAll == "1") {
+                       mrd.set_finalResultsValue(mrd.sumValue)
+                       mrd.set_finalResultsUnit(mrd.volumeUnit)
+                   }else {
+                        avg.find(p => p._1 == seed.hashCode.toString).map { x =>
+                           mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                           mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                       }.getOrElse(Unit)
+                   }
+
+                   unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+                   value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+
+//                    atomic { implicit thx =>
+//                        alInertDatabase().apply(mrd, sub_uuid)
 //                    }
-//
-//                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-//                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
-//
-////                    atomic { implicit thx =>
-////                        alInertDatabase().apply(mrd, sub_uuid)
-////                    }
-//
-//                }
-//                log.info(s"calc done at ${sub_uuid}")
-                sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
+
+               }
+               log.info(s"calc done at ${sub_uuid}")
+                // sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
             }
 //            insertDbWithDrop(tmp)
-//            sender() ! calc_data_result(value, unit)
-//            sender() ! calc_data_end(true, tmp)
+           sender() ! calc_data_result(value, unit)
+           sender() ! calc_data_end(true, tmp)
         }
     }
     

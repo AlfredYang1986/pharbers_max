@@ -47,6 +47,9 @@ POST    /upload/queryUserCompnay                    controllers.upload.FopContro
 # Call Http
 POST    /calc/callhttp                              controllers.callhttp.CallHttpController.callHttpServer
 
+# 获取本次计算数据
+POST    /calc/curresult                             controllers.calcresult.CalcResultController.queryCalcResult
+
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
 # 验证GET连接的有效市场并跳转相应页面

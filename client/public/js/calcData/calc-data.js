@@ -60,7 +60,7 @@
         var conn = window.im_object.conns();
         var temp = 0;
         conn.listen({
-            onOpened: function ( message ) {},
+            onOpened: function ( message ) {console.info("im 连接成功")},
             onClosed: function ( message ) {},         //连接关闭回调
             onTextMessage: function ( message ) {
                 var num = $('#panel-lst').children().length;
@@ -182,7 +182,7 @@
                                                     "filename": res.result[0],
                                                     "uname": $.cookie('webim_user')
                                                   });
-                        // f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+                        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
                         return;
                     }
                     this.error(index, upload);

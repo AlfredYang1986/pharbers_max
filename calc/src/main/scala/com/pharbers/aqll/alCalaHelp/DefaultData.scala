@@ -16,7 +16,7 @@ object DefaultData {
         val hospdatabase = new alExcelDataParser(new targt, hospdata_en_file, hospdata_ch_file)
 
 //        hospdatabase.prase(fileBase + company + hospitalData + path)("")
-        hospdatabase.prase(fileBase + company + hospitalData + "bd7c19454e22af8d459bc7c88953fcec")("")
+        hospdatabase.prase(fileBase + company + hospitalData + "20ffa035fed5a5e72623075139e151b9")("")
 
         hospdatabase.data.toList.asInstanceOf[List[targt]]
     }
