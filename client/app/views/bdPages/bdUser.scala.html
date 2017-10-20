@@ -43,10 +43,10 @@
                     <div class="space-height"></div>
                     <div>
                         <div class="persons-info row">
-                            <div class="persons-status col-xs-3"></div>
+                            <div class="persons-status col-xs-3" data-toggle="modal" data-target="#userDetail"></div>
                             <div class="persons-name col-xs-3">名字</div>
                             <div class="persons-company col-xs-3">公司名字</div>
-                            <div class="persons-opera col-xs-2">
+                            <div class="persons-opera col-xs-2"  role="button" data-toggle="modal" data-target="#noticeDetail">
                                 <div class="input-group">
                                     <span class="input-group-addon">待操作</span>
                                     <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>
@@ -58,7 +58,7 @@
                     </div>
                     <div>
                         <div class="persons-info row">
-                            <div class="persons-status col-xs-3"></div>
+                            <div class="persons-status col-xs-3" ></div>
                             <div class="persons-name col-xs-3">名字</div>
                             <div class="persons-company col-xs-3">公司名字</div>
                             <div class="persons-opera col-xs-2">
@@ -75,5 +75,12 @@
             </div>
         </div>
     </div>
+    <script>
+        var deleted  = function () {
+            $('#noticeDetail').modal('hide');
+            $('#delete').modal('show');
+        }
 
+
+    </script>
 }

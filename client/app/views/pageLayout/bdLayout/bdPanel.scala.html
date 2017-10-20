@@ -1,20 +1,28 @@
 @(title: String)(content: Html)
     @main(title) {
+        @bdPages.bdModel.notice()
+        @bdPages.bdModel.noticeDetail()
+        @bdPages.bdModel.delete()
+        @bdPages.bdModel.userDetail()
         <div class="logo box-line">
-            <div class="logo-title">
+            <div class="logo-font">
                 <span class="logo-font">Pharbers</span>
             </div>
             <div class="logo-title">
-                <span class="layui-breadcrumzb " lay-separator="|">
-                    <a href=""><i class="layui-icon">&#xe6b2;</i></a>
-                    <a href=""><i class="layui-icon">&#xe63a;</i><span class="layui-badge">6</span></a>
-                </span>
-                <span>|</span>
+                <div class="login-info" id="userSet" onclick="setUsr()">
+
+                </div>
+                <div class="login-info">
+                    <span class="middle_info black">XXXX</span>
+                    <span class="small_info black ">xxxx163.com</span>&nbsp
+                    <a href=""><i class="layui-icon">&#xe63a;</i><span class="layui-badge">6</span></a>&nbsp&nbsp|
+                </div>
+                <div class="login-info">
+                    <a href=""><i class="layui-icon">&#xe6b2;</i></a>&nbsp&nbsp|
+                </div>
+
             </div>
-            <div class="login-info" id="userSet" onclick="setUsr()">
-                <span class="middle_info black">XXXX</span>&nbsp
-                <span class="small_info black ">xxxx163.com</span>&nbsp
-            </div>
+
 
         </div>
         <div class="cer-content">

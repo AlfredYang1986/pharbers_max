@@ -129,19 +129,20 @@ a:hover {
     background-color: #ffffff;
 }
 .logo-font{
-    color: #494c57;
-    border-radius: 2px;
-    font-size: 2em;
-}
-.logo-title{
     float: left;
     position: relative;
     height: 60px;
+    font-size: 1.5em;
+    text-align: center;
+    color: #393d49;
 }
+
 .login-info{
-    float: left;
+    float: right;
     position: relative;
     height: 60px;
+    padding: 0px 10px;
+
 
 }
 
