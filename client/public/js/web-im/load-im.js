@@ -71,13 +71,17 @@ var im_object = (function($, w){
 
     var searchExtJson = function(json) {
         return function(key) {
-            var key2 = "Null";
-            $.each(json, function(i, v) {
-                if(v === key && i.indexOf("key") > -1) {
-                    key2 = "value"+i.substring(3)
-                    return false
-                }
-            })
+            try {
+                var key2 = "Null";
+                $.each(json, function(i, v) {
+                    if(v === key && i.indexOf("key") > -1) {
+                        key2 = "value"+i.substring(3)
+                        return false
+                    }
+                });
+            } catch(ex) {
+                console.error(ex)
+            }
             return json[key2] === undefined ? key2 : json[key2]
         }
     }
