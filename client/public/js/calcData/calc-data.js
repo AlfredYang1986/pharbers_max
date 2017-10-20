@@ -77,7 +77,7 @@
                     } else if(reVal === 'progress_calc') {
                         if(message.data === "100") {
                             temp = temp + 1;
-                            tables.push(window.im_object.searchExtJson(ext)('tables'));
+                            tables.push(window.im_object.searchExtJson(ext)('table'));
                             if(num === temp){
                                 $('.mask-layer').hide();
                                 $('.loading').hide();

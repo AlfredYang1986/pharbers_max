@@ -171,7 +171,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			finalSuccessWithWork(pr, mp)
 			acts ! calc_slave_status()
 			
-			alMessageProxy().sendMsg("100", pr.uname, Map("table" -> s"${pr.company + pr.uuid}", "file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "计算结束"))
+			alMessageProxy().sendMsg("100", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "计算结束", "table" -> s"${pr.company + pr.uuid}"))
 			endDate("e1", s1)
 			shutCameo
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
