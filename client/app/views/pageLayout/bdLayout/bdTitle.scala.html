@@ -1,19 +1,17 @@
 @(title: String)(content: Html)
 @main(title) {
     <div class="logo box-line">
-        <div class="logo-title">
+        <div class="logo-font">
             <span class="logo-font">Pharbers</span>
         </div>
         <div class="logo-title">
-            <span class="layui-breadcrumzb " lay-separator="|">
-                <a href=""><i class="layui-icon">&#xe6b2;</i></a>
-                <a href=""><i class="layui-icon">&#xe63a;</i><span class="layui-badge">6</span></a>
-            </span>
-            <span>|</span>
-        </div>
-        <div class="login-info" id="userSet" onclick="setUsr()">
-            <span class="middle_info black">XXXX</span>&nbsp
-            <span class="small_info black ">xxxx163.com</span>&nbsp
+            <div class="login-info" id="userSet" onclick="setUsr()">
+                <div class="login-status"></div>
+                <div class="login-box">
+                    <div class="login-name">name</div>
+                    <div class="login-email">yymfor163.com</div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="center-content">

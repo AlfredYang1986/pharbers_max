@@ -4,7 +4,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">预约清单</div>
                 <div class="panel-body">
-                    <div class="person-info">
+                    <div class="person-info" data-toggle="modal" data-target="#appointmentDetail">
                         <div class="person-name">小甜甜</div>
                         <div class="person-company">公司名字</div>
                     </div>
@@ -76,11 +76,32 @@
         </div>
     </div>
     <script>
+        var f = new Facade();
         var deleted  = function () {
-            $('#noticeDetail').modal('hide');
+            $('#appointmentDetail').modal('hide');
             $('#delete').modal('show');
-        }
+        };
+        $(document).ready(function () {
+            var token = $.cookie("user_token");
+            console.log(token);
+            var js = {
+                "condition" : {
+                    "user_token" : token
+                }
 
+            };
+            var json = JSON.stringify(js);
+            f.ajaxModule.asyncPost("/user/tokenop", json, function (data) {
+                var id = {
+                    "user_id" : data.result.user_id
+                };
+                var queryJson = JSON.stringify(id)
+                f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (data) {
+                    $('.bd_user_name').text(data.result.user_info.name);
+                    $('.bd_user_email').text(data.result.user_info.email);
+                });
 
+            })})
+        
     </script>
 }
