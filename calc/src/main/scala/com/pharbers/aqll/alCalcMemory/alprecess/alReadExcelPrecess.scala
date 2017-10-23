@@ -9,7 +9,7 @@ import com.pharbers.alCalcMemory.alprecess.alPrecess
 import com.pharbers.alCalcMemory.alstages.{alInitStage, alMemoryStage, alPresisStage, alStage}
 import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
 import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
-import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.{BaseExcel, alExcelDataParser}
+import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
 
 /**
   * Created by Alfred on 10/03/2017.
