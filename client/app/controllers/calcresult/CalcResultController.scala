@@ -10,8 +10,10 @@ import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
+import module.auth.AuthMessage.{msg_auth_token_expire, msg_auth_token_parser}
 import module.calcresult.CalcResultMessage._
 import module.calcresult.CalcResultModule._
+import module.users.UserMessage.msg_user_token_op
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import play.api.mvc.Action
@@ -24,7 +26,12 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCalcResult"))), jv)
+			:: msg_auth_token_parser(jv)
+			:: msg_auth_token_expire(jv)
+			:: msg_user_token_op(jv)
+//			::
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
+			:: MsgCalcResultHistorySumSales(jv)
 			:: ParallelMessage(paralleCollections(jv), detailResultMerge)
 			:: msg_CommonResultMessage() :: Nil, None)
 	})
@@ -32,11 +39,13 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 	
 	def paralleCollections(jv: JsValue): List[MessageRoutes] = {
 		val reVal = (jv \ "condition" \ "tables").asOpt[List[String]].map(x => x).getOrElse(throw new Exception(""))
-		reVal map ( x => MessageRoutes(MsgCalcResult(toJson(Map("condition" -> toJson(Map("table" -> x))))) :: Nil, None))
+		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x - "tables").getOrElse(throw new Exception(""))
+		reVal map ( x => MessageRoutes(MsgCalcResult(toJson(Map("condition" -> toJson(Map("table" -> toJson(x)) ++ js )))) :: Nil, None))
 	}
 	
 	def paralleCondition(jv: JsValue): List[MessageRoutes] = {
 		val reVal = (jv \ "condition" \ "tables").asOpt[List[String]].map(x => x).getOrElse(throw new Exception(""))
-		reVal map ( x => MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> x))))) :: Nil, None))
+		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x - "tables").getOrElse(throw new Exception(""))
+		reVal map ( x => MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(x)) ++ js )))) :: Nil, None))
 	}
 }

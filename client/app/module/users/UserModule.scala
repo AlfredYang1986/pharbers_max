@@ -97,7 +97,7 @@ object UserModule extends ModuleTrait with UserData {
 
             db.queryMultipleObject(o, "users", "date", skip, take) match {
                 case Nil => throw new Exception("data not exist")
-                case lst => (Some(Map("registers" -> toJson(lst))), None)
+                case lst => (Some(Map("user_lst" -> toJson(lst))), None)
             }
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))

@@ -23,7 +23,6 @@
                 current_li = 1;
             } else if (data.index === 2) {
                 current_li = 2;
-                load_result_check_tab()
             } else {
             }
         });
@@ -43,13 +42,14 @@
             }
         } else if (btn === "next" && current_li < 2) {
             var panel_lst = $('#panel-lst').children();
-            if(panel_lst.length === 0)
-                return;
+            // if(panel_lst.length === 0)
+            //     return;
             current_li = current_li + 1;
             binding('#previous-btn.operation', 'pre', '#next-btn', '#previous-btn', 'layui-btn-disabled');
             $(preBtn).removeClass(disableCss);
             if (current_li === 2) {
                 $(nextBtn).addClass(disableCss);
+                load_result_check_tab();
                 unbinding('#next-btn.operation', 'click');
             }
         }
@@ -198,58 +198,157 @@
     }
 
     var load_result_check_tab = function () {
-        //TODO 通过js获得
-        var result_check_marketlst = ["market1", "market2", "market3"];
-        var result_check_datelst = ["date1", "date2", "date3"];
 
         layui.use('form', function () {
             var form = layui.form;
+            var json = JSON.stringify(f.parameterPrefix.conditions({
+                "user_token": $.cookie("user_token"),
+                "tables": ["fea9f203d4f593a96f0d6faa91ba24ba0645320d-8987-41b9-851c-095988f0bd68","fea9f203d4f593a96f0d6faa91ba24bad25c431e-9993-4dfa-99af-163157aecb2a"],
+            }));
 
-            load_select_box('#sample_market', '#result_check_market', '#sample_date', 'result_check_date');
-            load_bar1_chart();
+            load_select_box(form, json);
             load_bar2_chart();
             load_bar3_chart();
 
             form.render();
+
+            form.on('select(result-check-year-and-market)', function(data){
+                var json = JSON.stringify(f.parameterPrefix.conditions({
+                    "user_token": $.cookie("user_token"),
+                    "tables": ["fea9f203d4f593a96f0d6faa91ba24ba0645320d-8987-41b9-851c-095988f0bd68","fea9f203d4f593a96f0d6faa91ba24bad25c431e-9993-4dfa-99af-163157aecb2a"],
+                    "marketWithYear": data.value
+                }));
+                $('.mask-layer').show();
+                $('.loading').show();
+                var selectobj = data.value.split("-");
+                f.ajaxModule.baseCall("calc/curresult", json, "POST", function(r){
+                    $('.mask-layer').hide();
+                    $('.loading').hide();
+                    load_bar1_chart(r.result.condition, selectobj);
+                }, function(e){console.error(e)})
+            });
         });
 
-        function load_select_box(sample_market, result_check_market, sample_date, result_check_date) {
-            $(sample_market).append(new Option());
-            $.each(result_check_marketlst, function (i) {
-                $(result_check_market).append(new Option(result_check_marketlst[i]));
-            });
-            $(sample_date).append(new Option());
-            $.each(result_check_datelst, function (i) {
-                $(result_check_date).append(new Option(result_check_datelst[i]));
-            });
+        function load_select_box(form, json) {
+            $('.mask-layer').show();
+            $('.loading').show();
+            f.ajaxModule.baseCall("calc/curresult", json, "POST", function(r){
+                $('.mask-layer').hide();
+                $('.loading').hide();
+                $('#result-check-year-and-market').empty();
+                $.each(r.result.condition.select_values, function (i, v) {
+                    var values = v.Date + '-' + v.Market;
+                    if(i === 0) {
+                        $('#result-check-year-and-market').append('<option value=' + values + ' selected >' + values + '</option>');
+                    } else {
+                        $('#result-check-year-and-market').append('<option value=' + values + '>' + values + '</option>');
+                    }
+                });
+                form.render();
+                load_bar1_chart(r.result.condition, $('#result-check-year-and-market').val().split("-"));
+            }, function(e){console.error(e)})
         }
 
-        function load_bar1_chart() {
-            var bar1_chart = echarts.init(document.getElementById('bar1'));
-            // 指定图表的配置项和数据
+        function load_bar1_chart(d, selectobj) {
+            var xAxisDateArray = [];
+            var seriesDataArray = [];
+            var shareDataArray = [];
+            var sales_vs_share_chart = echarts.init(document.getElementById('sales-vs-share'));
+            var key = md5(selectobj[0] + selectobj[1]);
+            $.each(d.sales_vs_share.history[key], function(i, v){
+                xAxisDateArray.push(v.Date);
+                seriesDataArray.push(v.Sales);
+                shareDataArray.push(v.Share);
+            });
+
+            $.each(d.sales_vs_share.cur[key], function(i, v) {
+                xAxisDateArray.push(v.Date);
+                seriesDataArray.push(v.Sales);
+                shareDataArray.push(v.Share);
+            });
+            console.info(shareDataArray)
+            var itemStyleColor = ['#1ab394', '#cacaca'];
             var option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer : {
+                        type : 'shadow'
+                    }
+                },
                 xAxis: {
                     name: '日期',
-                    data: ['201512', '201601', '201602', '201603', '201604', '201605', '201606',
-                        '201607', '201608', '201609', '201610', '201611']
+                    data: xAxisDateArray
                 },
-                yAxis: {
-                    name: '销售额(万)',
-                    type: 'value'
-                },
+                yAxis: [
+                    {
+                        name: '销售额(万)',
+                        type: 'value'
+                    },
+                    {
+                        name: 'Mono Unit Share',
+                        type: 'value',
+                        show: false,
+                        spliteLine: {show: false}
+                    }
+                ],
                 series: [{
+                    name:'销售额',
                     type: 'bar',
-                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8555]
+                    itemStyle: {
+                        normal: {
+                            color: itemStyleColor[0]
+                        }
+                    },
+                    data: seriesDataArray
+                },{
+                    name:'MAX Mono Share',
+                    type:'line',
+                    itemStyle: {
+                        normal: {
+                            color: itemStyleColor[1]
+                        }
+                    },
+                    yAxisIndex: 1,
+                    data: shareDataArray
                 }]
             };
-            // 使用刚指定的配置项和数据显示图表。
-            bar1_chart.setOption(option);
+            sales_vs_share_chart.setOption(option);
+
         }
+
+        var colors = [{
+            type: 'linear',
+            x: 0, x2: 1, y: 0, y2: 0,
+            colorStops: [{
+                offset: 0,
+                color: '#1ab394'
+            }, {
+                offset: 1,
+                color: '#1ab394'
+            }]
+        }, {
+            type: 'linear',
+            x: 0, x2: 1, y: 0, y2: 0,
+            colorStops: [{
+                offset: 0,
+                color: '#cacaca'
+            }, {
+                offset: 1,
+                color: '#cacaca'
+            }]
+        }];
 
         function load_bar2_chart() {
             var bar2_chart = echarts.init(document.getElementById('bar2'));
             // 指定图表的配置项和数据
             var option = {
+                color: colors,
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer : {
+                        type : 'shadow'
+                    }
+                },
                 xAxis: {
                     name: '城市',
                     data: ['北京市', '上海市', '成都市', '广州市', '南京市', '合肥市',
@@ -271,14 +370,21 @@
             var bar3_chart = echarts.init(document.getElementById('bar3'));
             // 指定图表的配置项和数据
             var option = {
+                color: colors,
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer : {
+                        type : 'shadow'
+                    }
+                },
                 title: {
                     text: '今年Vs去年(近12月销售额)',
                     left: 'center'
                 },
                 xAxis: {
                     name: '日期',
-                    type: 'category',
-                    boundaryGap: false,
+                    // type: 'category',
+                    // boundaryGap: false,
                     data: ['201512', '201601', '201602', '201603', '201604', '201605', '201606',
                         '201607', '201608', '201609', '201610', '201611']
                 },
@@ -287,6 +393,7 @@
                     type: 'value'
                 },
                 series: [{
+                    name:'销售额',
                     type: 'bar',
                     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5555]
                 }]
