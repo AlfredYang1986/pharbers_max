@@ -5,8 +5,9 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRes
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcYM.{calcYM_end, calcYM_start_impl, calcYM_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alUpBeforeItem
-import com.pharbers.pfizer.impl.phPfizerHandleImpl
+import com.pharbers.panel.pfizer.impl.phPfizerHandleImpl
 import play.api.libs.json.JsString
+
 import scala.concurrent.duration._
 
 /**
