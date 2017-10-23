@@ -44,9 +44,7 @@ trait CalcResultData {
 					"City" -> toJson(city),
 					"Sales" -> toJson(sales),
 					"Units" -> toJson(units))
-				
 			}
-			
 			Map(id -> toJson(r))
 		}
 	}

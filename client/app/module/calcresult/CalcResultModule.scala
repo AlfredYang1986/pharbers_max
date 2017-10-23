@@ -115,7 +115,7 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 								z ++ Map("Share" -> toJson(0)) :: Nil
 							} else {
 								(timeLst.filterNot(y => y == z("Date").as[String]).map { o =>
-									z ++ Map("Date" -> toJson(o), "Units" -> toJson(0), "Sales" -> toJson(0), "Market" -> toJson(z("Market").as[String]), "Share" -> toJson(0))
+									Map("Date" -> toJson(o), "Units" -> toJson(0), "Sales" -> toJson(0), "Market" -> toJson(z("Market").as[String]), "Share" -> toJson(0))
 								} :+ z ++ Map("Share" -> toJson(z("Sales").as[Double] / sum * 100))).sortBy(s => s("Date").as[String]).filterNot(f => f("Date").as[String] == curtmp.flatMap(x => x._2.as[List[String Map JsValue]].map(z => z("Date").as[String])).head)
 							}
 						}
