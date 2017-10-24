@@ -74,7 +74,8 @@ object AuthModule extends ModuleTrait with AuthData {
 			(Some(Map("auth" -> auth)), None)
 			
 		} catch {
-			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+			case ex: Exception =>
+				(None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
 	
