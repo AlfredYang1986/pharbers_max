@@ -33,14 +33,9 @@ class alMaxDriver extends Actor with ActorLogging
 		case push_filter_job(file, cp) => push_filter_job_impl(file, cp)
 		case max_calc_done(mp) => max_calc_done_impl(mp)
 
-		case pushCalcYMJobs(item) => push_calc_ym_jobs(item, sender)
 		case pushGeneratePanelJobs(item) => push_generate_panel_jobs(item, sender)
-		case calcYMSchedule() => calc_ym_schedule_jobs
 		case generatePanelSchedule() => generate_panel_schedule_jobs
-		case releaseCalcYMEnergy() => release_calcYM_energy
 		case releasePanelEnergy() => release_panel_energy
-		case ExcuteScanScpQueue() => scanQueue()
-		case calcYMResult(ym) => log.info(s"calcYM=${ym}")//sender ! calcYMResult(ym)
 		case generatePanelResult(paths) => {
 			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
 			paths.foreach {x =>
@@ -48,6 +43,12 @@ class alMaxDriver extends Actor with ActorLogging
 				self ! push_filter_job(x, cp)
 			}
 		}
+
+		case pushCalcYMJobs(item) => push_calc_ym_jobs(item, sender)
+		case calcYMSchedule() => calc_ym_schedule_jobs
+		case releaseCalcYMEnergy() => release_calcYM_energy
+		case ExcuteScanScpQueue() => scanQueue()
+		case calcYMResult(ym) => log.info(s"calcYM=${ym}")//sender ! calcYMResult(ym)
 
 		case _ => ???
 	}
