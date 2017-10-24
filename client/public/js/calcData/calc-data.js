@@ -207,8 +207,6 @@
             }));
 
             load_select_box(form, json);
-            load_bar2_chart();
-            load_bar3_chart();
 
             form.render();
 
@@ -221,18 +219,28 @@
                 $('.mask-layer').show();
                 $('.loading').show();
                 var selectobj = data.value.split("-");
-                f.ajaxModule.baseCall("calc/curresult", json, "POST", function(r){
+                f.ajaxModule.baseCall("calc/querySalesVsShare", json, "POST", function(r){
                     $('.mask-layer').hide();
                     $('.loading').hide();
                     load_bar1_chart(r.result.condition, selectobj);
-                }, function(e){console.error(e)})
+                }, function(e){console.error(e)});
+
+                f.ajaxModule.baseCall("calc/queryCurVsPreWithCity", json, "POST", function(r){
+                    load_bar2_chart(r.result.condition);
+                }, function(e){console.error(e)});
+
+
+                f.ajaxModule.baseCall("calc/queryWithYearForCurVsPre", json, "POST", function(r){
+                    load_bar3_chart(r.result.condition);
+                }, function(e){console.error(e)});
             });
         });
 
         function load_select_box(form, json) {
             $('.mask-layer').show();
             $('.loading').show();
-            f.ajaxModule.baseCall("calc/curresult", json, "POST", function(r){
+
+            f.ajaxModule.baseCall("calc/querySalesVsShare", json, "POST", function(r){
                 $('.mask-layer').hide();
                 $('.loading').hide();
                 $('#result-check-year-and-market').empty();
@@ -246,7 +254,15 @@
                 });
                 form.render();
                 load_bar1_chart(r.result.condition, $('#result-check-year-and-market').val().split("-"));
-            }, function(e){console.error(e)})
+            }, function(e){console.error(e)});
+
+            f.ajaxModule.baseCall("calc/queryCurVsPreWithCity", json, "POST", function(r){
+                load_bar2_chart(r.result.condition);
+            }, function(e){console.error(e)});
+
+            f.ajaxModule.baseCall("calc/queryWithYearForCurVsPre", json, "POST", function(r){
+                load_bar3_chart(r.result.condition);
+            }, function(e){console.error(e)});
         }
 
         function load_bar1_chart(d, selectobj) {
@@ -338,8 +354,20 @@
             }]
         }];
 
-        function load_bar2_chart() {
-            var bar2_chart = echarts.init(document.getElementById('bar2'));
+
+        function load_bar2_chart(d) {
+            var xAxisDataArray = [];
+            var curDataArray = [];
+            var preDataArray = [];
+            $.each(d.curLst, function(i, v){
+                xAxisDataArray.push(v.City);
+                curDataArray.push(v.Sales);
+            });
+
+            $.each(d.preLst, function(i, v){
+                preDataArray.push(v.Sales);
+            });
+            var cur_vs_pre_city_chart = echarts.init(document.getElementById('cur-vs-pre-city'));
             // 指定图表的配置项和数据
             var option = {
                 color: colors,
@@ -349,25 +377,50 @@
                         type : 'shadow'
                     }
                 },
+                legend: {
+                    data:['当月','上月']
+                },
                 xAxis: {
+                    type: 'category',
                     name: '城市',
-                    data: ['北京市', '上海市', '成都市', '广州市', '南京市', '合肥市',
-                        '北京市', '上海市', '成都市', '广州市', '南京市', '合肥市']
+                    data: xAxisDataArray,
+                    axisPointer: {
+                        type: 'shadow'
+                    }
                 },
                 yAxis: {
                     name: '销售额(万)',
                     type: 'value'
                 },
-                series: [{
-                    type: 'bar',
-                    data: [1350, 750, 400, 390, 380, 250, 0, 0, 0, 0, 0, 0, 0]
-                }]
+                series: [
+                    {
+                        name: "当月",
+                        type: 'bar',
+                        data: curDataArray
+                    },{
+                        name: "上月",
+                        type: 'bar',
+                        data: preDataArray
+                    }
+                ]
             };
-            bar2_chart.setOption(option);
+            cur_vs_pre_city_chart.setOption(option);
         }
 
-        function load_bar3_chart() {
+        function load_bar3_chart(d) {
             var bar3_chart = echarts.init(document.getElementById('bar3'));
+            var xAxisDataArray = [];
+            var curDataArray = [];
+            var preDataArray = [];
+            $.each(d.curLst, function(i, v){
+                xAxisDataArray.push(v.City);
+                curDataArray.push(v.Sales);
+            });
+
+            $.each(d.preLst, function(i, v){
+                preDataArray.push(v.Sales);
+            });
+
             // 指定图表的配置项和数据
             var option = {
                 color: colors,
@@ -377,26 +430,28 @@
                         type : 'shadow'
                     }
                 },
-                title: {
-                    text: '今年Vs去年(近12月销售额)',
-                    left: 'center'
+                legend: {
+                    data:['本次计算','去年同期']
                 },
                 xAxis: {
                     name: '日期',
-                    // type: 'category',
-                    // boundaryGap: false,
-                    data: ['201512', '201601', '201602', '201603', '201604', '201605', '201606',
-                        '201607', '201608', '201609', '201610', '201611']
+                    data: xAxisDataArray
                 },
                 yAxis: {
                     name: '销售额(万)',
                     type: 'value'
                 },
-                series: [{
-                    name:'销售额',
-                    type: 'bar',
-                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5555]
-                }]
+                series: [
+                    {
+                        name: "本次计算",
+                        type: 'bar',
+                        data: curDataArray
+                    },{
+                        name: "去年同期",
+                        type: 'bar',
+                        data: preDataArray
+                    }
+                ]
             };
             bar3_chart.setOption(option);
         }

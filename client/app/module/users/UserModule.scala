@@ -155,8 +155,13 @@ object UserModule extends ModuleTrait with UserData {
     
     def token_op_user(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
+            val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            implicit val db = conn.queryDBInstance("cli").get
             val reVal = (MergeStepResult(data, pr) \ "auth").asOpt[JsValue].map(x => x).getOrElse(throw new Exception("data not exist"))
-            (Some(Map("user" -> reVal)), None)
+            db.queryObject(DBObject("user_id" -> reVal.as[String Map JsValue].get("user_id").get.as[String]), "users") match {
+                case None => (Some(Map("user" -> reVal)), None)
+                case Some(x) =>  (Some(Map("user" -> toJson(x))), None)
+            }
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }

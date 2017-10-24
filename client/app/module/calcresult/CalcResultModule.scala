@@ -20,8 +20,14 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 	
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case MsgCalcResultHistorySumSales(data: JsValue) => queryCalcResultHistorySumSales(data)(pr)
+		case MsgCalcResultHistoryCurVsPreWithCity(data: JsValue) => queryCalcResultHistoryCurVsPreWithCity(data)(pr)
+		case MsgCalcResultHistoryWithYearForCurVsPre(data: JsValue) => qyeryCalcResultHistoryWithYearForCurVsPre(data)(pr)
+		
 		case MsgCalcResultCondition(data: JsValue) => queryCalcResultConditions(data)(pr)
-		case MsgCalcResult(data: JsValue) => queryCalcResult(data)(pr)
+		
+		case MsgCalcResultCurVsPreWithCity(data: JsValue) => queryCalcResultCurVsShare(data)(pr)
+		case MsgCalcResultSalesVsShare(data: JsValue) => queryCalcResultSalesVsShare(data)(pr)
+		case MsgCalcResultWithYearForCurVsPre(data: JsValue) => queryCalcResultWithYearForCurVsPre(data)(pr)
 		case _ => throw new Exception("function is not impl")
 	}
 	
@@ -45,7 +51,52 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		}
 	}
 	
-	def queryCalcResult(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def queryCalcResultHistoryCurVsPreWithCity(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = conn.queryDBInstance("calc").get
+			val prtmp = default(data)(pr)
+			
+			val condition = (data \ "condition" \ "marketWithYear").asOpt[String] match {
+				case None => DBObject("Date" -> alDateOpt.yyyyMM2EarlyLong(prtmp("Date")), "Market" -> prtmp("Market"))
+				case Some(x) =>
+					val tmp = x.split("-")
+					DBObject("Date" -> alDateOpt.yyyyMM2EarlyLong(tmp.head), "Market" -> tmp.tail.head)
+			}
+			val group = DBObject("_id" -> DBObject("Date" -> "$Date", "Market" -> "$Market", "City" -> "$City"), "Sales" -> DBObject("$sum" -> "$f_sales"), "Units" -> DBObject("$sum" -> "$f_units"))
+			
+			val uid = Sercurity.md5Hash(alDateOpt.Timestamp2yyyyMM(condition.getAs[Long]("Date").get) + condition.getAs[String]("Market").get)
+			val history = db.aggregate(condition, prtmp("user_company"), group)(aggregateSalesResult(_)(uid))
+			(Some(Map("pre_result" -> toJson(history.get)) ++ pr.get), None)
+		} catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	def qyeryCalcResultHistoryWithYearForCurVsPre(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = conn.queryDBInstance("calc").get
+			val prtmp = default(data)(pr)
+			
+			val condition = (data \ "condition" \ "marketWithYear").asOpt[String] match {
+				case None => DBObject("Date" -> alDateOpt.yyyyMM2LastLong(prtmp("Date")), "Market" -> prtmp("Market"))
+				case Some(x) =>
+					val tmp = x.split("-")
+					DBObject("Date" -> alDateOpt.yyyyMM2LastLong(tmp.head), "Market" -> tmp.tail.head)
+			}
+			val group = DBObject("_id" -> DBObject("Date" -> "$Date", "Market" -> "$Market", "City" -> "$City"), "Sales" -> DBObject("$sum" -> "$f_sales"), "Units" -> DBObject("$sum" -> "$f_units"))
+
+			val uid = Sercurity.md5Hash(alDateOpt.Timestamp2yyyyMM(condition.getAs[Long]("Date").get) + condition.getAs[String]("Market").get)
+			val history = db.aggregate(condition, prtmp("user_company"), group)(aggregateSalesResult(_)(uid))
+			
+			(Some(Map("pre_result" -> toJson(history.get)) ++ pr.get), None)
+		} catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	def queryCalcResultSalesVsShare(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("calc").get
@@ -61,7 +112,49 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 			val uid = Sercurity.md5Hash(alDateOpt.Timestamp2yyyyMM(para.getAs[Long]("Date").get) + para.getAs[String]("Market").get)
 			val history = db.aggregate(para - "Date", default(data)(pr).get("user_company").get, group)(aggregateSalesResult(_)(uid))
 			val cur = db.aggregate(para, table, group)(aggregateSalesResult(_)(uid))
-			(Some(Map("cur" -> toJson(cur.get), "allSalesSum" -> pr.get("allSalesSum"), "history" -> toJson(history)) ++ pr.get("result_condition").as[String Map JsValue]), None)
+			(Some(Map("cur" -> toJson(cur.get), "allSalesSum" -> pr.get("allSalesSum"), "history" -> toJson(history)) ++ pr.get), None)//("result_condition").as[String Map JsValue]
+		} catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	def queryCalcResultCurVsShare(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = conn.queryDBInstance("calc").get
+			val temp = default(data)(pr)
+			val para = (data \ "condition" \ "marketWithYear").asOpt[String] match {
+				case None => DBObject("Date" -> DateUtil.getDateLong(temp("Date")), "Market" -> temp("Market"))
+				case Some(x) =>
+					val tmp = x.split("-")
+					DBObject("Date" -> DateUtil.getDateLong(tmp.head), "Market" -> tmp.tail.head)
+			}
+			val group = DBObject("_id" -> DBObject("Date" -> "$Date", "Market" -> "$Market", "City" -> "$City"), "Sales" -> DBObject("$sum" -> "$f_sales"), "Units" -> DBObject("$sum" -> "$f_units"))
+			val table = (data \ "condition" \ "table").asOpt[String].getOrElse("")
+			val uid = Sercurity.md5Hash(alDateOpt.Timestamp2yyyyMM(para.getAs[Long]("Date").get) + para.getAs[String]("Market").get)
+			val cur = db.aggregate(para, table, group)(aggregateSalesResult(_)(uid))
+			(Some(Map("cur_result" -> toJson(cur.get)) ++ pr.get), None)
+		} catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	def queryCalcResultWithYearForCurVsPre(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = conn.queryDBInstance("calc").get
+			val temp = default(data)(pr)
+			val para = (data \ "condition" \ "marketWithYear").asOpt[String] match {
+				case None => DBObject("Date" -> DateUtil.getDateLong(temp("Date")), "Market" -> temp("Market"))
+				case Some(x) =>
+					val tmp = x.split("-")
+					DBObject("Date" -> DateUtil.getDateLong(tmp.head), "Market" -> tmp.tail.head)
+			}
+			val group = DBObject("_id" -> DBObject("Date" -> "$Date", "Market" -> "$Market", "City" -> "$City"), "Sales" -> DBObject("$sum" -> "$f_sales"), "Units" -> DBObject("$sum" -> "$f_units"))
+			val table = (data \ "condition" \ "table").asOpt[String].getOrElse("")
+			val uid = Sercurity.md5Hash(alDateOpt.Timestamp2yyyyMM(para.getAs[Long]("Date").get) + para.getAs[String]("Market").get)
+			val cur = db.aggregate(para, table, group)(aggregateSalesResult(_)(uid))
+			(Some(Map("cur_result" -> toJson(cur.get)) ++ pr.get), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
@@ -80,17 +173,16 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		}
 	}
 	
-	def detailResultMerge(lst: List[Map[String, JsValue]])
+	def salesVsShareResultMerge(lst: List[Map[String, JsValue]])
 	                     (pr: Option[Map[String, JsValue]]): Map[String, JsValue] = {
 		
 		val para = MergeParallelResult(lst)
-		val select = para("select_values")
-		val salesVsShare = para - "select_values"
+		val select = para("result_condition").as[String Map JsValue].get("select_values").get
+		val userCompany = para("user_company")
 		
-		
-		val allSalesSum = salesVsShare.get("allSalesSum").map { x => x.as[String Map JsValue].head._2.as[List[String Map JsValue]] }.getOrElse(Nil)
-		val curtmp = salesVsShare("cur").as[String Map JsValue]
-		val histmp = salesVsShare("history").as[String Map JsValue]
+		val allSalesSum = para.get("allSalesSum").map { x => x.as[String Map JsValue].head._2.as[List[String Map JsValue]] }.getOrElse(Nil)
+		val curtmp = para("cur").as[String Map JsValue]
+		val histmp = para("history").as[String Map JsValue]
 		val sum = if (allSalesSum.isEmpty) 0
 		else allSalesSum.head("Sales").as[Double]
 		
@@ -122,9 +214,38 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 				}
 			)
 		}))
-		val chart = Map("select_values" -> select, "sales_vs_share" -> toJson(salesVsShare - "allSalesSum" ++ cur ++ history))
+		
+		val chart = Map("select_values" -> select, "user_company" -> userCompany, "sales_vs_share" -> toJson(para - "allSalesSum" ++ cur ++ history))
 		
 		Map("condition" -> toJson(chart))
+	}
+	
+	def curVsPreWithCity(lst: List[Map[String, JsValue]])(pr: Option[Map[String, JsValue]]): Map[String, JsValue] = {
+		val para = MergeParallelResult(lst)
+		val curLst = para("cur_result").as[String Map JsValue].values.head.as[List[String Map JsValue]].sortBy(x => x("Sales").as[Double]).reverse.take(6)
+		val preLst = para("pre_result").as[String Map JsValue].values.head.as[List[String Map JsValue]].sortBy(x => x("Sales").as[Double]).reverse
+		val preOpt = curLst.map { x =>
+			preLst.find(z => z("Date") == x("Date") && z("City") == x("City")) match {
+				case None =>
+					Map("Market" -> x("Market"), "City" -> x("City"), "Date" -> x("Date"), "Units" -> toJson(0), "Sales" -> toJson(0))
+				case Some(f) => f
+			}
+		}
+		Map("condition" -> toJson(Map("curLst" -> curLst, "preLst" -> preOpt)))
+	}
+	
+	def withYeaForCurVsPre(lst: List[Map[String, JsValue]])(pr: Option[Map[String, JsValue]]): Map[String, JsValue] = {
+		val para = MergeParallelResult(lst)
+		val curLst = para("cur_result").as[String Map JsValue].values.head.as[List[String Map JsValue]].sortBy(x => x("Sales").as[Double]).reverse.take(6)
+		val preLst = para("pre_result").as[String Map JsValue].values.head.as[List[String Map JsValue]].sortBy(x => x("Sales").as[Double]).reverse
+		val preOpt = curLst.map { x =>
+			preLst.find(z => z("Date") == x("Date") && z("City") == x("City")) match {
+				case None =>
+					Map("Market" -> x("Market"), "City" -> x("City"), "Date" -> x("Date"), "Units" -> toJson(0), "Sales" -> toJson(0))
+				case Some(f) => f
+			}
+		}
+		Map("condition" -> toJson(Map("curLst" -> curLst, "preLst" -> preOpt)))
 	}
 	
 	def conditionResultMerge(lst: List[Map[String, JsValue]])
@@ -149,14 +270,14 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		
 		val para = MergeParallelResult(lst)
 		val temp = para.values.map(x => x.as[Map[String, JsValue]]).toList
-		val o = DBObject("user_id" -> (pr.get.get("user").get \ "user_id").as[String])
+		val o = DBObject("user_id" -> (pr.get("user") \ "user_id").as[String])
 		val company = db.queryObject(o, "users") { x =>
 			val profile = x.getAs[MongoDBObject]("profile")
 			val company = profile.get.getAs[String]("company")
 			Map("user_company" -> toJson(company))
 		} match {
 			case None => throw new Exception("data not exist")
-			case Some(one) => Map("user_company" -> one.get("user_company").get)
+			case Some(one) => Map("user_company" -> one("user_company"))
 		}
 		//merge(temp)(Map.empty)
 		
@@ -170,9 +291,9 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 			case Some(one) =>
 				one.get("result_condition").map(x =>
 					x.as[String Map JsValue].get("select_values").map(z =>
-						z.as[List[String Map String]]).
+						z.as[List[String Map String]].sortBy(s => s("Date"))).
 						getOrElse(throw new Exception("data not exist"))).
-					getOrElse(throw new Exception("data not exist")).head ++ Map("user_company" -> one.get("user_company").get.as[String])
+					getOrElse(throw new Exception("data not exist")).head ++ Map("user_company" -> one("user_company").as[String])
 		}
 	}
 }

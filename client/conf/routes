@@ -48,7 +48,12 @@ POST    /upload/queryUserCompnay                    controllers.upload.FopContro
 POST    /calc/callhttp                              controllers.callhttp.CallHttpController.callHttpServer
 
 # 获取本次计算数据
-POST    /calc/curresult                             controllers.calcresult.CalcResultController.queryCalcResult
+POST    /calc/querySalesVsShare                     controllers.calcresult.CalcResultController.querySalesVsShare
+POST    /calc/queryCurVsPreWithCity                 controllers.calcresult.CalcResultController.queryCurVsPreWithCity
+POST    /calc/queryWithYearForCurVsPre              controllers.calcresult.CalcResultController.queryWithYearForCurVsPre
+
+# 查询历史数据
+POST    /history/queryHistoryByPage                 controllers.history.HistoryController.queryHistoryByPage
 
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
@@ -85,6 +90,7 @@ GET     /                                           controllers.alMaxRouterContr
 GET		/login						                controllers.alMaxRouterController.login
 GET		/index						                controllers.alMaxRouterController.index
 GET     /calc                                       controllers.alMaxRouterController.calcData
+GET     /historyData                                controllers.alMaxRouterController.historyData
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)
