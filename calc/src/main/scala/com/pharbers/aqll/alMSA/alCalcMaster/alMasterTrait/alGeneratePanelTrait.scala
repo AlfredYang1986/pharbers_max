@@ -35,7 +35,7 @@ trait alGeneratePanelTrait { this : Actor =>
     val generate_panel_jobs = Ref(List[(alUploadItem, ActorRef)]())
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val panelLimit = Ref(4)
+//    val panelLimit = Ref(4)
 
     val generate_panel_schedule = context.system.scheduler.schedule(1 second, 1 second, self, generatePanelSchedule())
 
@@ -51,7 +51,7 @@ trait alGeneratePanelTrait { this : Actor =>
         val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
 //        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitgeneratepanelslave")
         val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave") // 在一台机器上实现和计算的互斥
-        Await.result(f, t.duration).asInstanceOf[Int] > 1        // TODO：现在只有一个，以后由配置文件修改
+        Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
 
     def generate_panel_schedule_jobs = {

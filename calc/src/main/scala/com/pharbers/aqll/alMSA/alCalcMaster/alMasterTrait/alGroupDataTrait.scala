@@ -47,7 +47,7 @@ trait alGroupDataTrait { this : Actor =>
         implicit val t = Timeout(2 seconds)
         val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
         val f = a ? queryIdleNodeInstanceInSystemWithRole("splitgroupslave")
-        Await.result(f, t.duration).asInstanceOf[Int] > 1        // TODO：现在只有一个，以后由配置文件修改
+        Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
 
     def schduleGroupJob = {
