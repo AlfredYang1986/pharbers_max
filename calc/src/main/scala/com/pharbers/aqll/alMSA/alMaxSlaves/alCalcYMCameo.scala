@@ -5,7 +5,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRes
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcYM.{calcYM_end, calcYM_start_impl, calcYM_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alUpBeforeItem
-import com.pharbers.panel.pfizer.impl.phPfizerHandleImpl
+import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json.JsString
 
 import scala.concurrent.duration._
@@ -39,7 +39,7 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
                 "cpas" -> calcYM_job.cpas.split("&").toList,
                 "gycxs" -> calcYM_job.gycxs.split("&").toList
             )
-            val ym = new phPfizerHandleImpl(args).calcYM.asInstanceOf[JsString].value
+            val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
             alMessageProxy().sendMsg(ym, calcYM_job.user, Map("type" -> "txt"))
             self ! calcYM_end(true, ym)
         }

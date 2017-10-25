@@ -14,7 +14,7 @@ import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport,
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
-import com.pharbers.panel.pfizer.impl.phPfizerHandleImpl
+import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json.JsString
 
 import scala.collection.immutable.Map
@@ -81,7 +81,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
                     "cpas" -> item.cpas.split("&").toList,
                     "gycxs" -> item.gycxs.split("&").toList
                 )
-                val result = new phPfizerHandleImpl(args).calcYM
+                val result = phPfizerHandle(args).calcYM
                 alMessageProxy().sendMsg(result.asInstanceOf[JsString].value, item.user, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete(result)
 			}
@@ -98,7 +98,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
                     "gycxs" -> item.gycxs.split("&").toList
                 )
 
-                val result = new phPfizerHandleImpl(args).getPanelFile(item.ym)
+                val result = phPfizerHandle(args).getPanelFile(item.ym)
                 alMessageProxy().sendMsg(result.toString, item.user, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
                 complete(result)
 			}

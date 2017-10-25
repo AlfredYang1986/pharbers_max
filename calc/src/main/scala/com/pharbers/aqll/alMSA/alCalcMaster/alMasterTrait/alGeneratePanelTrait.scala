@@ -30,7 +30,7 @@ trait alGeneratePanelTrait { this : Actor =>
     val generate_panel_jobs = Ref(List[(alUploadItem, ActorRef)]())
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val panelLimit = Ref(1)
+    val panelLimit = Ref(4)
 
     val generate_panel_schedule = context.system.scheduler.schedule(1 second, 1 second, self, generatePanelSchedule())
 
@@ -93,7 +93,6 @@ class alCameoGeneratePanel(val panel_job : alUploadItem,
         case generate_panel_start() => router ! generate_panel_hand()
         case generate_panel_hand() => sender ! generate_panel_start_impl(panel_job)
         case generate_panel_end(result, paths) => {
-            println(s"3.alCameoGeneratePanel.generate_panel_end")
             owner ! releasePanelEnergy()
             owner ! generatePanelResult(paths)
             shutCameo(generate_panel_end(result, paths))

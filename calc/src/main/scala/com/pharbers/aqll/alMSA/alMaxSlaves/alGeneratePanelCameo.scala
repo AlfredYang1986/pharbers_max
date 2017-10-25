@@ -6,7 +6,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRes
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_start_impl, generate_panel_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alUploadItem
-import com.pharbers.panel.pfizer.impl.phPfizerHandleImpl
+import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json.{JsString, JsValue}
 
 import scala.collection.immutable.Map
@@ -33,7 +33,7 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
     override def receive: Receive = {
 
         case generate_panel_start_impl(panel_job) => {
-            println("4.开始生成panel")
+            println("3.开始生成panel")
             val args: Map[String, List[String]] = Map(
                 "company" -> List(panel_job.company),
                 "user" -> List(panel_job.user),
@@ -47,17 +47,16 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
                         y._1 -> y._2.as[List[String]]
                     }
                 }
-//                data.as[Map[String, Map[String, JsValue]]].values
-//                        .flatMap(_.values).map(_.as[String]).toList
             }
 
-            val data_parse = new phPfizerHandleImpl(args)
+            val data_parse = phPfizerHandle(args)
             val yms = data_parse.calcYM.asInstanceOf[JsString].value
             val lst = yms.split("#").toList
+            println("lst = " + lst.toString)
             val result = getResult(data_parse.getPanelFile(lst))
             val panelLst = result.values.flatMap(_.values).toList.flatten
+            println("panel = " + panelLst.toString)
             alMessageProxy().sendMsg(panelLst.toString, panel_job.user, Map("type" -> "txt"))
-            println("5.panel生成完成")
             self ! generate_panel_end(true, panelLst)
         }
         case generate_panel_end(result, paths) => {

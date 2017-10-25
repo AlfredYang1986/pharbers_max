@@ -45,7 +45,7 @@ class alMaxDriver extends Actor with ActorLogging
 			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
 			paths.foreach {x =>
 				println("panel文件位置 = " + x)
-				self ! push_filter_job(x, cp)
+//				self ! push_filter_job(x, cp)
 			}
 		}
 

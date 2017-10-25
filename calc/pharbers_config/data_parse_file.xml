@@ -4,6 +4,8 @@
         <product_vs_ims_file value="/Manage/产品标准化 vs IMS_Pfizer_6市场others.xlsx"/>
         <universe_inf_file value="/Manage/universe_inf.xlsx"/>
         <markets_file value="/Manage/按辉瑞采购清单中的通用名划分6市场others.xlsx"/>
+        <unpublished_hos_file value="/Manage/2017年未出版医院名单.xlsx" />
+        <fill_hos_data_file value="/Manage/补充医院.csv" />
         <cache_file value="/Cache/" />
         <output_file value="/Output/"/>
         <makets value="INF" />
