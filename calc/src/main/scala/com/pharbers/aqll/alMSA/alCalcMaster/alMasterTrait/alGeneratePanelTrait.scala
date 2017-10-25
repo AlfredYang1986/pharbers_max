@@ -3,9 +3,14 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.routing.BroadcastPool
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
+import akka.util.Timeout
+import akka.pattern.ask
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
 import com.pharbers.aqll.alStart.alHttpFunc.alUploadItem
+
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.stm._
 
@@ -40,13 +45,21 @@ trait alGeneratePanelTrait { this : Actor =>
             generate_panel_jobs() = generate_panel_jobs() :+ (item, s)
         }
     }
+
+    def canSchduleJob : Boolean = {
+        implicit val t = Timeout(2 seconds)
+        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+//        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitgeneratepanelslave")
+        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave") // 在一台机器上实现和计算的互斥
+        Await.result(f, t.duration).asInstanceOf[Int] > 1        // TODO：现在只有一个，以后由配置文件修改
+    }
+
     def generate_panel_schedule_jobs = {
-        if (panelLimit.single.get > 0) {
+        if (canSchduleJob) {
             atomic { implicit thx =>
                 val tmp = generate_panel_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    panelLimit() = panelLimit.single.get - 1
                     generate_panel_jobs() = generate_panel_jobs().tail
                     do_generate_panel_job(tmp.head._1, tmp.head._2)
                 }
@@ -60,9 +73,9 @@ trait alGeneratePanelTrait { this : Actor =>
         cur ! generate_panel_start()
     }
     def release_panel_energy = {
-        atomic { implicit thx =>
-            panelLimit() = panelLimit.single.get + 1
-        }
+//        atomic { implicit thx =>
+//            panelLimit() = panelLimit.single.get + 1
+//        }
     }
 
 }
