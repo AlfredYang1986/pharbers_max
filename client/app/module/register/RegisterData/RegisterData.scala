@@ -36,6 +36,7 @@ trait RegisterData {
 		val email = (js \ "user" \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("info input email"))
 		val phone = (js \ "user" \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
 		val status = (js \ "user" \ "status").asOpt[Int].map(x => x).getOrElse(regStatus.regNotified(Map.empty).t)
+		val companyPhone = (js \ "user" \ "companyPhone").asOpt[String].map(x => x).getOrElse(Unit)
 		val id = (js \ "user" \ "reg_id").asOpt[String].map(x => x).getOrElse(Sercurity.md5Hash(company + email + Sercurity.getTimeSpanWithMillSeconds))
 
 		val reg_content = DBObject(
@@ -43,6 +44,7 @@ trait RegisterData {
 							"linkman" -> linkman,
 							"email" -> email,
 							"phone" -> phone,
+							"companyPhone" -> companyPhone,
 							"scope" -> ("NC" :: Nil))
 		
 		builder += "reg_id" -> id
@@ -60,10 +62,10 @@ trait RegisterData {
 			"name" -> toJson(reg_content.getAs[String]("linkman").map(x => x).getOrElse("")),
 			"phone" -> toJson(reg_content.getAs[String]("phone").map(x => x).getOrElse("")),
 			"status" -> toJson(obj.getAs[Int]("status").map(x => x).getOrElse(0)),
+			"companyPhone" -> toJson(obj.getAs[String]("companyPhone").map(x => x).getOrElse("")),
 			"scope" -> toJson(reg_content.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)),
 			"date" -> toJson(obj.getAs[Number]("date").map(x => x).getOrElse(0).toString.toLong))
 	}
-	
 	def queryRegisterUser(data: JsValue)(implicit db: DBTrait): regStatusDefine = {
 		val o = conditions(data)
 		db.queryMultipleObject(o, "reg_apply") match {

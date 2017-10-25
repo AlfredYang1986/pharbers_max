@@ -83,7 +83,7 @@
             check_code();
             f.validationModule.input_blur("phone_validation", "isEmp")
 
-        })
+        });
         layui.use(['form', 'layer'], function () {})
 
         var phone_code = function() {
@@ -111,7 +111,7 @@
                     if(f.validationModule.finalResult()){
                         f.ajaxModule.baseCall('/phonecode/check', json, 'POST', function(r){
                             if(r.status === 'ok' && r.result.condition === 'success') {
-                                location = '/index';
+                                location = '/bd/bdUser';
                             }else {
                                 errornum++;
                                 if(errornum >= 5) {

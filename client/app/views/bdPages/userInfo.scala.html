@@ -19,42 +19,42 @@
                 <div class="form-group">
                     <label  class="control-label">姓名</label>
                     <div class="">
-                        <input type="text" class="form-control"  placeholder="">
+                        <input type="text" class="form-control">
                     </div>
                     <div class="form_tip_bottom"></div>
                 </div>
                 <div class="form-group">
                     <label  class="control-label">联系电话</label>
                     <div class="">
-                        <input type="text" class="form-control"  placeholder="">
+                        <input type="text" class="form-control">
                     </div>
                     <div class="form_tip_bottom row"></div>
                 </div>
                 <div class="form-group">
                     <label  class=" control-label">公司名称</label>
                     <div class="">
-                        <input type="text" class="form-control"  placeholder="">
+                        <input type="text" class="form-control" >
                     </div>
                     <div class="form_tip_bottom"></div>
                 </div>
                 <div class="form-group">
                     <label  class="control-label">公司电话</label>
                     <div class="">
-                        <input type="text" class="form-control"  placeholder="">
+                        <input type="text" class="form-control">
                     </div>
                     <div class="form_tip_bottom"></div>
                 </div>
                 <div class="form-group">
                     <label  class=" control-label">联系地址</label>
                     <div class="">
-                        <input type="text" class="form-control"  placeholder="">
+                        <input type="text" class="form-control" >
                     </div>
                     <div class="form_tip_bottom"></div>
                 </div>
                 <div class="form-group">
                     <label  class=" control-label">加入时间</label>
                     <div class="">
-                        <input type="text" class="form-control"  placeholder="">
+                        <input type="text" class="form-control">
                     </div>
                     <div class="form_tip_bottom"></div>
                 </div>
@@ -67,4 +67,30 @@
             </div>
         </div>
     </div>
+    <script>
+        var f = new Facade()
+        $(document).ready(function () {
+            userLogin();
+        })
+        var userLogin = function () {
+                var token = $.cookie("user_token");
+                var tojs = {
+                    "condition": {
+                        "user_token": token
+                    }
+
+                };
+                var tojson = JSON.stringify(tojs);
+                f.ajaxModule.asyncPost("/user/tokenop", tojson, function (data) {
+                    var id = {
+                        "user_id": data.result.user_id
+                    };
+                    var queryJson = JSON.stringify(id)
+                    f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (data) {
+                        $('.bd_user_name').text(data.result.user_info.name);
+                        $('.bd_user_email').text(data.result.user_info.email);
+                    });
+                });
+            };
+    </script>
 }

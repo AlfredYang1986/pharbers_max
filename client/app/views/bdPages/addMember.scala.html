@@ -6,32 +6,32 @@
            <div class="row form-list">
                <div class="form-group">
                    <label>邮箱<span class="errColor">&nbsp*</span></label>
-                   <input type="email" class="form-control"  placeholder="请输入被添加人的邮箱">
+                   <input type="email" class="form-control member-email" id="member-email" placeholder="请输入被添加人的邮箱">
                    <div class="form_tip_bottom"></div>
                </div>
                <div class="form-group">
                    <label>姓名<span class="errColor">&nbsp*</span></label>
-                   <input type="email" class="form-control"  placeholder="请输入被添加人的姓名">
+                   <input type="text" class="form-control member-name"  id="member-name" placeholder="请输入被添加人的姓名">
                    <div class="form_tip_bottom"></div>
                </div>
                <div class="form-group">
                    <label>联系电话<span class="errColor">&nbsp*</span></label>
-                   <input type="email" class="form-control"  placeholder="请输入被添加人的联系电话">
+                   <input type="text" class="form-control member-phone" id="member-phone" placeholder="请输入被添加人的联系电话">
                    <div class="form_tip_bottom"></div>
                </div>
                <div class="form-group">
                    <label>公司名称<span class="errColor">&nbsp*</span></label>
-                   <input type="email" class="form-control"  placeholder="请输入被添加人的公司名称">
+                   <input type="text" class="form-control member-company" id="member-company" placeholder="请输入被添加人的公司名称">
                    <div class="form_tip_bottom"></div>
                </div>
                <div class="form-group">
                    <label>公司电话</label>
-                   <input type="email" class="form-control"  placeholder="请输入被添加人的公司电话">
+                   <input type="text" class="form-control member-cphone" id="member-cphone"  placeholder="请输入被添加人的公司电话">
                    <div class="form_tip_bottom"></div>
                </div>
                <div class="form-group">
                    <label>公司地址</label>
-                   <input type="email" class="form-control"  placeholder="请输入被添加人的公司地址">
+                   <input type="text" class="form-control company-address" id="company-address" placeholder="请输入被添加人的公司地址">
                    <div class="form_tip_bottom"></div>
                </div>
            </div>
@@ -41,7 +41,63 @@
     <div class="row form-btn">
         <div class="col-xs-10"></div>
         <div class="col-xs-2">
-            <button class="layui-btn layui-btn-primary">添加</button>
+            <button class="layui-btn layui-btn-primary" onclick="addReg()">添加</button>
         </div>
     </div>
+    <script>
+        var f = new Facade();
+        f.validationModule.input_blur("member-email", "email");
+        f.validationModule.input_blur("member-name", "name");
+        f.validationModule.input_blur("member-phone", "phone");
+        f.validationModule.input_blur("member-company", "cName");
+        f.validationModule.input_blur("member-address", "address");
+        f.validationModule.input_blur("member-cphone", "phone");
+        var addReg = function () {
+            var email = $('#member-email').val();
+            var name = $('#member-name').val();
+            var phone = $('#member-phone').val();
+            var company = $('#member-company').val();
+            var address = $('#member-address').val();
+            var cphone = $('#member-cphone').val();
+            var date = new Date().getTime()
+            var js ={
+                "user" : {
+                    "linkman":name,
+                    "email" : email,
+                    "scope":["NC"],
+                    "company":company,
+                    "companyPhone":cphone,
+                    "date":date,
+                    "status":1,
+                    "phone" : phone
+                },
+                "condition" :{
+                    "email" : email,
+                    "phone" : phone
+                }
+
+            }
+            var json = JSON.stringify(js)
+            if(f.validationModule.finalResult()){
+                f.ajaxModule.asyncPost('/register/user', json, function (data) {
+                    if(data.status == "ok"){
+                        var reginfo = {
+                            "reginfo" : {
+                                "email" : email
+                            }
+                        }
+                        f.ajaxModule.asyncPost('/auth/createToken', JSON.stringify(reginfo), function (r) {
+                            if(r.status == "ok"){
+                                location('/bd/addMember/succ');
+                            }else {
+                                layer.msg(r.error.message);
+                            }
+                        })
+                    }else {
+                        layer.msg(data.error.message);
+                    }
+                })
+            }
+        }
+    </script>
 }

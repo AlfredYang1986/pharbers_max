@@ -7,26 +7,28 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-xs-4">
+                    <div class="col-xs-6">
                         <div class="row">
                             <ul class="nav nav-tabs">
                                 <li role="presentation" class="active"><a href="#">未读</a></li>
                                 <li role="presentation"><a href="#">已读</a></li>
                             </ul>
                         </div>
-                        <div class="row notice-left bottom-line-thin">
-                            <div class="notice-company">
+                        <div id="noticeList">
+                            <div class="row notice-left bottom-line-thin" >
+                                <div class="notice-company">
                                 公司名
-                            </div>
-                            <div class="notice-name">
+                                </div>
+                                <div class="notice-name">
                                 姓名
-                            </div>
-                            <div class="notice-date">
+                                </div>
+                                <div class="notice-date">
                                 2017/10/20
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-7 left-line-thin">
+                    <div class="col-xs-6 left-line-thin">
                         <div class="row">
                            <div class="col-sm-10 font-light">
                                <span>以下为客户信息，</span>
@@ -37,29 +39,34 @@
                         <div class="space-height"></div>
                         <div class="row">
                             <div class="col-sm-4 font-light">姓名</div>
-                            <div class="col-sm-6 col-xs-offset-1 font-black">姓名</div>
+                            <div class="col-sm-6 col-xs-offset-1 font-black noti-name">姓名</div>
                         </div>
                         <div class="space-height-16"></div>
                         <div class="row">
                             <div class="col-sm-4 font-light">邮箱</div>
-                            <div class="col-sm-6 col-xs-offset-1 font-black">afdasfasf</div>
+                            <div class="col-sm-6 col-xs-offset-1 font-black noti-email">afdasfasf</div>
+                        </div>
+                        <div class="space-height-16"></div>
+                        <div class="row">
+                            <div class="col-sm-4 font-light">联系电话</div>
+                            <div class="col-sm-6 col-xs-offset-1 font-black noti-phone">1111223234</div>
                         </div>
                         <div class="space-height-16"></div>
                         <div class="row">
                             <div class="col-sm-4 font-light">公司名称</div>
-                            <div class="col-sm-6 col-xs-offset-1 font-black">阿斯蒂芬</div>
+                            <div class="col-sm-6 col-xs-offset-1 font-black noti-company">阿斯蒂芬</div>
                         </div>
                         <div class="space-height-16"></div>
                         <div class="row">
                             <div class="col-sm-4 font-light">申请时间</div>
-                            <div class="col-sm-6 col-xs-offset-1 font-black">2007/03/21</div>
+                            <div class="col-sm-6 col-xs-offset-1 font-black noti-date">2007/03/21</div>
                         </div>
                     </div>
 
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="layui-btn layui-btn-primary">加入预约清单</button>
+                <button id="addToAppoint" type="button" class="layui-btn layui-btn-primary">加入预约清单</button>
             </div>
         </div>
     </div>
