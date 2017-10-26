@@ -9,6 +9,7 @@ resolvers += Resolver.mavenLocal
 libraryDependencies ++= Seq(
     "com.pharbers" % "pharbers-modules" % "0.1",
     "com.pharbers" % "pharbers-data-parse" % "0.1",
+    "com.pharbers" % "pharbers-bson" % "0.1",
     "com.pharbers" % "pharbers-memory" % "0.1",
     "com.pharbers" % "pharbers-page-memory" % "0.1",
 
