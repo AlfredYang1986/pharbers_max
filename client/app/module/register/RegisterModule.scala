@@ -80,7 +80,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val db = conn.queryDBInstance("cli").get
 			val o: DBObject = conditions(data)
 			db.queryMultipleObject(o, "reg_apply") match {
-				case Nil => (Some(Map("result" -> toJson("insert"))), None)
+				case Nil => (Some(Map("result" -> toJson(""))), None)
 				case head :: Nil => (Some(Map("result" -> toJson(head("reg_id")))), None)
 				case _ => throw new Exception("user is repeat")
 			}
@@ -102,11 +102,9 @@ object RegisterModule extends ModuleTrait with RegisterData {
 				case Some(s) =>
 					val regId = s.asInstanceOf[JsString].value
 					val status = regStatus.regApproved(Map.empty).t.asInstanceOf[Number]
-					db.queryObject(DBObject("reg_id" -> regId), "reg_apply") { x =>
-						x += "status" -> status
-						db.updateObject(x, "reg_apply", "reg_id")
-						x
-					}
+					o += "reg_id" -> regId
+					o += "status" -> status
+					db.updateObject(o, "reg_apply", "reg_id")
 				case None => throw new Exception("user is repeat")
 			}
 
