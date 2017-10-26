@@ -1,5 +1,7 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
+import java.io._
+import java.math.BigInteger
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
@@ -19,8 +21,10 @@ import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
 import com.pharbers.aqll.common.alFileHandler.serverConfig.serverHost215
+import org.bson._
 
 import scala.concurrent.stm.{Ref, atomic}
+import scala.math.BigDecimal
 
 /**
   * Created by alfredyang on 13/07/2017.
@@ -57,6 +61,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
                     Some(s"${x._2}/${concert.data.length}"))(recall)(c)
             }
 
+            println(s"concert uuid ${p.subs.head.uuid} end")
             log.info(s"concert uuid ${p.subs.head.uuid} end")
             val s = (maxSum.toList.groupBy(_._1) map { x =>
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
@@ -92,6 +97,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
             if (!dir.isExists)
                 dir.createDir
             val source = alFileOpt(path + "/" + "data")
+            println(s"source=${source}")
             if (source.isExists) {
 //                source.enumDataWithFunc { line =>
 //                    val mrd = alShareData.txt2WestMedicineIncome2(line)
@@ -116,6 +122,8 @@ class alCalcDataImpl extends Actor with ActorLogging {
 //                }
 //                log.info(s"calc done at ${sub_uuid}")
                 sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
+            }else {
+                sender() ! calc_data_end(true, tmp)
             }
 //            insertDbWithDrop(tmp)
 //            sender() ! calc_data_result(value, unit)
@@ -136,8 +144,9 @@ class alCalcDataImpl extends Actor with ActorLogging {
     def max_precess(element2: IntegratedData, sub_uuid: String, longPath: Option[String] = None)(recall: List[IntegratedData])(c: alCalcParmary) = {
         if (!longPath.isEmpty) {
             log.info(s"concert calc in $longPath")
+            println(s"concert calc in $longPath")
             val universe = alEncryptionOpt.md5(c.company + c.year + c.market)
-            val tmp =
+            val data_tmp =
                 alShareData.hospdata(universe, c.company) map { element =>
                     val mrd = westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0.0, 0.0, element2.getMinimumUnit,
                         element2.getMinimumUnitCh, element2.getMinimumUnitEn, element2.getMarket1Ch,
@@ -154,10 +163,22 @@ class alCalcDataImpl extends Actor with ActorLogging {
                         element.getDrugIncome, element.getClimicDrugIncome, element.getClimicWestenIncome,
                         element.getHospitalizedDrugIncome, element.getHospitalizedWestenIncome, 0.0, 0.0)
                     backfireData(mrd)(recall)
+
                 }
+            /*println(s"&&&&&&&&&& data_tmp.head = ${data_tmp.head.map}")
+
+            val bson_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
+
+            val bson_tmp = data_tmp.map { line =>
+                val bson_obj = westMedicineIncome2bson(line)
+                writeBsonFile(bson_obj, bson_path)
+                bson_obj
+            }
+
+            println(s"&&&&&&&&&& bson_path = ${bson_path}")*/
 
             val path = s"${memorySplitFile}${calc}$sub_uuid"
-          
+
             val dir = alFileOpt(path)
             if (!dir.isExists)
                 dir.createDir
@@ -166,7 +187,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
             if (!file.isExists)
                 file.createFile
 
-            file.appendData2File(tmp)
+            file.appendData2File(data_tmp)
         }
     }
 
@@ -218,5 +239,31 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 }.getOrElse((mrd.sumValue, mrd.volumeUnit, mrd.selectvariablecalculation.get._2))
         }
         mrd.copy()
+    }
+
+    def westMedicineIncome2bson(mrd: westMedicineIncome) : BSONObject = {
+        val bson : BSONObject = new BasicBSONObject()
+        mrd.map.keys.map { x =>
+            bson.put(x, mrd.getV(x))
+        }
+        bson
+    }
+
+    def writeBsonFile(bson : BSONObject, file_path: String) : Unit = {
+
+        try {
+            val encode : BSONEncoder = new BasicBSONEncoder()
+            val byte_arr = encode.encode(bson)
+//            val out : OutputStream = new BufferedOutputStream(new FileOutputStream(file), 16)
+            val out = new RandomAccessFile(file_path, "rw")
+            out.seek(out.length)
+            out.write(byte_arr)
+            out.close()
+        } catch {
+            case ex: FileNotFoundException => ex.printStackTrace()
+            case ex: SecurityException => ex.printStackTrace()
+            case ex: IOException => ex.printStackTrace()
+            case _ => ???
+        }
     }
 }
