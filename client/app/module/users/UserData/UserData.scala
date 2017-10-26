@@ -28,9 +28,11 @@ trait UserData {
 		val password = (js \ "user" \ "password").asOpt[String].map(x => x).getOrElse(email)
 		val name = (js \ "user" \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("info input linkman name"))
 		val phone = (js \ "user" \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
+		val companyPhone = (js \ "user" \ "companyPhone").asOpt[String].map(x => x).getOrElse(Unit)
+		val companyAddress = (js \ "user" \ "companyAddress").asOpt[String].map(x => x).getOrElse(Unit)
 		val scope = (js \ "user" \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil)
 		val id = (js \ "user" \ "user_id").asOpt[String].map(x => x).getOrElse(Sercurity.md5Hash(s"$email"))
-		val profile = DBObject("email" -> email, "secret" -> password, "name" -> name, "phone" -> phone, "scope" -> scope)
+		val profile = DBObject("email" -> email, "secret" -> password, "name" -> name, "phone" -> phone, "companyPhone" -> companyPhone, "companyAddress"-> companyAddress,"scope" -> scope)
 		
 		builder += "user_id" -> id
 		builder += "profile" -> profile
@@ -46,6 +48,8 @@ trait UserData {
 			"name" -> toJson(profile.getAs[String]("name").map(x => x).getOrElse("")),
 			"email" -> toJson(profile.getAs[String]("email").map(x => x).getOrElse("")),
 			"phone" -> toJson(profile.getAs[String]("phone").map(x => x).getOrElse("0")),
+			"companyPhone" -> toJson(profile.getAs[String]("companyPhone").map(x => x).getOrElse("")),
+			"companyAddress" -> toJson(profile.getAs[String]("companyAddress").map(x => x).getOrElse("")),
 			"date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(obj.getAs[Number]("date").getOrElse(0).toString.toLong)),
 			"scope" -> toJson(profile.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)))
 	}
