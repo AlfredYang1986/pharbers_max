@@ -6,7 +6,6 @@ import play.api.libs.json.JsValue
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
-import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
@@ -61,7 +60,6 @@ object CompanyManageModule extends ModuleTrait {
     }
 
     def delete_company_func(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-//        implicit val db = DBConection.basic
         val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         try {
             val ids = (data \ "Company_Id").get.asOpt[List[String]].getOrElse(throw new Exception("warn input"))
@@ -76,7 +74,6 @@ object CompanyManageModule extends ModuleTrait {
     }
 
     def findOne_company_func(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-//        implicit val db = DBConection.basic
         val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         try {
             (successToJson(findOneCompany(db,data)), None)
@@ -86,7 +83,6 @@ object CompanyManageModule extends ModuleTrait {
     }
 
     def save_company_func(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-//        implicit val db = DBConection.basic
         val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
         try {
             val au = (data \ "au").get.asOpt[String].getOrElse(throw new Exception("warn input"))

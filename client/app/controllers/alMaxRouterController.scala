@@ -13,52 +13,71 @@ import play.api.mvc._
 
 // TODO 稍后进行封装
 trait alValidationController { this: Controller =>
-    def validation(parm: String)(implicit att: AuthTokenTrait): Result = {
-        val token = att.decrypt2JsValue(parm)
-        val temp = java.net.URLEncoder.encode(parm, "ISO-8859-1")
-        
-        val reVal = alValidationToken(parm)(att).validation
-        reVal match {
-            case TokenError() => Redirect("/error")
+    def validation(parm: String)(implicit att: AuthTokenTrait, db: DBTrait): Result = {
+        alParsingTokenUser(parm).parse match {
             case TokenFail() => Redirect("/token/fail")
-            case TokenForgetPassword() => Redirect(s"/password/new/$temp/${(token \ "email").as[String]}")
-            case TokenFirstLogin() => Redirect(s"/password/set/$temp/${(token \ "email").as[String]}")
+            case User(name, email, phone, scope) =>
+                val encode = java.net.URLEncoder.encode(parm, "ISO-8859-1")
+                alValidationToken(parm)(att).validation match {
+                    case TokenError() => Redirect("/error")
+                    case TokenFail() => Redirect("/token/fail")
+                    case TokenForgetPassword() => Redirect(s"/password/new/$encode/$email")
+                    case TokenFirstLogin() => Redirect(s"/password/set/$encode/$email")
+                }
         }
     }
     
-    def validationPasswod(parm: String)(implicit att: AuthTokenTrait): Result = {
-        val token = att.decrypt2JsValue(parm)
-        val temp = java.net.URLEncoder.encode(parm, "ISO-8859-1")
-        
-        val reVal = alValidationToken(parm)(att).validation
-        reVal match {
-            case TokenError() => Redirect("/error")
+    def validationPasswrod(parm: String)(implicit att: AuthTokenTrait, db: DBTrait): Result = {
+        alParsingTokenUser(parm).parse match {
             case TokenFail() => Redirect("/token/fail")
-            case TokenForgetPassword() => Ok(views.html.authPages.newPassword((token \ "email").as[String]))
-            case TokenFirstLogin() => Ok(views.html.authPages.setPassword((token \ "email").as[String]))
+            case User(name, email, phone, scope) =>
+                alValidationToken(parm)(att).validation match {
+                    case TokenError() => Redirect("/error")
+                    case TokenFail() => Redirect("/token/fail")
+                    case TokenForgetPassword() => Ok(views.html.authPages.newPassword(email))
+                    case TokenFirstLogin() => Ok(views.html.authPages.setPassword(email))
+                }
         }
     }
     
-    def getUserTokenByCookies(request: Request[AnyContent]): String = {
-        request.cookies.get("user_token").map(x => x.value).getOrElse("")
-    }
+    def getUserTokenByCookies(request: Request[AnyContent]): String = request.cookies.get("user_token").map(x => x.value).getOrElse("")
     
-    def loginForType(request: Request[AnyContent])(implicit att: AuthTokenTrait): Result = {
-        val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
-        if ((att.decrypt2JsValue(token) \ "scope").asOpt[List[String]].getOrElse(Nil).contains("BD")) Redirect("/login/db")
+    def loginForType(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): Result = {
+        if(showUser(request).scope.contains("BD")) Redirect("/login/db")
         else Redirect("/index")
+    }
+    
+    def showUser(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): User = {
+        val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
+        alParsingTokenUser(token).parse match {
+            case User(name, email, phone, scope) => User(name, email, phone, scope)
+            case _ => ???
+        }
     }
 }
 
 class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait) extends Controller with alValidationController{
     implicit val as = as_inject
-    implicit val db_cores : DBTrait = dbt.queryDBInstance("calc").get
     implicit val db_basic : DBTrait = dbt.queryDBInstance("cli").get
-
-    implicit val db_cores_connection : connection_instance = dbt.queryDBConnection("calc").get
-    implicit val db_basic_connection : connection_instance = dbt.queryDBConnection("cli").get
     implicit val attoken: AuthTokenTrait = att
     
+    
+    def bdUser = Action{
+        Ok(views.html.bdPages.bdUser())
+    }
+    
+    def addMember = Action{
+        Ok(views.html.bdPages.addMember())
+    }
+    def addMember_succ = Action{
+        Ok(views.html.bdPages.addMember_succ())
+    }
+    def setInfo = Action{
+        Ok(views.html.bdPages.userInfo())
+    }
+    def setbdPassword = Action{
+        Ok(views.html.bdPages.setPassword())
+    }
     
     //从cookie中取出token验证用户角色
     def auth_user = Action { request => loginForType(request)}
@@ -74,7 +93,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
 
     def dbLogin = Action { request =>
-        Ok(views.html.authPages.bdSignSelect())
+        Ok(views.html.authPages.bdSignSelect(showUser(request).phone))
     }
 
     def userInfoConfirm = Action { request =>
@@ -102,23 +121,24 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
     
     def new_pwd(token: String, email: String) = Action {
-        validationPasswod(token)
+        validationPasswrod(token)
     }
     
     def set_pwd(token: String, email: String) = Action {
-        validationPasswod(token)
+        validationPasswrod(token)
     }
 
     def index = Action { request =>
-        Ok(views.html.calcPages.index())
+        
+        Ok(views.html.calcPages.index(showUser(request).name))
     }
     
     def calcData = Action { request =>
-        Ok(views.html.calcPages.newhome.calcData(""))
+        Ok(views.html.calcPages.newhome.calcData("", showUser(request).name))
     }
 
     def historyData = Action { request =>
-        Ok(views.html.calcPages.historyData())
+        Ok(views.html.calcPages.historyData(showUser(request).name))
     }
     
     def postSuccess = Action{

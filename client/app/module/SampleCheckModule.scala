@@ -10,10 +10,9 @@ import com.pharbers.mongodbConnect.connection_instance
 
 import scala.collection.mutable.ListBuffer
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.common.{DBConection, alModularEnum}
+import com.pharbers.aqll.common.alModularEnum
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
-import com.pharbers.dbManagerTrait.dbInstanceManager
 import module.common.alPageDefaultData.PageDefaultData
 
 object SampleCheckModuleMessage {
@@ -56,7 +55,6 @@ object SampleCheckModule extends ModuleTrait {
 		val market = (data \ "market").asOpt[String].getOrElse("")
 		val date = (data \ "date").asOpt[String].getOrElse("")
 		val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
-//		implicit val db = DBConection.cores
 		try {
 			val cur12_date = matchThisYearData(alNearDecemberMonth.diff12Month(date),queryNearTwelveMonth(db,company,market,date))
 			val las12_date = matchLastYearData(alNearDecemberMonth.diff12Month(date),queryLastYearTwelveMonth(db,company,market,date))

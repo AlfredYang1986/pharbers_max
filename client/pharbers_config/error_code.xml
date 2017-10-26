@@ -29,10 +29,11 @@
         <error reason="authorizationcode already used" code="-216" description="授权码已经被使用" />
         <error reason="successful application fail BD or AD" code="-216" description="申请未经BD或AD审核通过" />
         <error reason="token content action error" code="-217" description="token动作内容解析出错" />
+        <error reason="successful application discuss" code="-216" description="目前还在沟通商讨中" />
 
         <error reason="reg push error" code="-301" description="验证码发送失败" />
         <error reason="reg phone or code error" code="-302" description="电话号码或者验证码出错" />
-        <error reason="please try in 10 minutes" code="-303" description="请十分钟后再次尝试" />
+        <error reason="please try in 10 minutes" code="-303" description="请十分钟后再次尝试发送申请" />
 
         <error reason="im error parameter" code="-401" description="IM参数错误" />
         <error reason="im error server" code="-402" description="IM消息服务器异常" />
@@ -50,6 +51,7 @@
         <error reason="token expired" code="-9005" description="token过期" />
         <error reason="db aggregation error " code="-9006" description="数据Map Reduce操作发生错误" />
         <error reason="actor system get error" code="-9007" description="后去系统Actor System失败" />
+        <error reason="no message impl" code="-9008" description="没有Message实例" />
 
         <error reason="unknown error" code="-9999" description="unknown error" />
     </error_code>

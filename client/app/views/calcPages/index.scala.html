@@ -1,5 +1,5 @@
-
-@pageLayout.HomePageLayout.contentPanel("Max | Home") {
+@(name: String)
+@pageLayout.HomePageLayout.contentPanel("Max | Home", name) {
     <div>
         <img src="@routes.Assets.versioned("images/index.jpg")" alt="image" width="100%" height="100%">
     </div>

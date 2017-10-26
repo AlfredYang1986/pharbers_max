@@ -5,6 +5,8 @@
 POST    /register/user                               controllers.register.RegisterController.user_register
 # BD用户登入分页查询申请接口
 POST    /register/querybd                            controllers.register.RegisterController.query_register_bd
+# 更改注册用户
+POST    /register/update                             controllers.register.RegisterController.updateRegisterUser
 
 # 新增用户
 POST    /user/push                                   controllers.users.UsersController.user_push
@@ -37,6 +39,14 @@ POST    /auth/pushUser                               controllers.auth.AuthContro
 POST    /phonecode/send                             controllers.phonecode.PhoneSMSController.sendSMSCode
 # phone 验证 验证码
 POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
+
+
+########bd########
+GET     /bd/bdUser                                  controllers.alMaxRouterController.bdUser
+GET     /bd/addMember                               controllers.alMaxRouterController.addMember
+GET     /bd/addMember/succ                          controllers.alMaxRouterController.addMember_succ
+GET     /bd/setInfo                                 controllers.alMaxRouterController.setInfo
+GET     /bd/setPassword                             controllers.alMaxRouterController.setbdPassword
 
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user

@@ -11,7 +11,7 @@ case class TokenForgetPassword() extends TokenAction(1, "forgetpassword")
 case class TokenFirstLogin() extends TokenAction(2, "firstlogin")
 
 case class alValidationToken(token: String)(implicit att : AuthTokenTrait) {
-	def validation = {
+	def validation: TokenAction = {
 		val reVal = att.decrypt2JsValue(token)
 		val expire_in = (reVal \ "expire_in").asOpt[Long].map (x => x).getOrElse(throw new Exception("token parse error"))
 		expire_in match {

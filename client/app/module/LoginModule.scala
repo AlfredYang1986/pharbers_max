@@ -25,7 +25,7 @@ object LoginModule extends ModuleTrait {
 
     def login(data: JsValue, ip: String)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
         val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        implicit val dc = conn.queryDBConnection("cli").get//DBConection.basic
+        implicit val dc = conn.queryDBConnection("cli").get
         def userConditions(getter : JsValue => Option[Any])(key : String, value : JsValue) : Option[DBObject] = getter(value) match {
           case None => None
           case Some(x) => {
@@ -72,9 +72,7 @@ object LoginModule extends ModuleTrait {
                 }
             }
         } catch {
-            case ex: Exception =>
-                println(ex)
-                (None, Some(errorToJson(ex.getMessage())))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
         }
     }
     

@@ -1,3 +1,4 @@
+@(phone: String)
 @main("Max | Login") {
     <body>
         <div class="title"></div>
@@ -44,7 +45,7 @@
             <div class="col-xs-6">
                 <div class="space-height row"></div>
                 <div class="row"><span class="small_info toLeft">已发送至</span>
-                    <span class="phone small_info">0000000000</span>
+                    <span class="phone small_info">@phone</span>
                 </div>
                 <div class="row"><span class="small_info toLeft">请填写该验证码登入。</span></div>
                 <div class="space-height"></div>
@@ -77,20 +78,21 @@
     <script type="text/javascript">
         var f = new Facade();
         $(document).ready(function(){
-            $('.phone').text($.cookie('phone'))
             $('#popTextValidate').hide();
             $('#popErr').hide();
             check_code();
             f.validationModule.input_blur("phone_validation", "isEmp")
 
-        })
+        });
         layui.use(['form', 'layer'], function () {})
 
         var phone_code = function() {
-            var phone = JSON.stringify({'phone': $('.phone').text()});
-            f.ajaxModule.baseCall('/phonecode/send', phone, 'POST', function(r){
-                if(r.status === 'ok' && r.result.reg.flag === 'ok') {
-                    f.cookieModule.setCookie('reg_token', r.result.reg.reg_token)
+            layer.msg("验证码已发送到手机上，请注意查收！");
+            var map = {"phone": "@phone"}
+            var json = JSON.stringify(f.parameterPrefix.conditions(map));
+            f.ajaxModule.baseCall('/phonecode/send', json, 'POST', function(r){
+                if(r.status === 'ok' && r.result.condition.flag === 'ok') {
+                    f.cookieModule.setCookie('reg_token', r.result.condition.reg_token)
                 }else if(r.status === 'error') {
                     layer.msg(r.error.message);
                 }else {
@@ -104,13 +106,12 @@
             $('input[name="code"]').keyup(function(){
                 var num = $(this).val();
                 if(num.length.toString() === $(this).attr('maxlength')) {
-                    var json = JSON.stringify({'reg_token': $.cookie('reg_token'),
-                                               'code': num,
-                                               'phone': $('.phone').text()})
+                    var map = {'reg_token': $.cookie('reg_token'), 'code': num, 'phone': $('.phone').text()}
+                    var json = JSON.stringify(f.parameterPrefix.conditions(map));
                     if(f.validationModule.finalResult()){
                         f.ajaxModule.baseCall('/phonecode/check', json, 'POST', function(r){
-                            if(r.status === 'ok' && r.result.result === 'success') {
-                                location = '/index';
+                            if(r.status === 'ok' && r.result.condition === 'success') {
+                                location = '/bd/bdUser';
                             }else {
                                 errornum++;
                                 if(errornum >= 5) {

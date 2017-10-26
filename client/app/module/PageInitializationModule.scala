@@ -1,6 +1,5 @@
 package module
 
-import com.pharbers.aqll.common.DBConection
 import com.pharbers.aqll.common.alDate.scala.alDateOpt.Timestamp2yyyyMM
 import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 import play.api.libs.json.JsValue
