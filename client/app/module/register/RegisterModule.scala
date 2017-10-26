@@ -1,7 +1,7 @@
 package module.register
 
 import com.mongodb.casbah.Imports._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsString, JsValue}
 import play.api.libs.json.Json.toJson
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.MergeStepResult
@@ -14,7 +14,7 @@ import module.register.RegisterMessage._
 
 object RegisterModule extends ModuleTrait with RegisterData {
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-		case msg_user_register(data: JsValue) => user_register(data)
+		case msg_user_register(data: JsValue) => user_register(data)(pr)
 		case msg_query_register_bd(data: JsValue) => query_bd(data)
 		case msg_is_user_register(data: JsValue) => user_is_register(data)
 		case msg_approve_reg(data: JsValue) => approve_reg(data)(pr)
@@ -79,7 +79,8 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val db = conn.queryDBInstance("cli").get
 			val o: DBObject = conditions(data)
 			db.queryMultipleObject(o, "reg_apply") match {
-				case Nil => (Some(Map("condition" -> toJson("ok"))), None)
+				case Nil => (Some(Map("result" -> toJson("insert"))), None)
+				case head :: Nil => (Some(Map("result" -> toJson(head("reg_id")))), None)
 				case _ => throw new Exception("user is repeat")
 			}
 		} catch {
@@ -87,13 +88,27 @@ object RegisterModule extends ModuleTrait with RegisterData {
 		}
 	}
 	
-	def user_register(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def user_register(data: JsValue)(pr: Option[Map[String, JsValue]])
+					 (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("cli").get
 			val o: DBObject = m2d(data)
 			val name = (data \ "user").asOpt[String].map(x => x).getOrElse("")
-			db.insertObject(o, "reg_apply", "reg_id")
+
+			pr.get.get("result") match {
+				case Some(s) if s.as[JsString].value == "" => db.insertObject(o, "reg_apply", "reg_id")
+				case Some(s) =>
+					val regId = s.asInstanceOf[JsString].value
+					val status = regStatus.regApproved(Map.empty).t.asInstanceOf[Number]
+					db.queryObject(DBObject("reg_id" -> regId), "reg_apply") { x =>
+						x += "status" -> status
+						db.updateObject(x, "reg_apply", "reg_id")
+						x
+					}
+				case None => throw new Exception("user is repeat")
+			}
+
 			(Some(Map("user" -> toJson(name))), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
