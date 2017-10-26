@@ -29,6 +29,15 @@ trait RegisterData {
 		builder.result
 	}
 
+	def conditions2(data: JsValue): DBObject = {
+		val builder = MongoDBObject.newBuilder
+		(data \ "reginfo" \ "reg_id").asOpt[String].map(x => builder += "reg_id" -> x).getOrElse(Unit)
+		(data \ "reginfo" \ "status").asOpt[Int].map(x => builder += "status" -> x).getOrElse(Unit)
+		(data \ "reginfo" \ "email").asOpt[String].map(x => builder += "reg_content.email" -> x).getOrElse(Unit)
+		(data \ "reginfo" \ "phone").asOpt[String].map(x => builder += "reg_content.phone" -> x).getOrElse(Unit)
+		builder.result
+	}
+
 	implicit val m2d: JsValue => DBObject = { js =>
 		val builder = MongoDBObject.newBuilder
 		

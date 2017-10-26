@@ -31,7 +31,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("cli").get
-			val o: DBObject = conditions(data)
+			val o: DBObject = conditions2(data)
 			db.queryMultipleObject(o, "reg_apply") match {
 				case Nil => throw new Exception("user not exist")
 				case x :: _ => (Some(Map("apply" -> toJson(x))), None)
@@ -48,9 +48,9 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			
 			queryRegisterUser(data) match {
 				case regStatus.regNotified(_) => throw new Exception("successful application fail BD or AD")
-				case regStatus.regApproved(_) => throw new Exception("successful application")
+				case regStatus.regApproved(details) => (Some(Map("apply" -> toJson(details))), None)
 				case regStatus.regDone(_) => throw new Exception("successful application please login")
-				case regStatus.regCommunicated(details) => (Some(Map("apply" -> toJson(details))), None)
+				case regStatus.regCommunicated(_) => throw new Exception("successful application fail BD or AD")
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
