@@ -1,4 +1,4 @@
-@(title : String)(content : Html)(script : Html)
+@(title : String, name: String)(content : Html)(script : Html)
 
 @main(title) {
     <body class="layui-layout-body">
@@ -20,7 +20,7 @@
                     <li class="layui-nav-item">
                         <a href="javascript:;">
                             <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
-                            <span id="username"></span>
+                            <span>@name</span>
                         </a>
                         <dl class="layui-nav-child">
                             <dd><a href="">基本资料</a></dd>
@@ -61,7 +61,6 @@
         </div>
         <script>
             //JavaScript代码区域
-            $("#username").text($.cookie("name"))
             layui.use('element', function(){
                 var element = layui.element;
 
@@ -75,8 +74,7 @@
 
                     } else if (item == "history") {
                         location = "/historyData"
-
-                    } else {
+                    }else {
 
                     }
                 });

@@ -70,9 +70,7 @@ class requestArgsQuery @Inject() (implicit akkasys : ActorSystem) extends Contro
 			
 			Ok("File uploaded")
 		} catch {
-			case ex : Exception =>
-				println(ex)
-				BadRequest("Bad Request for input")
+			case ex : Exception => BadRequest("Bad Request for input")
 		}
 	}
 }

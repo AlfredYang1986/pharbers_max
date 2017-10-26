@@ -41,7 +41,6 @@
                     <div class="col-xs-2"></div>
                 </div>
                 <div class="row">
-                    @*<div class="col-lg-10"><div class="login_btn">提交</div></div>*@
                     <div type="button" class="col-lg-10 login_btn btn-submit" lay-submit="" lay-filter="sub">提交</div>
                 </div>
             </div>
@@ -90,12 +89,13 @@
 
             // 提交监听
             form.on('submit(sub)', function (data) {
-                var json = JSON.stringify({"reginfo": data.field});
-
+                f.parameterPrefix.conditions({"email": data.field.email, "phone": data.field.phone})
+                f.parameterPrefix.business("user", data.field)
+                var json = JSON.stringify(f.parameterPrefix.merges());
                 if (f.validationModule.finalResult()) {
                     f.ajaxModule.baseCall('/register/user', json, 'POST', function(r){
-                        if(r.status === 'ok' && r.result.registers === "ok") {
-                            location = "/order/success "
+                        if(r.status === 'ok') {
+                            location = "/order/success"
                         }else if(r.status === 'error') {
                              layer.msg(r.error.message);
                         }else {

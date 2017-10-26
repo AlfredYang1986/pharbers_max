@@ -6,7 +6,7 @@ import play.api.libs.json.JsValue
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
-import com.pharbers.aqll.common.{DBConection, alCommonEnum}
+import com.pharbers.aqll.common.alCommonEnum
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
@@ -32,7 +32,6 @@ object UserManageModule extends ModuleTrait {
 
     def query_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
         val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
-//        implicit val db = conn.queryDBInstance("cli").get//DBConection.basic
         try {
             val Company_Id = (data \ "Company_Id").get.asOpt[String].get
             val result = Company_Id match {
@@ -70,7 +69,6 @@ object UserManageModule extends ModuleTrait {
 
     def delete_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
         val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
-//        implicit val db = conn.queryDBInstance("cli").get//DBConection.basic
         try {
             val Company_Id = (data \ "Company_Id").get.asOpt[String].getOrElse("")
             val IDs = (data \ "IDs").get.asOpt[List[String]].getOrElse(Nil)
@@ -119,7 +117,6 @@ object UserManageModule extends ModuleTrait {
 
     def findOne_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
         implicit val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
-//        implicit val db = DBConection.basic
         try {
             val account = (data \ "account").asOpt[String]
             val companyid = (data \ "cid").asOpt[String]
@@ -184,7 +181,6 @@ object UserManageModule extends ModuleTrait {
 
     def save_user_func(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
         val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
-//        implicit val db = DBConection.basic
         try {
             val au = (data \ "au").get.asOpt[String].getOrElse("")
             val Account = (data \ "Account").get.asOpt[String].getOrElse("")

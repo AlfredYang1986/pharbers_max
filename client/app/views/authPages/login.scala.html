@@ -78,17 +78,12 @@
                     });
                     // 提交监听
                     form.on('submit(sub)', function (data) {
-                        var json = JSON.stringify({
-                            "email": data.field.email,
-                            "password": md5(data.field.email + data.field.password)
-                        });
+                        var map = {"email": data.field.email, "password": md5(data.field.email + data.field.password)};
+                        var json  = JSON.stringify(f.parameterPrefix.conditions(map))
                        if(f.validationModule.finalResult()){
                            f.ajaxModule.asyncPost('auth/authWithPassword', json, function (r) {
                                if (r.status === 'ok') {
                                    f.cookieModule.setCookie("user_token", r.result.auth_token);
-                                   f.cookieModule.setCookie("name", r.result.user.name);
-                                   f.cookieModule.setCookie('email', r.result.user.email);
-                                   f.cookieModule.setCookie('phone', r.result.user.phone);
                                    location = "/auth/user/"
                                } else {
                                    layer.msg('用户名或密码错误！');

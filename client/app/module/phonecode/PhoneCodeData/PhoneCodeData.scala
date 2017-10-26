@@ -10,14 +10,14 @@ trait PhoneCodeData {
 	
 	def conditions(data: JsValue): DBObject = {
 		val build = MongoDBObject.newBuilder
-		(data \ "phone").asOpt[String].map(x => build += "phone" -> x).getOrElse(Unit)
+		(data \ "condition" \ "phone").asOpt[String].map(x => build += "phone" -> x).getOrElse(Unit)
 		build.result
 	}
 	
 	implicit val m2d : JsValue => DBObject = { js =>
 		val builder = MongoDBObject.newBuilder
 		
-		val phoneNo = (js \ "phone").asOpt[String].map (x => x).getOrElse(throw new Exception("reg push error"))
+		val phoneNo = (js \ "condition" \ "phone").asOpt[String].map (x => x).getOrElse(throw new Exception("reg push error"))
 		val reg_token = Sercurity.md5Hash(phoneNo + Sercurity.getTimeSpanWithMinutes)
 		val code = 1111.toString // fake one
 		//		val code = (scala.util.Random.nextInt(9000) + 1000).toString
