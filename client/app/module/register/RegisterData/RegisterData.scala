@@ -15,6 +15,7 @@ object regStatus {
 	case class regApproved(details: String Map JsValue) extends regStatusDefine(1, "同意发送验证码")
 	case class regDone(details: String Map JsValue) extends regStatusDefine(2, "用户操作验证码，已经成为用户")
 	case class regCommunicated(details: String Map JsValue) extends regStatusDefine(9, "沟通，销售过程")
+	case class regDelete(details: String Map JsValue) extends regStatusDefine(-1, "预约清单中删除")
 }
 
 sealed class regStatusDefine(val t : Int, val d : String)
@@ -80,6 +81,7 @@ trait RegisterData {
 				case 1 => regStatus.regApproved(x)
 				case 2 => regStatus.regDone(x)
 				case 9 => regStatus.regCommunicated(x)
+				case -1 => regStatus.regDelete(x)
 				case _ => throw new Exception("")
 			}
 		}

@@ -23,6 +23,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 		case msg_register_token_defeat(data: JsValue) => user_register_token_defeat(data)
 		case msg_first_push_user(data: JsValue) => user_first_push(data)(pr)
 		case MsgUpdateRegisterUser(data: JsValue) => userRegisterUpdate(data)
+		case msg_delete_registerUser(data : JsValue) => delete_register(data)
 		case _ => throw new Exception("function is not impl")
 	}
 	
@@ -99,7 +100,21 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
-	
+	def delete_register(data : JsValue)(implicit cm:CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try{
+			val con = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = con.queryDBInstance("cli").get
+			val o : DBObject = m2d(data)
+			db.deleteObject(o, "reg_apply", "reg_id")
+			val name = (data \ "user").asOpt[String].map(x => x).getOrElse("")
+			(Some(Map("user" -> toJson(name))), None)
+		}catch {
+			case ex : Exception =>
+				println(ex)
+				(None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+		
+	}
 	def userRegisterUpdate(data: JsValue)(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
@@ -157,8 +172,6 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val db = conn.queryDBInstance("cli").get
-			
-			
 			val app = pr.get.get("user_token").get
 			val token = app.as[String]
 			val reVal = att.decrypt2JsValue(token)
