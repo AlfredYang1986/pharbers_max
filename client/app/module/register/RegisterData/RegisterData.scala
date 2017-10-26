@@ -8,6 +8,8 @@ import com.pharbers.sercuity.Sercurity
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
+import scala.runtime.Nothing$
+
 object regStatus {
     case class regNotified(details: String Map JsValue) extends regStatusDefine(0, "通知")
 	case class regApproved(details: String Map JsValue) extends regStatusDefine(1, "同意发送验证码")

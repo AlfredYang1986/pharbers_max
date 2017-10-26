@@ -99,7 +99,7 @@
                 userLogin();
                 noticeList();
                 awaitList();
-                $('#awaitBtn').hide();
+//                $('#awaitBtn').hide();
                 userList();
 
             });
@@ -343,14 +343,12 @@
             };
 
             var toAppointList = function () {
-                $('#changeBtn').hide();
                 $('#dropdownMenu1').html('预约清单 <span class="caret"></span>');
                 $('#bookList').empty();
                 appointList();
 
             };
             var toAwaitList = function () {
-                $('#changeBtn').hide();
                 $('#dropdownMenu1').html('待激活清单 <span class="caret"></span>');
                 $('#bookList').empty();
                 awaitList();
