@@ -54,6 +54,7 @@ POST    /calc/queryWithYearForCurVsPre              controllers.calcresult.CalcR
 
 # 查询历史数据
 POST    /history/queryHistoryByPage                 controllers.history.HistoryController.queryHistoryByPage
+POST    /history/queryHistorySelect                 controllers.history.HistoryController.queryHistorySelect
 
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user

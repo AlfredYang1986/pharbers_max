@@ -69,24 +69,41 @@ var im_object = (function($, w){
 
     var im_close = function() {conn.close()}
 
+
+
+    var searchExtJsonForElement = function(elems) {
+        return function(key) {
+            try {
+                var value = "Null";
+                $.each(elems, function (i, v) {
+                    if(v.key === key) { value = v.value;}
+                })
+            } catch(ex) {
+                console.error(ex);
+            }
+            return value;
+        }
+    }
+
     var searchExtJson = function(json) {
         return function(key) {
             try {
                 var key2 = "Null";
                 $.each(json, function(i, v) {
                     if(v === key && i.indexOf("key") > -1) {
-                        key2 = "value"+i.substring(3)
+                        key2 = "value"+i.substring(3);
                         return false
                     }
                 });
             } catch(ex) {
-                console.error(ex)
+                console.error(ex);
             }
             return json[key2] === undefined ? key2 : json[key2]
         }
     }
 
     return {
+        "searchExtJsonForElement": searchExtJsonForElement,
         "searchExtJson": searchExtJson,
         // "callback": function() {callback()},
         "load_im": load_im,

@@ -120,7 +120,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
 
     def historyData = Action { request =>
-        Ok(views.html.calcPages.historyData(showUser(request).name))
+        Ok(views.html.calcPages.hsitory.historyData(showUser(request).name))
     }
     
     def postSuccess = Action{

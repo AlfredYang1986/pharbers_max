@@ -13,6 +13,7 @@
     var isCalcDone = false;
     var f = new Facade();
     var tables = [];
+    var uuids = [];
 
     layui.use('element', function () {
         var element = layui.element;
@@ -42,8 +43,8 @@
             }
         } else if (btn === "next" && current_li < 2) {
             var panel_lst = $('#panel-lst').children();
-            // if(panel_lst.length === 0)
-            //     return;
+            if(panel_lst.length === 0)
+                return;
             current_li = current_li + 1;
             binding('#previous-btn.operation', 'pre', '#next-btn', '#previous-btn', 'layui-btn-disabled');
             $(preBtn).removeClass(disableCss);
@@ -66,28 +67,46 @@
                 var num = $('#panel-lst').children().length;
                 var ext = message.ext;
                 if(ext !== null) {
-                    var reVal = window.im_object.searchExtJson(ext)('type');
-                    var fileName = window.im_object.searchExtJson(ext)('file');
-                    var step = window.im_object.searchExtJson(ext)('step');
-                    var lay_filter = 'calc-progress-' + fileName;
-                    var span = $('div[lay-filter= '+ lay_filter +']').parent().prev().children('span');
-                    span.text(step);
+                    var reVal = window.im_object.searchExtJson(ext)('type') !== 'Null' ? window.im_object.searchExtJson(ext)('type') : window.im_object.searchExtJsonForElement(ext.elems)('type');
                     if(reVal === 'progress') {
-                        setProgress(lay_filter, message.data);
+                        console.info(message.data);
                     } else if(reVal === 'progress_calc') {
+                        var fileName = window.im_object.searchExtJson(ext)('file') !== 'Null' ? window.im_object.searchExtJson(ext)('file') : window.im_object.searchExtJsonForElement(ext.elems)('file');
+                        var step = window.im_object.searchExtJson(ext)('step') !== 'Null' ? window.im_object.searchExtJson(ext)('step') : window.im_object.searchExtJsonForElement(ext.elems)('step');
+                        var lay_filter = 'calc-progress-' + fileName;
+                        var span = $('#panel-calc-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
+                        span.text(step);
                         if(message.data === "100") {
                             temp = temp + 1;
-                            tables.push(window.im_object.searchExtJson(ext)('table'));
+                            uuids.push({"fileName": fileName, "uuid" : window.im_object.searchExtJsonForElement(ext.elems)('uuid')});
+                            tables.push(window.im_object.searchExtJsonForElement(ext.elems)('table'));
                             if(num === temp){
                                 $('.mask-layer').hide();
                                 $('.loading').hide();
-                                isCalcDone = true
+                                isCalcDone = true;temp = 0;
                             }
-                            setProgress(lay_filter, message.data);
                         }
+                        setProgress(lay_filter, message.data);
+                    } else if(reVal === 'progress_calc_result') {
+                        var uuid = window.im_object.searchExtJson(ext)('uuid');
+                        var lay_uuid = 'calc-progress-' + uuid;
+                        var step_result = window.im_object.searchExtJson(ext)('step');
+                        var span_result = $('.confrim-calc-lst').eq(1).find('div[lay-filter=' + lay_uuid + ']').parent().prev().children('span');
+                        span_result.text(step_result);
+                        if(message.data === "100") {
+                            temp = temp + 1;
+                            if(num === temp){
+                                $('.mask-layer').hide();
+                                $('.loading').hide();
+                                temp = 0;uuids = [];tables = [];
+                                $('li[pharbers-filter="history"]').click();
+                            }
+                        }
+                        setProgress(lay_uuid, message.data);
                     } else if(reVal === 'txt') {
                         console.info(data.data);
                     } else {
+                        console.warn(message.ext);
                         console.warn("No Type");
                         console.warn(message.data);
                     }
@@ -114,6 +133,7 @@
             var upload = layui.upload;
             var panel_lst = $(uploadid);
             var panel_calc_lst = $('#panel-calc-lst');
+            var confrim_calc_lst = $('.confrim-calc-lst');
 
             upload.render({
                 elem: '#select-panel-btn',
@@ -177,6 +197,9 @@
                         calc_tds.eq(3).html(p);
                         delete files[index];
 
+                        confrim_calc_lst.empty();
+                        confrim_calc_lst.append(panel_calc_lst.children().clone());
+
                         var json = JSON.stringify({"businessType": "/modelcalc",
                                                     "company": company,
                                                     "filename": res.result[0],
@@ -199,11 +222,32 @@
 
     var load_result_check_tab = function () {
 
+        $('#goinghistory').click(function(){
+            $('.mask-layer').show();
+            $('.loading').show();
+            f.alertModule.content($('#confrims').html(), null, null, '确认列表', function(){$('#confrims').hide();});
+            var confrimLst = $('.confrim-calc-lst');
+            $.each(uuids, function(i, v){
+                var div = confrimLst.eq(1).find('div[lay-filter="calc-progress-' + v.fileName + '"]');
+                div.attr('lay-filter', 'calc-progress-' + v.uuid);
+            });
+
+            $.each(uuids, function(i, v){
+                var json = JSON.stringify({"businessType": "/datacommit",
+                    "company": company,
+                    "uuid": v.uuid,
+                    "uname": $.cookie('webim_user')
+                });
+                f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+            });
+        });
+
         layui.use('form', function () {
             var form = layui.form;
             var json = JSON.stringify(f.parameterPrefix.conditions({
                 "user_token": $.cookie("user_token"),
-                "tables": ["fea9f203d4f593a96f0d6faa91ba24ba0645320d-8987-41b9-851c-095988f0bd68","fea9f203d4f593a96f0d6faa91ba24bad25c431e-9993-4dfa-99af-163157aecb2a"],
+                // "tables": ["fea9f203d4f593a96f0d6faa91ba24ba0645320d-8987-41b9-851c-095988f0bd68","fea9f203d4f593a96f0d6faa91ba24bad25c431e-9993-4dfa-99af-163157aecb2a"],
+                "tables": tables
             }));
 
             load_select_box(form, json);
@@ -213,7 +257,8 @@
             form.on('select(result-check-year-and-market)', function(data){
                 var json = JSON.stringify(f.parameterPrefix.conditions({
                     "user_token": $.cookie("user_token"),
-                    "tables": ["fea9f203d4f593a96f0d6faa91ba24ba0645320d-8987-41b9-851c-095988f0bd68","fea9f203d4f593a96f0d6faa91ba24bad25c431e-9993-4dfa-99af-163157aecb2a"],
+                    // "tables": ["fea9f203d4f593a96f0d6faa91ba24ba0645320d-8987-41b9-851c-095988f0bd68","fea9f203d4f593a96f0d6faa91ba24bad25c431e-9993-4dfa-99af-163157aecb2a"],
+                    "tables": tables,
                     "marketWithYear": data.value
                 }));
                 $('.mask-layer').show();
@@ -353,7 +398,6 @@
                 color: '#cacaca'
             }]
         }];
-
 
         function load_bar2_chart(d) {
             var xAxisDataArray = [];

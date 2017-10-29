@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
-import akka.actor.{Actor, ActorLogging, ActorRef, FSM, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, FSM, PoisonPill, Props}
 import akka.remote.routing.RemoteRouterConfig
 import akka.routing.{BroadcastGroup, BroadcastPool}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
@@ -60,7 +60,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			pr.fileName = file.substring(file.lastIndexOf('/') + 1)
 			
 			acts ! filter_excel_job_2(file, cp)
-			alMessageProxy().sendMsg("1", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress", "step" -> "过滤文件中"))
+			alMessageProxy().sendMsg("1", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "过滤文件中"))
 			stay()
 		}
 
@@ -68,7 +68,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			pr.market = cp.market
 			pr.year = cp.year
 			self ! push_split_job(path)
-			alMessageProxy().sendMsg("10", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress", "step" -> "过滤文件结束"))
+			alMessageProxy().sendMsg("10", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "过滤文件结束"))
 			goto(split_excel) using pr
 //			shutCameo()
 //			stay()
@@ -82,7 +82,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	when(split_excel) {
 		case Event(push_split_job(file), pr) => {
 			acts ! push_split_excel_job(file, pr)
-			alMessageProxy().sendMsg("15", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress", "step" -> "分拆文件中"))
+			alMessageProxy().sendMsg("15", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "分拆文件中"))
 			stay()
 		}
 
@@ -94,7 +94,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 //			almp = mp
 //			cmdActor ! pkgmsg(s"${memorySplitFile}${sync}$u" :: Nil, s"${memorySplitFile}${fileTarGz}$u")
 //			stay()
-			alMessageProxy().sendMsg("18", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress", "step" -> "分拆文件结束"))
+			alMessageProxy().sendMsg("18", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "分拆文件结束"))
 			self ! push_group_job(mp)
 			goto(group_file) using pr
 		}
@@ -120,13 +120,13 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	when(group_file) {
 		case Event(push_group_job(mp), cp) => {
 			acts ! push_group_job(mp)
-			alMessageProxy().sendMsg("20", cp.uname , Map("file" -> cp.fileName, "company" -> cp.company, "type" -> "progress", "step" -> "文件分组中"))
+			alMessageProxy().sendMsg("20", cp.uname , Map("file" -> cp.fileName, "company" -> cp.company, "type" -> "progress_calc", "step" -> "文件分组中"))
 			stay()
 		}
 
 		case Event(group_data_end(r, mp), pr) => {
 			pr.uuid = mp.uuid
-			alMessageProxy().sendMsg("25", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress", "step" -> "等待计算"))
+			alMessageProxy().sendMsg("25", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "等待计算"))
 			self ! push_calc_job_2(mp, pr)
 			goto(calc_maxing) using pr
 
@@ -170,8 +170,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
             println(mp.finalUnit)
 			finalSuccessWithWork(pr, mp)
 			acts ! calc_slave_status()
-			
-			alMessageProxy().sendMsg("100", pr.uname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "计算结束", "table" -> s"${pr.company + pr.uuid}"))
+			alMessageProxy().sendMsg("100", pr.uname, Map("file" -> pr.fileName, "uuid" -> pr.uuid, "table" -> s"${pr.company + pr.uuid}", "type" -> "progress_calc", "step" -> "计算结束"))
 			endDate("e1", s1)
 			shutCameo
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
@@ -183,8 +182,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val company = mp.get("company").getOrElse("")
 			val uuid = mp.get("uuid").getOrElse("")
 			val uname = mp.get("uname").getOrElse("")
+			alMessageProxy().sendMsg("20", uname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result", "step" -> "正在转储为永久数据中"))
 			alWeightSum().apply(company, s"$company$uuid")
-			alMessageProxy().sendMsg("100", uname, Map("file" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
+			alMessageProxy().sendMsg("100", uname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result", "step" -> "转储完成"))
 			dbc.getCollection(s"$company$uuid").drop()
 			shutCameo
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
@@ -208,7 +208,8 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 
 	def shutCameo = {
 		log.info("stopping temp cameo END")
-		context.stop(self)
+		self ! PoisonPill
+//		context.stop(self)
 	}
 }
 

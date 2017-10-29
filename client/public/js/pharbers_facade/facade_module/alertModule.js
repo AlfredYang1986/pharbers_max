@@ -38,6 +38,7 @@ alertHandlers.prototype.content = function(domobj, skin, area, title, cancelFun)
             title: title,
             offset: ['10%'],
             area: area,
+            zIndex: 1000,
             skin: skin,
             moveOut: false,
             // scrollbar: false,
