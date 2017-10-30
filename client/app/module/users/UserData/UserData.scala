@@ -7,10 +7,12 @@ import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.message.send.{EmailResetPasswordType, SendMessageTrait}
 import com.pharbers.sercuity.Sercurity
+import com.typesafe.config.ConfigFactory
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
 trait UserData {
+	val URL = ConfigFactory.load("URL")
 	
 	def conditions(data: JsValue): DBObject = {
 		val builder = MongoDBObject.newBuilder
@@ -55,7 +57,7 @@ trait UserData {
 	
 	def emailResetPassword(email: String, token: String)(implicit msg: SendMessageTrait, db: DBTrait): String = {
 		// TODO: 写成配置文件
-		val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
+		val url = s"${URL.getString("URL.validation")}${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
 		val html = views.html.emailContent.resetPassword(email, url)
 		msg.sendMailMessage(email, EmailResetPasswordType()).sendHtmlMail.setSubTheme("忘记密码").setContext(html.toString).sendToEmail
 	}

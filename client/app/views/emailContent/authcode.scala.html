@@ -1,4 +1,4 @@
-@(name: String, code: String)
+@(url: String, name: String, code: String)
 
 <html>
     <head>
@@ -32,8 +32,8 @@
 
                             </div>
                             <div style="position: absolute;top: 50%;left:0px;height: 20%;width:100%;">
-                                <div style="height: 20px;margin: 0px 20%;background-color: #009688;color: #fff;white-space: nowrap;text-align: center;border: none;border-radius: 3px;cursor: pointer;opacity: .9;padding: 7px 0px 7px 0px;" onMouseOver="this.style.background='#00796b';" onMouseOut="this.style.background='#009688';" onclick="">
-                                    <a href="http://127.0.0.1:9000/registerCode/verification" style="font-family: 'Microsoft YaHei',Arial,Helvetica,sans-serif,'宋体';color: #fff;text-decoration:none;font-size: 16px;">&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;点击进入授权码注册&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;</a>
+                                <div style="height: 20px;margin: 0px 20%;background-color: #009688;color: #fff;white-space: nowrap;text-align: center;border: none;border-radius: 3px;cursor: pointer;opacity: .9;padding: 7px 0px 7px 0px;" onMouseOver="this.style.background='#00796b';" onMouseOut="this.style.background='#009688';">
+                                    <a href="@url" style="font-family: 'Microsoft YaHei',Arial,Helvetica,sans-serif,'宋体';color: #fff;text-decoration:none;font-size: 16px;">&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;点击进入授权码注册&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;</a>
                                 </div>
                             </div>
                             <div style="position: absolute;top: 55%;left:0px;height: 30%;width:100%;">

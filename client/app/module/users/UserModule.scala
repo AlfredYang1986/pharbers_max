@@ -185,7 +185,7 @@ object UserModule extends ModuleTrait with UserData {
                     db.insertObject(o, "users", "user_id")
                     o
                 }
-                case Some(_) => {
+                case Some(x) => {
                     db.updateObject(o, "users", "user_id")
                     o
                 }
@@ -194,7 +194,7 @@ object UserModule extends ModuleTrait with UserData {
             val date = new Date().getTime
             val reVal = one - "name" - "email" - "phone" - "company" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 			val auth_token = att.encrypt2Token(toJson(reVal))
-            val uuid = Sercurity.md5Hash(one.getAs[String]("email").get)
+            val uuid = Sercurity.md5Hash(email)
 			(Some(Map("user_token" -> toJson(auth_token), "uuid" -> toJson(uuid))), None)
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
