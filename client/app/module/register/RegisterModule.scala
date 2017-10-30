@@ -158,8 +158,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val db = conn.queryDBInstance("cli").get
 			
-			
-			val app = pr.get.get("user_token").get
+			val app = pr.get("user_token")
 			val token = app.as[String]
 			val reVal = att.decrypt2JsValue(token)
 			val regid = (reVal \ "user_id").as[String]

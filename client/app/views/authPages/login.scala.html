@@ -50,6 +50,7 @@
         </div>
         <script type="text/javascript">
                 var f = new Facade();
+
                 $(document).ready(function () {
                     $('#popLayer').hide();
                     $('#popTextValidate').hide();
@@ -57,6 +58,7 @@
                     $input[0].focus();
                     f.validationModule.input_blur("userName", "email");
                     f.validationModule.input_blur("pwd", "isEmp");
+                    window.im_object.load_im();
                 });
 
                 layui.use(['form', 'layer'], function () {
@@ -84,7 +86,8 @@
                            f.ajaxModule.asyncPost('auth/authWithPassword', json, function (r) {
                                if (r.status === 'ok') {
                                    f.cookieModule.setCookie("user_token", r.result.auth_token);
-                                   location = "/auth/user/"
+                                   window.im_object.login_im(r.result.uuid, r.result.uuid);
+                                   setTimeout(function(){location = "/auth/user/"}, 1000)
                                } else {
                                    layer.msg('用户名或密码错误！');
                                }

@@ -61,7 +61,6 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     implicit val db_basic : DBTrait = dbt.queryDBInstance("cli").get
     implicit val attoken: AuthTokenTrait = att
     
-    
     //从cookie中取出token验证用户角色
     def auth_user = Action { request => loginForType(request)}
     
@@ -121,7 +120,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
 
     def historyData = Action { request =>
-        Ok(views.html.calcPages.historyData(showUser(request).name))
+        Ok(views.html.calcPages.hsitory.historyData(showUser(request).name))
     }
     
     def postSuccess = Action{

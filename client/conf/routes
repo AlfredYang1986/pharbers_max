@@ -40,6 +40,22 @@ POST    /phonecode/send                             controllers.phonecode.PhoneS
 # phone 验证 验证码
 POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
 
+# 上传文件
+POST    /panel/upload                               controllers.upload.FopController.uploadFile
+POST    /upload/queryUserCompnay                    controllers.upload.FopController.queryUserCompnay
+
+# Call Http
+POST    /calc/callhttp                              controllers.callhttp.CallHttpController.callHttpServer
+
+# 获取本次计算数据
+POST    /calc/querySalesVsShare                     controllers.calcresult.CalcResultController.querySalesVsShare
+POST    /calc/queryCurVsPreWithCity                 controllers.calcresult.CalcResultController.queryCurVsPreWithCity
+POST    /calc/queryWithYearForCurVsPre              controllers.calcresult.CalcResultController.queryWithYearForCurVsPre
+
+# 查询历史数据
+POST    /history/queryHistoryByPage                 controllers.history.HistoryController.queryHistoryByPage
+POST    /history/queryHistorySelect                 controllers.history.HistoryController.queryHistorySelect
+
 # 验证用户是BD还是其他
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
 # 验证GET连接的有效市场并跳转相应页面
@@ -74,6 +90,8 @@ GET     /token/fail                                 controllers.alMaxRouterContr
 GET     /                                           controllers.alMaxRouterController.login
 GET		/login						                controllers.alMaxRouterController.login
 GET		/index						                controllers.alMaxRouterController.index
+GET     /calc                                       controllers.alMaxRouterController.calcData
+GET     /historyData                                controllers.alMaxRouterController.historyData
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)

@@ -13,10 +13,7 @@ trait alCallHttpTrait {
 
     val data: JsValue
 
-    def call: JsValue = {
-        (HTTP(url)).post(data).as[JsValue]
-        //{"result":{"status":"success","message":"201611#"}}
-    }
+    def call: JsValue = HTTP(url).header("Accept" -> "application/json", "Content-Type" -> "application/json").post(data).as[JsValue]
 }
 
 case class alCallHttp(businessType: String, data: JsValue) extends alCallHttpTrait {

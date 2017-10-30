@@ -11,6 +11,7 @@ import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 import alCalcDataSlave.{slaveStatus, slave_status}
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
@@ -66,6 +67,7 @@ trait alCalcDataTrait { this : Actor =>
     def calcData(property : alMaxProperty, c : alCalcParmary, s : ActorRef) {
         val cur = context.actorOf(alCameoCalcData.props(c, property, s, self, calc_router))
         cur ! calc_data_start()
+        alMessageProxy().sendMsg("45", c.uname, Map("file" -> c.fileName, "company" -> c.company, "type" -> "progress_calc", "step" -> "正在计算中"))
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global

@@ -125,17 +125,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		}
 	}
 	
-//	def alCalcDataFunc = post {
-//		path("modelcalc") {
-//			entity(as[alCalcItem]) {item =>
-//				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
-//				val path = fileBase + item.company + outPut + item.filename
-//				a ! filter_excel_jobs(path, new alCalcParmary(item.company, item.uname), a)
-//				complete(toJson(successToJson().get))
-//			}
-//		}
-//	}
-	
 	def alNewModelOperationCommitFunc = post {
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
@@ -147,18 +136,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 			}
 		}
 	}
-	
-	//待测试
-//	def alModelOperationCommitFunc = post {
-//		path("datacommit") {
-//			entity(as[alCommitItem]) { item =>
-//				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
-//				a ! commit_finalresult_jobs(item.company, item.uuid)
-//				val result = alSampleCheckCommit().apply(item.company)
-//				complete(result)
-//			}
-//		}
-//	}
 	
 	def alResultFileExportFunc = post {
 		path("dataexport") {

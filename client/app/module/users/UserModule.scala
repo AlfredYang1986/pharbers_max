@@ -12,6 +12,7 @@ import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.message.send.SendMessageTrait
+import com.pharbers.sercuity.Sercurity
 import com.pharbers.token.AuthTokenTrait
 import module.users.UserData._
 
@@ -96,7 +97,7 @@ object UserModule extends ModuleTrait with UserData {
 
             db.queryMultipleObject(o, "users", "date", skip, take) match {
                 case Nil => throw new Exception("data not exist")
-                case lst => (Some(Map("registers" -> toJson(lst))), None)
+                case lst => (Some(Map("user_lst" -> toJson(lst))), None)
             }
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -154,8 +155,13 @@ object UserModule extends ModuleTrait with UserData {
     
     def token_op_user(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
+            val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            implicit val db = conn.queryDBInstance("cli").get
             val reVal = (MergeStepResult(data, pr) \ "auth").asOpt[JsValue].map(x => x).getOrElse(throw new Exception("data not exist"))
-            (Some(Map("user" -> reVal)), None)
+            db.queryObject(DBObject("user_id" -> reVal.as[String Map JsValue].get("user_id").get.as[String]), "users") match {
+                case None => (Some(Map("user" -> reVal)), None)
+                case Some(x) =>  (Some(Map("user" -> toJson(x))), None)
+            }
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
@@ -179,16 +185,17 @@ object UserModule extends ModuleTrait with UserData {
                     db.insertObject(o, "users", "user_id")
                     o
                 }
-                case Some(_) => {
+                case Some(x) => {
                     db.updateObject(o, "users", "user_id")
                     o
                 }
             }
 
             val date = new Date().getTime
-            val reVal = one - "name" - "email" - "phone" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
+            val reVal = one - "name" - "email" - "phone" - "company" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 			val auth_token = att.encrypt2Token(toJson(reVal))
-			(Some(Map("user_token" -> toJson(auth_token))), None)
+            val uuid = Sercurity.md5Hash(email)
+			(Some(Map("user_token" -> toJson(auth_token), "uuid" -> toJson(uuid))), None)
         }catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
