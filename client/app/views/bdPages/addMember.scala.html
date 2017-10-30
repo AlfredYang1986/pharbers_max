@@ -85,7 +85,7 @@
                     if(data.status == "ok"){
                         var reginfo = {
                             "condition" : {
-                                "user_token" :user_token
+                                "user_token" : user_token
                             },
                             "reginfo" : {
                                 "email" : email
@@ -103,6 +103,9 @@
                     }
                 })
             }
+        }
+        var toBDHome = function () {
+            window.location.href = '/bd/bdUser';
         }
     </script>
 }
