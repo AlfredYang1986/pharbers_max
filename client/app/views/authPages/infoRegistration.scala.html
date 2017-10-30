@@ -90,7 +90,7 @@
             // 提交监听
             form.on('submit(sub)', function (data) {
                 f.parameterPrefix.conditions({"email": data.field.email, "phone": data.field.phone})
-                f.parameterPrefix.business("user", data.field)
+                f.parameterPrefix.business("user", data.field);
                 var json = JSON.stringify(f.parameterPrefix.merges());
                 if (f.validationModule.finalResult()) {
                     f.ajaxModule.baseCall('/register/user', json, 'POST', function(r){

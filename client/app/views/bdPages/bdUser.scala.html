@@ -102,7 +102,6 @@
                 awaitList();
 //                $('#awaitBtn').hide();
                 userList();
-
             });
 
 
@@ -140,7 +139,7 @@
                         }
                 );
                 f.ajaxModule.asyncPost("/register/querybd", noticeJson, function (data) {
-                    if(data.status == "ok"){
+                    if(data.status === "ok" && data.result.registers !== ""){
                         var registers = data.result.registers;
                         $.each(registers, function (i, item) {
                             var regid = item.reg_id;
@@ -282,11 +281,12 @@
                     $('.appoint-email').text(r.email);
                     $('.appoint-date').text(stamp2Date(r.date));
                     $('.appoint-phone').text(r.phone);
+                    $('#agree_apply').attr('onclick',"toAddMember(\'"+r.reg_id+"\')");
                     $('#appoint_del').attr('onclick',"deleted(\'"+id+"\')");
                 })
             };
             var noticeToBookList = function (id) {
-                var token = $.cookie("user_token")
+                var token = $.cookie("user_token");
                 var json = JSON.stringify({
                     "condition": {
                         "user_token": token,
@@ -297,16 +297,16 @@
                     var register = data.result.registers[0];
                     register.status = 9;
                     register.linkman = register.name;
-                    console.log(register)
+                    console.log(register);
                     var user = {
                         "user" : register
                     };
                     user.condition = {
                         "user_token" : token
                     };
-                    var json = JSON.stringify(user)
+                    var json = JSON.stringify(user);
                     f.ajaxModule.asyncPost("/register/update", json, function (data) {
-                        if(data.status == "ok"){
+                        if(data.status === "ok"){
                             window.location.href = '/bd/bdUser'
                         }
                     })
@@ -314,13 +314,13 @@
 
             };
             var getAwaitInfobyId = function (id) {
-                var token = $.cookie("user_token")
+                var token = $.cookie("user_token");
                 var json = JSON.stringify({
                     "condition": {
                         "user_token": token,
                         "reg_id": id
                     }
-                })
+                });
                 f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
                     var r = data.result.registers[0];
                     $('.await-name').text(r.name);
@@ -329,15 +329,15 @@
                     $('.await-date').text(stamp2Date(r.date));
                     $('.await-phone').text(r.phone);
                 })
-            }
+            };
             var getUserInfobyId = function (id) {
-                var token = $.cookie("user_token")
+                var token = $.cookie("user_token");
                 var json = JSON.stringify({
                     "condition": {
                         "user_token": token,
                         "reg_id": id
                     }
-                })
+                });
                 f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
                     var r = data.result.registers[0];
                     $('.userd-name').text(r.name);
@@ -390,17 +390,16 @@
                     };
                     var json = JSON.stringify(user)
                     f.ajaxModule.asyncPost("/register/update", json, function (data) {
-                        if(data.status == "ok"){
+                        if(data.status === "ok"){
                             window.location.href = '/bd/bdUser'
                         }
                     })
                 })
             };
+
         //------------------------------页面跳转---------------------------------
-        var toAddMember = function () {
-            window.location.href='/bd/addMember';
+        var toAddMember = function(reg_id) {
+            window.location.href='/bd/addMember?reg_id=' + reg_id
         }
-
-
     </script>
-}z
+}

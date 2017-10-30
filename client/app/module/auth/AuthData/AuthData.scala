@@ -11,18 +11,12 @@ trait AuthData {
 
 	def jv2m(data: JsValue): Map[String, JsValue] = {
 		Map(
-			"user_id" -> toJson((data \ "condition" \ "reg_id").asOpt[String].map(x => x).getOrElse("")),
-			"email" -> toJson((data \ "condition" \ "email").asOpt[String].map(x => x).getOrElse("")),
-			"name" -> toJson((data \ "condition" \ "name").asOpt[String].map(x => x).getOrElse((data \ "reginfo" \ "linkman").asOpt[String].map(x => x).getOrElse(""))),
-			"phone" -> toJson((data \ "condition" \ "phone").asOpt[String].map(x => x).getOrElse("")),
-			"scope" -> toJson((data \ "condition" \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil))
+			"user_id" -> toJson((data \ "condition" \ "user_id").asOpt[String].map(x => x).getOrElse("")),
+			"email" -> toJson((data \ "condition" \ "reginfo" \ "email").asOpt[String].map(x => x).getOrElse("")),
+			"name" -> toJson((data \ "condition" \ "user" \ "linkman").asOpt[String].map(x => x).getOrElse("")),
+			"phone" -> toJson((data \ "condition" \ "user" \ "phone").asOpt[String].map(x => x).getOrElse("")),
+			"scope" -> toJson((data \ "condition" \ "user"  \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil))
 		)
-	}
-	
-	def reg_content(data: JsValue): DBObject = {
-		val builder = MongoDBObject.newBuilder
-		
-		builder.result
 	}
 	
 	def reg_conditions(data: JsValue): DBObject = {

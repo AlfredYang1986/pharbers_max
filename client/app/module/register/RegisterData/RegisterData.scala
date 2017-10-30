@@ -19,6 +19,48 @@ object regStatus {
 sealed class regStatusDefine(val t : Int, val d : String)
 
 trait RegisterData {
+
+	def apply_conditions(data: JsValue): List[DBObject] = {
+		val email = (data \ "user" \ "email").asOpt[String].map { x =>
+			val builder = MongoDBObject.newBuilder
+			builder += "reg_content.email" -> x
+			builder.result
+		}
+		val phone = (data \ "user" \ "phone").asOpt[String].map { x =>
+			val builder = MongoDBObject.newBuilder
+			builder += "reg_content.phone" -> x
+			builder.result
+		}
+		List(email, phone).filter(_ != None).map(_.get)
+	}
+
+	implicit val m2d: JsValue => DBObject = { js =>
+		val builder = MongoDBObject.newBuilder
+
+		val company = (js \ "user" \ "company").asOpt[String].map(x => x).getOrElse(throw new Exception("info input company name"))
+		val linkman = (js \ "user" \ "linkman").asOpt[String].map(x => x).getOrElse(throw new Exception("info input linkman name"))
+		val email = (js \ "user" \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("info input email"))
+		val phone = (js \ "user" \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
+		val status = (js \ "user" \ "status").asOpt[Int].map(x => x).getOrElse(regStatus.regNotified(Map.empty).t)
+		val companyPhone = (js \ "user" \ "companyPhone").asOpt[String].map(x => x).getOrElse("")
+		val companyAddress = (js \ "user" \ "companyAddress").asOpt[String].map(x => x).getOrElse("")
+		val id = (js \ "user" \ "reg_id").asOpt[String].map(x => x).getOrElse(Sercurity.md5Hash(company + email + Sercurity.getTimeSpanWithMillSeconds))
+
+		val reg_content = DBObject(
+			"company" -> company,
+			"linkman" -> linkman,
+			"email" -> email,
+			"phone" -> phone,
+			"companyPhone" -> companyPhone,
+			"companyAddress" -> companyAddress,
+			"scope" -> ("NC" :: Nil))
+
+		builder += "reg_id" -> id
+		builder += "reg_content" -> reg_content
+		builder += "status" -> status
+		builder += "date" -> new Date().getTime
+		builder.result
+	}
 	
 	def conditions(data: JsValue): DBObject = {
 		val builder = MongoDBObject.newBuilder
@@ -37,34 +79,6 @@ trait RegisterData {
 		(data \ "reginfo" \ "phone").asOpt[String].map(x => builder += "reg_content.phone" -> x).getOrElse(Unit)
 		builder.result
 	}
-
-	implicit val m2d: JsValue => DBObject = { js =>
-		val builder = MongoDBObject.newBuilder
-		
-		val company = (js \ "user" \ "company").asOpt[String].map(x => x).getOrElse(throw new Exception("info input company name"))
-		val linkman = (js \ "user" \ "linkman").asOpt[String].map(x => x).getOrElse(throw new Exception("info input linkman name"))
-		val email = (js \ "user" \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("info input email"))
-		val phone = (js \ "user" \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
-		val status = (js \ "user" \ "status").asOpt[Int].map(x => x).getOrElse(regStatus.regNotified(Map.empty).t)
-		val companyPhone = (js \ "user" \ "companyPhone").asOpt[String].map(x => x).getOrElse("")
-		val companyAddress = (js \ "user" \ "companyAddress").asOpt[String].map(x => x).getOrElse("")
-		val id = (js \ "user" \ "reg_id").asOpt[String].map(x => x).getOrElse(Sercurity.md5Hash(company + email + Sercurity.getTimeSpanWithMillSeconds))
-
-		val reg_content = DBObject(
-							"company" -> company,
-							"linkman" -> linkman,
-							"email" -> email,
-							"phone" -> phone,
-							"companyPhone" -> companyPhone,
-							"companyAddress" -> companyAddress,
-							"scope" -> ("NC" :: Nil))
-		
-		builder += "reg_id" -> id
-		builder += "reg_content" -> reg_content
-		builder += "status" -> status
-		builder += "date" -> new Date().getTime
-		builder.result
-	}
 	
 	implicit val d2m: DBObject => Map[String, JsValue] = { obj =>
 		val reg_content = obj.as[MongoDBObject]("reg_content")
@@ -79,6 +93,7 @@ trait RegisterData {
 			"scope" -> toJson(reg_content.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)),
 			"date" -> toJson(obj.getAs[Number]("date").map(x => x).getOrElse(0).toString.toLong))
 	}
+
 	def queryRegisterUser(data: JsValue)(implicit db: DBTrait): regStatusDefine = {
 		val o = conditions(data)
 		db.queryMultipleObject(o, "reg_apply") match {
