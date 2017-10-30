@@ -13,7 +13,7 @@ object alShareData {
 
     val csv2IntegratedData : Any => IntegratedData = { txt =>
         val t = new IntegratedData()
-        val x = txt.asInstanceOf[String].split(44.toChar)
+        val x = txt.asInstanceOf[String].split(31.toChar)
         t.setHospNum(removeSpace(x(0)).toInt)
         t.setHospName(removeSpace(x(1)))
         t.setYearAndmonth(removeSpace(x(2)).toInt)
