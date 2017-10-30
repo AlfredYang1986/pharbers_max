@@ -31,7 +31,7 @@
                </div>
                <div class="form-group">
                    <label>公司地址</label>
-                   <input type="text" class="form-control company-address" id="company-address" placeholder="请输入被添加人的公司地址">
+                   <input type="text" class="form-control company-address" id="member-companyAddress" placeholder="请输入被添加人的公司地址">
                    <div class="form_tip_bottom"></div>
                </div>
            </div>
@@ -50,14 +50,14 @@
         f.validationModule.input_blur("member-name", "name");
         f.validationModule.input_blur("member-phone", "phone");
         f.validationModule.input_blur("member-company", "cName");
-        f.validationModule.input_blur("member-address", "address");
+        f.validationModule.input_blur("member-companyAddress", "address");
         f.validationModule.input_blur("member-cphone", "phone");
         var addReg = function () {
             var email = $('#member-email').val();
             var name = $('#member-name').val();
             var phone = $('#member-phone').val();
             var company = $('#member-company').val();
-            var address = $('#member-address').val();
+            var companyAddress = $('#member-companyAddress').val();
             var cphone = $('#member-cphone').val();
             var date = new Date().getTime()
             var js ={
@@ -67,6 +67,7 @@
                     "scope":["NC"],
                     "company":company,
                     "companyPhone":cphone,
+                    "companyAddress":companyAddress,
                     "date":date,
                     "status":1,
                     "phone" : phone
@@ -77,24 +78,28 @@
                 }
 
             }
+            var user_token = $.cookie("user_token");
             var json = JSON.stringify(js)
             if(f.validationModule.finalResult()){
                 f.ajaxModule.asyncPost('/register/user', json, function (data) {
                     if(data.status == "ok"){
                         var reginfo = {
+                            "condition" : {
+                                "user_token" :user_token
+                            },
                             "reginfo" : {
                                 "email" : email
                             }
                         }
                         f.ajaxModule.asyncPost('/auth/createToken', JSON.stringify(reginfo), function (r) {
                             if(r.status == "ok"){
-                                location('/bd/addMember/succ');
+                                location = '/bd/addMember/succ'
                             }else {
-                                layer.msg(r.error.message);
+                                console.log(r)
                             }
                         })
                     }else {
-                        layer.msg(data.error.message);
+                        console.log(data)
                     }
                 })
             }

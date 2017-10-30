@@ -91,15 +91,16 @@
     </div>
     <script>
             var f = new Facade();
-            var deleted = function () {
+            var deleted = function (id) {
                 $('#appointmentDetail').modal('hide');
                 $('#delete').modal('show');
+                $('#delRegister').attr('onclick', "delRegister(\'"+id+"\')");
             };
             $(document).ready(function () {
                 userLogin();
                 noticeList();
                 awaitList();
-                $('#awaitBtn').hide();
+//                $('#awaitBtn').hide();
                 userList();
 
             });
@@ -139,25 +140,27 @@
                         }
                 );
                 f.ajaxModule.asyncPost("/register/querybd", noticeJson, function (data) {
-                    var registers = data.result.registers;
-                    $.each(registers, function (i, item) {
-                        var regid = item.reg_id;
-                        $('#noticeList').append(
-                                '<div class="row notice-left bottom-line-thin" onclick="getNoticeInfobyId(\''+regid+'\')">' +
-                                '<div class="notice-company">' + item.company + '</div>' +
-                                '<div class="notice-name">' + item.name + '</div>' +
-                                '<div class="notice-date">'+stamp2Date(item.date)+'</div>' +
-                                '</div>')
-                    });
-                    var r = data.result.registers[0];
-                    $('.noti-name').text(r.name);
-                    $('.noti-company').text(r.company);
-                    $('.noti-email').text(r.email);
-                    $('.noti-date').text(stamp2Date(r.date));
-                    $('.noti-phone').text(r.phone);
-                    //_____________
-                    //按钮
-                    $('#addToAppoint').attr("onclick","noticeToBookList(\'"+r.reg_id+"\')")
+                    if(data.status == "ok"){
+                        var registers = data.result.registers;
+                        $.each(registers, function (i, item) {
+                            var regid = item.reg_id;
+                            $('#noticeList').append(
+                                    '<div class="row notice-left bottom-line-thin" onclick="getNoticeInfobyId(\''+regid+'\')">' +
+                                    '<div class="notice-company">' + item.company + '</div>' +
+                                    '<div class="notice-name">' + item.name + '</div>' +
+                                    '<div class="notice-date">'+stamp2Date(item.date)+'</div>' +
+                                    '</div>')
+                        });
+                        var r = data.result.registers[0];
+                        $('.noti-name').text(r.name);
+                        $('.noti-company').text(r.company);
+                        $('.noti-email').text(r.email);
+                        $('.noti-date').text(stamp2Date(r.date));
+                        $('.noti-phone').text(r.phone);
+                        //_____________
+                        //按钮
+                        $('#addToAppoint').attr("onclick","noticeToBookList(\'"+r.reg_id+"\')")
+                    }
                 });
 
             };
@@ -279,6 +282,7 @@
                     $('.appoint-email').text(r.email);
                     $('.appoint-date').text(stamp2Date(r.date));
                     $('.appoint-phone').text(r.phone);
+                    $('#appoint_del').attr('onclick',"deleted(\'"+id+"\')");
                 })
             };
             var noticeToBookList = function (id) {
@@ -302,6 +306,9 @@
                     };
                     var json = JSON.stringify(user)
                     f.ajaxModule.asyncPost("/register/update", json, function (data) {
+                        if(data.status == "ok"){
+                            window.location.href = '/bd/bdUser'
+                        }
                     })
                 })
 
@@ -343,14 +350,12 @@
             };
 
             var toAppointList = function () {
-                $('#changeBtn').hide();
                 $('#dropdownMenu1').html('预约清单 <span class="caret"></span>');
                 $('#bookList').empty();
                 appointList();
 
             };
             var toAwaitList = function () {
-                $('#changeBtn').hide();
                 $('#dropdownMenu1').html('待激活清单 <span class="caret"></span>');
                 $('#bookList').empty();
                 awaitList();
@@ -361,6 +366,35 @@
                 var dateString = date.toLocaleDateString().split('/');
                 return dateString[2] + '/' +dateString[1] +'/' + dateString[0];
 
+            };
+            //---------------------删除注册用户--------------------------------
+            var delRegister = function (id) {
+                var token = $.cookie("user_token")
+                var json = JSON.stringify({
+                    "condition": {
+                        "user_token": token,
+                        "reg_id": id
+                    }
+                });
+                f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
+                    console.log(data)
+                    var register = data.result.registers[0];
+                    register.status = -1;
+                    register.linkman = register.name;
+                    console.log(register)
+                    var user = {
+                        "user" : register
+                    };
+                    user.condition = {
+                        "user_token" : token
+                    };
+                    var json = JSON.stringify(user)
+                    f.ajaxModule.asyncPost("/register/update", json, function (data) {
+                        if(data.status == "ok"){
+                            window.location.href = '/bd/bdUser'
+                        }
+                    })
+                })
             };
         //------------------------------页面跳转---------------------------------
         var toAddMember = function () {

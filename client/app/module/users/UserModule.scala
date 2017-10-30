@@ -200,7 +200,7 @@ object UserModule extends ModuleTrait with UserData {
             val db = conn.queryDBInstance("cli").get
 
 //            val js = (data \ "condition").asOpt[JsValue].get
-            val o = conditions(data)
+            val o = conditions2(data)
             db.queryObject(o, "users") match {
                 case None => (Some(Map("not_exist" -> toJson("ok"))), None)
                 case Some(_) => throw new Exception("user already exists")

@@ -1,7 +1,7 @@
 package module.register
 
 import com.mongodb.casbah.Imports._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsString, JsValue}
 import play.api.libs.json.Json.toJson
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.MergeStepResult
@@ -14,7 +14,7 @@ import module.register.RegisterMessage._
 
 object RegisterModule extends ModuleTrait with RegisterData {
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-		case msg_user_register(data: JsValue) => user_register(data)
+		case msg_user_register(data: JsValue) => user_register(data)(pr)
 		case msg_query_register_bd(data: JsValue) => query_bd(data)
 		case msg_is_user_register(data: JsValue) => user_is_register(data)
 		case msg_approve_reg(data: JsValue) => approve_reg(data)(pr)
@@ -23,6 +23,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 		case msg_register_token_defeat(data: JsValue) => user_register_token_defeat(data)
 		case msg_first_push_user(data: JsValue) => user_first_push(data)(pr)
 		case MsgUpdateRegisterUser(data: JsValue) => userRegisterUpdate(data)
+		case msg_delete_registerUser(data : JsValue) => delete_register(data)
 		case _ => throw new Exception("function is not impl")
 	}
 	
@@ -30,7 +31,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("cli").get
-			val o: DBObject = conditions(data)
+			val o: DBObject = conditions2(data)
 			db.queryMultipleObject(o, "reg_apply") match {
 				case Nil => throw new Exception("user not exist")
 				case x :: _ => (Some(Map("apply" -> toJson(x))), None)
@@ -47,9 +48,9 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			
 			queryRegisterUser(data) match {
 				case regStatus.regNotified(_) => throw new Exception("successful application fail BD or AD")
-				case regStatus.regApproved(_) => throw new Exception("successful application")
+				case regStatus.regApproved(details) => (Some(Map("apply" -> toJson(details))), None)
 				case regStatus.regDone(_) => throw new Exception("successful application please login")
-				case regStatus.regCommunicated(details) => (Some(Map("apply" -> toJson(details))), None)
+				case regStatus.regCommunicated(_) => throw new Exception("successful application fail BD or AD")
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -79,7 +80,8 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val db = conn.queryDBInstance("cli").get
 			val o: DBObject = conditions(data)
 			db.queryMultipleObject(o, "reg_apply") match {
-				case Nil => (Some(Map("condition" -> toJson("ok"))), None)
+				case Nil => (Some(Map("result" -> toJson(""))), None)
+				case head :: Nil => (Some(Map("result" -> toJson(head("reg_id")))), None)
 				case _ => throw new Exception("user is repeat")
 			}
 		} catch {
@@ -87,19 +89,45 @@ object RegisterModule extends ModuleTrait with RegisterData {
 		}
 	}
 	
-	def user_register(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def user_register(data: JsValue)(pr: Option[Map[String, JsValue]])
+					 (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("cli").get
 			val o: DBObject = m2d(data)
 			val name = (data \ "user").asOpt[String].map(x => x).getOrElse("")
-			db.insertObject(o, "reg_apply", "reg_id")
+
+			pr.get.get("result") match {
+				case Some(s) if s.as[JsString].value == "" => db.insertObject(o, "reg_apply", "reg_id")
+				case Some(s) =>
+					val regId = s.asInstanceOf[JsString].value
+					val status = regStatus.regApproved(Map.empty).t.asInstanceOf[Number]
+					o += "reg_id" -> regId
+					o += "status" -> status
+					db.updateObject(o, "reg_apply", "reg_id")
+				case None => throw new Exception("user is repeat")
+			}
+
 			(Some(Map("user" -> toJson(name))), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
-	
+	def delete_register(data : JsValue)(implicit cm:CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try{
+			val con = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = con.queryDBInstance("cli").get
+			val o : DBObject = m2d(data)
+			db.deleteObject(o, "reg_apply", "reg_id")
+			val name = (data \ "user").asOpt[String].map(x => x).getOrElse("")
+			(Some(Map("user" -> toJson(name))), None)
+		}catch {
+			case ex : Exception =>
+				println(ex)
+				(None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+		
+	}
 	def userRegisterUpdate(data: JsValue)(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
@@ -157,8 +185,6 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val db = conn.queryDBInstance("cli").get
-			
-			
 			val app = pr.get.get("user_token").get
 			val token = app.as[String]
 			val reVal = att.decrypt2JsValue(token)

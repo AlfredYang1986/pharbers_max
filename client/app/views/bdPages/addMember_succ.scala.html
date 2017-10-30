@@ -17,7 +17,7 @@
         <div class="space-height"></div>
         <div class="inCenParent">
             <div class="inCenChild">
-                <button class="layui-btn layui-btn-primary">返回客户中心</button>
+                <button class="layui-btn layui-btn-primary" onclick="goBack()">返回客户中心</button>
             </div>
             <div class="space-height-16"></div>
             <div class="row inCenChild">
@@ -27,4 +27,9 @@
             </div>
         </div>
     </div>
+    <script>
+        var goBack = function () {
+            window.location.href = "/bd/bdUser"
+        }
+    </script>
 }

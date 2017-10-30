@@ -20,6 +20,12 @@ trait UserData {
 		(data \ "condition" \ "phone").asOpt[String].map(x => builder += "profile.phone" -> x).getOrElse(Unit)
 		builder.result
 	}
+
+	def conditions2(data: JsValue): DBObject = {
+		val builder = MongoDBObject.newBuilder
+		(data \ "reginfo" \ "email").asOpt[String].map(x => builder += "email" -> x).getOrElse(Unit)
+		builder.result
+	}
 	
 	
 	implicit val m2d: JsValue => DBObject = { js =>
