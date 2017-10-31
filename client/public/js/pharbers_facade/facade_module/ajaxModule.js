@@ -41,7 +41,7 @@ AjaxCall.prototype.asyncPost = function (url, data, successFun, errorFun, before
 
 AjaxCall.prototype.baseCall = function (url, data, type, successFun, errorFun, beforeFun, completeFun) {
     var errorFun = errorFun || function (e) {
-            console.log(e)
+            console.error(e)
     };
     var beforeFun = beforeFun || function () {};
     var completeFun = completeFun || function () {};

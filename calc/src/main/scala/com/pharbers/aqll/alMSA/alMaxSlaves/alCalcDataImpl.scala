@@ -67,6 +67,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
             }).toList
             atomic { implicit txn =>
+                
                 sumSender() = sumSender.single.get :+ sender()
                 sumSegment() = sumSegment.single.get ++ s
                 if(sumSender.single.get.size == server_info.cpu) {
@@ -99,51 +100,35 @@ class alCalcDataImpl extends Actor with ActorLogging {
             val source = alFileOpt(path + "/" + "data")
             val bson_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
             if (source.isExists) {
-                source.enumDataWithFunc { line =>
-                    val mrd = alShareData.txt2WestMedicineIncome2(line)
-                    val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+              source.enumDataWithFunc { line =>
+                  val mrd = alShareData.txt2WestMedicineIncome2(line)
+                  val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+                  if (mrd.ifPanelAll == "1") {
+                      mrd.set_finalResultsValue(mrd.sumValue)
+                      mrd.set_finalResultsUnit(mrd.volumeUnit)
+                  }else {
+                       avg.find(p => p._1 == seed.hashCode.toString).map { x =>
+                          mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                          mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                      }.getOrElse(Unit)
+                  }
 
-                    if (mrd.ifPanelAll == "1") {
-                        mrd.set_finalResultsValue(mrd.sumValue)
-                        mrd.set_finalResultsUnit(mrd.volumeUnit)
-                    }else {
-                        avg.find(p => p._1 == seed.hashCode.toString).map { x =>
-                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                        }.getOrElse(Unit)
-                    }
+                  unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+                  value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
 
-                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+                  phBsonWriterByMap().apply(westMedicineIncome2map(mrd), bson_path)
 
-//                    atomic { implicit thx =>
-//                        alInertDatabase().apply(mrd, sub_uuid)
-//                    }
-
-                    phBsonWriterByMap().apply(westMedicineIncome2map(mrd), bson_path)
-
-                }
-                log.info(s"calc done at ${sub_uuid}")
-//                sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
+              }
+              log.info(s"calc done at ${sub_uuid}")
+                 
             }else {
                 log.info(s"Error! source=${source} not exist!")
                 sender() ! calc_data_end(true, tmp)
             }
-//            insertDbWithDrop(tmp)
             sender() ! calc_data_result(value, unit)
             sender() ! calc_data_end(true, tmp)
         }
         case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
-    }
-
-    def insertDbWithDrop(p: alMaxProperty) = {
-        log.info(s"单个线程备份传输开始")
-        alDumpcollScp().apply(p.subs.head.uuid, serverHost215)
-        log.info(s"单个线程备份传输结束")
-
-        log.info(s"单个线程开始删除临时表")
-        dbc.getCollection(p.subs.head.uuid).drop()
-        log.info(s"单个线程结束删除临时表")
     }
 
     def max_precess(element2: IntegratedData, sub_uuid: String, longPath: Option[String] = None)(recall: List[IntegratedData])(c: alCalcParmary) = {

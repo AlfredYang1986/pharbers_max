@@ -15,18 +15,6 @@
                     </div>
                 </div>
                 <div class="panel-body" id = "bookList">
-                    <div class="person-info" data-toggle="modal" data-target="#appointmentDetail">
-                        <div class="person-name">小甜甜</div>
-                        <div class="person-company">公司名字</div>
-                    </div>
-                    <div class="person-info">
-                        <div class="person-name">小甜甜</div>
-                        <div class="person-company">公司名字</div>
-                    </div>
-                    <div class="person-info">
-                        <div class="person-name">小甜甜</div>
-                        <div class="person-company">公司名字</div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -53,36 +41,6 @@
                     </div>
                     <div class="space-height"></div>
                     <div id="userList">
-                        <div>
-                            <div class="persons-info row">
-                                <div class="persons-status col-xs-3" data-toggle="modal" data-target="#userDetail"></div>
-                                <div class="persons-name col-xs-3">名字</div>
-                                <div class="persons-company col-xs-3">公司名字</div>
-                                <div class="persons-opera col-xs-2" role="button" data-toggle="modal" data-target="#noticeDetail">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">待操作</span>
-                                        <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>
-                                        <span class="glyphicon glyphicon-pencil"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row"><div class="line-90"></div></div>
-                        </div>
-                        <div>
-                            <div class="persons-info row">
-                                <div class="persons-status col-xs-3" ></div>
-                                <div class="persons-name col-xs-3">名字</div>
-                                <div class="persons-company col-xs-3">公司名字</div>
-                                <div class="persons-opera col-xs-2">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">待操作</span>
-                                        <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>
-                                        <span class="glyphicon glyphicon-pencil"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row"><div class="line-90"></div></div>
-                        </div>
                     </div>
 
                 </div>
@@ -91,17 +49,17 @@
     </div>
     <script>
             var f = new Facade();
-            var deleted = function () {
+            var deleted = function (id) {
                 $('#appointmentDetail').modal('hide');
                 $('#delete').modal('show');
+                $('#delRegister').attr('onclick', "delRegister(\'"+id+"\')");
             };
             $(document).ready(function () {
                 userLogin();
                 noticeList();
                 awaitList();
-                $('#awaitBtn').hide();
+//                $('#awaitBtn').hide();
                 userList();
-
             });
 
 
@@ -117,7 +75,9 @@
                 var tojson = JSON.stringify(tojs);
                 f.ajaxModule.asyncPost("/user/tokenop", tojson, function (data) {
                     var id = {
-                        "user_id": data.result.user_id
+                        "condition": {
+                            "user_id": data.result.user.user_id
+                        }
                     };
                     var queryJson = JSON.stringify(id)
                     f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (data) {
@@ -139,25 +99,27 @@
                         }
                 );
                 f.ajaxModule.asyncPost("/register/querybd", noticeJson, function (data) {
-                    var registers = data.result.registers;
-                    $.each(registers, function (i, item) {
-                        var regid = item.reg_id;
-                        $('#noticeList').append(
-                                '<div class="row notice-left bottom-line-thin" onclick="getNoticeInfobyId(\''+regid+'\')">' +
-                                '<div class="notice-company">' + item.company + '</div>' +
-                                '<div class="notice-name">' + item.name + '</div>' +
-                                '<div class="notice-date">'+stamp2Date(item.date)+'</div>' +
-                                '</div>')
-                    });
-                    var r = data.result.registers[0];
-                    $('.noti-name').text(r.name);
-                    $('.noti-company').text(r.company);
-                    $('.noti-email').text(r.email);
-                    $('.noti-date').text(stamp2Date(r.date));
-                    $('.noti-phone').text(r.phone);
-                    //_____________
-                    //按钮
-                    $('#addToAppoint').attr("onclick","noticeToBookList(\'"+r.reg_id+"\')")
+                    if(data.status === "ok" && data.result.registers !== ""){
+                        var registers = data.result.registers;
+                        $.each(registers, function (i, item) {
+                            var regid = item.reg_id;
+                            $('#noticeList').append(
+                                    '<div class="row notice-left bottom-line-thin" onclick="getNoticeInfobyId(\''+regid+'\')">' +
+                                    '<div class="notice-company">' + item.company + '</div>' +
+                                    '<div class="notice-name">' + item.name + '</div>' +
+                                    '<div class="notice-date">'+stamp2Date(item.date)+'</div>' +
+                                    '</div>')
+                        });
+                        var r = data.result.registers[0];
+                        $('.noti-name').text(r.name);
+                        $('.noti-company').text(r.company);
+                        $('.noti-email').text(r.email);
+                        $('.noti-date').text(stamp2Date(r.date));
+                        $('.noti-phone').text(r.phone);
+                        //_____________
+                        //按钮
+                        $('#addToAppoint').attr("onclick","noticeToBookList(\'"+r.reg_id+"\')")
+                    }
                 });
 
             };
@@ -279,10 +241,12 @@
                     $('.appoint-email').text(r.email);
                     $('.appoint-date').text(stamp2Date(r.date));
                     $('.appoint-phone').text(r.phone);
+                    $('#agree_apply').attr('onclick',"toAddMember(\'"+r.reg_id+"\')");
+                    $('#appoint_del').attr('onclick',"deleted(\'"+id+"\')");
                 })
             };
             var noticeToBookList = function (id) {
-                var token = $.cookie("user_token")
+                var token = $.cookie("user_token");
                 var json = JSON.stringify({
                     "condition": {
                         "user_token": token,
@@ -293,44 +257,47 @@
                     var register = data.result.registers[0];
                     register.status = 9;
                     register.linkman = register.name;
-                    console.log(register)
+                    console.log(register);
                     var user = {
                         "user" : register
                     };
                     user.condition = {
                         "user_token" : token
                     };
-                    var json = JSON.stringify(user)
+                    var json = JSON.stringify(user);
                     f.ajaxModule.asyncPost("/register/update", json, function (data) {
+                        if(data.status === "ok"){
+                            window.location.href = '/bd/bdUser'
+                        }
                     })
                 })
 
             };
             var getAwaitInfobyId = function (id) {
-                var token = $.cookie("user_token")
+                var token = $.cookie("user_token");
                 var json = JSON.stringify({
                     "condition": {
                         "user_token": token,
                         "reg_id": id
                     }
-                })
+                });
                 f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
                     var r = data.result.registers[0];
                     $('.await-name').text(r.name);
                     $('.await-company').text(r.company);
                     $('.await-email').text(r.email);
-                    $('.await-date').text(stamp2Date(r.date));
+                    $('.await-time').text(stamp2Date(r.date));
                     $('.await-phone').text(r.phone);
                 })
-            }
+            };
             var getUserInfobyId = function (id) {
-                var token = $.cookie("user_token")
+                var token = $.cookie("user_token");
                 var json = JSON.stringify({
                     "condition": {
                         "user_token": token,
                         "reg_id": id
                     }
-                })
+                });
                 f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
                     var r = data.result.registers[0];
                     $('.userd-name').text(r.name);
@@ -339,18 +306,17 @@
                     $('.userd-date').text(stamp2Date(r.date));
                     $('.userd-phone').text(r.phone);
                     $('.userd-companyPhone').text(r.companyPhone);
+                    $('.userd-companyAddress').text(r.companyAddress);
                 })
             };
 
             var toAppointList = function () {
-                $('#changeBtn').hide();
                 $('#dropdownMenu1').html('预约清单 <span class="caret"></span>');
                 $('#bookList').empty();
                 appointList();
 
             };
             var toAwaitList = function () {
-                $('#changeBtn').hide();
                 $('#dropdownMenu1').html('待激活清单 <span class="caret"></span>');
                 $('#bookList').empty();
                 awaitList();
@@ -362,11 +328,39 @@
                 return dateString[2] + '/' +dateString[1] +'/' + dateString[0];
 
             };
+            //---------------------删除注册用户--------------------------------
+            var delRegister = function (id) {
+                var token = $.cookie("user_token")
+                var json = JSON.stringify({
+                    "condition": {
+                        "user_token": token,
+                        "reg_id": id
+                    }
+                });
+                f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
+                    console.log(data)
+                    var register = data.result.registers[0];
+                    register.status = -1;
+                    register.linkman = register.name;
+                    console.log(register)
+                    var user = {
+                        "user" : register
+                    };
+                    user.condition = {
+                        "user_token" : token
+                    };
+                    var json = JSON.stringify(user)
+                    f.ajaxModule.asyncPost("/register/update", json, function (data) {
+                        if(data.status === "ok"){
+                            window.location.href = '/bd/bdUser'
+                        }
+                    })
+                })
+            };
+
         //------------------------------页面跳转---------------------------------
-        var toAddMember = function () {
-            window.location.href='/bd/addMember';
+        var toAddMember = function(reg_id) {
+            window.location.href='/bd/addMember?reg_id=' + reg_id
         }
-
-
     </script>
-}z
+}

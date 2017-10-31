@@ -2,19 +2,13 @@
     <div class="wrapper wrapper-content animated fadeInRight" >
 
         <div class="row layui-form">
-            <div class="col-sm-3 col-md-3">
-                <div class="layui-form-item">
-                    <label class="control-label" for="result_check_market">Market</label>
-                    <select id="result_check_market" lay-filter="result_check_market" lay-search>
-                    </select>
-                </div>
-            </div>
-            <div class="col-sm-3 col-md-3">
-                <div class="layui-form-item">
-                    <label class="control-label" for="result_check_date">Date</label>
-                    <select id="result_check_date" lay-filter="result_check_date" lay-search>
-                    </select>
-                </div>
+            <div class="col-sm-12 col-md-4">
+                <form class="layui-form" action="">
+                    <div class="layui-form-item">
+                        <label class="control-label" for="result_check_market">YearAndMarket</label>
+                        <select id="result-check-year-and-market" lay-filter="result-check-year-and-market"></select>
+                    </div>
+                </form>
             </div>
         </div><!-- row 1-->
 
@@ -33,7 +27,7 @@
                         </div>
                     </div>
                     <div class="ibox-content">
-                        <div id="bar1" style="height:400px"></div>
+                        <div id="sales-vs-share" style="height:400px"></div>
                     </div>
                 </div>
             </div>
@@ -57,7 +51,7 @@
                     </div>
                     <div class="ibox-content">
                             <!--<div id="morris-bar1-chart"></div>-->
-                        <div id="bar2" style="height:400px"></div>
+                        <div id="cur-vs-pre-city" style="height:400px"></div>
                     </div>
                 </div>
             </div>

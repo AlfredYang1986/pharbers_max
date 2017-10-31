@@ -59,17 +59,17 @@
                 <div class="row">
                     <div class="col-xs-10"></div>
                     <div class="col-xs-2">
-                        <button class="layui-btn layui-btn-primary">保存</button>
+                        <button class="layui-btn layui-btn-primary" onclick="resetUserInfo()">保存</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        var f = new Facade()
+        var f = new Facade();
         $(document).ready(function () {
             userLogin();
-        })
+        });
         var userLogin = function () {
                 var token = $.cookie("user_token");
                 var tojs = {
@@ -81,7 +81,9 @@
                 var tojson = JSON.stringify(tojs);
                 f.ajaxModule.asyncPost("/user/tokenop", tojson, function (data) {
                     var id = {
-                        "user_id": data.result.user_id
+                        "condition": {
+                            "user_id": data.result.user.user_id
+                        }
                     };
                     var queryJson = JSON.stringify(id)
                     f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (data) {
@@ -90,7 +92,6 @@
                         $('.bd_user_name').text(data.result.user_info.name);
                         $('.bd_user_email').text(data.result.user_info.email);
                         $('#in-name').attr('placeholder',user.name);
-                        $('#in-email').attr('placeholder',user.email);
                         $('#in-phone').attr('placeholder',user.phone);
                         $('#in-company').attr('placeholder',user.company);
                         $('#in-date').text(user.date);
@@ -102,6 +103,45 @@
             };
         var toSetPassword = function () {
             window.location.href='/bd/setPassword';
+        };
+        var resetUserInfo = function () {
+            var token = $.cookie("user_token");
+            var tojs = {
+                "condition": {
+                    "user_token": token
+                }
+
+            };
+            var tojson = JSON.stringify(tojs);
+            f.ajaxModule.asyncPost("/user/tokenop", tojson, function (data) {
+                var id = {
+                    "condition": {
+                        "user_id": data.result.user.user_id
+                    }
+                };
+                var queryJson = JSON.stringify(id)
+                f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (res) {
+                    var user = res.result.user_info;
+                    if($('#in-name').val()) user.name = $('#in-name').val();
+                    if($('#in-phone').val()) user.phone = $('#in-phone').val();
+                    if($('#in-company').val()) user.company = $('#in-company').val();
+                    if($('#in-companyPhone').val()) user.companyPhone = $('#in-companyPhone').val();
+                    if($('#in-companyAddress').val()) user.companyAddress = $('#in-companyAddress').val();
+                    var updateUserJson = JSON.stringify({
+                        'user' : user
+                    });
+                    console.log(user)
+                    f.ajaxModule.asyncPost('/user/update', updateUserJson,function (r) {
+                        if(r.status === "ok"){
+                            window.location.href = '/bd/bdUser';
+
+                        }else {
+                            console.log(r)
+                        }
+                    })
+
+                });
+            });
         }
     </script>
 }

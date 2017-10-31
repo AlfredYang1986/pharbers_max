@@ -1,48 +1,46 @@
 @(auth: String, name: String)
-
 @pageLayout.HomePageLayout.contentPanel("Max | Home", name) {
-    <link href="@routes.Assets.versioned("css/style.default.css")" rel="stylesheet">
-    <body>
-        <div class="layui-tab layui-tab-card" lay-filter="step">
-            <ul class="layui-tab-title">
-                <li class="layui-this" lay-id="cpa_li">CPA文件上传</li>
-                <li lay-id="gycx_li">GYCX文件上传</li>
-                <li lay-id="sample_li">样本检查</li>
-                <li lay-id="result_li">结果检查</li>
 
-                <div class="layui-progress" lay-filter="calc_progress">
-                    <div class="layui-progress-bar layui-bg-green" lay-percent="0%"></div>
-                </div>
+    <div class="loading"><i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size: 48px; color: #008B7D;">&#x1002;</i></div>
+    <link href="@routes.Assets.versioned("css/style.default.css")" rel="stylesheet">
+        <div class="layui-tab layui-tab-card" lay-filter="step">
+            <ul class="layui-tab-title" pharbers-ul="calc-tab">
+                <li class="layui-this" lay-id="panel-li" style="padding: 0 13%">Panel文件上传</li>
+                <li lay-id="calc-li" style="padding: 0 13%">计算列表</li>
+                <li lay-id="result-li" style="padding: 0 13%">结果检查</li>
             </ul>
-            <div class="screen_div"></div>
+            <div class="layui-progress" lay-filter="calc-progress-step">
+                <div class="layui-progress-bar layui-bg-green" lay-percent=""></div>
+            </div>
+
+            <div class="screen-div"></div>
             <br>
             <div class="container-fluid">
-                <button class="layui-btn layui-btn-radius layui-btn-disabled" id="previous_btn">
+                <button class="layui-btn layui-btn-radius layui-btn-disabled" id="previous-btn">
                     <i class="layui-icon">上一步</i>
                 </button>
 
-                <button class="layui-btn layui-btn-radius" style="float: right" id="next_btn">
+                <button class="layui-btn layui-btn-radius" style="float: right" id="next-btn">
                     <i class="layui-icon">下一步</i>
                 </button>
             </div>
             <br>
             <div class="layui-tab-content">
                 <div class="layui-tab-item layui-show">
-                @calcPages.upload.cpaUpload()
+                @calcPages.upload.panelUpload()
                 </div>
                 <div class="layui-tab-item">
-                @calcPages.upload.gycxUpload()
-                </div>
-                <div class="layui-tab-item">
-                @calcPages.sample.sampleCheck()
+                @calcPages.newhome.calcList()
                 </div>
                 <div class="layui-tab-item">
                 @calcPages.result.resultCheck()
                 </div>
             </div>
         </div>
-    </body>
-    <link href="@routes.Assets.versioned("css/calcData/calc_data.css")" rel="stylesheet">
+        <div id="confrims" style="display: none;">
+            @calcPages.newhome.calcConfirmList()
+        </div>
+    <link href="@routes.Assets.versioned("css/calcData/calc-data.css")" rel="stylesheet">
     <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
-    <script src="@routes.Assets.versioned("js/calcData/calc_data.js")"></script>
+    <script src="@routes.Assets.versioned("js/calcData/calc-data.js")"></script>
 } {<script type="text/javascript" ></script>}

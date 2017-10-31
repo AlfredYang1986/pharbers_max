@@ -69,8 +69,8 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def addMember = Action{
         Ok(views.html.bdPages.addMember())
     }
-    def addMember_succ = Action{
-        Ok(views.html.bdPages.addMember_succ())
+    def addMember_succ(name : String, email : String) = Action{
+        Ok(views.html.bdPages.addMember_succ(name, email))
     }
     def setInfo = Action{
         Ok(views.html.bdPages.userInfo())
@@ -78,7 +78,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def setbdPassword = Action{
         Ok(views.html.bdPages.setPassword())
     }
-    
+
     //从cookie中取出token验证用户角色
     def auth_user = Action { request => loginForType(request)}
     
@@ -104,7 +104,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         Ok(views.html.authPages.registerCodeValidation())
     }
 
-    def tokenFail = Action { request =>
+    def tokenFail = Action { request  =>
         Ok(views.html.authPages.activeAccountFailed())
     }
 
@@ -138,7 +138,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     }
 
     def historyData = Action { request =>
-        Ok(views.html.calcPages.historyData(showUser(request).name))
+        Ok(views.html.calcPages.hsitory.historyData(showUser(request).name))
     }
     
     def postSuccess = Action{

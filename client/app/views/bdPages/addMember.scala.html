@@ -31,7 +31,7 @@
                </div>
                <div class="form-group">
                    <label>公司地址</label>
-                   <input type="text" class="form-control company-address" id="company-address" placeholder="请输入被添加人的公司地址">
+                   <input type="text" class="form-control company-address" id="member-companyAddress" placeholder="请输入被添加人的公司地址">
                    <div class="form_tip_bottom"></div>
                </div>
            </div>
@@ -41,63 +41,102 @@
     <div class="row form-btn">
         <div class="col-xs-10"></div>
         <div class="col-xs-2">
-            <button class="layui-btn layui-btn-primary" onclick="addReg()">添加</button>
+            <button class="layui-btn layui-btn-primary" id="submit_btn">添加</button>
         </div>
     </div>
     <script>
-        var f = new Facade();
-        f.validationModule.input_blur("member-email", "email");
-        f.validationModule.input_blur("member-name", "name");
-        f.validationModule.input_blur("member-phone", "phone");
-        f.validationModule.input_blur("member-company", "cName");
-        f.validationModule.input_blur("member-address", "address");
-        f.validationModule.input_blur("member-cphone", "phone");
-        var addReg = function () {
-            var email = $('#member-email').val();
-            var name = $('#member-name').val();
-            var phone = $('#member-phone').val();
-            var company = $('#member-company').val();
-            var address = $('#member-address').val();
-            var cphone = $('#member-cphone').val();
-            var date = new Date().getTime()
-            var js ={
-                "user" : {
-                    "linkman":name,
-                    "email" : email,
-                    "scope":["NC"],
-                    "company":company,
-                    "companyPhone":cphone,
-                    "date":date,
-                    "status":1,
-                    "phone" : phone
-                },
-                "condition" :{
-                    "email" : email,
-                    "phone" : phone
-                }
+            $(document).ready(function () {
+                var rid = getParams().reg_id;
+                if(rid !== "undefined")
+                    init_user_apply_info(rid);
+                else
+                    $('#submit_btn').attr('onclick',"addReg()");
+            });
 
-            }
-            var json = JSON.stringify(js)
-            if(f.validationModule.finalResult()){
-                f.ajaxModule.asyncPost('/register/user', json, function (data) {
-                    if(data.status == "ok"){
-                        var reginfo = {
-                            "reginfo" : {
-                                "email" : email
-                            }
-                        }
-                        f.ajaxModule.asyncPost('/auth/createToken', JSON.stringify(reginfo), function (r) {
-                            if(r.status == "ok"){
-                                location('/bd/addMember/succ');
-                            }else {
-                                layer.msg(r.error.message);
-                            }
-                        })
-                    }else {
-                        layer.msg(data.error.message);
+            var getParams = function getParams(url) {
+                var theRequest = {};
+                if (!url)
+                    url = location.href;
+                if (url.indexOf("?") !== -1) {
+                    var str = url.substr(url.indexOf("?") + 1) + "&";
+                    var strs = str.split("&");
+                    for (var i = 0; i < strs.length - 1; i++) {
+                        var key = strs[i].substring(0, strs[i].indexOf("="));
+                        var val = strs[i].substring(strs[i].indexOf("=") + 1);
+                        theRequest[key] = val;
                     }
-                })
+                }
+                return theRequest;
+            };
+
+            var init_user_apply_info = function (reg_id) {
+                var token = $.cookie("user_token");
+                var tojs = {
+                    "condition": {
+                        "user_token": token,
+                        "reg_id": reg_id
+                    }
+                };
+                f.ajaxModule.asyncPost("/register/querybd", JSON.stringify(tojs), function (data) {
+                    var user = data.result.registers[0];
+                    $('#member-email').val(user.email);
+                    $('#member-name').val(user.name);
+                    $('#member-phone').val(user.phone);
+                    $('#member-company').val(user.company);
+                    $('#member-cphone').val(user.cphone);
+                    $('#member-companyAddress').val(user.companyAddress);
+                    $('#submit_btn').attr('onclick',"addReg(\'"+user.reg_id+"\')");
+                });
+            };
+
+            var f = new Facade();
+            f.validationModule.input_blur("member-email", "email");
+            f.validationModule.input_blur("member-name", "name");
+            f.validationModule.input_blur("member-phone", "phone");
+            f.validationModule.input_blur("member-company", "cName");
+            f.validationModule.input_blur("member-companyAddress", "address");
+            f.validationModule.input_blur("member-cphone", "phone");
+            var addReg = function (reg_id) {
+                var email = $('#member-email').val();
+                var name = $('#member-name').val();
+                var phone = $('#member-phone').val();
+                var company = $('#member-company').val();
+                var companyAddress = $('#member-companyAddress').val();
+                var cphone = $('#member-cphone').val();
+                var date = new Date().getTime();
+                var user_token = $.cookie("user_token");
+
+                var js = {
+                    "user": {
+                        "reg_id": reg_id,
+                        "linkman": name,
+                        "phone": phone,
+                        "email": email,
+                        "company": company,
+                        "companyPhone": cphone,
+                        "companyAddress": companyAddress,
+                        "date": date,
+                        "scope": ["NC"]
+                    },
+                    "condition": {
+                        "user_token": user_token
+                    },
+                    "reginfo": {
+                        "email": email
+                    }
+                };
+
+                f.ajaxModule.asyncPost('/auth/createToken', JSON.stringify(js), function (r) {
+                    if (r.status === "ok") {
+                        location = '/bd/addMember/succ'+'/'+name+'/'+email
+                    } else {
+                        console.log(r)
+                    }
+                });
+            };
+
+            var toBDHome = function () {
+                window.location.href = '/bd/bdUser';
             }
-        }
     </script>
 }
