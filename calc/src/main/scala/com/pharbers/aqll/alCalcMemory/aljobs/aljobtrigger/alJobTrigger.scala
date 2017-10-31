@@ -102,4 +102,9 @@ object alJobTrigger {
     case class canIReStart(reason: Throwable)
     case class canDoRestart(reason: Throwable)
     case class cannotRestart(reason: Throwable)
+
+    /**
+      * for restore bson
+      */
+    case class push_restore_job(coll : String, sub_uuid : String)
 }

@@ -46,16 +46,16 @@ trait alGeneratePanelTrait { this : Actor =>
         }
     }
 
-    def canSchduleJob : Boolean = {
+    def canSchdulePanelJob : Boolean = {
         implicit val t = Timeout(2 seconds)
         val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-//        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitgeneratepanelslave")
-        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave") // 在一台机器上实现和计算的互斥
+        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitgeneratepanelslave")
+        // val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave") // 在一台机器上实现和计算的互斥
         Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
 
     def generate_panel_schedule_jobs = {
-        if (canSchduleJob) {
+        if (canSchdulePanelJob) {
             atomic { implicit thx =>
                 val tmp = generate_panel_jobs.single.get
                 if (tmp.isEmpty) Unit
@@ -106,7 +106,8 @@ class alCameoGeneratePanel(val panel_job : alUploadItem,
         case generate_panel_start() => router ! generate_panel_hand()
         case generate_panel_hand() => sender ! generate_panel_start_impl(panel_job)
         case generate_panel_end(result, paths) => {
-            owner ! releasePanelEnergy()
+            println(s"3.alCameoGeneratePanel.generate_panel_end")
+            // owner ! releasePanelEnergy()
             owner ! generatePanelResult(paths)
             shutCameo(generate_panel_end(result, paths))
         }

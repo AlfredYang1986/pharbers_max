@@ -46,7 +46,7 @@ trait alFilterExcelTrait { this : Actor =>
         Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
 
-    def schduleJob = {
+    def schduleFilterJob = {
         if (canSchduleJob) {
             atomic { implicit thx =>
                 val tmp = filter_jobs.single.get
