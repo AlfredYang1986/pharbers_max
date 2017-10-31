@@ -188,11 +188,11 @@ object RegisterModule extends ModuleTrait with RegisterData {
 					throw new Exception("data not exist")
 				case Some(s) =>
 					val regId = s.asInstanceOf[JsString].value
-					db.queryObject(DBObject("regId" -> regId), "reg_apply").get
+					db.queryObject(DBObject("reg_id" -> regId), "reg_apply").get
 				case None => throw new Exception("user is repeat")
 			}
 
-			(Some(Map("user" -> toJson(user))), None)
+			(Some(Map("user_id" -> user("reg_id"), "user" -> toJson(user))), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
@@ -221,7 +221,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val db = conn.queryDBInstance("cli").get
-			val app = pr.get.get("user_token").get
+			val app = pr.get("user_token")
 			val token = app.as[String]
 			val reVal = att.decrypt2JsValue(token)
 			val regid = (reVal \ "user_id").as[String]
