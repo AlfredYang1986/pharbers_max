@@ -126,38 +126,6 @@
                     }
                 };
 
-<<<<<<< HEAD
-            }
-            var user_token = $.cookie("user_token");
-            var json = JSON.stringify(js)
-            if(f.validationModule.finalResult()){
-                f.ajaxModule.asyncPost('/register/user', json, function (data) {
-                    if(data.status == "ok"){
-                        var reginfo = {
-                            "condition" : {
-                                "user_token" : user_token
-                            },
-                            "reginfo" : {
-                                "email" : email
-                            }
-                        }
-                        f.ajaxModule.asyncPost('/auth/createToken', JSON.stringify(reginfo), function (r) {
-                            if(r.status == "ok"){
-                                location = '/bd/addMember/succ'
-                            }else {
-                                console.log(r)
-                            }
-                        })
-                    }else {
-                        console.log(data)
-                    }
-                })
-            }
-        }
-        var toBDHome = function () {
-            window.location.href = '/bd/bdUser';
-        }
-=======
                 f.ajaxModule.asyncPost('/auth/createToken', JSON.stringify(js), function (r) {
                     if (r.status === "ok") {
                         location = '/bd/addMember/succ'
@@ -166,6 +134,9 @@
                     }
                 });
             };
->>>>>>> origin/Pharbers-Clock-2017-10-09
+
+            var toBDHome = function () {
+                window.location.href = '/bd/bdUser';
+            }
     </script>
 }
