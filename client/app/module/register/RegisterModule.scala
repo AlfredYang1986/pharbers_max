@@ -23,7 +23,7 @@ object RegisterModule extends ModuleTrait with RegisterData {
 		case msg_register_token_create(data: JsValue) => user_register_create_token(data)(pr)
 		case msg_approve_reg(data: JsValue) => approve_reg(data)(pr)
 
-		case msg_register_token_defeat(data: JsValue) => user_register_token_defeat(data)
+		case msg_register_token_defeat(data: JsValue) => user_register_token_defeat(data)(pr)
 		case msg_first_push_user(data: JsValue) => user_first_push(data)(pr)
 		case msg_delete_registerUser(data : JsValue) => delete_register(data)
 
@@ -168,18 +168,31 @@ object RegisterModule extends ModuleTrait with RegisterData {
 		}
 	}
 
-	def user_register_token_defeat(data: JsValue)(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
+	def user_register_token_defeat(data: JsValue)
+								  (pr: Option[Map[String, JsValue]])
+								  (implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			implicit val db = conn.queryDBInstance("cli").get
-			val o: DBObject = conditions(data)
-			
-			queryRegisterUser(data) match {
-				case regStatus.regNotified(_) => throw new Exception("successful application fail BD or AD")
-				case regStatus.regApproved(details) => (Some(Map("apply" -> toJson(details))), None)
-				case regStatus.regDone(_) => throw new Exception("successful application please login")
-				case regStatus.regCommunicated(details) => throw new Exception("successful application discuss")
+
+			pr.get.get("status") match {
+				case Some(s) if s.as[Int] == 0 => throw new Exception("successful application fail BD or AD")
+				case Some(s) if s.as[Int] == 9 => throw new Exception("successful application discuss")
+				case Some(s) if s.as[Int] == 1 => Unit
+				case Some(s) if s.as[Int] == 2 => throw new Exception("successful application please login")
+				case _ => throw new Exception("function is not impl")
 			}
+
+			val user = pr.get.get("result") match {
+				case Some(s) if s.as[JsString].value == "" =>
+					throw new Exception("data not exist")
+				case Some(s) =>
+					val regId = s.asInstanceOf[JsString].value
+					db.queryObject(DBObject("regId" -> regId), "reg_apply").get
+				case None => throw new Exception("user is repeat")
+			}
+
+			(Some(Map("user" -> toJson(user))), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}

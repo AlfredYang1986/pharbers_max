@@ -104,7 +104,7 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         Ok(views.html.authPages.registerCodeValidation())
     }
 
-    def tokenFail = Action { request =>
+    def tokenFail = Action { request  =>
         Ok(views.html.authPages.activeAccountFailed())
     }
 
