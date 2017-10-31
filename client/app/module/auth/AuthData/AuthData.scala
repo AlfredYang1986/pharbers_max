@@ -14,8 +14,12 @@ trait AuthData {
 	def jv2m(data: JsValue): Map[String, JsValue] = {
 		Map(
 			"user_id" -> toJson((data \ "condition" \ "user_id").asOpt[String].map(x => x).getOrElse("")),
-			"email" -> toJson((data \ "condition" \ "reginfo" \ "email").asOpt[String].map(x => x).getOrElse("")),
-			"name" -> toJson((data \ "condition" \ "user" \ "linkman").asOpt[String].map(x => x).getOrElse("")),
+			"email" -> toJson((data \ "condition" \ "reginfo" \ "email").asOpt[String].map(x => x).getOrElse(
+				(data \ "condition" \ "user" \ "email").asOpt[String].map(x => x).getOrElse("")
+			)),
+			"name" -> toJson((data \ "condition" \ "user" \ "linkman").asOpt[String].map(x => x).getOrElse(
+				(data \ "condition" \ "user" \ "name").asOpt[String].map(x => x).getOrElse("")
+			)),
 			"phone" -> toJson((data \ "condition" \ "user" \ "phone").asOpt[String].map(x => x).getOrElse("")),
 			"scope" -> toJson((data \ "condition" \ "user"  \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil))
 		)

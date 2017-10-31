@@ -81,7 +81,9 @@
                 var tojson = JSON.stringify(tojs);
                 f.ajaxModule.asyncPost("/user/tokenop", tojson, function (data) {
                     var id = {
-                        "user_id": data.result.user_id
+                        "condition": {
+                            "user_id": data.result.user.user_id
+                        }
                     };
                     var queryJson = JSON.stringify(id)
                     f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (data) {
@@ -113,7 +115,9 @@
             var tojson = JSON.stringify(tojs);
             f.ajaxModule.asyncPost("/user/tokenop", tojson, function (data) {
                 var id = {
-                    "user_id": data.result.user_id
+                    "condition": {
+                        "user_id": data.result.user.user_id
+                    }
                 };
                 var queryJson = JSON.stringify(id)
                 f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (res) {
