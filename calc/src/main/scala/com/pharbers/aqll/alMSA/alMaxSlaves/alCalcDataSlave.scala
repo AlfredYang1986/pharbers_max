@@ -49,5 +49,6 @@ class alCalcDataSlave extends Actor with ActorLogging {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! refundNodeForRole("splitcalcslave")
         }
+        case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
     }
 }

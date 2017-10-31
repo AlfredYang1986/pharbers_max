@@ -127,10 +127,11 @@ class alCalcDataComeo (c : alCalcParmary,
             alMessageProxy().sendMsg("100", c.uname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
             self ! calc_data_end(false, r)
         }
+        case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
     }
     
     import scala.concurrent.ExecutionContext.Implicits.global
-    val insert_db_schedule = context.system.scheduler.schedule(1 second, 1 second, self, insertDbSchedule())
+//    val insert_db_schedule = context.system.scheduler.schedule(5 second, 2 second, self, insertDbSchedule())
     val timeoutMessager = context.system.scheduler.scheduleOnce(600 minute) {
         self ! calc_data_timeout()
     }
@@ -164,7 +165,7 @@ class alCalcDataComeo (c : alCalcParmary,
         originSender ! msg
         log.debug("shutting calc data cameo")
         timeoutMessager.cancel()
-        insert_db_schedule.cancel()
+//        insert_db_schedule.cancel()
         context.stop(self)
     }
     
