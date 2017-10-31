@@ -21,17 +21,37 @@ sealed class regStatusDefine(val t : Int, val d : String)
 trait RegisterData {
 
 	def apply_conditions(data: JsValue): List[DBObject] = {
-		val email = (data \ "user" \ "email").asOpt[String].map { x =>
-			val builder = MongoDBObject.newBuilder
-			builder += "reg_content.email" -> x
-			builder.result
+		val email = (data \ "user" \ "email").asOpt[String] match {
+			case Some(s1) =>
+				val builder = MongoDBObject.newBuilder
+				builder += "reg_content.email" -> s1
+				Some(builder.result)
+			case None =>
+				(data \ "condition" \ "email").asOpt[String] match {
+					case Some(s2) =>
+						val builder = MongoDBObject.newBuilder
+						builder += "reg_content.email" -> s2
+						Some(builder.result)
+					case None => None
+				}
 		}
-		val phone = (data \ "user" \ "phone").asOpt[String].map { x =>
-			val builder = MongoDBObject.newBuilder
-			builder += "reg_content.phone" -> x
-			builder.result
+
+		val phone = (data \ "user" \ "phone").asOpt[String] match {
+			case Some(s1) =>
+				val builder = MongoDBObject.newBuilder
+				builder += "reg_content.phone" -> s1
+				Some(builder.result)
+			case None =>
+				(data \ "condition" \ "phone").asOpt[String] match {
+					case Some(s2) =>
+						val builder = MongoDBObject.newBuilder
+						builder += "reg_content.phone" -> s2
+						Some(builder.result)
+					case None => None
+				}
 		}
-		List(email, phone).filter(_ != None).map(_.get)
+
+		List(email, phone).filter(_ != None).map(x => x.get)
 	}
 
 	implicit val m2d: JsValue => DBObject = { js =>

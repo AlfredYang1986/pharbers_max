@@ -57,9 +57,9 @@ class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManage
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_defeat"))), jv)
-			:: msg_register_token_defeat(jv)
 			:: msg_check_user_is_register(jv)
-			:: msg_check_user_is_apply(jv) 
+			:: msg_check_user_is_apply(jv)
+			:: msg_register_token_defeat(jv)
             :: msg_auth_create_token(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
