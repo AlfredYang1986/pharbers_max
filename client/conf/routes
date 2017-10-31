@@ -12,7 +12,7 @@ GET     /bd/bdUser                       controllers.alMaxRouterController.bdUse
 POST    /register/querybd                controllers.register.RegisterController.query_apply_user
 # 对申请用户进行预约
 POST    /register/update                 controllers.register.RegisterController.update_apply_user
-# 根据id查询预约用户信息 ??? => 我感觉没用
+# 根据id查询users信息
 POST    /user/queryinfo                  controllers.users.UsersController.user_query_info
 # 添加为成员
 GET     /bd/addMember                    controllers.alMaxRouterController.addMember
