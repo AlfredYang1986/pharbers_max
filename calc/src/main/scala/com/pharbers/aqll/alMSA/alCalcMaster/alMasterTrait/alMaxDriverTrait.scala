@@ -13,11 +13,12 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{grou
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job, push_split_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
 import com.pharbers.aqll.alMSA.alMaxCmdMessage._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig.{serverHost106, serverHost50, serverUser}
 import com.pharbers.aqll.alCalaHelp.dbcores._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alRestoreColl, alWeightSum}
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor.PushToScpQueue
 
 import scala.concurrent.stm.atomic
@@ -48,7 +49,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	var path = ""
 	var almp: alMaxProperty = alMaxProperty("", "", Nil)
 	val queueActor = context.actorOf(alScpQueueActor.props(self))
-	val s1 = startDate()
+	var s1 = startDate()
 	import alCameoMaxDriver._
 	
 	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
@@ -160,13 +161,18 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 
 		case Event(calc_data_end(r, mp), pr) => {
 			pr.uuid  = mp.uuid
-			println(mp.finalValue)
-            println(mp.finalUnit)
+			println(s"path=${path}")
+			println(s"mp.finalValue=${mp.finalValue}")
+			println(s"mp.finalUnit=${mp.finalUnit}")
+//			finalValue += mp.finalValue
+//			finalUnit += mp.finalUnit
+//			println(finalValue)
+//          println(finalUnit)
 			finalSuccessWithWork(pr, mp)
 			acts ! calc_slave_status()
 			test_num = test_num + 1
 			alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> mp.uuid, "company" -> pr.company, "type" -> "progress_calc"))
-			endDate("e1", s1)
+			endDate("test"+test_num, s1)
 			shutCameo()
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
@@ -195,7 +201,8 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	def finalSuccessWithWork(cp : alCalcParmary, property : alMaxProperty) = {
         property.subs.map{ p =>
             p.isCalc = true
-            alRestoreColl().apply(s"${cp.company}${property.uuid}", p.uuid :: Nil)
+//            alRestoreColl().apply(s"${cp.company}${property.uuid}", p.uuid :: Nil)
+            alRestoreColl2().apply(s"${cp.company}${property.uuid}", p.uuid :: Nil)
         }
         property.isCalc = true
     }
@@ -203,6 +210,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	def shutCameo() = {
 		log.info("stopping temp cameo END")
 		Runtime.getRuntime().gc()
+		s1 = startDate()
 		context.stop(self)
 	}
 }
@@ -213,6 +221,8 @@ object alCameoMaxDriver {
 	case class max_calc_done(mp: String Map String)
 	def props = Props[alCameoMaxDriver]
 	var test_num: Int = 0
+	var finalValue : Double = 0
+	var finalUnit : Double = 0
 }
 
 class alCameoMaxDriver extends Actor with ActorLogging

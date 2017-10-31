@@ -17,6 +17,8 @@ object alPropertyAgent {
 class alPropertyAgent extends Actor with ActorLogging {
 
     var energy : Map[String, Int] = Map("splitmaster" -> 0,
+                                        "splitgeneratepanelslave" -> 0,
+                                        "splitcalcymslave" -> 0,
                                         "splitfilterexcelslave" -> 0,
                                         "splitsplitexcelslave" -> 0,
                                         "splitgroupslave" -> 0,

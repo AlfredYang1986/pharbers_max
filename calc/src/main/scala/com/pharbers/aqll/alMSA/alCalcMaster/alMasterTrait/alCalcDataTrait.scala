@@ -3,17 +3,18 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
+import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_start, calc_data_sum2}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
-import alCalcDataSlave.{slaveStatus, slave_status}
 import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
+import scala.concurrent.Await
 import scala.concurrent.stm._
 import scala.concurrent.duration._
 import scala.math.BigDecimal
@@ -41,12 +42,11 @@ trait alCalcDataTrait { this : Actor =>
         }
     }
 
-    def setSlaveStatus = {
-        slaveStatus send slave_status(true)
-    }
-
     def canCalcGroupJob : Boolean = {
-        slaveStatus().canDoJob
+        implicit val t = Timeout(2 seconds)
+        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave")
+        Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
 
     def schduleCalcJob = {
@@ -57,7 +57,6 @@ trait alCalcDataTrait { this : Actor =>
                 else {
                     calcData(tmp.head._1, tmp.head._2, tmp.head._3)
                     calc_jobs() = calc_jobs().tail
-                    slaveStatus send slave_status(false)
                 }
             }
         }

@@ -1,26 +1,32 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
+import java.io._ 
 import java.util.UUID
+import java.math.BigInteger
+
+import scala.concurrent.stm.{Ref, atomic}
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+
+import com.pharbers.alCalcMemory.aldata.alStorage
+import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalaHelp.dbcores.dbc
 import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alDumpcollScp, alInertDatabase}
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alDumpcollScp
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
+import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
 import com.pharbers.aqll.common.alFileHandler.serverConfig.serverHost215
+import com.pharbers.bson.writer.phBsonWriterByMap
 
-import scala.concurrent.stm.{Ref, atomic}
 
 /**
   * Created by alfredyang on 13/07/2017.
@@ -47,16 +53,15 @@ class alCalcDataImpl extends Actor with ActorLogging {
             cj.result
 
             val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
-            
-            
+
+
             val recall = resignIntegratedData(p.parent)(concert)
             concert.data.zipWithIndex.foreach { x =>
-                
+
                 max_precess(x._1.asInstanceOf[IntegratedData],
                     p.subs.head.uuid,
                     Some(s"${x._2}/${concert.data.length}"))(recall)(c)
             }
-
             log.info(s"concert uuid ${p.subs.head.uuid} end")
             val s = (maxSum.toList.groupBy(_._1) map { x =>
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
@@ -92,37 +97,45 @@ class alCalcDataImpl extends Actor with ActorLogging {
             if (!dir.isExists)
                 dir.createDir
             val source = alFileOpt(path + "/" + "data")
+            val bson_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
             if (source.isExists) {
-//                source.enumDataWithFunc { line =>
-//                    val mrd = alShareData.txt2WestMedicineIncome2(line)
-//                    val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
-//                    if (mrd.ifPanelAll == "1") {
-//                        mrd.set_finalResultsValue(mrd.sumValue)
-//                        mrd.set_finalResultsUnit(mrd.volumeUnit)
-//                    }else {
-//                         avg.find(p => p._1 == seed.hashCode.toString).map { x =>
-//                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-//                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-//                        }.getOrElse(Unit)
-//                    }
-//
-//                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-//                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
-//
+                source.enumDataWithFunc { line =>
+                    val mrd = alShareData.txt2WestMedicineIncome2(line)
+                    val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+
+                    if (mrd.ifPanelAll == "1") {
+                        mrd.set_finalResultsValue(mrd.sumValue)
+                        mrd.set_finalResultsUnit(mrd.volumeUnit)
+                    }else {
+                        avg.find(p => p._1 == seed.hashCode.toString).map { x =>
+                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                        }.getOrElse(Unit)
+                    }
+
+                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+
 //                    atomic { implicit thx =>
 //                        alInertDatabase().apply(mrd, sub_uuid)
 //                    }
-//
-//                }
-//                log.info(s"calc done at ${sub_uuid}")
-                sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
+
+                    phBsonWriterByMap().apply(westMedicineIncome2map(mrd), bson_path)
+
+                }
+                log.info(s"calc done at ${sub_uuid}")
+//                sender ! push_insert_db_job(source, avg, sub_uuid, tmp)
+            }else {
+                log.info(s"Error! source=${source} not exist!")
+                sender() ! calc_data_end(true, tmp)
             }
 //            insertDbWithDrop(tmp)
-//            sender() ! calc_data_result(value, unit)
-//            sender() ! calc_data_end(true, tmp)
+            sender() ! calc_data_result(value, unit)
+            sender() ! calc_data_end(true, tmp)
         }
+        case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
     }
-    
+
     def insertDbWithDrop(p: alMaxProperty) = {
         log.info(s"单个线程备份传输开始")
         alDumpcollScp().apply(p.subs.head.uuid, serverHost215)
@@ -132,12 +145,12 @@ class alCalcDataImpl extends Actor with ActorLogging {
         dbc.getCollection(p.subs.head.uuid).drop()
         log.info(s"单个线程结束删除临时表")
     }
-    
+
     def max_precess(element2: IntegratedData, sub_uuid: String, longPath: Option[String] = None)(recall: List[IntegratedData])(c: alCalcParmary) = {
         if (!longPath.isEmpty) {
             log.info(s"concert calc in $longPath")
             val universe = alEncryptionOpt.md5(c.company + c.year + c.market)
-            val tmp =
+            val data_tmp =
                 alShareData.hospdata(universe, c.company) map { element =>
                     val mrd = westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0.0, 0.0, element2.getMinimumUnit,
                         element2.getMinimumUnitCh, element2.getMinimumUnitEn, element2.getMarket1Ch,
@@ -154,10 +167,11 @@ class alCalcDataImpl extends Actor with ActorLogging {
                         element.getDrugIncome, element.getClimicDrugIncome, element.getClimicWestenIncome,
                         element.getHospitalizedDrugIncome, element.getHospitalizedWestenIncome, 0.0, 0.0)
                     backfireData(mrd)(recall)
+
                 }
 
             val path = s"${memorySplitFile}${calc}$sub_uuid"
-          
+
             val dir = alFileOpt(path)
             if (!dir.isExists)
                 dir.createDir
@@ -166,7 +180,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
             if (!file.isExists)
                 file.createFile
 
-            file.appendData2File(tmp)
+            file.appendData2File(data_tmp)
         }
     }
 
@@ -210,7 +224,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
           * 进行segment的分组动作，并求和
           */
         if (mrd.ifPanelTouse == "1") {
-            
+
             val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
              maxSum += seed.hashCode.toString ->
                  maxSum.find(p => p._1 == seed.hashCode.toString).map { x =>
@@ -219,4 +233,25 @@ class alCalcDataImpl extends Actor with ActorLogging {
         }
         mrd.copy()
     }
+
+    def westMedicineIncome2map(mrd: westMedicineIncome) : Map[String, Any] = {
+        Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString)) ++
+            Map("Provice" -> mrd.getV("province").toString) ++
+            Map("City" -> mrd.getV("prefecture").toString) ++
+            Map("Panel_ID" -> mrd.phaid) ++
+            Map("Market" -> mrd.getV("market1Ch").toString) ++
+            Map("Product" ->  mrd.minimumUnitCh) ++
+            Map("f_units" -> mrd.finalResultsUnit) ++
+            Map("f_sales" -> mrd.finalResultsValue) ++
+            Map("Date" -> DateUtil.getDateLong(mrd.yearAndmonth.toString)) ++
+            Map("prov_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString))) ++
+            Map("city_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("prefecture").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString))) ++
+            Map("hosp_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString +
+                mrd.getV("prefecture").toString +
+                mrd.phaid +
+                mrd.getV("market1Ch").toString +
+                mrd.minimumUnitCh +
+                DateUtil.getDateLong(mrd.yearAndmonth.toString)))
+    }
+
 }

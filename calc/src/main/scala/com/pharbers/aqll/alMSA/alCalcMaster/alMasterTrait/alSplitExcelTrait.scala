@@ -3,9 +3,13 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
+import akka.pattern.ask
+import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alMSA.alMaxSlaves.alSplitExcelSlave
-import alSplitExcelSlave.{slaveStatus, slave_status}
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
+
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.stm._
 
@@ -33,7 +37,10 @@ trait alSplitExcelTrait { this : Actor =>
     }
 
     def canSchduleSplitExcelJob : Boolean = {
-        slaveStatus().canDoJob
+        implicit val t = Timeout(2 seconds)
+        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitsplitexcelslave")
+        Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
 
     def schduleSplitExcelJob = {
@@ -44,7 +51,6 @@ trait alSplitExcelTrait { this : Actor =>
                 else {
                     splitExcel(tmp.head._1, tmp.head._2, tmp.head._3)
                     split_jobs() = split_jobs().tail
-                    slaveStatus send slave_status(false)
                 }
             }
         }
@@ -101,7 +107,6 @@ class alCameoSplitExcel (val file : String,
             }
         }
         case result : split_excel_end => {
-            slaveStatus send slave_status(true)
 //            owner forward result
             shutCameo(result)
         }

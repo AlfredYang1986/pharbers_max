@@ -1,7 +1,8 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
+import com.pharbers.alCalcMemory.aljobs.alJob
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.{presist_data, restore_data}
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
+import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 
 /**

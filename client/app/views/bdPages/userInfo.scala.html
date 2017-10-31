@@ -101,7 +101,7 @@
             };
         var toSetPassword = function () {
             window.location.href='/bd/setPassword';
-        }
+        };
         var resetUserInfo = function () {
             var token = $.cookie("user_token");
             var tojs = {
@@ -128,7 +128,7 @@
                     });
                     console.log(user)
                     f.ajaxModule.asyncPost('/user/update', updateUserJson,function (r) {
-                        if(r.status == "ok"){
+                        if(r.status === "ok"){
                             window.location.href = '/bd/bdUser';
 
                         }else {

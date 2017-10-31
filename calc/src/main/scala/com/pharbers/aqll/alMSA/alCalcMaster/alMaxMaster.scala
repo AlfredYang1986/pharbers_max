@@ -32,7 +32,7 @@ class alMaxMaster extends Actor
 
         case push_calc_job_2(property, parmary) => pushCalcJob(property, parmary, sender)
         case calc_schedule() => schduleCalcJob
-        case calc_slave_status() => setSlaveStatus
+        case calc_slave_status() => Unit // setSlaveStatus
     }
 
 }

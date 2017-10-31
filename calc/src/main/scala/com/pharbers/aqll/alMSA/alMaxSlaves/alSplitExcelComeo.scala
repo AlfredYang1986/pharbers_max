@@ -3,7 +3,7 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_jobs
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_jobs, max_split_csv_jobs}
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.{split_excel_end, split_excel_start_impl, split_excel_timeout}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
@@ -40,8 +40,10 @@ class alSplitExcelComeo(file : String,
             shutSlaveCameo(result)
         }
         case split_excel_start_impl(f, c) => {
-            val result = max_jobs(file).result
-            
+            println(s"&& alSplitExcelComeo.split_excel_start_impl")
+//            val result = max_jobs(file).result
+            val result = max_split_csv_jobs(file).result
+
             try {
                 val (p, sb) = result.map (x => x).getOrElse(throw new Exception("cal error"))
                 c.uuid = p.toString
