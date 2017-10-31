@@ -69,8 +69,8 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def addMember = Action{
         Ok(views.html.bdPages.addMember())
     }
-    def addMember_succ = Action{
-        Ok(views.html.bdPages.addMember_succ())
+    def addMember_succ(name : String, email : String) = Action{
+        Ok(views.html.bdPages.addMember_succ(name, email))
     }
     def setInfo = Action{
         Ok(views.html.bdPages.userInfo())
