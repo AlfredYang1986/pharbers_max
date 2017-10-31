@@ -13,18 +13,17 @@ dl.layui-nav-child > dd {
     font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
     font-size: 5em;
     text-align: center;
-
     color: #393d49;
 }
 
 .small_info{
-    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
+    font-family: PingFangSC-Regular, sans-serif;
     font-size: 13px;
     text-align: center;
     color: #8a8e9c;
 }
 .middle_info{
-    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
+    font-family: PingFangSC-Regular, sans-serif;
     font-size: 18px;
     text-align: center;
     color: #494c57;
@@ -82,7 +81,7 @@ dl.layui-nav-child > dd {
     color:#fff;
     text-align: center;
     font-size: 20px;
-    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
+    font-family: PingFangSC-Regular, sans-serif;
 }
 .cenPanel-title{
     padding: 10px 20px;
@@ -137,7 +136,7 @@ dl.layui-nav-child > dd {
     cursor: pointer;
 }
 .footer_info{
-    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
+    font-family: PingFangSC-Regular, sans-serif;
     font-size: 12px;
     color: #9b9fad;
     text-align: center;

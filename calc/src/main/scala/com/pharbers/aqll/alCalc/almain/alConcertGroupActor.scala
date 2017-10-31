@@ -1,15 +1,15 @@
 package com.pharbers.aqll.alCalc.almain
 
 import akka.actor.{Actor, ActorLogging, Props}
+import com.pharbers.alCalcMemory.aldata.alStorage
+import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 
 import scala.concurrent.stm.Ref
 import scala.concurrent.stm.atomic
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.concert_grouping_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.presist_data
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
 
 /**
   * Created by Alfred on 11/03/2017.

@@ -1,16 +1,16 @@
 package com.pharbers.aqll.alCalc.almain
 
 import akka.actor.{Actor, ActorLogging, Props}
+import com.pharbers.alCalcMemory.aldata.alStorage
+import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alInertDatabase
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 

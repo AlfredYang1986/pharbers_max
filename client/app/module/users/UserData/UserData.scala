@@ -24,17 +24,19 @@ trait UserData {
 		builder.result
 	}
 	
-	
 	implicit val m2d: JsValue => DBObject = { js =>
 		val builder = MongoDBObject.newBuilder
 		val email = (js \ "user" \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("info input email"))
 		val password = (js \ "user" \ "password").asOpt[String].map(x => x).getOrElse(email)
 		val name = (js \ "user" \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("info input linkman name"))
 		val phone = (js \ "user" \ "phone").asOpt[String].map(x => x).getOrElse(throw new Exception("info input phone"))
+		val companyPhone = (js \ "user" \ "companyPhone").asOpt[String].map(x => x).getOrElse("")
+		val companyAddress = (js \ "user" \ "companyAddress").asOpt[String].map(x => x).getOrElse("")
 		val scope = (js \ "user" \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil)
 		val company = (js \ "user" \ "company").asOpt[String].map(x => x).getOrElse("")
 		val id = (js \ "user" \ "user_id").asOpt[String].map(x => x).getOrElse(Sercurity.md5Hash(s"$email"))
-		val profile = DBObject("email" -> email, "secret" -> password, "company" -> Sercurity.md5Hash(company), "name" -> name, "phone" -> phone, "scope" -> scope)
+
+		val profile = DBObject("email" -> email, "secret" -> password, "name" -> name, "phone" -> phone, "company" -> Sercurity.md5Hash(company), "companyPhone" -> companyPhone, "companyAddress"-> companyAddress,"scope" -> scope)
 		
 		builder += "user_id" -> id
 		builder += "profile" -> profile
@@ -51,6 +53,9 @@ trait UserData {
 			"email" -> toJson(profile.getAs[String]("email").map(x => x).getOrElse("")),
 			"company" -> toJson(profile.getAs[String]("company").map(x => x).getOrElse("")),
 			"phone" -> toJson(profile.getAs[String]("phone").map(x => x).getOrElse("0")),
+			"company" -> toJson(profile.getAs[String]("company").map(x => x).getOrElse("")),
+			"companyPhone" -> toJson(profile.getAs[String]("companyPhone").map(x => x).getOrElse("")),
+			"companyAddress" -> toJson(profile.getAs[String]("companyAddress").map(x => x).getOrElse("")),
 			"date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(obj.getAs[Number]("date").getOrElse(0).toString.toLong)),
 			"scope" -> toJson(profile.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)))
 	}
@@ -60,5 +65,19 @@ trait UserData {
 		val url = s"${URL.getString("URL.validation")}${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
 		val html = views.html.emailContent.resetPassword(email, url)
 		msg.sendMailMessage(email, EmailResetPasswordType()).sendHtmlMail.setSubTheme("忘记密码").setContext(html.toString).sendToEmail
+	}
+
+	def register_conditions(data: JsValue): List[DBObject] = {
+		val email = (data \ "user" \ "email").asOpt[String].map { x =>
+			val builder = MongoDBObject.newBuilder
+			builder += "profile.email" -> x
+			builder.result
+		}
+		val phone = (data \ "user" \ "phone").asOpt[String].map { x =>
+			val builder = MongoDBObject.newBuilder
+			builder += "profile.phone" -> x
+			builder.result
+		}
+		List(email, phone).filter(_ != None).map(_.get)
 	}
 }

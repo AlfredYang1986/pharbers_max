@@ -7,10 +7,10 @@ import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, Supe
 import akka.pattern.ask
 import akka.agent.Agent
 import akka.util.Timeout
+import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_filter_excel_jobs
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_filter_csv_jobs, max_filter_excel_jobs}
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.common.alString.alStringOpt.removeSpace
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
@@ -51,10 +51,12 @@ class alFilterExcelComeo(fp : String,
             shutSlaveCameo(result)
         }
         case _ : filter_excel_start_impl => {
+            println(s"&& alFilterExcelComeo.filter_excel_start_impl")
             val file = fp
             val parmary = cp
 
-            val cj = max_filter_excel_jobs(file)
+//            val cj = max_filter_excel_jobs(file)
+            val cj = max_filter_csv_jobs(file)
             cj.result
             val lst = Option(cj.cur.get.storages.head.asInstanceOf[alStorage])
             lst match {
@@ -65,6 +67,7 @@ class alFilterExcelComeo(fp : String,
                 case Some(x) =>
                     x.doCalc
                     val p = x.data.asInstanceOf[List[IntegratedData]].filterNot(x => x.getYearAndmonth ==0 && !x.getMarket1Ch.isEmpty).map( x => (x.getYearAndmonth.toString.substring(0, 4), x.getMarket1Ch)).distinct
+                    println(s"&& alFilterExcelComeo.filter_excel_start_impl.p.size=${p.size}")
                     x.isCalc = false
                     p.size match {
                         case 1 =>
@@ -75,7 +78,7 @@ class alFilterExcelComeo(fp : String,
                             log.info("需要分拆文件，再次读取")
                             self ! filter_excel_end(false, cp)
                         }
-                        case _ => ???
+                        case ex : Int => log.info(s"Warning! filter_excel_start_impl lst match error. filter_excel_start_impl.p.size=${ex}")
                     }
             }
         }

@@ -1,12 +1,27 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 
-# 用户申请注册
-POST    /register/user                               controllers.register.RegisterController.user_register
-# BD用户登入分页查询申请接口
-POST    /register/querybd                            controllers.register.RegisterController.query_register_bd
-# 更改注册用户
-POST    /register/update                             controllers.register.RegisterController.updateRegisterUser
+# 路人申请体验页面
+GET     /register/info                   controllers.alMaxRouterController.infoRegistration
+POST    /register/user                   controllers.register.RegisterController.user_apply
+
+
+########bd########
+GET     /bd/bdUser                       controllers.alMaxRouterController.bdUser
+# BD用户登入分页查询申请用户
+POST    /register/querybd                controllers.register.RegisterController.query_apply_user
+# 对申请用户进行预约
+POST    /register/update                 controllers.register.RegisterController.update_apply_user
+# 根据id查询预约用户信息 ??? => 我感觉没用
+POST    /user/queryinfo                  controllers.users.UsersController.user_query_info
+# 添加为成员
+GET     /bd/addMember                    controllers.alMaxRouterController.addMember
+# 生成授权码
+POST    /auth/createToken                controllers.auth.AuthController.auth_create_token
+GET     /bd/addMember/succ               controllers.alMaxRouterController.addMember_succ
+
+GET     /bd/setInfo                      controllers.alMaxRouterController.setInfo
+GET     /bd/setPassword                  controllers.alMaxRouterController.setbdPassword
 
 # 新增用户
 POST    /user/push                                   controllers.users.UsersController.user_push
@@ -16,8 +31,6 @@ POST    /user/delete                                 controllers.users.UsersCont
 POST    /user/update                                 controllers.users.UsersController.user_update
 # 分页查询用户
 POST    /user/querypage                              controllers.users.UsersController.user_query
-# 查询单个用户信息与详情
-POST    /user/queryinfo                              controllers.users.UsersController.user_query_info
 # 解析token用户信息
 POST    /user/tokenop                                controllers.users.UsersController.user_token_op
 # 忘记密码生成token
@@ -27,8 +40,6 @@ POST    /user/changepwd                              controllers.users.UsersCont
 
 # 用户登入
 POST    /auth/authWithPassword                       controllers.auth.AuthController.auth_with_password
-# 生成授权码
-POST    /auth/createToken                            controllers.auth.AuthController.auth_create_token
 # 成授权码失效
 POST    /auth/tokenDefeat                            controllers.auth.AuthController.auth_token_defeat
 
@@ -60,8 +71,6 @@ POST    /history/queryHistorySelect                 controllers.history.HistoryC
 GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
 # 验证GET连接的有效市场并跳转相应页面
 GET     /validation/token/:parm                      controllers.alMaxRouterController.validation_token(parm)
-# 路人申请体验页面
-GET     /register/info                               controllers.alMaxRouterController.infoRegistration
 # BD 登入选择
 GET     /login/db                                    controllers.alMaxRouterController.dbLogin
 # 授权码验证失败页面

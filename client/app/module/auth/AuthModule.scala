@@ -25,7 +25,6 @@ object AuthModule extends ModuleTrait with AuthData {
 		case msg_auth_token_parser(data) => authTokenParser(data)
 		case msg_auth_token_expire(data) => checkAuthTokenExpire(data)(pr)
 		case msg_auth_create_token(data) => authCreateToken(data)(pr)
-		case msg_auth_token_defeat(data) => authWithTokenDefeat(data)
 		case msg_auth_code_push_success(data) => authCodePushSuccess(data)
 		case msg_auth_token_type(data) => authTokenType(data)(pr)
 		case msg_auth_token_used(data) => checkAuthTokenUsed(data)
@@ -74,9 +73,9 @@ object AuthModule extends ModuleTrait with AuthData {
 			val auth_token = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("input error"))
 			val auth = att.decrypt2JsValue(auth_token)
 			(Some(Map("auth" -> auth)), None)
-			
 		} catch {
-			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+			case ex: Exception =>
+				(None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
 	
@@ -87,27 +86,13 @@ object AuthModule extends ModuleTrait with AuthData {
 			implicit val db = conn.queryDBInstance("cli").get
 			implicit val msg = cm.modules.get.get("msg").map(x => x.asInstanceOf[SendMessageTrait]).getOrElse(throw new Exception("no message impl"))
 			
-			val o = (MergeStepResult(data, pr) \ "apply").asOpt[JsValue].map(x => jv2m(toJson(Map("condition" -> x)))).getOrElse(jv2m(data))
+			val o = MergeStepResult(data, pr).asOpt[JsValue].map(x => jv2m(toJson(Map("condition" -> x)))).getOrElse(jv2m(data))
 			val reVal = att.encrypt2Token(toJson(o + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000))))
 			val email = o.get("email").map(x => x.as[String]).getOrElse("")
 			emailAuthCode(email, reVal)
 			(Some(Map("apply" -> toJson(o - "scope" - "phone"))), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
-		}
-	}
-	
-	def authWithTokenDefeat(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
-		try {
-			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-			val db = conn.queryDBInstance("cli").get
-			val o = reg_conditions(data)
-			db.queryObject(o, "reg_apply")(reg_d2m) match {
-				case None => throw new Exception("data not exist")
-				case Some(one) => (Some(Map("apply" -> toJson(one))), None)
-			}
-		} catch {
-			case ex: Exception => (None, Some(toJson(ErrorCode.errorToJson(ex.getMessage))))
 		}
 	}
 	

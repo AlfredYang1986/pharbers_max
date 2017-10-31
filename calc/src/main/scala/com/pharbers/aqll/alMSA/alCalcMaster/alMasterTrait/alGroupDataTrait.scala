@@ -3,18 +3,20 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
+import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.common_jobs
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_start
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
-import alGroupDataSlave.{slaveStatus,slave_status}
+import com.pharbers.alCalcMemory.aldata.alStorage
+import com.pharbers.alCalcMemory.alstages.alStage
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 
+import scala.concurrent.Await
 import scala.concurrent.stm._
 import scala.concurrent.duration._
 
@@ -42,7 +44,10 @@ trait alGroupDataTrait { this : Actor =>
     }
 
     def canSchduleGroupJob : Boolean = {
-        slaveStatus().canDoJob
+        implicit val t = Timeout(2 seconds)
+        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitgroupslave")
+        Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
 
     def schduleGroupJob = {
@@ -53,7 +58,6 @@ trait alGroupDataTrait { this : Actor =>
                 else {
                     groupData(tmp.head._1, tmp.head._2)
                     group_jobs() = group_jobs().tail
-                    slaveStatus send slave_status(false)
                 }
             }
         }
@@ -113,7 +117,7 @@ class alCameoGroupData (val property : alMaxProperty,
             }
         }
         case group_data_end(result, mp) => {
-            slaveStatus send slave_status(true)
+//            slaveStatus send slave_status(true)
             if (result) {
                 cur += 1
                 resetSubGrouping(mp)

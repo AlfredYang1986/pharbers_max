@@ -3,16 +3,17 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy}
-import akka.actor.SupervisorStrategy.{Escalate, Restart}
+import akka.actor.SupervisorStrategy.Escalate
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
+import akka.actor.SupervisorStrategy.{Escalate, Restart}
 
 import scala.concurrent.stm.{Ref, atomic}
 import scala.concurrent.duration._

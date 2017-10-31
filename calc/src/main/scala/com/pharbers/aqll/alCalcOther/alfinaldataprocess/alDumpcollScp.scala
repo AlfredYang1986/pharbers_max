@@ -13,6 +13,6 @@ case class alDumpcollScp() {
 	def apply(sub_uuid: String, serverHost: String) = {
 //		dbdumpCmd(db1, sub_uuid, dumpdb, dbuser, dbpwd, dbhost, dbport.toInt).excute
 //		scpCmd(s"${dumpdb}${db1}/${sub_uuid}.bson.gz",s"${scpPath}", serverHost, serverUser).excute
-		dbdumpCmd(db1, sub_uuid, "/Users/qianpeng/Desktop/" + dumpdb, dbuser, dbpwd, dbhost, dbport.toInt).excute
+		dbdumpCmd(db1, sub_uuid, "config/" + dumpdb, dbuser, dbpwd, dbhost, dbport.toInt).excute
 	}
 }

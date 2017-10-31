@@ -1,0 +1,138 @@
+@pageLayout.bdLayout.formPanel("MAX | 添加成员")("添加成员"){
+   <div class="row over">
+       <div class="col-xs-4"></div>
+       <div class="form-content col-xs-4 ">
+           <div class="row form-tip middle_info">请填写客户信息将客户加入预注册清单。</div>
+           <div class="row form-list">
+               <div class="form-group">
+                   <label>邮箱<span class="errColor">&nbsp*</span></label>
+                   <input type="email" class="form-control member-email" id="member-email" placeholder="请输入被添加人的邮箱">
+                   <div class="form_tip_bottom"></div>
+               </div>
+               <div class="form-group">
+                   <label>姓名<span class="errColor">&nbsp*</span></label>
+                   <input type="text" class="form-control member-name"  id="member-name" placeholder="请输入被添加人的姓名">
+                   <div class="form_tip_bottom"></div>
+               </div>
+               <div class="form-group">
+                   <label>联系电话<span class="errColor">&nbsp*</span></label>
+                   <input type="text" class="form-control member-phone" id="member-phone" placeholder="请输入被添加人的联系电话">
+                   <div class="form_tip_bottom"></div>
+               </div>
+               <div class="form-group">
+                   <label>公司名称<span class="errColor">&nbsp*</span></label>
+                   <input type="text" class="form-control member-company" id="member-company" placeholder="请输入被添加人的公司名称">
+                   <div class="form_tip_bottom"></div>
+               </div>
+               <div class="form-group">
+                   <label>公司电话</label>
+                   <input type="text" class="form-control member-cphone" id="member-cphone"  placeholder="请输入被添加人的公司电话">
+                   <div class="form_tip_bottom"></div>
+               </div>
+               <div class="form-group">
+                   <label>公司地址</label>
+                   <input type="text" class="form-control company-address" id="member-companyAddress" placeholder="请输入被添加人的公司地址">
+                   <div class="form_tip_bottom"></div>
+               </div>
+           </div>
+       </div>
+   </div>
+    <div class="bottom-line"></div>
+    <div class="row form-btn">
+        <div class="col-xs-10"></div>
+        <div class="col-xs-2">
+            <button class="layui-btn layui-btn-primary" id="submit_btn">添加</button>
+        </div>
+    </div>
+    <script>
+            $(document).ready(function () {
+                var rid = getParams().reg_id;
+                if(rid !== "undefined")
+                    init_user_apply_info(rid);
+                else
+                    $('#submit_btn').attr('onclick',"addReg()");
+            });
+
+            var getParams = function getParams(url) {
+                var theRequest = {};
+                if (!url)
+                    url = location.href;
+                if (url.indexOf("?") !== -1) {
+                    var str = url.substr(url.indexOf("?") + 1) + "&";
+                    var strs = str.split("&");
+                    for (var i = 0; i < strs.length - 1; i++) {
+                        var key = strs[i].substring(0, strs[i].indexOf("="));
+                        var val = strs[i].substring(strs[i].indexOf("=") + 1);
+                        theRequest[key] = val;
+                    }
+                }
+                return theRequest;
+            };
+
+            var init_user_apply_info = function (reg_id) {
+                var token = $.cookie("user_token");
+                var tojs = {
+                    "condition": {
+                        "user_token": token,
+                        "reg_id": reg_id
+                    }
+                };
+                f.ajaxModule.asyncPost("/register/querybd", JSON.stringify(tojs), function (data) {
+                    var user = data.result.registers[0];
+                    $('#member-email').val(user.email);
+                    $('#member-name').val(user.name);
+                    $('#member-phone').val(user.phone);
+                    $('#member-company').val(user.company);
+                    $('#member-cphone').val(user.cphone);
+                    $('#member-companyAddress').val(user.companyAddress);
+                    $('#submit_btn').attr('onclick',"addReg(\'"+user.reg_id+"\')");
+                });
+            };
+
+            var f = new Facade();
+            f.validationModule.input_blur("member-email", "email");
+            f.validationModule.input_blur("member-name", "name");
+            f.validationModule.input_blur("member-phone", "phone");
+            f.validationModule.input_blur("member-company", "cName");
+            f.validationModule.input_blur("member-companyAddress", "address");
+            f.validationModule.input_blur("member-cphone", "phone");
+            var addReg = function (reg_id) {
+                var email = $('#member-email').val();
+                var name = $('#member-name').val();
+                var phone = $('#member-phone').val();
+                var company = $('#member-company').val();
+                var companyAddress = $('#member-companyAddress').val();
+                var cphone = $('#member-cphone').val();
+                var date = new Date().getTime();
+                var user_token = $.cookie("user_token");
+
+                var js = {
+                    "user": {
+                        "reg_id": reg_id,
+                        "linkman": name,
+                        "phone": phone,
+                        "email": email,
+                        "company": company,
+                        "companyPhone": cphone,
+                        "companyAddress": companyAddress,
+                        "date": date,
+                        "scope": ["NC"]
+                    },
+                    "condition": {
+                        "user_token": user_token
+                    },
+                    "reginfo": {
+                        "email": email
+                    }
+                };
+
+                f.ajaxModule.asyncPost('/auth/createToken', JSON.stringify(js), function (r) {
+                    if (r.status === "ok") {
+                        location = '/bd/addMember/succ'
+                    } else {
+                        console.log(r)
+                    }
+                });
+            };
+    </script>
+}
