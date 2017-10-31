@@ -18,7 +18,7 @@ POST    /user/queryinfo                  controllers.users.UsersController.user_
 GET     /bd/addMember                    controllers.alMaxRouterController.addMember
 # 生成授权码
 POST    /auth/createToken                controllers.auth.AuthController.auth_create_token
-GET     /bd/addMember/succ               controllers.alMaxRouterController.addMember_succ
+GET     /bd/addMember/succ/:name/:email  controllers.alMaxRouterController.addMember_succ(name, email)
 
 GET     /bd/setInfo                      controllers.alMaxRouterController.setInfo
 GET     /bd/setPassword                  controllers.alMaxRouterController.setbdPassword

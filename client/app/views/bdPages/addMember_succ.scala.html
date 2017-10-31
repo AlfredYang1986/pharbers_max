@@ -1,12 +1,13 @@
+@(name : String, email : String)
 @pageLayout.bdLayout.formPanel("MAX | 添加成员")("添加成员") {
     <div class="center-box">
         <div class="row inCenParent">
             <div class="inCenChild">
                 <div class="row">
                     <span class="middle_info">系统已将授权码发送至</span>
-                    <span class="middle_info">XXXX</span>
+                    <span class="middle_info">@name</span>
                     <span class="middle_info">的邮箱</span>
-                    <span class="middle_info">asdhfasdnlf163.com</span>
+                    <span class="middle_info">@email</span>
                     <div class="space-height-16"></div>
                     <span class="middle_info">请尽快通知查看，并进行账号激活。</span>
                     <span class="small_info errColor">授权码30分钟失效.</span>
