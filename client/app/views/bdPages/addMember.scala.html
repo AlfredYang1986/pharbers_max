@@ -128,7 +128,7 @@
 
                 f.ajaxModule.asyncPost('/auth/createToken', JSON.stringify(js), function (r) {
                     if (r.status === "ok") {
-                        location = '/bd/addMember/succ'
+                        location = '/bd/addMember/succ'+'/'+name+'/'+email
                     } else {
                         console.log(r)
                     }

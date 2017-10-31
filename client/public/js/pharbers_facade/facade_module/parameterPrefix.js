@@ -3,9 +3,9 @@ var ParameterPrefix = function() {
     this.cons = {};
 }
 
-ParameterPrefix.prototype.condition = function(cond) {
-    return {"condition": cond }
-};
+// ParameterPrefix.prototype.condition = function(cond) {
+//     return {"condition": cond }
+// };
 
 ParameterPrefix.prototype.conditions = function(cond) {
     return this.cons = {"condition": cond}
