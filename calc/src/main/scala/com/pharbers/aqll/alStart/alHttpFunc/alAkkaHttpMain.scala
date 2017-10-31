@@ -1,17 +1,18 @@
 package com.pharbers.aqll.alStart.alHttpFunc
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import com.pharbers.aqll.alCalc.almain.{alCalcActor, alGroupActor}
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor
 import com.pharbers.aqll.alCalcEnergy.{alCalcRegisterActor, alDriverSingleton, alGroupRegisterActor}
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile}
+import com.pharbers.aqll.alMSA.alCalcAgent.alAgentSingleton
+import com.pharbers.aqll.alMSA.alCalcMaster.{alMaxDriver, alMaxMaster}
+import com.pharbers.aqll.alMSA.alClusterLister.alMaxClusterLister
+import com.pharbers.aqll.alStart.alEntry.alMaxMaterEntry.system
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.Future
@@ -35,38 +36,25 @@ object alAkkaHttpMain extends App with RequestTimeout {
 
 	val api = new alAkkaHttpFunctionApi(system, requestTimeout(config)).routes
 
-	
+
 	val bindingFuture: Future[ServerBinding] = Http().bindAndHandle(api, host, port)
 
-	bindingFuture.map { serverBinding =>
-		stubmain
-	}.onFailure {
-		case ex: Exception =>
-			system.terminate()
+	bindingFuture.map ( _ => stubmain).onFailure {
+		case _ => system.terminate()
 	}
 
 	def stubmain = {
-		val config = ConfigFactory.load("split-master")
-		val system = ActorSystem("calc", config)
-//		val w = system.actorOf(alGroupActor.props)
-//		val c = system.actorOf(alCalcActor.props)
-//		val a = system.actorOf(alDriverSingleton.props, "splitreception")
-		system.actorOf(alDriverSingleton.props, "splitreception")
-		system.actorOf(alGroupRegisterActor.props, "registergroup")
-		system.actorOf(alCalcRegisterActor.props, "registercalc")
+		val config = ConfigFactory.load("split-new-master")
+		val calcSystem: ActorSystem = ActorSystem("calc", config)
 		
-		import scala.concurrent.duration._
-		if(system.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
-			Cluster(system).registerOnMemberUp {
-				alAkkaSystemGloble.system = system
-//				a ! group_register(w)
-//				a ! calc_register(c)
-//				a ! worker_register()
-				
-				val rm = system.actorOf(alScheduleRemoveFiles.props)
-				system.scheduler.schedule(0 seconds, 10 seconds, rm, new rmFile())
+		if(calcSystem.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
+			Cluster(calcSystem).registerOnMemberUp {
+				alAkkaSystemGloble.system = calcSystem
+				calcSystem.actorOf(alMaxMaster.props, alMaxMaster.name)
+				calcSystem.actorOf(alMaxDriver.props, alMaxDriver.name)
+				calcSystem.actorOf(alAgentSingleton.props, alAgentSingleton.name)
+				calcSystem.actorOf(Props[alMaxClusterLister], "akka-listener")
 			}
-			system.actorOf(alAkkaMonitor.props, "akka-listener")
 		}
 	}
 }

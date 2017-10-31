@@ -1,0 +1,119 @@
+<div class="wrapper wrapper-content animated fadeIn">
+    <div class="p-w-md m-t-sm">
+        <div class="row layui-form">
+            <div class="col-sm-3 col-md-3">
+                <div class="layui-form-item">
+                    <label class="control-label" for="sample_market">Market</label>
+                    <select id="sample_market" lay-filter="sample_market" lay-search>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3 col-md-3">
+                <div class="layui-form-item">
+                    <label class="control-label" for="sample_date">Date</label>
+                    <select id="sample_date" lay-filter="sample_date" lay-search>
+                    </select>
+                </div>
+            </div>
+        </div><!-- row 1-->
+
+        <div class="row" style="margin-bottom: 20px;">
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-xs-4">
+                        <small class="stats-label">当期医院数量</small>
+                        <h4 id = "Current_Month_HospitalNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">上期</small>
+                        <h4 id="Early_Month_HospitalNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">去年同期</small>
+                        <h4 id="Last_Year_HospitalNum">0</h4>
+                    </div>
+                </div>
+                <div id="hospline" style="height:110px;"></div>
+            </div>
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-xs-4">
+                        <small class="stats-label">当期产品数量</small>
+                        <h4 id = "Current_Month_ProductNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">上期</small>
+                        <h4 id="Early_Month_ProductNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">去年同期</small>
+                        <h4 id="Last_Year_ProductNum">0</h4>
+                    </div>
+                </div>
+                <div id="prodline" style="height:110px"></div>
+            </div>
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-xs-4">
+                        <small class="stats-label">当期市场数量</small>
+                        <h4 id = "Current_Month_MarketNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">上期</small>
+                        <h4 id="Early_Month_MarketNum">0</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <small class="stats-label">去年同期</small>
+                        <h4 id="Last_Year_MarketNum">0</h4>
+                    </div>
+                </div>
+                <div id="markline" style="height:110px"></div>
+            </div>
+        </div><!--row 2-->
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div id="Sales" style="height:400px"></div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- row 3 Sales eachars -->
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div id="Units" style="height:400px"></div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- row 4 Units eachars -->
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <table class="layui-table" lay-filter="semple_table" id="semple_table">
+<!--
+                            <thead>
+                                <tr>
+                                    <th lay-data="{align:'center'}" colspan="6"><span>样本医院检查结果</span></th>
+                                </tr>
+                                <tr>
+                                    <th lay-data="{field:'id', align: 'center', sort: true}" rowspan="1">序号</th>
+                                    <th lay-data="{field:'hosp_name', align: 'center', sort: true}" rowspan="2">医院名称</th>
+                                    <th lay-data="{field:'provinces', align: 'center', sort: true}" rowspan="1">省份</th>
+                                    <th lay-data="{field:'city', align: 'center', sort: true}" rowspan="1">城市</th>
+                                    <th lay-data="{field:'level', align: 'center', sort: true}" rowspan="1">城市级别</th>
+                                </tr>
+                            </thead>
+-->
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div><!-- row 5 table -->
+    </div>
+</div>

@@ -1,32 +1,33 @@
 package module
 
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.pattern.{CommonMessage, MessageDefines, ModuleTrait}
 import com.pharbers.aqll.common.Page._
-import com.pharbers.aqll.common.alDao.from
+import com.pharbers.mongodbConnect.{connection_instance, from}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.common.alString.alStringOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.dbmodule.MongoDBModule
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
 
 object ResultQueryModuleMessage {
-	sealed class msg_resultqueryBase extends CommonMessage
+	sealed class msg_resultqueryBase extends CommonMessage("resultquery", ResultQueryModule)
 	case class msg_resultquery(data : JsValue) extends msg_resultqueryBase
 }
 
 object ResultQueryModule extends ModuleTrait {
 	import ResultQueryModuleMessage._
-	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_resultquery(data) => resultquery_func(data)
 		case _ => ???
 	}
 
-	def resultquery_func(data : JsValue)(implicit db: MongoDBModule): (Option[Map[String, JsValue]], Option[JsValue]) = {
+	def resultquery_func(data : JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		var markets = (data \ "market").asOpt[List[String]].map (x => x).getOrElse(Nil)
 		var dates = (data \ "staend").asOpt[List[String]].map (x => x).getOrElse(Nil)
-
+		implicit val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
 		markets = markets.map(x => removeSpace(x))
 
 		val conditions = markets match {
@@ -40,8 +41,8 @@ object ResultQueryModule extends ModuleTrait {
 		val currentPage = (data \ "currentPage").asOpt[Int].map (x => x).getOrElse(3)
 		val company = (data \ "company").asOpt[String].get
 		try {
-			val result = (from db() in company where conditions).selectSkipTop(SKIP(currentPage))(TAKE)("Date")(calc_resultquery(_))(db.cores).toList
-			lazy val total = (from db() in company where conditions).count(db.cores)
+			val result = (from db() in company where conditions).selectSkipTop(SKIP(currentPage))(TAKE)("Date")(calc_resultquery(_)).toList
+			lazy val total = (from db() in company where conditions).count
 			(successToJson(toJson(result),toJson(Page(currentPage,total))), None)
 		} catch {
 			case ex : Exception => (None, Some(errorToJson(ex.getMessage())))

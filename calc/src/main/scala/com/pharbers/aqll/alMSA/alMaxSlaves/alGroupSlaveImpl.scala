@@ -1,12 +1,11 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import akka.actor.{Actor, ActorLogging, Props}
+import com.pharbers.alCalcMemory.aldata.alStorage
+import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.concert_grouping_jobs
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.concert_group_result
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.presist_data
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_hand, group_data_start_impl}
 
 /**
@@ -21,15 +20,6 @@ class alGroupSlaveImpl extends Actor with ActorLogging {
     override def receive: Receive = {
         case group_data_hand() => sender ! group_data_hand()
         case group_data_start_impl(p) => {
-//            println(s"alfred grouping $p")
-
-            /**
-              * Modified by Jeorch on 02/08/2017.
-              * 制造一个错误，检验错误计数，重算流程
-            println("start push error!")
-            throw new Exception("&&& ==> Some alGroupSlaveImpl Error！")
-              */
-
             val cj = concert_grouping_jobs(Map(concert_grouping_jobs.max_uuid -> p.parent, concert_grouping_jobs.group_uuid -> p.uuid))
             cj.result
             val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]

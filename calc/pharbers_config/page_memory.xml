@@ -1,0 +1,6 @@
+<pharbers-modules>
+    <page-memory>
+        <page-size value="102400" />
+        <buffer-size value="819200" />
+    </page-memory>
+</pharbers-modules>

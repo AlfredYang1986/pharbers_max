@@ -2,7 +2,7 @@ package com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger
 
 import akka.actor.{ActorRef, ActorSelection}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob
+import com.pharbers.alCalcMemory.aljobs.alJob
 
 /**
   * Created by BM on 10/03/2017.
@@ -95,4 +95,11 @@ object alJobTrigger {
     case class crash_calc(uuid: String, msg: String)
     case class crash_group(uuid: String, msg: String)
     case class clean_crash_actor(uuid: String)
+
+    /**
+      * for reStart count
+      */
+    case class canIReStart(reason: Throwable)
+    case class canDoRestart(reason: Throwable)
+    case class cannotRestart(reason: Throwable)
 }

@@ -1,0 +1,366 @@
+@pageLayout.bdLayout.userCenterPanel("Max | 客户中心")("客户中心") {
+    <div class="row main-content">
+        <div class="col-md-3 col-sm-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            待激活清单
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" id="changeBtn" aria-labelledby="dropdownMenu1">
+                            <li id="apponitBtn"  onclick="toAppointList()"><a href="#">预约清单</a></li>
+                            <li id="awaitBtn" onclick="toAwaitList()"><a href="#">待激活清单</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel-body" id = "bookList">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7 col-sm-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">客户清单</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <div class="tip-box">全部&nbsp&nbsp<span>11</span></div>
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="tip-box">在线&nbsp&nbsp<span>1</span></div>
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="tip-box">停用&nbsp&nbsp<span>11</span></div>
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="layui-select-title">
+                                <input type="text" placeholder="search" value="" class="layui-input">
+                                <i class="layui-edge"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-height"></div>
+                    <div id="userList">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+            var f = new Facade();
+            var deleted = function (id) {
+                $('#appointmentDetail').modal('hide');
+                $('#delete').modal('show');
+                $('#delRegister').attr('onclick', "delRegister(\'"+id+"\')");
+            };
+            $(document).ready(function () {
+                userLogin();
+                noticeList();
+                awaitList();
+//                $('#awaitBtn').hide();
+                userList();
+            });
+
+
+            //-------------------------用户信息-------------------------------------------
+            var userLogin = function () {
+                var token = $.cookie("user_token");
+                var tojs = {
+                    "condition": {
+                        "user_token": token
+                    }
+
+                };
+                var tojson = JSON.stringify(tojs);
+                f.ajaxModule.asyncPost("/user/tokenop", tojson, function (data) {
+                    var id = {
+                        "condition": {
+                            "user_id": data.result.user.user_id
+                        }
+                    };
+                    var queryJson = JSON.stringify(id)
+                    f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (data) {
+                        $('.bd_user_name').text(data.result.user_info.name);
+                        $('.bd_user_email').text(data.result.user_info.email);
+                    });
+                });
+            };
+            //---------------------------------预约通知---------------------------------
+            var noticeList = function () {
+                var token = $.cookie("user_token");
+                var noticeJson = JSON.stringify(
+                        {
+                            "take": 5,
+                            "condition": {
+                                "user_token": token,
+                                "status": 0
+                            }
+                        }
+                );
+                f.ajaxModule.asyncPost("/register/querybd", noticeJson, function (data) {
+                    if(data.status === "ok" && data.result.registers !== ""){
+                        var registers = data.result.registers;
+                        $.each(registers, function (i, item) {
+                            var regid = item.reg_id;
+                            $('#noticeList').append(
+                                    '<div class="row notice-left bottom-line-thin" onclick="getNoticeInfobyId(\''+regid+'\')">' +
+                                    '<div class="notice-company">' + item.company + '</div>' +
+                                    '<div class="notice-name">' + item.name + '</div>' +
+                                    '<div class="notice-date">'+stamp2Date(item.date)+'</div>' +
+                                    '</div>')
+                        });
+                        var r = data.result.registers[0];
+                        $('.noti-name').text(r.name);
+                        $('.noti-company').text(r.company);
+                        $('.noti-email').text(r.email);
+                        $('.noti-date').text(stamp2Date(r.date));
+                        $('.noti-phone').text(r.phone);
+                        //_____________
+                        //按钮
+                        $('#addToAppoint').attr("onclick","noticeToBookList(\'"+r.reg_id+"\')")
+                    }
+                });
+
+            };
+            //-------------------------------预约清单------------------------------
+            var appointList = function () {
+                var token = $.cookie("user_token");
+                var bookJson = JSON.stringify(
+                        {
+                            "take": 5,
+                            "condition": {
+                                "user_token": token,
+                                "status": 9
+                            }
+                        }
+                );
+                f.ajaxModule.asyncPost("/register/querybd", bookJson, function (data) {
+                    var registers = data.result.registers;
+                    $.each(registers, function (i, item) {
+                        $('#bookList').append('<div class="person-info" data-toggle="modal" data-target="#appointmentDetail" ' +
+                                'onclick="getBookInfobyId(\'' + item.reg_id + '\')">' +
+                                ' <div class="person-name">' + item.name + '</div>' +
+                                ' <div class="person-company">' + item.company + '</div> ' +
+                                '</div>')
+                    })
+                });
+            }
+            //-------------------------------待激活清单---------------------------
+            var awaitList = function () {
+                var token = $.cookie("user_token");
+                var awaitJson = JSON.stringify(
+                        {
+                            "take": 5,
+                            "condition": {
+                                "user_token": token,
+                                "status": 1
+                            }
+                        }
+                );
+                f.ajaxModule.asyncPost("/register/querybd", awaitJson, function (data) {
+                    var registers = data.result.registers;
+                    $.each(registers, function (i, item) {
+                        $('#bookList').append('<div class="person-info" data-toggle="modal" data-target="#noticeDetail" ' +
+                                'onclick="getAwaitInfobyId(\'' + item.reg_id + '\')">' +
+                                ' <div class="person-name">' + item.name + '</div>' +
+                                ' <div class="person-company">' + item.company + '</div> ' +
+                                '</div>')
+                    })
+                });
+            }
+            //-------------------------------客户清单-------------------------
+            var userList = function () {
+                var token = $.cookie("user_token");
+                var awaitJson = JSON.stringify(
+                        {
+                            "take": 10,
+                            "condition": {
+                                "user_token": token,
+                                "status": 2
+                            }
+                        }
+                );
+                f.ajaxModule.asyncPost("/register/querybd", awaitJson, function (data) {
+                    var registers = data.result.registers;
+                    $.each(registers, function (i, item) {
+                        $('#userList').append(' <div> ' +
+                                '<div class="persons-info row"> ' +
+                                '<div class="persons-status col-xs-3" data-toggle="modal" data-target="#userDetail" onclick="getUserInfobyId(\''+item.reg_id+'\')"></div> ' +
+                                '<div class="persons-name col-xs-3">'+item.name+'</div> ' +
+                                '<div class="persons-company col-xs-3">'+item.company+'</div> ' +
+                                '<div class="persons-opera col-xs-2" role="button"> ' +
+                                '<div class="input-group"> ' +
+                                '<span class="input-group-addon">待操作</span> ' +
+                                '<span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span> ' +
+                                '<span class="glyphicon glyphicon-pencil"></span> ' +
+                                '</div> ' +
+                                '</div> ' +
+                                '</div> ' +
+                                '<div class="row"><div class="line-90"></div></div>' +
+                                ' </div>')
+                    })
+
+                });
+
+            }
+            //------------------------------------------------------------------
+            var getNoticeInfobyId = function (id) {
+                var token = $.cookie("user_token")
+                var json = JSON.stringify({
+                    "condition": {
+                        "user_token": token,
+                        "reg_id": id
+                    }
+                });
+                // $('#addToAppoint').click()
+                f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
+                    var r = data.result.registers[0];
+                    $('.noti-name').text(r.name);
+                    $('.noti-company').text(r.company);
+                    $('.noti-email').text(r.email);
+                    $('.noti-date').text(stamp2Date(r.date));
+                    $('.noti-phone').text(r.phone);
+                    $('#addToAppoint').removeAttr("onclick");
+                    $('#addToAppoint').attr("onclick", "noticeToBookList(\'"+id+"\')");
+
+                })
+            };
+            var getBookInfobyId = function (id) {
+                var token = $.cookie("user_token")
+                var json = JSON.stringify({
+                    "condition": {
+                        "user_token": token,
+                        "reg_id": id
+                    }
+                })
+                f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
+                    var r = data.result.registers[0];
+                    $('.appoint-name').text(r.name);
+                    $('.appoint-company').text(r.company);
+                    $('.appoint-email').text(r.email);
+                    $('.appoint-date').text(stamp2Date(r.date));
+                    $('.appoint-phone').text(r.phone);
+                    $('#agree_apply').attr('onclick',"toAddMember(\'"+r.reg_id+"\')");
+                    $('#appoint_del').attr('onclick',"deleted(\'"+id+"\')");
+                })
+            };
+            var noticeToBookList = function (id) {
+                var token = $.cookie("user_token");
+                var json = JSON.stringify({
+                    "condition": {
+                        "user_token": token,
+                        "reg_id": id
+                    }
+                });
+                f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
+                    var register = data.result.registers[0];
+                    register.status = 9;
+                    register.linkman = register.name;
+                    console.log(register);
+                    var user = {
+                        "user" : register
+                    };
+                    user.condition = {
+                        "user_token" : token
+                    };
+                    var json = JSON.stringify(user);
+                    f.ajaxModule.asyncPost("/register/update", json, function (data) {
+                        if(data.status === "ok"){
+                            window.location.href = '/bd/bdUser'
+                        }
+                    })
+                })
+
+            };
+            var getAwaitInfobyId = function (id) {
+                var token = $.cookie("user_token");
+                var json = JSON.stringify({
+                    "condition": {
+                        "user_token": token,
+                        "reg_id": id
+                    }
+                });
+                f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
+                    var r = data.result.registers[0];
+                    $('.await-name').text(r.name);
+                    $('.await-company').text(r.company);
+                    $('.await-email').text(r.email);
+                    $('.await-time').text(stamp2Date(r.date));
+                    $('.await-phone').text(r.phone);
+                })
+            };
+            var getUserInfobyId = function (id) {
+                var token = $.cookie("user_token");
+                var json = JSON.stringify({
+                    "condition": {
+                        "user_token": token,
+                        "reg_id": id
+                    }
+                });
+                f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
+                    var r = data.result.registers[0];
+                    $('.userd-name').text(r.name);
+                    $('.userd-company').text(r.company);
+                    $('.userd-email').text(r.email);
+                    $('.userd-date').text(stamp2Date(r.date));
+                    $('.userd-phone').text(r.phone);
+                    $('.userd-companyPhone').text(r.companyPhone);
+                    $('.userd-companyAddress').text(r.companyAddress);
+                })
+            };
+
+            var toAppointList = function () {
+                $('#dropdownMenu1').html('预约清单 <span class="caret"></span>');
+                $('#bookList').empty();
+                appointList();
+
+            };
+            var toAwaitList = function () {
+                $('#dropdownMenu1').html('待激活清单 <span class="caret"></span>');
+                $('#bookList').empty();
+                awaitList();
+            };
+            var stamp2Date = function (timestamp) {
+                var date = new Date();
+                date.setTime(timestamp);
+                var dateString = date.toLocaleDateString().split('/');
+                return dateString[2] + '/' +dateString[1] +'/' + dateString[0];
+
+            };
+            //---------------------删除注册用户--------------------------------
+            var delRegister = function (id) {
+                var token = $.cookie("user_token")
+                var json = JSON.stringify({
+                    "condition": {
+                        "user_token": token,
+                        "reg_id": id
+                    }
+                });
+                f.ajaxModule.asyncPost("/register/querybd", json, function (data) {
+                    console.log(data)
+                    var register = data.result.registers[0];
+                    register.status = -1;
+                    register.linkman = register.name;
+                    console.log(register)
+                    var user = {
+                        "user" : register
+                    };
+                    user.condition = {
+                        "user_token" : token
+                    };
+                    var json = JSON.stringify(user)
+                    f.ajaxModule.asyncPost("/register/update", json, function (data) {
+                        if(data.status === "ok"){
+                            window.location.href = '/bd/bdUser'
+                        }
+                    })
+                })
+            };
+
+        //------------------------------页面跳转---------------------------------
+        var toAddMember = function(reg_id) {
+            window.location.href='/bd/addMember?reg_id=' + reg_id
+        }
+    </script>
+}

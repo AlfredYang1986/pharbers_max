@@ -1,0 +1,31 @@
+
+@pageLayout.RegisterAndLogin.contentPanel("Max | 激活失败")("激活账号失败") {
+    <div class="row cenPanel-content">
+        <div class="row ">
+            <div class="col-xs-1"></div>
+            <div class="col-xs-2">
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <i class="errColor glyphicon glyphicon-remove-sign " style="font-size: 40px; "></i>
+            </div>
+            <div class="col-xs-8 middle_info toLeft">
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <span class="middle_info">由于您的的激活邮件已过期，您需要重新申请授权码，</span>
+                <span class="middle_info">进行账号激活流程。</span>
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <div class="space-height"></div>
+                <div class="err_btn" onclick="registerPage()">前往申请</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function registerPage() {
+            location.href = "/login/confirm"
+        }
+    </script>
+}

@@ -1,89 +1,106 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
-# ~~~~
-######################client#######################
-POST    /register/pushAdmin                         controllers.LogSysController.RegisterController.pushAdminController
-POST    /register/pushRegisterWithoutCheck          controllers.LogSysController.RegisterController.pushRegisterWithoutCheck
-POST    /register/queryRegisterWithID               controllers.LogSysController.RegisterController.queryRegisterWithID
-POST    /register/queryAllRegisters                 controllers.LogSysController.RegisterController.queryAllRegisters
-POST    /register/checkRegisterStatus               controllers.LogSysController.RegisterController.checkRegisterStatus
-POST    /register/deleteRegister                    controllers.LogSysController.RegisterController.deleteRegister
-POST    /register/cryptRegisterCode                 controllers.LogSysController.RegisterController.cryptRegisterCode
-POST    /register/decryptRegisterCode               controllers.LogSysController.RegisterController.decryptRegisterCode
-POST    /register/checkAuthTokenExpire              controllers.LogSysController.RegisterController.checkAuthTokenExpire
+
+# 路人申请体验页面
+GET     /register/info                   controllers.alMaxRouterController.infoRegistration
+POST    /register/user                   controllers.register.RegisterController.user_apply
 
 
+########bd########
+GET     /bd/bdUser                       controllers.alMaxRouterController.bdUser
+# BD用户登入分页查询申请用户
+POST    /register/querybd                controllers.register.RegisterController.query_apply_user
+# 对申请用户进行预约
+POST    /register/update                 controllers.register.RegisterController.update_apply_user
+# 根据id查询users信息
+POST    /user/queryinfo                  controllers.users.UsersController.user_query_info
+# 添加为成员
+GET     /bd/addMember                    controllers.alMaxRouterController.addMember
+# 生成授权码
+POST    /auth/createToken                controllers.auth.AuthController.auth_create_token
+GET     /bd/addMember/succ               controllers.alMaxRouterController.addMember_succ
 
+GET     /bd/setInfo                      controllers.alMaxRouterController.setInfo
+GET     /bd/setPassword                  controllers.alMaxRouterController.setbdPassword
 
+# 新增用户
+POST    /user/push                                   controllers.users.UsersController.user_push
+# 删除用户
+POST    /user/delete                                 controllers.users.UsersController.user_delete
+# 修改用户
+POST    /user/update                                 controllers.users.UsersController.user_update
+# 分页查询用户
+POST    /user/querypage                              controllers.users.UsersController.user_query
+# 解析token用户信息
+POST    /user/tokenop                                controllers.users.UsersController.user_token_op
+# 忘记密码生成token
+POST    /user/forgetWithPassword                     controllers.users.UsersController.user_forget_password
+# 忘记密码，修改密码
+POST    /user/changepwd                              controllers.users.UsersController.user_token_chang_pwd
 
+# 用户登入
+POST    /auth/authWithPassword                       controllers.auth.AuthController.auth_with_password
+# 成授权码失效
+POST    /auth/tokenDefeat                            controllers.auth.AuthController.auth_token_defeat
 
+# 根据授权码添加用户
+POST    /auth/pushUser                               controllers.auth.AuthController.auth_token_push_user
 
+# phone 发送验证码
+POST    /phonecode/send                             controllers.phonecode.PhoneSMSController.sendSMSCode
+# phone 验证 验证码
+POST    /phonecode/check                            controllers.phonecode.PhoneSMSController.checkSMSCode
 
+# 上传文件
+POST    /panel/upload                               controllers.upload.FopController.uploadFile
+POST    /upload/queryUserCompnay                    controllers.upload.FopController.queryUserCompnay
 
-# 业务模块
-#   用户登录
-GET     /                                   controllers.alMaxRouterController.login
-GET		/login						        controllers.alMaxRouterController.login
-POST	/login						        controllers.alMaxRouterController.login
-POST	/login/start			            controllers.LoginController.Login
-#   用户注册
-GET		/register					        controllers.alMaxRouterController.register
-#   首页
-GET		/index						        controllers.alMaxRouterController.index
-POST	/index						        controllers.alMaxRouterController.index
+# Call Http
+POST    /calc/callhttp                              controllers.callhttp.CallHttpController.callHttpServer
 
-GET     /newindex                           controllers.alMaxRouterController.newindex
-#计算
-GET		/calculaData                        controllers.alMaxRouterController.calculaData
-#计算2
-GET     /calcdata                           controllers.alMaxRouterController.calcData
+# 获取本次计算数据
+POST    /calc/querySalesVsShare                     controllers.calcresult.CalcResultController.querySalesVsShare
+POST    /calc/queryCurVsPreWithCity                 controllers.calcresult.CalcResultController.queryCurVsPreWithCity
+POST    /calc/queryWithYearForCurVsPre              controllers.calcresult.CalcResultController.queryWithYearForCurVsPre
 
-#历史数据
-GET		/historyData                        controllers.alMaxRouterController.historyData
-#   文件上传
-GET		/filesupload				        controllers.alMaxRouterController.filesUpload
-GET     /pharbers/files/:name               controllers.FopController.downloadFile(name)
-POST	/pharbers/files/upload		        controllers.FopController.uploadFile
-#POST	/pharbers/files/upload		        controllers.FopController.upload
-POST    /filesUpload/scpCopyFiles           controllers.FilesUploadController.scpCopyFiles
-POST    /filesUpload/removeFiles            controllers.FilesUploadController.removeFiles
-#   样本检查
-GET		/samplecheck				        controllers.alMaxRouterController.sampleCheck
-POST	/samplecheck/check			        controllers.SampleCheckController.sampleCheck
-POST    /samplecheck/reloadselect           controllers.SampleCheckController.reloadSelect
-#   样本报告
-GET		/samplereport				        controllers.alMaxRouterController.samplereport
-POST	/samplereport/report		        controllers.SampleReportController.sampleReport
-#   结果检查
-GET		/resultcheck				        controllers.alMaxRouterController.resultcheck
-POST	/resultcheck/linechart	            controllers.ResultCheckController.resultChecklinechart
-POST	/resultcheck/histogram              controllers.ResultCheckController.resultCheckhistogram
-#   结果查询
-GET		/resultquery				        controllers.alMaxRouterController.resultQuery
-POST 	/resultquery/search			        controllers.ResultQueryController.resultQuerySearch
-#   公司管理
-GET     /usermanage                         controllers.alMaxRouterController.usermanage
-POST    /usermanage/company/query           controllers.CompanyManageController.queryCompanys
-POST    /usermanage/company/delete          controllers.CompanyManageController.deleteCompany
-POST    /usermanage/company/findOne         controllers.CompanyManageController.findOneCompany
-POST    /usermanage/company/save            controllers.CompanyManageController.saveCompany
-#   用户管理
-POST    /usermanage/user/query              controllers.UserManageController.queryUsers
-POST    /usermanage/user/delete             controllers.UserManageController.deleteUser
-POST    /usermanage/user/findOne            controllers.UserManageController.findOneUser
-POST    /usermanage/user/save               controllers.UserManageController.saveUser
-#   市场管理
-GET     /marketmanage                       controllers.alMaxRouterController.marketmanage
-POST    /marketmanage/query                 controllers.MarketManageController.queryMarkets
-POST    /marketmanage/delete                controllers.MarketManageController.deleteMarket
-POST    /marketmanage/findOne               controllers.MarketManageController.findOneMarket
-POST    /marketmanage/save                  controllers.MarketManageController.saveMarket
-#   公用部分
-POST    /callhttpServer                     controllers.CallAkkaHttpController.callHttpServer
-POST    /loadPageData                       controllers.PageInitializationController.loadPageData
+# 查询历史数据
+POST    /history/queryHistoryByPage                 controllers.history.HistoryController.queryHistoryByPage
+POST    /history/queryHistorySelect                 controllers.history.HistoryController.queryHistorySelect
 
-# new ember web pages
-GET     /new/*path                          controllers.alMaxRouterController.emberWebPage(path)
+# 验证用户是BD还是其他
+GET     /auth/user/                                  controllers.alMaxRouterController.auth_user
+# 验证GET连接的有效市场并跳转相应页面
+GET     /validation/token/:parm                      controllers.alMaxRouterController.validation_token(parm)
+# BD 登入选择
+GET     /login/db                                    controllers.alMaxRouterController.dbLogin
+# 授权码验证失败页面
+GET     /login/confirm                               controllers.alMaxRouterController.userInfoConfirm
+# 快速预约成功
+GET     /order/success                               controllers.alMaxRouterController.postSuccess
+# 授权成功
+#GET     /register/success                           controllers.alMaxRouterController.registerSuccess
+GET     /register/success/:name/:email               controllers.alMaxRouterController.registerSuccess(name,email)
+# 授权码验证
+GET     /registerCode/verification                  controllers.alMaxRouterController.verificationRegister
+# 邮箱激活
+GET     /email/invocation/:name/:email              controllers.alMaxRouterController.emailInvocation(name,email)
+# 找回密码
+GET     /password/find                              controllers.alMaxRouterController.findpwd
+# 找回密码邮件发送成功
+GET     /password/find/success                      controllers.alMaxRouterController.findpwd_success
+# 修改密码页面
+GET     /password/new/:token/:email                 controllers.alMaxRouterController.new_pwd(token, email)
+# 第一次登入修改密码
+GET     /password/set/:token/:email                 controllers.alMaxRouterController.set_pwd(token, email)
+
+#激活失败
+GET     /token/fail                                 controllers.alMaxRouterController.tokenFail
+
+GET     /                                           controllers.alMaxRouterController.login
+GET		/login						                controllers.alMaxRouterController.login
+GET		/index						                controllers.alMaxRouterController.index
+GET     /calc                                       controllers.alMaxRouterController.calcData
+GET     /historyData                                controllers.alMaxRouterController.historyData
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)

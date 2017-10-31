@@ -3,6 +3,8 @@ package com.pharbers.aqll.alCalc.almain
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, FSM, Kill, Props, Terminated}
 import akka.routing.BroadcastPool
+import com.pharbers.alCalcMemory.aldata.alStorage
+import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
@@ -12,15 +14,13 @@ import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcEnergy.{alCalcSupervisorStrategy, alSupervisorStrategy}
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, grouping_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointState}
+import com.pharbers.alCalcMemory.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
+import com.pharbers.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointState}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 
 import scala.concurrent.stm.atomic
@@ -45,6 +45,8 @@ class alGroupActor extends Actor
                      with FSM[alPointState, alCalcParmary]
                      with alCreateConcretGroupRouter
 					 with alPkgJob {
+
+    import alGroupActor.core_number
 
     startWith(alMasterJobIdle, new alCalcParmary("", ""))
 
@@ -180,7 +182,7 @@ class alGroupActor extends Actor
                 sender() ! concert_adjust_result(adjust_index())
             }
 
-            if (adjust_index.single.get == 3) {
+            if (adjust_index.single.get == core_number - 1) {
                 concert_router ! concert_group(result_ref.single.get.get)
             }
             stay()
@@ -208,7 +210,7 @@ class alGroupActor extends Actor
 }
 
 trait alCreateConcretGroupRouter extends alCalcSupervisorStrategy { this : Actor =>
-    import alCalcActor.core_number
+    import alGroupActor.core_number
     def CreateConcretGroupRouter =
         context.actorOf(BroadcastPool(core_number).props(alConcertGroupActor.props), name = "concert-group-router")
 }

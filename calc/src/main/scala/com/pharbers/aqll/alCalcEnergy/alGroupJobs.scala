@@ -10,19 +10,18 @@ import scala.concurrent.Await
 import scala.concurrent.stm.{Ref, atomic}
 import scala.concurrent.duration._
 import akka.pattern.ask
+import com.pharbers.alCalcMemory.aldata.alStorage
+import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, split_group_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor._
 
 /**
@@ -126,7 +125,7 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 	}
 
 	def groupJobFailed(uuid : String) = {
-
+	
 	}
 
 	def canSignGroupJob(p : alMaxProperty): Boolean = {

@@ -2,10 +2,11 @@ package com.pharbers.aqll.alCalcMemory.alprecess
 
 import java.util.UUID
 
-import com.pharbers.aqll.alCalaHelp.alFileHandler.altext.alTextSync
-import com.pharbers.aqll.alCalcMemory.aldata.alStorage
+import com.pharbers.alCalcMemory.alOther.alFileHandler.alText.alTextSync
+import com.pharbers.alCalcMemory.aldata.alStorage
+import com.pharbers.alCalcMemory.alprecess.alPrecess
+import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
-import com.pharbers.aqll.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
 /**
@@ -17,9 +18,8 @@ class alPresistStagePrecess(val dirOpt : Option[String], val prefix : Option[Str
     def precess(j : alStage) : List[alStage] = {
 
         val dir = dirOpt.map (x => x).getOrElse(UUID.randomUUID.toString)
-        val syncdir = prefix.map (x => x).getOrElse(sync)
-//        val path = s"config/$sync/$dir"
-	    val path = s"${memorySplitFile}$syncdir/$dir"
+        val prefixdir = prefix.map (x => x).getOrElse(sync)
+	    val path = s"${memorySplitFile}$prefixdir/$dir"
         val f = alFileOpt(path)
         f.createDir
         j.storages map { x =>

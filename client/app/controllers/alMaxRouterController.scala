@@ -3,139 +3,149 @@ package controllers
 import javax.inject._
 
 import akka.actor.ActorSystem
-import com.pharbers.aqll.dbmodule.MongoDBModule
-import module.common.alModularEnum
-import module.common.alAdminEnum
-import module.common.alPageDefaultData._
+import com.pharbers.aqll.common._
+import com.pharbers.cliTraits.DBTrait
+import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.mongodbConnect.connection_instance
+import com.pharbers.token.AuthTokenTrait
 import play.api.mvc._
 
-class alMaxRouterController@Inject()(as_inject : ActorSystem, mdb: MongoDBModule) extends Controller {
+
+// TODO 稍后进行封装
+trait alValidationController { this: Controller =>
+    def validation(parm: String)(implicit att: AuthTokenTrait, db: DBTrait): Result = {
+        alParsingTokenUser(parm).parse match {
+            case TokenFail() => Redirect("/token/fail")
+            case User(name, email, phone, scope) =>
+                val encode = java.net.URLEncoder.encode(parm, "ISO-8859-1")
+                alValidationToken(parm)(att).validation match {
+                    case TokenError() => Redirect("/error")
+                    case TokenFail() => Redirect("/token/fail")
+                    case TokenForgetPassword() => Redirect(s"/password/new/$encode/$email")
+                    case TokenFirstLogin() => Redirect(s"/password/set/$encode/$email")
+                }
+        }
+    }
+    
+    def validationPasswrod(parm: String)(implicit att: AuthTokenTrait, db: DBTrait): Result = {
+        alParsingTokenUser(parm).parse match {
+            case TokenFail() => Redirect("/token/fail")
+            case User(name, email, phone, scope) =>
+                alValidationToken(parm)(att).validation match {
+                    case TokenError() => Redirect("/error")
+                    case TokenFail() => Redirect("/token/fail")
+                    case TokenForgetPassword() => Ok(views.html.authPages.newPassword(email))
+                    case TokenFirstLogin() => Ok(views.html.authPages.setPassword(email))
+                }
+        }
+    }
+    
+    def getUserTokenByCookies(request: Request[AnyContent]): String = request.cookies.get("user_token").map(x => x.value).getOrElse("")
+    
+    def loginForType(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): Result = {
+        if(showUser(request).scope.contains("BD")) Redirect("/login/db")
+        else Redirect("/index")
+    }
+    
+    def showUser(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): User = {
+        val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
+        alParsingTokenUser(token).parse match {
+            case User(name, email, phone, scope) => User(name, email, phone, scope)
+            case _ => ???
+        }
+    }
+}
+
+class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait) extends Controller with alValidationController{
     implicit val as = as_inject
+    implicit val db_basic : DBTrait = dbt.queryDBInstance("cli").get
+    implicit val attoken: AuthTokenTrait = att
+    
+    
+    def bdUser = Action{
+        Ok(views.html.bdPages.bdUser())
+    }
+    
+    def addMember = Action{
+        Ok(views.html.bdPages.addMember())
+    }
+    def addMember_succ = Action{
+        Ok(views.html.bdPages.addMember_succ())
+    }
+    def setInfo = Action{
+        Ok(views.html.bdPages.userInfo())
+    }
+    def setbdPassword = Action{
+        Ok(views.html.bdPages.setPassword())
+    }
 
-    //登录
+    //从cookie中取出token验证用户角色
+    def auth_user = Action { request => loginForType(request)}
+    
+    def validation_token(parm: String) = Action { request => validation(parm) }
+
     def login = Action { request =>
-        Ok(views.html.login())
+        Ok(views.html.authPages.login())
     }
 
-    //注册
-    def register = Action {
-        Ok(views.html.register())
+    def infoRegistration = Action { request =>
+        Ok(views.html.authPages.infoRegistration())
     }
 
-    //首页
+    def dbLogin = Action { request =>
+        Ok(views.html.authPages.bdSignSelect(showUser(request).phone))
+    }
+
+    def userInfoConfirm = Action { request =>
+        Ok(views.html.authPages.userInfoConfirm())
+    }
+
+    def verificationRegister = Action { request =>
+        Ok(views.html.authPages.registerCodeValidation())
+    }
+
+    def tokenFail = Action { request  =>
+        Ok(views.html.authPages.activeAccountFailed())
+    }
+
+    def emailInvocation(name : String, email : String) = Action { request =>
+        Ok(views.html.authPages.emailBeenSend(name, email))
+    }
+
+    def findpwd = Action{
+        Ok(views.html.authPages.findPassword())
+    }
+    
+    def findpwd_success = Action{
+        Ok(views.html.authPages.findPasswordSuccess())
+    }
+    
+    def new_pwd(token: String, email: String) = Action {
+        validationPasswrod(token)
+    }
+    
+    def set_pwd(token: String, email: String) = Action {
+        validationPasswrod(token)
+    }
+
     def index = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.index(getAdminByCookies(request)))
-        }
+        
+        Ok(views.html.calcPages.index(showUser(request).name))
     }
     
-    //首页2
-    
-    def newindex = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.newhome.index(getAdminByCookies(request)))
-        }
-    }
-
-    //计算
-    def calculaData = Action {
-        Ok(views.html.CalculaData(""))
-    }
-    
-    //计算2
     def calcData = Action { request =>
-        Ok(views.html.newhome.calcData(getAdminByCookies(request)))
+        Ok(views.html.calcPages.newhome.calcData("", showUser(request).name))
     }
 
-    //历史数据
     def historyData = Action { request =>
-        Ok(views.html.HistoryData(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, mdb.basic, mdb.cores)._1))
-    }
-
-
-    //文件上传
-    def filesUpload = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.filesUpload(getAdminByCookies(request), PageDefaultData(alModularEnum.FU, mdb.basic, mdb.cores)._1))
-        }
+        Ok(views.html.calcPages.hsitory.historyData(showUser(request).name))
     }
     
-    //样本检查
-    def sampleCheck = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            val defaultdata = PageDefaultData(alModularEnum.SC, mdb.basic, mdb.cores, false)
-            Ok(views.html.sampleCheck(getAdminByCookies(request), defaultdata._1, defaultdata._2))
-        }
+    def postSuccess = Action{
+        Ok(views.html.authPages.successEmailPost())
     }
 
-    //样本报告
-    def samplereport = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.sampleReport(getAdminByCookies(request), PageDefaultData(alModularEnum.SR, mdb.basic, mdb.cores)._1))
-        }
-    }
-
-    //结果检查
-    def resultcheck = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            val defaultdata = PageDefaultData(alModularEnum.RC, mdb.basic, mdb.cores, false)
-            Ok(views.html.resultCheck(getAdminByCookies(request), defaultdata._1, defaultdata._2))
-        }
-    }
-
-    //结果查询
-    def resultQuery = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.resultQuery(getAdminByCookies(request), PageDefaultData(alModularEnum.RQ, mdb.basic, mdb.cores)._1))
-        }
-    }
-
-    //用户管理页面
-    def usermanage = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.userManage(getAdminByCookies(request)))
-        }
-    }
-
-    //市场管理页面
-    def marketmanage = Action { request =>
-        if (getUserTokenByCookies(request).equals("")) {
-            Ok(views.html.login())
-        } else {
-            Ok(views.html.marketManage(getAdminByCookies(request)))
-        }
-    }
-
-    def getUserTokenByCookies(request: Request[AnyContent]): String = {
-        request.cookies.get("user_token").map(x => x.value).getOrElse("")
-    }
-
-    def getAdminByCookies(request: Request[AnyContent]): String = {
-        request.cookies.get("auth").map(x => x.value).get.toInt match {
-            case 0 => alAdminEnum.users.toString
-            case 1 => alAdminEnum.admin.toString
-            case 2 => alAdminEnum.admin.toString
-        }
-    }
-
-    //EmberWebPage
-    def emberWebPage(path: String) = Action {
-        Ok(views.html.new_web())
+    def registerSuccess(name : String, email : String) = Action{
+        Ok(views.html.authPages.successRegister(name, email))
     }
 }

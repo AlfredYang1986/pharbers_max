@@ -6,14 +6,13 @@ import akka.cluster.{Cluster, Member}
 import com.pharbers.aqll.alCalcMemory.aljobs.alRegisterJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{calc_register, group_register}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.do_register
-import com.pharbers.aqll.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 
-import scala.concurrent.stm.atomic
+import scala.concurrent.stm._
 
 /**
   * Created by qianpeng on 2017/6/1.
   */
-
 object alAkkaMonitor {
 	val props = Props[alAkkaMonitor]
 	var groupRouter = Seq[ActorRef]()

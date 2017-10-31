@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alStart.alHttpFunc
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.server.{Directives, StandardRoute}
+import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alAkkaHttpJson.PlayJsonSupport
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
@@ -9,13 +9,15 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
-import com.pharbers.aqll.common.alCmd.pycmd.pyCmd
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
+import com.pharbers.panel.pfizer.phPfizerHandle
+import play.api.libs.json.JsString
+
+import scala.collection.immutable.Map
 
 /**
   * Created by qianpeng on 2017/6/5.
@@ -27,11 +29,11 @@ class alAkkaHttpFunctionApi(system: ActorSystem, timeout: Timeout) extends alAkk
 
 case class Item(str: String, lst: List[String])
 
-case class alUpBeforeItem(company: String, uname: String)
-case class alUploadItem(company: String, yms: String, uname: String)
+case class alUpBeforeItem(company: String, user: String, cpas: String, gycxs: String)
+case class alUploadItem(company: String, user: String, cpas: String, gycxs: String, ym: List[String])
 case class alCheckItem(company: String, filename: String, uname: String)
 case class alCalcItem(filename: String, company: String, uname: String)
-case class alCommitItem(company: String, uuid: String)
+case class alCommitItem(company: String, uuid: String, uname: String)
 case class alExportItem(datatype: String, market: List[String],
                         staend: List[String], company: String,
                         filetype: String, uname: String)
@@ -53,27 +55,34 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	implicit def executionContext: ExecutionContext
 	implicit def requestTimeout: Timeout
 	
-	val routes = Test ~ alSampleCheckDataFunc ~
-				 alCalcDataFunc ~ alModelOperationCommitFunc ~
-				 alFileUploadPythonFunc ~ alResultFileExportFunc ~
-				 alFileUploadPyBefore
+	val routes =  alSampleCheckDataFunc ~
+		alNewCalcDataFunc ~ alNewModelOperationCommitFunc ~
+		alFileUploadPythonFunc ~ alResultFileExportFunc ~
+		alFileUploadPyBefore
 	
 	def Test = post {
-		path("src/test") {
+		path("test") {
 			entity(as[Item]) { item =>
-//				println(item.str)
-//				println(item.lst)
-				complete("""{"result": "OK"}""")
+				println(item.str)
+				println(item.lst)
+				val result = toJson(Map("result" -> "ok"))
+				complete(result)
 			}
 		}
 	}
+
 	
 	def alFileUploadPyBefore = post {
 		path("uploadbefore") {
 			entity(as[alUpBeforeItem]) { item =>
-				val result = pyCmd(s"$root$program$fileBase${item.company}" ,Upload_Firststep_Filename, "").excute
-//				toJson(Map("status" -> toJson("success"), "result" -> toJson(Map("result" -> "2016#", "page" -> ""))))
-				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+                val args: Map[String, List[String]] = Map(
+                    "company" -> List(item.company),
+                    "user" -> List(item.user),
+                    "cpas" -> item.cpas.split("&").toList,
+                    "gycxs" -> item.gycxs.split("&").toList
+                )
+                val result = phPfizerHandle(args).calcYM
+                alMessageProxy().sendMsg(result.asInstanceOf[JsString].value, item.user, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete(result)
 			}
 		}
@@ -82,8 +91,16 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alFileUploadPythonFunc = post {
 		path("uploadfile") {
 			entity(as[alUploadItem]) { item =>
-				val result = pyCmd(s"$root$program$fileBase${item.company}",Upload_Secondstep_Filename, item.yms).excute
-				complete(result)
+                val args: Map[String, List[String]] = Map(
+                    "company" -> List(item.company),
+                    "user" -> List(item.user),
+                    "cpas" -> item.cpas.split("&").toList,
+                    "gycxs" -> item.gycxs.split("&").toList
+                )
+
+                val result = phPfizerHandle(args).getPanelFile(item.ym)
+                alMessageProxy().sendMsg(result.toString, item.user, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+                complete(result)
 			}
 		}
 	}
@@ -92,29 +109,29 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("samplecheck") {
 			entity(as[alCheckItem]) {item =>
 				val result = alSampleCheck().apply(item.company, item.filename, item.uname)
-				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete(result)
 			}
 		}
 	}
 	
-	def alCalcDataFunc = post {
+	def alNewCalcDataFunc = post {
 		path("modelcalc") {
-			entity(as[alCalcItem]) {item =>
-				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
+			entity(as[alCalcItem]) { item =>
+				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
 				val path = fileBase + item.company + outPut + item.filename
-				a ! filter_excel_jobs(path, new alCalcParmary(item.company, item.uname), a)
+				a ! push_filter_job(path, new alCalcParmary(item.company, item.uname))
 				complete(toJson(successToJson().get))
 			}
 		}
 	}
 	
-	//待测试
-	def alModelOperationCommitFunc = post {
+	def alNewModelOperationCommitFunc = post {
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
-				val a = alAkkaSystemGloble.system.actorSelection(singletonPaht)
-				a ! commit_finalresult_jobs(item.company, item.uuid)
+				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
+				val map = Map("company" -> item.company, "uuid" -> item.uuid, "uname" -> item.uname)
+				a ! max_calc_done(map)
 				val result = alSampleCheckCommit().apply(item.company)
 				complete(result)
 			}
@@ -124,13 +141,13 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alResultFileExportFunc = post {
 		path("dataexport") {
 			entity(as[alExportItem]) { item =>
-				val alExport = new alExport(item.datatype,
+				val alExportPram = alExport(item.datatype,
 					item.market,
 					item.staend,
 					item.company,
 					item.filetype,
 					item.uname)
-				val result = alFileExport().apply(alExport)
+				val result = alFileExport().apply(alExportPram)
 				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete(result)
 			}

@@ -1,10 +1,12 @@
 lazy val commonSettings = Seq(
   organization := "com.pharbers.aqll.common",
-  version := "1.2",
+  version := "1.2.1",
   scalaVersion := "2.11.8"
 )
 
 libraryDependencies ++= Seq(
+	"com.pharbers" % "pharbers-memory" % "0.1",
+
 	"com.typesafe.akka" %% "akka-http-core" % "10.0.1",
 	"com.typesafe.akka" %% "akka-http" % "10.0.1",
 	"com.typesafe.akka" %% "akka-http-testkit" % "10.0.1",

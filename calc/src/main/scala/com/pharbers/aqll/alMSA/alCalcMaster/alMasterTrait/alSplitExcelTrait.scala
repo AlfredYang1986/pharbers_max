@@ -3,11 +3,13 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
+import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import com.pharbers.aqll.alMSA.alCalcAgent.alSingleAgentMaster.query
 import com.pharbers.aqll.alMSA.alMaxSlaves.alSplitExcelSlave
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.stm._
 
@@ -34,25 +36,19 @@ trait alSplitExcelTrait { this : Actor =>
         }
     }
 
-    def canSchduleSplitExcelJob(act: ActorRef) : Boolean = {
-        import akka.pattern.ask
-        import scala.concurrent.Await
-        import scala.concurrent.duration._
-        implicit val timeout = Timeout(1 seconds)
-
-        val f = act ? query()
-        Await.result(f, 1 seconds).asInstanceOf[Boolean]
-//        true
+    def canSchduleSplitExcelJob : Boolean = {
+        implicit val t = Timeout(2 seconds)
+        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitsplitexcelslave")
+        Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
 
-    def schduleSplitExcelJob(act: ActorRef) = {
-        if (canSchduleSplitExcelJob(act)) {
+    def schduleSplitExcelJob = {
+        if (canSchduleSplitExcelJob) {
             atomic { implicit thx =>
                 val tmp = split_jobs.single.get
-//                println(s"&&& split_jobs tmp ==> ${tmp}")
                 if (tmp.isEmpty) Unit
                 else {
-//                    println(s"head is ${tmp.head}")
                     splitExcel(tmp.head._1, tmp.head._2, tmp.head._3)
                     split_jobs() = split_jobs().tail
                 }
@@ -111,7 +107,7 @@ class alCameoSplitExcel (val file : String,
             }
         }
         case result : split_excel_end => {
-            owner forward result
+//            owner forward result
             shutCameo(result)
         }
     }
@@ -124,6 +120,7 @@ class alCameoSplitExcel (val file : String,
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
         log.debug("stopping split excel cameo")
+        split_timer.cancel()
         context.stop(self)
     }
 }
