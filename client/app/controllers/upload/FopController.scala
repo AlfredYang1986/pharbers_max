@@ -10,7 +10,7 @@ import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
-import module.auth.AuthMessage.{msg_auth_token_expire, msg_auth_token_parser}
+import module.auth.AuthMessage._
 import module.upload.UploadMessage._
 import module.users.UserMessage.msg_user_token_op
 import play.api.libs.json.Json.toJson
@@ -28,8 +28,8 @@ class FopController @Inject() (as_inject : ActorSystem, dbt : dbInstanceManager,
         import com.pharbers.bmpattern.ResultMessage.common_result
     
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("upload"))), jv)
-            :: msg_auth_token_parser(jv)
-            :: msg_auth_token_expire(jv)
+            :: MsgAuthTokenParser(jv)
+            :: MsgAuthTokenExpire(jv)
             :: msg_user_token_op(jv)
             :: msgQueryWithUserCompanyForUpload(jv)
             :: msg_CommonResultMessage()

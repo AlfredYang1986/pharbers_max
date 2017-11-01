@@ -50,7 +50,6 @@
         </div>
         <script type="text/javascript">
                 var f = new Facade();
-
                 $(document).ready(function () {
                     $('#popLayer').hide();
                     $('#popTextValidate').hide();
@@ -58,7 +57,6 @@
                     $input[0].focus();
                     f.validationModule.input_blur("userName", "email");
                     f.validationModule.input_blur("pwd", "isEmp");
-                    window.im_object.load_im();
                 });
 
                 layui.use(['form', 'layer'], function () {
