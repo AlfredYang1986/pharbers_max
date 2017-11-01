@@ -10,7 +10,7 @@ import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
-import module.auth.AuthMessage.{msg_auth_token_expire, msg_auth_token_parser}
+import module.auth.AuthMessage._
 import module.calcresult.CalcResultMessage._
 import module.calcresult.CalcResultModule._
 import module.users.UserMessage.msg_user_token_op
@@ -19,15 +19,15 @@ import play.api.libs.json.Json.toJson
 import play.api.mvc.Action
 
 class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait) {
-	implicit val as = as_inject
-	implicit val commonModules = CommonModules(Some(Map("db" -> dbt, "att" -> att)))
+	implicit val as: ActorSystem = as_inject
+	implicit val commonModules: CommonModules = CommonModules(Some(Map("db" -> dbt, "att" -> att)))
 	
 	def querySalesVsShare =  Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCalcResult"))), jv)
-			:: msg_auth_token_parser(jv)
-			:: msg_auth_token_expire(jv)
+			:: MsgAuthTokenParser(jv)
+			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
 //			::
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
@@ -40,8 +40,8 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCurVsPreWithCity"))), jv)
-			:: msg_auth_token_parser(jv)
-			:: msg_auth_token_expire(jv)
+			:: MsgAuthTokenParser(jv)
+			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
 			//			::
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
@@ -54,8 +54,8 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryWithYearForCurVsPre"))), jv)
-			:: msg_auth_token_parser(jv)
-			:: msg_auth_token_expire(jv)
+			:: MsgAuthTokenParser(jv)
+			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
 			//			::
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)

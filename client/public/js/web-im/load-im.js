@@ -102,6 +102,8 @@ var im_object = (function($, w){
         }
     }
 
+    load_im();
+
     return {
         "searchExtJsonForElement": searchExtJsonForElement,
         "searchExtJson": searchExtJson,
