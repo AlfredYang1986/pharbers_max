@@ -12,22 +12,24 @@ import scala.concurrent.stm.Ref
 case class alMaxCrash(uuid: String)
 
 case class alCalcParmary(var company: String,
-                         var uname: String,
+                         var imuname: String,
+                         var uid: String = "",
                          var uuid: String = "",
                          var market: String = "",
                          var fileName: String = "",
                          var year: Int = 0,
                          maxTimeTry: Int = 3,
-                         var faultTimes: Int = 0)
+                         var faultTimes: Int = 0
+                        )
 
 object alCalcParmary {
 	val alParmary = Ref(ListBuffer[alCalcParmary]())
 }
 
-object startDate {def apply() = System.currentTimeMillis}
+object startDate {def apply(): Long = System.currentTimeMillis}
 
 object endDate {
-	def apply(content: String, startDate: Long) = {
+	def apply(content: String, startDate: Long): Unit = {
 		val endDate = System.currentTimeMillis
 		val c = Calendar.getInstance
 		c.setTimeInMillis(endDate - startDate)
@@ -35,4 +37,4 @@ object endDate {
 	}
 }
 
-case class alMaxSignProperty (val signed : Boolean)
+case class alMaxSignProperty (signed : Boolean)

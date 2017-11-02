@@ -33,7 +33,7 @@ case class Item(str: String, lst: List[String])
 case class alUpBeforeItem(company: String, user: String, cpa: String, gycx: String)
 case class alUploadItem(company: String, user: String, cpa: String, gycx: String, ym: List[String])
 case class alCheckItem(company: String, filename: String, uname: String)
-case class alCalcItem(filename: String, company: String, uname: String)
+case class alCalcItem(filename: String, company: String, imuname: String, uid: String)
 case class alCommitItem(company: String, uuid: String, uname: String)
 case class alExportItem(datatype: String, market: List[String],
                         staend: List[String], company: String,
@@ -107,7 +107,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 			entity(as[alCalcItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
 				val path = fileBase + item.company + outPut + item.filename
-				a ! push_filter_job(path, new alCalcParmary(item.company, item.uname))
+				a ! push_filter_job(path, new alCalcParmary(item.company, item.imuname, item.uid))
 				complete(toJson(successToJson().get))
 			}
 		}

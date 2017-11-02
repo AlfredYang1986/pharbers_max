@@ -3,8 +3,8 @@ package com.pharbers.aqll.alCalaHelp.alMaxDefines
 /**
   * Created by Alfred on 11/03/2017.
   */
-case class alMaxProperty(val parent : String,
-                         val uuid : String,
+case class alMaxProperty(parent : String,
+                         uuid : String,
                          var subs : List[alMaxProperty],
                          var signed : Boolean = false,
                          var grouped : Boolean = false,
