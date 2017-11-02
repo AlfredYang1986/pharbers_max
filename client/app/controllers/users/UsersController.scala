@@ -10,14 +10,14 @@ import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.message.send.SendMessageTrait
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
-import module.auth.AuthMessage.{msg_auth_check_token_action, msg_auth_token_expire, msg_auth_token_parser}
-import module.register.RegisterMessage.{msg_first_push_user, msg_register_token_create}
+import module.auth.AuthMessage.{MsgAuthTokenExpire, MsgAuthTokenParser, _}
+import module.register.RegisterMessage.msg_first_push_user
 import module.users.UserMessage._
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, Controller}
 
 class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait, msg: SendMessageTrait) extends Controller {
-	implicit val as = as_inject
+	implicit val as: ActorSystem = as_inject
 	
 	def user_push = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
@@ -58,7 +58,8 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 	def user_token_op = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_auth_token_parser(jv) :: msg_auth_token_expire(jv) :: msg_user_token_op(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
+		
+		MessageRoutes(MsgAuthTokenParser(jv) :: MsgAuthTokenExpire(jv) :: msg_user_token_op(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
 	
 	// 单纯给忘记密码与第一次登入使用
@@ -66,9 +67,9 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("change pwd"))), jv)
-			:: msg_auth_check_token_action(jv)
-			:: msg_auth_token_parser(jv)
-			:: msg_auth_token_expire(jv)
+			:: MsgAuthCheckTokenAction(jv)
+			:: MsgAuthTokenParser(jv)
+			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
 //			:: msg_register_token_create(jv) TODO: 通讯协议不一致导致message不能重用，稍后重构
 			:: msg_user_chang_pwd(jv)

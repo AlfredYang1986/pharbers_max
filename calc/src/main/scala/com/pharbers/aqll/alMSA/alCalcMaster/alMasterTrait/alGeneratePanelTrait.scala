@@ -35,12 +35,10 @@ trait alGeneratePanelTrait { this : Actor =>
     val generate_panel_jobs = Ref(List[(alUploadItem, ActorRef)]())
 
     import scala.concurrent.ExecutionContext.Implicits.global
-//    val panelLimit = Ref(4)
 
     val generate_panel_schedule = context.system.scheduler.schedule(1 second, 1 second, self, generatePanelSchedule())
 
     def push_generate_panel_jobs(item : alUploadItem, s : ActorRef) = {
-        println("1.push_generate_panel_jobs")
         atomic { implicit thx =>
             generate_panel_jobs() = generate_panel_jobs() :+ (item, s)
         }
@@ -66,18 +64,12 @@ trait alGeneratePanelTrait { this : Actor =>
             }
         }
     }
+
     def do_generate_panel_job(panel_job : alUploadItem, s : ActorRef) = {
         val cur = context.actorOf(alCameoGeneratePanel.props(panel_job, s, self, panel_router))
         import alCameoGeneratePanel._
-        println("2.do_generate_panel_job")
         cur ! generate_panel_start()
     }
-    def release_panel_energy = {
-//        atomic { implicit thx =>
-//            panelLimit() = panelLimit.single.get + 1
-//        }
-    }
-
 }
 
 object alCameoGeneratePanel {
@@ -85,7 +77,7 @@ object alCameoGeneratePanel {
     case class generate_panel_start()
     case class generate_panel_hand()
     case class generate_panel_start_impl(panel_job: alUploadItem)
-    case class generate_panel_end(result : Boolean, paths : List[String])
+    case class generate_panel_end(result : Boolean, paths : String)
     case class generate_panel_timeout()
 
     def props(panel_job : alUploadItem,
@@ -105,11 +97,9 @@ class alCameoGeneratePanel(val panel_job : alUploadItem,
 
         case generate_panel_start() => router ! generate_panel_hand()
         case generate_panel_hand() => sender ! generate_panel_start_impl(panel_job)
-        case generate_panel_end(result, paths) => {
-            println(s"3.alCameoGeneratePanel.generate_panel_end")
-            // owner ! releasePanelEnergy()
-            owner ! generatePanelResult(paths)
-            shutCameo(generate_panel_end(result, paths))
+        case generate_panel_end(result, panelLst) => {
+            owner ! generatePanelResult(panelLst)
+            shutCameo(generate_panel_end(result, panelLst))
         }
         case msg : AnyRef => log.info(s"Warning! Message not delivered. alCameoGeneratePanel.received_msg=${msg}")
     }
@@ -120,10 +110,8 @@ class alCameoGeneratePanel(val panel_job : alUploadItem,
     }
 
     def shutCameo(msg : AnyRef) = {
-//        originSender ! msg
         log.info("stopping generate panel cameo")
         generate_panel_timer.cancel()
-//        context.stop(self)
         self ! PoisonPill
     }
 }

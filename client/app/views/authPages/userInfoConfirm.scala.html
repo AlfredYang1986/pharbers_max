@@ -120,9 +120,9 @@
                 // 提交监听
                 form.on('submit(sub)', function (data) {
                     f.validationModule.input_blur("code_user", "isEmp");
-                    var json = JSON.stringify(f.parameterPrefix.condition(data.field));
+                    var json = JSON.stringify(f.parameterPrefix.conditions(data.field));
 
-                    var check = JSON.stringify(f.parameterPrefix.condition({
+                    var check = JSON.stringify(f.parameterPrefix.conditions({
                         "code": data.field.code,
                         "reg_token": $.cookie('reg_token'),
                         "phone": data.field.phone
@@ -161,7 +161,7 @@
 
                 form.on('submit(pull_phone_code)', function (data) {
                     if (f.validationModule.finalResultWithExt(["phone"])) {
-                        var json = JSON.stringify(f.parameterPrefix.condition({"phone": data.field.phone}));
+                        var json = JSON.stringify(f.parameterPrefix.conditions({"phone": data.field.phone}));
                         f.ajaxModule.baseCall('/phonecode/send', json, 'POST', function (r) {
                             if (r.status === 'ok' && r.result.condition.flag === 'ok') {
                                 layer.msg('验证码已发送请注意查收');
