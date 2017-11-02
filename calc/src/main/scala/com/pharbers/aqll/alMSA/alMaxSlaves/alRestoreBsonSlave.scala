@@ -26,20 +26,21 @@ class alRestoreBsonSlave extends Actor with ActorLogging {
         case restore_bson_hand() => {
             implicit val t = Timeout(2 seconds)
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            val f = a ? takeNodeForRole("splitrestorebsonslave")
-            // val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
+            // val f = a ? takeNodeForRole("splitrestorebsonslave")
+            val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) sender ! restore_bson_hand()
             else Unit
         }
-        case restore_bson_start_impl(coll, sub_uuid) => {
+        case restore_bson_start_impl(coll, sub_uuids) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
-            val cur = context.actorOf(alRestoreBsonComeo.props(coll, sub_uuid, sender, self, counter))
-            cur.tell(restore_bson_start_impl(coll, sub_uuid), sender)
+            val cur = context.actorOf(alRestoreBsonComeo.props(coll, sub_uuids, sender, self, counter))
+            cur.tell(restore_bson_start_impl(coll, sub_uuids), sender)
         }
         case cmd : restore_bson_end => {
+            println(s"=====alRestoreBsonSlave.restore_bson_end=====")
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            a ! refundNodeForRole("splitrestorebsonslave")
-            // a ! refundNodeForRole("splitcalcslave") // 在一台机器上实现和计算的互斥
+            // a ! refundNodeForRole("splitrestorebsonslave")
+            a ! refundNodeForRole("splitcalcslave") // 在一台机器上实现和计算的互斥
         }
     }
 
