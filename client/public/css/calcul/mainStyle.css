@@ -1,5 +1,7 @@
 /**********************************通用部分*********************/
-
+.bottom-line-bold{
+    border-bottom: 2px solid #777777;
+}
 /*字体居中*/
 .inCenParent {
     text-align: center;
@@ -10,13 +12,18 @@
 }
 /*字*/
 .small-font{
-    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
-    font-size: 13px;
+    font-family: PingFangSC-Regular, sans-serif;
+    font-size: 0.8125em;
     color: #494c57;
 }
 .middle-font{
-    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
-    font-size: 18px;
+    font-family: PingFangSC-Regular, sans-serif;
+    font-size: 1.125em;
+    color: #494c57;
+}
+.large-font{
+    font-family: PingFangSC-Regular, sans-serif;
+    font-size: 2em;
     color: #494c57;
 }
 .overflow-ellipsis{

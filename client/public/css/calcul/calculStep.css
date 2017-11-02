@@ -1,0 +1,47 @@
+
+.cal-title{
+    height: 60px;
+    line-height: 60px;
+}
+.step{
+    padding: 40px 20px;
+    line-height:40px;
+}
+.backHome{
+    right: 20px;
+}
+/*文件上传*/
+.file-box{
+    padding: 20px 10px;
+
+}
+.file-up{
+    height: 300px;
+    width: 280px;
+    border-radius: 3px;
+    border: 2px solid #494c57;
+    padding: 10px 25px;
+}
+.file-icon{
+    font-size: 250px;
+    color: #d8dce8;
+    text-align:center;
+}
+.file-road{
+    max-width: 280px;
+    padding: 20px 0px;
+}
+.file-describe{
+
+}
+.file-btn{
+    cursor: pointer;
+}
+.rotate-cal{
+    .center-block()
+    width:100%;
+}
+.rotate{
+    width: 400px;
+    height: 400px;
+}

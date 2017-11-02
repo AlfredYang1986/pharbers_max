@@ -1,0 +1,67 @@
+@pageLayout.calculPanel.calculStepPanel("MAX | 添加数据"){
+    <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/calculStep.css")">
+}{
+    <div class="row">
+        <div class="col-sm-1 col-lg-2"></div>
+        <div class="col-sm-10">
+            <div class="row">
+                <div>
+                    <span class="small_info">This an introduction text. It has a fixed size,and a custom line height,so you can experiment
+                    with it. Lorem ipsun dolor sit dask,cmodm
+                    </span>
+                    <br>
+                    <span class="small_info">kfi dod dodo ss, ddoc smsm.</span>
+                </div>
+            </div>
+            <div class="space-height"></div>
+            <div class="row">
+                <div class="col-md-6 col-xs-10">
+                    <div class="file-box">
+                        <div class="middle-font">CPA文件</div>
+                        <div class="file-up">
+                            <div><i class="fa fa-file-excel-o file-icon" aria-hidden="true"></i></div>
+                            <div class="small_info">拖拽至此处上传</div>
+                            <div></div>
+                        </div>
+                        <div class="file-road row">
+                            <div class="form-group col-md-12 has-feedback" id="file">
+                                <div class="input-group">
+                                    <input id="cpafileLoad" type="file" style="display:none">
+                                    <input class="form-control" type="text">
+                                    <span class="input-group-addon file-btn"  onclick="$('input[id=cpafileLoad]').click();"><i class="fa fa-folder-open"></i>选择文件</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-1 col-xs-2"></div>
+                <div class="col-md-5 col-xs-10">
+                    <div class="file-box">
+                        <div class="middle-font">国药诚信文件GYCX文件</div>
+                        <div class="file-up">
+                            <div><i class="fa fa-file-excel-o file-icon" aria-hidden="true"></i></div>
+                            <div class="small_info">拖拽至此处上传</div>
+                            <div></div>
+                        </div>
+                        <div class="file-road row">
+                            <div class="form-group col-md-12 has-feedback">
+                                <div class="input-group">
+                                    <input id="gycxfileLoad" type="file" style="display:none">
+                                    <input class="form-control" type="text">
+                                    <span class="input-group-addon file-btn"  onclick="$('input[id=gycxfileLoad]').click();"><i class="fa fa-folder-open"></i>选择文件</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-1 col-lg-2"></div>
+    </div>
+}{
+    <script>
+
+    </script>
+}

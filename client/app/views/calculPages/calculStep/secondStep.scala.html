@@ -1,0 +1,97 @@
+@pageLayout.calculPanel.calculStepPanel("MAX | 添加数据") {
+    <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/calculStep.css")">
+} {
+    <div class="col-sm-2 col-lg-4"></div>
+    <div class="col-sm-8 col-lg-4">
+        <div class="row">
+            <div class="space-height"></div>
+            <div>
+                <span class="small_info">
+                    MAX将会把你导入的文件 &nbsp&nbsp<span>CPA：文件名</span>&nbsp&nbsp和&nbsp&nbsp<span>GYCS：文件名</span>
+                </span>
+                <br>
+                <span class="small_info">对比过去12个月数据中&nbsp&nbsp医院数量&nbsp&nbsp产品数量&nbsp&nbsp销售额，进行可靠性检查</span>
+                <br>
+                <span class="small_info">此样本检查的报告将最终成为MAX可靠程度的重要参考依据。</span>
+            </div>
+        </div>
+        <div class="row rotate-cal">
+            <div class="rotate" id="rotate"></div>
+            <div class="small_info" data-toggle="modal" data-target="#chooseMonth">max在解析您的文件...</div>
+        </div>
+    </div>
+    <div class="col-sm-2 col-lg-4"></div>
+} {
+    @calculPages.calculStep.monthChoose()
+    <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
+    <script>
+            $(document).ready(function () {
+                $('.scd-img')[0].src = "@routes.Assets.versioned("images/calculStep/step2.png")";
+                prograssBar();
+            });
+
+        var prograssBar = function () {
+            var rotate = echarts.init(document.getElementById('rotate'));
+            var tips = 0;
+
+            function loading() {
+                return [{
+                    value: tips,
+                    itemStyle: {
+                        normal: {
+                            color: '#fb358a',
+                            shadowBlur: 10,
+                            shadowColor: '#fb358a'
+                        }
+                    }
+                }, {
+                    value: 100 - tips,
+                }];
+            }
+
+            var option = {
+                title: {
+                    text: (tips * 1) + '%',
+                    x: 'center',
+                    y: 'center',
+                    textStyle: {
+                        color: '#fb358a',
+                        fontSize: 40,
+                    }
+                },
+                series: [{
+                    name: 'loading',
+                    type: 'pie',
+                    radius: ['30%', '31%'],
+                    hoverAnimation: false,
+                    label: {
+                        normal: {
+                            show: false,
+                        }
+                    },
+                    data: loading(),
+                }]
+            };
+
+            setInterval(function() {
+
+                if (tips == 100) {
+                    tips = 0;
+                } else {
+                    ++tips;
+                }
+                rotate.setOption({
+                    title: {
+                        text: tips + '%'
+                    },
+                    series: [{
+                        name: 'loading',
+                        data: loading()
+                    }]
+                })
+
+            }, 100);
+            rotate.setOption(option);
+        }
+    </script>
+}
