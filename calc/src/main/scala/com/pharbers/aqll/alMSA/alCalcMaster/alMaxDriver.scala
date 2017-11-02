@@ -15,10 +15,9 @@ object alMaxDriver {
 	case class pushGeneratePanelJobs(item : alUploadItem)
 	case class calcYMSchedule()
 	case class generatePanelSchedule()
-	case class releasePanelEnergy()
 	case class releaseCalcYMEnergy()
-	case class calcYMResult(ym : String)
-	case class generatePanelResult(paths : List[String])
+	case class calcYMResult(ym: String)
+	case class generatePanelResult(paths: String)
 }
 
 class alMaxDriver extends Actor with ActorLogging
@@ -35,20 +34,14 @@ class alMaxDriver extends Actor with ActorLogging
 
 		case pushGeneratePanelJobs(item) => push_generate_panel_jobs(item, sender)
 		case generatePanelSchedule() => generate_panel_schedule_jobs
-		case releasePanelEnergy() => release_panel_energy
-		case generatePanelResult(paths) => {
-			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
-			paths.foreach {x =>
-				println("panel文件位置 = " + x)
-//				self ! push_filter_job(x, cp)
-			}
-		}
+		case generatePanelResult(panelLst) => println(s"paths = ${panelLst}")
 
 		case pushCalcYMJobs(item) => push_calc_ym_jobs(item, sender)
 		case calcYMSchedule() => calc_ym_schedule_jobs
 		case releaseCalcYMEnergy() => release_calcYM_energy
+		case calcYMResult(ym) => println(s"calcYM = ${ym}")
+
 		case ExcuteScanScpQueue() => scanQueue()
-		case calcYMResult(ym) => log.info(s"calcYM=${ym}")//sender ! calcYMResult(ym)
 
 		case _ => ???
 	}

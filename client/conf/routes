@@ -57,6 +57,7 @@ POST    /phonecode/check                            controllers.phonecode.PhoneS
 
 # 上传文件
 POST    /panel/upload                               controllers.upload.FopController.uploadFile
+POST    /source/upload                              controllers.upload.FopController.uploadFile
 POST    /upload/queryUserCompnay                    controllers.upload.FopController.queryUserCompnay
 
 # Call Http

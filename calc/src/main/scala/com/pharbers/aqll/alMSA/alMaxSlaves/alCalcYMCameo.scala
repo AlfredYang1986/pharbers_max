@@ -36,10 +36,12 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
             val args: Map[String, List[String]] = Map(
                 "company" -> List(calcYM_job.company),
                 "user" -> List(calcYM_job.user),
-                "cpas" -> calcYM_job.cpas.split("&").toList,
-                "gycxs" -> calcYM_job.gycxs.split("&").toList
+                "cpas" -> calcYM_job.cpa.split("&").toList,
+                "gycxs" -> calcYM_job.gycx.split("&").toList
             )
+            println("开始计算日期:" + args)
             val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
+            println("ym = " + ym)
             alMessageProxy().sendMsg(ym, calcYM_job.user, Map("type" -> "txt"))
             self ! calcYM_end(true, ym)
         }
