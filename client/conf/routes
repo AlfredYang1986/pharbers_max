@@ -4,7 +4,8 @@
 # 路人申请体验页面
 GET     /register/info                   controllers.alMaxRouterController.infoRegistration
 POST    /register/user                   controllers.register.RegisterController.user_apply
-
+#####calcul#####
+GET     /calcul/home                     controllers.alMaxRouterController.cHome
 
 ########bd########
 GET     /bd/bdUser                       controllers.alMaxRouterController.bdUser
