@@ -26,6 +26,8 @@
         element.on('tab(step)', function (data) {
             if (data.index === 0) {
                 current_li = 0;
+                load_cpa_source_tab('#cpa-file');
+                load_gycx_source_tab('#gycx-file');
             } else if (data.index === 1) {
                 current_li = 1;
             } else if (data.index === 2) {
@@ -35,8 +37,6 @@
             } else {
             }
         });
-        load_cpa_source_tab('#cpa-file');
-        load_gycx_source_tab('#gycx-file');
         callback();
         setProgress();
     });
@@ -56,10 +56,6 @@
             }else if(current_li === 1) {
                 var panel_lst = $('#panel-lst').children();
                 if(panel_lst.length === 0)
-                    return;
-            }else if(current_li === 2) {
-                // var panel_lst = $('#panel-lst').children();
-                // if(panel_lst.length === 0)
                     return;
             }
 
@@ -134,41 +130,94 @@
         console.info(msg.data);
         $('.mask-layer').hide();
         $('.loading').hide();
-        // f.alertModule.content($('#selectYM'), null, null, "aaa", function(){});
-        var ym_lst = msg.data.split(',');
+
+        var ym_lst = msg.data.ym.split(',');
+        var $ym_div = $('#ym-div');
+        $ym_div.empty();
+        $.each(ym_lst, function( index, ym ) {
+            $ym_div.append("<input type='checkbox' value='"+ ym +"' lay-skin='primary'>" + ym);
+        });
+
+        f.alertModule.content($('#selectYM').html(), null, null, "请选择需要Max的月份", ['MAX'], function(index, layero){
+            write_table(msg.data.mkt.split(','));
+            generat_panel_action();
+            layer.close(index);
+        });
+    };
+
+    var write_table = function(mkt_lst){
+        var ym_lst = [];
+        var panel_lst = $('#panel-lst');
+        var panel_calc_lst = $('#panel-calc-lst');
+        var confrim_calc_lst = $('.confrim-calc-lst');
+
+        panel_lst.empty();
+        panel_calc_lst.empty();
+        confrim_calc_lst.empty();
+
+        $('#ym-div input[type=checkbox]:checked').each(function(){
+            ym_lst.push($(this).val());
+        });
+
+        function write_row(ym, mkt, str){
+            var s = "<tr><td>"+ ym  +"</td>";
+            s = s + "<td>"+ mkt +"</td>";
+            s = s + "<td>"+ str +"</td>";
+            s = s + "<td><div class='layui-progress'>";
+            s = s + "<div class='layui-progress-bar layui-bg-green' lay-percent='0%'></div>";
+            s = s + "</div></td></tr>";
+            return s;
+        }
+
+        $.each(ym_lst, function(index1, ym) {
+            $.each(mkt_lst, function(index2, mkt) {
+                panel_lst.append(write_row(ym, mkt, "正在生成"));
+                panel_calc_lst.append(write_row(ym, mkt, "正在计算"));
+                confrim_calc_lst.append(write_row(ym, mkt, "正在检查"));
+            });
+        });
+    };
+
+    var generat_panel_action = function() {
+        var ym_lst = [];
+        $('#ym-div input[type=checkbox]:checked').each(function(){
+            ym_lst.push($(this).val());
+        });
+
+        if(ym_lst.length < 1){
+            return;
+        }
+
         var json = JSON.stringify({
             "businessType": "/genternPanel",
-            "company": "fea9f203d4f593a96f0d6faa91ba24ba",
+            "company": company,
             "user": $.cookie('webim_user'),
             "cpa": sourceMap.cpa,
             "gycx": sourceMap.gycx,
             "ym": ym_lst
         });
-        // f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+
         isSelectYm = true;
-        $( "#next-btn" ).trigger( "click" );
-        generat_panel_result(msg);
+        $( "#next-btn" ).click();
+        // var test_data = {
+        //     "data":"aaaaa,bbbbb"
+        // };
+        // generat_panel_result(test_data);
     };
 
     var generat_panel_result = function (msg) {
         console.info(msg.data);
-        var panel_lst = $('#panel-lst');
-        var panel_calc_lst = $('#panel-calc-lst');
-        var confrim_calc_lst = $('.confrim-calc-lst');
-        panel_calc_lst.empty();
-        confrim_calc_lst.empty();
-        panel_calc_lst.append(panel_lst.children().clone());
-        confrim_calc_lst.append(panel_lst.children().clone());
 
         var panelList = msg.data.split(',');
         for(var i=0 ; i<panelList.length ; i++){
             var json = JSON.stringify({
                 "businessType": "/modelcalc",
-                "company": "fea9f203d4f593a96f0d6faa91ba24ba",
+                "company": company,
                 "filename": panelList[i],
                 "uname": $.cookie('webim_user')
             });
-            // f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
         }
 
         $( "#next-btn" ).trigger( "click" );
@@ -271,7 +320,7 @@
                         tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
 
                         sourceMap.cpa = res.result[0];
-                        $( "#upload-gycx-btn" ).trigger( "click" );
+                        $( "#upload-gycx-btn" ).click();
 
                         return;
                     }
@@ -302,13 +351,6 @@
                 accept: 'file',
                 exts: 'xlsx',
                 bindAction: '#upload-gycx-btn' ,//#upload-panel-btn
-                before: function () {
-                    query_company();
-                    if(!isCalcDone) {
-                        $('.mask-layer').show();
-                        $('.loading').show();
-                    }
-                },
                 choose: function (obj) {
                     files = obj.pushFile();
                     obj.preview(function (index, file, result) {
@@ -361,13 +403,18 @@
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
             var json = JSON.stringify({
                 "businessType": "/calcYM",
-                "company": "fea9f203d4f593a96f0d6faa91ba24ba",
+                "company": company,
                 "user": $.cookie('webim_user'),
                 "cpa": sourceMap.cpa,
                 "gycx": sourceMap.gycx
             });
             f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-            // var test_data = {"data":"201705,201706"};
+            // var test_data = {
+            //     "data":{
+            //         "ym": "201705,201706",
+            //         "mkt": "INF,SPE"
+            //     }
+            // };
             // calc_ym_result(test_data);
         }
     };
@@ -465,7 +512,6 @@
     };
 
     var load_result_check_tab = function () {
-
         $('#goinghistory').click(function(){
             $('.mask-layer').show();
             $('.loading').show();
