@@ -13,14 +13,14 @@ import scala.concurrent.duration._
   */
 object alRestoreBsonComeo {
     def props(coll : String,
-              sub_uuid : String,
+              sub_uuids : List[String],
               originSender : ActorRef,
               owner : ActorRef,
-              counter : ActorRef) = Props(new alRestoreBsonComeo(coll, sub_uuid, originSender, owner, counter))
+              counter : ActorRef) = Props(new alRestoreBsonComeo(coll, sub_uuids, originSender, owner, counter))
 }
 
 class alRestoreBsonComeo (val coll : String,
-                          val sub_uuid : String,
+                          val sub_uuids : List[String],
                           val originSender : ActorRef,
                           val owner : ActorRef,
                           val counter : ActorRef) extends Actor with ActorLogging {
@@ -32,31 +32,31 @@ class alRestoreBsonComeo (val coll : String,
     override def receive: Receive = {
 
         case restore_bson_start_impl(coll, sub_uuid) => {
-            alRestoreColl2().apply(s"${coll}", sub_uuid :: Nil)
-            self ! restore_bson_end(true, sub_uuid)
+            alRestoreColl2().apply(s"${coll}", sub_uuids)
+            self ! restore_bson_end(true, coll)
         }
         case restore_bson_end(result, sub_uuid) => {
             owner forward restore_bson_end(result, sub_uuid)
             shutSlaveCameo(restore_bson_end(result, sub_uuid))
         }
         case restore_bson_timeout() => {
-            log.debug("timeout occur")
+            log.info("timeout occur")
             shutSlaveCameo(restore_bson_timeout())
         }
 
-        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! restore_bson_start_impl(coll, sub_uuid)
+        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! restore_bson_start_impl(coll, sub_uuids)
 
         case cannotRestart(reason: Throwable) => {
-            new alMessageProxy().sendMsg("cannot restore bson", sub_uuid, Map("type" -> "txt"))
+            new alMessageProxy().sendMsg("cannot restore bson", coll, Map("type" -> "txt"))
             log.info(s"reason is ${reason}")
-            self ! restore_bson_end(false, sub_uuid)
+            self ! restore_bson_end(false, coll)
         }
 
         case msg : AnyRef => log.info(s"Warning! Message not delivered. alRestoreBsonCameo.received_msg=${msg}")
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val timeoutMessager = context.system.scheduler.scheduleOnce(30 minute) {
+    val timeoutMessager = context.system.scheduler.scheduleOnce(600 minute) {
         self ! restore_bson_timeout()
     }
 
