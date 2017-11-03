@@ -11,8 +11,9 @@
     var isCalcDone = false;
     var f = new Facade();
 
+    var cpaFile;
+    var gycFile;
     var company = "";
-    var files;
     var tables = [];
     var uuids = [];
 
@@ -89,7 +90,7 @@
             onTextMessage: function ( message ) {
                 var ext = message.ext;
                 if(ext !== null) {
-                    var reVal = w.im_object.searchExtJson(ext)('type') !== 'Null' ? w.im_object.searchExtJson(ext)('type') : w.im_object.searchExtJsonForElement(ext.elems)('type');
+                    var reVal = window.im_object.searchExtJson(ext)('type') !== 'Null' ? window.im_object.searchExtJson(ext)('type') : window.im_object.searchExtJsonForElement(ext.elems)('type');
                     switch (reVal) {
                         case 'progress':
                             progress(message);
@@ -127,19 +128,19 @@
     };
 
     var calc_ym_result = function (msg) {
+        var obj = JSON.parse(msg.data);
         console.info(msg.data);
         $('.mask-layer').hide();
         $('.loading').hide();
 
-        var ym_lst = msg.data.ym.split(',');
         var $ym_div = $('#ym-div');
         $ym_div.empty();
-        $.each(ym_lst, function( index, ym ) {
+        $.each(obj.ym.split(","), function( index, ym ) {
             $ym_div.append("<input type='checkbox' value='"+ ym +"' lay-skin='primary'>" + ym);
         });
 
         f.alertModule.content($('#selectYM').html(), null, null, "请选择需要Max的月份", ['MAX'], function(index, layero){
-            write_table(msg.data.mkt.split(','));
+            write_table(obj.mkt.split(','));
             generat_panel_action();
             layer.close(index);
         });
@@ -200,6 +201,7 @@
 
         isSelectYm = true;
         $( "#next-btn" ).click();
+
         // var test_data = {
         //     "data":"aaaaa,bbbbb"
         // };
@@ -210,15 +212,15 @@
         console.info(msg.data);
 
         var panelList = msg.data.split(',');
-        for(var i=0 ; i<panelList.length ; i++){
+        $.each(panelList, function(i, v){
             var json = JSON.stringify({
                 "businessType": "/modelcalc",
                 "company": company,
-                "filename": panelList[i],
+                "filename": v,
                 "uname": $.cookie('webim_user')
             });
             f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-        }
+        });
 
         $( "#next-btn" ).trigger( "click" );
     };
@@ -289,7 +291,7 @@
                     }
                 },
                 choose: function (obj) {
-                    files = obj.pushFile();
+                    cpaFile = obj.pushFile();
                     obj.preview(function (index, file, result) {
                         var tr = $(['<tr id="upload-' + index + '">'
                             , '<td>' + file.name + '</td>'
@@ -306,7 +308,6 @@
                         });
 
                         tr.find('.demo-delete').on('click', function () {
-                            delete files[index];
                             tr.remove();
                         });
                         source_lst.append(tr);
@@ -320,6 +321,9 @@
                         tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
 
                         sourceMap.cpa = res.result[0];
+                        delete cpaFile[index];
+
+
                         $( "#upload-gycx-btn" ).click();
 
                         return;
@@ -352,7 +356,7 @@
                 exts: 'xlsx',
                 bindAction: '#upload-gycx-btn' ,//#upload-panel-btn
                 choose: function (obj) {
-                    files = obj.pushFile();
+                    gycFile = obj.pushFile();
                     obj.preview(function (index, file, result) {
                         var tr = $(['<tr id="upload-' + index + '">'
                             , '<td>' + file.name + '</td>'
@@ -369,7 +373,6 @@
                         });
 
                         tr.find('.demo-delete').on('click', function () {
-                            delete files[index];
                             tr.remove();
                         });
                         source_lst.append(tr);
@@ -383,6 +386,7 @@
                         tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
 
                         sourceMap.gycx = res.result[0];
+                        delete gycFile[index];
                         call_calcYM();
 
                         return;
@@ -444,7 +448,6 @@
                     }
                 },
                 choose: function (obj) {
-                    files = obj.pushFile();
                     obj.preview(function (index, file, result) {
                         var tr = $(['<tr id="upload-' + index + '">'
                             , '<td>' + file.name + '</td>'
@@ -461,7 +464,6 @@
                         });
 
                         tr.find('.demo-delete').on('click', function () {
-                            delete files[index];
                             tr.remove();
                         });
                         panel_calc_lst.empty();
@@ -480,13 +482,18 @@
                         var calc_tr = panel_calc_lst.find('tr#upload-' + index);
                         var calc_tds = calc_tr.children();
                         calc_tds.eq(2).html('<span style="color: #008B7D;">等待计算</span>');
+
                         var lay_filter = 'calc-progress-' + fileName;
 
                         var p = '<div class="layui-progress" lay-filter= '+ lay_filter +'>\n' +
                                 '    <div class="layui-progress-bar layui-bg-green" lay-percent="0%"></div>\n' +
                                 '</div>';
+
+
+
                         calc_tds.eq(3).html(p);
-                        delete files[index];
+
+
 
                         confrim_calc_lst.empty();
                         confrim_calc_lst.append(panel_calc_lst.children().clone());

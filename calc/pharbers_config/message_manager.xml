@@ -1,0 +1,6 @@
+<pharbers-modules>
+    <message-content-nodes>
+        <content-config-path name="email" value="pharbers_config/email_content.xml" />
+        <content-config-path name="im" value="pharbers_config/im_content.xml" />
+    </message-content-nodes>
+</pharbers-modules>
