@@ -34,7 +34,7 @@ case class alUpBeforeItem(company: String, user: String, cpa: String, gycx: Stri
 case class alUploadItem(company: String, user: String, cpa: String, gycx: String, ym: List[String])
 case class alCheckItem(company: String, filename: String, uname: String)
 case class alCalcItem(filename: String, company: String, imuname: String, uid: String)
-case class alCommitItem(company: String, uuid: String, uname: String)
+case class alCommitItem(company: String, uuid: String, uname: String, uid: String)
 case class alExportItem(datatype: String, market: List[String],
                         staend: List[String], company: String,
                         filetype: String, uname: String)
@@ -117,7 +117,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-				val map = Map("company" -> item.company, "uuid" -> item.uuid, "uname" -> item.uname)
+				val map = Map("company" -> item.company, "uuid" -> item.uuid, "uname" -> item.uname, "uid" -> item.uid)
 				a ! max_calc_done(map)
 				val result = alSampleCheckCommit().apply(item.company)
 				complete(result)
