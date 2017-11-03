@@ -2,9 +2,12 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import java.util.Date
 
+import play.api.libs.json.{JsValue, Json}
+
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection, FSM, PoisonPill, Props}
 import akka.remote.routing.RemoteRouterConfig
 import akka.routing.{BroadcastGroup, BroadcastPool}
+
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
@@ -25,7 +28,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.res
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor.PushToScpQueue
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, refundNodeForRole}
 import com.pharbers.message.im.EmChatMsg
-import play.api.libs.json.{JsValue, Json}
+
 
 import scala.concurrent.stm.atomic
 
@@ -56,19 +59,7 @@ case object restore_maxing extends alPointState
 
 case object calc_done extends alPointState
 
-trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
-	with alLoggerMsgTrait {
-	this: Actor =>
-	var almp: alMaxProperty = alMaxProperty("", "", Nil)
-	var path = ""
-	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
-	val queueActor = context.actorOf(alScpQueueActor.props(self))
-	var s1 = startDate()
-	
-	import alCameoMaxDriver._
-	
-	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
-	
+case class EmChatMessage() {
 	def creatreEmRooms(company: String, uid: String) = {
 		val roomName = s"${company}_${uid}"
 		val reVal = (Json.parse(EmChatMsg()
@@ -99,6 +90,20 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			.sendMsgExt(Map("file" -> fileName, "uuid" -> uuid, "table" -> s"${company + uuid}", "type" -> mestype, "step" -> step))
 			.sendMsg(msg)
 	}
+}
+
+trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
+	with alLoggerMsgTrait {
+	this: Actor =>
+	var almp: alMaxProperty = alMaxProperty("", "", Nil)
+	var path = ""
+	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
+	val queueActor = context.actorOf(alScpQueueActor.props(self))
+	var s1 = startDate()
+	
+	import alCameoMaxDriver._
+	
+	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
 	
 	startWith(alDriverJobIdle, alCalcParmary("", ""))
 	when(alDriverJobIdle) {
@@ -109,7 +114,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			pr.uid = cp.uid
 			pr.fileName = file.substring(file.lastIndexOf('/') + 1)
 			
-			creatreEmRooms(pr.company, pr.uid)
+			EmChatMessage().creatreEmRooms(pr.company, pr.uid)
 			
 			acts ! filter_excel_job_2(file, cp)
 			alMessageProxy().sendMsg("1", pr.imuname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "过滤文件中"))
@@ -236,7 +241,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			acts ! calc_slave_status()
 			test_num = test_num + 1
 			
-			sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "计算结束", "100")
+			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "计算结束", "100")
 //			alMessageProxy().sendMsg("100", pr.imuname, Map("file" -> pr.fileName, "uuid" -> pr.uuid, "table" -> s"${pr.company + pr.uuid}", "type" -> "progress_calc", "step" -> "计算结束"))
 			endDate("test" + test_num, s1)
 			shutCameo()
@@ -249,9 +254,15 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val company = mp.get("company").getOrElse("")
 			val uuid = mp.get("uuid").getOrElse("")
 			val imuname = mp.get("imuname").getOrElse("")
-			alMessageProxy().sendMsg("20", imuname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result", "step" -> "正在转储为永久数据中"))
+			val uid = mp.get("uid").getOrElse("")
+			
+			EmChatMessage().sendEMMessage(company, uid, uuid, "", "progress_calc_result", "正在转储为永久数据中", "20")
+			
+//			alMessageProxy().sendMsg("20", imuname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result", "step" -> "正在转储为永久数据中"))
 			alWeightSum().apply(company, s"$company$uuid")
-			alMessageProxy().sendMsg("100", imuname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result", "step" -> "转储完成"))
+			
+			EmChatMessage().sendEMMessage(company, uid, uuid, "", "progress_calc_result", "正在转储为永久数据中", "100")
+//			alMessageProxy().sendMsg("100", imuname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result", "step" -> "正在转储为永久数据中"))
 			dbc.getCollection(s"$company$uuid").drop()
 			shutCameo
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
