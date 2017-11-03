@@ -86,7 +86,7 @@ class alFilterExcelComeo(fp : String,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! filter_excel_start_impl(fp, cp)
 
         case cannotRestart(reason: Throwable) => {
-            new alMessageProxy().sendMsg("100", cp.uname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            new alMessageProxy().sendMsg("100", cp.imuname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
             self ! filter_excel_end(false, cp)
         }
 

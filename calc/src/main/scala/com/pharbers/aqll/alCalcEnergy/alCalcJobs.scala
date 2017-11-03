@@ -138,7 +138,7 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 					case Some(x) =>
 						val u = x.company+uuid
 						alRestoreColl().apply(u, sub_uuid :: Nil)
-						(x.company, u, x.uname)
+						(x.company, u, x.imuname)
 					case _ => ???
 				}
 				
@@ -167,17 +167,17 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 		alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
 			case None => log.info(s"commit_finalresult_jobs_func not company")
 			case Some(x) =>
-//				new alMessageProxy().sendMsg("30", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+//				new alMessageProxy().sendMsg("30", x.imuname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				log.info(s"x.uuid = ${x.uuid}")
 				alWeightSum().apply(company, company + x.uuid)
-//				new alMessageProxy().sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+//				new alMessageProxy().sendMsg("20", x.imuname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				log.info(s"开始删除临时表")
 				dbc.getCollection(company + x.uuid).drop()
 				log.info(s"结束删除临时表")
 				atomic { implicit txn =>
 					alCalcParmary.alParmary() = alCalcParmary.alParmary.single.get.filterNot(_.company.equals(x.company))
 				}
-				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
+				new alMessageProxy().sendMsg("100", x.imuname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
 		}
 	}
 
