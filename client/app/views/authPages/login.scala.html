@@ -84,7 +84,8 @@
                            f.ajaxModule.asyncPost('auth/authWithPassword', json, function (r) {
                                if (r.status === 'ok') {
                                    f.cookieModule.setCookie("user_token", r.result.auth_token);
-                                   window.im_object.login_im(r.result.uuid, r.result.uuid);
+                                   f.cookieModule.setCookie("uid", r.result.uid);
+                                   window.im_object.login_im(r.result.imuid, r.result.imuid);
                                    setTimeout(function(){location = "/auth/user/"}, 1000)
                                } else {
                                    layer.msg('用户名或密码错误！');

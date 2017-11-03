@@ -41,8 +41,11 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
             )
             println("开始计算日期:" + args)
             val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
+            val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
             println("ym = " + ym)
-            alMessageProxy().sendMsg(ym, calcYM_job.user, Map("type" -> "txt"))
+            println("markets = " + markets)
+            val msg = s"{'ym':${ym}, 'mkt':${markets}}"
+            alMessageProxy().sendMsg(msg, calcYM_job.user, Map("type" -> "calc_ym_result"))
             self ! calcYM_end(true, ym)
         }
         case calcYM_end(result, ym) => {

@@ -4,17 +4,22 @@
 
 (function ($) {
     'use strict';
+    $('li[pharbers-filter="calc"]').addClass("layui-this");
     var total = $('ul[pharbers-ul="calc-tab"]').find('li').length;
     var current_li = 0;
-    var tab_arr = ['panel-li', 'calc-li', 'result-li'];
-    $('li[pharbers-filter="calc"]').addClass("layui-this");
-    var company = "";
-    var files;
+    var tab_arr = ['source-li', 'panel-li', 'calc-li', 'result-li'];
     var isCalcDone = false;
     var f = new Facade();
+
+    var company = "";
+    var files;
     var tables = [];
     var uuids = [];
+
     var sourceMap = {"cpa":"","gycx":""};
+    var isSelectYm = false;
+
+    var temp = 0;
 
     layui.use('element', function () {
         var element = layui.element;
@@ -25,11 +30,13 @@
                 current_li = 1;
             } else if (data.index === 2) {
                 current_li = 2;
+            } else if (data.index === 3) {
+                current_li = 3;
             } else {
             }
         });
-        load_source_tab('#panel-lst');
-        // load_panel_tab('#panel-lst');
+        load_cpa_source_tab('#cpa-file');
+        load_gycx_source_tab('#gycx-file');
         callback();
         setProgress();
     });
@@ -43,14 +50,23 @@
                 $(preBtn).addClass(disableCss);
                 unbinding('#previous-btn.operation', 'click');
             }
-        } else if (btn === "next" && current_li < 2) {
-            var panel_lst = $('#panel-lst').children();
-            if(panel_lst.length === 0)
-                return;
+        } else if (btn === "next" && current_li < total -1) {
+            if(current_li === 0 && isSelectYm === false){
+                    return;
+            }else if(current_li === 1) {
+                var panel_lst = $('#panel-lst').children();
+                if(panel_lst.length === 0)
+                    return;
+            }else if(current_li === 2) {
+                // var panel_lst = $('#panel-lst').children();
+                // if(panel_lst.length === 0)
+                    return;
+            }
+
             current_li = current_li + 1;
             binding('#previous-btn.operation', 'pre', '#next-btn', '#previous-btn', 'layui-btn-disabled');
             $(preBtn).removeClass(disableCss);
-            if (current_li === 2) {
+            if (current_li === total -1) {
                 $(nextBtn).addClass(disableCss);
                 load_result_check_tab();
                 unbinding('#next-btn.operation', 'click');
@@ -58,88 +74,6 @@
         }
         setProgress();
     };
-
-    var callback = function() {
-        var conn = window.im_object.conns();
-        var temp = 0;
-        conn.listen({
-            onOpened: function ( message ) {console.info("im 连接成功")},
-            onClosed: function ( message ) {},         //连接关闭回调
-            onTextMessage: function ( message ) {
-                var num = $('#panel-lst').children().length;
-                var ext = message.ext;
-                if(ext !== null) {
-                    var reVal = window.im_object.searchExtJson(ext)('type') !== 'Null' ? window.im_object.searchExtJson(ext)('type') : window.im_object.searchExtJsonForElement(ext.elems)('type');
-                    if(reVal === 'progress') {
-                        console.info(message.data);
-                    } else if(reVal === 'progress_calc') {
-                        var fileName = window.im_object.searchExtJson(ext)('file') !== 'Null' ? window.im_object.searchExtJson(ext)('file') : window.im_object.searchExtJsonForElement(ext.elems)('file');
-                        var step = window.im_object.searchExtJson(ext)('step') !== 'Null' ? window.im_object.searchExtJson(ext)('step') : window.im_object.searchExtJsonForElement(ext.elems)('step');
-                        var lay_filter = 'calc-progress-' + fileName;
-                        var span = $('#panel-calc-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
-                        span.text(step);
-                        if(message.data === "100") {
-                            temp = temp + 1;
-                            uuids.push({"fileName": fileName, "uuid" : window.im_object.searchExtJsonForElement(ext.elems)('uuid')});
-                            tables.push(window.im_object.searchExtJsonForElement(ext.elems)('table'));
-                            if(num === temp){
-                                $('.mask-layer').hide();
-                                $('.loading').hide();
-                                isCalcDone = true;temp = 0;
-                            }
-                        }
-                        setProgress(lay_filter, message.data);
-                    } else if(reVal === 'progress_calc_result') {
-                        var uuid = window.im_object.searchExtJson(ext)('uuid');
-                        var lay_uuid = 'calc-progress-' + uuid;
-                        var step_result = window.im_object.searchExtJson(ext)('step');
-                        var span_result = $('.confrim-calc-lst').eq(1).find('div[lay-filter=' + lay_uuid + ']').parent().prev().children('span');
-                        span_result.text(step_result);
-                        if(message.data === "100") {
-                            temp = temp + 1;
-                            if(num === temp){
-                                $('.mask-layer').hide();
-                                $('.loading').hide();
-                                temp = 0;uuids = [];tables = [];
-                                $('li[pharbers-filter="history"]').click();
-                            }
-                        }
-                        setProgress(lay_uuid, message.data);
-                    } else if(reVal === 'txt') {
-                        console.info(message.data);
-                        if(message.data === "201705"){
-                            var json = JSON.stringify({
-                                "businessType": "/genternPanel",
-                                "company": "fea9f203d4f593a96f0d6faa91ba24ba",
-                                "user": $.cookie('webim_user'),
-                                "cpa": sourceMap.cpa,
-                                "gycx": sourceMap.gycx,
-                                "ym": [message.data]
-                            });
-                            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-                        }else{
-                            var panelList = message.data.split(',');
-                            for(var i=0 ; i<panelList.length ; i++){
-                                var json = JSON.stringify({"businessType": "/modelcalc",
-                                    "company": "fea9f203d4f593a96f0d6faa91ba24ba",
-                                    "filename": panelList[i],
-                                    "uname": $.cookie('webim_user')
-                                });
-                                f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-                            }
-                        }
-                    } else {
-                        console.warn(message.ext);
-                        console.warn("No Type");
-                        console.warn(message.data);
-                    }
-                }
-            },    //收到文本消息
-            onOnline: function () {},                  //本机网络连接成功
-            onOffline: function () {},                 //本机网络掉线
-            onError: function ( message ) { console.error(message) }          //失败回调
-        });
-    }
 
     var setProgress = function (flag, num) {
         layui.use("element", function () {
@@ -149,7 +83,294 @@
             element.progress('calc-progress-step', progress);
             element.progress(flag, num + '%');
         });
-    }
+    };
+
+    var callback = function() {
+        var conn = window.im_object.conns();
+        conn.listen({
+            onOpened: function ( message ) {console.info("im 连接成功")},
+            onClosed: function ( message ) {},         //连接关闭回调
+            onTextMessage: function ( message ) {
+                var ext = message.ext;
+                if(ext !== null) {
+                    var reVal = w.im_object.searchExtJson(ext)('type') !== 'Null' ? w.im_object.searchExtJson(ext)('type') : w.im_object.searchExtJsonForElement(ext.elems)('type');
+                    switch (reVal) {
+                        case 'progress':
+                            progress(message);
+                            break;
+                        case 'calc_ym_result':
+                            calc_ym_result(message);
+                            break;
+                        case 'generat_panel_result':
+                            generat_panel_result(message);
+                            break;
+                        case 'progress_calc':
+                            progress_calc(message);
+                            break;
+                        case 'progress_calc_result':
+                            progress_calc_result(message);
+                            break;
+                        case 'txt':
+                            txt(message);
+                            break;
+                        default:
+                            console.warn(message.ext);
+                            console.warn("No Type");
+                            console.warn(message.data);
+                    }
+                }
+            },    //收到文本消息
+            onOnline: function () {},                  //本机网络连接成功
+            onOffline: function () {},                 //本机网络掉线
+            onError: function ( message ) { console.error(message) }          //失败回调
+        });
+    };
+
+    var progress = function(msg) {
+        console.info(msg);
+    };
+
+    var calc_ym_result = function (msg) {
+        console.info(msg.data);
+        $('.mask-layer').hide();
+        $('.loading').hide();
+        // f.alertModule.content($('#selectYM'), null, null, "aaa", function(){});
+        var ym_lst = msg.data.split(',');
+        var json = JSON.stringify({
+            "businessType": "/genternPanel",
+            "company": "fea9f203d4f593a96f0d6faa91ba24ba",
+            "user": $.cookie('webim_user'),
+            "cpa": sourceMap.cpa,
+            "gycx": sourceMap.gycx,
+            "ym": ym_lst
+        });
+        // f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        isSelectYm = true;
+        $( "#next-btn" ).trigger( "click" );
+        generat_panel_result(msg);
+    };
+
+    var generat_panel_result = function (msg) {
+        console.info(msg.data);
+        var panel_lst = $('#panel-lst');
+        var panel_calc_lst = $('#panel-calc-lst');
+        var confrim_calc_lst = $('.confrim-calc-lst');
+        panel_calc_lst.empty();
+        confrim_calc_lst.empty();
+        panel_calc_lst.append(panel_lst.children().clone());
+        confrim_calc_lst.append(panel_lst.children().clone());
+
+        var panelList = msg.data.split(',');
+        for(var i=0 ; i<panelList.length ; i++){
+            var json = JSON.stringify({
+                "businessType": "/modelcalc",
+                "company": "fea9f203d4f593a96f0d6faa91ba24ba",
+                "filename": panelList[i],
+                "uname": $.cookie('webim_user')
+            });
+            // f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        }
+
+        $( "#next-btn" ).trigger( "click" );
+    };
+
+    var progress_calc = function(msg) {
+        console.info(msg);
+        var fileName = window.im_object.searchExtJson(ext)('file') !== 'Null' ? window.im_object.searchExtJson(ext)('file') : window.im_object.searchExtJsonForElement(ext.elems)('file');
+        var step = window.im_object.searchExtJson(ext)('step') !== 'Null' ? window.im_object.searchExtJson(ext)('step') : window.im_object.searchExtJsonForElement(ext.elems)('step');
+        var lay_filter = 'calc-progress-' + fileName;
+        var span = $('#panel-calc-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
+        span.text(step);
+        if(message.data === "100") {
+            temp = temp + 1;
+            uuids.push({"fileName": fileName, "uuid" : window.im_object.searchExtJsonForElement(ext.elems)('uuid')});
+            tables.push(window.im_object.searchExtJsonForElement(ext.elems)('table'));
+            if(num === temp){
+                $('.mask-layer').hide();
+                $('.loading').hide();
+                isCalcDone = true;temp = 0;
+            }
+        }
+        setProgress(lay_filter, message.data);
+    };
+
+    var progress_calc_result = function(msg) {
+        console.info(msg);
+        var uuid = window.im_object.searchExtJson(ext)('uuid');
+        var lay_uuid = 'calc-progress-' + uuid;
+        var step_result = window.im_object.searchExtJson(ext)('step');
+        var span_result = $('.confrim-calc-lst').eq(1).find('div[lay-filter=' + lay_uuid + ']').parent().prev().children('span');
+        span_result.text(step_result);
+        if(message.data === "100") {
+            temp = temp + 1;
+            if(num === temp){
+                $('.mask-layer').hide();
+                $('.loading').hide();
+                temp = 0;uuids = [];tables = [];
+                $('li[pharbers-filter="history"]').click();
+            }
+        }
+        setProgress(lay_uuid, message.data);
+    };
+
+    var txt = function(msg) {
+        console.info(msg.data);
+    };
+
+    var load_cpa_source_tab = function (uploadid) {
+        layui.use('upload', function () {
+            var upload = layui.upload;
+            var source_lst = $(uploadid);
+
+            upload.render({
+                elem: '#select-cpa-btn',
+                url: '/source/upload',
+                drag: false,
+                data: {"company": company} ,
+                auto: false, //选择文件后不自动上传
+                // multiple: true , // 多文件上传
+                accept: 'file',
+                exts: 'xlsx',
+                bindAction: '#next-btn' ,//#upload-panel-btn
+                before: function () {
+                    query_company();
+                    if(!isCalcDone) {
+                        $('.mask-layer').show();
+                        $('.loading').show();
+                    }
+                },
+                choose: function (obj) {
+                    files = obj.pushFile();
+                    obj.preview(function (index, file, result) {
+                        var tr = $(['<tr id="upload-' + index + '">'
+                            , '<td>' + file.name + '</td>'
+                            , '<td>' + (file.size / 1024 / 1024).toFixed(1) + 'MB</td>'
+                            , '<td>等待上传</td>'
+                            , '<td class="opretion">'
+                            , '<button class="layui-btn layui-btn-mini demo-reload layui-hide">重传</button>'
+                            , '<button class="layui-btn layui-btn-mini layui-btn-danger demo-delete">删除</button>'
+                            , '</td>'
+                            , '</tr>'].join(''));
+
+                        tr.find('.demo-reload').on('click', function () {
+                            obj.upload(index, file);
+                        });
+
+                        tr.find('.demo-delete').on('click', function () {
+                            delete files[index];
+                            tr.remove();
+                        });
+                        source_lst.append(tr);
+                    });
+                },
+                done: function (res, index, upload) {
+                    if (res.status === 'ok') { //上传成功
+                        var tr = source_lst.find('tr#upload-' + index);
+                        var tds = tr.children();
+                        tds.eq(2).html('<span style="color: #008B7D;">上传完成</span>');
+                        tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
+
+                        sourceMap.cpa = res.result[0];
+                        $( "#upload-gycx-btn" ).trigger( "click" );
+
+                        return;
+                    }
+                    this.error(index, upload);
+                },
+                error: function (index, upload) {
+                    var tr = source_lst.find('tr#upload-' + index);
+                    var tds = tr.children();
+                    tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                    tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+                }
+            });
+        });
+    };
+
+    var load_gycx_source_tab = function (uploadid) {
+        layui.use('upload', function () {
+            var upload = layui.upload;
+            var source_lst = $(uploadid);
+
+            upload.render({
+                elem: '#select-gycx-btn',
+                url: '/source/upload',
+                drag: false,
+                data: {"company": company} ,
+                auto: false, //选择文件后不自动上传
+                // multiple: true ,
+                accept: 'file',
+                exts: 'xlsx',
+                bindAction: '#upload-gycx-btn' ,//#upload-panel-btn
+                before: function () {
+                    query_company();
+                    if(!isCalcDone) {
+                        $('.mask-layer').show();
+                        $('.loading').show();
+                    }
+                },
+                choose: function (obj) {
+                    files = obj.pushFile();
+                    obj.preview(function (index, file, result) {
+                        var tr = $(['<tr id="upload-' + index + '">'
+                            , '<td>' + file.name + '</td>'
+                            , '<td>' + (file.size / 1024 / 1024).toFixed(1) + 'MB</td>'
+                            , '<td>等待上传</td>'
+                            , '<td class="opretion">'
+                            , '<button class="layui-btn layui-btn-mini demo-reload layui-hide">重传</button>'
+                            , '<button class="layui-btn layui-btn-mini layui-btn-danger demo-delete">删除</button>'
+                            , '</td>'
+                            , '</tr>'].join(''));
+
+                        tr.find('.demo-reload').on('click', function () {
+                            obj.upload(index, file);
+                        });
+
+                        tr.find('.demo-delete').on('click', function () {
+                            delete files[index];
+                            tr.remove();
+                        });
+                        source_lst.append(tr);
+                    });
+                },
+                done: function (res, index, upload) {
+                    if (res.status === 'ok') { //上传成功
+                        var tr = source_lst.find('tr#upload-' + index);
+                        var tds = tr.children();
+                        tds.eq(2).html('<span style="color: #008B7D;">上传完成</span>');
+                        tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
+
+                        sourceMap.gycx = res.result[0];
+                        call_calcYM();
+
+                        return;
+                    }
+                    this.error(index, upload);
+                },
+                error: function (index, upload) {
+                    var tr = source_lst.find('tr#upload-' + index);
+                    var tds = tr.children();
+                    tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                    tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+                }
+            });
+        });
+    };
+
+    var call_calcYM = function() {
+        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
+            var json = JSON.stringify({
+                "businessType": "/calcYM",
+                "company": "fea9f203d4f593a96f0d6faa91ba24ba",
+                "user": $.cookie('webim_user'),
+                "cpa": sourceMap.cpa,
+                "gycx": sourceMap.gycx
+            });
+            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+            // var test_data = {"data":"201705,201706"};
+            // calc_ym_result(test_data);
+        }
+    };
 
     var load_panel_tab = function (uploadid) {
         layui.use('upload', function () {
@@ -215,8 +436,8 @@
                         var lay_filter = 'calc-progress-' + fileName;
 
                         var p = '<div class="layui-progress" lay-filter= '+ lay_filter +'>\n' +
-                            '    <div class="layui-progress-bar layui-bg-green" lay-percent="0%"></div>\n' +
-                            '</div>';
+                                '    <div class="layui-progress-bar layui-bg-green" lay-percent="0%"></div>\n' +
+                                '</div>';
                         calc_tds.eq(3).html(p);
                         delete files[index];
 
@@ -224,10 +445,10 @@
                         confrim_calc_lst.append(panel_calc_lst.children().clone());
 
                         var json = JSON.stringify({"businessType": "/modelcalc",
-                                                    "company": company,
-                                                    "filename": res.result[0],
-                                                    "uname": $.cookie('webim_user')
-                                                  });
+                            "company": company,
+                            "filename": res.result[0],
+                            "uname": $.cookie('webim_user')
+                        });
                         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
                         return;
                     }
@@ -235,89 +456,6 @@
                 },
                 error: function (index, upload) {
                     var tr = panel_lst.find('tr#upload-' + index);
-                    var tds = tr.children();
-                    tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
-                    tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
-                }
-            });
-        });
-    };
-
-    var load_source_tab = function (uploadid) {
-        layui.use('upload', function () {
-            var upload = layui.upload;
-            var source_lst = $(uploadid);
-
-            upload.render({
-                elem: '#select-panel-btn',
-                url: '/source/upload',
-                drag: false,
-                data: {"company": company} ,
-                auto: false, //选择文件后不自动上传
-                multiple: true ,
-                accept: 'file',
-                exts: 'xlsx',
-                bindAction: '#next-btn' ,//#upload-panel-btn
-                before: function () {
-                    query_company();
-                    if(!isCalcDone) {
-                        $('.mask-layer').show();
-                        $('.loading').show();
-                    }
-                },
-                choose: function (obj) {
-                    files = obj.pushFile();
-                    obj.preview(function (index, file, result) {
-                        var tr = $(['<tr id="upload-' + index + '">'
-                            , '<td>' + file.name + '</td>'
-                            , '<td>' + (file.size / 1024 / 1024).toFixed(1) + 'MB</td>'
-                            , '<td>等待上传</td>'
-                            , '<td class="opretion">'
-                            , '<button class="layui-btn layui-btn-mini demo-reload layui-hide">重传</button>'
-                            , '<button class="layui-btn layui-btn-mini layui-btn-danger demo-delete">删除</button>'
-                            , '</td>'
-                            , '</tr>'].join(''));
-
-                        tr.find('.demo-reload').on('click', function () {
-                            obj.upload(index, file);
-                        });
-
-                        tr.find('.demo-delete').on('click', function () {
-                            delete files[index];
-                            tr.remove();
-                        });
-                        source_lst.append(tr);
-                    });
-                },
-                done: function (res, index, upload) {
-                    if (res.status === 'ok') { //上传成功
-                        var tr = source_lst.find('tr#upload-' + index);
-                        var tds = tr.children();
-                        tds.eq(2).html('<span style="color: #008B7D;">上传完成</span>');
-                        tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
-
-                        if(sourceMap.gycx === "")
-                            sourceMap.gycx = res.result[0];
-                        else if(sourceMap.cpa === "")
-                            sourceMap.cpa = res.result[0];
-
-                        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-                            var json = JSON.stringify({
-                                "businessType": "/calcYM",
-                                "company": "fea9f203d4f593a96f0d6faa91ba24ba",
-                                "user": $.cookie('webim_user'),
-                                "cpa": sourceMap.cpa,
-                                "gycx": sourceMap.gycx
-                            });
-                            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-                        }
-
-                        return;
-                    }
-                    this.error(index, upload);
-                },
-                error: function (index, upload) {
-                    var tr = source_lst.find('tr#upload-' + index);
                     var tds = tr.children();
                     tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
                     tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
@@ -605,7 +743,7 @@
             };
             bar3_chart.setOption(option);
         }
-    }
+    };
 
     var query_company = function() {
         layui.use('layer', function () {});
@@ -619,7 +757,7 @@
                 layer.msg('服务出错请联系管理员！');
             }
         }, function(e){console.error(e)})
-    }
+    };
 
     var binding = function(opera, btn, preBtn, postBtn, cssClass) {
         unbinding(opera, 'click');
@@ -633,5 +771,5 @@
     binding('#previous-btn', 'pre', '#next-btn', '#previous-btn', 'layui-btn-disabled');
     binding('#next-btn', 'next', '#next-btn', '#previous-btn', 'layui-btn-disabled');
 
-}(jQuery))
+}(jQuery));
 
