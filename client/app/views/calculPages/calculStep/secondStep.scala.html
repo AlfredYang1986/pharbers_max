@@ -1,6 +1,7 @@
 @pageLayout.calculPanel.calculStepPanel("MAX | 添加数据") {
     <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/calculStep.css")">
 } {
+<div id="secondStep" class="row">
     <div class="col-sm-2 col-lg-4"></div>
     <div class="col-sm-8 col-lg-4">
         <div class="row">
@@ -15,20 +16,32 @@
                 <span class="small_info">此样本检查的报告将最终成为MAX可靠程度的重要参考依据。</span>
             </div>
         </div>
-        <div class="row rotate-cal">
+        @*<div class="row rotate-cal">
             <div class="rotate" id="rotate"></div>
             <div class="small_info" data-toggle="modal" data-target="#chooseMonth">max在解析您的文件...</div>
+        </div>*@
+        <div class="row inCenParent begin-check" onclick="goSecond()" id="rotate">
+            <img class="inCenChild img-responsive" src="@routes.Assets.versioned("images/calculStep/check.png")">
+        </div>
+        <div class="row inCenParent" id="loadInof">
+            <div class="inCenChild small-font tohref" data-toggle="modal" data-target="#backCheck">输入错误文件？重新导入</div>
         </div>
     </div>
     <div class="col-sm-2 col-lg-4"></div>
+</div>
 } {
     @calculPages.calculStep.monthChoose()
     <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
     <script>
-            $(document).ready(function () {
-                $('.scd-img')[0].src = "@routes.Assets.versioned("images/calculStep/step2.png")";
-                prograssBar();
-            });
+        $(document).ready(function () {
+            $('.scd-img')[0].src = "@routes.Assets.versioned("images/calculStep/step2.png")";
+
+        });
+        var goSecond = function () {
+            prograssBar();
+            $('#loadInof').empty();
+            $('#loadInof').append('<div class="inCenChild small-font">MAX正在解析您的文件...</div>')
+        };
 
         var prograssBar = function () {
             var rotate = echarts.init(document.getElementById('rotate'));
@@ -56,7 +69,7 @@
                     y: 'center',
                     textStyle: {
                         color: '#fb358a',
-                        fontSize: 40,
+                        fontSize: 30,
                     }
                 },
                 series: [{
