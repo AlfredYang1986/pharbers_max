@@ -55,7 +55,7 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
             val panelLst = getResult(result).mkString(",")
             println("panel list = " + panelLst)
 
-            alMessageProxy().sendMsg(panelLst.toString, panel_job.user, Map("type" -> "txt"))
+            alMessageProxy().sendMsg(panelLst.toString, panel_job.user, Map("type" -> "generat_panel_result"))
             self ! generate_panel_end(true, panelLst)
         }
         case generate_panel_end(result, panelLst) => {

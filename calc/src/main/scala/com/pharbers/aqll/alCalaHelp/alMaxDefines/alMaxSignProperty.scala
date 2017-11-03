@@ -12,14 +12,14 @@ import scala.concurrent.stm.Ref
 case class alMaxCrash(uuid: String)
 
 case class alCalcParmary(var company: String,
-                         var imuname: String,
-                         var uid: String = "",
-                         var uuid: String = "",
-                         var market: String = "",
-                         var fileName: String = "",
-                         var year: Int = 0,
-                         maxTimeTry: Int = 3,
-                         var faultTimes: Int = 0
+						 var imuname: String,
+						 var uid: String = "",
+						 var uuid: String = "",
+						 var market: String = "",
+						 var fileName: String = "",
+						 var year: Int = 0,
+						 maxTimeTry: Int = 3,
+						 var faultTimes: Int = 0
                         )
 
 object alCalcParmary {
