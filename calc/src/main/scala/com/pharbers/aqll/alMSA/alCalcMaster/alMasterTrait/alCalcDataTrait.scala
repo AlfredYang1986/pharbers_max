@@ -69,7 +69,7 @@ trait alCalcDataTrait { this : Actor =>
     def calcData(property : alMaxProperty, c : alCalcParmary, s : ActorRef) {
         val cur = context.actorOf(alCameoCalcData.props(c, property, s, self, calc_router))
         cur ! calc_data_start()
-        alMessageProxy().sendMsg("45", c.uname, Map("file" -> c.fileName, "company" -> c.company, "type" -> "progress_calc", "step" -> "正在计算中"))
+        alMessageProxy().sendMsg("45", c.imuname, Map("file" -> c.fileName, "company" -> c.company, "type" -> "progress_calc", "step" -> "正在计算中"))
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global

@@ -124,7 +124,7 @@ class alCalcDataComeo (c : alCalcParmary,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calc_data_start_impl(op, c)
         
         case cannotRestart(reason: Throwable) => {
-            alMessageProxy().sendMsg("100", c.uname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            alMessageProxy().sendMsg("100", c.imuname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
             self ! calc_data_end(false, r)
         }
         case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")

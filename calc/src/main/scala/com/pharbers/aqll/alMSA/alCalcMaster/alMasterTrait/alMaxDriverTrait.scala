@@ -69,6 +69,37 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	
 	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
 	
+	def creatreEmRooms(company: String, uid: String) = {
+		val roomName = s"${company}_${uid}"
+		val reVal = (Json.parse(EmChatMsg()
+			.setRoomName(roomName)
+			.setRoomDescription(roomName)
+			.setRoomOnwer("project")
+			.setRoomMaxUsers(200)
+			.createChatRoom) \ "data").as[String Map JsValue]
+		val roomId = reVal("id").as[String]
+		
+		(Json.parse(EmChatMsg().getUsersBatch()) \ "entities").as[List[String Map JsValue]].filter(x =>
+			x("username").as[String].indexOf(s"${company}_") != -1 && x("username").as[String].indexOf(s"_${uid}") != -1
+		).map(x => x("username").as[String]) match {
+			case Nil => Unit
+			case lst => EmChatMsg().setRoomMembers(roomId, lst)
+		}
+	}
+	
+	def sendEMMessage(company: String, uid: String, uuid: String, fileName: String, mestype: String, step: String, msg: String) = {
+		val reVal = (Json.parse(EmChatMsg().getAllRooms) \ "data").as[List[String Map JsValue]]
+			.filterNot(x => x("name").as[String] != company + "_" + uid)
+			.map(x => x("id").as[String])
+		
+		EmChatMsg().sendFromUser("project")
+			.sendTargetUser(reVal)
+			.sendTargetType("chatrooms")
+			.sendMsgContentType()
+			.sendMsgExt(Map("file" -> fileName, "uuid" -> uuid, "table" -> s"${company + uuid}", "type" -> mestype, "step" -> step))
+			.sendMsg(msg)
+	}
+	
 	startWith(alDriverJobIdle, alCalcParmary("", ""))
 	when(alDriverJobIdle) {
 		case Event(push_filter_job(file, cp), pr) => {
@@ -78,24 +109,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			pr.uid = cp.uid
 			pr.fileName = file.substring(file.lastIndexOf('/') + 1)
 			
-			// TODO 明天提出去
-			val roomName = s"${pr.company}_${pr.uid}"
-			val reVal = (Json.parse(EmChatMsg()
-					.setRoomName(roomName)
-					.setRoomDescription(roomName)
-					.setRoomOnwer("project")
-					.setRoomMaxUsers(200)
-					.createChatRoom) \ "data").as[String Map JsValue]
-			val roomId = reVal("id").as[String]
-			
-			(Json.parse(EmChatMsg().getUsersBatch()) \ "entities").as[List[String Map JsValue]].filter(x =>
-				x("username").as[String].indexOf(s"${pr.company}_") != -1 && x("username").as[String].indexOf(s"_${pr.uid}") != -1
-			).map(x => x("username").as[String]) match {
-				case Nil => Unit
-				case lst => EmChatMsg().setRoomMembers(roomId, lst)
-			}
-			
-			
+			creatreEmRooms(pr.company, pr.uid)
 			
 			acts ! filter_excel_job_2(file, cp)
 			alMessageProxy().sendMsg("1", pr.imuname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "过滤文件中"))
@@ -222,19 +236,8 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			acts ! calc_slave_status()
 			test_num = test_num + 1
 			
-			// TODO: 这里有待斟酌
-			val reVal = (Json.parse(EmChatMsg().getAllRooms) \ "data").as[List[String Map JsValue]]
-				.filterNot(x => x("name").as[String] != pr.company + "_" + pr.uid)
-				.map(x => x("id").as[String])
-			
-			EmChatMsg().sendFromUser("project")
-				.sendTargetUser(reVal)
-				.sendTargetType("chatrooms")
-				.sendMsgContentType()
-				.sendMsgExt(Map("uuid" -> sub_uuid, "company" -> pr.company, "type" -> "progress_calc"))
-				.sendMsg("100")
-			
-			//			alMessageProxy().sendMsg("100", pr.imuname, Map("uuid" -> sub_uuid, "company" -> pr.company, "type" -> "progress_calc"))
+			sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "计算结束", "100")
+//			alMessageProxy().sendMsg("100", pr.imuname, Map("file" -> pr.fileName, "uuid" -> pr.uuid, "table" -> s"${pr.company + pr.uuid}", "type" -> "progress_calc", "step" -> "计算结束"))
 			endDate("test" + test_num, s1)
 			shutCameo()
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
