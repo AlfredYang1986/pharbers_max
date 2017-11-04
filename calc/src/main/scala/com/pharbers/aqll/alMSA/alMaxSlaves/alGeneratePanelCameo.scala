@@ -4,7 +4,6 @@ import scala.concurrent.duration._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.EmChatMessage
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_start_impl, generate_panel_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alUploadItem
 import com.pharbers.panel.pfizer.phPfizerHandle
@@ -41,7 +40,6 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
                     }
                 }
             }.values.flatMap(_.values).toList.flatten
-                    .map{ _.split("/").last }
 
             val args: Map[String, List[String]] = Map(
                 "company" -> List(panel_job.company),
@@ -54,8 +52,7 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
             println("生成月份：" + panel_job.ym)
             val result = phPfizerHandle(args).getPanelFile(panel_job.ym)
             val panelLst = getResult(result).mkString(",")
-            println("panel list = " + panelLst)
-            println("panel list = " + panel_job.user)
+            println("result = " + result)
 
 //            EmChatMessage().sendEMMessage(panel_job.company, "", "", "", "generat_panel_result", "", result.toString)
 

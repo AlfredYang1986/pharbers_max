@@ -45,8 +45,6 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
             println("开始计算日期:" + args)
             val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
             val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
-            println("ym = " + ym)
-            println("markets = " + markets)
             val msg = toJson(Map("ym" -> ym, "mkt" -> markets)).toString()
             println("msg = " + msg)
 

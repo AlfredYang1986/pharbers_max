@@ -33,7 +33,6 @@ class alGeneratePanelSlave extends Actor with ActorLogging {
 //            val f = a ? takeNodeForRole("splitgeneratepanelslave")
             val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) {
-                println("00000000000000")
                 sender ! generate_panel_hand()
             }
             else Unit
