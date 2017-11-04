@@ -11,8 +11,9 @@
     var isCalcDone = false;
     var f = new Facade();
 
+    var cpaFile;
+    var gycFile;
     var company = "";
-    var files;
     var tables = [];
     var uuids = [];
 
@@ -22,10 +23,21 @@
     var temp = 0;
 
     layui.use('element', function () {
+        var obj = {"201705":{"INF":["4da20398-f9e0-4392-897b-bdb8738f67fb"],"SPE":["a12c634d-cc04-4cc4-a863-0476989fe080"]}}
+        $.each(obj,function(ym, v1) {
+            $.each(v1,function(mkt, panel_lst) {
+                $.each(panel_lst,function(i, fname){
+                    alert(fname);
+                });
+            });
+        });
+
         var element = layui.element;
         element.on('tab(step)', function (data) {
             if (data.index === 0) {
                 current_li = 0;
+                load_cpa_source_tab('#cpa-file');
+                load_gycx_source_tab('#gycx-file');
             } else if (data.index === 1) {
                 current_li = 1;
             } else if (data.index === 2) {
@@ -35,8 +47,6 @@
             } else {
             }
         });
-        load_cpa_source_tab('#cpa-file');
-        load_gycx_source_tab('#gycx-file');
         callback();
         setProgress();
     });
@@ -56,10 +66,6 @@
             }else if(current_li === 1) {
                 var panel_lst = $('#panel-lst').children();
                 if(panel_lst.length === 0)
-                    return;
-            }else if(current_li === 2) {
-                // var panel_lst = $('#panel-lst').children();
-                // if(panel_lst.length === 0)
                     return;
             }
 
@@ -93,7 +99,7 @@
             onTextMessage: function ( message ) {
                 var ext = message.ext;
                 if(ext !== null) {
-                    var reVal = w.im_object.searchExtJson(ext)('type') !== 'Null' ? w.im_object.searchExtJson(ext)('type') : w.im_object.searchExtJsonForElement(ext.elems)('type');
+                    var reVal = window.im_object.searchExtJson(ext)('type') !== 'Null' ? window.im_object.searchExtJson(ext)('type') : window.im_object.searchExtJsonForElement(ext.elems)('type');
                     switch (reVal) {
                         case 'progress':
                             progress(message);
@@ -131,45 +137,110 @@
     };
 
     var calc_ym_result = function (msg) {
+        var obj = JSON.parse(msg.data);
         console.info(msg.data);
         $('.mask-layer').hide();
         $('.loading').hide();
-        // f.alertModule.content($('#selectYM'), null, null, "aaa", function(){});
-        var ym_lst = msg.data.split(',');
+
+        var $ym_div = $('#ym-div');
+        $ym_div.empty();
+        $.each(obj.ym.split(","), function( index, ym ) {
+            $ym_div.append("<input type='checkbox' value='"+ ym +"' lay-skin='primary'>" + ym);
+        });
+
+        f.alertModule.content($('#selectYM').html(), null, null, "请选择需要Max的月份", ['MAX'], function(index, layero){
+            write_panel_table(obj.mkt.split(','));
+            generat_panel_action();
+            layer.close(index);
+        });
+    };
+
+    var write_panel_table = function(mkt_lst){
+        var ym_lst = [];
+        var panel_lst = $('#panel-lst');
+
+        panel_lst.empty();
+
+        $('#ym-div input[type=checkbox]:checked').each(function(){
+            ym_lst.push($(this).val());
+        });
+
+        function write_row(ym, mkt, str){
+            var s = "<tr><td>"+ ym  +"</td>";
+            s = s + "<td>"+ mkt +"</td>";
+            s = s + "<td>"+ str +"</td>";
+            s = s + "<td><div class='layui-progress'>";
+            s = s + "<div class='layui-progress-bar layui-bg-green' lay-percent='0%'></div>";
+            s = s + "</div></td></tr>";
+            return s;
+        }
+
+        $.each(ym_lst, function(index1, ym) {
+            $.each(mkt_lst, function(index2, mkt) {
+                panel_lst.append(write_row(ym, mkt, "正在生成"));
+            });
+        });
+    };
+
+    var generat_panel_action = function() {
+        var ym_lst = [];
+        $('#ym-div input[type=checkbox]:checked').each(function(){
+            ym_lst.push($(this).val());
+        });
+
+        if(ym_lst.length < 1){
+            return;
+        }
+
         var json = JSON.stringify({
             "businessType": "/genternPanel",
-            "company": "fea9f203d4f593a96f0d6faa91ba24ba",
+            "company": company,
             "user": $.cookie('webim_user'),
             "cpa": sourceMap.cpa,
             "gycx": sourceMap.gycx,
             "ym": ym_lst
         });
-        // f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+
         isSelectYm = true;
-        $( "#next-btn" ).trigger( "click" );
-        generat_panel_result(msg);
+        $( "#next-btn" ).click();
     };
 
     var generat_panel_result = function (msg) {
         console.info(msg.data);
-        var panel_lst = $('#panel-lst');
+        var obj = JSON.parse(msg.data);
         var panel_calc_lst = $('#panel-calc-lst');
         var confrim_calc_lst = $('.confrim-calc-lst');
         panel_calc_lst.empty();
         confrim_calc_lst.empty();
-        panel_calc_lst.append(panel_lst.children().clone());
-        confrim_calc_lst.append(panel_lst.children().clone());
 
-        var panelList = msg.data.split(',');
-        for(var i=0 ; i<panelList.length ; i++){
-            var json = JSON.stringify({
-                "businessType": "/modelcalc",
-                "company": "fea9f203d4f593a96f0d6faa91ba24ba",
-                "filename": panelList[i],
-                "uname": $.cookie('webim_user')
-            });
-            // f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        function write_row(ym, mkt, fileName, str){
+            var s = "<tr><td>"+ ym  +"</td>";
+            s = s + "<td>"+ mkt +"</td>";
+            s = s + "<td>"+ str +"</td>";
+            var lay_filter = 'calc-progress-' + fileName;
+            s = s + "<td><div class='layui-progress' lay-filter='" + lay_filter + "'>";
+            s = s + "<div class='layui-progress-bar layui-bg-green' lay-percent='0%'></div>";
+            s = s + "</div></td></tr>";
+            return s;
         }
+
+        $.each(obj,function(ym, v1) {
+            $.each(v1,function(mkt, panel_lst) {
+                $.each(panel_lst,function(i, fname){
+                    panel_calc_lst.append(write_row(ym, mkt, fname, "正在计算"));
+                    confrim_calc_lst.append(write_row(ym, mkt, fname, "正在检查"));
+
+                    var json = JSON.stringify({
+                        "businessType": "/modelcalc",
+                        "company": company,
+                        "filename": fname,
+                        "uname": $.cookie('webim_user')
+                    });
+                    f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+                });
+            });
+        });
 
         $( "#next-btn" ).trigger( "click" );
     };
@@ -240,7 +311,7 @@
                     }
                 },
                 choose: function (obj) {
-                    files = obj.pushFile();
+                    cpaFile = obj.pushFile();
                     obj.preview(function (index, file, result) {
                         var tr = $(['<tr id="upload-' + index + '">'
                             , '<td>' + file.name + '</td>'
@@ -257,7 +328,6 @@
                         });
 
                         tr.find('.demo-delete').on('click', function () {
-                            delete files[index];
                             tr.remove();
                         });
                         source_lst.append(tr);
@@ -271,7 +341,10 @@
                         tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
 
                         sourceMap.cpa = res.result[0];
-                        $( "#upload-gycx-btn" ).trigger( "click" );
+                        delete cpaFile[index];
+
+
+                        $( "#upload-gycx-btn" ).click();
 
                         return;
                     }
@@ -302,15 +375,8 @@
                 accept: 'file',
                 exts: 'xlsx',
                 bindAction: '#upload-gycx-btn' ,//#upload-panel-btn
-                before: function () {
-                    query_company();
-                    if(!isCalcDone) {
-                        $('.mask-layer').show();
-                        $('.loading').show();
-                    }
-                },
                 choose: function (obj) {
-                    files = obj.pushFile();
+                    gycFile = obj.pushFile();
                     obj.preview(function (index, file, result) {
                         var tr = $(['<tr id="upload-' + index + '">'
                             , '<td>' + file.name + '</td>'
@@ -327,7 +393,6 @@
                         });
 
                         tr.find('.demo-delete').on('click', function () {
-                            delete files[index];
                             tr.remove();
                         });
                         source_lst.append(tr);
@@ -341,6 +406,7 @@
                         tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
 
                         sourceMap.gycx = res.result[0];
+                        delete gycFile[index];
                         call_calcYM();
 
                         return;
@@ -361,111 +427,23 @@
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
             var json = JSON.stringify({
                 "businessType": "/calcYM",
-                "company": "fea9f203d4f593a96f0d6faa91ba24ba",
+                "company": company,
                 "user": $.cookie('webim_user'),
                 "cpa": sourceMap.cpa,
                 "gycx": sourceMap.gycx
             });
             f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-            // var test_data = {"data":"201705,201706"};
+            // var test_data = {
+            //     "data":{
+            //         "ym": "201705,201706",
+            //         "mkt": "INF,SPE"
+            //     }
+            // };
             // calc_ym_result(test_data);
         }
     };
 
-    var load_panel_tab = function (uploadid) {
-        layui.use('upload', function () {
-            var upload = layui.upload;
-            var panel_lst = $(uploadid);
-            var panel_calc_lst = $('#panel-calc-lst');
-            var confrim_calc_lst = $('.confrim-calc-lst');
-
-            upload.render({
-                elem: '#select-panel-btn',
-                url: '/panel/upload',
-                drag: false,
-                data: {"company": company} ,
-                auto: false, //选择文件后不自动上传
-                multiple: true ,
-                accept: 'file',
-                exts: 'xlsx',
-                bindAction: '#next-btn' ,//#upload-panel-btn
-                before: function () {
-                    query_company();
-                    if(!isCalcDone) {
-                        $('.mask-layer').show();
-                        $('.loading').show();
-                    }
-                },
-                choose: function (obj) {
-                    files = obj.pushFile();
-                    obj.preview(function (index, file, result) {
-                        var tr = $(['<tr id="upload-' + index + '">'
-                            , '<td>' + file.name + '</td>'
-                            , '<td>' + (file.size / 1024 / 1024).toFixed(1) + 'MB</td>'
-                            , '<td>等待上传</td>'
-                            , '<td class="opretion">'
-                            , '<button class="layui-btn layui-btn-mini demo-reload layui-hide">重传</button>'
-                            , '<button class="layui-btn layui-btn-mini layui-btn-danger demo-delete">删除</button>'
-                            , '</td>'
-                            , '</tr>'].join(''));
-
-                        tr.find('.demo-reload').on('click', function () {
-                            obj.upload(index, file);
-                        });
-
-                        tr.find('.demo-delete').on('click', function () {
-                            delete files[index];
-                            tr.remove();
-                        });
-                        panel_calc_lst.empty();
-                        panel_lst.append(tr);
-                        panel_calc_lst.append(panel_lst.children().clone());
-                    });
-                },
-                done: function (res, index, upload) {
-                    if (res.status === 'ok') { //上传成功
-                        var fileName = res.result[0];
-                        var tr = panel_lst.find('tr#upload-' + index);
-                        var tds = tr.children();
-                        tds.eq(2).html('<span style="color: #008B7D;">上传完成</span>');
-                        tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
-
-                        var calc_tr = panel_calc_lst.find('tr#upload-' + index);
-                        var calc_tds = calc_tr.children();
-                        calc_tds.eq(2).html('<span style="color: #008B7D;">等待计算</span>');
-                        var lay_filter = 'calc-progress-' + fileName;
-
-                        var p = '<div class="layui-progress" lay-filter= '+ lay_filter +'>\n' +
-                                '    <div class="layui-progress-bar layui-bg-green" lay-percent="0%"></div>\n' +
-                                '</div>';
-                        calc_tds.eq(3).html(p);
-                        delete files[index];
-
-                        confrim_calc_lst.empty();
-                        confrim_calc_lst.append(panel_calc_lst.children().clone());
-
-                        var json = JSON.stringify({"businessType": "/modelcalc",
-                            "company": company,
-                            "filename": res.result[0],
-                            "uname": $.cookie('webim_user')
-                        });
-                        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-                        return;
-                    }
-                    this.error(index, upload);
-                },
-                error: function (index, upload) {
-                    var tr = panel_lst.find('tr#upload-' + index);
-                    var tds = tr.children();
-                    tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
-                    tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
-                }
-            });
-        });
-    };
-
     var load_result_check_tab = function () {
-
         $('#goinghistory').click(function(){
             $('.mask-layer').show();
             $('.loading').show();

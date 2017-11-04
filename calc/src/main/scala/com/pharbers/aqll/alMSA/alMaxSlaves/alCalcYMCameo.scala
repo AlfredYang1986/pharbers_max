@@ -3,11 +3,14 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.EmChatMessage
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcYM.{calcYM_end, calcYM_start_impl, calcYM_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alUpBeforeItem
 import com.pharbers.panel.pfizer.phPfizerHandle
-import play.api.libs.json.JsString
+import play.api.libs.json._
+import play.api.libs.json.Json.toJson
 
+import scala.collection.immutable.Map
 import scala.concurrent.duration._
 
 /**
@@ -42,10 +45,11 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
             println("开始计算日期:" + args)
             val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
             val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
-            println("ym = " + ym)
-            println("markets = " + markets)
-            val msg = s"{'ym':${ym}, 'mkt':${markets}}"
-            alMessageProxy().sendMsg(msg, calcYM_job.user, Map("type" -> "calc_ym_result"))
+            val msg = toJson(Map("ym" -> ym, "mkt" -> markets)).toString()
+            println("msg = " + msg)
+
+//            EmChatMessage().sendEMMessage(calcYM_job.company, "", "", "", "calc_ym_result", "", msg)
+            alMessageProxy().sendMsg(msg , calcYM_job.user, Map("type" -> "calc_ym_result"))
             self ! calcYM_end(true, ym)
         }
         case calcYM_end(result, ym) => {

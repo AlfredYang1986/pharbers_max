@@ -28,7 +28,7 @@ alertHandlers.prototype.error = function(message) {
     });
 }
 
-alertHandlers.prototype.content = function(domobj, skin, area, title, cancelFun) {
+alertHandlers.prototype.content = function(domobj, skin, area, title, btns, yesFun, btn2Fun, btn3Fun ,cancelFun) {
     skin = skin || 'layer-ext-errLay';
     area = area || ['50%'];
     title = title || '信息';
@@ -36,6 +36,10 @@ alertHandlers.prototype.content = function(domobj, skin, area, title, cancelFun)
         layer.open({
             type: 1,
             title: title,
+            btn: btns,
+            yes: yesFun,
+            btn2: btn2Fun,
+            btn3: btn3Fun,
             offset: ['10%'],
             area: area,
             zIndex: 1000,

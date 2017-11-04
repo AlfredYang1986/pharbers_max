@@ -40,7 +40,6 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
                     }
                 }
             }.values.flatMap(_.values).toList.flatten
-                    .map{ _.split("/").last }
 
             val args: Map[String, List[String]] = Map(
                 "company" -> List(panel_job.company),
@@ -53,9 +52,11 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
             println("生成月份：" + panel_job.ym)
             val result = phPfizerHandle(args).getPanelFile(panel_job.ym)
             val panelLst = getResult(result).mkString(",")
-            println("panel list = " + panelLst)
+            println("result = " + result)
 
-            alMessageProxy().sendMsg(panelLst.toString, panel_job.user, Map("type" -> "generat_panel_result"))
+//            EmChatMessage().sendEMMessage(panel_job.company, "", "", "", "generat_panel_result", "", result.toString)
+
+            alMessageProxy().sendMsg(result.toString , panel_job.user, Map("type" -> "generat_panel_result"))
             self ! generate_panel_end(true, panelLst)
         }
         case generate_panel_end(result, panelLst) => {
