@@ -60,25 +60,30 @@ case object restore_maxing extends alPointState
 case object calc_done extends alPointState
 
 case class EmChatMessage() {
-	def creatreEmRooms(company: String, uid: String) = {
+	def creatreEmRooms(company: String, uid: String): String = {
 		val roomName = s"${company}_${uid}"
-		val reVal = (Json.parse(EmChatMsg()
-			.setRoomName(roomName)
-			.setRoomDescription(roomName)
-			.setRoomOnwer("project")
-			.setRoomMaxUsers(200)
-			.createChatRoom) \ "data").as[String Map JsValue]
-		val roomId = reVal("id").as[String]
-		
+		val roomId = (Json.parse(EmChatMsg().getAllRooms) \ "data").as[List[String Map JsValue]].find(x => x("name").as[String] == roomName) match {
+			case None => {
+				val reVal = (Json.parse(EmChatMsg()
+				  .setRoomName(roomName)
+				  .setRoomDescription(roomName)
+				  .setRoomOnwer("project")
+				  .setRoomMaxUsers(200)
+				  .createChatRoom) \ "data").as[String Map JsValue]
+				reVal("id").as[String]
+			}
+			case Some(x) => x("id").as[String]
+		}
+
 		(Json.parse(EmChatMsg().getUsersBatch()) \ "entities").as[List[String Map JsValue]].filter(x =>
 			x("username").as[String].indexOf(s"${company}_") != -1 && x("username").as[String].indexOf(s"_${uid}") != -1
 		).map(x => x("username").as[String]) match {
-			case Nil => Unit
+			case Nil => ""
 			case lst => EmChatMsg().setRoomMembers(roomId, lst)
 		}
 	}
 	
-	def sendEMMessage(company: String, uid: String, uuid: String, fileName: String, mestype: String, step: String, msg: String) = {
+	def sendEMMessage(company: String, uid: String, uuid: String, fileName: String, mestype: String, step: String, msg: String): String = {
 		val reVal = (Json.parse(EmChatMsg().getAllRooms) \ "data").as[List[String Map JsValue]]
 			.filterNot(x => x("name").as[String] != company + "_" + uid)
 			.map(x => x("id").as[String])
@@ -113,11 +118,10 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			pr.imuname = cp.imuname
 			pr.uid = cp.uid
 			pr.fileName = file.substring(file.lastIndexOf('/') + 1)
-			
-			EmChatMessage().creatreEmRooms(pr.company, pr.uid)
-			
+
 			acts ! filter_excel_job_2(file, cp)
-			alMessageProxy().sendMsg("1", pr.imuname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "过滤文件中"))
+
+			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "过滤文件中", "1")
 			stay()
 		}
 		
@@ -125,10 +129,8 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			pr.market = cp.market
 			pr.year = cp.year
 			self ! push_split_job(path)
-			alMessageProxy().sendMsg("10", pr.imuname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "过滤文件结束"))
+			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "过滤文件结束", "10")
 			goto(split_excel) using pr
-			//			shutCameo()
-			//			stay()
 		}
 		
 		case Event(max_calc_done(mp), pr) =>
@@ -139,7 +141,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	when(split_excel) {
 		case Event(push_split_job(file), pr) => {
 			acts ! push_split_excel_job(file, pr)
-			alMessageProxy().sendMsg("15", pr.imuname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "分拆文件中"))
+			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "分拆文件中", "15")
 			stay()
 		}
 		
@@ -151,7 +153,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			//			almp = mp
 			//			cmdActor ! pkgmsg(s"${memorySplitFile}${sync}$u" :: Nil, s"${memorySplitFile}${fileTarGz}$u")
 			//			stay()
-			alMessageProxy().sendMsg("18", pr.imuname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "分拆文件结束"))
+
+			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "分拆文件结束", "18")
+
 			self ! push_group_job(mp)
 			goto(group_file) using pr
 		}
@@ -175,15 +179,17 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	}
 	
 	when(group_file) {
-		case Event(push_group_job(mp), cp) => {
+		case Event(push_group_job(mp), pr) => {
 			acts ! push_group_job(mp)
-			alMessageProxy().sendMsg("20", cp.imuname, Map("file" -> cp.fileName, "company" -> cp.company, "type" -> "progress_calc", "step" -> "文件分组中"))
+			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "文件分组中", "20")
+
 			stay()
 		}
 		
 		case Event(group_data_end(r, mp), pr) => {
 			pr.uuid = mp.uuid
-			alMessageProxy().sendMsg("25", pr.imuname, Map("file" -> pr.fileName, "company" -> pr.company, "type" -> "progress_calc", "step" -> "等待计算"))
+			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "等待计算", "25")
+
 			self ! push_calc_job_2(mp, pr)
 			goto(calc_maxing) using pr
 			
@@ -210,7 +216,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 		
 		case Event(group_data_error(reason), pr) => {
 			println(s"Error! group_data_error(${reason}, ${pr})")
-			new alMessageProxy().sendMsg("100", pr.imuname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
+//			new alMessageProxy().sendMsg("100", pr.imuname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
 			shutCameo
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
@@ -231,6 +237,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 				p.uuid
 			}
 			acts ! push_restore_job(s"${pr.company}${mp.uuid}", sub_uuids)
+			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "准备还原数据库", "90")
 			mp.isCalc = true
 			goto(restore_maxing) using pr
 		}
@@ -238,10 +245,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	
 	when(restore_maxing) {
 		case Event(restore_bson_end(result, sub_uuid), pr) => {
+			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "还原数据库结束", "100")
 			acts ! calc_slave_status()
 			test_num = test_num + 1
-			
-			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "计算结束", "100")
 //			alMessageProxy().sendMsg("100", pr.imuname, Map("file" -> pr.fileName, "uuid" -> pr.uuid, "table" -> s"${pr.company + pr.uuid}", "type" -> "progress_calc", "step" -> "计算结束"))
 			endDate("test" + test_num, s1)
 			shutCameo()
@@ -261,7 +267,8 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 //			alMessageProxy().sendMsg("20", imuname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result", "step" -> "正在转储为永久数据中"))
 			alWeightSum().apply(company, s"$company$uuid")
 			
-			EmChatMessage().sendEMMessage(company, uid, uuid, "", "progress_calc_result", "正在转储为永久数据中", "100")
+			EmChatMessage().sendEMMessage(company, uid, uuid, "", "progress_calc_result", "成功", "100")
+			println("成功")
 //			alMessageProxy().sendMsg("100", imuname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result", "step" -> "正在转储为永久数据中"))
 			dbc.getCollection(s"$company$uuid").drop()
 			shutCameo

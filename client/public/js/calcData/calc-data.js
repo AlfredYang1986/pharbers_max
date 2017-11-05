@@ -6,6 +6,7 @@
     'use strict';
     $('li[pharbers-filter="calc"]').addClass("layui-this");
     var total = $('ul[pharbers-ul="calc-tab"]').find('li').length;
+    $('#result-check-year-and-market').empty();
     var current_li = 0;
     var tab_arr = ['source-li', 'panel-li', 'calc-li', 'result-li'];
     var isCalcDone = false;
@@ -21,16 +22,17 @@
     var isSelectYm = false;
 
     var temp = 0;
+    var num = 0;
 
     layui.use('element', function () {
-        var obj = {"201705":{"INF":["4da20398-f9e0-4392-897b-bdb8738f67fb"],"SPE":["a12c634d-cc04-4cc4-a863-0476989fe080"]}}
-        $.each(obj,function(ym, v1) {
-            $.each(v1,function(mkt, panel_lst) {
-                $.each(panel_lst,function(i, fname){
-                    alert(fname);
-                });
-            });
-        });
+        // var obj = {"201705":{"INF":["4da20398-f9e0-4392-897b-bdb8738f67fb"],"SPE":["a12c634d-cc04-4cc4-a863-0476989fe080"]}}
+        // $.each(obj,function(ym, v1) {
+        //     $.each(v1,function(mkt, panel_lst) {
+        //         $.each(panel_lst,function(i, fname){
+        //             alert(fname);
+        //         });
+        //     });
+        // });
 
         var element = layui.element;
         element.on('tab(step)', function (data) {
@@ -105,15 +107,23 @@
                             progress(message);
                             break;
                         case 'calc_ym_result':
+                            $('.mask-layer').show();
+                            $('.loading').show();
                             calc_ym_result(message);
                             break;
                         case 'generat_panel_result':
+                            $('.mask-layer').show();
+                            $('.loading').show();
                             generat_panel_result(message);
                             break;
                         case 'progress_calc':
+                            $('.mask-layer').show();
+                            $('.loading').show();
                             progress_calc(message);
                             break;
                         case 'progress_calc_result':
+                            $('.mask-layer').show();
+                            $('.loading').show();
                             progress_calc_result(message);
                             break;
                         case 'txt':
@@ -207,17 +217,17 @@
     };
 
     var generat_panel_result = function (msg) {
-        console.info(msg.data);
         var obj = JSON.parse(msg.data);
         var panel_calc_lst = $('#panel-calc-lst');
         var confrim_calc_lst = $('.confrim-calc-lst');
+        var fileNames = [];
         panel_calc_lst.empty();
         confrim_calc_lst.empty();
 
         function write_row(ym, mkt, fileName, str){
             var s = "<tr><td>"+ ym  +"</td>";
             s = s + "<td>"+ mkt +"</td>";
-            s = s + "<td>"+ str +"</td>";
+            s = s + "<td><span style='color: #1AB394;'>"+ str +"</span></td>";
             var lay_filter = 'calc-progress-' + fileName;
             s = s + "<td><div class='layui-progress' lay-filter='" + lay_filter + "'>";
             s = s + "<div class='layui-progress-bar layui-bg-green' lay-percent='0%'></div>";
@@ -225,34 +235,34 @@
             return s;
         }
 
-        $.each(obj,function(ym, v1) {
-            $.each(v1,function(mkt, panel_lst) {
-                $.each(panel_lst,function(i, fname){
-                    panel_calc_lst.append(write_row(ym, mkt, fname, "正在计算"));
-                    confrim_calc_lst.append(write_row(ym, mkt, fname, "正在检查"));
-
-                    var json = JSON.stringify({
-                        "businessType": "/modelcalc",
-                        "company": company,
-                        "filename": fname,
-                        "uname": $.cookie('webim_user')
-                    });
-                    f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        $.each(obj, function(ym, v1) {
+            $.each(v1, function(mkt, panel_lst) {
+                $.each(panel_lst, function(i, fname){
+                    panel_calc_lst.append(write_row(ym, mkt, fname, "正在启动"));
+                    confrim_calc_lst.append(write_row(ym, mkt, fname, "正在启动"));
+                    fileNames.push(fname);
                 });
             });
         });
-
-        $( "#next-btn" ).trigger( "click" );
+        num = confrim_calc_lst.children().length;
+        var json = JSON.stringify({
+            "businessType": "/modelcalc",
+            "company": company,
+            "filename": fileNames,
+            "uid": $.cookie('uid'),
+            "imuname": $.cookie('webim_user')
+        });
+        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){$( "#next-btn" ).trigger( "click" );}, function(e){console.error(e)});
     };
 
     var progress_calc = function(msg) {
-        console.info(msg);
+        var ext = msg.ext;
         var fileName = window.im_object.searchExtJson(ext)('file') !== 'Null' ? window.im_object.searchExtJson(ext)('file') : window.im_object.searchExtJsonForElement(ext.elems)('file');
         var step = window.im_object.searchExtJson(ext)('step') !== 'Null' ? window.im_object.searchExtJson(ext)('step') : window.im_object.searchExtJsonForElement(ext.elems)('step');
         var lay_filter = 'calc-progress-' + fileName;
         var span = $('#panel-calc-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
         span.text(step);
-        if(message.data === "100") {
+        if(msg.data === "100") {
             temp = temp + 1;
             uuids.push({"fileName": fileName, "uuid" : window.im_object.searchExtJsonForElement(ext.elems)('uuid')});
             tables.push(window.im_object.searchExtJsonForElement(ext.elems)('table'));
@@ -262,17 +272,17 @@
                 isCalcDone = true;temp = 0;
             }
         }
-        setProgress(lay_filter, message.data);
+        setProgress(lay_filter, msg.data);
     };
 
     var progress_calc_result = function(msg) {
-        console.info(msg);
-        var uuid = window.im_object.searchExtJson(ext)('uuid');
+        var ext = msg.ext;
+        var uuid = window.im_object.searchExtJsonForElement(ext.elems)('uuid');
         var lay_uuid = 'calc-progress-' + uuid;
-        var step_result = window.im_object.searchExtJson(ext)('step');
+        var step_result = window.im_object.searchExtJsonForElement(ext.elems)('step');
         var span_result = $('.confrim-calc-lst').eq(1).find('div[lay-filter=' + lay_uuid + ']').parent().prev().children('span');
         span_result.text(step_result);
-        if(message.data === "100") {
+        if(msg.data === "100") {
             temp = temp + 1;
             if(num === temp){
                 $('.mask-layer').hide();
@@ -281,7 +291,7 @@
                 $('li[pharbers-filter="history"]').click();
             }
         }
-        setProgress(lay_uuid, message.data);
+        setProgress(lay_uuid, msg.data);
     };
 
     var txt = function(msg) {
@@ -448,9 +458,9 @@
             $('.mask-layer').show();
             $('.loading').show();
             f.alertModule.content($('#confrims').html(), null, null, '确认列表', function(){$('#confrims').hide();});
-            var confrimLst = $('.confrim-calc-lst');
+            var confrim_calc_lst = $('.confrim-calc-lst');
             $.each(uuids, function(i, v){
-                var div = confrimLst.eq(1).find('div[lay-filter="calc-progress-' + v.fileName + '"]');
+                var div = confrim_calc_lst.eq(1).find('div[lay-filter="calc-progress-' + v.fileName + '"]');
                 div.attr('lay-filter', 'calc-progress-' + v.uuid);
             });
 
@@ -458,6 +468,7 @@
                 var json = JSON.stringify({"businessType": "/datacommit",
                     "company": company,
                     "uuid": v.uuid,
+                    "uid": $.cookie('uid'),
                     "uname": $.cookie('webim_user')
                 });
                 f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
@@ -510,7 +521,6 @@
             f.ajaxModule.baseCall("calc/querySalesVsShare", json, "POST", function(r){
                 $('.mask-layer').hide();
                 $('.loading').hide();
-                $('#result-check-year-and-market').empty();
                 $.each(r.result.condition.select_values, function (i, v) {
                     var values = v.Date + '-' + v.Market;
                     if(i === 0) {
@@ -549,7 +559,6 @@
                 seriesDataArray.push(v.Sales);
                 shareDataArray.push(v.Share);
             });
-            console.info(shareDataArray)
             var itemStyleColor = ['#1ab394', '#cacaca'];
             var option = {
                 tooltip: {
