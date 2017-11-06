@@ -1,16 +1,15 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 
-
-#测试页面
-GET     /test                            controllers.alMaxRouterController.test
+# IM聊天室创建
+POST    /imroom/create                   controllers.immessage.ImRoomController.createChatRooms
 
 # 路人申请体验页面
 GET     /register/info                   controllers.alMaxRouterController.infoRegistration
 POST    /register/user                   controllers.register.RegisterController.user_apply
 
 
-########bd########
+# BD
 GET     /bd/bdUser                       controllers.alMaxRouterController.bdUser
 # BD用户登入分页查询申请用户
 POST    /register/querybd                controllers.register.RegisterController.query_apply_user
