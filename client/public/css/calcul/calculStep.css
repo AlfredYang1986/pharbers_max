@@ -45,3 +45,41 @@
     height: 400px;
     padding-top: 50px;
 }
+.chart-panel{
+    height: 200px;
+    padding: 20px 20px;
+}
+.chart-main{
+    height: 200px;
+    width: 200px;
+}
+.chart-intro{
+    height: 200px;
+    width: 450px;
+
+}
+.char-h1{
+    font-family: PingFangSC-Semibold, sans-serif;
+    font-size: 1.125em;
+
+}
+.t-body{
+    min-height: 400px;
+}
+.t-num{
+    height: 24px;
+    line-height: 24px;
+}
+.t-content{
+    min-height: 350px;
+    padding: 25px 0px;
+}
+.t-lineChart{
+    height: 320px;
+    width: 450px;
+}
+.t-describe{
+    padding: 30px;
+    min-height: 320px;
+    width: 350px;
+}
