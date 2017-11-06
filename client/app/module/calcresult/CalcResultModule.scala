@@ -36,7 +36,6 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("calc").get
 			val group = DBObject("_id" -> DBObject("Market" -> "$Market"), "Sales" -> DBObject("$sum" -> "$f_sales"), "Units" -> DBObject("$sum" -> "$f_units"))
-			
 			val para = (data \ "condition" \ "marketWithYear").asOpt[String] match {
 				case None => DBObject("Market" -> default(data)(pr).get("Market").get)
 				case Some(x) =>
@@ -192,6 +191,7 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 				else z ++ Map("Share" -> toJson(z.get("Sales").get.as[Double] / sum * 100))
 			})
 		}))
+
 		val timeLst = alNearDecemberMonth.diff12Month(curtmp.flatMap(x => x._2.as[List[String Map JsValue]].map(z => z("Date").as[String])).head).toList
 		val history = Map("history" -> toJson(histmp.map { x =>
 			x._1 -> toJson(
@@ -203,18 +203,18 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 						}.sortBy(s => s("Date").as[String]).filterNot(f => f("Date").as[String] == tmp("Date").as[String])
 					case _ =>
 						x._2.as[List[String Map JsValue]].flatMap { z =>
-							if (sum == 0) {
-								z ++ Map("Share" -> toJson(0)) :: Nil
-							} else {
-								(timeLst.filterNot(y => y == z("Date").as[String]).map { o =>
-									Map("Date" -> toJson(o), "Units" -> toJson(0), "Sales" -> toJson(0), "Market" -> toJson(z("Market").as[String]), "Share" -> toJson(0))
-								} :+ z ++ Map("Share" -> toJson(z("Sales").as[Double] / sum * 100))).sortBy(s => s("Date").as[String]).filterNot(f => f("Date").as[String] == curtmp.flatMap(x => x._2.as[List[String Map JsValue]].map(z => z("Date").as[String])).head)
+							val temp = timeLst.filter(y => y == z("Date").as[String]) map { o =>
+								Map("Date" -> toJson(o), "Units" -> z("Units"), "Sales" -> z("Sales"), "Market" -> z("Market"), "Share" -> toJson(z("Sales").as[Double] / sum * 100))
+							}match {
+								case Nil => timeLst.map(x => Map("Date" -> toJson(x), "Units" -> toJson(0), "Sales" -> toJson(0), "Market" -> toJson(z("Market").as[String]), "Share" -> toJson(0)))
+								case head :: Nil => timeLst.map(x => Map("Date" -> toJson(x), "Units" -> toJson(0), "Sales" -> toJson(0), "Market" -> toJson(z("Market").as[String]), "Share" -> toJson(0))) :+ head
 							}
-						}
+							temp.distinct
+						}.distinct.sortBy(s => s("Date").as[String]).filterNot(f => f("Date").as[String] == curtmp.flatMap(x => x._2.as[List[String Map JsValue]].map(z => z("Date").as[String])).head)
 				}
 			)
 		}))
-		
+
 		val chart = Map("select_values" -> select, "user_company" -> userCompany, "sales_vs_share" -> toJson(para - "allSalesSum" ++ cur ++ history))
 		
 		Map("condition" -> toJson(chart))

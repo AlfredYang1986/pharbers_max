@@ -55,7 +55,6 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
             println("result = " + result)
 
 //            EmChatMessage().sendEMMessage(panel_job.company, "", "", "", "generat_panel_result", "", result.toString)
-
             alMessageProxy().sendMsg(result.toString , panel_job.user, Map("type" -> "generat_panel_result"))
             self ! generate_panel_end(true, panelLst)
         }

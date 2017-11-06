@@ -70,8 +70,7 @@ trait alCalcDataTrait { this : Actor =>
         val cur = context.actorOf(alCameoCalcData.props(c, property, s, self, calc_router))
         cur ! calc_data_start()
         
-        EmChatMessage().sendEMMessage(c.company, c.uid, c.uuid, "", "progress_calc", "正在计算中", "45")
-        
+        EmChatMessage().sendEMMessage(c.company, c.uid, c.uuid, c.fileName, "progress_calc", "正在计算中", "45")
 //        alMessageProxy().sendMsg("45", c.imuname, Map("file" -> c.fileName, "company" -> c.company, "type" -> "progress_calc", "step" -> "正在计算中"))
     }
 
