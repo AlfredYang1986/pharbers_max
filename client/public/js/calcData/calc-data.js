@@ -221,16 +221,6 @@
         var lay_filter = 'generat_panel-progress-' + ym + '-' + mkt;
         var span = $('#panel-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
         span.text(step);
-        // if(msg.data === "100") {
-        //     temp = temp + 1;
-        //     uuids.push({"fileName": fileName, "uuid" : window.im_object.searchExtJsonForElement(ext.elems)('uuid')});
-        //     tables.push(window.im_object.searchExtJsonForElement(ext.elems)('table'));
-        //     if(num === temp){
-        //         $('.mask-layer').hide();
-        //         $('.loading').hide();
-        //         isCalcDone = true;temp = 0;
-        //     }
-        // }
         setProgress(lay_filter, msg.data);
     };
 
@@ -436,7 +426,16 @@
 
                         sourceMap.gycx = res.result[0];
                         delete gycFile[index];
-                        call_calcYM();
+
+                        var json = JSON.stringify(
+                                f.parameterPrefix.conditions({
+                                    "company": company,
+                                    "uid": $.cookie('uid')
+                                })
+                        );
+                        f.ajaxModule.baseCall('/imroom/create', json, 'POST', function(r){
+                            call_calcYM();
+                        }, function(e){console.error(e)});
 
                         return;
                     }
@@ -462,13 +461,6 @@
                 "gycx": sourceMap.gycx
             });
             f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-            // var test_data = {
-            //     "data":{
-            //         "ym": "201705,201706",
-            //         "mkt": "INF,SPE"
-            //     }
-            // };
-            // calc_ym_result(test_data);
         }
     };
 
