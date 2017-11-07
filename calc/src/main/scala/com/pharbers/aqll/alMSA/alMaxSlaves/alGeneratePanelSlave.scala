@@ -30,8 +30,8 @@ class alGeneratePanelSlave extends Actor with ActorLogging {
         case generate_panel_hand() => {
             implicit val t = Timeout(2 seconds)
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-//            val f = a ? takeNodeForRole("splitgeneratepanelslave")
-            val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
+            val f = a ? takeNodeForRole("splitgeneratepanelslave")
+//            val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) {
                 sender ! generate_panel_hand()
             }
@@ -44,8 +44,8 @@ class alGeneratePanelSlave extends Actor with ActorLogging {
         }
         case generate_panel_end(result, panelLst) => {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-//            a ! refundNodeForRole("splitgeneratepanelslave")
-            a ! refundNodeForRole("splitcalcslave") // 在一台机器上实现和计算的互斥
+            a ! refundNodeForRole("splitgeneratepanelslave")
+//            a ! refundNodeForRole("splitcalcslave") // 在一台机器上实现和计算的互斥
         }
 
         case msg : AnyRef => log.info(s"Warning! Message not delivered. alGeneratePanelSlave.received_msg=${msg}")
