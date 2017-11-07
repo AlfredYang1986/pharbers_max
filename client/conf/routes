@@ -7,7 +7,10 @@ POST    /imroom/create                   controllers.immessage.ImRoomController.
 # 路人申请体验页面
 GET     /register/info                   controllers.alMaxRouterController.infoRegistration
 POST    /register/user                   controllers.register.RegisterController.user_apply
-
+#####calcul#####
+GET     /calcul/home                     controllers.alMaxRouterController.cHome
+GET     /calcul/first                    controllers.alMaxRouterController.firstStep
+GET     /calcul/second                   controllers.alMaxRouterController.secondStep
 
 # BD
 GET     /bd/bdUser                       controllers.alMaxRouterController.bdUser

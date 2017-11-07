@@ -87,6 +87,7 @@
                                    f.cookieModule.setCookie("uid", r.result.uid);
                                    window.im_object.login_im(r.result.imuid, r.result.imuid);
                                    setTimeout(function(){location = "/auth/user/"}, 1000)
+
                                } else {
                                    layer.msg('用户名或密码错误！');
                                }

@@ -1,0 +1,69 @@
+/**********************************通用部分*********************/
+.bottom-line-bold{
+    border-bottom: 2px solid #777777;
+}
+/*字体居中*/
+.inCenParent {
+    text-align: center;
+}
+
+.inCenChild {
+    display: inline-block;
+}
+/*字*/
+.small-font{
+    font-family: PingFangSC-Regular, sans-serif;
+    font-size: 0.8125em;
+    color: #494c57;
+}
+.middle-font{
+    font-family: PingFangSC-Regular, sans-serif;
+    font-size: 1.125em;
+    color: #494c57;
+}
+.large-font{
+    font-family: PingFangSC-Regular, sans-serif;
+    font-size: 2em;
+    color: #494c57;
+}
+.overflow-ellipsis{
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.disable :hover{
+    cursor: not-allowed;
+    background-color: #f7f7f7;
+    opacity: 1;
+}
+
+/*******************************设计*********************/
+.peopleInfo{
+    position: relative;
+    top:0;
+    left:0;
+    /*与layui中边距一致*/
+    padding:10px 20px;
+    height: 60px;
+    width: 100%;
+}
+.people-name{
+    position: relative;
+    float: left;
+    top:0;
+    left:0;
+    width:100px;
+    height: 25px;
+    line-height: 25px;
+}
+.people-oparetion{
+    width:80px;
+    float: right;
+}
+.people-email{
+    position: relative;
+    top:0;
+    left:0;
+    width:160px;
+    height: 15px;
+    line-height: 15px;
+}
