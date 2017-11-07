@@ -35,6 +35,7 @@ class alGeneratePanelSlave extends Actor with ActorLogging {
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) {
                 sender ! generate_panel_hand()
             }
+>>>>>>> origin/Pharbers-Clock-1031
             else Unit
         }
         case generate_panel_start_impl(panel_job) => {
