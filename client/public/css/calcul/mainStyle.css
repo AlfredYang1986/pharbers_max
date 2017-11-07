@@ -37,33 +37,20 @@
 }
 
 /*******************************设计*********************/
-.peopleInfo{
-    position: relative;
-    top:0;
-    left:0;
-    /*与layui中边距一致*/
-    padding:10px 20px;
+.peopleInfo {
+    margin:10px 20px 10px;
     height: 60px;
-    width: 100%;
 }
-.people-name{
-    position: relative;
+.people-name {
     float: left;
-    top:0;
-    left:0;
-    width:100px;
-    height: 25px;
+    font-weight: bold;
     line-height: 25px;
 }
-.people-oparetion{
-    width:80px;
+.people-oparetion {
     float: right;
+    padding: 5px 30px;
 }
 .people-email{
-    position: relative;
-    top:0;
-    left:0;
-    width:160px;
     height: 15px;
     line-height: 15px;
 }
