@@ -51,7 +51,7 @@ object AuthModule extends ModuleTrait with AuthData {
 					val uid = Sercurity.md5Hash(one("email").as[String])
 					val reVal = o + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 					val auth_token = att.encrypt2Token(toJson(reVal))
-					(Some(Map("auth_token" -> toJson(auth_token), "imuid" -> toJson(uuid), "uid" -> toJson(uid))), None)
+					(Some(Map("user_token" -> toJson(auth_token), "imuid" -> toJson(uuid), "uid" -> toJson(uid))), None)
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -66,7 +66,7 @@ object AuthModule extends ModuleTrait with AuthData {
 			val db = conn.queryDBInstance("cli").get
 			val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			
-			val vJson = att.decrypt2JsValue(pr.get("auth_token").as[String])
+			val vJson = att.decrypt2JsValue(pr.get("user_token").as[String])
 			val company = db.queryObject(DBObject("user_id" -> (vJson \ "user_id").as[String]), "users") { obj =>
 				val profile = obj.as[MongoDBObject]("profile")
 				Map("company" -> toJson(profile.getAs[String]("company").map(x => x).getOrElse("")))
