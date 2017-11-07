@@ -9,8 +9,7 @@ GET     /register/info                   controllers.alMaxRouterController.infoR
 POST    /register/user                   controllers.register.RegisterController.user_apply
 #####calcul#####
 GET     /calcul/home                     controllers.alMaxRouterController.cHome
-GET     /calcul/first                    controllers.alMaxRouterController.firstStep
-GET     /calcul/second                   controllers.alMaxRouterController.secondStep
+GET     /calcul/step                     controllers.alMaxRouterController.calculStep
 
 # BD
 GET     /bd/bdUser                       controllers.alMaxRouterController.bdUser

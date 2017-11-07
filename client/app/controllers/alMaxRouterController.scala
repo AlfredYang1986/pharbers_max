@@ -69,11 +69,8 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     def cHome = Action{request =>
         Ok(views.html.calculPages.cHome(showUser(request).name))
     }
-    def firstStep = Action{
+    def calculStep = Action{
         Ok(views.html.calculPages.calculStep.firstStep())
-    }
-    def secondStep = Action{
-        Ok(views.html.calculPages.calculStep.secondStep())
     }
     //---------------------------------bd----------------------------
     def bdUser = Action{
