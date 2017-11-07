@@ -18,13 +18,8 @@ object Upload {
 				val uuid = UUID.randomUUID
 				val company = data.dataParts("company").headOption.map(x => x).getOrElse("")
 //				val path = s"$fileBase$company$outPut"
-<<<<<<< HEAD
-				val path = s"../calc/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Output"
-				val file = new File(path)
-=======
                 val path = s"/home/clock/workSpace/blackMirror/pharbers_max/calc/config/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Client"
 					val file = new File(path)
->>>>>>> origin/Pharbers-Clock-1031
 				if(!file.exists()) {
 					println(file.exists())
 					file.mkdir()
