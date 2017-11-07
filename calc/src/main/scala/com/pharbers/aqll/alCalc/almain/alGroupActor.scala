@@ -64,7 +64,7 @@ class alGroupActor extends Actor
             data.company = parm.company
             data.year = parm.year
             data.market = parm.market
-            data.uname = parm.uname
+            data.imuname = parm.imuname
             atomic { implicit tnx =>
                 concert_ref() = Some(p)
             }
@@ -97,7 +97,7 @@ class alGroupActor extends Actor
             r match {
                 case None => None
                 case Some(d) =>
-                    new alMessageProxy().sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
+                    new alMessageProxy().sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.imuname, Map("type" -> "txt"))
                     d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
                     context stop self
             }

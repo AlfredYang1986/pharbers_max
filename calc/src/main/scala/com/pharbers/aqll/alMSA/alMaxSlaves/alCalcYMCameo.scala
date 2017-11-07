@@ -3,11 +3,14 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.EmChatMessage
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcYM.{calcYM_end, calcYM_start_impl, calcYM_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alUpBeforeItem
 import com.pharbers.panel.pfizer.phPfizerHandle
-import play.api.libs.json.JsString
+import play.api.libs.json._
+import play.api.libs.json.Json.toJson
 
+import scala.collection.immutable.Map
 import scala.concurrent.duration._
 
 /**
@@ -35,12 +38,18 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
         case calcYM_start_impl(calcYM_job) => {
             val args: Map[String, List[String]] = Map(
                 "company" -> List(calcYM_job.company),
-                "user" -> List(calcYM_job.user),
-                "cpas" -> calcYM_job.cpas.split("&").toList,
-                "gycxs" -> calcYM_job.gycxs.split("&").toList
+                "uid" -> List(calcYM_job.user.split("_").last),
+                "cpas" -> calcYM_job.cpa.split("&").toList,
+                "gycxs" -> calcYM_job.gycx.split("&").toList
             )
+            println("开始计算日期:" + args)
             val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
-            alMessageProxy().sendMsg(ym, calcYM_job.user, Map("type" -> "txt"))
+            val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
+            val msg = toJson(Map("ym" -> ym, "mkt" -> markets)).toString()
+            println("msg = " + msg)
+
+//            EmChatMessage().sendEMMessage(calcYM_job.company, "", "", "", "calc_ym_result", "", msg)
+            alMessageProxy().sendMsg(msg , calcYM_job.user, Map("type" -> "calc_ym_result"))
             self ! calcYM_end(true, ym)
         }
         case calcYM_end(result, ym) => {

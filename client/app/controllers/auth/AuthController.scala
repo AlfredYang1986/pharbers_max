@@ -16,51 +16,56 @@ import module.users.UserMessage.{msg_check_user_is_register, msg_user_token_op}
 import play.api.libs.json.Json.toJson
 import play.api.mvc.Action
 
-class AuthController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManager, att : AuthTokenTrait, msg: SendMessageTrait){
+class AuthController @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait, msg: SendMessageTrait) {
 	implicit val as = as_inject
 	
-	def auth_with_password = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
+	def auth_with_password = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_with_password"))), jv) :: msg_user_auth(jv) :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_with_password"))), jv)
+			:: MsgUserAuth(jv)
+			:: MsgAuthCreateIMUser(jv)
+			:: MsgAuthScanningRoomsAddUser(jv)
+			:: msg_CommonResultMessage() :: Nil, None)(
+			CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
 	
-	def auth_create_token = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
+	def auth_create_token = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_create_token"))), jv)
-			:: msg_auth_token_parser(jv)
-			:: msg_auth_token_expire(jv)
-			:: msg_auth_token_type(jv)
+			:: MsgAuthTokenParser(jv)
+			:: MsgAuthTokenExpire(jv)
+			:: MsgAuthTokenType(jv)
 			:: msg_check_user_is_register(jv)
 			:: msg_check_user_is_apply(jv)
 			:: msg_register_token_create(jv)
-			:: msg_auth_create_token(jv)
+			:: MsgAuthCreateToken(jv)
 			:: msg_approve_reg(jv)
 			:: msg_CommonResultMessage() :: Nil, None)(
-				CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
+			CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
-
-	def auth_token_push_user = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
+	
+	def auth_token_push_user = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_push_user"))), jv)
-			:: msg_auth_token_used(jv)
-            :: msg_auth_token_parser(jv)
-			:: msg_auth_token_expire(jv)
-            :: msg_user_token_op(jv)
-            :: msg_auth_code_push_success(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
+			:: MsgAuthTokenUsed(jv)
+			:: MsgAuthTokenParser(jv)
+			:: MsgAuthTokenExpire(jv)
+			:: msg_user_token_op(jv)
+			:: MsgAuthCodePushSuccess(jv)
+			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
 	
-	def auth_token_defeat = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
+	def auth_token_defeat = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_defeat"))), jv)
 			:: msg_check_user_is_register(jv)
 			:: msg_check_user_is_apply(jv)
 			:: msg_register_token_defeat(jv)
-            :: msg_auth_create_token(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
+			:: MsgAuthCreateToken(jv)
+			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
 }

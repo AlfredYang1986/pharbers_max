@@ -52,9 +52,6 @@ trait alCalcYMTrait { this : Actor =>
         }
     }
     def do_calc_ym_job(calcYM_job : alUpBeforeItem, s : ActorRef) = {
-
-        println(s" && do_generate_panel_job")
-
         val cur = context.actorOf(alCameoCalcYM.props(calcYM_job, s, self, calcYM_router))
         import alCameoCalcYM._
         cur ! calcYM_start()

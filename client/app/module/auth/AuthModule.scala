@@ -8,11 +8,12 @@ import com.pharbers.aqll.common.{MergeStepResult, alValidationToken}
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.message.im.EmChatMsg
 import com.pharbers.token.AuthTokenTrait
 import module.auth.AuthData._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.json.Json.toJson
-import module.auth.AuthMessage.{msg_auth_token_type, _}
+import module.auth.AuthMessage._
 import com.pharbers.message.send.SendMessageTrait
 import com.pharbers.sercuity.Sercurity
 
@@ -21,14 +22,17 @@ import scala.collection.immutable.Map
 
 object AuthModule extends ModuleTrait with AuthData {
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-		case msg_user_auth(data) => authWithPassword(data)
-		case msg_auth_token_parser(data) => authTokenParser(data)
-		case msg_auth_token_expire(data) => checkAuthTokenExpire(data)(pr)
-		case msg_auth_create_token(data) => authCreateToken(data)(pr)
-		case msg_auth_code_push_success(data) => authCodePushSuccess(data)
-		case msg_auth_token_type(data) => authTokenType(data)(pr)
-		case msg_auth_token_used(data) => checkAuthTokenUsed(data)
-		case msg_auth_check_token_action(data) => authCheckTokenAction(data)
+		case MsgUserAuth(data) => authWithPassword(data)
+		case MsgAuthCreateIMUser(data) => authCreateIMUser(data)(pr)
+		case MsgAuthTokenParser(data) => authTokenParser(data)
+		case MsgAuthTokenExpire(data) => checkAuthTokenExpire(data)(pr)
+		case MsgAuthCreateToken(data) => authCreateToken(data)(pr)
+		case MsgAuthCodePushSuccess(data) => authCodePushSuccess(data)
+		case MsgAuthTokenType(data) => authTokenType(data)(pr)
+		case MsgAuthTokenUsed(data) => checkAuthTokenUsed(data)
+		
+		case MsgAuthCheckTokenAction(data) => authCheckTokenAction(data)
+		case MsgAuthScanningRoomsAddUser(data) => authScanningRoomsAddUser(data)(pr)
 		case _ => throw new Exception("function is not impl")
 	}
 	
@@ -43,11 +47,59 @@ object AuthModule extends ModuleTrait with AuthData {
 				case None => throw new Exception("data not exist")
 				case Some(one) =>
 					val o = one - "email" - "phone" - "name"
-					val uuid = Sercurity.md5Hash(one.get("email").get.as[String])
+					val uuid = Sercurity.md5Hash(one("email").as[String] + Sercurity.getTimeSpanWithSeconds)
+					val uid = Sercurity.md5Hash(one("email").as[String])
 					val reVal = o + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 					val auth_token = att.encrypt2Token(toJson(reVal))
-					(Some(Map("auth_token" -> toJson(auth_token), "uuid" -> toJson(uuid))), None)
+					(Some(Map("auth_token" -> toJson(auth_token), "imuid" -> toJson(uuid), "uid" -> toJson(uid))), None)
 			}
+		} catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	def authCreateIMUser(data: JsValue)
+	                    (pr: Option[String Map JsValue])
+	                    (implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
+		try {
+			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+			val db = conn.queryDBInstance("cli").get
+			val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
+			
+			val vJson = att.decrypt2JsValue(pr.get("auth_token").as[String])
+			val company = db.queryObject(DBObject("user_id" -> (vJson \ "user_id").as[String]), "users") { obj =>
+				val profile = obj.as[MongoDBObject]("profile")
+				Map("company" -> toJson(profile.getAs[String]("company").map(x => x).getOrElse("")))
+			}.get("company").as[String] // 查询公司名
+			
+			val reVal = MergeStepResult(data, pr).as[String Map JsValue] - "condition"
+			val imUser = s"${company}_${reVal("imuid").as[String]}_${reVal("uid").as[String]}"
+			val result = reVal ++ Map("company" -> toJson(company)) ++ Map("imuid" -> toJson(imUser))
+			// TODO: 环信的错误处理未加入项目错误列表中，先记着
+			EmChatMsg().registerUser(imUser, imUser) // push 环信临时用户
+			(Some(result), None)
+		} catch {
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	
+	def authScanningRoomsAddUser(data: JsValue)
+	                            (pr: Option[String Map JsValue])
+	                            (implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
+		try {
+			val company = pr.get("company").as[String]
+			
+			// TODO：环信错误处理未加入项目错误列表
+			(Json.parse(EmChatMsg().getAllRooms) \ "data").as[List[String Map JsValue]]
+				.filterNot(x => x("name").as[String] != company + "_" + pr.get("uid").as[String])
+				.map(x => x("id").as[String]) match {
+					case Nil => Unit
+					case lst =>
+						val uuid = pr.get("imuid").as[String]
+						lst foreach (x => EmChatMsg().setRoomMembers(x, uuid :: Nil))
+			}
+			(Some(pr.get - "company"), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
@@ -114,8 +166,8 @@ object AuthModule extends ModuleTrait with AuthData {
 			val o: DBObject = DBObject("token" -> token)
 			db.insertObject(o, "authorizationcode", "token")
 			(Some(Map("url" -> toJson(url),
-					  "name" -> toJson(name),
-					  "email" -> toJson(email)
+				"name" -> toJson(name),
+				"email" -> toJson(email)
 			)), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -145,7 +197,7 @@ object AuthModule extends ModuleTrait with AuthData {
 			
 			val reVal = (MergeStepResult(data, pr) \ "auth").asOpt[JsValue].map(x => x.as[String Map JsValue]).getOrElse(throw new Exception(""))
 			val lst = reVal.get("scope").map(x => x.as[List[String]]).getOrElse(throw new Exception(""))
-			if(lst.contains("BD")) (Some(Map("user_type" -> toJson(lst))), None)
+			if (lst.contains("BD")) (Some(Map("user_type" -> toJson(lst))), None)
 			else throw new Exception("user is not BD")
 			
 		} catch {
@@ -166,4 +218,6 @@ object AuthModule extends ModuleTrait with AuthData {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
+	
+	
 }

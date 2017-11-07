@@ -1,6 +1,9 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 
+# IM聊天室创建
+POST    /imroom/create                   controllers.immessage.ImRoomController.createChatRooms
+
 # 路人申请体验页面
 GET     /register/info                   controllers.alMaxRouterController.infoRegistration
 POST    /register/user                   controllers.register.RegisterController.user_apply
@@ -8,7 +11,7 @@ POST    /register/user                   controllers.register.RegisterController
 GET     /calcul/home                     controllers.alMaxRouterController.cHome
 GET     /calcul/step                     controllers.alMaxRouterController.calculStep
 
-########bd########
+# BD
 GET     /bd/bdUser                       controllers.alMaxRouterController.bdUser
 # BD用户登入分页查询申请用户
 POST    /register/querybd                controllers.register.RegisterController.query_apply_user
@@ -55,6 +58,7 @@ POST    /phonecode/check                            controllers.phonecode.PhoneS
 
 # 上传文件
 POST    /panel/upload                               controllers.upload.FopController.uploadFile
+POST    /source/upload                              controllers.upload.FopController.uploadFile
 POST    /upload/queryUserCompnay                    controllers.upload.FopController.queryUserCompnay
 
 # Call Http

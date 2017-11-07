@@ -10,7 +10,6 @@ import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
 import com.pharbers.bmpattern.LogMessage.msg_log
 import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
 import controllers.common.requestArgsQuery
-import module.auth.AuthMessage.{msg_auth_token_expire, msg_auth_token_parser}
 import module.phonecode.PhoneCodeMessages._
 import play.api.libs.json.Json.toJson
 

@@ -61,6 +61,9 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     implicit val db_basic : DBTrait = dbt.queryDBInstance("cli").get
     implicit val attoken: AuthTokenTrait = att
     
+    def test =Action {
+        Ok(views.html.test())
+    }
     
     //---------------------------------calcul--------------------------
     def cHome = Action{request =>
