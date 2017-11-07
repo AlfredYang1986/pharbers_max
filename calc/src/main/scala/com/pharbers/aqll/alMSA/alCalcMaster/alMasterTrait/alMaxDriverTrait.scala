@@ -60,28 +60,6 @@ case object restore_maxing extends alPointState
 case object calc_done extends alPointState
 
 case class EmChatMessage() {
-	def creatreEmRooms(company: String, uid: String): String = {
-		val roomName = s"${company}_${uid}"
-		val roomId = (Json.parse(EmChatMsg().getAllRooms) \ "data").as[List[String Map JsValue]].find(x => x("name").as[String] == roomName) match {
-			case None => {
-				val reVal = (Json.parse(EmChatMsg()
-				  .setRoomName(roomName)
-				  .setRoomDescription(roomName)
-				  .setRoomOnwer("project")
-				  .setRoomMaxUsers(200)
-				  .createChatRoom) \ "data").as[String Map JsValue]
-				reVal("id").as[String]
-			}
-			case Some(x) => x("id").as[String]
-		}
-
-		(Json.parse(EmChatMsg().getUsersBatch()) \ "entities").as[List[String Map JsValue]].filter(x =>
-			x("username").as[String].indexOf(s"${company}_") != -1 && x("username").as[String].indexOf(s"_${uid}") != -1
-		).map(x => x("username").as[String]) match {
-			case Nil => ""
-			case lst => EmChatMsg().setRoomMembers(roomId, lst)
-		}
-	}
 	
 	def sendEMMessage(company: String, uid: String, uuid: String, fileName: String, mestype: String, step: String, msg: String): String = {
 		val reVal = (Json.parse(EmChatMsg().getAllRooms) \ "data").as[List[String Map JsValue]]
