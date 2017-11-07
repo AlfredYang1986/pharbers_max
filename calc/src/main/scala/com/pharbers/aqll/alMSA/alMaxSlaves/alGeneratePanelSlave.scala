@@ -30,18 +30,10 @@ class alGeneratePanelSlave extends Actor with ActorLogging {
         case generate_panel_hand() => {
             implicit val t = Timeout(2 seconds)
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-<<<<<<< HEAD
             val f = a ? takeNodeForRole("splitgeneratepanelslave")
 //            val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) sender ! generate_panel_hand()
-=======
-//            val f = a ? takeNodeForRole("splitgeneratepanelslave")
-            val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
-            if (Await.result(f, t.duration).asInstanceOf[Boolean]) {
                 sender ! generate_panel_hand()
-            }
->>>>>>> origin/Pharbers-Clock-1031
-            else Unit
         }
         case generate_panel_start_impl(panel_job) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
