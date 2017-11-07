@@ -107,7 +107,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("modelcalc") {
 			entity(as[alCalcItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-				EmChatMessage().creatreEmRooms(item.company, item.uid)
 				item.filename foreach { x =>
 					val path = fileBase + item.company + outPut + x
 					a ! push_filter_job(path, new alCalcParmary(item.company, item.imuname, item.uid))
@@ -148,7 +147,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alCreateIMUserFunc = post {
 		path("createimuser") {
 			entity(as[alHttpCreateIMUser]) { item =>
-				//alIMUser.createUser(item.name, item.pwd)
+//				alIMUser.createUser(item.name, item.pwd)
 				complete(toJson(successToJson().get))
 			}
 		}
