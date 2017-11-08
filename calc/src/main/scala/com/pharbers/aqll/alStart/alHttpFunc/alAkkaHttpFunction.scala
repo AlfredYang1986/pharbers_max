@@ -11,6 +11,7 @@ import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.EmChatMessage
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
@@ -33,8 +34,8 @@ case class Item(str: String, lst: List[String])
 case class alUpBeforeItem(company: String, user: String, cpa: String, gycx: String)
 case class alUploadItem(company: String, user: String, cpa: String, gycx: String, ym: List[String])
 case class alCheckItem(company: String, filename: String, uname: String)
-case class alCalcItem(filename: String, company: String, uname: String)
-case class alCommitItem(company: String, uuid: String, uname: String)
+case class alCalcItem(filename: List[String], company: String, imuname: String, uid: String)
+case class alCommitItem(company: String, uuid: String, uname: String, uid: String)
 case class alExportItem(datatype: String, market: List[String],
                         staend: List[String], company: String,
                         filetype: String, uname: String)
@@ -106,8 +107,10 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("modelcalc") {
 			entity(as[alCalcItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-				val path = fileBase + item.company + outPut + item.filename
-				a ! push_filter_job(path, new alCalcParmary(item.company, item.uname))
+				item.filename foreach { x =>
+					val path = fileBase + item.company + outPut + x
+					a ! push_filter_job(path, new alCalcParmary(item.company, item.imuname, item.uid))
+				}
 				complete(toJson(successToJson().get))
 			}
 		}
@@ -117,7 +120,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-				val map = Map("company" -> item.company, "uuid" -> item.uuid, "uname" -> item.uname)
+				val map = Map("company" -> item.company, "uuid" -> item.uuid, "uname" -> item.uname, "uid" -> item.uid)
 				a ! max_calc_done(map)
 				val result = alSampleCheckCommit().apply(item.company)
 				complete(result)
@@ -144,7 +147,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alCreateIMUserFunc = post {
 		path("createimuser") {
 			entity(as[alHttpCreateIMUser]) { item =>
-				//alIMUser.createUser(item.name, item.pwd)
+//				alIMUser.createUser(item.name, item.pwd)
 				complete(toJson(successToJson().get))
 			}
 		}

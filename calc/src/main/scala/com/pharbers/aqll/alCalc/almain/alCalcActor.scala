@@ -57,7 +57,7 @@ class alCalcActor extends Actor
             data.company = parm.company
             data.year = parm.year
             data.market = parm.market
-            data.uname = parm.uname
+            data.imuname = parm.imuname
             atomic { implicit tnx =>
                 concert_ref() = Some(p)
 	            log.info(s"calc finally $p")
@@ -96,7 +96,7 @@ class alCalcActor extends Actor
             r match {
                 case None => None
                 case Some(d) =>
-                    new alMessageProxy().sendMsg(s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.uname, Map("type" -> "txt"))
+                    new alMessageProxy().sendMsg(s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.imuname, Map("type" -> "txt"))
                     d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
                     context stop self
             }
@@ -182,7 +182,7 @@ class alCalcActor extends Actor
             dbc.getCollection(sub_uuid).drop()
 	        log.info(s"单个线程结束删除临时表")
     
-            new alMessageProxy().sendMsg("1", data.uname, Map("uuid" -> data.uuid, "company" -> data.company, "type" -> "progress"))
+            new alMessageProxy().sendMsg("1", data.imuname, Map("uuid" -> data.uuid, "company" -> data.company, "type" -> "progress"))
 
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
                 r.isCalc = true

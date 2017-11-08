@@ -32,7 +32,9 @@ class alGeneratePanelSlave extends Actor with ActorLogging {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
 //            val f = a ? takeNodeForRole("splitgeneratepanelslave")
             val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
-            if (Await.result(f, t.duration).asInstanceOf[Boolean]) sender ! generate_panel_hand()
+            if (Await.result(f, t.duration).asInstanceOf[Boolean]) {
+                sender ! generate_panel_hand()
+            }
             else Unit
         }
         case generate_panel_start_impl(panel_job) => {

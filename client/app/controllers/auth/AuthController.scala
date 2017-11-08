@@ -25,8 +25,8 @@ class AuthController @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, a
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_with_password"))), jv)
 			:: MsgUserAuth(jv)
 			:: MsgAuthCreateIMUser(jv)
-			:: msg_CommonResultMessage() :: Nil, None)(
-			CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
+			:: MsgAuthScanningRoomsAddUser(jv)
+			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
 	
 	def auth_create_token = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
@@ -41,8 +41,7 @@ class AuthController @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, a
 			:: msg_register_token_create(jv)
 			:: MsgAuthCreateToken(jv)
 			:: msg_approve_reg(jv)
-			:: msg_CommonResultMessage() :: Nil, None)(
-			CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
+			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
 	
 	def auth_token_push_user = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>

@@ -74,6 +74,8 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 //			:: msg_register_token_create(jv) TODO: 通讯协议不一致导致message不能重用，稍后重构
 			:: msg_user_chang_pwd(jv)
 			:: msg_first_push_user(jv)
+			:: MsgAuthCreateIMUser(jv)
+			:: MsgAuthScanningRoomsAddUser(jv)
 			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
 }
