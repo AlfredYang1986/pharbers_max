@@ -83,7 +83,7 @@
                        if(f.validationModule.finalResult()){
                            f.ajaxModule.asyncPost('auth/authWithPassword', json, function (r) {
                                if (r.status === 'ok') {
-                                   f.cookieModule.setCookie("user_token", r.result.auth_token);
+                                   f.cookieModule.setCookie("user_token", r.result.user_token);
                                    f.cookieModule.setCookie("uid", r.result.uid);
                                    window.im_object.login_im(r.result.imuid, r.result.imuid);
                                    setTimeout(function(){location = "/auth/user/"}, 1000)
