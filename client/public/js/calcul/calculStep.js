@@ -2,7 +2,124 @@
  * Created by yym on 11/7/17.
  */
 (function ($) {
-    //变量
+    $(document).ready(function () {
+        $("#goSecond").bind('click',function(){
+            goSecond();
+        });
+        $('#secondStep').hide();
+        $('#sampleResult').hide();
+        $('#thirdStep').hide();
+//                load_cpa_source();
+        loadMainChart(82, 'mainChart', '文档总体可信度');
+        loadMainChart(18, 't-char1', '文档总体可信度');
+        loadMainChart(18, 't-char2', '文档总体可信度');
+        loadMainChart(18, 't-char3', '文档总体可信度');
+        loadMainChart(18, 't-char4', '文档总体可信度');
+        loadLineChart('t1');
+        loadLineChart('t2');
+        loadLineChart('t3');
+        loadLineChart('t4');
+
+
+
+
+    });
+    //----------------------------------------模拟跳转----------------------------
+
+    var toSecondStep = function () {
+        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
+            $('#firstStep').hide();
+            $('#secondStep').show();
+            $('.scd-img')[0].src = "assets/images/calculStep/step2.png)";
+        }
+    };
+    var goSecond = function () {
+        call_calcYM();
+        prograssBar(0);
+        callback();
+        $('#loadInof').empty();
+        $('#loadInof').append('<div class="inCenChild small-font">MAX正在解析您的文件...</div>')
+    };
+    var toSampleResult = function () {
+        $('#secondStep').hide();
+        $('#sampleResult').show();
+    };
+    var prograssBar = function (tips) {
+        var rotate = echarts.init(document.getElementById('rotate'));
+
+        function loading() {
+            return [{
+                value: tips,
+                itemStyle: {
+                    normal: {
+                        color: '#fb358a',
+                        shadowBlur: 10,
+                        shadowColor: '#fb358a'
+                    }
+                }
+            }, {
+                value: 100 - tips,
+            }];
+        }
+
+        var option = {
+            title: {
+                text: (tips * 1) + '%',
+                x: 'center',
+                y: 'center',
+                textStyle: {
+                    color: '#fb358a',
+                    fontSize: 30,
+                }
+            },
+            series: [{
+                name: 'loading',
+                type: 'pie',
+                radius: ['30%', '31%'],
+                hoverAnimation: false,
+                label: {
+                    normal: {
+                        show: false,
+                    }
+                },
+                data: loading()
+            }]
+        };
+        var interval = setInterval(function () {
+            if (tips == 10) {
+                $('#chooseMonth').modal('show');
+                ++tips;
+                clearInterval(interval);
+            } else if (tips == 100) {
+                clearInterval(interval);
+                toSampleResult();
+            } else {
+                ++tips;
+            }
+
+//                    if (tips == 100) {
+//                        tips = 0;
+//                    } else {
+//                        ++tips;
+//                    }
+            rotate.setOption({
+                title: {
+                    text: tips + '%'
+                },
+                series: [{
+                    name: 'loading',
+                    data: loading()
+                }]
+            })
+
+        }, 100);
+        rotate.setOption(option);
+    };
+    var chooseDate = function () {
+        $('#chooseMonth').modal('hide');
+        prograssBar(11);
+    }
+    //---------------------------------------文件上传----------------------------------
     var company = "";
     var isCalcDone = false;
     var sourceMap = {"cpa":"","gycx":""};
@@ -98,13 +215,7 @@
             });
         });
     };
-    var toSecondStep = function () {
-       if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-           $('#firstStep').hide();
-           $('#secondStep').show();
-           $('.scd-img')[0].src = "@routes.Assets.versioned(\"images/calculStep/step11.png\")";
-       }
-    };
+
     var query_company = function() {
         layui.use('layer', function () {});
         var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
@@ -182,6 +293,24 @@
             onOnline: function () {},                  //本机网络连接成功
             onOffline: function () {},                 //本机网络掉线
             onError: function ( message ) { console.error(message) }          //失败回调
+        });
+    };
+    var calc_ym_result = function (msg) {
+        var obj = JSON.parse(msg.data);
+        console.info(msg.data);
+        $('.mask-layer').hide();
+        $('.loading').hide();
+
+        var $ym_div = $('#month_choose');
+        $ym_div.empty();
+        $.each(obj.ym.split(","), function( index, ym ) {
+            $ym_div.append('<div class="col-sm-3"> <div class="checkbox"> <label> <input type="checkbox" value="">'+ym+'</label> </div> </div>');
+        });
+
+        f.alertModule.content($('#selectYM').html(), null, null, "请选择需要Max的月份", ['MAX'], function(index, layero){
+            write_panel_table(obj.mkt.split(','));
+            generat_panel_action();
+            layer.close(index);
         });
     };
     var setProgress = function (flag, num) {

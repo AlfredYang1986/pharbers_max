@@ -18,7 +18,7 @@
             <div class="row">
                 <div class="col-md-6 col-xs-10">
                     <div class="file-box">
-                        <div class="middle-font" onclick="toSecondStep()">CPA文件</div>
+                        <div class="middle-font">CPA文件</div>
                         <div class="file-up">
                             <div><i class="fa fa-file-excel-o file-icon cpa-file" aria-hidden="true"></i></div>
                             <div class="small_info">拖拽至此处上传</div>
@@ -72,113 +72,4 @@
     @calculPages.calculStep.monthChoose()
     <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
     <script src="@routes.Assets.versioned("js/calcul/calculStep.js")"></script>
-    <script>
-            $(document).ready(function () {
-                $('#secondStep').hide();
-                $('#sampleResult').hide();
-                $('#thirdStep').hide();
-//                load_cpa_source();
-                loadMainChart(82, 'mainChart', '文档总体可信度');
-                loadMainChart(18, 't-char1', '文档总体可信度');
-                loadMainChart(18, 't-char2', '文档总体可信度');
-                loadMainChart(18, 't-char3', '文档总体可信度');
-                loadMainChart(18, 't-char4', '文档总体可信度');
-                loadLineChart('t1');
-                loadLineChart('t2');
-                loadLineChart('t3');
-                loadLineChart('t4');
-
-
-
-            });
-            var toSecondStep = function () {
-                $('#firstStep').hide();
-                $('#secondStep').show();
-                $('.scd-img')[0].src = "@routes.Assets.versioned("images/calculStep/step2.png")";
-            };
-            var toSampleResult = function () {
-                $('#secondStep').hide();
-                $('#sampleResult').show();
-            };
-
-
-            var prograssBar = function (tips) {
-                var rotate = echarts.init(document.getElementById('rotate'));
-
-                function loading() {
-                    return [{
-                        value: tips,
-                        itemStyle: {
-                            normal: {
-                                color: '#fb358a',
-                                shadowBlur: 10,
-                                shadowColor: '#fb358a'
-                            }
-                        }
-                    }, {
-                        value: 100 - tips,
-                    }];
-                }
-
-                var option = {
-                    title: {
-                        text: (tips * 1) + '%',
-                        x: 'center',
-                        y: 'center',
-                        textStyle: {
-                            color: '#fb358a',
-                            fontSize: 30,
-                        }
-                    },
-                    series: [{
-                        name: 'loading',
-                        type: 'pie',
-                        radius: ['30%', '31%'],
-                        hoverAnimation: false,
-                        label: {
-                            normal: {
-                                show: false,
-                            }
-                        },
-                        data: loading()
-                    }]
-                };
-                var interval = setInterval(function () {
-                    if (tips == 10) {
-                        $('#chooseMonth').modal('show');
-                        ++tips;
-                        clearInterval(interval);
-                    } else if (tips == 100) {
-                        clearInterval(interval);
-                        toSampleResult();
-                    } else {
-                        ++tips;
-                    }
-
-//                    if (tips == 100) {
-//                        tips = 0;
-//                    } else {
-//                        ++tips;
-//                    }
-                    rotate.setOption({
-                        title: {
-                            text: tips + '%'
-                        },
-                        series: [{
-                            name: 'loading',
-                            data: loading()
-                        }]
-                    })
-
-                }, 100);
-                rotate.setOption(option);
-            };
-
-            var chooseDate = function () {
-                $('#chooseMonth').modal('hide');
-                prograssBar(11);
-            }
-            //--------------------文件拖拽上传-----------------------
-
-    </script>
 }
