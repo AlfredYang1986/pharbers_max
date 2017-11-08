@@ -14,6 +14,7 @@ import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport,
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.{pushCalcYMJobs, pushGeneratePanelJobs}
 import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json.JsString
 
@@ -29,8 +30,8 @@ class alAkkaHttpFunctionApi(system: ActorSystem, timeout: Timeout) extends alAkk
 
 case class Item(str: String, lst: List[String])
 
-case class alUpBeforeItem(company: String, user: String, cpas: String, gycxs: String)
-case class alUploadItem(company: String, user: String, cpas: String, gycxs: String, ym: List[String])
+case class alUpBeforeItem(company: String, user: String, cpa: String, gycx: String)
+case class alUploadItem(company: String, user: String, cpa: String, gycx: String, ym: List[String])
 case class alCheckItem(company: String, filename: String, uname: String)
 case class alCalcItem(filename: String, company: String, uname: String)
 case class alCommitItem(company: String, uuid: String, uname: String)
@@ -41,7 +42,7 @@ case class alHttpCreateIMUser(name: String, pwd: String)
 
 trait PlayJson extends PlayJsonSupport {
 	implicit val itemJson = format[Item]
-	
+
 	implicit val itemFormatUpBefore = format[alUpBeforeItem]
 	implicit val itemFormatUpload = format[alUploadItem]
 	implicit val itemFormatCheck = format[alCheckItem]
@@ -54,12 +55,12 @@ trait PlayJson extends PlayJsonSupport {
 trait alAkkaHttpFunction extends Directives with PlayJson{
 	implicit def executionContext: ExecutionContext
 	implicit def requestTimeout: Timeout
-	
+
 	val routes =  alSampleCheckDataFunc ~
 		alNewCalcDataFunc ~ alNewModelOperationCommitFunc ~
-		alFileUploadPythonFunc ~ alResultFileExportFunc ~
-		alFileUploadPyBefore
-	
+		alGenternPanel ~ alResultFileExportFunc ~
+		alCalcYM
+
 	def Test = post {
 		path("test") {
 			entity(as[Item]) { item =>
@@ -71,36 +72,22 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		}
 	}
 
-	
-	def alFileUploadPyBefore = post {
-		path("uploadbefore") {
+	def alCalcYM = post {
+		path("calcYM") {
 			entity(as[alUpBeforeItem]) { item =>
-                val args: Map[String, List[String]] = Map(
-                    "company" -> List(item.company),
-                    "user" -> List(item.user),
-                    "cpas" -> item.cpas.split("&").toList,
-                    "gycxs" -> item.gycxs.split("&").toList
-                )
-                val result = phPfizerHandle(args).calcYM
-                alMessageProxy().sendMsg(result.asInstanceOf[JsString].value, item.user, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-				complete(result)
+				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
+				a ! pushCalcYMJobs(item)
+				complete(toJson(successToJson().get))
 			}
 		}
 	}
-	
-	def alFileUploadPythonFunc = post {
-		path("uploadfile") {
-			entity(as[alUploadItem]) { item =>
-                val args: Map[String, List[String]] = Map(
-                    "company" -> List(item.company),
-                    "user" -> List(item.user),
-                    "cpas" -> item.cpas.split("&").toList,
-                    "gycxs" -> item.gycxs.split("&").toList
-                )
 
-                val result = phPfizerHandle(args).getPanelFile(item.ym)
-                alMessageProxy().sendMsg(result.toString, item.user, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
-                complete(result)
+	def alGenternPanel = post {
+		path("genternPanel") {
+			entity(as[alUploadItem]) { item =>
+				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
+				a ! pushGeneratePanelJobs(item)
+				complete(toJson(successToJson().get))
 			}
 		}
 	}

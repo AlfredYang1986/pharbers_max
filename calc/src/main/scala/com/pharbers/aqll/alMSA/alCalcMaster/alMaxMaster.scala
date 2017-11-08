@@ -35,7 +35,7 @@ class alMaxMaster extends Actor
         case calc_schedule() => schduleCalcJob
         case calc_slave_status() => Unit // setSlaveStatus
 
-        case push_restore_job(coll, sub_uuid) => pushRestoreJob(coll, sub_uuid, sender)
+        case push_restore_job(coll, sub_uuids) => pushRestoreJob(coll, sub_uuids, sender)
         case restore_bson_schedule() => schduleRestoreJob
     }
 

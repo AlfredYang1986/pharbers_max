@@ -7,7 +7,6 @@ import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_end, calc_slave_status}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.filter_excel_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_error}
@@ -22,6 +21,7 @@ import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor.PushToScpQueue
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, queryIdleNodeInstanceInSystemWithRole}
 
 import scala.concurrent.stm.atomic
 
@@ -52,7 +52,6 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
 	val queueActor = context.actorOf(alScpQueueActor.props(self))
 	var s1 = startDate()
-	var restore_left = 0
 	import alCameoMaxDriver._
 	
 	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
@@ -157,6 +156,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 		}
 
 		case Event(group_data_error(reason), pr) => {
+			println(s"Error! group_data_error(${reason}, ${pr})")
 			new alMessageProxy().sendMsg("100", pr.uname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
 			shutCameo
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
@@ -178,10 +178,11 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 //			finalUnit += mp.finalUnit
 //			println(finalValue)
 //          println(finalUnit)
-			mp.subs.map{ p =>
+			val sub_uuids = mp.subs.map{ p =>
 				p.isCalc = true
-				acts ! push_restore_job(s"${pr.company}${mp.uuid}", p.uuid)
+				p.uuid
 			}
+			acts ! push_restore_job(s"${pr.company}${mp.uuid}", sub_uuids)
 			mp.isCalc = true
 			goto(restore_maxing) using pr
 		}
@@ -189,16 +190,14 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 
 	when(restore_maxing) {
 		case Event(restore_bson_end(result, sub_uuid), pr) => {
-			restore_left += 1
-			// println(s"restore_maxing.restore_left=${restore_left}")
-			if (restore_left == core_number){
-				acts ! calc_slave_status()
-				test_num = test_num + 1
-				alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> sub_uuid, "company" -> pr.company, "type" -> "progress_calc"))
-				endDate("test"+test_num, s1)
-				shutCameo()
-				goto(alDriverJobIdle) using new alCalcParmary("", "")
-			} else stay()
+			// val agent = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+   //          agent ! refundNodeForRole("splitgeneratepanelslave")
+			acts ! calc_slave_status()
+			test_num = test_num + 1
+			alMessageProxy().sendMsg("100", pr.uname, Map("uuid" -> sub_uuid, "company" -> pr.company, "type" -> "progress_calc"))
+			endDate("test"+test_num, s1)
+			shutCameo()
+			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
 	}
 
@@ -216,35 +215,18 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	}
 
 	whenUnhandled {
-		case Event(_, _) => {
-			println("unknown")
-			shutCameo
+		case Event(msg, _) => {
+			println(s"unknown msg=${msg}")
+			// shutCameo
 			stay()
 		}
 	}
 
-	def finalSuccessWithWork(cp : alCalcParmary, property : alMaxProperty) = {
-        property.subs.map{ p =>
-            p.isCalc = true
-//            alRestoreColl().apply(s"${cp.company}${property.uuid}", p.uuid :: Nil)
-            alRestoreColl2().apply(s"${cp.company}${property.uuid}", p.uuid :: Nil)
-        }
-        property.isCalc = true
-    }
-
-	def restoreBson(cp : alCalcParmary, property : alMaxProperty, driver : ActorSelection) = {
-        property.subs.map{ p =>
-            p.isCalc = true
-			driver ! push_restore_job(s"${cp.company}${property.uuid}", p.uuid)
-        }
-        property.isCalc = true
-    }
-
 	def shutCameo() = {
-		log.info("stopping temp cameo END")
+		s1 = startDate()
+		log.info("stopping alMaxDriverTrait cameo END")
 		self ! PoisonPill
 //		context.stop(self)
-		s1 = startDate()
 	}
 }
 
@@ -253,10 +235,7 @@ object alCameoMaxDriver {
 	case class push_split_job(path : String)
 	case class max_calc_done(mp: String Map String)
 	def props = Props[alCameoMaxDriver]
-  
-	val core_number = server_info.cpu
 	var test_num: Int = 0
-
 	var finalValue : Double = 0
 	var finalUnit : Double = 0
 }
