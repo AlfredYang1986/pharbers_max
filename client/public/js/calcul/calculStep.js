@@ -3,8 +3,8 @@
  */
 (function ($) {
     $(document).ready(function () {
-        $("#goSecond").bind('click',function(){
-            goSecond();
+        $("#beginCheck").bind('click',function(){
+            beginCheck();
         });
         $("#chooseDate").bind('click',function(){
             chooseDate();
@@ -37,7 +37,7 @@
             $('.scd-img')[0].src = "assets/images/calculStep/step2.png)";
         }
     };
-    var goSecond = function () {
+    var beginCheck = function () {
         call_calcYM();
 
         prograssBar(0);
@@ -122,8 +122,8 @@
         rotate.setOption(option);
     };
     var chooseDate = function () {
-        write_panel_table();
-        generat_panel_action();
+        // write_panel_table();
+        // generat_panel_action();
         $('#chooseMonth').modal('hide');
         prograssBar(11);
     }
