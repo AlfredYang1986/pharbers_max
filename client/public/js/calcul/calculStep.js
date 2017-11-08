@@ -26,7 +26,6 @@
         $('.loading').show();
     };
 
-    $("#toSecondBtn").click(function(){toSecondStep()});
     $("#check-btn").click(function(){check_file()});
 
     load_cpa_source();
@@ -214,34 +213,6 @@
         });
     };
 
-    var write_panel_table = function(mkt_lst){
-        var ym_lst = [];
-        var panel_lst = $('#panel-lst');
-
-        panel_lst.empty();
-
-        $('#ym-div input[type=checkbox]:checked').each(function(){
-            ym_lst.push($(this).val());
-        });
-
-        function write_row(ym, mkt, str){
-            var s = "<tr><td>"+ ym  +"</td>";
-            s = s + "<td>"+ mkt +"</td>";
-            s = s + "<td><span style='color: #1AB394;'>"+ str +"</span></td>";
-            var lay_filter = 'generat_panel-progress-' + ym + '-' + mkt;
-            s = s + "<td><div class='layui-progress' lay-filter='" + lay_filter + "'>";
-            s = s + "<div class='layui-progress-bar layui-bg-green' lay-percent='0%'></div>";
-            s = s + "</div></td></tr>";
-            return s;
-        }
-
-        $.each(ym_lst, function(index1, ym) {
-            $.each(mkt_lst, function(index2, mkt) {
-                panel_lst.append(write_row(ym, mkt, "正在生成"));
-            });
-        });
-    };
-
     var generat_panel_action = function() {
         var ym_lst = [];
         $('#ym-div input[type=checkbox]:checked').each(function(){
@@ -261,9 +232,6 @@
             "ym": ym_lst
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-
-        isSelectYm = true;
-        $( "#next-btn" ).click();
     };
 
     var progress_generat_panel = function (msg) {
