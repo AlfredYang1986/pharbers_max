@@ -2,17 +2,30 @@
  * Created by yym on 11/7/17.
  */
 (function ($) {
-
     //变量
     var company = "";
     var isCalcDone = false;
     var sourceMap = {"cpa":"","gycx":""};
+    var f = new Facade();
+
+    $('#secondStep').hide();
+    $('#sampleResult').hide();
+    $('#thirdStep').hide();
+    loadMainChart(82, 'mainChart', '文档总体可信度');
+    loadMainChart(18, 't-char1', '文档总体可信度');
+    loadMainChart(18, 't-char2', '文档总体可信度');
+    loadMainChart(18, 't-char3', '文档总体可信度');
+    loadMainChart(18, 't-char4', '文档总体可信度');
+    loadLineChart('t1');
+    loadLineChart('t2');
+    loadLineChart('t3');
+    loadLineChart('t4');
+
     //函数
     var load_cpa_source = function () {
-        var aFile;
         var name = 'cpa';
-        var txt = '#txt'+name;
-        var sel = '#select'+name;
+        var txt = '#txt-'+name;
+        var sel = '#select-'+name;
         layui.use('upload', function () {
             var upload = layui.upload;
             upload.render({
@@ -23,15 +36,11 @@
                 // multiple: true , // 多文件上传
                 accept: 'file',
                 exts: 'xlsx',
-                choose: function (obj) {
-                    console.log("aaaa")
-                    aFile = obj.pushFile();
+                before: function (obj) {
                     obj.preview(function (index, file, result) {
                         $(txt).val(file.name);
                         $(txt).addClass('disabled');
                     });
-                },//文件选择
-                before: function () {
                     query_company();
                     if(!isCalcDone) {
                         $('.mask-layer').show();
@@ -40,20 +49,149 @@
                 },
                 done: function (res, index, upload) {
                     if (res.status === 'ok') { //上传成功
-                        $('.cpa-file').addClass('succColor');
+                        $('.mask-layer').hide();
+                        $('.loading').hide();
+                        $('.cpa-file').css("color", "#009688");
                         sourceMap.cpa = res.result[0];
-                        delete aFile[index];
-                        // $( "#upload-gycx-btn" ).click();
-
                         return;
                     }
                     this.error(index, upload);
                 },
                 error: function (index, upload) {
+
                 }
             });
         });
     };
+
+    var load_gycx_source = function () {
+        var name = 'gycx';
+        var txt = '#txt-'+name;
+        var sel = '#select-'+name;
+        layui.use('upload', function () {
+            var upload = layui.upload;
+            upload.render({
+                elem: sel,
+                url: '/source/upload',
+                drag: false,
+                data: {"company": company} ,
+                // multiple: true , // 多文件上传
+                accept: 'file',
+                exts: 'xlsx',
+                before: function (obj) {
+                    obj.preview(function (index, file, result) {
+                        $(txt).val(file.name);
+                        $(txt).addClass('disabled');
+                    });
+                    query_company();
+                    if(!isCalcDone) {
+                        $('.mask-layer').show();
+                        $('.loading').show();
+                    }
+                },
+                done: function (res, index, upload) {
+                    if (res.status === 'ok') { //上传成功
+                        $('.mask-layer').hide();
+                        $('.loading').hide();
+                        $('.gycx-file').css("color", "#009688");
+                        sourceMap.gycx = res.result[0];
+                        toSecondStep();
+                        return;
+                    }
+                    this.error(index, upload);
+                },
+                error: function (index, upload) {
+
+                }
+            });
+        });
+    };
+
+    var toSecondStep = function () {
+       if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
+           $('#firstStep').hide();
+           $('#secondStep').show();
+           $('.scd-img')[0].src = "/assets/images/calculStep/step11.png";
+       }
+    };
+
+    var toSampleResult = function () {
+        $('#secondStep').hide();
+        $('#sampleResult').show();
+    };
+
+    var prograssBar = function (tips) {
+        var rotate = echarts.init(document.getElementById('rotate'));
+
+        function loading() {
+            return [{
+                value: tips,
+                itemStyle: {
+                    normal: {
+                        color: '#fb358a',
+                        shadowBlur: 10,
+                        shadowColor: '#fb358a'
+                    }
+                }
+            }, {
+                value: 100 - tips,
+            }];
+        }
+
+        var option = {
+            title: {
+                text: (tips * 1) + '%',
+                x: 'center',
+                y: 'center',
+                textStyle: {
+                    color: '#fb358a',
+                    fontSize: 30,
+                }
+            },
+            series: [{
+                name: 'loading',
+                type: 'pie',
+                radius: ['30%', '31%'],
+                hoverAnimation: false,
+                label: {
+                    normal: {
+                        show: false,
+                    }
+                },
+                data: loading()
+            }]
+        };
+        var interval = setInterval(function () {
+            if (tips == 10) {
+                $('#chooseMonth').modal('show');
+                ++tips;
+                clearInterval(interval);
+            } else if (tips == 100) {
+                clearInterval(interval);
+                toSampleResult();
+            } else {
+                ++tips;
+            }
+
+//                    if (tips == 100) {
+//                        tips = 0;
+//                    } else {
+//                        ++tips;
+//                    }
+            rotate.setOption({
+                title: {
+                    text: tips + '%'
+                },
+                series: [{
+                    name: 'loading',
+                    data: loading()
+                }]
+            })
+
+        }, 100);
+        rotate.setOption(option);
+    };
+
     var query_company = function() {
         layui.use('layer', function () {});
         var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
@@ -66,6 +204,19 @@
                 layer.msg('服务出错请联系管理员！');
             }
         }, function(e){console.error(e)})
+    };
+    var call_calcYM = function() {
+
+        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
+            var json = JSON.stringify({
+                "businessType": "/calcYM",
+                "company": company,
+                "user": $.cookie('webim_user'),
+                "cpa": sourceMap.cpa,
+                "gycx": sourceMap.gycx
+            });
+            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        }
     };
     var callback = function() {
         var conn = window.im_object.conns();
@@ -130,75 +281,6 @@
         });
     };
 
-    var load_gycx_source = function (uploadid) {
-        layui.use('upload', function () {
-            var upload = layui.upload;
-            var source_lst = $(uploadid);
-
-            upload.render({
-                elem: '#select-gycx-btn',
-                url: '/source/upload',
-                drag: false,
-                data: {"company": company} ,
-                auto: false, //选择文件后不自动上传
-                // multiple: true ,
-                accept: 'file',
-                exts: 'xlsx',
-                bindAction: '#upload-gycx-btn' ,//#upload-panel-btn
-                choose: function (obj) {
-                    gycFile = obj.pushFile();
-                    obj.preview(function (index, file, result) {
-                        var tr = $(['<tr id="upload-' + index + '">'
-                            , '<td>' + file.name + '</td>'
-                            , '<td>' + (file.size / 1024 / 1024).toFixed(1) + 'MB</td>'
-                            , '<td>等待上传</td>'
-                            , '<td class="opretion">'
-                            , '<button class="layui-btn layui-btn-mini demo-reload layui-hide">重传</button>'
-                            , '<button class="layui-btn layui-btn-mini layui-btn-danger demo-delete">删除</button>'
-                            , '</td>'
-                            , '</tr>'].join(''));
-
-                        tr.find('.demo-reload').on('click', function () {
-                            obj.upload(index, file);
-                        });
-
-                        tr.find('.demo-delete').on('click', function () {
-                            tr.remove();
-                        });
-                        source_lst.append(tr);
-                    });
-                },
-                done: function (res, index, upload) {
-                    if (res.status === 'ok') { //上传成功
-                        var tr = source_lst.find('tr#upload-' + index);
-                        var tds = tr.children();
-                        tds.eq(2).html('<span style="color: #008B7D;">上传完成</span>');
-                        tds.eq(3).html('<i class="layui-icon" style="font-size: 30px; color: #008B7D;">&#xe618;</i> ');
-
-                        sourceMap.gycx = res.result[0];
-                        delete gycFile[index];
-
-                        var json = JSON.stringify(
-                            f.parameterPrefix.conditions({
-                                "company": company,
-                                "uid": $.cookie('uid')
-                            })
-                        );
-                        f.ajaxModule.baseCall('/imroom/create', json, 'POST', function(r){
-                            call_calcYM();
-                        }, function(e){console.error(e)});
-
-                        return;
-                    }
-                    this.error(index, upload);
-                },
-                error: function (index, upload) {
-                    var tr = source_lst.find('tr#upload-' + index);
-                    var tds = tr.children();
-                    tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
-                    tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
-                }
-            });
-        });
-    };
+    load_cpa_source();
+    load_gycx_source();
 }(jQuery))

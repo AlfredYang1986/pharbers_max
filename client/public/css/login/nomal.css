@@ -264,7 +264,7 @@ dl.layui-nav-child > dd {
     position: absolute;
     top: 0;
     width: 100%;
-    height: 100%;
+    height: 110%;
 }
 .loading {
     z-index: 1025;
