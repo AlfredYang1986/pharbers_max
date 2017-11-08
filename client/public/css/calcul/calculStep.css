@@ -37,6 +37,7 @@
 .file-btn{
     cursor: pointer;
 }
+
 .rotate-cal{
     .center-block()
     width:100%;
