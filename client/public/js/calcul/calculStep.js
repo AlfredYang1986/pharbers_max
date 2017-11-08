@@ -6,6 +6,10 @@
         $("#goSecond").bind('click',function(){
             goSecond();
         });
+        $("#chooseDate").bind('click',function(){
+            chooseDate();
+        });
+
         $('#secondStep').hide();
         $('#sampleResult').hide();
         $('#thirdStep').hide();
@@ -19,7 +23,7 @@
         loadLineChart('t2');
         loadLineChart('t3');
         loadLineChart('t4');
-
+        callback();
 
 
 
@@ -35,8 +39,8 @@
     };
     var goSecond = function () {
         call_calcYM();
+
         prograssBar(0);
-        callback();
         $('#loadInof').empty();
         $('#loadInof').append('<div class="inCenChild small-font">MAX正在解析您的文件...</div>')
     };
@@ -90,6 +94,8 @@
                 $('#chooseMonth').modal('show');
                 ++tips;
                 clearInterval(interval);
+            }else if(tips == 9){
+                clearInterval(interval);
             } else if (tips == 100) {
                 clearInterval(interval);
                 toSampleResult();
@@ -116,6 +122,8 @@
         rotate.setOption(option);
     };
     var chooseDate = function () {
+        write_panel_table();
+        generat_panel_action();
         $('#chooseMonth').modal('hide');
         prograssBar(11);
     }
@@ -296,22 +304,67 @@
         });
     };
     var calc_ym_result = function (msg) {
+        prograssBar(10);
         var obj = JSON.parse(msg.data);
         console.info(msg.data);
         $('.mask-layer').hide();
         $('.loading').hide();
-
+        console.log("cccc")
         var $ym_div = $('#month_choose');
         $ym_div.empty();
         $.each(obj.ym.split(","), function( index, ym ) {
             $ym_div.append('<div class="col-sm-3"> <div class="checkbox"> <label> <input type="checkbox" value="">'+ym+'</label> </div> </div>');
         });
+    };
+    var write_panel_table = function(mkt_lst){
+        var ym_lst = [];
+        // var panel_lst = $('#panel-lst');
 
-        f.alertModule.content($('#selectYM').html(), null, null, "请选择需要Max的月份", ['MAX'], function(index, layero){
-            write_panel_table(obj.mkt.split(','));
-            generat_panel_action();
-            layer.close(index);
+        // panel_lst.empty();
+
+        $('#month_choose input[type=checkbox]:checked').each(function(){
+            ym_lst.push($(this).val());
         });
+
+        function write_row(ym, mkt, str){
+            var s = "<tr><td>"+ ym  +"</td>";
+            s = s + "<td>"+ mkt +"</td>";
+            s = s + "<td><span style='color: #1AB394;'>"+ str +"</span></td>";
+            var lay_filter = 'generat_panel-progress-' + ym + '-' + mkt;
+            s = s + "<td><div class='layui-progress' lay-filter='" + lay_filter + "'>";
+            s = s + "<div class='layui-progress-bar layui-bg-green' lay-percent='0%'></div>";
+            s = s + "</div></td></tr>";
+            return s;
+        }
+
+        $.each(ym_lst, function(index1, ym) {
+            $.each(mkt_lst, function(index2, mkt) {
+                panel_lst.append(write_row(ym, mkt, "正在生成"));
+            });
+        });
+    };
+    var generat_panel_action = function() {
+        var ym_lst = [];
+        $('#ym-div input[type=checkbox]:checked').each(function(){
+            ym_lst.push($(this).val());
+        });
+
+        if(ym_lst.length < 1){
+            return;
+        }
+
+        var json = JSON.stringify({
+            "businessType": "/genternPanel",
+            "company": company,
+            "user": $.cookie('webim_user'),
+            "cpa": sourceMap.cpa,
+            "gycx": sourceMap.gycx,
+            "ym": ym_lst
+        });
+        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+
+        isSelectYm = true;
+        $( "#next-btn" ).click();
     };
     var setProgress = function (flag, num) {
         layui.use("element", function () {
@@ -322,6 +375,7 @@
             element.progress(flag, num + '%');
         });
     };
+
 
     load_cpa_source();
     load_gycx_source();
