@@ -18,7 +18,7 @@
             <div class="row">
                 <div class="col-md-6 col-xs-10">
                     <div class="file-box">
-                        <div class="middle-font" onclick="toSecondStep()">CPA文件</div>
+                        <div class="middle-font" id="toSecondBtn">CPA文件</div>
                         <div class="file-up">
                             <div><i class="fa fa-file-excel-o file-icon cpa-file" aria-hidden="true"></i></div>
                             <div class="small_info">拖拽至此处上传</div>
@@ -72,9 +72,4 @@
     @calculPages.calculStep.monthChoose()
     <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
     <script src="@routes.Assets.versioned("js/calcul/calculStep.js")"></script>
-    <script>
-            $(document).ready(function () {
-            });
-
-    </script>
 }

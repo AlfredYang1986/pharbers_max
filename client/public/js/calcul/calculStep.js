@@ -21,6 +21,10 @@
     loadLineChart('t3');
     loadLineChart('t4');
 
+    $("#toSecondBtn").bind('click',function(){
+        toSecondStep();
+    });
+
     //函数
     var load_cpa_source = function () {
         var name = 'cpa';
