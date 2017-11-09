@@ -1,16 +1,19 @@
 (function($, w){
     var f = new Facade()
-    $(function(){
-       $('#test-websocket').click(function(){
-            var obj = {
-                "name": "qp"
-            };
-            f.ajaxModule.baseCall('/test2', JSON.stringify(obj), 'POST',function(r){}, function(e){console.error(e)})
-       });
-    });
     var web_url = "ws://127.0.0.1:9000/ws"
     var ws = new WebSocket(web_url)
+    var obj = JSON.stringify({
+        "name": "qp"
+    });
+
+    $(function(){
+       $('#test-websocket').click(function(){
+            f.ajaxModule.baseCall('/test2', obj, 'POST',function(r){}, function(e){console.error(e)})
+       });
+    });
+
     ws.onopen = function(evt) {
+        ws.send(obj);
         web_socket_open(evt);
     };
     ws.onclose = function(evt) {
