@@ -112,10 +112,10 @@
 
                         //创建环信聊天室
                         var json = JSON.stringify(
-                                f.parameterPrefix.conditions({
-                                    "company": company,
-                                    "uid": $.cookie('uid')
-                                })
+                            f.parameterPrefix.conditions({
+                                "company": company,
+                                "uid": $.cookie('uid')
+                            })
                         );
                         f.ajaxModule.baseCall('/imroom/create', json, 'POST', function(r){
                             toSecondStep();
@@ -136,7 +136,7 @@
        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
            $('#firstStep').hide();
            $('#secondStep').show();
-           $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
+           $('.scd-img')[0].src = "@routes.Assets.versioned(\"images/calculStep/step11.png\")";
        }
     };
 
@@ -161,7 +161,7 @@
                 "cpa": sourceMap.cpa,
                 "gycx": sourceMap.gycx
             });
-            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){show_loading()}, function(e){console.error(e)});
+            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
         }
     };
 
@@ -186,6 +186,7 @@
                         case 'progress_generat_panel':
                             show_loading();
                             progress_generat_panel(message);
+
                             break;
                         case 'generat_panel_result':
                             show_loading();
@@ -234,171 +235,6 @@
         $('#chooseMonth').modal('show');
     };
 
-    var generat_panel_action = function() {
-        var ym_lst = [];
-        $('#month_choose input[type=checkbox]:checked').each(function(){
-            ym_lst.push($(this).val());
-        });
-
-        if(ym_lst.length < 1){
-            return;
-        }
-
-        show_loading();
-        var json = JSON.stringify({
-            "businessType": "/genternPanel",
-            "company": company,
-            "user": $.cookie('webim_user'),
-            "cpa": sourceMap.cpa,
-            "gycx": sourceMap.gycx,
-            "ym": ym_lst
-        });
-        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
-            layer.msg("开始生成panel");
-            $('#chooseMonth').modal('hide');
-        }, function(e){console.error(e)});
-    };
-
-    var progress_generat_panel = function (msg) {
-        console.info(msg);
-        // var ext = msg.ext;
-        // var ym = window.im_object.searchExtJson(ext)('ym') !== 'Null' ? window.im_object.searchExtJson(ext)('ym') : window.im_object.searchExtJsonForElement(ext.elems)('ym');
-        // var mkt = window.im_object.searchExtJson(ext)('mkt') !== 'Null' ? window.im_object.searchExtJson(ext)('mkt') : window.im_object.searchExtJsonForElement(ext.elems)('mkt');
-        // var step = window.im_object.searchExtJson(ext)('step') !== 'Null' ? window.im_object.searchExtJson(ext)('step') : window.im_object.searchExtJsonForElement(ext.elems)('step');
-        // var lay_filter = 'generat_panel-progress-' + ym + '-' + mkt;
-        // var span = $('#panel-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
-        // span.text(step);
-        prograssBar(msg.data);
-    };
-
-    var generat_panel_result = function (msg) {
-        hide_loading();
-        console.info(msg);
-        layer.msg("panel生成完成");
-        var obj = JSON.parse(msg.data);
-        $.each(obj, function(ym, v1) {
-            $.each(v1, function(mkt, panel_lst) {
-                $.each(panel_lst, function(i, fname){
-                    fileNames.push(fname);
-                });
-            });
-        });
-        toSampleResult();
-    };
-
-    function toSampleResult() {
-        $('#secondStep').hide();
-        $('#sampleResult').show();
-    }
-
-    var calc_action = function() {
-        var json = JSON.stringify({
-            "businessType": "/modelcalc",
-            "company": company,
-            "filename": fileNames,
-            "uid": $.cookie('uid'),
-            "imuname": $.cookie('webim_user')
-        });
-        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-    };
-
-    var temp = 0;
-    var progress_calc = function(msg) {
-        console.info(msg);
-        // var ext = msg.ext;
-        // var fileName = window.im_object.searchExtJson(ext)('file') !== 'Null' ? window.im_object.searchExtJson(ext)('file') : window.im_object.searchExtJsonForElement(ext.elems)('file');
-        // var step = window.im_object.searchExtJson(ext)('step') !== 'Null' ? window.im_object.searchExtJson(ext)('step') : window.im_object.searchExtJsonForElement(ext.elems)('step');
-        // var lay_filter = 'calc-progress-' + fileName;
-        // var span = $('#panel-calc-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
-        // span.text(step);
-        if(msg.data === "100") {
-            temp = temp + 1;
-            if(fileNames.length === temp){
-                hide_loading();
-                isCalcDone = true;
-                temp = 0;
-            }
-        }
-        prograssBar(msg.data);
-    };
-
-    var progress_calc_result = function(msg) {
-        console.info(msg);
-        // var ext = msg.ext;
-        // var uuid = window.im_object.searchExtJsonForElement(ext.elems)('uuid');
-        // var lay_uuid = 'calc-progress-' + uuid;
-        // var step_result = window.im_object.searchExtJsonForElement(ext.elems)('step');
-        // var span_result = $('.confrim-calc-lst').eq(1).find('div[lay-filter=' + lay_uuid + ']').parent().prev().children('span');
-        // span_result.text(step_result);
-        // if(msg.data === "100") {
-        //     temp = temp + 1;
-        //     if(num === temp){
-        //         hide_loading();
-        //         temp = 0;uuids = [];tables = [];
-        //         $('li[pharbers-filter="history"]').click();
-        //     }
-        // }
-        // setProgress(lay_uuid, msg.data);
-    };
-
-    var txt = function(msg) {
-        console.info(msg.data);
-    };
-
-    var prograssBar = function (tips) {
-        var rotate = echarts.init(document.getElementById('rotate'));
-
-        var option = {
-            title: {
-                text: (tips * 1) + '%',
-                x: 'center',
-                y: 'center',
-                textStyle: {
-                    color: '#fb358a',
-                    fontSize: 30
-                }
-            },
-            series: [{
-                name: 'loading',
-                type: 'pie',
-                radius: ['30%', '31%'],
-                hoverAnimation: false,
-                label: {
-                    normal: {
-                        show: false
-                    }
-                },
-                data: [
-                    {
-                        value: tips,
-                        itemStyle: {
-                            normal: {
-                                color: '#fb358a',
-                                shadowBlur: 10,
-                                shadowColor: '#fb358a'
-                            }
-                        }
-                    }, {
-                        value: 100 - tips
-                    }
-                ]
-            }]
-        };
-
-        rotate.setOption(option);
-    };
-
-    var query_company = function() {
-        layui.use('layer', function () {});
-        var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
-        f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
-            if(r.status === 'ok') {
-                company = r.result.user.company;
-            } else if (r.status === 'error') {
-                layer.msg(r.error.message);
-            } else {
-                layer.msg('服务出错请联系管理员！');
-            }
-        }, function(e){console.error(e)})
-    };
-}(jQuery));
+    load_cpa_source();
+    load_gycx_source();
+}(jQuery))
