@@ -1,0 +1,5 @@
+<pharbers-modules>
+    <flush-memory>
+        <buffer-size value="31457280" />
+    </flush-memory>
+</pharbers-modules>

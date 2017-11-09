@@ -1,16 +1,14 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import java.io._ 
+import java.io._
 import java.util.UUID
 import java.math.BigInteger
 
 import scala.concurrent.stm.{Ref, atomic}
-
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alCalaHelp.dbcores.dbc
 import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
@@ -25,7 +23,9 @@ import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
 import com.pharbers.aqll.common.alFileHandler.serverConfig.serverHost215
-import com.pharbers.bson.writer.phBsonWriterByMap
+import com.pharbers.bson.writer.phBsonWriter
+import com.pharbers.memory.pages.{pageMemory, flushMemory}
+import org.bson.{BSONObject, BasicBSONObject}
 
 
 /**
@@ -48,6 +48,9 @@ class alCalcDataImpl extends Actor with ActorLogging {
     override def receive: Receive = {
         case calc_data_hand() => sender ! calc_data_hand()
         case calc_data_start_impl(p, c) => {
+            log.info("&& T7 START &&")
+            val t7 = startDate()
+            println("&& T7 && alCalcDataImpl.calc_data_start_impl")
             tmp = p
             val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> p.uuid, worker_core_calc_jobs.calc_uuid -> p.subs.head.uuid))
             cj.result
@@ -84,12 +87,17 @@ class alCalcDataImpl extends Actor with ActorLogging {
                     sumSegment() = Nil
                 }
             }
+            endDate("&& T7 && ", t7)
+            log.info("&& T7 END &&")
             // TODO : 超出传输界限
 //            sender ! calc_data_sum(s)
         }
-        case calc_data_average(avg) => {
-            import scala.math.BigDecimal
 
+        case calc_data_average2(avg_path) => {
+            import scala.math.BigDecimal
+            log.info("&& T10 START &&")
+            val t10 = startDate()
+            println("&& T10 && alCalcDataImpl.calc_data_average2")
             val sub_uuid = tmp.subs.head.uuid
 
             val path = s"${memorySplitFile}${calc}$sub_uuid"
@@ -99,35 +107,58 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 dir.createDir
             val source = alFileOpt(path + "/" + "data")
             val bson_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
+            val bsonWriter = phBsonWriter(bson_path)
+            val buff = flushMemory(bson_path)
             if (source.isExists) {
-              source.enumDataWithFunc { line =>
-                  val mrd = alShareData.txt2WestMedicineIncome2(line)
-                  val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
-                  if (mrd.ifPanelAll == "1") {
-                      mrd.set_finalResultsValue(mrd.sumValue)
-                      mrd.set_finalResultsUnit(mrd.volumeUnit)
-                  }else {
-                       avg.find(p => p._1 == seed.hashCode.toString).map { x =>
-                          mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                          mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                      }.getOrElse(Unit)
-                  }
 
-                  unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-                  value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+                val page = pageMemory(path + "/" + "data")
+                val totalPage = page.pageCount.toInt
 
-                  phBsonWriterByMap().apply(westMedicineIncome2map(mrd), bson_path)
+                (0 until totalPage) foreach { i =>
 
-              }
-              log.info(s"calc done at ${sub_uuid}")
-                 
+                    page.pageData(i).foreach { line =>
+                        val mrd = alShareData.txt2WestMedicineIncome2(line)
+                        val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+                        if (mrd.ifPanelAll == "1") {
+                            mrd.set_finalResultsValue(mrd.sumValue)
+                            mrd.set_finalResultsUnit(mrd.volumeUnit)
+                        }else {
+
+                            val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map{ x =>
+                                val line_tmp = x.toString.split(",")
+                                (line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble)
+                            }
+
+                            avg.find(p => p._1 == seed.hashCode.toString).map { x =>
+                                mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                                mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                            }.getOrElse(Unit)
+                        }
+
+                        unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+                        value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+
+                        buff.appendArrByte(bsonWriter.map2arrByte(westMedicineIncome2map(mrd)))
+                    }
+                }
+
+                buff.flush
+                buff.close
+                bsonWriter.close
+                page.ps.fs.closeStorage
+
+                log.info(s"calc done at ${sub_uuid}")
+
             }else {
                 log.info(s"Error! source=${source} not exist!")
                 sender() ! calc_data_end(true, tmp)
             }
             sender() ! calc_data_result(value, unit)
             sender() ! calc_data_end(true, tmp)
+            endDate("&& T10 && ", t10)
+            log.info("&& T10 END &&")
         }
+
         case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
     }
 
@@ -152,7 +183,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
                         element.getDrugIncome, element.getClimicDrugIncome, element.getClimicWestenIncome,
                         element.getHospitalizedDrugIncome, element.getHospitalizedWestenIncome, 0.0, 0.0)
                     backfireData(mrd)(recall)
-
                 }
 
             val path = s"${memorySplitFile}${calc}$sub_uuid"
@@ -165,7 +195,7 @@ class alCalcDataImpl extends Actor with ActorLogging {
             if (!file.isExists)
                 file.createFile
 
-            file.appendData2File(data_tmp)
+            file.appendData2File2(data_tmp)
         }
     }
 
