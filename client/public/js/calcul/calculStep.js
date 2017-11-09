@@ -153,7 +153,6 @@
 
     var check_file = function(){
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-            prograssBar(10);
             var json = JSON.stringify({
                 "businessType": "/calcYM",
                 "company": company,
@@ -162,6 +161,7 @@
                 "gycx": sourceMap.gycx
             });
             f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){show_loading()}, function(e){console.error(e)});
+            prograssBar(0,10,1000);
         }
     };
 
@@ -186,6 +186,7 @@
                         case 'progress_generat_panel':
                             show_loading();
                             progress_generat_panel(message);
+
                             break;
                         case 'generat_panel_result':
                             show_loading();
@@ -254,6 +255,7 @@
             "ym": ym_lst
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
+            prograssBar(10,50,5000);
             layer.msg("开始生成panel");
             $('#chooseMonth').modal('hide');
         }, function(e){console.error(e)});
@@ -267,8 +269,7 @@
         // var step = window.im_object.searchExtJson(ext)('step') !== 'Null' ? window.im_object.searchExtJson(ext)('step') : window.im_object.searchExtJsonForElement(ext.elems)('step');
         // var lay_filter = 'generat_panel-progress-' + ym + '-' + mkt;
         // var span = $('#panel-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
-        // span.text(step);
-        prograssBar(msg.data);
+        // span.text(step);z
     };
 
     var generat_panel_result = function (msg) {
@@ -319,7 +320,7 @@
                 temp = 0;
             }
         }
-        prograssBar(msg.data);
+        prograssBar(50,100,100);
     };
 
     var progress_calc_result = function(msg) {
@@ -345,12 +346,26 @@
         console.info(msg.data);
     };
 
-    var prograssBar = function (tips) {
+    var prograssBar = function (begin, end, time) {
         var rotate = echarts.init(document.getElementById('rotate'));
 
+        function loading() {
+            return [{
+                value: begin,
+                itemStyle: {
+                    normal: {
+                        color: '#fb358a',
+                        shadowBlur: 10,
+                        shadowColor: '#fb358a'
+                    }
+                }
+            }, {
+                value: 100 - begin,
+            }];
+        }
         var option = {
             title: {
-                text: (tips * 1) + '%',
+                text: (begin * 1) + '%',
                 x: 'center',
                 y: 'center',
                 textStyle: {
@@ -370,7 +385,7 @@
                 },
                 data: [
                     {
-                        value: tips,
+                        value: begin,
                         itemStyle: {
                             normal: {
                                 color: '#fb358a',
@@ -379,11 +394,30 @@
                             }
                         }
                     }, {
-                        value: 100 - tips
+                        value: 100 - begin
                     }
                 ]
             }]
         };
+        var interval = setInterval(function () {
+            if (begin == end) {
+                clearInterval(interval);
+            } else if (begin == 100){
+                clearInterval(interval);
+            } else {
+                ++begin;
+            }
+            rotate.setOption({
+                title: {
+                    text: begin + '%'
+                },
+                series: [{
+                    name: 'loading',
+                    data: loading()
+                }]
+            })
+
+        }, time);
 
         rotate.setOption(option);
     };
