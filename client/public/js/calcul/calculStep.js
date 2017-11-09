@@ -34,7 +34,7 @@
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
             $('#firstStep').hide();
             $('#secondStep').show();
-            $('.scd-img')[0].src = "assets/images/calculStep/step2.png)";
+            $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
         }
     };
     var beginCheck = function () {
@@ -96,7 +96,10 @@
                 clearInterval(interval);
             }else if(tips == 9){
                 clearInterval(interval);
-            } else if (tips == 100) {
+            } else if (tips == 90){
+                clearInterval(interval);
+
+            } else if (tips == 100){
                 clearInterval(interval);
                 toSampleResult();
             } else {
@@ -122,8 +125,7 @@
         rotate.setOption(option);
     };
     var chooseDate = function () {
-        // write_panel_table();
-        // generat_panel_action();
+        generat_panel_action();
         $('#chooseMonth').modal('hide');
         prograssBar(11);
     }
@@ -315,6 +317,7 @@
         $.each(obj.ym.split(","), function( index, ym ) {
             $ym_div.append('<div class="col-sm-3"> <div class="checkbox"> <label> <input type="checkbox" value="">'+ym+'</label> </div> </div>');
         });
+        write_panel_table(obj.mkt.split(','));
     };
     var write_panel_table = function(mkt_lst){
         var ym_lst = [];
@@ -326,33 +329,33 @@
             ym_lst.push($(this).val());
         });
 
-        function write_row(ym, mkt, str){
-            var s = "<tr><td>"+ ym  +"</td>";
-            s = s + "<td>"+ mkt +"</td>";
-            s = s + "<td><span style='color: #1AB394;'>"+ str +"</span></td>";
-            var lay_filter = 'generat_panel-progress-' + ym + '-' + mkt;
-            s = s + "<td><div class='layui-progress' lay-filter='" + lay_filter + "'>";
-            s = s + "<div class='layui-progress-bar layui-bg-green' lay-percent='0%'></div>";
-            s = s + "</div></td></tr>";
-            return s;
-        }
-
-        $.each(ym_lst, function(index1, ym) {
-            $.each(mkt_lst, function(index2, mkt) {
-                panel_lst.append(write_row(ym, mkt, "正在生成"));
-            });
-        });
+        // function write_row(ym, mkt, str){
+        //     var s = "<tr><td>"+ ym  +"</td>";
+        //     s = s + "<td>"+ mkt +"</td>";
+        //     s = s + "<td><span style='color: #1AB394;'>"+ str +"</span></td>";
+        //     var lay_filter = 'generat_panel-progress-' + ym + '-' + mkt;
+        //     s = s + "<td><div class='layui-progress' lay-filter='" + lay_filter + "'>";
+        //     s = s + "<div class='layui-progress-bar layui-bg-green' lay-percent='0%'></div>";
+        //     s = s + "</div></td></tr>";
+        //     return s;
+        // }
+        console.log(ym_lst);
+        // $.each(ym_lst, function(index1, ym) {
+        //     $.each(mkt_lst, function(index2, mkt) {
+        //         // panel_lst.append(write_row(ym, mkt, "正在生成"));
+        //     });
+        // });
     };
     var generat_panel_action = function() {
+        console.log("ddddd");
         var ym_lst = [];
-        $('#ym-div input[type=checkbox]:checked').each(function(){
+        $('#month_choose input[type=checkbox]:checked').each(function(){
             ym_lst.push($(this).val());
         });
-
+        console.log(ym_lst)
         if(ym_lst.length < 1){
             return;
         }
-
         var json = JSON.stringify({
             "businessType": "/genternPanel",
             "company": company,
@@ -361,10 +364,13 @@
             "gycx": sourceMap.gycx,
             "ym": ym_lst
         });
-        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
+            console.log(r);
+            prograssBar(91);
+        }, function(e){console.error(e)});
 
-        isSelectYm = true;
-        $( "#next-btn" ).click();
+        // isSelectYm = true;
+        // $( "#next-btn" ).click();
     };
     var setProgress = function (flag, num) {
         layui.use("element", function () {
