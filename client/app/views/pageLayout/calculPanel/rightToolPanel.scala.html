@@ -1,0 +1,59 @@
+@(title: String)(content: Html)
+@pageLayout.calculPanel.titlePanel(title) {
+    <div class="cer-content">
+        <div class="left-tool" style="width: 15%">
+            <div class="peopleInfo" onclick="setUsr()">
+                <span class="middle-font black people-name" id="people-name">XXXX</span>
+                <i class="layui-icon">&nbsp;&nbsp;&nbsp;&#xe625;</i>
+                <span class="people-oparetion">
+                    <i class="fa fa-bell-o" aria-hidden="true"></i>
+                </span>
+                <span class="small-font black people-email" >xxxxemail163.com</span>
+            </div>
+            <ul class="layui-nav layui-nav-tree" style="color: #494c57;
+                background-color: #ffffff ">
+                <li class="layui-nav-item layui-this">
+                    <a href="javascript:;">
+                        <i class="layui-icon black">&#xe629;</i>
+                        <span class="black">&nbsp数据工具</span>
+                    </a>
+                </li>
+                @*<li class="disable layui-nav-item ">
+                    <a href="javascript:;"><i class="layui-icon black">&#xe62a;</i><span class="black">
+                        &nbsp数据中心</span></a>
+                </li>
+                <li class="disable layui-nav-item ">
+                    <a href=""><i class="layui-icon black">&#xe613;</i><span class="black">&nbsp客户中心</span></a>
+                </li>*@
+            </ul>
+        </div>
+
+        <div class="right-content" style="width: 85%">
+            <div>
+            @content
+            </div>
+        </div>
+    </div>
+
+    <script>
+            layui.use('element', function () {
+                var element = layui.element;
+                element.on('nav(demo)', function (elem) {
+                });
+            });
+            var setUsr = function () {
+                layui.use('layer', function () {
+                    var layer = layui.layer;
+                    layer.open({
+                        type: 4,
+                        tips: 3,
+                        content: ['<div><a href="/bd/setInfo" style="color: white;cursor: pointer;font-size: 14px">账号设置</a></div>' +
+                        '<div><a style="color: white;cursor: pointer;font-size: 14px">退出</a></div>', '#people-name'],
+                        area: ['120px', '60px'],
+                        shade: [0.1, '#393D49'],
+                        shadeClose: true
+                    })
+                });
+            }
+    </script>
+}

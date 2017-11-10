@@ -25,15 +25,6 @@
     var num = 0;
 
     layui.use('element', function () {
-        // var obj = {"201705":{"INF":["4da20398-f9e0-4392-897b-bdb8738f67fb"],"SPE":["a12c634d-cc04-4cc4-a863-0476989fe080"]}}
-        // $.each(obj,function(ym, v1) {
-        //     $.each(v1,function(mkt, panel_lst) {
-        //         $.each(panel_lst,function(i, fname){
-        //             alert(fname);
-        //         });
-        //     });
-        // });
-
         var element = layui.element;
         element.on('tab(step)', function (data) {
             if (data.index === 0) {
@@ -111,6 +102,11 @@
                             $('.loading').show();
                             calc_ym_result(message);
                             break;
+                        case 'progress_generat_panel':
+                            $('.mask-layer').show();
+                            $('.loading').show();
+                            progress_generat_panel(message);
+                            break;
                         case 'generat_panel_result':
                             $('.mask-layer').show();
                             $('.loading').show();
@@ -178,8 +174,9 @@
         function write_row(ym, mkt, str){
             var s = "<tr><td>"+ ym  +"</td>";
             s = s + "<td>"+ mkt +"</td>";
-            s = s + "<td>"+ str +"</td>";
-            s = s + "<td><div class='layui-progress'>";
+            s = s + "<td><span style='color: #1AB394;'>"+ str +"</span></td>";
+            var lay_filter = 'generat_panel-progress-' + ym + '-' + mkt;
+            s = s + "<td><div class='layui-progress' lay-filter='" + lay_filter + "'>";
             s = s + "<div class='layui-progress-bar layui-bg-green' lay-percent='0%'></div>";
             s = s + "</div></td></tr>";
             return s;
@@ -214,6 +211,17 @@
 
         isSelectYm = true;
         $( "#next-btn" ).click();
+    };
+
+    var progress_generat_panel = function (msg) {
+        var ext = msg.ext;
+        var ym = window.im_object.searchExtJson(ext)('ym') !== 'Null' ? window.im_object.searchExtJson(ext)('ym') : window.im_object.searchExtJsonForElement(ext.elems)('ym');
+        var mkt = window.im_object.searchExtJson(ext)('mkt') !== 'Null' ? window.im_object.searchExtJson(ext)('mkt') : window.im_object.searchExtJsonForElement(ext.elems)('mkt');
+        var step = window.im_object.searchExtJson(ext)('step') !== 'Null' ? window.im_object.searchExtJson(ext)('step') : window.im_object.searchExtJsonForElement(ext.elems)('step');
+        var lay_filter = 'generat_panel-progress-' + ym + '-' + mkt;
+        var span = $('#panel-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
+        span.text(step);
+        setProgress(lay_filter, msg.data);
     };
 
     var generat_panel_result = function (msg) {
@@ -269,7 +277,8 @@
             if(num === temp){
                 $('.mask-layer').hide();
                 $('.loading').hide();
-                isCalcDone = true;temp = 0;
+                isCalcDone = true;
+                temp = 0;
             }
         }
         setProgress(lay_filter, msg.data);
@@ -417,7 +426,16 @@
 
                         sourceMap.gycx = res.result[0];
                         delete gycFile[index];
-                        call_calcYM();
+
+                        var json = JSON.stringify(
+                                f.parameterPrefix.conditions({
+                                    "company": company,
+                                    "uid": $.cookie('uid')
+                                })
+                        );
+                        f.ajaxModule.baseCall('/imroom/create', json, 'POST', function(r){
+                            call_calcYM();
+                        }, function(e){console.error(e)});
 
                         return;
                     }
@@ -443,13 +461,6 @@
                 "gycx": sourceMap.gycx
             });
             f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-            // var test_data = {
-            //     "data":{
-            //         "ym": "201705,201706",
-            //         "mkt": "INF,SPE"
-            //     }
-            // };
-            // calc_ym_result(test_data);
         }
     };
 

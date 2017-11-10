@@ -38,7 +38,7 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
         case calcYM_start_impl(calcYM_job) => {
             val args: Map[String, List[String]] = Map(
                 "company" -> List(calcYM_job.company),
-                "user" -> List(calcYM_job.user),
+                "uid" -> List(calcYM_job.user.split("_").last),
                 "cpas" -> calcYM_job.cpa.split("&").toList,
                 "gycxs" -> calcYM_job.gycx.split("&").toList
             )

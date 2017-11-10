@@ -107,7 +107,7 @@
         var page = function(c, skip, take) {
             var count = c || 0;
             var currnum = skip || 1;
-            var limitnum = take || 20;
+            var limitnum = take || 15;
             layui.use('laypage', function(){
                 var laypage = layui.laypage;
                 laypage.render({
@@ -116,7 +116,7 @@
                     curr: currnum,
                     layout: ['count', 'prev', 'page', 'next', 'limit', 'skip'], // 'skip'
                     limit: limitnum,
-                    limits: [20, 40, 60],
+                    limits: [15, 30, 45],
                     jump: function(obj, first) {
                         var datatype= $('select[name="datatype"]').val();
                         var market = $('select[name="market"]').val();

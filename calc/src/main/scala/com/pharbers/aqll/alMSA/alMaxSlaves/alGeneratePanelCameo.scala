@@ -43,7 +43,7 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
 
             val args: Map[String, List[String]] = Map(
                 "company" -> List(panel_job.company),
-                "user" -> List(panel_job.user),
+                "uid" -> List(panel_job.user.split("_").last),
                 "cpas" -> panel_job.cpa.split("&").toList,
                 "gycxs" -> panel_job.gycx.split("&").toList
             )

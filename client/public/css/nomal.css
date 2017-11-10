@@ -10,15 +10,14 @@
 }
 
 .small_info{
-    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
+    font-family: PingFangSC-Regular, sans-serif;
     font-size: 13px;
     text-align: center;
     color: #494c57;
 }
 .middle_info{
-    font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";
+    font-family: PingFangSC-Regular, sans-serif;
     font-size: 18px;
-    text-align: center;
     color: #494c57;
 }
 
