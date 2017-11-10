@@ -10,17 +10,16 @@
     var fileNames = [];
 
     $('#secondStep').hide();
-    $('#sampleResult').hide();
+    // $('#sampleResult').hide();
     $('#thirdStep').hide();
     loadMainChart(82, 'mainChart', '文档总体可信度');
     loadMainChart(18, 't-char1', '文档总体可信度');
     loadMainChart(18, 't-char2', '文档总体可信度');
     loadMainChart(18, 't-char3', '文档总体可信度');
-    loadMainChart(18, 't-char4', '文档总体可信度');
     loadLineChart('t1');
     loadLineChart('t2');
     loadLineChart('t3');
-    loadLineChart('t4');
+    sample_bar('bar1');
 
     var show_loading = function() {
         $('.mask-layer').show();
@@ -46,6 +45,7 @@
         var name = 'cpa';
         var txt = '#txt-'+name;
         var sel = '#select-'+name;
+        var fileName = '.snd-'+name;
         layui.use('upload', function () {
             var upload = layui.upload;
             upload.render({
@@ -60,6 +60,7 @@
                     obj.preview(function (index, file, result) {
                         $(txt).val(file.name);
                         $(txt).addClass('disabled');
+                        $(fileName).text(file.name)
                     });
                     query_company();
                     if(!isCalcDone)
@@ -85,6 +86,7 @@
         var name = 'gycx';
         var txt = '#txt-'+name;
         var sel = '#select-'+name;
+        var fileName = '.snd-'+name;
         layui.use('upload', function () {
             var upload = layui.upload;
             upload.render({
@@ -99,6 +101,7 @@
                     obj.preview(function (index, file, result) {
                         $(txt).val(file.name);
                         $(txt).addClass('disabled');
+                        $(fileName).text(file.name);
                     });
                     query_company();
                     if(!isCalcDone)
@@ -180,24 +183,19 @@
                             progress(message);
                             break;
                         case 'calc_ym_result':
-                            show_loading();
+                            // show_loading();
                             calc_ym_result(message);
                             break;
                         case 'progress_generat_panel':
-                            show_loading();
                             progress_generat_panel(message);
-
                             break;
                         case 'generat_panel_result':
-                            show_loading();
                             generat_panel_result(message);
                             break;
                         case 'progress_calc':
-                            show_loading();
                             progress_calc(message);
                             break;
                         case 'progress_calc_result':
-                            show_loading();
                             progress_calc_result(message);
                             break;
                         case 'txt':
@@ -245,7 +243,7 @@
             return;
         }
 
-        show_loading();
+        // show_loading();
         var json = JSON.stringify({
             "businessType": "/genternPanel",
             "company": company,
@@ -255,7 +253,7 @@
             "ym": ym_lst
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
-            prograssBar(10,50,5000);
+            prograssBar(10,99,7000);
             layer.msg("开始生成panel");
             $('#chooseMonth').modal('hide');
         }, function(e){console.error(e)});
@@ -273,7 +271,7 @@
     };
 
     var generat_panel_result = function (msg) {
-        hide_loading();
+        prograssBar(99,100,2000);
         console.info(msg);
         layer.msg("panel生成完成");
         var obj = JSON.parse(msg.data);
@@ -305,6 +303,7 @@
 
     var temp = 0;
     var progress_calc = function(msg) {
+
         console.info(msg);
         // var ext = msg.ext;
         // var fileName = window.im_object.searchExtJson(ext)('file') !== 'Null' ? window.im_object.searchExtJson(ext)('file') : window.im_object.searchExtJsonForElement(ext.elems)('file');
@@ -315,12 +314,12 @@
         if(msg.data === "100") {
             temp = temp + 1;
             if(fileNames.length === temp){
-                hide_loading();
                 isCalcDone = true;
                 temp = 0;
             }
         }
-        prograssBar(50,100,100);
+
+
     };
 
     var progress_calc_result = function(msg) {
@@ -421,6 +420,7 @@
 
         rotate.setOption(option);
     };
+
 
     var query_company = function() {
         layui.use('layer', function () {});
