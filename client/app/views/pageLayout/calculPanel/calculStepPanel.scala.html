@@ -7,7 +7,7 @@
             <div class="inCenParent">
                 <div class="inCenChild large-font col-sm-11 visible-sm-*">添加数据</div>
                 <div class="col-sm-1 hidden-xs">
-                    <a class="layui-icon large-font backHome" style="cursor:pointer;" onclick="location='/calcul/home'">&#x1006;</a>
+                    <a class="layui-icon large-font backHome" style="cursor:pointer;" id="stepBack">&#x1006;</a>
                 </div>
             </div>
         </div>
@@ -21,4 +21,5 @@
     @content
 </body>
 @script
+ <script src="@routes.Assets.versioned("js/calcul/calculPanel.js")"></script>
 }
