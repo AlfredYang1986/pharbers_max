@@ -10,6 +10,7 @@
         <error reason="pr data not exist" code="-106" description="pr数据不存在" />
         <error reason="not instance data" code="-107" description="无实例数据" />
         <error reason="time bound error" code="-108" description="时间界限错误" />
+        <error reason="actor is not impl" code="-109" description="Actor未实现" />
 
         <error reason="user have no email" code="-201" description="无用户邮箱" />
         <error reason="user have no secret" code="-202" description="无用户密码" />

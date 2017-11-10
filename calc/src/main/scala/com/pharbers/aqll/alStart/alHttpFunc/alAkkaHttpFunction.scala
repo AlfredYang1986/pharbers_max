@@ -16,6 +16,7 @@ import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.{pushCalcYMJobs, pushGeneratePanelJobs}
+import com.pharbers.http.HTTP
 import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json.JsString
 
@@ -57,7 +58,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	implicit def executionContext: ExecutionContext
 	implicit def requestTimeout: Timeout
 
-	val routes =  alSampleCheckDataFunc ~
+	val routes = Test ~ alSampleCheckDataFunc ~
 		alNewCalcDataFunc ~ alNewModelOperationCommitFunc ~
 		alGenternPanel ~ alResultFileExportFunc ~
 		alCalcYM
@@ -65,8 +66,12 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def Test = post {
 		path("test") {
 			entity(as[Item]) { item =>
-				println(item.str)
-				println(item.lst)
+				val company = "fefefefefefefefefe"
+				val uuid = "fffffff"
+				val msg = Map("file" -> "fuck.f", "uuid" -> uuid, "table" -> s"${company + uuid}", "type" -> "进度条", "step" -> "第一步", "data" -> "10")
+				// 这里的str就是uid
+				val json = toJson(Map("condition" -> Map("uid" -> toJson(item.str), "msg" -> toJson(msg)) ))
+				HTTP("http://127.0.0.1:9000/akka/callback").header("Accept" -> "application/json", "Content-Type" -> "application/json").post(json)
 				val result = toJson(Map("result" -> "ok"))
 				complete(result)
 			}
