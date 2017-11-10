@@ -6,6 +6,7 @@ import play.api.libs.json.Json.toJson
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.message.send.SendMessageTrait
+import com.pharbers.message.websocket.WebSocketOutActorRef
 import module.akkacallback.AkkaCallBackMessage.MsgAkkaCallBack
 
 object AkkaCallBackModule extends ModuleTrait {
@@ -16,9 +17,11 @@ object AkkaCallBackModule extends ModuleTrait {
 	
 	def akkaCallBack(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
+			import WebSocketOutActorRef._
 			val msg = cm.modules.get("msg").asInstanceOf[SendMessageTrait]
 			val uid = (data \ "condition" \ "uid").asOpt[String].getOrElse("")
 			val json = (data \ "condition" \ "msg").get
+			println(outActorRefSeq.single.get)
 			msg.wSocket.sendMsg(json, uid)
 			(Some(Map("status" -> toJson("ok"))), None)
 		} catch {

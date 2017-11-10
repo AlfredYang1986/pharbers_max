@@ -11,14 +11,11 @@ import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.EmChatMessage
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.{pushCalcYMJobs, pushGeneratePanelJobs}
 import com.pharbers.http.HTTP
-import com.pharbers.panel.pfizer.phPfizerHandle
-import play.api.libs.json.JsString
 
 import scala.collection.immutable.Map
 
@@ -81,8 +78,12 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alCalcYM = post {
 		path("calcYM") {
 			entity(as[alUpBeforeItem]) { item =>
-				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-				a ! pushCalcYMJobs(item)
+				val msg = Map("ym" -> "201705", "type" -> "进度条", "step" -> "第一步", "data" -> "10")
+				val json = toJson(Map("condition" -> Map("uid" -> toJson(item.user), "msg" -> toJson(msg)) ))
+				HTTP("http://127.0.0.1:9000/akka/callback").header("Accept" -> "application/json", "Content-Type" -> "application/json").post(json)
+
+//				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
+//				a ! pushCalcYMJobs(item)
 				complete(toJson(successToJson().get))
 			}
 		}

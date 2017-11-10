@@ -1,7 +1,7 @@
 /**
  * Created by yym on 11/7/17.
  */
-(function ($) {
+(function ($, w) {
     //变量
     var company = "";
     var isCalcDone = false;
@@ -10,7 +10,7 @@
     var fileNames = [];
 
     $('#secondStep').hide();
-    // $('#sampleResult').hide();
+    $('#sampleResult').hide();
     $('#thirdStep').hide();
     loadMainChart(82, 'mainChart', '文档总体可信度');
     loadMainChart(18, 't-char1', '文档总体可信度');
@@ -25,7 +25,6 @@
         $('.mask-layer').show();
         $('.loading').show();
     };
-
     var hide_loading = function() {
         $('.mask-layer').hide();
         $('.loading').hide();
@@ -36,9 +35,9 @@
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
 
+    query_company();
     load_cpa_source();
     load_gycx_source();
-    callback();
 
     //函数
     function load_cpa_source () {
@@ -62,7 +61,6 @@
                         $(txt).addClass('disabled');
                         $(fileName).text(file.name)
                     });
-                    query_company();
                     if(!isCalcDone)
                         show_loading();
                 },
@@ -80,7 +78,7 @@
                 }
             });
         });
-    };
+    }
 
     function load_gycx_source () {
         var name = 'gycx';
@@ -103,7 +101,6 @@
                         $(txt).addClass('disabled');
                         $(fileName).text(file.name);
                     });
-                    query_company();
                     if(!isCalcDone)
                         show_loading();
                 },
@@ -112,18 +109,7 @@
                         hide_loading();
                         $('.gycx-file').css("color", "#009688");
                         sourceMap.gycx = res.result[0];
-
-                        //创建环信聊天室
-                        var json = JSON.stringify(
-                            f.parameterPrefix.conditions({
-                                "company": company,
-                                "uid": $.cookie('uid')
-                            })
-                        );
-                        f.ajaxModule.baseCall('/imroom/create', json, 'POST', function(r){
-                            toSecondStep();
-                        }, function(e){console.error(e)});
-
+                        toSecondStep();
                         return;
                     }
                     this.error(index, upload);
@@ -139,7 +125,7 @@
        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
            $('#firstStep').hide();
            $('#secondStep').show();
-           $('.scd-img')[0].src = "@routes.Assets.versioned(\"images/calculStep/step11.png\")";
+           $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
        }
     };
 
@@ -156,16 +142,24 @@
 
     var check_file = function(){
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-            prograssBar(10);
+            prograssBar(0,10,1500);
             var json = JSON.stringify({
                 "businessType": "/calcYM",
                 "company": company,
-                "user": $.cookie('webim_user'),
+                "user": $.cookie('uid'),
                 "cpa": sourceMap.cpa,
                 "gycx": sourceMap.gycx
             });
             f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        }else{
+            layer.msg('上传数据不全');
         }
+    };
+
+    //web socks 回调
+    w.socket.ws.onmessage = function(msg) {
+        var data = JSON.parse(msg.data);
+        console.info(data)
     };
 
     // 环信回调函数
@@ -303,7 +297,6 @@
 
     var temp = 0;
     var progress_calc = function(msg) {
-
         console.info(msg);
         // var ext = msg.ext;
         // var fileName = window.im_object.searchExtJson(ext)('file') !== 'Null' ? window.im_object.searchExtJson(ext)('file') : window.im_object.searchExtJsonForElement(ext.elems)('file');
@@ -318,8 +311,6 @@
                 temp = 0;
             }
         }
-
-
     };
 
     var progress_calc_result = function(msg) {
@@ -346,23 +337,13 @@
     };
 
     var prograssBar = function (begin, end, time) {
+        end = (typeof end !== 'undefined') ?  end : begin+1;
+        time = (typeof time !== 'undefined') ?  time : 1;
+
         var rotate = echarts.init(document.getElementById('rotate'));
 
-        function loading() {
-            return [{
-                value: begin,
-                itemStyle: {
-                    normal: {
-                        color: '#fb358a',
-                        shadowBlur: 10,
-                        shadowColor: '#fb358a'
-                    }
-                }
-            }, {
-                value: 100 - begin,
-            }];
-        }
         var option = {
+            animation: false,
             title: {
                 text: (begin * 1) + '%',
                 x: 'center',
@@ -375,7 +356,7 @@
             series: [{
                 name: 'loading',
                 type: 'pie',
-                radius: ['30%', '31%'],
+                radius: ['30%', '32%'],
                 hoverAnimation: false,
                 label: {
                     normal: {
@@ -387,42 +368,64 @@
                         value: begin,
                         itemStyle: {
                             normal: {
-                                color: '#fb358a',
-                                shadowBlur: 10,
-                                shadowColor: '#fb358a'
+                                color: '#fb358a'
                             }
                         }
                     }, {
-                        value: 100 - begin
+                        value: 100 - begin,
+                        itemStyle : {
+                            normal : {
+                                color: '#D5D8DC '
+                            }
+                        }
                     }
                 ]
             }]
         };
+
+        function increase() {
+            return [{
+                    value: begin,
+                    itemStyle: {
+                        normal: {
+                            color: '#fb358a'
+                        }
+                    }
+                }, {
+                    value: 100 - begin,
+                    itemStyle : {
+                        normal : {
+                            color: '#D5D8DC '
+                        }
+                    }
+                }];
+        }
+
         var interval = setInterval(function () {
-            if (begin == end) {
+            if (begin === end) {
                 clearInterval(interval);
-            } else if (begin == 100){
+            } else if (begin === 100){
                 clearInterval(interval);
             } else {
                 ++begin;
             }
+
             rotate.setOption({
                 title: {
                     text: begin + '%'
                 },
                 series: [{
                     name: 'loading',
-                    data: loading()
+                    data: increase()
                 }]
             })
-
         }, time);
 
         rotate.setOption(option);
     };
 
 
-    var query_company = function() {
+    function query_company() {
         layui.use('layer', function () {});
         var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
         f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
@@ -434,5 +437,5 @@
                 layer.msg('服务出错请联系管理员！');
             }
         }, function(e){console.error(e)})
-    };
-}(jQuery));
+    }
+}(jQuery, window));
