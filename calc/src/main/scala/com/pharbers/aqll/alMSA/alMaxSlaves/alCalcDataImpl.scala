@@ -23,8 +23,8 @@ import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
 import com.pharbers.aqll.common.alFileHandler.serverConfig.serverHost215
-import com.pharbers.bson.writer.phBsonWriter
-import com.pharbers.memory.pages.{pageMemory, flushMemory}
+import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
+import com.pharbers.memory.pages.{flushMemory, pageMemory}
 import org.bson.{BSONObject, BasicBSONObject}
 
 
@@ -107,8 +107,8 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 dir.createDir
             val source = alFileOpt(path + "/" + "data")
             val bson_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
-            val bsonWriter = phBsonWriter(bson_path)
-            val buff = flushMemory(bson_path)
+            val bw = phBsonWriter(bson_path)
+            val bfm = bsonFlushMemory(bson_path)
             if (source.isExists) {
 
                 val page = pageMemory(path + "/" + "data")
@@ -137,14 +137,20 @@ class alCalcDataImpl extends Actor with ActorLogging {
 
                         unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
                         value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
-
-                        buff.appendArrByte(bsonWriter.map2arrByte(westMedicineIncome2map(mrd)))
+                        val map_tmp = westMedicineIncome2map(mrd)
+                        try {
+                            bfm.appendObject(bw.map2bson(map_tmp))
+//                            bw.writeBsonFile2(bw.map2bson(map_tmp))
+                        } catch {
+                            case ex : AbstractMethodError => println(ex.getMessage + s"\nmap=${map_tmp}")
+                            case ex : AnyRef => println(ex + s"\nmap=${map_tmp}")
+                        }
                     }
                 }
 
-                buff.flush
-                buff.close
-                bsonWriter.close
+                bfm.close
+                bw.flush
+                bw.close
                 page.ps.fs.closeStorage
 
                 log.info(s"calc done at ${sub_uuid}")
@@ -250,18 +256,18 @@ class alCalcDataImpl extends Actor with ActorLogging {
     }
 
     def westMedicineIncome2map(mrd: westMedicineIncome) : Map[String, Any] = {
-        Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString)) ++
-            Map("Provice" -> mrd.getV("province").toString) ++
-            Map("City" -> mrd.getV("prefecture").toString) ++
-            Map("Panel_ID" -> mrd.phaid) ++
-            Map("Market" -> mrd.getV("market1Ch").toString) ++
-            Map("Product" ->  mrd.minimumUnitCh) ++
-            Map("f_units" -> mrd.finalResultsUnit) ++
-            Map("f_sales" -> mrd.finalResultsValue) ++
-            Map("Date" -> DateUtil.getDateLong(mrd.yearAndmonth.toString)) ++
-            Map("prov_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString))) ++
-            Map("city_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("prefecture").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString))) ++
-            Map("hosp_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString +
+        Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString),
+            "Provice" -> mrd.getV("province").toString,
+            "City" -> mrd.getV("prefecture").toString,
+            "Panel_ID" -> mrd.phaid,
+            "Market" -> mrd.getV("market1Ch").toString,
+            "Product" ->  mrd.minimumUnitCh,
+            "f_units" -> mrd.finalResultsUnit,
+            "f_sales" -> mrd.finalResultsValue,
+            "Date" -> DateUtil.getDateLong(mrd.yearAndmonth.toString),
+            "prov_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString)),
+            "city_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("prefecture").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString)),
+            "hosp_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString +
                 mrd.getV("prefecture").toString +
                 mrd.phaid +
                 mrd.getV("market1Ch").toString +
