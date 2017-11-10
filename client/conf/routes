@@ -1,6 +1,14 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 
+#
+GET     /ws                              controllers.websocket.WebSocketController.ws
+GET     /test                            controllers.alMaxRouterController.test
+POST    /test2                           controllers.websocket.WebSocketController.testBtn
+
+# Calc Akka Http 用于websocket
+POST    /akka/callback                   controllers.akkacallback.AkkaCallBackController.akkaCallBack
+
 # IM聊天室创建
 POST    /imroom/create                   controllers.immessage.ImRoomController.createChatRooms
 
