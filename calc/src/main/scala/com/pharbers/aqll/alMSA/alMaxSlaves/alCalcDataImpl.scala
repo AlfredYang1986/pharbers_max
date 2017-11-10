@@ -25,8 +25,8 @@ import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile,
 import com.pharbers.aqll.common.alFileHandler.serverConfig.serverHost215
 import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
 import com.pharbers.memory.pages.{flushMemory, pageMemory}
-import org.bson.{BSONObject, BasicBSONObject}
-
+import org.bson._
+import com.pharbers.bson.writer.fop.encoder_pharbers
 
 /**
   * Created by alfredyang on 13/07/2017.
@@ -138,13 +138,14 @@ class alCalcDataImpl extends Actor with ActorLogging {
                         unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
                         value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
                         val map_tmp = westMedicineIncome2map(mrd)
-                        try {
-                            bfm.appendObject(bw.map2bson(map_tmp))
-//                            bw.writeBsonFile2(bw.map2bson(map_tmp))
-                        } catch {
-                            case ex : AbstractMethodError => println(ex.getMessage + s"\nmap=${map_tmp}")
-                            case ex : AnyRef => println(ex + s"\nmap=${map_tmp}")
-                        }
+//                        try {
+//                            bfm.appendObject(bw.map2bson(map_tmp))
+//                            //                            bw.writeBsonFile2(bw.map2bson(map_tmp))
+//                        } catch {
+//                            case ex : AbstractMethodError => println(ex.getMessage + s"\nmap=${map_tmp}")
+//                            case ex : AnyRef => println(ex + s"\nmap=${map_tmp}")
+//                        }
+                        bfm.appendObject(bw.map2bson(map_tmp))
                     }
                 }
 

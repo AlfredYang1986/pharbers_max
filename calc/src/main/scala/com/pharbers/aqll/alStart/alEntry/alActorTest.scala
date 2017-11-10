@@ -28,17 +28,17 @@ object alActorTest extends App {
 		// })
 
 //		a ! push_filter_job("config/FileBase/201705/CPA_GYCX_panel_201705DVP.xlsx", cp)
-//		 a ! push_filter_job("config/FileBase/2017-02.xlsx", cp)
+		a ! push_filter_job("config/FileBase/2017-02.xlsx", cp)
 
 //		 a ! push_filter_job("config/FileBase/201705AI_R.xlsx", cp)
 
-       val cpa_file_local = "/CPA/1705 CPA.xlsx"
-       val gycx_file_local = "/GYCX/1705 GYC.xlsx"
-
-
-		1 to 1 foreach (x => {
-			a ! pushGeneratePanelJobs(alUploadItem("fea9f203d4f593a96f0d6faa91ba24ba", "user", cpa_file_local, gycx_file_local, "201705" :: Nil))
-		})
+//		val cpa_file_local = "/CPA/1705 CPA.xlsx"
+//		val gycx_file_local = "/GYCX/1705 GYC.xlsx"
+//
+//
+//		1 to 1 foreach (x => {
+//			a ! pushGeneratePanelJobs(alUploadItem("fea9f203d4f593a96f0d6faa91ba24ba", "user", cpa_file_local, gycx_file_local, "201705" :: Nil))
+//		})
 
     }
 }
