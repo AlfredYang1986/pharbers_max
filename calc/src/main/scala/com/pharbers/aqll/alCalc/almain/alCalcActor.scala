@@ -18,14 +18,17 @@ import com.pharbers.aqll.alCalcEnergy.alCalcSupervisorStrategy
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.alCalcMemory.aljobs.aljobstates.alMaxCalcJobStates.{calc_coreing, calc_maxing}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.do_pkg
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alDumpcollScp
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
+
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import com.pharbers.aqll.alCalaHelp.dbcores._
+
+import scala.collection.immutable.Map
 
 object alCalcActor {
     def props : Props = Props[alCalcActor]
@@ -96,7 +99,11 @@ class alCalcActor extends Actor
             r match {
                 case None => None
                 case Some(d) =>
-                    new alMessageProxy().sendMsg(s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.imuname, Map("type" -> "txt"))
+                    val msg = Map(
+                        "type" -> "error",
+                        "error" -> s"文件在计算过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！"
+                    )
+                    alWebSocket(data.uid).post(msg)
                     d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
                     context stop self
             }
@@ -181,8 +188,12 @@ class alCalcActor extends Actor
 	        log.info(s"单个线程开始删除临时表")
             dbc.getCollection(sub_uuid).drop()
 	        log.info(s"单个线程结束删除临时表")
-    
-            new alMessageProxy().sendMsg("1", data.imuname, Map("uuid" -> data.uuid, "company" -> data.company, "type" -> "progress"))
+
+            val msg = Map(
+                "type" -> "progress",
+                "progress" -> "1"
+            )
+            alWebSocket(data.uid).post(msg)
 
             if (r.subs.filterNot (x => x.isCalc).isEmpty) {
                 r.isCalc = true

@@ -9,7 +9,7 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
@@ -78,12 +78,8 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def alCalcYM = post {
 		path("calcYM") {
 			entity(as[alUpBeforeItem]) { item =>
-				val msg = Map("ym" -> "201705", "type" -> "进度条", "step" -> "第一步", "data" -> "10")
-				val json = toJson(Map("condition" -> Map("uid" -> toJson(item.user), "msg" -> toJson(msg)) ))
-				HTTP("http://127.0.0.1:9000/akka/callback").header("Accept" -> "application/json", "Content-Type" -> "application/json").post(json)
-
-//				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-//				a ! pushCalcYMJobs(item)
+				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
+				a ! pushCalcYMJobs(item)
 				complete(toJson(successToJson().get))
 			}
 		}
@@ -103,7 +99,11 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("samplecheck") {
 			entity(as[alCheckItem]) {item =>
 				val result = alSampleCheck().apply(item.company, item.filename, item.uname)
-				alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				val msg = Map(
+					"type" -> "progress",
+					"progress" -> "100"
+				)
+				alWebSocket(item.uname).post(msg)
 				complete(result)
 			}
 		}
@@ -144,7 +144,11 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 					item.filetype,
 					item.uname)
 				val result = alFileExport().apply(alExportPram)
-				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
+				val msg = Map(
+					"type" -> "progress",
+					"progress" -> "100"
+				)
+				alWebSocket(item.uname).post(msg)
 				complete(result)
 			}
 		}

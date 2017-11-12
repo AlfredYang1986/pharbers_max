@@ -1,19 +1,17 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.SupervisorStrategy.Restart
-import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_jobs, max_split_csv_jobs}
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_split_csv_jobs}
+import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.{split_excel_end, split_excel_start_impl, split_excel_timeout}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-
+import scala.collection.immutable.Map
 import scala.concurrent.duration._
 
 /**
   * Created by alfredyang on 12/07/2017.
   */
-
 object alSplitExcelComeo {
     def props(file : String, par : alCalcParmary, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
         Props(new alSplitExcelComeo(file, par, originSender, owner, counter))
@@ -57,7 +55,12 @@ class alSplitExcelComeo(file : String,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! split_excel_start_impl(file, par)
 
         case cannotRestart(reason: Throwable) => {
-            new alMessageProxy().sendMsg("100", par.imuname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            val msg = Map(
+                "type" -> "error",
+                "error" -> s"error with actor=${self}, reason=${reason}"
+            )
+            alWebSocket(par.uid).post(msg)
+//            new alMessageProxy().sendMsg("100", par.imuname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
             self ! split_excel_end(false,"",Nil,null)
         }
     }

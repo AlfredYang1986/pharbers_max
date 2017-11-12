@@ -20,14 +20,18 @@ var socket = (function($){
         console.info(evt);
     };
 
-    var searchSocketJson = function(json){
+    var getValue = function(json){
         return function(key) {
             return json[key] === undefined ? "Null" : json[key]
         }
     };
 
     return {
-        "ws": ws,
-        "searchExtJson": searchSocketJson
+        "callback2obj": function(callback) {
+            ws.onmessage = function(evt) {
+                callback( JSON.parse(evt.data) )
+            }
+        },
+        "getValue": getValue
     };
 }(jQuery));

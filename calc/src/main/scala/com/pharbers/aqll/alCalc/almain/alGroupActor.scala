@@ -8,12 +8,11 @@ import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
-import com.pharbers.aqll.common.alDao.dataFactory._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcEnergy.{alCalcSupervisorStrategy, alSupervisorStrategy}
+import com.pharbers.aqll.alCalcEnergy.{alCalcSupervisorStrategy}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, grouping_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.alCalcMemory.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
@@ -21,13 +20,15 @@ import com.pharbers.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointSta
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import com.pharbers.aqll.alCalaHelp.dbcores._
+
+import scala.collection.immutable.Map
 
 /**
   * Created by BM on 11/03/2017.
@@ -97,7 +98,12 @@ class alGroupActor extends Actor
             r match {
                 case None => None
                 case Some(d) =>
-                    new alMessageProxy().sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.imuname, Map("type" -> "txt"))
+                    val msg = Map(
+                        "type" -> "error",
+                        "error" -> s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！"
+                    )
+                    alWebSocket(data.uid).post(msg)
+//                    new alMessageProxy().sendMsg(s"文件在分组过程中崩溃，该文件UUID为:$uuid，请及时联系管理人员，协助解决！", data.imuname, Map("type" -> "txt"))
                     d.subs.foreach (x => dbc.getCollection(x.uuid).drop())
                     context stop self
             }

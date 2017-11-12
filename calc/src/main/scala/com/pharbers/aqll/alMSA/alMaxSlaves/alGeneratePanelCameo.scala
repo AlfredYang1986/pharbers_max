@@ -3,11 +3,11 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import scala.concurrent.duration._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_start_impl, generate_panel_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alUploadItem
 import com.pharbers.panel.pfizer.phPfizerHandle
-import play.api.libs.json.{JsString, JsValue}
+import play.api.libs.json.{JsValue}
 
 import scala.collection.immutable.Map
 
@@ -48,14 +48,17 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
                 "gycxs" -> panel_job.gycx.split("&").toList
             )
 
-            println("开始生成panel：" + args)
-            println("生成月份：" + panel_job.ym)
+            println(s"开始生成${panel_job.ym}月份的panel：" + args)
             val result = phPfizerHandle(args).getPanelFile(panel_job.ym)
             val panelLst = getResult(result).mkString(",")
             println("result = " + result)
 
-//            EmChatMessage().sendEMMessage(panel_job.company, "", "", "", "generat_panel_result", "", result.toString)
-            alMessageProxy().sendMsg(result.toString , panel_job.user, Map("type" -> "generat_panel_result"))
+            val msg = Map(
+                "type" -> "generat_panel_result",
+                "result" -> result.toString
+            )
+            println("msg = " + msg)
+            alWebSocket(panel_job.user).post(msg)
             self ! generate_panel_end(true, panelLst)
         }
         case generate_panel_end(result, panelLst) => {
@@ -70,7 +73,12 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! generate_panel_start_impl(panel_job)
 
         case cannotRestart(reason: Throwable) => {
-            new alMessageProxy().sendMsg("cannot generate panel", panel_job.user, Map("type" -> "txt"))
+            val msg = Map(
+                "type" -> "error",
+                "error" -> "cannot generate panel"
+            )
+            alWebSocket(panel_job.user).post(msg)
+//            new alMessageProxy().sendMsg("cannot generate panel", panel_job.user, Map("type" -> "txt"))
             log.info(s"reason is ${reason}")
             self ! generate_panel_end(false, "cannot generate panel")
         }

@@ -10,14 +10,12 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_start, calc_data_sum2}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 import com.pharbers.aqll.alCalc.almain.alShareData
-
-
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
-
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
+import scala.collection.immutable.Map
 import scala.concurrent.Await
 import scala.concurrent.stm._
 import scala.concurrent.duration._
@@ -69,8 +67,14 @@ trait alCalcDataTrait { this : Actor =>
     def calcData(property : alMaxProperty, c : alCalcParmary, s : ActorRef) {
         val cur = context.actorOf(alCameoCalcData.props(c, property, s, self, calc_router))
         cur ! calc_data_start()
-        
-        EmChatMessage().sendEMMessage(c.company, c.uid, c.uuid, c.fileName, "progress_calc", "正在计算中", "45")
+
+        val msg = Map(
+            "type" -> "progress_calc",
+            "progress" -> "45",
+            "txt" -> "正在计算中"
+        )
+        alWebSocket(c.uid).post(msg)
+//        EmChatMessage().sendEMMessage(c.company, c.uid, c.uuid, c.fileName, "progress_calc", "正在计算中", "45")
 //        alMessageProxy().sendMsg("45", c.imuname, Map("file" -> c.fileName, "company" -> c.company, "type" -> "progress_calc", "step" -> "正在计算中"))
     }
 
