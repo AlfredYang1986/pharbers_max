@@ -239,7 +239,9 @@
 
     var check_file = function(){
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-            show_loading();
+            var info = $("#loadInof");
+            info.empty();
+            info.text("MAX正在解析您的文件...")
             prograssBar(10, 2000, 0);
             var json = JSON.stringify({
                 "businessType": "/calcYM",
@@ -297,7 +299,6 @@
 
     var calc_ym_result = function (obj) {
         console.info(obj);
-        hide_loading();
 
         var $ym_div = $('#month_choose');
         var sample_month = $('#sample_month');
@@ -322,7 +323,6 @@
             return;
         }
 
-        show_loading();
         var json = JSON.stringify({
             "businessType": "/genternPanel",
             "company": company,
@@ -335,6 +335,9 @@
             layer.msg("开始生成panel");
             prograssBar(20, 6000, 10);
             $('#chooseMonth').modal('hide');
+            var info = $("#loadInof");
+            info.empty();
+            info.text("MAX正在解析您的样本...");
         }, function(e){console.error(e)});
     };
 
@@ -360,7 +363,6 @@
                 });
             });
         });
-        hide_loading();
         toSampleResult();
     };
 
@@ -379,7 +381,6 @@
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            show_loading();
             prograssBar(20, 6000, 0);
         }, function(e){console.error(e)});
     };
@@ -393,7 +394,6 @@
         if(progress === "100"){
             calc_base_progress = calc_base_progress + (100-20)/ym_mkt_num;
             if(calc_base_progress === 100){
-                hide_loading();
                 isCalcDone = true;
             }
         }
@@ -408,7 +408,6 @@
         if(progress === "100"){
             result_base_progress = result_base_progress + 100/ym_mkt_num;
             if(result_base_progress === 100){
-                hide_loading();
                 uuids = []
                 tables = [];
                 $('li[pharbers-filter="history"]').click();
