@@ -1,32 +1,25 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import java.io._
 import java.util.UUID
-import java.math.BigInteger
 
 import scala.concurrent.stm.{Ref, atomic}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
-import com.pharbers.aqll.alCalaHelp.dbcores.dbc
 import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alDumpcollScp
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
-import com.pharbers.aqll.common.alFileHandler.serverConfig.serverHost215
 import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
-import com.pharbers.memory.pages.{flushMemory, pageMemory}
-import org.bson._
-import com.pharbers.bson.writer.fop.encoder_pharbers
+import com.pharbers.memory.pages.{pageMemory}
 
 /**
   * Created by alfredyang on 13/07/2017.
@@ -140,12 +133,12 @@ class alCalcDataImpl extends Actor with ActorLogging {
                         val map_tmp = westMedicineIncome2map(mrd)
 //                        try {
 //                            bfm.appendObject(bw.map2bson(map_tmp))
-//                            //                            bw.writeBsonFile2(bw.map2bson(map_tmp))
 //                        } catch {
 //                            case ex : AbstractMethodError => println(ex.getMessage + s"\nmap=${map_tmp}")
 //                            case ex : AnyRef => println(ex + s"\nmap=${map_tmp}")
 //                        }
-                        bfm.appendObject(bw.map2bson(map_tmp))
+                        bw.writeBsonFile2(bw.map2bson(map_tmp))
+                        // bfm.appendObject(bw.map2bson(map_tmp))
                     }
                 }
 
