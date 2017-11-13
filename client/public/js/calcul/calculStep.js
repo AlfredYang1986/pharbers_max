@@ -1,31 +1,24 @@
 /**
  * Created by yym on 11/7/17.
  */
-(function ($) {
+(function ($, w) {
     //变量
     var company = "";
     var isCalcDone = false;
     var sourceMap = {"cpa":"","gycx":""};
     var f = new Facade();
     var fileNames = [];
+    var ym_mkt_num = 0;
+    var rotate_name = "";
 
     $('#secondStep').hide();
     $('#sampleResult').hide();
     $('#thirdStep').hide();
-    loadMainChart(82, 'mainChart', '文档总体可信度');
-    loadMainChart(18, 't-char1', '文档总体可信度');
-    loadMainChart(18, 't-char2', '文档总体可信度');
-    loadMainChart(18, 't-char3', '文档总体可信度');
-    loadLineChart('t1');
-    loadLineChart('t2');
-    loadLineChart('t3');
-    sample_bar('bar1');
 
     var show_loading = function() {
         $('.mask-layer').show();
         $('.loading').show();
     };
-
     var hide_loading = function() {
         $('.mask-layer').hide();
         $('.loading').hide();
@@ -36,11 +29,112 @@
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
 
+    query_company();
     load_cpa_source();
     load_gycx_source();
-    callback();
 
     //函数
+    var prograssBar = function (end, time, begin) {
+        time = (typeof time !== 'undefined') ?  time : 1;
+        begin = (typeof begin !== 'undefined') ?  begin : end-1;
+
+        var rotate = echarts.init(document.getElementById(rotate_name));
+        var option = {
+            animation: false,
+            title: {
+                text: (begin * 1) + '%',
+                x: 'center',
+                y: 'center',
+                textStyle: {
+                    color: '#fb358a',
+                    fontSize: 30
+                }
+            },
+            series: [{
+                name: 'loading',
+                type: 'pie',
+                radius: ['30%', '32%'],
+                hoverAnimation: false,
+                label: {
+                    normal: {
+                        show: false
+                    }
+                },
+                data: [
+                    {
+                        value: begin,
+                        itemStyle: {
+                            normal: {
+                                color: '#fb358a'
+                            }
+                        }
+                    }, {
+                        value: 100 - begin,
+                        itemStyle : {
+                            normal : {
+                                color: '#D5D8DC '
+                            }
+                        }
+                    }
+                ]
+            }]
+        };
+
+        function increase() {
+            return [{
+                value: begin,
+                itemStyle: {
+                    normal: {
+                        color: '#fb358a'
+                    }
+                }
+            }, {
+                value: 100 - begin,
+                itemStyle : {
+                    normal : {
+                        color: '#D5D8DC '
+                    }
+                }
+            }];
+        }
+
+        var interval = setInterval(function () {
+            if (begin === end) {
+                clearInterval(interval);
+            } else if (begin === 100){
+                clearInterval(interval);
+            } else {
+                ++begin;
+            }
+
+            rotate.setOption({
+                title: {
+                    text: begin + '%'
+                },
+                series: [{
+                    name: 'loading',
+                    data: increase()
+                }]
+            })
+        }, time);
+
+        rotate.setOption(option);
+    };
+
+    function query_company() {
+        layui.use('layer', function () {});
+        var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
+        f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
+            if(r.status === 'ok') {
+                company = r.result.user.company;
+            } else if (r.status === 'error') {
+                layer.msg(r.error.message);
+            } else {
+                layer.msg('服务出错请联系管理员！');
+            }
+        }, function(e){console.error(e)})
+    }
+
     function load_cpa_source () {
         var name = 'cpa';
         var txt = '#txt-'+name;
@@ -62,7 +156,6 @@
                         $(txt).addClass('disabled');
                         $(fileName).text(file.name)
                     });
-                    query_company();
                     if(!isCalcDone)
                         show_loading();
                 },
@@ -80,7 +173,7 @@
                 }
             });
         });
-    };
+    }
 
     function load_gycx_source () {
         var name = 'gycx';
@@ -103,7 +196,6 @@
                         $(txt).addClass('disabled');
                         $(fileName).text(file.name);
                     });
-                    query_company();
                     if(!isCalcDone)
                         show_loading();
                 },
@@ -112,18 +204,7 @@
                         hide_loading();
                         $('.gycx-file').css("color", "#009688");
                         sourceMap.gycx = res.result[0];
-
-                        //创建环信聊天室
-                        var json = JSON.stringify(
-                            f.parameterPrefix.conditions({
-                                "company": company,
-                                "uid": $.cookie('uid')
-                            })
-                        );
-                        f.ajaxModule.baseCall('/imroom/create', json, 'POST', function(r){
-                            toSecondStep();
-                        }, function(e){console.error(e)});
-
+                        toSecondStep();
                         return;
                     }
                     this.error(index, upload);
@@ -136,14 +217,16 @@
     }
 
     var toSecondStep = function () {
-        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-            $('#firstStep').hide();
-            $('#secondStep').show();
-            $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
-        }
+       if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
+           rotate_name = "panel-rotate";
+           $('#firstStep').hide();
+           $('#secondStep').show();
+           $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
+       }
     };
 
     var toThirdStep = function () {
+        rotate_name = "calc-rotate";
         $('#sampleResult').hide();
         $('#thirdStep').show();
         $('.thd-img')[0].src = "/assets/images/calculStep/step3.png";
@@ -156,71 +239,64 @@
 
     var check_file = function(){
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
+            show_loading();
+            prograssBar(10, 2000, 0);
             var json = JSON.stringify({
                 "businessType": "/calcYM",
                 "company": company,
-                "user": $.cookie('webim_user'),
+                "user": $.cookie('uid'),
                 "cpa": sourceMap.cpa,
                 "gycx": sourceMap.gycx
             });
-            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){show_loading()}, function(e){console.error(e)});
-            prograssBar(0,10,1000);
+            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        }else{
+            layer.msg('上传数据不全');
         }
     };
 
-    // 环信回调函数
-    function callback() {
-        var conn = window.im_object.conns();
-        conn.listen({
-            onOpened: function ( message ) {console.info("im 连接成功")},
-            onClosed: function ( message ) {},         //连接关闭回调
-            onTextMessage: function ( message ) {
-                var ext = message.ext;
-                if(ext !== null) {
-                    var reVal = window.im_object.searchExtJson(ext)('type') !== 'Null' ? window.im_object.searchExtJson(ext)('type') : window.im_object.searchExtJsonForElement(ext.elems)('type');
-                    switch (reVal) {
-                        case 'progress':
-                            progress(message);
-                            break;
-                        case 'calc_ym_result':
-                            // show_loading();
-                            calc_ym_result(message);
-                            break;
-                        case 'progress_generat_panel':
-                            progress_generat_panel(message);
-                            break;
-                        case 'generat_panel_result':
-                            generat_panel_result(message);
-                            break;
-                        case 'progress_calc':
-                            progress_calc(message);
-                            break;
-                        case 'progress_calc_result':
-                            progress_calc_result(message);
-                            break;
-                        case 'txt':
-                            txt(message);
-                            break;
-                        default:
-                            console.warn(message.ext);
-                            console.warn("No Type");
-                            console.warn(message.data);
-                    }
-                }
-            },    //收到文本消息
-            onOnline: function () {},                  //本机网络连接成功
-            onOffline: function () {},                 //本机网络掉线
-            onError: function ( message ) { console.error(message) }          //失败回调
-        });
+    //web socks 回调
+    w.socket.callback2obj(function(obj){
+        var type = window.socket.getValue(obj)('type') !== 'Null' ? window.socket.getValue(obj)('type') : layer.msg("ws信息回调出错");
+        switch (type) {
+            case 'progress':
+                progress(obj);
+                break;
+            case 'calc_ym_result':
+                toSecondStep();
+                calc_ym_result(obj);
+                break;
+            case 'progress_generat_panel':
+                toSecondStep();
+                progress_generat_panel(obj);
+                break;
+            case 'generat_panel_result':
+                toSecondStep();
+                generat_panel_result(obj);
+                break;
+            case 'progress_calc':
+                progress_calc(obj);
+                break;
+            case 'progress_calc_result':
+                progress_calc_result(obj);
+                break;
+            case 'txt':
+                txt(obj);
+                break;
+            case 'error':
+                layer.msg(obj.error);
+                break;
+            default:
+                console.warn(obj.type);
+                console.warn("No Type");
+        }
+    });
+
+    var progress = function(obj) {
+        console.info(obj);
     };
 
-    var progress = function(msg) {
-        console.info(msg);
-    };
-
-    var calc_ym_result = function (msg) {
-        console.info(msg.data);
-        var obj = JSON.parse(msg.data);
+    var calc_ym_result = function (obj) {
+        console.info(obj);
         hide_loading();
 
         var $ym_div = $('#month_choose');
@@ -232,7 +308,7 @@
             $ym_div.append('<div class="col-sm-3"><div class="checkbox"> <label> <input type="checkbox" value="'+ ym +'">'+ym+'</label> </div> </div>');
             sample_month.append(ym +"&nbsp;");
         });
-
+        ym_mkt_num = obj.ym.split(",").length * obj.mkt.split(",").length;
         $('#chooseMonth').modal('show');
     };
 
@@ -246,45 +322,45 @@
             return;
         }
 
-        // show_loading();
+        show_loading();
         var json = JSON.stringify({
             "businessType": "/genternPanel",
             "company": company,
-            "user": $.cookie('webim_user'),
+            "user": $.cookie('uid'),
             "cpa": sourceMap.cpa,
             "gycx": sourceMap.gycx,
             "ym": ym_lst
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
-            prograssBar(10,99,7000);
             layer.msg("开始生成panel");
+            prograssBar(20, 6000, 10);
             $('#chooseMonth').modal('hide');
         }, function(e){console.error(e)});
     };
 
-    var progress_generat_panel = function (msg) {
-        console.info(msg);
-        // var ext = msg.ext;
-        // var ym = window.im_object.searchExtJson(ext)('ym') !== 'Null' ? window.im_object.searchExtJson(ext)('ym') : window.im_object.searchExtJsonForElement(ext.elems)('ym');
-        // var mkt = window.im_object.searchExtJson(ext)('mkt') !== 'Null' ? window.im_object.searchExtJson(ext)('mkt') : window.im_object.searchExtJsonForElement(ext.elems)('mkt');
-        // var step = window.im_object.searchExtJson(ext)('step') !== 'Null' ? window.im_object.searchExtJson(ext)('step') : window.im_object.searchExtJsonForElement(ext.elems)('step');
-        // var lay_filter = 'generat_panel-progress-' + ym + '-' + mkt;
-        // var span = $('#panel-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
-        // span.text(step);z
+    var panel_base_progress = 20;
+    var progress_generat_panel = function (obj) {
+        var progress = window.socket.getValue(obj)('progress');
+
+        prograssBar( Math.floor(panel_base_progress + progress / ym_mkt_num * 0.8 ) );
+
+        if(progress === "100"){
+            panel_base_progress = panel_base_progress + (100-20)/ym_mkt_num;
+        }
     };
 
-    var generat_panel_result = function (msg) {
-        prograssBar(99,100,2000);
-        console.info(msg);
+    var generat_panel_result = function (obj) {
         layer.msg("panel生成完成");
-        var obj = JSON.parse(msg.data);
-        $.each(obj, function(ym, v1) {
+        console.info(obj);
+        var result = JSON.parse(obj.result);
+        $.each(result, function(ym, v1) {
             $.each(v1, function(mkt, panel_lst) {
                 $.each(panel_lst, function(i, fname){
                     fileNames.push(fname);
                 });
             });
         });
+        hide_loading();
         toSampleResult();
     };
 
@@ -299,143 +375,58 @@
             "company": company,
             "filename": fileNames,
             "uid": $.cookie('uid'),
-            "imuname": $.cookie('webim_user')
+            "imuname": ""//遗留症，必须传，重构时清理
         });
-        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
+            layer.msg("开始计算");
+            show_loading();
+            prograssBar(20, 6000, 0);
+        }, function(e){console.error(e)});
     };
 
-    var temp = 0;
-    var progress_calc = function(msg) {
+    var calc_base_progress = 20;
+    var progress_calc = function(obj) {
+        var progress = window.socket.getValue(obj)('progress');
 
-        console.info(msg);
-        // var ext = msg.ext;
-        // var fileName = window.im_object.searchExtJson(ext)('file') !== 'Null' ? window.im_object.searchExtJson(ext)('file') : window.im_object.searchExtJsonForElement(ext.elems)('file');
-        // var step = window.im_object.searchExtJson(ext)('step') !== 'Null' ? window.im_object.searchExtJson(ext)('step') : window.im_object.searchExtJsonForElement(ext.elems)('step');
-        // var lay_filter = 'calc-progress-' + fileName;
-        // var span = $('#panel-calc-lst').find('div[lay-filter=' + lay_filter + ']').parent().prev().children('span');
-        // span.text(step);
-        if(msg.data === "100") {
-            temp = temp + 1;
-            if(fileNames.length === temp){
+        prograssBar( Math.floor(calc_base_progress + progress / ym_mkt_num * 0.8 ) );
+
+        if(progress === "100"){
+            calc_base_progress = calc_base_progress + (100-20)/ym_mkt_num;
+            if(calc_base_progress === 100){
+                hide_loading();
                 isCalcDone = true;
-                temp = 0;
             }
         }
-
-
     };
 
-    var progress_calc_result = function(msg) {
-        console.info(msg);
-        // var ext = msg.ext;
-        // var uuid = window.im_object.searchExtJsonForElement(ext.elems)('uuid');
-        // var lay_uuid = 'calc-progress-' + uuid;
-        // var step_result = window.im_object.searchExtJsonForElement(ext.elems)('step');
-        // var span_result = $('.confrim-calc-lst').eq(1).find('div[lay-filter=' + lay_uuid + ']').parent().prev().children('span');
-        // span_result.text(step_result);
-        // if(msg.data === "100") {
-        //     temp = temp + 1;
-        //     if(num === temp){
-        //         hide_loading();
-        //         temp = 0;uuids = [];tables = [];
-        //         $('li[pharbers-filter="history"]').click();
-        //     }
-        // }
-        // setProgress(lay_uuid, msg.data);
+    var result_base_progress = 0;
+    var progress_calc_result = function(obj) {
+        var progress = window.socket.getValue(obj)('progress');
+
+        prograssBar( Math.floor(result_base_progress + progress / ym_mkt_num) );
+
+        if(progress === "100"){
+            result_base_progress = result_base_progress + 100/ym_mkt_num;
+            if(result_base_progress === 100){
+                hide_loading();
+                uuids = []
+                tables = [];
+                $('li[pharbers-filter="history"]').click();
+            }
+        }
     };
 
     var txt = function(msg) {
         console.info(msg.data);
     };
 
-    var prograssBar = function (begin, end, time) {
-        var rotate = echarts.init(document.getElementById('rotate'));
+    loadMainChart(82, 'mainChart', '文档总体可信度');
+    loadMainChart(18, 't-char1', '文档总体可信度');
+    loadMainChart(18, 't-char2', '文档总体可信度');
+    loadMainChart(18, 't-char3', '文档总体可信度');
+    loadLineChart('t1');
+    loadLineChart('t2');
+    loadLineChart('t3');
+    sample_bar('bar1');
 
-        function loading() {
-            return [{
-                value: begin,
-                itemStyle: {
-                    normal: {
-                        color: '#fb358a',
-                        shadowBlur: 10,
-                        shadowColor: '#fb358a'
-                    }
-                }
-            }, {
-                value: 100 - begin,
-            }];
-        }
-        var option = {
-            title: {
-                text: (begin * 1) + '%',
-                x: 'center',
-                y: 'center',
-                textStyle: {
-                    color: '#fb358a',
-                    fontSize: 30
-                }
-            },
-            series: [{
-                name: 'loading',
-                type: 'pie',
-                radius: ['30%', '31%'],
-                hoverAnimation: false,
-                label: {
-                    normal: {
-                        show: false
-                    }
-                },
-                data: [
-                    {
-                        value: begin,
-                        itemStyle: {
-                            normal: {
-                                color: '#fb358a',
-                                shadowBlur: 10,
-                                shadowColor: '#fb358a'
-                            }
-                        }
-                    }, {
-                        value: 100 - begin
-                    }
-                ]
-            }]
-        };
-        var interval = setInterval(function () {
-            if (begin == end) {
-                clearInterval(interval);
-            } else if (begin == 100){
-                clearInterval(interval);
-            } else {
-                ++begin;
-            }
-            rotate.setOption({
-                title: {
-                    text: begin + '%'
-                },
-                series: [{
-                    name: 'loading',
-                    data: loading()
-                }]
-            })
-
-        }, time);
-
-        rotate.setOption(option);
-    };
-
-
-    var query_company = function() {
-        layui.use('layer', function () {});
-        var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
-        f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
-            if(r.status === 'ok') {
-                company = r.result.user.company;
-            } else if (r.status === 'error') {
-                layer.msg(r.error.message);
-            } else {
-                layer.msg('服务出错请联系管理员！');
-            }
-        }, function(e){console.error(e)})
-    };
-}(jQuery));
+}(jQuery, window));

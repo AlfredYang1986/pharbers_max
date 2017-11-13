@@ -121,10 +121,9 @@
                     };
                     var queryJson = JSON.stringify(id);
                     f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (data) {
-                        console.log(data);
                         var user = data.result.user_info;
-                        $('.people-name').text(data.result.user_info.name);
-                        $('.people-email').text(data.result.user_info.email);
+                        $('.people-name').text(user.name);
+                        $('.people-email').text(user.email);
                     });
                 });
             };
