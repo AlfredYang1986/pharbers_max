@@ -11,14 +11,11 @@ import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.EmChatMessage
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.{pushCalcYMJobs, pushGeneratePanelJobs}
 import com.pharbers.http.HTTP
-import com.pharbers.panel.pfizer.phPfizerHandle
-import play.api.libs.json.JsString
 
 import scala.collection.immutable.Map
 
@@ -58,7 +55,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	implicit def executionContext: ExecutionContext
 	implicit def requestTimeout: Timeout
 
-	val routes = Test ~ alSampleCheckDataFunc ~
+	val routes = alSampleCheckDataFunc ~
 		alNewCalcDataFunc ~ alNewModelOperationCommitFunc ~
 		alGenternPanel ~ alResultFileExportFunc ~
 		alCalcYM
@@ -66,12 +63,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def Test = post {
 		path("test") {
 			entity(as[Item]) { item =>
-				val company = "fefefefefefefefefe"
-				val uuid = "fffffff"
-				val msg = Map("file" -> "fuck.f", "uuid" -> uuid, "table" -> s"${company + uuid}", "type" -> "进度条", "step" -> "第一步", "data" -> "10")
-				// 这里的str就是uid
-				val json = toJson(Map("condition" -> Map("uid" -> toJson(item.str), "msg" -> toJson(msg)) ))
-				HTTP("http://127.0.0.1:9000/akka/callback").header("Accept" -> "application/json", "Content-Type" -> "application/json").post(json)
 				val result = toJson(Map("result" -> "ok"))
 				complete(result)
 			}
@@ -148,13 +139,5 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 			}
 		}
 	}
-	
-	def alCreateIMUserFunc = post {
-		path("createimuser") {
-			entity(as[alHttpCreateIMUser]) { item =>
-//				alIMUser.createUser(item.name, item.pwd)
-				complete(toJson(successToJson().get))
-			}
-		}
-	}
+
 }
