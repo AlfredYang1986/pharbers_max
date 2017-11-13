@@ -10,7 +10,7 @@
     var fileNames = [];
 
     $('#secondStep').hide();
-    // $('#sampleResult').hide();
+    $('#sampleResult').hide();
     $('#thirdStep').hide();
     loadMainChart(82, 'mainChart', '文档总体可信度');
     loadMainChart(18, 't-char1', '文档总体可信度');
@@ -224,10 +224,13 @@
         hide_loading();
 
         var $ym_div = $('#month_choose');
-        $ym_div.empty();
+        var sample_month = $('#sample_month');
 
+        $ym_div.empty();
+        sample_month.empty();
         $.each(obj.ym.split(","), function( index, ym ) {
-            $ym_div.append('<div class="col-sm-3"> <div class="checkbox"> <label> <input type="checkbox" value="'+ ym +'">'+ym+'</label> </div> </div>');
+            $ym_div.append('<div class="col-sm-3"><div class="checkbox"> <label> <input type="checkbox" value="'+ ym +'">'+ym+'</label> </div> </div>');
+            sample_month.append(ym +"&nbsp;");
         });
 
         $('#chooseMonth').modal('show');
