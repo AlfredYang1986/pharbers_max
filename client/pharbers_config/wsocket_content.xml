@@ -1,0 +1,6 @@
+<pharbers-modules>
+    <wsocket-content>
+        <remote_connect value = "59.110.31.106"/>
+        <local_connect value = "127.0.0.1:9000"/>
+    </wsocket-content>
+</pharbers-modules>
