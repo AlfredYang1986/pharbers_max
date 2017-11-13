@@ -9,7 +9,9 @@
         <fill_hos_data_file value="/Manage/补充医院.csv" />
         <cache_file value="/Cache/" />
         <output_file value="/Output/" />
-        <makets value="INF,SPE" />
-        <!--INF,SPE-->
+        <makets value="INF" />
+        <!--INF,SPE,AI_S,CNS_Z-->
+        <!--没有匹配文件的市场 ELQ,HTN2,LD,PAIN_C,URO-->
+        <!--Error For input String "" 的市场 AI_W-->
     </data-parse>
 </pharbers-modules>

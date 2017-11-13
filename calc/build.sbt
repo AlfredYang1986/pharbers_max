@@ -1,8 +1,9 @@
+
 lazy val commonSettings = Seq(
     organization := "com.pharbers",
     version := "1.0",
     scalaVersion := "2.11.8"
-)
+) 
 
 resolvers += Resolver.mavenLocal
 
@@ -32,4 +33,4 @@ lazy val root = (project in file(".")).
 	name := "pharber-calc",
 	fork in run := true,
 	javaOptions += "-Xmx2G"
-  )
+  ).enablePlugins(JavaAppPackaging)

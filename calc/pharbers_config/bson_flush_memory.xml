@@ -1,0 +1,5 @@
+<pharbers-modules>
+    <bson-flush-memory>
+        <buffer-size value="31457280" />
+    </bson-flush-memory>
+</pharbers-modules>
