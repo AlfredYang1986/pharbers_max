@@ -9,7 +9,6 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
@@ -99,11 +98,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("samplecheck") {
 			entity(as[alCheckItem]) {item =>
 				val result = alSampleCheck().apply(item.company, item.filename, item.uname)
-				val msg = Map(
-					"type" -> "progress",
-					"progress" -> "100"
-				)
-				alWebSocket(item.uname).post(msg)
 				complete(result)
 			}
 		}
@@ -144,11 +138,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 					item.filetype,
 					item.uname)
 				val result = alFileExport().apply(alExportPram)
-				val msg = Map(
-					"type" -> "progress",
-					"progress" -> "100"
-				)
-				alWebSocket(item.uname).post(msg)
 				complete(result)
 			}
 		}

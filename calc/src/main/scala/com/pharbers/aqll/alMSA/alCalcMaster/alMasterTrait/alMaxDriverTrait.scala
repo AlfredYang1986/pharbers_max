@@ -57,22 +57,6 @@ case object restore_maxing extends alPointState
 
 case object calc_done extends alPointState
 
-//case class EmChatMessage() {
-//
-//	def sendEMMessage(company: String, uid: String, uuid: String, fileName: String, mestype: String, step: String, msg: String): String = {
-//		val reVal = (Json.parse(EmChatMsg().getAllRooms) \ "data").as[List[String Map JsValue]]
-//			.filterNot(x => x("name").as[String] != company + "_" + uid)
-//			.map(x => x("id").as[String])
-//
-//		EmChatMsg().sendFromUser("project")
-//			.sendTargetUser(reVal)
-//			.sendTargetType("chatrooms")
-//			.sendMsgContentType()
-//			.sendMsgExt(Map("file" -> fileName, "uuid" -> uuid, "table" -> s"${company + uuid}", "type" -> mestype, "step" -> step))
-//			.sendMsg(msg)
-//	}
-//}
-
 trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
 	with alLoggerMsgTrait {
 	this: Actor =>
