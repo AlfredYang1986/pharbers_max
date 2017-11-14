@@ -14,7 +14,4 @@ object AuthMessage {
 	case class MsgAuthTokenType(data: JsValue) extends MsgAuthCommand // msg_auth_token_type
 	case class MsgAuthTokenUsed(data: JsValue) extends MsgAuthCommand // msg_auth_token_used
 	case class MsgAuthCheckTokenAction(data: JsValue) extends MsgAuthCommand // msg_auth_check_token_action
-	
-	case class MsgAuthCreateIMUser(data: JsValue) extends MsgAuthCommand
-	case class MsgAuthScanningRoomsAddUser(data: JsValue) extends MsgAuthCommand
 }

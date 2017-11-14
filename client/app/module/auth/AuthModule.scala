@@ -23,7 +23,6 @@ import scala.collection.immutable.Map
 object AuthModule extends ModuleTrait with AuthData {
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case MsgUserAuth(data) => authWithPassword(data)
-		case MsgAuthCreateIMUser(data) => authCreateIMUser(data)(pr)
 		case MsgAuthTokenParser(data) => authTokenParser(data)
 		case MsgAuthTokenExpire(data) => checkAuthTokenExpire(data)(pr)
 		case MsgAuthCreateToken(data) => authCreateToken(data)(pr)
@@ -32,7 +31,6 @@ object AuthModule extends ModuleTrait with AuthData {
 		case MsgAuthTokenUsed(data) => checkAuthTokenUsed(data)
 		
 		case MsgAuthCheckTokenAction(data) => authCheckTokenAction(data)
-		case MsgAuthScanningRoomsAddUser(data) => authScanningRoomsAddUser(data)(pr)
 		case _ => throw new Exception("function is not impl")
 	}
 	
@@ -47,11 +45,10 @@ object AuthModule extends ModuleTrait with AuthData {
 				case None => throw new Exception("data not exist")
 				case Some(one) =>
 					val o = one - "email" - "phone" - "name"
-					val uuid = Sercurity.md5Hash(one("email").as[String] + Sercurity.getTimeSpanWithSeconds)
 					val uid = Sercurity.md5Hash(one("email").as[String])
 					val reVal = o + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 					val auth_token = att.encrypt2Token(toJson(reVal))
-					(Some(Map("user_token" -> toJson(auth_token), "imuid" -> toJson(uuid), "uid" -> toJson(uid))), None)
+					(Some(Map("user_token" -> toJson(auth_token), "uid" -> toJson(uid))), None)
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))

@@ -16,6 +16,7 @@ object UserMessage {
     
     case class msg_user_token_op(data: JsValue) extends msg_UserCommand
     case class msg_user_chang_pwd(data: JsValue) extends msg_UserCommand
+    case class msg_user_check_pwd(data: JsValue) extends msg_UserCommand
 
     case class msg_check_user_is_register(data: JsValue) extends msg_UserCommand
 }

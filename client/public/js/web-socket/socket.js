@@ -1,6 +1,6 @@
 var socket = (function($){
     // 加入到login当中去 暂时用全局变量，后续封装后再议
-    var web_url = "ws://127.0.0.1:9000/ws";
+    var web_url = "ws://192.168.100.19:9000/ws";
     var ws = new WebSocket(web_url);
 
     ws.onopen = function(evt) {

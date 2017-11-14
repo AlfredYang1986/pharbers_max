@@ -34,92 +34,6 @@
     load_gycx_source();
 
     //函数
-    var prograssBar = function (end, time, begin) {
-        time = (typeof time !== 'undefined') ?  time : 1;
-        begin = (typeof begin !== 'undefined') ?  begin : end-1;
-
-        var rotate = echarts.init(document.getElementById(rotate_name));
-        var option = {
-            animation: false,
-            title: {
-                text: (begin * 1) + '%',
-                x: 'center',
-                y: 'center',
-                textStyle: {
-                    color: '#fb358a',
-                    fontSize: 30
-                }
-            },
-            series: [{
-                name: 'loading',
-                type: 'pie',
-                radius: ['30%', '32%'],
-                hoverAnimation: false,
-                label: {
-                    normal: {
-                        show: false
-                    }
-                },
-                data: [
-                    {
-                        value: begin,
-                        itemStyle: {
-                            normal: {
-                                color: '#fb358a'
-                            }
-                        }
-                    }, {
-                        value: 100 - begin,
-                        itemStyle : {
-                            normal : {
-                                color: '#D5D8DC '
-                            }
-                        }
-                    }
-                ]
-            }]
-        };
-
-        function increase() {
-            return [{
-                value: begin,
-                itemStyle: {
-                    normal: {
-                        color: '#fb358a'
-                    }
-                }
-            }, {
-                value: 100 - begin,
-                itemStyle : {
-                    normal : {
-                        color: '#D5D8DC '
-                    }
-                }
-            }];
-        }
-
-        var interval = setInterval(function () {
-            if (begin === end) {
-                clearInterval(interval);
-            } else if (begin === 100){
-                clearInterval(interval);
-            } else {
-                ++begin;
-            }
-
-            rotate.setOption({
-                title: {
-                    text: begin + '%'
-                },
-                series: [{
-                    name: 'loading',
-                    data: increase()
-                }]
-            })
-        }, time);
-
-        rotate.setOption(option);
-    };
 
     function query_company() {
         layui.use('layer', function () {});
@@ -417,6 +331,93 @@
 
     var txt = function(msg) {
         console.info(msg.data);
+    };
+
+    var prograssBar = function (end, time, begin) {
+        time = (typeof time !== 'undefined') ?  time : 1;
+        begin = (typeof begin !== 'undefined') ?  begin : end-1;
+
+        var rotate = echarts.init(document.getElementById(rotate_name));
+        var option = {
+            animation: false,
+            title: {
+                text: (begin * 1) + '%',
+                x: 'center',
+                y: 'center',
+                textStyle: {
+                    color: '#fb358a',
+                    fontSize: 30
+                }
+            },
+            series: [{
+                name: 'loading',
+                type: 'pie',
+                radius: ['30%', '32%'],
+                hoverAnimation: false,
+                label: {
+                    normal: {
+                        show: false
+                    }
+                },
+                data: [
+                    {
+                        value: begin,
+                        itemStyle: {
+                            normal: {
+                                color: '#fb358a'
+                            }
+                        }
+                    }, {
+                        value: 100 - begin,
+                        itemStyle : {
+                            normal : {
+                                color: '#D5D8DC '
+                            }
+                        }
+                    }
+                ]
+            }]
+        };
+
+        function increase() {
+            return [{
+                value: begin,
+                itemStyle: {
+                    normal: {
+                        color: '#fb358a'
+                    }
+                }
+            }, {
+                value: 100 - begin,
+                itemStyle : {
+                    normal : {
+                        color: '#D5D8DC '
+                    }
+                }
+            }];
+        }
+
+        var interval = setInterval(function () {
+            if (begin === end) {
+                clearInterval(interval);
+            } else if (begin === 100){
+                clearInterval(interval);
+            } else {
+                ++begin;
+            }
+
+            rotate.setOption({
+                title: {
+                    text: begin + '%'
+                },
+                series: [{
+                    name: 'loading',
+                    data: increase()
+                }]
+            })
+        }, time);
+
+        rotate.setOption(option);
     };
 
     loadMainChart(82, 'mainChart', '文档总体可信度');
