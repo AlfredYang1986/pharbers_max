@@ -4,10 +4,10 @@ var socket = (function($){
     var ws = new WebSocket(web_url);
 
     ws.onopen = function(evt) {
-        var obj = JSON.stringify({
-            "uid": $.cookie("uid")
-        });
-        ws.send(obj);
+        // var obj = JSON.stringify({
+        //     "uid": $.cookie("uid")
+        // });
+        ws.send(Web_Socket.config.register);
         console.info("WEB SOCKET IS ONOPEN");
     };
 
