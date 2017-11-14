@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.actor.SupervisorStrategy.Escalate
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
@@ -57,7 +57,7 @@ class alCalcDataComeo (c : alCalcParmary,
     
     override def receive: Receive = {
         case calc_data_timeout() => {
-            log.debug("timeout occur")
+            log.info("timeout occur")
             shutSlaveCameo(split_excel_timeout())
         }
         case calc_data_sum(sub_sum) => {
@@ -69,6 +69,9 @@ class alCalcDataComeo (c : alCalcParmary,
             }
         }
         case calc_data_sum2(path) => {
+            log.info("&& T8 STRAT &&")
+            val t8 = startDate()
+            println("&& T8 && alCalcDataComeo.calc_data_sum2")
             // TODO: 现在单机单线程情况，暂时不需要写多机器多线
             r.isSumed = true
             sum += 1
@@ -76,14 +79,20 @@ class alCalcDataComeo (c : alCalcParmary,
                 r.isSumed = true
                 originSender ! calc_data_sum2(path)
             }
+            endDate("&& T8 && ", t8)
+            log.info("&& T8 END &&")
         }
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
-        
+        case calc_data_average2(avg_path) => impl_router ! calc_data_average2(avg_path)
+
         case push_insert_db_job(source, avg, sub_uuid, tmp) => push_insert_db_job_impl(source, avg, sub_uuid, tmp)
         case insertDbSchedule() => insertDbScheduleImpl
         
         case calc_data_result(v, u) => originSender ! calc_data_result(v, u)
         case calc_data_end(result, p) => {
+            log.info("&& T11 START &&")
+            val t11 = startDate()
+            println("&& T11 && alCalcDataComeo.calc_data_end")
             if (result) {
                 atomic { implicit thx =>
                     canInDb() = canInDb.single.get + 1
@@ -99,9 +108,13 @@ class alCalcDataComeo (c : alCalcParmary,
                 owner ! r
                 shutSlaveCameo(r)
             }
+            endDate("&& T11 && ", t11)
+            log.info("&& T11 END &&")
         }
         case calc_data_start_impl(_, _) => {
-            
+            log.info("&& T5 START &&")
+            val t5 = startDate()
+            println("&& T5 && alCalcDataComeo.calc_data_start_impl")
             val core_number = server_info.cpu
             val mid = UUID.randomUUID.toString
             val lst = (1 to core_number).map (x => worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> op.uuid,
@@ -113,12 +126,19 @@ class alCalcDataComeo (c : alCalcParmary,
             r = alMaxProperty(op.uuid, mid, q)
             
             impl_router ! calc_data_hand()
+            endDate("&& T5 && ", t5)
+            log.info("&& T5 END &&")
         }
         case calc_data_hand() => {
+            log.info("&& T6 START &&")
+            val t6 = startDate()
+            println("&& T6 && alCalcDataComeo.calc_data_hand")
             if (r != null) {
                 sender ! calc_data_start_impl(alMaxProperty(r.parent, r.uuid, r.subs(sed) :: Nil), c)
                 sed += 1
+                endDate("&& T6 && ", t6)
             }
+            log.info("&& T6 END &&")
         }
         
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calc_data_start_impl(op, c)
@@ -132,7 +152,7 @@ class alCalcDataComeo (c : alCalcParmary,
     
     import scala.concurrent.ExecutionContext.Implicits.global
 //    val insert_db_schedule = context.system.scheduler.schedule(5 second, 2 second, self, insertDbSchedule())
-    val timeoutMessager = context.system.scheduler.scheduleOnce(600 minute) {
+    val timeoutMessager = context.system.scheduler.scheduleOnce(6000 minute) {
         self ! calc_data_timeout()
     }
     
@@ -163,7 +183,7 @@ class alCalcDataComeo (c : alCalcParmary,
     
     def shutSlaveCameo(msg : AnyRef) = {
         originSender ! msg
-        log.debug("shutting calc data cameo")
+        log.info("shutting calc data cameo")
         timeoutMessager.cancel()
 //        insert_db_schedule.cancel()
         context.stop(self)

@@ -1,5 +1,7 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
+import java.io.File
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 import scala.concurrent.stm.{Ref, atomic}
@@ -19,7 +21,8 @@ import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
 import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
-import com.pharbers.memory.pages.{pageMemory}
+import com.pharbers.memory.pages.fop.dir.dirPageStorage
+import com.pharbers.memory.pages.{dirFlushMemory, pageMemory, pageMemory2}
 
 /**
   * Created by alfredyang on 13/07/2017.
@@ -98,26 +101,30 @@ class alCalcDataImpl extends Actor with ActorLogging {
             val dir = alFileOpt(path)
             if (!dir.isExists)
                 dir.createDir
-            val source = alFileOpt(path + "/" + "data")
-            val bson_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
-            val bw = phBsonWriter(bson_path)
-            val bfm = bsonFlushMemory(bson_path)
-            if (source.isExists) {
+//            val source = alFileOpt(path + "/" + "data")
+            val source = new File(path)
+            val bw_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
+            val bfm_path = s"config/dumpdb/Max_Cores"
+            val bw = phBsonWriter(bw_path)
+            val bfm = bsonFlushMemory(bfm_path)
+            if (source.exists && source.isDirectory) {
 
-                val page = pageMemory(path + "/" + "data")
-                val totalPage = page.pageCount.toInt
+                val dr = dirPageStorage(path)
+                dr.readAllData { line =>
 
-                (0 until totalPage) foreach { i =>
+//                val page = pageMemory2(path + "/" + "data")
+//                val totalPage = page.pageCount.toInt
+//                (0 until totalPage) foreach { i =>
+//                    page.pageData(i).foreach { line =>
 
-                    page.pageData(i).foreach { line =>
                         val mrd = alShareData.txt2WestMedicineIncome2(line)
                         val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
                         if (mrd.ifPanelAll == "1") {
                             mrd.set_finalResultsValue(mrd.sumValue)
                             mrd.set_finalResultsUnit(mrd.volumeUnit)
-                        }else {
+                        } else {
 
-                            val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map{ x =>
+                            val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map { x =>
                                 val line_tmp = x.toString.split(",")
                                 (line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble)
                             }
@@ -131,26 +138,21 @@ class alCalcDataImpl extends Actor with ActorLogging {
                         unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
                         value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
                         val map_tmp = westMedicineIncome2map(mrd)
-//                        try {
-//                            bfm.appendObject(bw.map2bson(map_tmp))
-//                        } catch {
-//                            case ex : AbstractMethodError => println(ex.getMessage + s"\nmap=${map_tmp}")
-//                            case ex : AnyRef => println(ex + s"\nmap=${map_tmp}")
-//                        }
-                        bw.writeBsonFile2(bw.map2bson(map_tmp))
-                        // bfm.appendObject(bw.map2bson(map_tmp))
+
+//                        bw.writeBsonFile2(bw.map2bson(map_tmp))
+                         bfm.appendObject(bw.map2bson(map_tmp))
                     }
-                }
+//                }
 
                 bfm.close
                 bw.flush
                 bw.close
-                page.ps.fs.closeStorage
+//                page.closeStorage
 
                 log.info(s"calc done at ${sub_uuid}")
 
             }else {
-                log.info(s"Error! source=${source} not exist!")
+//                log.info(s"Error! source=${source} not exist!")
                 sender() ! calc_data_end(true, tmp)
             }
             sender() ! calc_data_result(value, unit)
@@ -191,11 +193,15 @@ class alCalcDataImpl extends Actor with ActorLogging {
             if (!dir.isExists)
                 dir.createDir
 
-            val file = alFileOpt(path + "/" + "data")
-            if (!file.isExists)
-                file.createFile
+//            val file = alFileOpt(path + "/" + "data")
+//            if (!file.isExists)
+//                file.createFile
+//
+//            file.appendData2File2(data_tmp)
 
-            file.appendData2File2(data_tmp)
+            val d = dirFlushMemory(path)
+            data_tmp.foreach (l => d.appendLine(l.toString))
+            d.close
         }
     }
 

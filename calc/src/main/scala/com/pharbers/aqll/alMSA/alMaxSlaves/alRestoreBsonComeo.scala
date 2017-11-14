@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alRestoreColl, alRestoreColl2}
+import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl3
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.{restore_bson_end, restore_bson_start_impl, restore_bson_timeout}
 import scala.concurrent.duration._
 
@@ -31,8 +31,8 @@ class alRestoreBsonComeo (val coll : String,
 
     override def receive: Receive = {
 
-        case restore_bson_start_impl(coll, sub_uuid) => {
-            alRestoreColl2().apply(s"${coll}", sub_uuids)
+        case restore_bson_start_impl(coll, sub_uuids) => {
+            alRestoreColl3().apply(s"${coll}", sub_uuids)
             self ! restore_bson_end(true, coll)
         }
         case restore_bson_end(result, sub_uuid) => {

@@ -6,6 +6,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor.ExcuteScanScpQueue
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.{alCalcYMTrait, alGeneratePanelTrait, alMaxDriverTrait, alScpQueueTrait}
 import com.pharbers.aqll.alStart.alHttpFunc.{alUpBeforeItem, alUploadItem}
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 
 object alMaxDriver {
 	def props = Props[alMaxDriver]
@@ -29,12 +30,20 @@ class alMaxDriver extends Actor with ActorLogging
 	import alMaxDriver._
 
 	override def receive: Receive = {
-		case push_filter_job(file, cp) => push_filter_job_impl(file, cp)
+		case push_filter_job(file, cp) => println("Start Filter panel文件位置 = " + file); push_filter_job_impl(file, cp)
 		case max_calc_done(mp) => max_calc_done_impl(mp)
 
 		case pushGeneratePanelJobs(item) => push_generate_panel_jobs(item, sender)
 		case generatePanelSchedule() => generate_panel_schedule_jobs
-		case generatePanelResult(panelLst) => println(s"paths = ${panelLst}")
+		case generatePanelResult(panelLst) => {
+			println(s"paths = ${panelLst}")
+			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
+			panelLst.split(",").foreach{x => 
+				println("GeneratePanelResult panel文件位置 = " + x)
+				val path = fileBase + "fea9f203d4f593a96f0d6faa91ba24ba" + outPut + x
+				self ! push_filter_job(path, cp)
+			}
+		}
 
 		case pushCalcYMJobs(item) => push_calc_ym_jobs(item, sender)
 		case calcYMSchedule() => calc_ym_schedule_jobs

@@ -5,11 +5,15 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
 import akka.pattern.ask
 import akka.util.Timeout
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_start, calc_data_sum2}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
+// import alCalcDataSlave.{slaveStatus, slave_status}
 import com.pharbers.aqll.alCalc.almain.alShareData
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
 
 
 import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
@@ -70,12 +74,12 @@ trait alCalcDataTrait { this : Actor =>
         val cur = context.actorOf(alCameoCalcData.props(c, property, s, self, calc_router))
         cur ! calc_data_start()
         
-        EmChatMessage().sendEMMessage(c.company, c.uid, c.uuid, c.fileName, "progress_calc", "正在计算中", "45")
+        // EmChatMessage().sendEMMessage(c.company, c.uid, c.uuid, c.fileName, "progress_calc", "正在计算中", "45")
 //        alMessageProxy().sendMsg("45", c.imuname, Map("file" -> c.fileName, "company" -> c.company, "type" -> "progress_calc", "step" -> "正在计算中"))
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val calc_schdule = context.system.scheduler.schedule(1 second, 1 second, self, calc_schedule())
+    val calc_schdule = context.system.scheduler.schedule(2 second, 3 second, self, calc_schedule())
 
     val calc_jobs = Ref(List[(alMaxProperty, alCalcParmary, ActorRef)]())
     case class calc_schedule()
@@ -88,6 +92,7 @@ object alCameoCalcData {
     case class calc_data_sum(sum : List[(String, (Double, Double, Double))])
     case class calc_data_sum2(path: String)
     case class calc_data_average(avg : List[(String, Double, Double)])
+    case class calc_data_average2(avg_path : String)
     case class push_insert_db_job(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String,  tmp: alMaxProperty)
     case class insertDbSchedule()
     case class do_insert_db(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, tmp: alMaxProperty)
@@ -122,23 +127,33 @@ class alCameoCalcData ( val c : alCalcParmary,
 
     override def receive: Receive = {
         case calc_data_timeout() => {
-            log.debug("timeout occur")
+            log.info("timeout occur")
             shutCameo(calc_data_timeout())
         }
         case _ : calc_data_start => {
+            log.info("&& T1 && alCameoCalcData.calc_data_start")
+            val t1 = startDate()
+            println("&& T1 && alCameoCalcData.calc_data_start")
             val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> property.uuid))
             val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
             property.subs = sb map (x => alMaxProperty(p, x, Nil))
             tol = property.subs.length
             router ! calc_data_hand()
+            endDate("&& T1 &&", t1)
+            log.info("&& T1 END &&")
         }
         case calc_data_hand() => {
+            log.info("&& T3 START &&")
+            val t3 = startDate()
+            println("&& T3 && alCameoCalcData.calc_data_hand")
             if (sed < tol / core_number) {
                 val tmp = for (index <- sed * core_number to (sed + 1) * core_number - 1) yield property.subs(index)
 
                 sender ! calc_data_start_impl(alMaxProperty(property.parent, property.uuid, tmp.toList), c)
                 sed += 1
+                endDate("&& T3 && ", t3)
             }
+            log.info("&& T3 END &&")
         }
         case calc_data_sum(sub_sum) => {
             // TODO : generate sum and average, post calc_data_average
@@ -161,6 +176,9 @@ class alCameoCalcData ( val c : alCalcParmary,
             }
         }
         case calc_data_sum2(path) => {
+            log.info("&& T9 START &&")
+            val t9 = startDate()
+            println("&& T9 && alCameoCalcData.calc_data_sum2")
             // TODO: 开始读取segment分组文件
             property.sum = property.sum ++: readSegmentGroupData(path)
             sum = sender :: sum
@@ -171,19 +189,40 @@ class alCameoCalcData ( val c : alCalcParmary,
                 }).toList
         
                 log.info(s"done for suming ${property.sum}")
+
+                val path = s"${memorySplitFile}${calc}${property.uuid}"
+                val dir = alFileOpt(path)
+                if (!dir.isExists)
+                    dir.createDir
+                val file = alFileOpt(path + "/" + "avg")
+                if (!file.isExists)
+                    file.createFile
+
                 val mapAvg = property.sum.filterNot(x => x._2._1 == 0 && x._2._2 == 0).map { x =>
-                    (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
+                    val avg_elem = (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
+                    file.appendData2File(s"${avg_elem._1},${avg_elem._2},${avg_elem._3}"::Nil)
                 }
-                log.info(s"done for avg $mapAvg")
-                sum.foreach(_ ! calc_data_average(mapAvg))
+                log.info(s"done for avg $path")
+
+                sum.foreach(_ ! calc_data_average2(path + "/" + "avg"))
             }
+            endDate("&& T9 && ", t9)
+            log.info("&& T9 END &&")
         }
 
         case calc_data_result(v, u) => {
+            log.info("&& T12 START &&")
+            val t12 = startDate()
+            println("&& T12 && alCameoCalcData.calc_data_result")
             property.finalValue += v
             property.finalUnit += u
+            endDate("&& T12 && ", t12)
+            log.info("&& T12 END &&")
         }
         case calc_data_end(result, mp) => {
+            log.info("&& T14 START &&")
+            val t14 = startDate()
+            println("&& T14 && alCameoCalcData.calc_data_end")
             if (result) {
                 cur += 1
                 if (cur == tol / core_number) {
@@ -196,18 +235,21 @@ class alCameoCalcData ( val c : alCalcParmary,
                 //                owner ! r
                 shutCameo(r)
             }
+            endDate("&& T14 && ", t14)
+            log.info("&& T14 END &&")
         }
+        case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val calc_timer = context.system.scheduler.scheduleOnce(600 minute) {
+    val calc_timer = context.system.scheduler.scheduleOnce(6000 minute) {
         self ! calc_data_timeout()
     }
 
     def shutCameo(msg : AnyRef) = {
         originSender ! msg
         //        slaveStatus send slave_status(true)
-        log.debug("stopping group data cameo")
+        log.info("stopping group data cameo")
         calc_timer.cancel()
         context.stop(self)
     }

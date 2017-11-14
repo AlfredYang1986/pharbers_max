@@ -38,7 +38,7 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
         case calcYM_start_impl(calcYM_job) => {
             val args: Map[String, List[String]] = Map(
                 "company" -> List(calcYM_job.company),
-                "user" -> List(calcYM_job.user),
+                "uid" -> List(calcYM_job.user),
                 "cpas" -> calcYM_job.cpa.split("&").toList,
                 "gycxs" -> calcYM_job.gycx.split("&").toList
             )
@@ -57,7 +57,7 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
             shutSlaveCameo(calcYM_end(result, ym))
         }
         case calcYM_timeout() => {
-            log.debug("timeout occur")
+            log.info("timeout occur")
             shutSlaveCameo(calcYM_timeout())
         }
 
