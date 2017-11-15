@@ -34,92 +34,6 @@
     load_gycx_source();
 
     //函数
-    var prograssBar = function (end, time, begin) {
-        time = (typeof time !== 'undefined') ?  time : 1;
-        begin = (typeof begin !== 'undefined') ?  begin : end-1;
-
-        var rotate = echarts.init(document.getElementById(rotate_name));
-        var option = {
-            animation: false,
-            title: {
-                text: (begin * 1) + '%',
-                x: 'center',
-                y: 'center',
-                textStyle: {
-                    color: '#fb358a',
-                    fontSize: 30
-                }
-            },
-            series: [{
-                name: 'loading',
-                type: 'pie',
-                radius: ['30%', '32%'],
-                hoverAnimation: false,
-                label: {
-                    normal: {
-                        show: false
-                    }
-                },
-                data: [
-                    {
-                        value: begin,
-                        itemStyle: {
-                            normal: {
-                                color: '#fb358a'
-                            }
-                        }
-                    }, {
-                        value: 100 - begin,
-                        itemStyle : {
-                            normal : {
-                                color: '#D5D8DC '
-                            }
-                        }
-                    }
-                ]
-            }]
-        };
-
-        function increase() {
-            return [{
-                value: begin,
-                itemStyle: {
-                    normal: {
-                        color: '#fb358a'
-                    }
-                }
-            }, {
-                value: 100 - begin,
-                itemStyle : {
-                    normal : {
-                        color: '#D5D8DC '
-                    }
-                }
-            }];
-        }
-
-        var interval = setInterval(function () {
-            if (begin === end) {
-                clearInterval(interval);
-            } else if (begin === 100){
-                clearInterval(interval);
-            } else {
-                ++begin;
-            }
-
-            rotate.setOption({
-                title: {
-                    text: begin + '%'
-                },
-                series: [{
-                    name: 'loading',
-                    data: increase()
-                }]
-            })
-        }, time);
-
-        rotate.setOption(option);
-    };
 
     function query_company() {
         layui.use('layer', function () {});
@@ -239,7 +153,9 @@
 
     var check_file = function(){
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-            show_loading();
+            var info = $("#loadInof");
+            info.empty();
+            info.text("MAX正在解析您的文件...")
             prograssBar(10, 2000, 0);
             var json = JSON.stringify({
                 "businessType": "/calcYM",
@@ -297,13 +213,15 @@
 
     var calc_ym_result = function (obj) {
         console.info(obj);
-        hide_loading();
 
         var $ym_div = $('#month_choose');
-        $ym_div.empty();
+        var sample_month = $('#sample_month');
 
+        $ym_div.empty();
+        sample_month.empty();
         $.each(obj.ym.split(","), function( index, ym ) {
-            $ym_div.append('<div class="col-sm-3"> <div class="checkbox"> <label> <input type="checkbox" value="'+ ym +'">'+ym+'</label> </div> </div>');
+            $ym_div.append('<div class="col-sm-3"><div class="checkbox"> <label> <input type="checkbox" value="'+ ym +'">'+ym+'</label> </div> </div>');
+            sample_month.append(ym +"&nbsp;");
         });
         ym_mkt_num = obj.ym.split(",").length * obj.mkt.split(",").length;
         $('#chooseMonth').modal('show');
@@ -319,7 +237,6 @@
             return;
         }
 
-        show_loading();
         var json = JSON.stringify({
             "businessType": "/genternPanel",
             "company": company,
@@ -332,6 +249,9 @@
             layer.msg("开始生成panel");
             prograssBar(20, 6000, 10);
             $('#chooseMonth').modal('hide');
+            var info = $("#loadInof");
+            info.empty();
+            info.text("MAX正在解析您的样本...");
         }, function(e){console.error(e)});
     };
 
@@ -357,7 +277,6 @@
                 });
             });
         });
-        hide_loading();
         toSampleResult();
     };
 
@@ -376,7 +295,6 @@
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            show_loading();
             prograssBar(20, 6000, 0);
         }, function(e){console.error(e)});
     };
@@ -390,7 +308,6 @@
         if(progress === "100"){
             calc_base_progress = calc_base_progress + (100-20)/ym_mkt_num;
             if(calc_base_progress === 100){
-                hide_loading();
                 isCalcDone = true;
             }
         }
@@ -405,7 +322,6 @@
         if(progress === "100"){
             result_base_progress = result_base_progress + 100/ym_mkt_num;
             if(result_base_progress === 100){
-                hide_loading();
                 uuids = []
                 tables = [];
                 $('li[pharbers-filter="history"]').click();
@@ -415,6 +331,93 @@
 
     var txt = function(msg) {
         console.info(msg.data);
+    };
+
+    var prograssBar = function (end, time, begin) {
+        time = (typeof time !== 'undefined') ?  time : 1;
+        begin = (typeof begin !== 'undefined') ?  begin : end-1;
+
+        var rotate = echarts.init(document.getElementById(rotate_name));
+        var option = {
+            animation: false,
+            title: {
+                text: (begin * 1) + '%',
+                x: 'center',
+                y: 'center',
+                textStyle: {
+                    color: '#fb358a',
+                    fontSize: 30
+                }
+            },
+            series: [{
+                name: 'loading',
+                type: 'pie',
+                radius: ['30%', '32%'],
+                hoverAnimation: false,
+                label: {
+                    normal: {
+                        show: false
+                    }
+                },
+                data: [
+                    {
+                        value: begin,
+                        itemStyle: {
+                            normal: {
+                                color: '#fb358a'
+                            }
+                        }
+                    }, {
+                        value: 100 - begin,
+                        itemStyle : {
+                            normal : {
+                                color: '#D5D8DC '
+                            }
+                        }
+                    }
+                ]
+            }]
+        };
+
+        function increase() {
+            return [{
+                value: begin,
+                itemStyle: {
+                    normal: {
+                        color: '#fb358a'
+                    }
+                }
+            }, {
+                value: 100 - begin,
+                itemStyle : {
+                    normal : {
+                        color: '#D5D8DC '
+                    }
+                }
+            }];
+        }
+
+        var interval = setInterval(function () {
+            if (begin === end) {
+                clearInterval(interval);
+            } else if (begin === 100){
+                clearInterval(interval);
+            } else {
+                ++begin;
+            }
+
+            rotate.setOption({
+                title: {
+                    text: begin + '%'
+                },
+                series: [{
+                    name: 'loading',
+                    data: increase()
+                }]
+            })
+        }, time);
+
+        rotate.setOption(option);
     };
 
     loadMainChart(82, 'mainChart', '文档总体可信度');

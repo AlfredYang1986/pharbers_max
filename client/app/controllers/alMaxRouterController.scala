@@ -44,7 +44,8 @@ trait alValidationController { this: Controller =>
     
     def loginForType(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): Result = {
         if(showUser(request).scope.contains("BD")) Redirect("/login/db")
-        else Redirect("/index")
+//        else Redirect("/index")
+        else Redirect("/calcul/home")
     }
     
     def showUser(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): User = {

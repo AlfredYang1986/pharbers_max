@@ -19,7 +19,6 @@ object Upload {
 				val company = data.dataParts("company").headOption.map(x => x).getOrElse("")
 //				val path = s"$fileBase$company$outPut"
                 val path = s"../calc/config/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Client"
-					val file = new File(path)
 				if(!file.exists()) {
 					println(file.exists())
 					file.mkdir()

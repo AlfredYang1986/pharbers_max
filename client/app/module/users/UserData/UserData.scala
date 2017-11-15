@@ -24,6 +24,15 @@ trait UserData {
 		builder.result
 	}
 	
+	val pwd_m2d: JsValue => DBObject = { js =>
+		val builder = MongoDBObject.newBuilder
+		val email = (js \ "condition" \ "email").asOpt[String].map(x => x).getOrElse("")
+		val pwd = (js \ "condition" \ "password").asOpt[String].map(x => x).getOrElse("")
+		builder += "profile.email" -> email
+		builder += "profile.secret" -> pwd
+		builder.result
+	}
+	
 	implicit val m2d: JsValue => DBObject = { js =>
 		val builder = MongoDBObject.newBuilder
 		val email = (js \ "user" \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("info input email"))

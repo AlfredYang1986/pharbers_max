@@ -49,6 +49,7 @@ POST    /user/tokenop                                controllers.users.UsersCont
 POST    /user/forgetWithPassword                     controllers.users.UsersController.user_forget_password
 # 忘记密码，修改密码
 POST    /user/changepwd                              controllers.users.UsersController.user_token_chang_pwd
+POST    /user/changeNewpwd                           controllers.users.UsersController.user_chang_new_pwd
 
 # 用户登入
 POST    /auth/authWithPassword                       controllers.auth.AuthController.auth_with_password
