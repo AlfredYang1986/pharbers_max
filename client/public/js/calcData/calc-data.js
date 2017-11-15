@@ -748,7 +748,8 @@
         var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
         f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
             if(r.status === 'ok') {
-                company = r.result.user.company;
+                //company = r.result.user.company;
+                company = "fea9f203d4f593a96f0d6faa91ba24ba";
             } else if (r.status === 'error') {
                 layer.msg(r.error.message);
             } else {

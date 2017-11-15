@@ -57,22 +57,6 @@ case object restore_maxing extends alPointState
 
 case object calc_done extends alPointState
 
-//case class EmChatMessage() {
-//
-//	def sendEMMessage(company: String, uid: String, uuid: String, fileName: String, mestype: String, step: String, msg: String): String = {
-//		val reVal = (Json.parse(EmChatMsg().getAllRooms) \ "data").as[List[String Map JsValue]]
-//			.filterNot(x => x("name").as[String] != company + "_" + uid)
-//			.map(x => x("id").as[String])
-//
-//		EmChatMsg().sendFromUser("project")
-//			.sendTargetUser(reVal)
-//			.sendTargetType("chatrooms")
-//			.sendMsgContentType()
-//			.sendMsgExt(Map("file" -> fileName, "uuid" -> uuid, "table" -> s"${company + uuid}", "type" -> mestype, "step" -> step))
-//			.sendMsg(msg)
-//	}
-//}
-
 trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
 	with alLoggerMsgTrait {
 	this: Actor =>
@@ -103,7 +87,6 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 				"progress" -> "1"
 			)
 			alWebSocket(pr.uid).post(msg)
-//			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "过滤文件中", "1")
 			stay()
 		}
 		
@@ -115,10 +98,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val msg = Map(
 				"type" -> "progress_calc",
 				"txt" -> "过滤文件结束",
-				"progress" -> "10"
+				"progress" -> "2"
 			)
 			alWebSocket(pr.uid).post(msg)
-//			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "过滤文件结束", "10")
 			goto(split_excel) using pr
 		}
 		
@@ -134,10 +116,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val msg = Map(
 				"type" -> "progress_calc",
 				"txt" -> "分拆文件中",
-				"progress" -> "15"
+				"progress" -> "3"
 			)
 			alWebSocket(pr.uid).post(msg)
-//			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "分拆文件中", "15")
 			stay()
 		}
 		
@@ -153,10 +134,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val msg = Map(
 				"type" -> "progress_calc",
 				"txt" -> "分拆文件结束",
-				"progress" -> "18"
+				"progress" -> "4"
 			)
 			alWebSocket(pr.uid).post(msg)
-//			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "分拆文件结束", "18")
 
 			self ! push_group_job(mp)
 			goto(group_file) using pr
@@ -187,10 +167,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val msg = Map(
 				"type" -> "progress_calc",
 				"txt" -> "文件分组中",
-				"progress" -> "20"
+				"progress" -> "5"
 			)
 			alWebSocket(pr.uid).post(msg)
-//			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "文件分组中", "20")
 
 			stay()
 		}
@@ -200,10 +179,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val msg = Map(
 				"type" -> "progress_calc",
 				"txt" -> "等待计算",
-				"progress" -> "25"
+				"progress" -> "6"
 			)
 			alWebSocket(pr.uid).post(msg)
-//			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "等待计算", "25")
 
 			self ! push_calc_job_2(mp, pr)
 			goto(calc_maxing) using pr
@@ -231,7 +209,11 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 		
 		case Event(group_data_error(reason), pr) => {
 			println(s"Error! group_data_error(${reason}, ${pr})")
-//			new alMessageProxy().sendMsg("100", pr.imuname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
+			val msg = Map(
+				"type" -> "error",
+				"error" -> s"error with actor=${self}, reason=${reason}"
+			)
+			alWebSocket(pr.uid).post(msg)
 			shutCameo
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
@@ -256,10 +238,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val msg = Map(
 				"type" -> "progress_calc",
 				"txt" -> "准备还原数据库",
-				"progress" -> "90"
+				"progress" -> "98"
 			)
 			alWebSocket(pr.uid).post(msg)
-//			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "准备还原数据库", "90")
 			mp.isCalc = true
 			goto(restore_maxing) using pr
 		}
@@ -273,10 +254,8 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 				"progress" -> "100"
 			)
 			alWebSocket(pr.uid).post(msg)
-//			EmChatMessage().sendEMMessage(pr.company, pr.uid, pr.uuid, pr.fileName, "progress_calc", "还原数据库结束", "100")
 			acts ! calc_slave_status()
 			test_num = test_num + 1
-//			alMessageProxy().sendMsg("100", pr.imuname, Map("file" -> pr.fileName, "uuid" -> pr.uuid, "table" -> s"${pr.company + pr.uuid}", "type" -> "progress_calc", "step" -> "计算结束"))
 			endDate("test" + test_num, s1)
 			shutCameo()
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
@@ -293,12 +272,9 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			val msg1 = Map(
 				"type" -> "progress_calc_result",
 				"txt" -> "正在转储为永久数据中",
-				"progress" -> "20"
+				"progress" -> "1"
 			)
 			alWebSocket(uid).post(msg1)
-//			EmChatMessage().sendEMMessage(company, uid, uuid, "", "progress_calc_result", "正在转储为永久数据中", "20")
-			
-//			alMessageProxy().sendMsg("20", imuname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result", "step" -> "正在转储为永久数据中"))
 			alWeightSum().apply(company, s"$company$uuid")
 
 			val msg2 = Map(
@@ -307,9 +283,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 				"progress" -> "100"
 			)
 			alWebSocket(uid).post(msg2)
-//			EmChatMessage().sendEMMessage(company, uid, uuid, "", "progress_calc_result", "成功", "100")
-			println("成功")
-//			alMessageProxy().sendMsg("100", imuname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result", "step" -> "正在转储为永久数据中"))
+			println("转储为永久数据成功")
 			dbc.getCollection(s"$company$uuid").drop()
 			shutCameo
 			goto(alDriverJobIdle) using new alCalcParmary("", "")

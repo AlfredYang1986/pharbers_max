@@ -34,13 +34,12 @@
     load_gycx_source();
 
     //函数
-
     function query_company() {
         layui.use('layer', function () {});
         var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
         f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
             if(r.status === 'ok') {
-                company = r.result.user.company;
+                company = "fea9f203d4f593a96f0d6faa91ba24ba";//r.result.user.company;
             } else if (r.status === 'error') {
                 layer.msg(r.error.message);
             } else {
@@ -61,7 +60,7 @@
                 url: '/source/upload',
                 drag: false,
                 data: {"company": company} ,
-                // multiple: true , // 多文件上传
+                multiple: false , // 多文件上传
                 accept: 'file',
                 exts: 'xlsx',
                 before: function (obj) {
@@ -101,7 +100,7 @@
                 url: '/source/upload',
                 drag: false,
                 data: {"company": company} ,
-                // multiple: true , // 多文件上传
+                multiple: false , // 多文件上传
                 accept: 'file',
                 exts: 'xlsx',
                 before: function (obj) {
@@ -155,7 +154,7 @@
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
             var info = $("#loadInof");
             info.empty();
-            info.text("MAX正在解析您的文件...")
+            info.text("MAX正在解析您的文件...");
             prograssBar(10, 2000, 0);
             var json = JSON.stringify({
                 "businessType": "/calcYM",
@@ -170,7 +169,7 @@
         }
     };
 
-    //web socks 回调
+    //web socket 回调
     w.socket.callback2obj(function(obj){
         var type = window.socket.getValue(obj)('type') !== 'Null' ? window.socket.getValue(obj)('type') : layer.msg("ws信息回调出错");
         switch (type) {
@@ -190,6 +189,7 @@
                 generat_panel_result(obj);
                 break;
             case 'progress_calc':
+                toThirdStep();
                 progress_calc(obj);
                 break;
             case 'progress_calc_result':
@@ -229,11 +229,12 @@
 
     var generat_panel_action = function() {
         var ym_lst = [];
-        $('#month_choose input[type=checkbox]:checked').each(function(){
+        $("#month_choose input[type=checkbox]:checked").each(function(){
             ym_lst.push($(this).val());
         });
 
         if(ym_lst.length < 1){
+            layer.msg("请选择月份");
             return;
         }
 
@@ -257,6 +258,7 @@
 
     var panel_base_progress = 20;
     var progress_generat_panel = function (obj) {
+        console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
 
         prograssBar( Math.floor(panel_base_progress + progress / ym_mkt_num * 0.8 ) );
@@ -267,8 +269,8 @@
     };
 
     var generat_panel_result = function (obj) {
-        layer.msg("panel生成完成");
         console.info(obj);
+        layer.msg("panel生成完成");
         var result = JSON.parse(obj.result);
         $.each(result, function(ym, v1) {
             $.each(v1, function(mkt, panel_lst) {
@@ -295,19 +297,18 @@
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            prograssBar(20, 6000, 0);
+            prograssBar(98, 210000, 0);
         }, function(e){console.error(e)});
     };
 
-    var calc_base_progress = 20;
+    var calc_base_progress = 0;
     var progress_calc = function(obj) {
         var progress = window.socket.getValue(obj)('progress');
-
-        prograssBar( Math.floor(calc_base_progress + progress / ym_mkt_num * 0.8 ) );
-
         if(progress === "100"){
-            calc_base_progress = calc_base_progress + (100-20)/ym_mkt_num;
-            if(calc_base_progress === 100){
+            calc_base_progress += 1;
+            if(calc_base_progress === ym_mkt_num){
+                prograssBar(100, 300, 98);
+                alert("计算完成");
                 isCalcDone = true;
             }
         }
@@ -316,15 +317,10 @@
     var result_base_progress = 0;
     var progress_calc_result = function(obj) {
         var progress = window.socket.getValue(obj)('progress');
-
-        prograssBar( Math.floor(result_base_progress + progress / ym_mkt_num) );
-
         if(progress === "100"){
-            result_base_progress = result_base_progress + 100/ym_mkt_num;
-            if(result_base_progress === 100){
-                uuids = []
-                tables = [];
-                $('li[pharbers-filter="history"]').click();
+            result_base_progress += 1;
+            if(result_base_progress === ym_mkt_num){
+                layer.msg("还原数据库完成");
             }
         }
     };
