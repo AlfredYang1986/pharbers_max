@@ -6,9 +6,9 @@
             <span class="logo-font">Pharbers</span>
         </div>
         <div class="logo-title">
-            <div class="login-info" id="userSet" onclick="setUsr()">
-                <div class="login-status"></div>
-                <div class="login-box">
+            <div class="login-info" id="userSet" >
+                <div class="login-status" onclick="clickToHome()"></div>
+                <div class="login-box" onclick="setUsr()">
                     <div class="login-name bd_user_name">name</div>
                     <div class="login-email bd_user_email">yymfor163.com</div>
                 </div>
@@ -24,6 +24,7 @@
 
 
     <script>
+        var f = new Facade();
             layui.use('element', function () {
                 var element = layui.element;
                 element.on('nav(demo)', function (elem) {
@@ -45,6 +46,21 @@
                     })
 
                 });
+            }
+            var clickToHome = function () {
+                var token = $.cookie("user_token");
+                var js = JSON.stringify(f.parameterPrefix.conditions({'user_token': token}))
+                f.ajaxModule.asyncPost("/user/tokenop", js, function (data) {
+                    if(data.status == "ok"){
+                        if(data.result.user.scope[0] == "BD"){
+                            location = ("/bd/bdUser")
+                        }else if(data.result.user.scope[0] == "NC"){
+                            location = ("/calcul/home")
+                        }else {
+                            location = ("/login")
+                        }
+                    }
+                })
             }
     </script>
 }
