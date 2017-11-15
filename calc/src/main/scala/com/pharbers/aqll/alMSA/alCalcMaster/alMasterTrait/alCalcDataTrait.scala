@@ -77,12 +77,10 @@ trait alCalcDataTrait { this : Actor =>
 
         val msg = Map(
             "type" -> "progress_calc",
-            "progress" -> "45",
+            "progress" -> "10",
             "txt" -> "正在计算中"
         )
         alWebSocket(c.uid).post(msg)
-//        EmChatMessage().sendEMMessage(c.company, c.uid, c.uuid, c.fileName, "progress_calc", "正在计算中", "45")
-//        alMessageProxy().sendMsg("45", c.imuname, Map("file" -> c.fileName, "company" -> c.company, "type" -> "progress_calc", "step" -> "正在计算中"))
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global

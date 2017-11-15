@@ -1,12 +1,8 @@
 var socket = (function($){
     // 加入到login当中去 暂时用全局变量，后续封装后再议
-    var web_url = "ws://192.168.100.19:9000/ws";
-    var ws = new WebSocket(web_url);
+    var ws = new WebSocket(Web_Socket.config.socketURL);
 
     ws.onopen = function(evt) {
-        // var obj = JSON.stringify({
-        //     "uid": $.cookie("uid")
-        // });
         ws.send(Web_Socket.config.register);
         console.info("WEB SOCKET IS ONOPEN");
     };
