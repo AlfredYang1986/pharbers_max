@@ -43,7 +43,7 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
 
             val args: Map[String, List[String]] = Map(
                 "company" -> List(panel_job.company),
-                "uid" -> List(panel_job.user.split("_").last),
+                "uid" -> List(panel_job.user),
                 "cpas" -> panel_job.cpa.split("&").toList,
                 "gycxs" -> panel_job.gycx.split("&").toList
             )
@@ -66,7 +66,7 @@ class alGeneratePanelCameo(val panel_job : alUploadItem,
             shutSlaveCameo(generate_panel_end(result, panelLst))
         }
         case generate_panel_timeout() => {
-            log.debug("timeout occur")
+            log.info("timeout occur")
             shutSlaveCameo(generate_panel_timeout())
         }
 

@@ -58,7 +58,7 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
             shutSlaveCameo(calcYM_end(result, ym))
         }
         case calcYM_timeout() => {
-            log.debug("timeout occur")
+            log.info("timeout occur")
             shutSlaveCameo(calcYM_timeout())
         }
 
