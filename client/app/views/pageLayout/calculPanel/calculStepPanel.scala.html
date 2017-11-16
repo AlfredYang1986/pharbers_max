@@ -1,0 +1,25 @@
+@(title: String)(link : Html)(content: Html)(script: Html)
+@main(title) {
+@link
+<body>
+    <div class="container-fluid">
+        <div class="cal-title row bottom-line-bold">
+            <div class="inCenParent">
+                <div class="inCenChild large-font col-sm-11 visible-sm-*">添加数据</div>
+                <div class="col-sm-1 hidden-xs">
+                    <a class="layui-icon large-font backHome" style="cursor:pointer;" id="stepBack">&#x1006;</a>
+                </div>
+            </div>
+        </div>
+        <div class="step row">
+            <div class="first-step col-sm-3"><img class="img-responsive" src="@routes.Assets.versioned("images/calculStep/step11.png")"></div>
+            <div class="first-step col-sm-3"><img class="img-responsive scd-img" src="@routes.Assets.versioned("images/calculStep/step22.png")"></div>
+            <div class="first-step col-sm-3"><img class="img-responsive thd-img" src="@routes.Assets.versioned("images/calculStep/step33.png")"></div>
+            <div class="first-step col-sm-3"><img class="img-responsive fth-img" src="@routes.Assets.versioned("images/calculStep/step44.png")"></div>
+        </div>
+    </div>
+    @content
+</body>
+@script
+ <script src="@routes.Assets.versioned("js/calcul/calculPanel.js")"></script>
+}

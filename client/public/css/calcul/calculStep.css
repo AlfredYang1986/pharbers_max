@@ -1,0 +1,90 @@
+
+.cal-title{
+    height: 60px;
+    line-height: 60px;
+}
+.step{
+    padding: 40px 20px;
+    line-height:40px;
+}
+.backHome{
+    right: 20px;
+}
+/*文件上传*/
+.file-box{
+    padding: 20px 10px;
+
+}
+.file-up{
+    height: 300px;
+    width: 280px;
+    border-radius: 3px;
+    border: 2px solid #494c57;
+    padding: 10px 25px;
+}
+.file-icon{
+    font-size: 250px;
+    color: #d8dce8;
+    text-align:center;
+}
+.file-road{
+    max-width: 280px;
+    padding: 20px 0px;
+}
+.file-describe{
+
+}
+.file-btn{
+    cursor: pointer;
+}
+
+.rotate-cal{
+    .center-block()
+    width:100%;
+}
+.begin-check{
+    height: 400px;
+    padding-top: 50px;
+}
+.chart-panel{
+    height: 200px;
+    padding: 20px 20px;
+}
+.chart-main{
+    height: 200px;
+    width: 200px;
+}
+.chart-intro{
+    height: 200px;
+    width: 450px;
+
+}
+.char-h1{
+    font-family: PingFangSC-Semibold, sans-serif;
+    font-size: 1.125em;
+
+}
+.t-body{
+    min-height: 400px;
+}
+.t-num{
+    height: 24px;
+    line-height: 24px;
+}
+.t-content{
+    min-height: 350px;
+    padding: 25px 0px;
+}
+.t-lineChart{
+    height: 320px;
+    width: 450px;
+}
+.t-describe{
+    padding: 30px;
+    min-height: 320px;
+    width: 350px;
+}
+.sample-bar{
+    height: 350px;
+    width: 950px;
+}

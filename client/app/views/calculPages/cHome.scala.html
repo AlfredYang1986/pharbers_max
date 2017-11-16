@@ -1,0 +1,200 @@
+@(name: String)
+@pageLayout.HomePageLayout.mainContent("Max | Home") {
+    <style>
+            .condition {
+                margin: 5% auto;
+            }
+    </style>
+    <div class="loading"><i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size: 48px;
+        color: #008B7D;">&#x1002;</i></div>
+    <div class="layui-fluid">
+        <div>&nbsp;</div>
+        <div class="layui-row layui-bg-gray " style="height: 13%;"><!-- layui-bg-gray background-color: #f2f2f2; -->
+            <form class="layui-form">
+                <div class="layui-col-md3">
+                    <div class="layui-form-item condition">
+                        <label class="layui-form-label">类型</label>
+                        <div class="layui-input-block">
+                            <select name="datatype">
+                                <option value="">请选择</option>
+                                <option value="provinces">省份</option>
+                                <option value="city">城市</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md3">
+                    <div class="layui-form-item condition">
+                        <label class="layui-form-label">市场</label>
+                        <div class="layui-input-block">
+                            <select name="market">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md3">
+                    <div class="layui-form-item condition">
+                        <label class="layui-form-label">时间</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="date" class="layui-input" id="date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md3">
+                    <div class="layui-row">
+                        <div class="layui-col-md1 condition">&nbsp;</div>
+                        <div class="layui-col-md11 condition">
+                            <div class="layui-btn-group">
+                                <button type="button" class="layui-btn" id="query"><i class="layui-icon">&#xe615;</i>
+                                    查询</button>
+                                <div class="btn-group" role="group" style="margin: 0 0 0 5px;">
+                                    <button type="button" class="layui-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="layui-icon">&#xe621;</i>
+                                        导出
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#">CSV</a></li>
+                                        <li><a href="#">TXT</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="layui-row">
+            <div class="layui-col-md12" id="historyLst"></div>
+            <div style="float: right;margin-bottom: 60px;" id="page"></div>
+        </div>
+    </div>
+} {
+    <script>
+            var f = new Facade();
+            $(function () {
+                userLogin();
+                loadSelect();
+                var queryBtn = $('#query');
+                queryBtn.click(function () {
+                    var datatype = $('select[name="datatype"]').val();
+                    var market = $('select[name="market"]').val();
+                    var date = $('input[name="date"]').val();
+                    var json = JSON.stringify(f.parameterPrefix.conditions({
+                        'user_token': $.cookie('user_token'),
+                        'datatype': datatype === "" ? undefined : datatype,
+                        'date': date === "" ? undefined : date,
+                        'market': market === "" ? undefined : market
+                    }));
+
+                    loadHistory(json);
+                });
+                queryBtn.click();
+
+                layui.use(['form', 'laydate'], function () {
+                    var laydate = layui.laydate;
+                    laydate.render({
+                        elem: '#date',
+                        type: 'month',
+                        range: "~"
+                    });
+                });
+
+                $('li[pharbers-filter="history"]').addClass("layui-this");
+            });
+
+            var userLogin = function () {
+                var token = $.cookie("user_token");
+                var tojs = {
+                    "condition": {
+                        "user_token": token
+                    }
+                };
+                var tojson = JSON.stringify(tojs);
+                f.ajaxModule.asyncPost("/user/tokenop", tojson, function (data) {
+                    var id = {
+                        "condition": {
+                            "user_id": data.result.user.user_id
+                        }
+                    };
+                    var queryJson = JSON.stringify(id);
+                    f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (data) {
+                        var user = data.result.user_info;
+                        $('.people-name').text(user.name);
+                        $('.people-email').text(user.email);
+                    });
+                });
+            };
+
+            var page = function (c, skip, take) {
+                var count = c || 0;
+                var currnum = skip || 1;
+                var limitnum = take || 10;
+                layui.use('laypage', function () {
+                    var laypage = layui.laypage;
+                    laypage.render({
+                        elem: 'page',
+                        count: count,
+                        curr: currnum,
+                        layout: ['count', 'prev', 'page', 'next', 'limit', 'skip'], // 'skip'
+                        limit: limitnum,
+                        limits: [10, 15],
+                        jump: function (obj, first) {
+                            var datatype = $('select[name="datatype"]').val();
+                            var market = $('select[name="market"]').val();
+                            var date = $('input[name="date"]').val();
+                            var json = JSON.stringify(f.parameterPrefix.conditions({
+                                'user_token': $.cookie('user_token'),
+                                'datatype': datatype === "" ? undefined : datatype,
+                                'date': date === "" ? undefined : date,
+                                'market': market === "" ? undefined : market,
+                                'skip': obj.curr,
+                                'take': obj.limit
+                            }));
+                            if (!first) {
+                                loadHistory(json);
+                            }
+                        }
+                    });
+                });
+            };
+
+            var loadSelect = function () {
+                var json = JSON.stringify(f.parameterPrefix.conditions({'user_token': $.cookie('user_token')}));
+                f.ajaxModule.baseCall('/history/queryHistorySelect', json, 'POST', function (r) {
+                    if (r.status === 'ok') {
+                        var market = $('select[name="market"]');
+                        market.empty();
+                        market.append('<option value="">请选择</option>');
+                        $.each(r.result.condition.market, function (i, v) {
+                            market.append('<option>' + v + '</option>');
+                        });
+                        layui.use('form', function () {
+                            layui.form.render()
+                        });
+                    }
+                }, function (e) {
+                    console.error(e);
+                })
+            };
+
+            var loadHistory = function (json) {
+                $('.mask-layer').show();
+                $('.loading').show();
+                f.ajaxModule.baseCall('/history/queryHistoryByPage', json, 'POST', function (r) {
+                    if (r.status === 'ok') {
+                        var lst = $('#historyLst');
+                        lst.empty();
+                        lst.append(r.result.condition);
+                        page(r.result.count, r.result.skip, r.result.take);
+                        $('.mask-layer').hide();
+                        $('.loading').hide();
+                    }
+                }, function (e) {
+                    console.error(e)
+                })
+            };
+    </script>
+}

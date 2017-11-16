@@ -35,15 +35,7 @@ class alMaxDriver extends Actor with ActorLogging
 
 		case pushGeneratePanelJobs(item) => push_generate_panel_jobs(item, sender)
 		case generatePanelSchedule() => generate_panel_schedule_jobs
-		case generatePanelResult(panelLst) => {
-			println(s"paths = ${panelLst}")
-			val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
-			panelLst.split(",").foreach{x => 
-				println("GeneratePanelResult panel文件位置 = " + x)
-				val path = fileBase + "fea9f203d4f593a96f0d6faa91ba24ba" + outPut + x
-				self ! push_filter_job(path, cp)
-			}
-		}
+		case generatePanelResult(panelLst) => println(s"panelLst = ${panelLst}")
 
 		case pushCalcYMJobs(item) => push_calc_ym_jobs(item, sender)
 		case calcYMSchedule() => calc_ym_schedule_jobs

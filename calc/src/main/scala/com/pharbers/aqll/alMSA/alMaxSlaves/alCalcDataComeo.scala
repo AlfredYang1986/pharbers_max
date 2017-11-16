@@ -9,12 +9,13 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, 
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import akka.actor.SupervisorStrategy.{Escalate, Restart}
 
+import scala.collection.immutable.Map
 import scala.concurrent.stm.{Ref, atomic}
 import scala.concurrent.duration._
 
@@ -144,7 +145,12 @@ class alCalcDataComeo (c : alCalcParmary,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calc_data_start_impl(op, c)
         
         case cannotRestart(reason: Throwable) => {
-            alMessageProxy().sendMsg("100", c.imuname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            val msg = Map(
+                "type" -> "error",
+                "error" -> s"error with actor=${self}, reason=${reason}"
+            )
+            alWebSocket(c.uid).post(msg)
+
             self ! calc_data_end(false, r)
         }
         case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")

@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-http-testkit" % "10.0.1",
     "com.typesafe.akka" %% "akka-http-xml" % "10.0.1",
     "javax.mail" % "mail" % "1.4.7",
+    "com.pharbers" % "http" % "0.1",
     "ch.qos.logback" % "logback-classic" % "1.1.3",
     "com.easemob" % "rest-java-sdk" % "1.0.1",
     "com.typesafe.play" % "play-json_2.11" % "2.5.6",

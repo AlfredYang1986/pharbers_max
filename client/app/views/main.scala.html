@@ -14,10 +14,13 @@
         
 		<link rel="stylesheet" href="@routes.Assets.versioned("bootstrap/css/bootstrap.min.css")" >
 		<link rel="stylesheet" href="@routes.Assets.versioned("bootstrap/css/bootstrap-theme.min.css")" >
+		<link rel="stylesheet" href="@routes.Assets.versioned("font-awesome/css/font-awesome.min.css")">
 		<link rel="stylesheet" href="@routes.Assets.versioned("layui/css/layui.css")"  >
 		<link rel="stylesheet" href="@routes.Assets.versioned("css/login/nomal.css")" >
 		<link rel="stylesheet" href="@routes.Assets.versioned("css/bd/leftPenal.css")" >
 		<link rel="stylesheet" href="@routes.Assets.versioned("css/bd/model.css")" >
+
+		<link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/mainStyle.css")">
 
 		<script src="@routes.Assets.versioned("js/jquery-2.1.1.js")"></script>
 		<script src="@routes.Assets.versioned("js/jquery.cookie.js")"></script>
@@ -37,7 +40,9 @@
 		<script src="@routes.Assets.versioned("js/web-im/webim.config.js")"></script>
 		<script src="@routes.Assets.versioned("js/web-im/websdk-1.4.10.js")"></script>
 		<script src="@routes.Assets.versioned("js/business/login.js")"></script>
-		<script src="@routes.Assets.versioned("js/web-im/load-im.js")"></script>
+		@*<script src="@routes.Assets.versioned("js/web-im/load-im.js")"></script>*@
+		<script src="@routes.Assets.versioned("js/web-socket/socket.config.js")"></script>
+		<script src="@routes.Assets.versioned("js/web-socket/socket.js")"></script>
 
 	</head>
    	@content

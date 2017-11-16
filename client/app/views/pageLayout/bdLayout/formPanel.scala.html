@@ -1,11 +1,13 @@
 @(title : String)(subTile : String)(content  : Html)
 @main(title){
+<body>
     <div class="form-title box-line">
         @subTile
         <i class="layui-icon tohref" style="font-size: 30px;
             float: right; " onclick="toBDHome()">&#x1006;</i>
     </div>
     <div class="container">
-        @content
+    @content
     </div>
+</body>
 }
