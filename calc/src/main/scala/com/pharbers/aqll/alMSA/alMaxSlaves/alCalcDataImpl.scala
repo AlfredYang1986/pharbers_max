@@ -109,6 +109,11 @@ class alCalcDataImpl extends Actor with ActorLogging {
             val bfm = bsonFlushMemory(bfm_path)
             if (source.exists && source.isDirectory) {
 
+                val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map { x =>
+                                val line_tmp = x.toString.split(",")
+                                (line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble)
+                            }
+                            
                 val dr = dirPageStorage(path)
                 dr.readAllData { line =>
 
@@ -123,11 +128,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
                             mrd.set_finalResultsValue(mrd.sumValue)
                             mrd.set_finalResultsUnit(mrd.volumeUnit)
                         } else {
-
-                            val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map { x =>
-                                val line_tmp = x.toString.split(",")
-                                (line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble)
-                            }
 
                             avg.find(p => p._1 == seed.hashCode.toString).map { x =>
                                 mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
