@@ -5,7 +5,7 @@ import akka.routing.BroadcastPool
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.util.Timeout
 import akka.pattern.ask
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
 import com.pharbers.aqll.alStart.alHttpFunc.alUploadItem
@@ -36,7 +36,7 @@ trait alGeneratePanelTrait { this : Actor =>
 
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    val generate_panel_schedule = context.system.scheduler.schedule(1 second, 1 second, self, generatePanelSchedule())
+    val generate_panel_schedule = context.system.scheduler.schedule(1 second, 3 second, self, generatePanelSchedule())
 
     def push_generate_panel_jobs(item : alUploadItem, s : ActorRef) = {
         atomic { implicit thx =>

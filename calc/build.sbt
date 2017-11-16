@@ -1,12 +1,14 @@
+
 lazy val commonSettings = Seq(
     organization := "com.pharbers",
     version := "1.0",
     scalaVersion := "2.11.8"
-)
+) 
 
 resolvers += Resolver.mavenLocal
 
 libraryDependencies ++= Seq(
+    "org.mongodb" % "casbah_2.11" % "3.1.1",
     "com.pharbers" % "pharbers-modules" % "0.1",
     "com.pharbers" % "pharbers-data-parse" % "0.1",
     "com.pharbers" % "pharbers-bson" % "0.1",
@@ -31,5 +33,6 @@ lazy val root = (project in file(".")).
   settings(
 	name := "pharber-calc",
 	fork in run := true,
-	javaOptions += "-Xmx2G"
+	javaOptions += "-Xmx12G"
   )
+//    .enablePlugins(JavaAppPackaging)

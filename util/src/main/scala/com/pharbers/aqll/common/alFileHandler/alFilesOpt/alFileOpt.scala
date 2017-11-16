@@ -1,6 +1,8 @@
 package com.pharbers.aqll.common.alFileHandler.alFilesOpt
 
-import java.io.{File, FileWriter, PrintWriter}
+import java.io.{File, FileWriter, PrintWriter, RandomAccessFile}
+
+import com.pharbers.memory.pages.flushMemory
 
 import scala.io.Source
 
@@ -68,8 +70,24 @@ class alFileOpt(path: String)(oldPath: String) {
 		writer.close()
 	}
 
-	def requestDataFromFile(f : String => Any) : List[Any] = Source.fromFile(path).getLines().map(f(_)).toList
+	def appendData2File2(lst : List[Any]): Unit = {
+		val buff = flushMemory(path)
+		lst foreach (x => buff.appendLine(x.toString))
+		buff.flush
+		buff.close
+	}
 
-	def enumDataWithFunc(f : String => Unit) = Source.fromFile(path).getLines().foreach(f(_))
+	def requestDataFromFile(f : String => Any) : List[Any] = {
+		val s = Source.fromFile(path)
+		val lst = s.getLines().map(f(_)).toList
+		s.close()
+		lst
+	}
+
+	def enumDataWithFunc(f : String => Unit) = {
+		val s = Source.fromFile(path)
+		s.getLines().foreach(f(_))
+		s.close()
+	}
 
 }
