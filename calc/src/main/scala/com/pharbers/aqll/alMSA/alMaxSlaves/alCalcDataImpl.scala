@@ -103,9 +103,9 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 dir.createDir
 //            val source = alFileOpt(path + "/" + "data")
             val source = new File(path)
-            val bw_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
+//            val bw_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
             val bfm_path = s"config/dumpdb/Max_Cores"
-            val bw = phBsonWriter(bw_path)
+//            val bw = phBsonWriter(bw_path)
             val bfm = bsonFlushMemory(bfm_path)
             if (source.exists && source.isDirectory) {
 
@@ -140,13 +140,13 @@ class alCalcDataImpl extends Actor with ActorLogging {
                         val map_tmp = westMedicineIncome2map(mrd)
 
 //                        bw.writeBsonFile2(bw.map2bson(map_tmp))
-                         bfm.appendObject(bw.map2bson(map_tmp))
+                         bfm.appendObject(bfm.map2bson(map_tmp))
                     }
 //                }
 
                 bfm.close
-                bw.flush
-                bw.close
+//                bw.flush
+//                bw.close
 //                page.closeStorage
 
                 log.info(s"calc done at ${sub_uuid}")

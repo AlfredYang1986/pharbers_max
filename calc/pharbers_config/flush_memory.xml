@@ -3,7 +3,7 @@
         <!-- <buffer-size value="52428800" /> -->
         <buffer-size value="209715200" />
         <!-- <max-file-size value="104857601" /> -->
-        <max-file-size value="524288000" />
+        <max-file-size value="450430400" />
         <!-- <max-file-size value="1073741824" /> -->
     </flush-memory>
 </pharbers-modules>
