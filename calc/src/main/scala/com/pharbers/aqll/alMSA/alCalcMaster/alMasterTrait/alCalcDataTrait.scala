@@ -98,10 +98,6 @@ object alCameoCalcData {
     case class calc_data_sum2(path: String)
     case class calc_data_average(avg : List[(String, Double, Double)])
     case class calc_data_average2(avg_path : String)
-    case class push_insert_db_job(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String,  tmp: alMaxProperty)
-    case class insertDbSchedule()
-    case class do_insert_db(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, tmp: alMaxProperty)
-    
     case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, property : alMaxProperty)
     case class calc_data_timeout()
