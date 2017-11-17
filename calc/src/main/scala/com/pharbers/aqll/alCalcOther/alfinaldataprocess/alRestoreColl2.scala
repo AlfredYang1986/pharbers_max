@@ -6,7 +6,7 @@ import com.pharbers.aqll.common.alCmd.dbcmd.dbrestoreCmd2
 import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 
 /**
-  * Created by liwei on 2017/3/20.
+  * Created by jeorch on 2017/11/14.
   */
 
 case class alRestoreColl2() {
@@ -28,4 +28,5 @@ case class alRestoreColl2() {
             isfirst = true
         }
     }
+
 }

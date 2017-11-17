@@ -1,0 +1,76 @@
+@pageLayout.calculPanel.calculStepPanel("MAX | 添加数据") {
+    <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/calculStep.css")">
+} {
+    <div id="firstStep" class="row">
+        <div class="col-sm-1 col-lg-2"></div>
+        <div class="col-sm-10">
+            <div class="row">
+                <div>
+                    <span class="small_info">
+                        This an introduction text. It has a fixed size,and a custom line height,so you can experiment
+                        with it. Lorem ipsun dolor sit dask,cmodm
+                    </span>
+                    <br>
+                    <span class="small_info">kfi dod dodo ss, ddoc smsm.</span>
+                </div>
+            </div>
+            <div class="space-height"></div>
+            <div class="row">
+                <div class="col-md-6 col-xs-10">
+                    <div class="file-box">
+                        <div class="middle-font">CPA文件</div>
+                        <div class="file-up">
+                            <div><i class="fa fa-file-excel-o file-icon cpa-file" aria-hidden="true"></i></div>
+                            <div class="small_info">拖拽至此处上传</div>
+                            <div></div>
+                        </div>
+                        <div class="file-road row">
+                            <div class="form-group col-md-12 has-feedback" id="file">
+                                <div class="input-group">
+                                    <input id="txt-cpa" class="form-control" type="text">
+                                    <span id="select-cpa" class="input-group-addon file-btn"><i class="fa fa-folder-open"></i>
+                                        选择文件</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-1 col-xs-2"></div>
+                <div class="col-md-5 col-xs-10">
+                    <div class="file-box">
+                        <div class="middle-font">国药诚信文件GYCX文件</div>
+                        <div class="file-up">
+                            <div><i class="fa fa-file-excel-o file-icon gycx-file" aria-hidden="true"></i></div>
+                            <div class="small_info">拖拽至此处上传</div>
+                            <div></div>
+                        </div>
+                        <div class="file-road row">
+                            <div class="form-group col-md-12 has-feedback">
+                                <div class="input-group">
+                                    <input id="txt-gycx" class="form-control" type="text">
+                                    <span id="select-gycx" class="input-group-addon file-btn"><i class="fa fa-folder-open"></i>
+                                        选择文件</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-1 col-lg-2"></div>
+    </div>
+    @calculPages.calculStep.secondStep()
+    @calculPages.calculStep.sampleResult()
+    @calculPages.calculStep.thirdStep()
+    <div class="mask-layer"></div>
+    <div class="loading"><i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size: 48px;
+        color: #008B7D;">&#x1002;</i></div>
+
+} {
+    @calculPages.calculStep.backCheck()
+    @calculPages.calculStep.monthChoose()
+    <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
+    <script src="@routes.Assets.versioned("js/calcul/calculStep.js")"></script>
+}

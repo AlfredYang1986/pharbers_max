@@ -78,8 +78,7 @@ a:hover {
     top: 60px;
     bottom: 0;
     left: 0;
-    overflow-x: hidden;
-    z-index: 1000;
+    /*overflow-x: hidden;*/
 }
 
 .cer-content {
@@ -89,7 +88,6 @@ a:hover {
     left: 0;
     height: 100%;
     overflow-x: hidden;
-    z-index: 1000;
 }
 
 .center-content {
@@ -108,6 +106,7 @@ a:hover {
 
 .right-content {
     position: fixed;
+    width:100%;
     top: 60px;
     bottom: 0;
     left: 200px;
@@ -117,7 +116,8 @@ a:hover {
 }
 
 .sub-tool {
-    padding: 10px 0px;
+    height: 50px;
+    padding: 5px 5px;
 }
 
 .logo {
@@ -332,15 +332,6 @@ a:hover {
     max-width: 600px;
 }
 
-/*****************other****************
- */
-.inCenParent {
-    text-align: center;
-}
-
-.inCenChild {
-    display: inline-block;
-}
 
 /********************修改*********************************/
 .layui-btn-primary{

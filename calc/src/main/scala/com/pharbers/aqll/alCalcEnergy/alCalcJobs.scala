@@ -14,13 +14,15 @@ import com.pharbers.aqll.common.alFileHandler.mailConfig._
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alRestoreColl, alWeightSum}
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alWeightSum
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alCalaHelp.dbcores._
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor._
+
+import scala.collection.immutable.Map
 
 /**
   * Created by qianpeng on 2017/5/17.
@@ -138,14 +140,26 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 					case Some(x) =>
 						val u = x.company+uuid
 						alRestoreColl().apply(u, sub_uuid :: Nil)
-						(x.company, u, x.uname)
+						(x.company, u, x.imuname)
 					case _ => ???
 				}
+
+				val msg = Map(
+					"type" -> "progress",
+					"progress" -> "2"
+				)
+				alWebSocket(uuid).post(msg)
 				
-				new alMessageProxy().sendMsg("2", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
+//				new alMessageProxy().sendMsg("2", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
 				
 				if (r.subs.filterNot (x => x.isCalc).isEmpty) {
-					new alMessageProxy().sendMsg("10", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
+					val msg2 = Map(
+						"type" -> "progress",
+						"progress" -> "10"
+					)
+					alWebSocket(uuid).post(msg2)
+
+//					new alMessageProxy().sendMsg("10", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress"))
 					r.finalValue = r.subs.map(_.finalValue).sum
 					r.finalUnit = r.subs.map(_.finalUnit).sum
 					r.isCalc = true
@@ -153,7 +167,13 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 					implicit val stmc = StmConf()
 					new Mail().sendTo(EmailForCompany(company._1).getEmail())
 					endDate("计算完成",start)
-					new alMessageProxy().sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress_calc"))
+
+					val msg3 = Map(
+						"type" -> "progress_calc",
+						"progress" -> "100"
+					)
+					alWebSocket(uuid).post(msg3)
+//					new alMessageProxy().sendMsg("100", company._3, Map("uuid" -> uuid, "company" -> company._1, "type" -> "progress_calc"))
 					self ! finish_max_job(uuid)
 					atomic { implicit tnx =>
 						calcing_jobs() = calcing_jobs().tail
@@ -167,17 +187,23 @@ trait alCalcJobsManager extends alPkgJob { this: Actor with alCalcJobsSchedule w
 		alCalcParmary.alParmary.single.get.find(_.company.equals(company)) match {
 			case None => log.info(s"commit_finalresult_jobs_func not company")
 			case Some(x) =>
-//				new alMessageProxy().sendMsg("30", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+//				new alMessageProxy().sendMsg("30", x.imuname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				log.info(s"x.uuid = ${x.uuid}")
 				alWeightSum().apply(company, company + x.uuid)
-//				new alMessageProxy().sendMsg("20", x.uname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
+//				new alMessageProxy().sendMsg("20", x.imuname, Map("uuid" -> x.uuid, "company" -> company, "type" -> "progress"))
 				log.info(s"开始删除临时表")
 				dbc.getCollection(company + x.uuid).drop()
 				log.info(s"结束删除临时表")
 				atomic { implicit txn =>
 					alCalcParmary.alParmary() = alCalcParmary.alParmary.single.get.filterNot(_.company.equals(x.company))
 				}
-				new alMessageProxy().sendMsg("100", x.uname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
+
+				val msg = Map(
+					"type" -> "progress_calc_result",
+					"progress" -> "100"
+				)
+				alWebSocket(uuid).post(msg)
+//				new alMessageProxy().sendMsg("100", x.imuname, Map("uuid" -> uuid, "company" -> company, "type" -> "progress_calc_result"))
 		}
 	}
 

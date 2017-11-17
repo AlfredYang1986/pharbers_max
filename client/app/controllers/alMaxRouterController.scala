@@ -44,7 +44,8 @@ trait alValidationController { this: Controller =>
     
     def loginForType(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): Result = {
         if(showUser(request).scope.contains("BD")) Redirect("/login/db")
-        else Redirect("/index")
+//        else Redirect("/index")
+        else Redirect("/calcul/home")
     }
     
     def showUser(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): User = {
@@ -61,7 +62,18 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
     implicit val db_basic : DBTrait = dbt.queryDBInstance("cli").get
     implicit val attoken: AuthTokenTrait = att
     
+    def test =Action {
+        Ok(views.html.test())
+    }
     
+    //---------------------------------calcul--------------------------
+    def cHome = Action{request =>
+        Ok(views.html.calculPages.cHome(showUser(request).name))
+    }
+    def calculStep = Action{
+        Ok(views.html.calculPages.calculStep.firstStep())
+    }
+    //---------------------------------bd----------------------------
     def bdUser = Action{
         Ok(views.html.bdPages.bdUser())
     }

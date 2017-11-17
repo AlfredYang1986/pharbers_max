@@ -5,9 +5,10 @@
     <link href="@routes.Assets.versioned("css/style.default.css")" rel="stylesheet">
         <div class="layui-tab layui-tab-card" lay-filter="step">
             <ul class="layui-tab-title" pharbers-ul="calc-tab">
-                <li class="layui-this" lay-id="panel-li" style="padding: 0 13%">Panel文件上传</li>
-                <li lay-id="calc-li" style="padding: 0 13%">计算列表</li>
-                <li lay-id="result-li" style="padding: 0 13%">结果检查</li>
+                <li class="layui-this" lay-id="source-li" style="padding: 0 9%">原始文件上传</li>
+                <li lay-id="panel-li" style="padding: 0 9%">panel列表</li>
+                <li lay-id="calc-li" style="padding: 0 9%">计算列表</li>
+                <li lay-id="result-li" style="padding: 0 9%">结果检查</li>
             </ul>
             <div class="layui-progress" lay-filter="calc-progress-step">
                 <div class="layui-progress-bar layui-bg-green" lay-percent=""></div>
@@ -27,7 +28,10 @@
             <br>
             <div class="layui-tab-content">
                 <div class="layui-tab-item layui-show">
-                @calcPages.upload.panelUpload()
+                @calcPages.upload.sourceUpload()
+                </div>
+                <div class="layui-tab-item">
+                @calcPages.newhome.panelList()
                 </div>
                 <div class="layui-tab-item">
                 @calcPages.newhome.calcList()
@@ -39,6 +43,9 @@
         </div>
         <div id="confrims" style="display: none;">
             @calcPages.newhome.calcConfirmList()
+        </div>
+        <div id="selectYM" style="display: none;">
+            @calcPages.newhome.selectYM()
         </div>
     <link href="@routes.Assets.versioned("css/calcData/calc-data.css")" rel="stylesheet">
     <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
