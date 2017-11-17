@@ -1,0 +1,5 @@
+<pharbers-modules>
+    <restore-path>
+        <bson-path value="config/dumpdb/Max_Cores" />
+    </restore-path>
+</pharbers-modules>

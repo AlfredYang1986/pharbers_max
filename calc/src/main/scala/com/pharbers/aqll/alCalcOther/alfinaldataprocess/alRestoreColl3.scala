@@ -6,17 +6,23 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alCalaHelp.dbcores._
 import com.pharbers.aqll.common.alCmd.dbcmd.{dbrestoreCmd2, dbrestoreCmd3}
 import com.pharbers.aqll.common.alFileHandler.databaseConfig._
+import com.pharbers.baseModules.PharbersInjectModule
 
 /**
   * Created by jeorch on 2017/11/14.
   */
 
-case class alRestoreColl3() {
+case class alRestoreColl3() extends PharbersInjectModule{
+
+    override val id: String = "restore-path"
+    override val configPath: String = "pharbers_config/restore_path.xml"
+    override val md = "bson-path" :: Nil
+
+    val bson_path = config.mc.find(p => p._1 == "bson-path").get._2.toString
 
     def apply(company : String, sub_uuids : List[String]) = {
         var isfirst : Boolean = false
 
-        val bson_path = "config/dumpdb/Max_Cores"
         val file: File = new File(bson_path)
         val fileList: Array[File] = file.listFiles()
         println(s"=== files count = ${fileList.length} ===")

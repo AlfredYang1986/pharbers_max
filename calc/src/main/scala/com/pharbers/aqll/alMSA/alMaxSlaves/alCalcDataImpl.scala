@@ -20,6 +20,7 @@ import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
+import com.pharbers.baseModules.PharbersInjectModule
 import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
 import com.pharbers.memory.pages.fop.dir.dirPageStorage
 import com.pharbers.memory.pages.{dirFlushMemory, pageMemory, pageMemory2}
@@ -34,8 +35,15 @@ object alCalcDataImpl {
     def props = Props[alCalcDataImpl]
 }
 
-class alCalcDataImpl extends Actor with ActorLogging {
+class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
     import alCalcDataImpl._
+
+    override val id: String = "restore-path"
+    override val configPath: String = "pharbers_config/restore_path.xml"
+    override val md = "bson-path" :: Nil
+
+    val bson_path = config.mc.find(p => p._1 == "bson-path").get._2.toString
+
     var unit: Double = 0.0
 	var value: Double = 0.0
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
@@ -104,9 +112,8 @@ class alCalcDataImpl extends Actor with ActorLogging {
 //            val source = alFileOpt(path + "/" + "data")
             val source = new File(path)
 //            val bw_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
-            val bfm_path = s"config/dumpdb/Max_Cores"
 //            val bw = phBsonWriter(bw_path)
-            val bfm = bsonFlushMemory(bfm_path)
+            val bfm = bsonFlushMemory(bson_path)
             if (source.exists && source.isDirectory) {
 
                 val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map { x =>
