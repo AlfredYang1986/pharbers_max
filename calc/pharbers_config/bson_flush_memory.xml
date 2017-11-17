@@ -2,7 +2,8 @@
     <bson-flush-memory>
         <!-- <buffer-size value="104857600" /> -->
         <!-- <buffer-size value="209715200" /> -->
-        <buffer-size value="419430400" />
+        <buffer-size value="314572800" />
+        <!-- <buffer-size value="419430400" /> -->
         <!-- <buffer-size value="524288000" /> -->
         <!-- <buffer-size value="1073741824" /> -->
     </bson-flush-memory>
