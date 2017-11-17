@@ -20,6 +20,7 @@ import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
+import com.pharbers.baseModules.PharbersInjectModule
 import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
 import com.pharbers.memory.pages.fop.dir.dirPageStorage
 import com.pharbers.memory.pages.{dirFlushMemory, pageMemory, pageMemory2}
@@ -34,8 +35,15 @@ object alCalcDataImpl {
     def props = Props[alCalcDataImpl]
 }
 
-class alCalcDataImpl extends Actor with ActorLogging {
+class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
     import alCalcDataImpl._
+
+    override val id: String = "restore-path"
+    override val configPath: String = "pharbers_config/restore_path.xml"
+    override val md = "bson-path" :: Nil
+
+    val bson_path = config.mc.find(p => p._1 == "bson-path").get._2.toString
+
     var unit: Double = 0.0
 	var value: Double = 0.0
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
@@ -103,12 +111,16 @@ class alCalcDataImpl extends Actor with ActorLogging {
                 dir.createDir
 //            val source = alFileOpt(path + "/" + "data")
             val source = new File(path)
-            val bw_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
-            val bfm_path = s"config/dumpdb/Max_Cores"
-            val bw = phBsonWriter(bw_path)
-            val bfm = bsonFlushMemory(bfm_path)
+//            val bw_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
+//            val bw = phBsonWriter(bw_path)
+            val bfm = bsonFlushMemory(bson_path)
             if (source.exists && source.isDirectory) {
 
+                val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map { x =>
+                                val line_tmp = x.toString.split(",")
+                                (line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble)
+                            }
+                            
                 val dr = dirPageStorage(path)
                 dr.readAllData { line =>
 
@@ -124,11 +136,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
                             mrd.set_finalResultsUnit(mrd.volumeUnit)
                         } else {
 
-                            val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map { x =>
-                                val line_tmp = x.toString.split(",")
-                                (line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble)
-                            }
-
                             avg.find(p => p._1 == seed.hashCode.toString).map { x =>
                                 mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
                                 mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
@@ -140,13 +147,13 @@ class alCalcDataImpl extends Actor with ActorLogging {
                         val map_tmp = westMedicineIncome2map(mrd)
 
 //                        bw.writeBsonFile2(bw.map2bson(map_tmp))
-                         bfm.appendObject(bw.map2bson(map_tmp))
+                         bfm.appendObject(bfm.map2bson(map_tmp))
                     }
 //                }
 
                 bfm.close
-                bw.flush
-                bw.close
+//                bw.flush
+//                bw.close
 //                page.closeStorage
 
                 log.info(s"calc done at ${sub_uuid}")
