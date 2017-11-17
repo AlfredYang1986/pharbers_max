@@ -52,4 +52,4 @@ lazy val root = (project in file(".")).
 	fork in run := true,
 	javaOptions += "-Xmx12G"
   )
-//    .enablePlugins(JavaAppPackaging)
+    .enablePlugins(JavaAppPackaging)

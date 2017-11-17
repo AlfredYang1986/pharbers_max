@@ -38,9 +38,11 @@ object alCalcDataImpl {
 class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
     import alCalcDataImpl._
 
-    override val id: String = "restore-path"
-    override val configPath: String = "pharbers_config/restore_path.xml"
-    override val md = "bson-path" :: Nil
+    override val id: String = "calc-path"
+    override val configPath: String = "pharbers_config/calc_path.xml"
+    override val md = "bson-path" :: "hosp" ::
+            "field-names-hosp" :: "integrated" ::
+            "field-names-integrated" :: Nil
 
     val bson_path = config.mc.find(p => p._1 == "bson-path").get._2.toString
 

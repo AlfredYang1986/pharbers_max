@@ -18,17 +18,17 @@ case class alWebSocket(uid: String) extends PharbersInjectModule {
     val local_connect: String = config.mc.find(p => p._1 == "local_connect").get._2.toString
     val url: String = config.mc.find(p => p._1 == "url").get._2.toString
 
-    val ws = HTTP(s"http://$local_connect$url")
-            .header("Accept" -> "application/json", "Content-Type" -> "application/json")
+//    val ws = HTTP(s"http://$local_connect$url")
+//            .header("Accept" -> "application/json", "Content-Type" -> "application/json")
 
-    def post(msg: Map[String, String]): JsValue = {
-        val json = toJson(
-            Map(
-                "condition" -> Map(
-                    "uid" -> toJson(uid),
-                    "msg" -> toJson(msg))
-            )
-        )
-        ws.post(json)
+    def post(msg: Map[String, String]) = {
+//        val json = toJson(
+//            Map(
+//                "condition" -> Map(
+//                    "uid" -> toJson(uid),
+//                    "msg" -> toJson(msg))
+//            )
+//        )
+//        ws.post(json)
     }
 }
