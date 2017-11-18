@@ -35,17 +35,18 @@
 
     //函数
     function query_company() {
-        layui.use('layer', function () {});
-        var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
-        f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
-            if(r.status === 'ok') {
-                company = "fea9f203d4f593a96f0d6faa91ba24ba";//r.result.user.company;
-            } else if (r.status === 'error') {
-                layer.msg(r.error.message);
-            } else {
-                layer.msg('服务出错请联系管理员！');
-            }
-        }, function(e){console.error(e)})
+        layui.use('layer', function () {
+            var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
+            f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
+                if(r.status === 'ok') {
+                    company = "fea9f203d4f593a96f0d6faa91ba24ba";//r.result.user.company;
+                } else if (r.status === 'error') {
+                    layer.msg(r.error.message);
+                } else {
+                    layer.msg('服务出错请联系管理员！');
+                }
+            }, function(e){console.error(e)})
+        });
     }
 
     function load_cpa_source () {

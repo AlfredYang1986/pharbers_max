@@ -3,13 +3,10 @@
 @link
 <body>
     <div class="container-fluid">
-        <div class="cal-title row bottom-line-bold">
-            <div class="inCenParent">
-                <div class="inCenChild large-font col-sm-11 visible-sm-*">添加数据</div>
-                <div class="col-sm-1 hidden-xs">
-                    <a class="layui-icon large-font backHome" style="cursor:pointer;" id="stepBack">&#x1006;</a>
-                </div>
-            </div>
+        <div class="cal-title row inCenParent">
+                @*<div class="text-center title-font">添加数据</div>*@
+            <span class="text-center title-font inCenChild" >添加数据</span>
+            <i class="layui-icon backHome title-font text-right inRight" id="stepBack" style="cursor:pointer;">&#x1007;</i>
         </div>
         <div class="step row">
             <div class="first-step col-sm-3"><img class="img-responsive" src="@routes.Assets.versioned("images/calculStep/step11.png")"></div>
@@ -17,8 +14,9 @@
             <div class="first-step col-sm-3"><img class="img-responsive thd-img" src="@routes.Assets.versioned("images/calculStep/step33.png")"></div>
             <div class="first-step col-sm-3"><img class="img-responsive fth-img" src="@routes.Assets.versioned("images/calculStep/step44.png")"></div>
         </div>
+        @content
     </div>
-    @content
+
 </body>
 @script
  <script src="@routes.Assets.versioned("js/calcul/calculPanel.js")"></script>

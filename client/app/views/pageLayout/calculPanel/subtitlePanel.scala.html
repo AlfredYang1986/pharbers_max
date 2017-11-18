@@ -1,16 +1,15 @@
 @(title: String)(content: Html)
 @pageLayout.calculPanel.rightToolPanel(title) {
-    <div class="sub-tool box-line">
-        <div style="float: left; font-size: 30px; padding: 2px 5px;">
+    <div class="sub-title">
+        <div class="sub-title-font inLeft">
             <i class="fa fa-calculator" aria-hidden="true"></i>
-            <span>MAX</span>
+            <span>数据工具</span>
         </div>
-        <div style="float: right">
-            <button class="layui-btn bd-btn" onclick="location='/calcul/step'">
-                添加数据&nbsp&nbsp
-                <i class="layui-icon">&#xe654;</i>
-            </button>
-        </div>
+        <div class="inRight">
+                    <button class="layui-btn bd-btn" onclick="location='/calcul/step'">
+                        <i class="layui-icon">&#xe654;</i>&nbsp&nbsp添加数据
+                    </button>
+                </div>
     </div>
     @content
 }

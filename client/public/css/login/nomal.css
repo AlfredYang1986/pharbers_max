@@ -18,9 +18,10 @@ dl.layui-nav-child > dd {
 
 .small_info{
     font-family: PingFangSC-Regular, sans-serif;
-    font-size: 13px;
+    font-size: 0.875em;
     text-align: center;
-    color: #8a8e9c;
+    color: #535353;
+    letter-spacing: 0.125em;
 }
 .middle_info{
     font-family: PingFangSC-Regular, sans-serif;
