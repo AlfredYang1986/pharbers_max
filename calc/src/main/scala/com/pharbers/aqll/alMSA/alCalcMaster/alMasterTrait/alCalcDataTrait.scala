@@ -196,7 +196,7 @@ class alCameoCalcData ( val c : alCalcParmary,
 
                 val mapAvg = property.sum.filterNot(x => x._2._1 == 0 && x._2._2 == 0).map { x =>
                     val avg_elem = (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
-                    file.appendData2File(s"${avg_elem._1},${avg_elem._2},${avg_elem._3}"::Nil)
+                    file.appendData2File2(s"${avg_elem._1},${avg_elem._2},${avg_elem._3}"::Nil)
                 }
                 log.info(s"done for avg $path")
 
@@ -264,4 +264,5 @@ class alCameoCalcData ( val c : alCalcParmary,
         }
         segmentLst
     }
+
 }

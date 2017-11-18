@@ -83,7 +83,7 @@ class alCalcDataComeo (c : alCalcParmary,
                 if(!dir.isExists) dir.createDir
                 val file = alFileOpt(seg_path + "/" + "segmentData")
                 if (!file.isExists) file.createFile
-                segment.foreach(one_path => file.appendData2File(readSegmentData(one_path)))
+                segment.foreach(one_path => file.appendData2File2(readSegmentData(one_path)))
                 r.isSumed = true
                 originSender ! calc_data_sum2(seg_path)
             }
