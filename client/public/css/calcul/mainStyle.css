@@ -12,17 +12,17 @@
 }
 /*字*/
 .small-font{
-    font-family: PingFangSC-Regular, sans-serif;
+    font-family: PingFangSC-Regular, sans-serif !important;
     font-size: 0.8125em;
     color: #494c57;
 }
 .middle-font{
-    font-family: PingFangSC-Regular, sans-serif;
+    font-family: PingFangSC-Regular, sans-serif !important;
     font-size: 1.125em;
     color: #494c57;
 }
 .large-font{
-    font-family: PingFangSC-Regular, sans-serif;
+    font-family: PingFangSC-Regular, sans-serif !important;
     font-size: 2em;
     color: #494c57;
 }
@@ -35,22 +35,11 @@
     background-color: #f7f7f7;
     opacity: 1;
 }
+.inLeft{
+    float: left!important;
+}
+.inRight{
+    float: right!important;
+}
 
 /*******************************设计*********************/
-.peopleInfo {
-    margin:10px 20px 10px;
-    height: 60px;
-}
-.people-name {
-    float: left;
-    font-weight: bold;
-    line-height: 25px;
-}
-.people-oparetion {
-    float: right;
-    padding: 5px 30px;
-}
-.people-email{
-    height: 15px;
-    line-height: 15px;
-}

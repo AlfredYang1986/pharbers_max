@@ -1,11 +1,10 @@
 
-.cal-title{
-    height: 60px;
-    line-height: 60px;
-}
+
 .step{
-    padding: 40px 20px;
+    padding: 20px 20px;
     line-height:40px;
+    height: 80px;
+    box-shadow: #737373 1px 1px 6px;
 }
 .backHome{
     right: 20px;
@@ -44,7 +43,8 @@
 }
 .begin-check{
     height: 400px;
-    padding-top: 50px;
+    padding-top:  80px;
+    margin: 0px auto;
 }
 .chart-panel{
     height: 200px;

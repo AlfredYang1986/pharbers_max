@@ -9,7 +9,7 @@
         color: #008B7D;">&#x1002;</i></div>
     <div class="layui-fluid">
         <div>&nbsp;</div>
-        <div class="layui-row layui-bg-gray " style="height: 13%;"><!-- layui-bg-gray background-color: #f2f2f2; -->
+        <div class="layui-row shadow-tool" style="padding: 20px 20px"><!-- layui-bg-gray background-color: #f2f2f2; -->
             <form class="layui-form">
                 <div class="layui-col-md3">
                     <div class="layui-form-item condition">
@@ -34,10 +34,14 @@
                     </div>
                 </div>
                 <div class="layui-col-md3">
-                    <div class="layui-form-item condition">
+                    <div class="layui-inline condition">
                         <label class="layui-form-label">时间</label>
-                        <div class="layui-input-block">
-                            <input type="text" name="date" class="layui-input" id="date" />
+                        <div class="layui-input-inline">
+                            <input type="text" name="date" style="width: 70px" class="layui-input" id="date" />
+                        </div>
+                        <span>to</span>
+                        <div class="layui-input-inline">
+                            <input type="text" name="to_date" style="width: 70px" class="layui-input" id="to_date" />
                         </div>
                     </div>
                 </div>
@@ -65,11 +69,11 @@
                 </div>
             </form>
         </div>
-
         <div class="layui-row">
-            <div class="layui-col-md12" id="historyLst"></div>
-            <div style="float: right;margin-bottom: 60px;" id="page"></div>
+            <div class="layui-col-md12 shadow-tool historyLst" id="historyLst"></div>
+            <div style="float: right;" id="page"></div>
         </div>
+
     </div>
 } {
     <script>
@@ -82,10 +86,11 @@
                     var datatype = $('select[name="datatype"]').val();
                     var market = $('select[name="market"]').val();
                     var date = $('input[name="date"]').val();
+                    var to_date = $('input[name="to_date"]').val();
                     var json = JSON.stringify(f.parameterPrefix.conditions({
                         'user_token': $.cookie('user_token'),
                         'datatype': datatype === "" ? undefined : datatype,
-                        'date': date === "" ? undefined : date,
+                        'date': (date ==="" || to_date=== "") ? undefined : date+"~"+to_date,
                         'market': market === "" ? undefined : market
                     }));
 
@@ -97,8 +102,15 @@
                     var laydate = layui.laydate;
                     laydate.render({
                         elem: '#date',
-                        type: 'month',
-                        range: "~"
+                        type: 'month'
+//                        range: "~"
+                    });
+                });
+                layui.use(['form', 'laydate'], function () {
+                    var laydate = layui.laydate;
+                    laydate.render({
+                        elem: '#to_date',
+                        type: 'month'
                     });
                 });
 
@@ -145,10 +157,11 @@
                             var datatype = $('select[name="datatype"]').val();
                             var market = $('select[name="market"]').val();
                             var date = $('input[name="date"]').val();
+                            var to_date = $('input[name="to_date"]').val();
                             var json = JSON.stringify(f.parameterPrefix.conditions({
                                 'user_token': $.cookie('user_token'),
                                 'datatype': datatype === "" ? undefined : datatype,
-                                'date': date === "" ? undefined : date,
+                                'date': date === "" ? undefined : date + "~" +to_date,
                                 'market': market === "" ? undefined : market,
                                 'skip': obj.curr,
                                 'take': obj.limit
@@ -183,18 +196,19 @@
             var loadHistory = function (json) {
                 $('.mask-layer').show();
                 $('.loading').show();
-                f.ajaxModule.baseCall('/history/queryHistoryByPage', json, 'POST', function (r) {
-                    if (r.status === 'ok') {
-                        var lst = $('#historyLst');
-                        lst.empty();
-                        lst.append(r.result.condition);
-                        page(r.result.count, r.result.skip, r.result.take);
-                        $('.mask-layer').hide();
-                        $('.loading').hide();
-                    }
-                }, function (e) {
-                    console.error(e)
-                })
+//                f.ajaxModule.baseCall('/history/queryHistoryByPage', json, 'POST', function (r) {
+//                    console.log(json)
+//                    if (r.status === 'ok') {
+//                        var lst = $('#historyLst');
+//                        lst.empty();
+//                        lst.append(r.result.condition);
+//                        page(r.result.count, r.result.skip, r.result.take);
+//                        $('.mask-layer').hide();
+//                        $('.loading').hide();
+//                    }
+//                }, function (e) {
+//                    console.error(e)
+//                })
             };
     </script>
 }

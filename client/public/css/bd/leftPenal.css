@@ -60,7 +60,7 @@ a:hover {
 }
 
 .black {
-    color: #494c57;
+    color: #ffffff;
 }
 
 .black :hover {
@@ -73,13 +73,7 @@ a:hover {
 
 /****************************块******************************/
 
-.left-tool {
-    position: fixed;
-    top: 60px;
-    bottom: 0;
-    left: 0;
-    /*overflow-x: hidden;*/
-}
+
 
 .cer-content {
     position: relative;
@@ -90,46 +84,12 @@ a:hover {
     overflow-x: hidden;
 }
 
-.center-content {
-    position: fixed;
-    top: 60px;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    overflow-x: hidden;
-    z-index: 1000;
-}
+
 
 .main-content {
     padding: 20px 0px;
 }
 
-.right-content {
-    position: fixed;
-    width:100%;
-    top: 60px;
-    bottom: 0;
-    left: 200px;
-    height: 100%;
-    overflow-x: hidden;
-    z-index: 1000;
-}
-
-.sub-tool {
-    height: 50px;
-    padding: 5px 5px;
-}
-
-.logo {
-    top: 0px;
-    left: 0px;
-    position: fixed;
-    height: 60px;
-    width: 100%;
-    line-height: 60px;
-    padding: 0 20px;
-    background-color: #ffffff;
-}
 
 .logo-user {
     top: 0px;
@@ -140,15 +100,6 @@ a:hover {
     line-height: 60px;
     padding: 0 20px;
     background-color: #ffffff;
-}
-
-.logo-font {
-    float: left;
-    position: relative;
-    height: 60px;
-    font-size: 1.5em;
-    text-align: center;
-    color: #393d49;
 }
 
 .login-info {
