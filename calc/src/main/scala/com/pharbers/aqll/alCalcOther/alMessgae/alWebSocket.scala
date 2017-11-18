@@ -21,7 +21,7 @@ case class alWebSocket(uid: String) extends PharbersInjectModule {
     val ws = HTTP(s"http://$local_connect$url")
             .header("Accept" -> "application/json", "Content-Type" -> "application/json")
 
-    def post(msg: Map[String, String]): JsValue = {
+    def post(msg: Map[String, String]) = {
         val json = toJson(
             Map(
                 "condition" -> Map(

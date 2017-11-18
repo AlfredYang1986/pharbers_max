@@ -38,9 +38,6 @@ class alCalcDataComeo (c : alCalcParmary,
                        owner : ActorRef,
                        counter : ActorRef) extends Actor with ActorLogging {
     
-    val canInDb = Ref(1)
-    val insert_db_jobs = Ref(List[(alFileOpt, List[(String, Double, Double)], String, alMaxProperty)]())
-    
     var cur = 0
     var sed = 0
     var sum = 0
@@ -86,18 +83,12 @@ class alCalcDataComeo (c : alCalcParmary,
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
         case calc_data_average2(avg_path) => impl_router ! calc_data_average2(avg_path)
 
-        case push_insert_db_job(source, avg, sub_uuid, tmp) => push_insert_db_job_impl(source, avg, sub_uuid, tmp)
-        case insertDbSchedule() => insertDbScheduleImpl
-        
         case calc_data_result(v, u) => originSender ! calc_data_result(v, u)
         case calc_data_end(result, p) => {
             log.info("&& T11 START &&")
             val t11 = startDate()
             println("&& T11 && alCalcDataComeo.calc_data_end")
             if (result) {
-                atomic { implicit thx =>
-                    canInDb() = canInDb.single.get + 1
-                }
                 cur += 1
                 if (cur == core_number) {
                     val r = calc_data_end(true, p)
@@ -161,32 +152,7 @@ class alCalcDataComeo (c : alCalcParmary,
     val timeoutMessager = context.system.scheduler.scheduleOnce(6000 minute) {
         self ! calc_data_timeout()
     }
-    
-    def insertDbScheduleImpl = {
-        atomic { implicit thx =>
-            if (canInDb.single.get > 0){
-                val tmp = insert_db_jobs.single.get
-                if (tmp.isEmpty) Unit
-                else {
-                    canInDb() = canInDb.single.get - 1
-                    insert_db_jobs() = insert_db_jobs().tail
-                    do_insert_db_job(tmp.head._1, tmp.head._2, tmp.head._3, tmp.head._4)
-                }
-            }
-        }
-    }
-    
-    def push_insert_db_job_impl(source: alFileOpt, avg: List[(String, Double, Double)], sub_uuid: String, tmp: alMaxProperty) = {
-        atomic { implicit thx =>
-            insert_db_jobs() = insert_db_jobs() :+ (source, avg, sub_uuid, tmp)
-        }
-    }
-    
-    def do_insert_db_job(source : alFileOpt, avg : List[(String, Double, Double)], sub_uuid: String, tmp: alMaxProperty) = {
-        val act = context.actorOf(alDoInsertDbComeo.props)
-        act ! do_insert_db(source, avg, sub_uuid, tmp)
-    }
-    
+
     def shutSlaveCameo(msg : AnyRef) = {
         originSender ! msg
         log.info("shutting calc data cameo")

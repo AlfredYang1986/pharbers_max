@@ -28,9 +28,9 @@ object alActorTest extends App {
 		// })
 
 		// a ! push_filter_job("config/FileBase/201705/CPA_GYCX_panel_201705Urology.xlsx", cp)
-		// a ! push_filter_job("config/FileBase/2017-05.xlsx", cp)
+		 a ! push_filter_job("config/FileBase/2017-05.xlsx", cp)
 
-		a ! push_filter_job("config/FileBase/201705AI_R.xlsx", cp)
+		//a ! push_filter_job("config/FileBase/201705AI_R.xlsx", cp)
 
 //		val cpa_file_local = "/CPA/1705 CPA.xlsx"
 //		val gycx_file_local = "/GYCX/1705 GYC.xlsx"

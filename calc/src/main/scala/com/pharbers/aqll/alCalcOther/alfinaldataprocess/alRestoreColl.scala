@@ -16,7 +16,7 @@ case class alRestoreColl() {
         var isfirst : Boolean = false
         sub_uuids foreach{ x =>
 //            dbrestoreCmd(db1, company, s"$root$program$scpPath$x", dbuser, dbpwd, dbhost, dbport.toInt).excute
-            dbrestoreCmd(db1, company, "config/dumpdb/Max_Cores/" + x, dbuser, dbpwd, dbhost, dbport.toInt).excute
+//            dbrestoreCmd(db1, company, "config/dumpdb/Max_Cores/" + x, dbuser, dbpwd, dbhost, dbport.toInt).excute
 //            dbrestoreCmd(db1, company, s"$root$program$dumpdb/Max_Cores/" + x, dbuser, dbpwd, dbhost, dbport.toInt).excute
             if(!isfirst){
                 dbc.getCollection(company).createIndex(MongoDBObject("hosp_Index" -> 1))
