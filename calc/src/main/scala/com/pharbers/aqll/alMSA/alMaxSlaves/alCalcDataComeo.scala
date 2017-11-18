@@ -14,6 +14,8 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import akka.actor.SupervisorStrategy.{Escalate, Restart}
+import com.pharbers.aqll.alCalc.almain.alSegmentGroup
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
 
 import scala.concurrent.stm.{Ref, atomic}
 import scala.concurrent.duration._
@@ -40,6 +42,7 @@ class alCalcDataComeo (c : alCalcParmary,
     var cur = 0
     var sed = 0
     var sum = 0
+    var segment : List[String] = Nil
     import alCalcDataComeo._
     var r : alMaxProperty = null
     
@@ -66,15 +69,23 @@ class alCalcDataComeo (c : alCalcParmary,
             }
         }
         case calc_data_sum2(path) => {
-            log.info("&& T8 STRAT &&")
+            log.info(s"&& T8 STRAT path = ${path} &&")
+            println(s"&& T8 STRAT path = ${path} &&")
             val t8 = startDate()
             println("&& T8 && alCalcDataComeo.calc_data_sum2")
+            segment = path :: segment
             // TODO: 现在单机单线程情况，暂时不需要写多机器多线
-            r.isSumed = true
             sum += 1
             if (sum == core_number) {
+                val seg_path = path + "_seg"
+                println(s"&& T8 seg_path = ${path} &&")
+                val dir = alFileOpt(seg_path)
+                if(!dir.isExists) dir.createDir
+                val file = alFileOpt(seg_path + "/" + "segmentData")
+                if (!file.isExists) file.createFile
+                segment.foreach(one_path => file.appendData2File(readSegmentData(one_path)))
                 r.isSumed = true
-                originSender ! calc_data_sum2(path)
+                originSender ! calc_data_sum2(seg_path)
             }
             endDate("&& T8 && ", t8)
             log.info("&& T8 END &&")
@@ -90,14 +101,14 @@ class alCalcDataComeo (c : alCalcParmary,
             if (result) {
                 cur += 1
                 if (cur == core_number) {
-                    val r = calc_data_end(true, p)
-                    owner ! r
-                    shutSlaveCameo(r)
+                    val msg = calc_data_end(true, p)
+                    owner ! msg
+                    shutSlaveCameo(msg)
                 }
             } else {
-                val r = calc_data_end(false, p)
-                owner ! r
-                shutSlaveCameo(r)
+                val msg = calc_data_end(false, p)
+                owner ! msg
+                shutSlaveCameo(msg)
             }
             endDate("&& T11 && ", t11)
             log.info("&& T11 END &&")
@@ -153,6 +164,13 @@ class alCalcDataComeo (c : alCalcParmary,
         timeoutMessager.cancel()
 //        insert_db_schedule.cancel()
         context.stop(self)
+    }
+
+    def readSegmentData(path: String) = {
+        alFileOpt(path).requestDataFromFile(x => x).map { x =>
+            val line_tmp = x.toString.split(",")
+            alSegmentGroup(line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble, line_tmp(3).toDouble)
+        }
     }
     
     val impl_router =

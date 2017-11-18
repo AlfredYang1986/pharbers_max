@@ -70,27 +70,42 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
                     Some(s"${x._2}/${concert.data.length}"))(recall)(c)
             }
             log.info(s"concert uuid ${p.subs.head.uuid} end")
-            val s = (maxSum.toList.groupBy(_._1) map { x =>
-                (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
-            }).toList
-            atomic { implicit txn =>
-                
-                sumSender() = sumSender.single.get :+ sender()
-                sumSegment() = sumSegment.single.get ++ s
-                if(sumSender.single.get.size == server_info.cpu) {
-                    val uid = UUID.randomUUID().toString
-                    val path = s"${memorySplitFile}${calc}$uid"
-                    val temp = sumSegment.single.get map { x => alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3)}
-                    val dir = alFileOpt(path)
-                    if(!dir.isExists) dir.createDir
-                    val file = alFileOpt(path + "/" + "segmentData")
-                    if (!file.isExists) file.createFile
-                    file.appendData2File(temp)
-                    sumSender.single.get.foreach(_ ! calc_data_sum2(path))
-                    sumSender() = Nil
-                    sumSegment() = Nil
-                }
+
+            val uid = UUID.randomUUID().toString
+            val seg_path = s"${memorySplitFile}${calc}segment"
+            val dir = alFileOpt(seg_path)
+            if(!dir.isExists) dir.createDir
+            val file = alFileOpt(seg_path + "/" + uid)
+            if (!file.isExists) file.createFile
+
+            maxSum.toList.groupBy(_._1) foreach { x =>
+                file.appendData2File2(s"${x._1},${x._2.map(z => z._2._1).sum},${x._2.map(z => z._2._2).sum},${x._2.map(z => z._2._3).sum}"::Nil)
             }
+
+            sender ! calc_data_sum2(seg_path + "/" + uid)
+
+//            val s = (maxSum.toList.groupBy(_._1) map { x =>
+//                (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+//            }).toList
+
+//            atomic { implicit txn =>
+//
+//                sumSender() = sumSender.single.get :+ sender()
+//                sumSegment() = sumSegment.single.get ++ s
+//                if(sumSender.single.get.size == server_info.cpu) {
+//                    val uid = UUID.randomUUID().toString
+//                    val path = s"${memorySplitFile}${calc}$uid"
+//                    val temp = sumSegment.single.get map { x => alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3)}
+//                    val dir = alFileOpt(path)
+//                    if(!dir.isExists) dir.createDir
+//                    val file = alFileOpt(path + "/" + "segmentData")
+//                    if (!file.isExists) file.createFile
+//                    file.appendData2File(temp)
+//                    sumSender.single.get.foreach(_ ! calc_data_sum2(path))
+//                    sumSender() = Nil
+//                    sumSegment() = Nil
+//                }
+//            }
             endDate("&& T7 && ", t7)
             log.info("&& T7 END &&")
             // TODO : 超出传输界限
