@@ -59,7 +59,7 @@
                 <div class="row">
                     <div class="col-xs-10"></div>
                     <div class="col-xs-2">
-                        <button class="layui-btn layui-btn-primary" onclick="resetUserInfo()">保存</button>
+                        <button id="save-btn" class="layui-btn layui-btn-primary layui-btn-disabled" disabled="disabled">保存</button>
                     </div>
                 </div>
             </div>
@@ -68,9 +68,12 @@
     <script>
         var f = new Facade();
         $(document).ready(function () {
-            userLogin();
+            initUserInfo();
+            $("#save-btn").click(function(){resetUserInfo()});
+            changeInfoListener();
         });
-        var userLogin = function () {
+
+        var initUserInfo = function () {
                 var token = $.cookie("user_token");
                 var tojs = {
                     "condition": {
@@ -91,19 +94,30 @@
                         var user = data.result.user_info;
                         $('.bd_user_name').text(data.result.user_info.name);
                         $('.bd_user_email').text(data.result.user_info.email);
-                        $('#in-name').attr('placeholder',user.name);
-                        $('#in-phone').attr('placeholder',user.phone);
-                        $('#in-company').attr('placeholder',user.company);
+                        $('#in-name').attr('value',user.name);
+                        $('#in-phone').attr('value',user.phone);
+                        $('#in-company').attr('value',user.company);
                         $('#in-date').text(user.date);
-                        $('#in-companyPhone').attr('placeholder',user.companyPhone);
-                        $('#in-companyAddress').attr('placeholder',user.companyAddress);
+                        $('#in-companyPhone').attr('value',user.companyPhone);
+                        $('#in-companyAddress').attr('value',user.companyAddress);
 
                     });
                 });
             };
+
         var toSetPassword = function () {
             window.location.href='/bd/setPassword';
         };
+
+        var changeInfoListener = function() {
+            $("input[id^='in-']").bind('input propertychange', function() {
+                $("#save-btn").removeClass("layui-btn-disabled");
+                $("#save-btn").removeClass("layui-btn-primary");
+                $("#save-btn").attr('disabled',false);
+                $("#save-btn").addClass("layui-btn");
+            });
+        };
+
         var resetUserInfo = function () {
             var token = $.cookie("user_token");
             var tojs = {
@@ -130,13 +144,16 @@
                     var updateUserJson = JSON.stringify({
                         'user' : user
                     });
-                    console.log(user)
                     f.ajaxModule.asyncPost('/user/update', updateUserJson,function (r) {
                         if(r.status === "ok"){
-//                            window.location.href = '/bd/bdUser';
-
+                            layui.use('layer', function () {
+                                layer.msg("修改成功");
+                            });
+                            setTimeout(function () {location.reload() }, 1000);
                         }else {
-                            console.log(r)
+                            layui.use('layer', function () {
+                                layer.msg("修改失败");
+                            });
                         }
                     })
 
