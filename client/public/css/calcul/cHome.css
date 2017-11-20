@@ -89,9 +89,14 @@ body, html{
 
 
 .operationInfo{
-    min-width: 606px;
+    width: 546px;
+    margin: auto;
 }
+.clickMsg{
+    width: 546px;
+    margin: 0 auto;
 
+}
 
 
 .fullHeight{
