@@ -11,6 +11,7 @@ import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_start, calc_data_sum2}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
+import com.pharbers.driver.redis.phRedisDriver
 // import alCalcDataSlave.{slaveStatus, slave_status}
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
@@ -89,6 +90,7 @@ object alCameoCalcData {
     case class calc_data_start()
     case class calc_data_hand()
     case class calc_data_start_impl(subs : alMaxProperty, c : alCalcParmary)
+    case class calc_data_start_impl2(subs : alMaxProperty, c : alCalcParmary)
     case class calc_data_sum(sum : List[(String, (Double, Double, Double))])
     case class calc_data_sum2(path: String)
     case class calc_data_average(avg : List[(String, Double, Double)])
@@ -176,16 +178,16 @@ class alCameoCalcData ( val c : alCalcParmary,
             val t9 = startDate()
             println("&& T9 && alCameoCalcData.calc_data_sum2")
             // TODO: 开始读取segment分组文件
-            property.sum = property.sum ++: readSegmentGroupData(path)
+//            property.sum = property.sum ++: readSegmentGroupData(path)
+            property.sum = property.sum ++: readRedisSegment("segment")
+
             sum = sender :: sum
             if (sum.length == tol / core_number) {
                 property.isSumed = true
                 property.sum = (property.sum.groupBy(_._1) map { x =>
                     (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
                 }).toList
-        
-                log.info(s"done for suming ${property.sum}")
-
+//                log.info(s"done for suming ${property.sum}")
                 val path = s"${memorySplitFile}${calc}${property.uuid}"
                 val dir = alFileOpt(path)
                 if (!dir.isExists)
@@ -196,7 +198,7 @@ class alCameoCalcData ( val c : alCalcParmary,
 
                 val mapAvg = property.sum.filterNot(x => x._2._1 == 0 && x._2._2 == 0).map { x =>
                     val avg_elem = (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
-                    file.appendData2File2(s"${avg_elem._1},${avg_elem._2},${avg_elem._3}"::Nil)
+                    file.appendData2File(s"${avg_elem._1},${avg_elem._2},${avg_elem._3}"::Nil)
                 }
                 log.info(s"done for avg $path")
 
@@ -261,6 +263,17 @@ class alCameoCalcData ( val c : alCalcParmary,
                 val s = alShareData.txtSegmentGroupData(line)
                 segmentLst = segmentLst :+ (s.segement, (s.sales, s.units, s.calc))
             }
+        }
+        segmentLst
+    }
+
+    def readRedisSegment(setName: String) = {
+        var segmentLst: List[(String, (Double, Double, Double))] = Nil
+        val phSetDriver = phRedisDriver().phSetDriver
+        val phHashDriver = phRedisDriver().phHashDriver
+        phSetDriver.smembers(setName).foreach{x =>
+            val h = phHashDriver.hgetall(x)
+            segmentLst = segmentLst :+ (x, (h.get("sales").get.toDouble, h.get("unit").get.toDouble, h.get("calc").get.toDouble))
         }
         segmentLst
     }

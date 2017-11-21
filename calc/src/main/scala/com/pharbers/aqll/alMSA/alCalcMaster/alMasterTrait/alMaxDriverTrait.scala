@@ -277,6 +277,7 @@ object alCameoMaxDriver {
 	
 	def props = Props[alCameoMaxDriver]
 	
+	val redisDriver = phRedisDriver()
 	var test_num: Int = 0
 	var finalValue: Double = 0
 	var finalUnit: Double = 0

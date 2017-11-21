@@ -73,17 +73,17 @@ class alCalcDataComeo (c : alCalcParmary,
             println(s"&& T8 STRAT path = ${path} &&")
             val t8 = startDate()
             println("&& T8 && alCalcDataComeo.calc_data_sum2")
-            segment = path :: segment
+//            segment = path :: segment
             // TODO: 现在单机单线程情况，暂时不需要写多机器多线
             sum += 1
             if (sum == core_number) {
                 val seg_path = path + "_seg"
-                println(s"&& T8 seg_path = ${path} &&")
-                val dir = alFileOpt(seg_path)
-                if(!dir.isExists) dir.createDir
-                val file = alFileOpt(seg_path + "/" + "segmentData")
-                if (!file.isExists) file.createFile
-                segment.foreach(one_path => file.appendData2File2(readSegmentData(one_path)))
+//                println(s"&& T8 seg_path = ${path} &&")
+//                val dir = alFileOpt(seg_path)
+//                if(!dir.isExists) dir.createDir
+//                val file = alFileOpt(seg_path + "/" + "segmentData")
+//                if (!file.isExists) file.createFile
+//                segment.foreach(one_path => file.appendData2File(readSegmentData(one_path)))
                 r.isSumed = true
                 originSender ! calc_data_sum2(seg_path)
             }
@@ -136,7 +136,8 @@ class alCalcDataComeo (c : alCalcParmary,
             val t6 = startDate()
             println("&& T6 && alCalcDataComeo.calc_data_hand")
             if (r != null) {
-                sender ! calc_data_start_impl(alMaxProperty(r.parent, r.uuid, r.subs(sed) :: Nil), c)
+//                sender ! calc_data_start_impl(alMaxProperty(r.parent, r.uuid, r.subs(sed) :: Nil), c)
+                sender ! calc_data_start_impl2(alMaxProperty(r.parent, r.uuid, r.subs(sed) :: Nil), c)
                 sed += 1
                 endDate("&& T6 && ", t6)
             }
