@@ -1,78 +1,61 @@
-(function(w){
+(function($, w){
+    var f = new Facade();
+    // 加入到login当中去 暂时用全局变量，后续封装后再议
+    var web_url = "ws://127.0.0.1:9000/ws";
+    // f.cookieModule.setCookie("uid", "qp")
+    var ws = new WebSocket(web_url);
+    var obj = JSON.stringify({
+        "uid": $.cookie("uid") // 就这样穿参数
+    });
 
-   var f = new Facade();
-   // f.alertModule.success('通过');
-   // f.alertModule.error('失败');
-   // f.alertModule.content($('.container'), null, null, '测试', function(index, layero) {
-   //     // console.info(123)
-   //     // layer.close(index)
-   // });
-   // f.alertModule.contentIFrame('http://www.baidu.com', null, null, '测试');
-    var createIMTempUser = function() {
-        function login() {//891366402@qq.com  pqian@pharbers.com
-            var map = {"email": 'pqian@pharbers.com', "password": md5('pqian@pharbers.com' + 'aaaaaa')};
-            var json  = JSON.stringify(f.parameterPrefix.conditions(map))
-            f.ajaxModule.baseCall('auth/authWithPassword', json, 'POST', function(r) {
-                if(r.status === 'ok') {
-                    f.cookieModule.setCookie("uid", r.result.uid);
-                    w.im_object.login_im(r.result.imuid, r.result.imuid);
-                }
-            }, function(e) {console.error(e)})
-        }
-        // login();
+    $(function(){
+        $('#test-websocket').click(function(){
+            var json = JSON.stringify({
+                "businessType": "/test",
+                "str": $.cookie("uid"),
+                "lst": ['f', 'u', 'c', 'k']
+            });
+            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        })
+    })
+
+    ws.onopen = function(evt) {
+        ws.send(obj); // 一定要在打开后send
+        web_socket_open(evt);
+    };
+    ws.onclose = function(evt) {
+        web_socket_close(evt)
+    };
+    ws.onmessage = function(evt) {
+        web_socket_message(evt)
+    };
+    ws.onerror = function(evt) {
+        web_socket_error(evt)
+    };
+
+    var web_socket_open = function(e) {
+        console.info("CONNECTED");
+        console.info(e);
     }
 
-    var callback = function() {
-        var conn = window.im_object.conns();
-        conn.listen({
-            onOpened: function ( message ) {w.console.info("im 连接成功");},
-            onClosed: function ( message ) {},         //连接关闭回调
-            onTextMessage: function ( message ) {
-                var ext = message.ext;
-                if(ext !== null) {
-                    var reVal = w.im_object.searchExtJson(ext)('type') !== 'Null' ? w.im_object.searchExtJson(ext)('type') : w.im_object.searchExtJsonForElement(ext.elems)('type');
-                    switch (reVal) {
-                        case 'progress':
-                            progress(message);
-                            break;
-                        case 'progress_calc':
-                            progress_calc(message);
-                            break;
-                        case 'progress_calc_result':
-                            progress_calc_result(message);
-                            break;
-                        case 'txt':
-                            txt(message);
-                            break;
-                        default:
-                            console.warn(message.ext);
-                            console.warn("No Type");
-                            console.warn(message.data);
-                    }
-                }
-            },    //收到文本消息
-            onOnline: function () {},                  //本机网络连接成功
-            onOffline: function () {},                 //本机网络掉线
-            onError: function ( message ) { console.error(message) }          //失败回调
-        });
+    var web_socket_close = function(e) {
+        console.info("CLOSE");
+        console.info(e);
     }
 
-    var progress = function(msg) {
-        console.info(msg);
+    var web_socket_message = function(e) {
+        console.info("MESSAGE");
+        var ext = JSON.parse(e.data);
+        console.info(ext);
+        var aa = window.im_object.searchExtJson(ext)('aaa')
+        console.info(aa)
+        $('body').append('<p>' + e.data + '</p>')
     }
 
-    var progress_calc = function(msg) {
-        console.info(msg);
+    var web_socket_error = function(e) {
+        console.info("ERROR");
+        console.info(e);
     }
 
-    var progress_calc_result = function(msg) {
-        console.info(msg);
-    }
-
-    var txt = function(msg) {
-        console.info(msg)
-    }
-    createIMTempUser();
-    callback();
-}(window));
+}(jQuery, window));
 

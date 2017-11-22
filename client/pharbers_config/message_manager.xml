@@ -2,5 +2,6 @@
     <message-content-nodes>
         <content-config-path name="email" value="pharbers_config/email_content.xml" />
         <content-config-path name="im" value="pharbers_config/im_content.xml" />
+        <content-config-path name="wsocket" value="pharbers_config/wsocket_content.xml" />
     </message-content-nodes>
 </pharbers-modules>

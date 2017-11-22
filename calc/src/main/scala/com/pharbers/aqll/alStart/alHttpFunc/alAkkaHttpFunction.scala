@@ -9,15 +9,12 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.EmChatMessage
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.{pushCalcYMJobs, pushGeneratePanelJobs}
-import com.pharbers.panel.pfizer.phPfizerHandle
-import play.api.libs.json.JsString
+import com.pharbers.http.HTTP
 
 import scala.collection.immutable.Map
 
@@ -57,7 +54,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	implicit def executionContext: ExecutionContext
 	implicit def requestTimeout: Timeout
 
-	val routes =  alSampleCheckDataFunc ~
+	val routes = alSampleCheckDataFunc ~
 		alNewCalcDataFunc ~ alNewModelOperationCommitFunc ~
 		alGenternPanel ~ alResultFileExportFunc ~
 		alCalcYM
@@ -65,8 +62,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	def Test = post {
 		path("test") {
 			entity(as[Item]) { item =>
-				println(item.str)
-				println(item.lst)
 				val result = toJson(Map("result" -> "ok"))
 				complete(result)
 			}
@@ -97,7 +92,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("samplecheck") {
 			entity(as[alCheckItem]) {item =>
 				val result = alSampleCheck().apply(item.company, item.filename, item.uname)
-				alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete(result)
 			}
 		}
@@ -138,18 +132,9 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 					item.filetype,
 					item.uname)
 				val result = alFileExport().apply(alExportPram)
-				new alMessageProxy().sendMsg("100", item.uname, Map("uuid" -> "", "company" -> item.company, "type" -> "progress"))
 				complete(result)
 			}
 		}
 	}
-	
-	def alCreateIMUserFunc = post {
-		path("createimuser") {
-			entity(as[alHttpCreateIMUser]) { item =>
-//				alIMUser.createUser(item.name, item.pwd)
-				complete(toJson(successToJson().get))
-			}
-		}
-	}
+
 }

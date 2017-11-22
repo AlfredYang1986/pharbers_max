@@ -1,11 +1,12 @@
 package com.pharbers.aqll.alCalcOther.alfinaldataprocess
 
 import java.util.{Date, UUID}
+
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alCalaHelp.dbcores._
 import com.pharbers.aqll.alCalaHelp.DefaultData
 import com.pharbers.aqll.alCalc.almodel.java.AdminHospitalDataBase
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
@@ -14,6 +15,8 @@ import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alString.alStringOpt._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
+
+import scala.collection.immutable.Map
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -27,7 +30,12 @@ case class alSampleCheck() {
       val dates = panels.groupBy(x => x.getYearAndmonth)
       dates.foreach{date =>
         val Panels_Filter_Ym = panels.filter(x => x.getYearAndmonth.equals(date._1))
-        new alMessageProxy().sendMsg("5", uname, Map("uuid" -> "", "company" -> company, "type" -> "progress"))
+        val msg = Map(
+          "type" -> "progress",
+          "progress" -> "5"
+        )
+        alWebSocket(uname).post(msg)
+//        new alMessageProxy().sendMsg("5", uname, Map("uuid" -> "", "company" -> company, "type" -> "progress"))
         val Panels_Group_Pha = Panels_Filter_Ym.groupBy(x => x.getPhaid).map(y => (y._1,y._2.size)).toList
         val Market_Current = Panels_Filter_Ym.groupBy(x => x.getMarket1Ch)
         Market_Current.foreach{mc =>

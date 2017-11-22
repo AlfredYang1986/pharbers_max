@@ -6,7 +6,7 @@ import com.mongodb.casbah.Imports._
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.MergeStepResult
 import module.users.UserMessage._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.json.Json.toJson
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
@@ -33,6 +33,7 @@ object UserModule extends ModuleTrait with UserData {
 
         case msg_user_token_op(data) => token_op_user(data)(pr)
         case msg_user_chang_pwd(data) => change_user_pwd(data)(pr)
+        case msg_user_check_pwd(data) => checkPassword(data)(pr)
 
         case msg_check_user_is_register(data) => check_user_is_register(data)
 
@@ -68,10 +69,15 @@ object UserModule extends ModuleTrait with UserData {
             val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
             val db = conn.queryDBInstance("cli").get
             val o = m2d(data)
-            db.updateObject(o, "users", "user_id")
+            val user_id = o.get("user_id")
+            val theSecret = db.queryObject(DBObject("user_id" -> user_id), "users")(d2m_with_secret).get.get("secret").get.as[String]
+            val js = (data \ "user").as[Map[String,JsValue]] + ("password" -> toJson(theSecret))
+            val obj = toJson(Map("user" -> toJson(js)))
+            db.updateObject(obj, "users", "user_id")
             (Some(Map("update_user" -> toJson("ok"))), None)
         }catch {
-            case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+            case ex: Exception =>
+                (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
     }
     
@@ -82,7 +88,6 @@ object UserModule extends ModuleTrait with UserData {
             val skip = (data \ "skip").asOpt[Int].map (x => x).getOrElse(0)
             val take = (data \ "take").asOpt[Int].map (x => x).getOrElse(20)
             val o = conditions(data)
-
             db.queryMultipleObject(o, "users", "date", skip, take) match {
                 case Nil => throw new Exception("data not exist")
                 case lst => (Some(Map("user_lst" -> toJson(lst))), None)
@@ -154,6 +159,7 @@ object UserModule extends ModuleTrait with UserData {
     
     def change_user_pwd(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
+            
             val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
             val db = conn.queryDBInstance("cli").get
             val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
@@ -162,7 +168,6 @@ object UserModule extends ModuleTrait with UserData {
             
             val condition = toJson(Map("user" -> toJson(user.as[Map[String, JsValue]] ++ Map("password" -> toJson((data \ "user" \ "password").asOpt[String].getOrElse(""))))))
             val o = m2d(condition)
-            
             val email = o.getAs[MongoDBObject]("profile").get.getAs[String]("email").get
             val one = db.queryObject(DBObject("profile.email" -> email), "users")(d2m) match {
                 case None => {
@@ -177,11 +182,26 @@ object UserModule extends ModuleTrait with UserData {
 
             val date = new Date().getTime
             val uid = Sercurity.md5Hash(one("email").as[String])
-            val uuid = Sercurity.md5Hash(email + Sercurity.getTimeSpanWithSeconds)
             val reVal = one - "name" - "email" - "phone" - "company" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 			val auth_token = att.encrypt2Token(toJson(reVal))
-			(Some(Map("user_token" -> toJson(auth_token), "imuid" -> toJson(uuid), "uid" -> toJson(uid))), None)
+			(Some(Map("user_token" -> toJson(auth_token), "uid" -> toJson(uid))), None)
         }catch {
+            case ex: Exception =>
+                (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+        }
+    }
+    
+    def checkPassword(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+        try {
+            val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
+            val db = conn.queryDBInstance("cli").get
+            val map = pwd_m2d(data)
+            db.queryObject(map, "users") match {
+                case None =>
+                    throw new Exception("old password error")
+                case Some(one) => (Some(Map("operation" ->toJson("ok"))), None)
+            }
+        } catch {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
     }
@@ -203,4 +223,7 @@ object UserModule extends ModuleTrait with UserData {
             case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
         }
     }
+    
+    
+    
 }

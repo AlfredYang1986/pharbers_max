@@ -17,3 +17,4 @@ class MAXModules extends play.api.inject.Module {
         )
     }
 }
+

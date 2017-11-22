@@ -79,13 +79,12 @@
                     // 提交监听
                     form.on('submit(sub)', function (data) {
                         var map = {"email": data.field.email, "password": md5(data.field.email + data.field.password)};
-                        var json  = JSON.stringify(f.parameterPrefix.conditions(map))
-                       if(f.validationModule.finalResult()){
+                        var json  = JSON.stringify(f.parameterPrefix.conditions(map));
+                        if(f.validationModule.finalResult()){
                            f.ajaxModule.asyncPost('auth/authWithPassword', json, function (r) {
                                if (r.status === 'ok') {
                                    f.cookieModule.setCookie("user_token", r.result.user_token);
                                    f.cookieModule.setCookie("uid", r.result.uid);
-                                   window.im_object.login_im(r.result.imuid, r.result.imuid);
                                    setTimeout(function(){location = "/auth/user/"}, 1000)
                                } else {
                                    layer.msg('用户名或密码错误！');
@@ -93,7 +92,7 @@
                            }, function (e) {
                                console.error(e)
                            });
-                       }
+                        }
                     });
 
                     $('.layui-form').keydown(function (event) {

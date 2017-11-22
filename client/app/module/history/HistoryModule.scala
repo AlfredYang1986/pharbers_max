@@ -58,18 +58,15 @@ object HistoryModule extends ModuleTrait with HistoryData {
 			val db = conn.queryDBInstance("calc").get
 			val o = conditions(data)
 			val skip = (data \ "condition" \ "skip").asOpt[Int].map(x => x).getOrElse(1)
-			val take = (data \ "condition" \ "take").asOpt[Int].map(x => x).getOrElse(20)
+			val take = (data \ "condition" \ "take").asOpt[Int].map(x => x).getOrElse(10)
 			implicit val result: List[String Map JsValue] = pr match {
 				case None => throw new Exception("")
-				case Some(x) =>
-					db.queryMultipleObject(o, x("user").as[String Map JsValue].get("company").get.as[String], skip = skip, take = take)
+				case Some(x) => db.queryMultipleObject(o, x("user").as[String Map JsValue].get("company").get.as[String], skip = skip, take = take)
 			}
 			val html = tableOutHtml(data)
 			(Some(Map("condition" -> toJson(html.toString), "count" -> toJson(pr.get("count").as[Int]), "skip" -> toJson(skip), "take" -> toJson(take))), None)
 		} catch {
-			case ex: Exception =>
-				println(ex.getMessage)
-				(None, Some(ErrorCode.errorToJson(ex.getMessage)))
+			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
 	

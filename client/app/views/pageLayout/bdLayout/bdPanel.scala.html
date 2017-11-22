@@ -1,60 +1,62 @@
 @(title: String)(content: Html)
     @main(title) {
-        @bdPages.bdModel.notice()
-        @bdPages.bdModel.noticeDetail()
-        @bdPages.bdModel.delete()
-        @bdPages.bdModel.userDetail()
-        @bdPages.bdModel.appointmentDetail()
-        <div class="logo box-line">
-            <div class="logo-font">
-                <span class="logo-font">Pharbers</span>
+        <body>
+            @bdPages.bdModel.notice()
+            @bdPages.bdModel.noticeDetail()
+            @bdPages.bdModel.delete()
+            @bdPages.bdModel.userDetail()
+            @bdPages.bdModel.appointmentDetail()
+            <div class="logo box-line">
+                <div class="logo-font">
+                    <span class="logo-font">Pharbers</span>
+                </div>
+                <div class="logo-title">
+                    <div class="login-info" id="userSet" >
+                        <div class="login-status" onclick="clickToHome()" ></div>
+                        <div class="login-box" onclick="setUsr()">
+                            <div class="login-name bd_user_name">name</div>
+                            <div class="login-email bd_user_email">yymfor163.com</div>
+                        </div>
+                    </div>
+
+                </div>
+
+
             </div>
-            <div class="logo-title">
-                <div class="login-info" id="userSet" onclick="setUsr()">
-                    <div class="login-status"></div>
-                    <div class="login-box">
-                        <div class="login-name bd_user_name">name</div>
-                        <div class="login-email bd_user_email">yymfor163.com</div>
+            <div class="cer-content">
+                <ul class="layui-nav layui-nav-tree left-tool" style="color: #494c57;
+                    background-color: #ffffff ">
+                    <li class="layui-nav-item" >
+                        <a href="javascript:;">
+                            <div class="layui-row">
+                                <div class="layui-col-md9">
+                                    <span class="middle_info black bd_user_name">XXXX</span>&nbsp
+                                    <span class="small_info black bd_user_email">xxxx163.com</span>&nbsp
+                                    <span class="layui-badge">6</span>
+                                </div>
+
+                            </div>
+                        </a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;"><i class="layui-icon black">&#xe629;</i><span class="black">
+                            &nbsp数据工具</span></a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;"><i class="layui-icon black">&#xe62a;</i><span class="black">
+                            &nbsp数据中心</span></a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href=""><i class="layui-icon black">&#xe613;</i><span class="black">&nbsp客户中心</span></a>
+                    </li>
+                </ul>
+                <div class="right-content">
+                    <div class="container">
+                    @content
                     </div>
                 </div>
-
             </div>
-
-
-        </div>
-        <div class="cer-content">
-            <ul class="layui-nav layui-nav-tree left-tool" style="color: #494c57;
-                background-color: #ffffff ">
-                <li class="layui-nav-item" >
-                    <a href="javascript:;">
-                        <div class="layui-row">
-                            <div class="layui-col-md9">
-                                <span class="middle_info black bd_user_name">XXXX</span>&nbsp
-                                <span class="small_info black bd_user_email">xxxx163.com</span>&nbsp
-                                <span class="layui-badge">6</span>
-                            </div>
-
-                        </div>
-                    </a>
-                </li>
-                <li class="layui-nav-item">
-                    <a href="javascript:;"><i class="layui-icon black">&#xe629;</i><span class="black">
-                        &nbsp数据工具</span></a>
-                </li>
-                <li class="layui-nav-item">
-                    <a href="javascript:;"><i class="layui-icon black">&#xe62a;</i><span class="black">
-                        &nbsp数据中心</span></a>
-                </li>
-                <li class="layui-nav-item">
-                    <a href=""><i class="layui-icon black">&#xe613;</i><span class="black">&nbsp客户中心</span></a>
-                </li>
-            </ul>
-            <div class="right-content">
-                <div class="container">
-                @content
-                </div>
-            </div>
-        </div>
+        </body>
 
 
         <script>
@@ -79,6 +81,22 @@
                         })
 
                     });
+                }
+                var f = new Facade();
+                var clickToHome = function () {
+                    var token = $.cookie("user_token");
+                    var js = JSON.stringify(f.parameterPrefix.conditions({'user_token': token}))
+                    f.ajaxModule.asyncPost("/user/tokenop", js, function (data) {
+                        if(data.status == "ok"){
+                            if(data.result.user.scope[0] == "BD"){
+                                location = ("/bd/bdUser")
+                            }else if(data.result.user.scope[0] == "NC"){
+                                    location = ("/calcul/home")
+                            }else {
+                                location = ("/login")
+                            }
+                        }
+                    })
                 }
         </script>
     }

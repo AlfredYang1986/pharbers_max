@@ -102,11 +102,17 @@ var im_object = (function($, w){
         }
     }
 
+    var searchSocketJson = function(json) {
+        return function(key) {
+            return json[key] === undefined ? "Null" : json[key]
+        }
+    }
+
     load_im();
 
     return {
         "searchExtJsonForElement": searchExtJsonForElement,
-        "searchExtJson": searchExtJson,
+        "searchExtJson": searchSocketJson,
         // "callback": function() {callback()},
         "load_im": load_im,
         "login_im": login_im,

@@ -1,21 +1,17 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.SupervisorStrategy.Restart
-
 import scala.concurrent.duration._
-import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy}
-import akka.pattern.ask
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.agent.Agent
-import akka.util.Timeout
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_filter_csv_jobs, max_filter_excel_jobs}
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_filter_csv_jobs
+import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.common.alString.alStringOpt.removeSpace
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 
-import scala.concurrent.Await
+import scala.collection.immutable.Map
 
 /**
   * Created by alfredyang on 11/07/2017.
@@ -86,7 +82,12 @@ class alFilterExcelComeo(fp : String,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! filter_excel_start_impl(fp, cp)
 
         case cannotRestart(reason: Throwable) => {
-            new alMessageProxy().sendMsg("100", cp.imuname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
+            val msg = Map(
+                "type" -> "error",
+                "error" -> s"error with actor=${self}, reason=${reason}"
+            )
+            alWebSocket(cp.uid).post(msg)
+//            new alMessageProxy().sendMsg("100", cp.imuname, Map("error" -> s"error with actor=${self}, reason=${reason}"))
             self ! filter_excel_end(false, cp)
         }
 

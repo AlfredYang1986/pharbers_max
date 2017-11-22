@@ -67,11 +67,6 @@ trait alGroupJobsManager extends alPkgJob { this: Actor with alGroupJobsSchedule
 
 				if (r.subs.filterNot (x => x.grouped).isEmpty) {
 					val common = common_jobs()
-					//                    common.cur = Some(alStage(r.subs map (x => s"config/group/${x.uuid}")))
-					//                    val a = r.subs map(_.uuid)
-
-
-
 					common.cur = Some(alStage(r.subs map (x => s"${memorySplitFile}${group}${x.uuid}")))
 					common.process = restore_grouped_data() ::
 						do_calc() :: do_union() :: do_calc() ::

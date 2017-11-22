@@ -10,6 +10,7 @@
         <error reason="pr data not exist" code="-106" description="pr数据不存在" />
         <error reason="not instance data" code="-107" description="无实例数据" />
         <error reason="time bound error" code="-108" description="时间界限错误" />
+        <error reason="actor is not impl" code="-109" description="Actor未实现" />
 
         <error reason="user have no email" code="-201" description="无用户邮箱" />
         <error reason="user have no secret" code="-202" description="无用户密码" />
@@ -31,6 +32,7 @@
         <error reason="token content action error" code="-217" description="token动作内容解析出错" />
         <error reason="upload error" code="-218" description="上传文件出错" />
         <error reason="successful application discuss" code="-219" description="目前还在沟通商讨中" />
+        <error reason="old password error" code="-220" description="旧密码输入错误!" />
 
         <error reason="reg push error" code="-301" description="验证码发送失败" />
         <error reason="reg phone or code error" code="-302" description="电话号码或者验证码出错" />

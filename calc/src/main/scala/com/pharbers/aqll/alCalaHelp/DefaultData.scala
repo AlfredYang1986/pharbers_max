@@ -6,12 +6,26 @@ import com.pharbers.aqll.common.alDao.data_connection
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.databaseConfig._
+import com.pharbers.baseModules.PharbersInjectModule
+
 
 object DefaultData {
+    case class file_path() extends PharbersInjectModule {
+        override val id: String = "calc-path"
+        override val configPath: String = "pharbers_config/calc_path.xml"
+        override val md = "bson-path" :: "hosp" ::
+                "field-names-hosp" :: "integrated" ::
+                "field-names-integrated" :: Nil
+
+        val hosp = config.mc.find(p => p._1 == "hosp").get._2.toString
+        val field_names_hosp = config.mc.find(p => p._1 == "field-names-hosp").get._2.toString
+        val integrated = config.mc.find(p => p._1 == "integrated").get._2.toString
+        val field_names_integrated = config.mc.find(p => p._1 == "field-names-integrated").get._2.toString
+    }
 
     def hospdatabase(path: String, company: String): List[AdminHospitalDataBase] = {
-        val hospdata_ch_file = "config/admin/HospDataStruct.xml"
-        val hospdata_en_file = "config/admin/FieldNamesHospDataStruct.xml"
+        val hospdata_ch_file = file_path().hosp
+        val hospdata_en_file = file_path().field_names_hosp
         type targt = AdminHospitalDataBase
         val hospdatabase = new alExcelDataParser(new targt, hospdata_en_file, hospdata_ch_file)
 
@@ -21,8 +35,8 @@ object DefaultData {
         hospdatabase.data.toList.asInstanceOf[List[targt]]
     }
 
-    val integratedxmlpath_ch = "config/consumer/IntegratedDataStruct.xml"
-    val integratedxmlpath_en = "config/consumer/FieldNamesIntegratedDataStruct.xml"
+    val integratedxmlpath_ch = file_path().integrated
+    val integratedxmlpath_en = file_path().field_names_integrated
 
     def integratedbase(filename: String, company: String): List[IntegratedData] = {
         type targt = IntegratedData

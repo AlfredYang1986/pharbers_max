@@ -19,6 +19,7 @@ libraryDependencies ++= Seq(
     "com.pharbers" % "pharbers-memory" % "0.1",
     "com.pharbers" % "pharbers-page-memory" % "0.1",
     "com.pharbers" % "pharbers-message" % "0.1",
+    "com.pharbers" % "http" % "0.1",
     "com.typesafe.akka" % "akka-actor_2.11" % "2.4.16",
     "com.typesafe.akka" % "akka-agent_2.11" % "2.4.16",
     "com.typesafe.akka" % "akka-camel_2.11" % "2.4.16",
@@ -53,4 +54,4 @@ lazy val root = (project in file(".")).
 	fork in run := true,
 	javaOptions += "-Xmx12G"
   )
-//    .enablePlugins(JavaAppPackaging)
+    .enablePlugins(JavaAppPackaging)

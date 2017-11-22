@@ -6,7 +6,6 @@ import akka.actor.ActorSystem
 import com.pharbers.aqll.common._
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
-import com.pharbers.mongodbConnect.connection_instance
 import com.pharbers.token.AuthTokenTrait
 import play.api.mvc._
 
@@ -44,14 +43,18 @@ trait alValidationController { this: Controller =>
     
     def loginForType(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): Result = {
         if(showUser(request).scope.contains("BD")) Redirect("/login/db")
-        else Redirect("/index")
+        else Redirect("/calcul/home")
     }
-    
+
     def showUser(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): User = {
         val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
-        alParsingTokenUser(token).parse match {
-            case User(name, email, phone, scope) => User(name, email, phone, scope)
-            case _ => ???
+        if(token.isEmpty)
+            User("","","",Nil)
+        else{
+            alParsingTokenUser(token).parse match {
+                case User(name, email, phone, scope) => User(name, email, phone, scope)
+                case _ => ???
+            }
         }
     }
 }
@@ -65,6 +68,14 @@ class alMaxRouterController @Inject()(as_inject : ActorSystem, dbt : dbInstanceM
         Ok(views.html.test())
     }
     
+    //---------------------------------calcul--------------------------
+    def cHome = Action{request =>
+        Ok(views.html.calculPages.cHome())
+    }
+    def calculStep = Action{
+        Ok(views.html.calculPages.calculStep.firstStep())
+    }
+    //---------------------------------bd----------------------------
     def bdUser = Action{
         Ok(views.html.bdPages.bdUser())
     }
