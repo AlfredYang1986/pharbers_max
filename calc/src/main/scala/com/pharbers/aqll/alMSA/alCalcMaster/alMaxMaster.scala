@@ -1,7 +1,6 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_slave_status
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
@@ -24,6 +23,11 @@ object alMaxMaster {
     case class generatePanelSchedule()
     case class generatePanelResult(paths: String)
 
+    //filter module
+    case class pushFilterJob(item : alPanelItem)
+    case class generatePanelSchedule2()
+    case class generatePanelResult2(paths: String)
+
     //scp module
     case class PushToScpQueue(file: String, target: String, host: String, user: String)
     case class scpSchedule()
@@ -32,22 +36,21 @@ object alMaxMaster {
 /**
   * Created by alfredyang on 11/s07/2017.
   */
-class alMaxMaster extends Actor with ActorLogging
-                    with alCalcYMTrait with alGeneratePanelTrait
-                    with alFilterExcelTrait with alSplitExcelTrait
-                    with alGroupDataTrait with alCalcDataTrait
-                    with alRestoreBsonTrait with alScpQueueTrait {
+class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
     import alMaxMaster._
     override def receive: Receive = {
-        case pushCalcYMJobs(item) => pushCalcYMJobs(item, sender)
+        //calc ym module
+        case pushCalcYMJobs(item) => preCalcYMJobs(item, sender)
         case calcYMSchedule() => calcYMScheduleJobs
         case releaseCalcYMEnergy() => releaseCalcYMEnergy
         case calcYMResult(ym) => println(s"calcYM = ${ym}")
 
-        case pushGeneratePanelJobs(item) => pushGeneratePanelJobs(item, sender)
+        //generate panel module
+        case pushGeneratePanelJobs(item) => preGeneratePanelJobs(item, sender)
         case generatePanelSchedule() => generatePanelScheduleJobs
         case generatePanelResult(panelLst) => println(s"panelLst = ${panelLst}")
 
+        //filter panel module
         case filter_excel_job_2(file, parmary) => pushFilterJob(file, parmary, sender)
         case filter_excel_schedule() => schduleFilterJob
 
@@ -64,6 +67,7 @@ class alMaxMaster extends Actor with ActorLogging
         case push_restore_job(coll, sub_uuids) => pushRestoreJob(coll, sub_uuids, sender)
         case restore_bson_schedule() => schduleRestoreJob
 
+        //scp module
         case scpSchedule() => scanQueue()
     }
 
