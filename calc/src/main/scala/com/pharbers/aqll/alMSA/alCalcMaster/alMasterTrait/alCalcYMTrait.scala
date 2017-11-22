@@ -5,8 +5,7 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{calcYMResult, calcYMSchedule, releaseCalcYMEnergy}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcYMSlave
-import com.pharbers.aqll.alStart.alHttpFunc.{alPanelItem, alUpBeforeItem}
-
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import scala.concurrent.duration._
 import scala.concurrent.stm._
 
@@ -50,8 +49,6 @@ trait alCalcYMTrait { this : Actor =>
     }
     def doCalcYMJob(calcYM_job : alPanelItem, s : ActorRef) = {
         import alCameoCalcYM._
-        //TODO: log.info("开始过滤日期:" + calcYM_job)
-        println("开始过滤日期:" + calcYM_job)
         val cur = context.actorOf(alCameoCalcYM.props(calcYM_job, s, self, calcYM_router))
         cur ! calcYM_start()
     }

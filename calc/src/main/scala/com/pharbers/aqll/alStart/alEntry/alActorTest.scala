@@ -2,9 +2,8 @@ package com.pharbers.aqll.alStart.alEntry
 
 import akka.actor.ActorSystem
 import akka.cluster.Cluster
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.pushGeneratePanelJobs
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.pushCalcYMJobs
-import com.pharbers.aqll.alStart.alHttpFunc.{alPanelItem, alUploadItem}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.pushGeneratePanelJobs
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.typesafe.config.ConfigFactory
 
 object alActorTest extends App {
@@ -18,7 +17,7 @@ object alActorTest extends App {
 		val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
 		val cpa_file_local = "1705 CPA.xlsx"
 		val gycx_file_local = "1705 GYC.xlsx"
-		a ! pushCalcYMJobs(alPanelItem("fea9f203d4f593a96f0d6faa91ba24ba", "user", cpa_file_local, gycx_file_local))
+		a ! pushGeneratePanelJobs(alPanelItem("fea9f203d4f593a96f0d6faa91ba24ba", "user", cpa_file_local, gycx_file_local, List("201705")))
 	}
 
 	//test calc ym

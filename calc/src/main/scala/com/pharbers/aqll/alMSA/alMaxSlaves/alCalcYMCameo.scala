@@ -39,6 +39,7 @@ class alCalcYMCameo (val calcYM_job : alPanelItem,
                 "cpas" -> calcYM_job.cpa.split("&").toList,
                 "gycxs" -> calcYM_job.gycx.split("&").toList
             )
+            log.info("开始过滤日期,arg=" + calcYM_job)
             val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
             val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
 

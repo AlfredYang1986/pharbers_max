@@ -5,15 +5,15 @@ import com.pharbers.aqll.alMSA.alMaxCmdMessage.{alCmdActor, scpend, scpmsg}
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import scala.concurrent.stm._
 import alScpQueueActor._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{PushToScpQueue, scpSchedule}
 
 /**
   * Created by clock on 17-9-6.
   */
 trait alScpQueueTrait { this: Actor =>
-    val scan_queue_schedule = context.system.scheduler.schedule(0 second,1 second,self,ExcuteScanScpQueue())
+    val scan_queue_schedule = context.system.scheduler.schedule(0 second,1 second,self,scpSchedule())
 
     def scanQueue() = {
         if(residue_run_number.single.get > 0){
@@ -37,11 +37,8 @@ trait alScpQueueTrait { this: Actor =>
 object alScpQueueActor{
     def props(s: ActorRef) : Props = Props(new alScpQueueActor(s))
 
-    case class PushToScpQueue(file: String, target: String, host: String, user: String)
-    case class ExcuteScanScpQueue()
-
-    val scpQueue = Ref[List[(String,String,String,String,ActorRef)]](Nil)
     val residue_run_number = Ref(4)
+    val scpQueue = Ref[List[(String,String,String,String,ActorRef)]](Nil)
 }
 
 class alScpQueueActor(s: ActorRef) extends Actor with ActorLogging{

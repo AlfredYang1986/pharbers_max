@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
+package com.pharbers.aqll.alMSA.alCalcMaster
 
 import java.util.Date
 
@@ -25,6 +25,7 @@ import com.pharbers.aqll.alCalcOther.alfinaldataprocess._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor.PushToScpQueue
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, refundNodeForRole}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.message.im.EmChatMsg
 
@@ -37,7 +38,7 @@ trait alMaxDriverTrait {
 		val act = context.actorOf(alCameoMaxDriver.props)
 		act ! push_filter_job(file, cp)
 	}
-	
+
 	def max_calc_done_impl(mp: String Map String) = {
 		val act = context.actorOf(alCameoMaxDriver.props)
 		act ! max_calc_done(mp)
@@ -66,11 +67,11 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
 	val queueActor = context.actorOf(alScpQueueActor.props(self))
 	var s1 = startDate()
-	
+
 	import alCameoMaxDriver._
-	
+
 	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
-	
+
 	startWith(alDriverJobIdle, alCalcParmary("", ""))
 	when(alDriverJobIdle) {
 		case Event(push_filter_job(file, cp), pr) => {
@@ -90,7 +91,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			alWebSocket(pr.uid).post(msg)
 			stay()
 		}
-		
+
 		case Event(filter_excel_end(r, cp), pr) => {
 			pr.market = cp.market
 			pr.year = cp.year
@@ -104,12 +105,12 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			alWebSocket(pr.uid).post(msg)
 			goto(split_excel) using pr
 		}
-		
+
 		case Event(max_calc_done(mp), pr) =>
 			self ! max_calc_done(mp)
 			goto(calc_done) using pr
 	}
-	
+
 	when(split_excel) {
 		case Event(push_split_job(file), pr) => {
 			acts ! push_split_excel_job(file, pr)
@@ -122,7 +123,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			alWebSocket(pr.uid).post(msg)
 			stay()
 		}
-		
+
 		case Event(split_excel_end(r, u, subs, cp), pr) => {
 			// TODO: 先发送压缩命令
 			pr.uuid = u
@@ -142,7 +143,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			self ! push_group_job(mp)
 			goto(group_file) using pr
 		}
-		
+
 		case Event(pkgend(s), pr) => {
 			// TODO: 压缩命令结束后，Stop压缩Actor
 			// TODO: 发送SCP命令
@@ -152,7 +153,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			}
 			stay()
 		}
-		
+
 		case Event(scpend(s), pr) => {
 			// TODO: SCP命令结束后，Stop ScpActor
 			context stop s
@@ -160,7 +161,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			goto(group_file) using pr
 		}
 	}
-	
+
 	when(group_file) {
 		case Event(push_group_job(mp), pr) => {
 			acts ! push_group_job(mp)
@@ -174,7 +175,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 
 			stay()
 		}
-		
+
 		case Event(group_data_end(r, mp), pr) => {
 			pr.uuid = mp.uuid
 			val msg = Map(
@@ -186,13 +187,13 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 
 			self ! push_calc_job_2(mp, pr)
 			goto(calc_maxing) using pr
-			
+
 			// TODO : 发送pkg的压缩Actor
 			//			almp = mp
 			//			cmdActor ! pkgmsg(s"${memorySplitFile}${group}${mp.uuid}" :: Nil, s"${memorySplitFile}${fileTarGz}${mp.uuid}")
 			//			stay()
 		}
-		
+
 		case Event(pkgend(s), pr) => {
 			// TODO: 压缩命令结束后，Stop压缩Actor
 			// TODO: 发送SCP命令
@@ -200,14 +201,14 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			(s"${memorySplitFile}${fileTarGz}${pr.uuid}.tar.gz", s"${scpPath}", serverHost106, serverUser) :: Nil foreach (x => queueActor ! PushToScpQueue(x._1, x._2, x._3, x._4))
 			stay()
 		}
-		
+
 		case Event(scpend(s), pr) => {
 			// TODO: SCP命令结束后，Stop ScpActor
 			context stop s
 			self ! push_calc_job_2(almp, pr)
 			goto(calc_maxing) using pr
 		}
-		
+
 		case Event(group_data_error(reason), pr) => {
 			println(s"Error! group_data_error(${reason}, ${pr})")
 			val msg = Map(
@@ -219,13 +220,13 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
 	}
-	
+
 	when(calc_maxing) {
 		case Event(push_calc_job_2(mp, cp), pr) => {
 			acts ! push_calc_job_2(mp, cp)
 			stay()
 		}
-		
+
 		case Event(calc_data_end(r, mp), pr) => {
 			pr.uuid = mp.uuid
 			println(s"mp.finalValue=${mp.finalValue}")
@@ -246,7 +247,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			goto(restore_maxing) using pr
 		}
 	}
-	
+
 	when(restore_maxing) {
 		case Event(restore_bson_end(result, sub_uuid), pr) => {
 			val msg = Map(
@@ -262,7 +263,7 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 		}
 	}
-	
+
 	when(calc_done) {
 		case Event(max_calc_done(mp), _) =>
 			val company = mp.get("company").getOrElse("")
@@ -289,14 +290,14 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 			shutCameo
 			goto(alDriverJobIdle) using new alCalcParmary("", "")
 	}
-	
+
 	whenUnhandled {
 		case Event(msg, _) => {
 			println(s"unknown msg=${msg}")
 			stay()
 		}
 	}
-	
+
 	def shutCameo() = {
 		s1 = startDate()
 		log.info("stopping alMaxDriverTrait cameo END")
@@ -305,15 +306,15 @@ trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcP
 }
 
 object alCameoMaxDriver {
-	
+
 	case class push_filter_job(file: String, cp: alCalcParmary)
-	
+
 	case class push_split_job(path: String)
-	
+
 	case class max_calc_done(mp: String Map String)
-	
+
 	def props = Props[alCameoMaxDriver]
-	
+
 	val redisDriver = phRedisDriver()
 	var test_num: Int = 0
 	var finalValue: Double = 0
