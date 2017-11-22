@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
     "com.pharbers" % "pharbers-modules" % "0.1",
     "com.pharbers" % "pharbers-data-parse" % "0.1",
     "com.pharbers" % "pharbers-bson" % "0.1",
+    "com.pharbers" % "redis-driver" % "0.1",
     "com.pharbers" % "errorcode" % "0.1",
     "com.pharbers" % "pharbers-max-util" % "0.1",
     "com.pharbers" % "pharbers-memory" % "0.1",
@@ -42,6 +43,7 @@ libraryDependencies ++= Seq(
     "io.aeron" % "aeron-client" % "1.0.4",
     "io.aeron" % "aeron-driver" % "1.0.4",
     "javax.mail" % "mail" % "1.4.7",
+    "net.debasishg" % "redisclient_2.11" % "3.4",
     "xerces" % "xercesImpl" % "2.11.0"
 )
 

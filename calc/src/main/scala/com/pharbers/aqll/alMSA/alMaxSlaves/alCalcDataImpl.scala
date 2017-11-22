@@ -22,6 +22,7 @@ import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
 import com.pharbers.baseModules.PharbersInjectModule
 import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
+import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.memory.pages.fop.dir.dirPageStorage
 import com.pharbers.memory.pages.{dirFlushMemory, pageMemory, pageMemory2}
 
@@ -63,7 +64,6 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
 
             val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
 
-
             val recall = resignIntegratedData(p.parent)(concert)
             concert.data.zipWithIndex.foreach { x =>
 
@@ -81,7 +81,7 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
             if (!file.isExists) file.createFile
 
             maxSum.toList.groupBy(_._1) foreach { x =>
-                file.appendData2File2(s"${x._1},${x._2.map(z => z._2._1).sum},${x._2.map(z => z._2._2).sum},${x._2.map(z => z._2._3).sum}"::Nil)
+                file.appendData2File(s"${x._1},${x._2.map(z => z._2._1).sum},${x._2.map(z => z._2._2).sum},${x._2.map(z => z._2._3).sum}"::Nil)
             }
 
             sender ! calc_data_sum2(seg_path + "/" + uid)
@@ -112,6 +112,38 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
             log.info("&& T7 END &&")
             // TODO : 超出传输界限
 //            sender ! calc_data_sum(s)
+        }
+
+        case calc_data_start_impl2(p, c) => {
+            log.info("&& T7_2 START &&")
+            val t7 = startDate()
+            println("&& T7_2 && alCalcDataImpl.calc_data_start_impl")
+            tmp = p
+            val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> p.uuid, worker_core_calc_jobs.calc_uuid -> p.subs.head.uuid))
+            cj.result
+
+            val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
+
+            val recall = resignIntegratedData(p.parent)(concert)
+            concert.data.zipWithIndex.foreach { x =>
+
+                max_precess(x._1.asInstanceOf[IntegratedData],
+                    p.subs.head.uuid,
+                    Some(s"${x._2}/${concert.data.length}"))(recall)(c)
+            }
+
+            val f = (m1 : Map[String, Any], m2 : Map[String, Any]) => {
+                m1.map(x => (x._1 -> (x._2.toString.toDouble + m2.get(x._1).get.toString.toDouble)))
+            }
+
+            val phSetDriver = phRedisDriver().phSetDriver
+            maxSum.foreach { x =>
+                phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
+            }
+
+            sender ! calc_data_sum2("segment")
+            endDate("&& T7_2 && ", t7)
+            log.info("&& T7_2 END &&")
         }
 
         case calc_data_average2(avg_path) => {
