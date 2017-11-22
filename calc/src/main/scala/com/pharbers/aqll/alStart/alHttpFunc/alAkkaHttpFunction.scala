@@ -5,7 +5,6 @@ import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alAkkaHttpJson.PlayJsonSupport
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
@@ -14,8 +13,6 @@ import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.{pushCalcYMJobs, pushGeneratePanelJobs}
-import com.pharbers.http.HTTP
-
 import scala.collection.immutable.Map
 
 /**
@@ -27,7 +24,7 @@ class alAkkaHttpFunctionApi(system: ActorSystem, timeout: Timeout) extends alAkk
 }
 
 case class Item(str: String, lst: List[String])
-
+case class alPanelItem(company: String, uid: String, cpa: String, gycx: String, ym: List[String] = Nil)
 case class alUpBeforeItem(company: String, user: String, cpa: String, gycx: String)
 case class alUploadItem(company: String, user: String, cpa: String, gycx: String, ym: List[String])
 case class alCheckItem(company: String, filename: String, uname: String)
@@ -41,6 +38,7 @@ case class alHttpCreateIMUser(name: String, pwd: String)
 trait PlayJson extends PlayJsonSupport {
 	implicit val itemJson = format[Item]
 
+	implicit val itemFormatPanel = format[alPanelItem]
 	implicit val itemFormatUpBefore = format[alUpBeforeItem]
 	implicit val itemFormatUpload = format[alUploadItem]
 	implicit val itemFormatCheck = format[alCheckItem]

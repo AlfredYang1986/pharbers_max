@@ -7,6 +7,7 @@ import akka.util.Timeout
 import akka.pattern.ask
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.generatePanelSchedule
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
 import com.pharbers.aqll.alStart.alHttpFunc.alUploadItem
 
@@ -66,14 +67,13 @@ trait alGeneratePanelTrait { this : Actor =>
     }
 
     def do_generate_panel_job(panel_job : alUploadItem, s : ActorRef) = {
-        val cur = context.actorOf(alCameoGeneratePanel.props(panel_job, s, self, panel_router))
         import alCameoGeneratePanel._
+        val cur = context.actorOf(alCameoGeneratePanel.props(panel_job, s, self, panel_router))
         cur ! generate_panel_start()
     }
 }
 
 object alCameoGeneratePanel {
-
     case class generate_panel_start()
     case class generate_panel_hand()
     case class generate_panel_start_impl(panel_job: alUploadItem)
