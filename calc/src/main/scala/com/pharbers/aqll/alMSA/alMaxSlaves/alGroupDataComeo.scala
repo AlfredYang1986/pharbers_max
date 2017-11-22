@@ -13,7 +13,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.split_panel_timeout
 
 import scala.concurrent.duration._
 
@@ -53,7 +53,7 @@ class alGroupDataComeo (mp : alMaxProperty,
     override def receive: Receive = {
         case group_data_timeout() => {
             log.debug("timeout occur")
-            shutSlaveCameo(split_excel_timeout())
+            shutSlaveCameo(split_panel_timeout())
         }
         case group_data_end(result, p) => {
             if (result) {

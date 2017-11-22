@@ -6,11 +6,9 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.util.Timeout
 import akka.pattern.ask
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, takeNodeForRole}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{generatePanelResult, generatePanelSchedule}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.stm._
@@ -69,7 +67,7 @@ object alCameoGeneratePanel {
     case class generate_panel_start()
     case class generate_panel_hand()
     case class generate_panel_start_impl(panel_job: alPanelItem)
-    case class generate_panel_end(result : Boolean, paths : String)
+    case class generate_panel_end(result: Boolean, paths: String)
     case class generate_panel_timeout()
 
     def props(panel_job : alPanelItem,
@@ -78,10 +76,10 @@ object alCameoGeneratePanel {
               router : ActorRef) = Props(new alCameoGeneratePanel(panel_job, originSender, owner, router))
 }
 
-class alCameoGeneratePanel(val panel_job : alPanelItem,
-                           val originSender : ActorRef,
-                           val owner : ActorRef,
-                           val router : ActorRef) extends Actor with ActorLogging {
+class alCameoGeneratePanel(panel_job : alPanelItem,
+                           originSender : ActorRef,
+                           owner : ActorRef,
+                           router : ActorRef) extends Actor with ActorLogging {
     import alCameoGeneratePanel._
 
     override def receive: Receive = {

@@ -11,7 +11,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_timeout
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.split_panel_timeout
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import akka.actor.SupervisorStrategy.{Escalate, Restart}
 import com.pharbers.aqll.alCalc.almain.alSegmentGroup
@@ -59,7 +59,7 @@ class alCalcDataComeo (c : alCalcParmary,
     override def receive: Receive = {
         case calc_data_timeout() => {
             log.info("timeout occur")
-            shutSlaveCameo(split_excel_timeout())
+            shutSlaveCameo(split_panel_timeout())
         }
         case calc_data_sum(sub_sum) => {
             r.sum = r.sum ++: sub_sum

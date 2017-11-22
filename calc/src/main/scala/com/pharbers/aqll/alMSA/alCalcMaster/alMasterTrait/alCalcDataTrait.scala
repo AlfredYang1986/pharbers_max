@@ -7,17 +7,13 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_start, calc_data_sum2}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
 import com.pharbers.driver.redis.phRedisDriver
-// import alCalcDataSlave.{slaveStatus, slave_status}
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
 
 
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole

@@ -5,14 +5,15 @@ import akka.http.scaladsl.server.Directives
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alAkkaHttpJson.PlayJsonSupport
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
+
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcYMJob, pushGeneratePanelJob}
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcYMJobs, pushGeneratePanelJobs}
+
 import scala.collection.immutable.Map
 
 /**
@@ -66,7 +67,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("calcYM") {
 			entity(as[alPanelItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-				a ! pushCalcYMJobs(item)
+				a ! pushCalcYMJob(item)
 				complete(toJson(successToJson().get))
 			}
 		}
@@ -76,7 +77,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("genternPanel") {
 			entity(as[alPanelItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-				a ! pushGeneratePanelJobs(item)
+				a ! pushGeneratePanelJob(item)
 				complete(toJson(successToJson().get))
 			}
 		}
@@ -97,7 +98,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
 				item.filename foreach { x =>
 					val path = fileBase + item.company + outPut + x
-					a ! push_filter_job(path, new alCalcParmary(item.company, item.imuname, item.uid))
+//					a ! push_filter_job(path, new alCalcParmary(item.company, item.imuname, item.uid))
 				}
 				complete(toJson(successToJson().get))
 			}
@@ -109,7 +110,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 			entity(as[alCommitItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
 				val map = Map("company" -> item.company, "uuid" -> item.uuid, "uname" -> item.uname, "uid" -> item.uid)
-				a ! max_calc_done(map)
+//				a ! max_calc_done(map)
 				val result = alSampleCheckCommit().apply(item.company)
 				complete(result)
 			}

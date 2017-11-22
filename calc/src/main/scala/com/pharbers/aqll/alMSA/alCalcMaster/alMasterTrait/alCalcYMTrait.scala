@@ -29,7 +29,7 @@ trait alCalcYMTrait { this : Actor =>
                     useRole = Some("splitcalcymslave")
                 )
             ).props(alCalcYMSlave.props), name = "calc-ym-router")
-    def pushCalcYMJobs(item : alPanelItem, s : ActorRef) = {
+    def pushCalcYMJobs(item: alPanelItem, s: ActorRef) = {
         atomic { implicit thx =>
             calc_ym_jobs() = calc_ym_jobs() :+ (item, s)
         }
@@ -47,7 +47,7 @@ trait alCalcYMTrait { this : Actor =>
             }
         }
     }
-    def doCalcYMJob(calcYM_job : alPanelItem, s : ActorRef) = {
+    def doCalcYMJob(calcYM_job: alPanelItem, s: ActorRef) = {
         import alCameoCalcYM._
         val cur = context.actorOf(alCameoCalcYM.props(calcYM_job, s, self, calcYM_router))
         cur ! calcYM_start()
@@ -63,7 +63,7 @@ object alCameoCalcYM {
     case class calcYM_start()
     case class calcYM_hand()
     case class calcYM_start_impl(panel_job: alPanelItem)
-    case class calcYM_end(result : Boolean, ym : String)
+    case class calcYM_end(result: Boolean, ym: String)
     case class calcYM_timeout()
 
     def props(calcYM_job : alPanelItem,
@@ -72,10 +72,10 @@ object alCameoCalcYM {
               router : ActorRef) = Props(new alCameoCalcYM(calcYM_job, originSender, owner, router))
 }
 
-class alCameoCalcYM(val calcYM_job: alPanelItem,
-                    val originSender: ActorRef,
-                    val owner: ActorRef,
-                    val router: ActorRef) extends Actor with ActorLogging {
+class alCameoCalcYM(calcYM_job: alPanelItem,
+                    originSender: ActorRef,
+                    owner: ActorRef,
+                    router: ActorRef) extends Actor with ActorLogging {
     import alCameoCalcYM._
 
     override def receive: Receive = {

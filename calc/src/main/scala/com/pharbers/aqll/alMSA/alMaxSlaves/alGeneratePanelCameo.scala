@@ -19,6 +19,7 @@ object alGeneratePanelCameo {
               owner : ActorRef,
               counter : ActorRef) = Props(new alGeneratePanelCameo(panel_job, originSender, owner, counter))
 }
+
 class alGeneratePanelCameo(val panel_job : alPanelItem,
                            val originSender : ActorRef,
                            val owner : ActorRef,

@@ -7,7 +7,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.stm._
 import alScpQueueActor._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{PushToScpQueue, scpSchedule}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushToScpQueue, scpSchedule}
 
 /**
   * Created by clock on 17-9-6.
@@ -43,7 +43,7 @@ object alScpQueueActor{
 
 class alScpQueueActor(s: ActorRef) extends Actor with ActorLogging{
     override def receive: Receive = {
-        case PushToScpQueue(file,target,host,user) => push2queue(file,target,host,user)
+        case pushToScpQueue(file,target,host,user) => push2queue(file,target,host,user)
         case cmd: scpend =>
             atomic{implicit what =>
                 alScpQueueActor.residue_run_number() = alScpQueueActor.residue_run_number() + 1

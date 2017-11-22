@@ -1,64 +1,3 @@
-//package com.pharbers.aqll.alMSA.alCalcMaster
-//
-//import java.util.Date
-//
-//import play.api.libs.json.{JsValue, Json}
-//import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection, FSM, PoisonPill, Props}
-//import akka.remote.routing.RemoteRouterConfig
-//import akka.routing.{BroadcastGroup, BroadcastPool}
-//import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-//import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
-//import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-//import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
-//import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_end, calc_slave_status}
-//import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoFilterExcel.filter_excel_end
-//import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_error}
-//import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job, push_split_job}
-//import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitExcel.split_excel_end
-//import com.pharbers.aqll.alMSA.alMaxCmdMessage._
-//import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver._
-//import com.pharbers.aqll.common.alFileHandler.fileConfig._
-//import com.pharbers.aqll.common.alFileHandler.serverConfig.{serverHost106, serverHost50, serverUser}
-//import com.pharbers.aqll.alCalaHelp.dbcores._
-//import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
-//import com.pharbers.aqll.alCalcOther.alfinaldataprocess._
-//import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
-//import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor.PushToScpQueue
-//import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, refundNodeForRole}
-//import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alScpQueueActor
-//import com.pharbers.driver.redis.phRedisDriver
-//import com.pharbers.message.im.EmChatMsg
-//
-//import scala.collection.immutable.Map
-//import scala.concurrent.stm.atomic
-//
-//trait alMaxDriverTrait {
-//	this: Actor =>
-//	def push_filter_job_impl(file: String, cp: alCalcParmary) = {
-//		val act = context.actorOf(alCameoMaxDriver.props)
-//		act ! push_filter_job(file, cp)
-//	}
-//
-//	def max_calc_done_impl(mp: String Map String) = {
-//		val act = context.actorOf(alCameoMaxDriver.props)
-//		act ! max_calc_done(mp)
-//	}
-//}
-//
-//sealed trait alPointState
-//
-//case object alDriverJobIdle extends alPointState
-//
-//case object split_excel extends alPointState
-//
-//case object group_file extends alPointState
-//
-//case object calc_maxing extends alPointState
-//
-//case object restore_maxing extends alPointState
-//
-//case object calc_done extends alPointState
-//
 //trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
 //	with alLoggerMsgTrait {
 //	this: Actor =>
@@ -73,44 +12,6 @@
 //	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
 //
 //	startWith(alDriverJobIdle, alCalcParmary("", ""))
-//	when(alDriverJobIdle) {
-//		case Event(push_filter_job(file, cp), pr) => {
-//			path = file
-//			pr.company = cp.company
-//			pr.imuname = cp.imuname
-//			pr.uid = cp.uid
-//			pr.fileName = file.substring(file.lastIndexOf('/') + 1)
-//
-//			acts ! filter_excel_job_2(file, cp)
-//
-//			val msg = Map(
-//				"type" -> "progress_calc",
-//				"txt" -> "过滤文件中",
-//				"progress" -> "1"
-//			)
-//			alWebSocket(pr.uid).post(msg)
-//			stay()
-//		}
-//
-//		case Event(filter_excel_end(r, cp), pr) => {
-//			pr.market = cp.market
-//			pr.year = cp.year
-//			self ! push_split_job(path)
-//
-//			val msg = Map(
-//				"type" -> "progress_calc",
-//				"txt" -> "过滤文件结束",
-//				"progress" -> "2"
-//			)
-//			alWebSocket(pr.uid).post(msg)
-//			goto(split_excel) using pr
-//		}
-//
-//		case Event(max_calc_done(mp), pr) =>
-//			self ! max_calc_done(mp)
-//			goto(calc_done) using pr
-//	}
-//
 //	when(split_excel) {
 //		case Event(push_split_job(file), pr) => {
 //			acts ! push_split_excel_job(file, pr)
@@ -124,7 +25,7 @@
 //			stay()
 //		}
 //
-//		case Event(split_excel_end(r, u, subs, cp), pr) => {
+//		case Event(split_panel_end(r, u, subs, cp), pr) => {
 //			// TODO: 先发送压缩命令
 //			pr.uuid = u
 //			val sub = subs map (x => alMaxProperty(u, x, Nil))

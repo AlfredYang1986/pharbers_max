@@ -3,7 +3,6 @@ package com.pharbers.aqll.alStart.alEntry
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver
 import com.pharbers.aqll.alMSA.alCalcAgent.alAgentSingleton
 import com.pharbers.aqll.alMSA.alClusterLister.alMaxClusterLister
 import com.typesafe.config.ConfigFactory

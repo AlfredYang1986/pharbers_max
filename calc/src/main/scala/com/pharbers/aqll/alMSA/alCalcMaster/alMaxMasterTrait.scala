@@ -1,30 +1,49 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
 import akka.actor.{Actor, ActorRef}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import scala.collection.immutable.Map
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
-                        with alFilterExcelTrait with alSplitExcelTrait
-                        with alGroupDataTrait with alCalcDataTrait
-                        with alRestoreBsonTrait with alScpQueueTrait { this : Actor =>
+                        with alSplitPanelTrait with alGroupDataTrait
+                        with alCalcDataTrait with alRestoreBsonTrait
+                        with alScpQueueTrait { this : Actor =>
 
-    def preCalcYMJobs(item : alPanelItem, sender: ActorRef) ={
-        pushCalcYMJobs(item, sender)
+    def preCalcYMJob(item: alPanelItem, sender: ActorRef) = pushCalcYMJobs(item, sender)
+
+    def preGeneratePanelJob(item: alPanelItem, sender: ActorRef) = pushGeneratePanelJobs(item, sender)
+
+    def preSplitPanelJob(item: alMaxRunning, sender: ActorRef) ={
+        println("split 的文件是 = " + item.panel)
+        pushSplitPanelJob(item, sender)
+        val msg = Map(
+            "type" -> "progress_calc",
+            "txt" -> "分拆文件中",
+            "progress" -> "1"
+        )
+        alWebSocket(item.uid).post(msg)
     }
 
-    def preGeneratePanelJobs(item : alPanelItem, sender: ActorRef) ={
-        pushGeneratePanelJobs(item, sender)
+    def preGroupJob(item: alMaxRunning, sender: ActorRef) ={
+
+        val msg = Map(
+            "type" -> "progress_calc",
+            "txt" -> "分拆文件中",
+            "progress" -> "1"
+        )
+        alWebSocket(item.uid).post(msg)
     }
 
+    def preCalcJob(item: alMaxRunning, sender: ActorRef) ={
 
-//    def push_filter_job_impl(file: String, cp: alCalcParmary) = {
-//        val act = context.actorOf(alCameoMaxDriver.props)
-//        act ! push_filter_job(file, cp)
-//    }
-//
-//    def max_calc_done_impl(mp: String Map String) = {
-//        val act = context.actorOf(alCameoMaxDriver.props)
-//        act ! max_calc_done(mp)
-//    }
+        val msg = Map(
+            "type" -> "progress_calc",
+            "txt" -> "分拆文件中",
+            "progress" -> "1"
+        )
+        alWebSocket(item.uid).post(msg)
+    }
 }
