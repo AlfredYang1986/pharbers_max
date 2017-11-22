@@ -8,6 +8,7 @@ import com.pharbers.aqll.common.{MergeStepResult, alValidationToken}
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.message.im.EmChatMsg
 import com.pharbers.token.AuthTokenTrait
 import module.auth.AuthData._
@@ -21,6 +22,9 @@ import scala.collection.immutable.Map
 
 
 object AuthModule extends ModuleTrait with AuthData {
+
+	val redisDriver = phRedisDriver().commonDriver
+
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case MsgUserAuth(data) => authWithPassword(data)
 		case MsgAuthTokenParser(data) => authTokenParser(data)
@@ -36,6 +40,7 @@ object AuthModule extends ModuleTrait with AuthData {
 	
 	def authWithPassword(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
+			val expire = (data \ "condition" \ "token_expire").asOpt[Int].map(x => x).getOrElse(60 * 60 * 24)	//default expire in 24h
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("cli").get
 			val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
@@ -48,7 +53,10 @@ object AuthModule extends ModuleTrait with AuthData {
 					val uid = Sercurity.md5Hash(one("email").as[String])
 					val reVal = o + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
 					val auth_token = att.encrypt2Token(toJson(reVal))
-					(Some(Map("user_token" -> toJson(auth_token), "uid" -> toJson(uid))), None)
+					val accessToken = s"bearer${uid}"
+					redisDriver.set(accessToken, auth_token)
+					redisDriver.expire(accessToken, expire)
+					(Some(Map("user_token" -> toJson(accessToken), "uid" -> toJson(uid))), None)
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -119,7 +127,8 @@ object AuthModule extends ModuleTrait with AuthData {
 	def authTokenParser(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
-			val auth_token = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("input error"))
+			val accessToken = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("input error"))
+			val auth_token = redisDriver.get(accessToken).getOrElse(throw new Exception("token expired"))
 			val auth = att.decrypt2JsValue(auth_token)
 			(Some(Map("auth" -> auth)), None)
 		} catch {
@@ -152,7 +161,8 @@ object AuthModule extends ModuleTrait with AuthData {
 			implicit val db = conn.queryDBInstance("cli").get
 			implicit val msg = cm.modules.get.get("msg").map(x => x.asInstanceOf[SendMessageTrait]).getOrElse(throw new Exception("no message impl"))
 			
-			val token = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse("")
+			val accessToken = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse("")
+			val token = redisDriver.get(accessToken).getOrElse(throw new Exception("token expired"))
 			val js = att.decrypt2JsValue(token)
 			val email = (js \ "email").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
 			val name = (js \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
@@ -160,7 +170,7 @@ object AuthModule extends ModuleTrait with AuthData {
 			val reVal = att.encrypt2Token(toJson(js.as[Map[String, JsValue]] + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000)) + ("action" -> toJson("first_login"))))
 			val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
 			emailAtiveAccount(email, reVal)
-			val o: DBObject = DBObject("token" -> token)
+			val o: DBObject = DBObject("token" -> accessToken)
 			db.insertObject(o, "authorizationcode", "token")
 			(Some(Map("url" -> toJson(url),
 				"name" -> toJson(name),
@@ -205,7 +215,8 @@ object AuthModule extends ModuleTrait with AuthData {
 	def authCheckTokenAction(data: JsValue)(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
 			implicit val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
-			val reVal = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exist"))
+			val accessToken = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exist"))
+			val reVal = redisDriver.get(accessToken).getOrElse(throw new Exception("token expired"))
 			alValidationToken(reVal).validation match {
 				case tem => (Some(Map("action" -> toJson(tem.str))), None)
 				case _ => throw new Exception("data not exist")

@@ -6,6 +6,7 @@ import javax.inject.Inject
 import com.mongodb.casbah.Imports._
 import akka.stream.Materializer
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.token.AuthTokenTrait
 import play.api.http.HttpFilters
 import play.api.mvc._
@@ -40,6 +41,7 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
 
     //恳请杨总不杀
     val bdUrlMapping = "/bd/bdUser" :: "/bd/addMember" :: "/login/db" :: Nil
+    val redisDriver = phRedisDriver().commonDriver
 
     def apply(nextFilter: RequestHeader => Future[Result])
              (requestHeader: RequestHeader): Future[Result] = {
@@ -53,7 +55,8 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
                 case s: String if s.equals("/") => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                 case s: String if s.equals("/login") => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                 case _ => {
-                    val token = java.net.URLDecoder.decode(getCookies(requestHeader).get("user_token").map(x => x).getOrElse(""), "UTF-8")
+                    val accessToken = getCookies(requestHeader).get("user_token").map(x => x).getOrElse("")
+                    val token = java.net.URLDecoder.decode(redisDriver.get(accessToken).getOrElse(""), "UTF-8")
                     if (token.isEmpty) {
                         Results.Redirect(Call("GET", "/"))
                     } else {
