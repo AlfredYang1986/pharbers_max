@@ -34,7 +34,6 @@ trait alSplitPanelTrait { this : Actor =>
                 )
             ).props(alSplitPanelSlave.props), name = "split-excel-router")
     def pushSplitPanelJob(item: alMaxRunning, s : ActorRef) = {
-        println("aaaaaaa")
         atomic { implicit thx =>
             split_jobs() = split_jobs() :+ (item, s)
         }
@@ -51,13 +50,13 @@ trait alSplitPanelTrait { this : Actor =>
                 val tmp = split_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    splitPanel(tmp.head._1, tmp.head._2)
+                    doSplitPanel(tmp.head._1, tmp.head._2)
                     split_jobs() = split_jobs().tail
                 }
             }
         }
     }
-    def splitPanel(item: alMaxRunning, s : ActorRef) = {
+    def doSplitPanel(item: alMaxRunning, s : ActorRef) = {
         import alCameoSplitPanel._
         val cur = context.actorOf(alCameoSplitPanel.props(item, s, self, split_router))
         cur ! split_panel_start()
@@ -83,8 +82,6 @@ class alCameoSplitPanel(item: alMaxRunning,
                         router : ActorRef) extends Actor with ActorLogging {
     import alCameoSplitPanel._
 
-    var sign = false
-
     override def receive: Receive = {
         case split_panel_timeout() => {
             log.debug("timeout occur")
@@ -94,10 +91,11 @@ class alCameoSplitPanel(item: alMaxRunning,
         case _ : split_panel_start => router ! split_panel_hand()
 
         case split_panel_hand() => {
-            if (item.step == alCalcStep().PANEL) {
+            //原来这有个
+//            if (item.step == alCalcStep().PANEL) {
                 sender ! split_panel_start_impl(item)
-                item.step = alCalcStep().PANEL
-            }
+//                item.step = alCalcStep().PANEL
+//            }
         }
 
         case result : split_panel_end => {

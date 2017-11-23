@@ -7,7 +7,7 @@ import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_start_impl, generate_panel_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.panel.pfizer.phPfizerHandle
-import play.api.libs.json.JsValue
+import play.api.libs.json.Json.toJson
 import scala.collection.immutable.Map
 
 /**
@@ -32,14 +32,6 @@ class alGeneratePanelCameo(val panel_job : alPanelItem,
 
     override def receive: Receive = {
         case generate_panel_start_impl(panel_job) => {
-            def getResult(data: JsValue) ={
-                data.as[Map[String, JsValue]].map{ x =>
-                    x._1 -> x._2.as[Map[String, JsValue]].map{y =>
-                        y._1 -> y._2.as[List[String]]
-                    }
-                }
-            }.values.flatMap(_.values).toList.flatten
-
             val args: Map[String, List[String]] = Map(
                 "company" -> List(panel_job.company),
                 "uid" -> List(panel_job.uid),
@@ -54,12 +46,12 @@ class alGeneratePanelCameo(val panel_job : alPanelItem,
             )
             println("generat panel result = " + msg)
             alWebSocket(panel_job.uid).post(msg)
-            self ! generate_panel_end(true, getResult(result).mkString(","))
+            self ! generate_panel_end(panel_job.uid, result)
         }
 
-        case generate_panel_end(result, panelLst) => {
-            owner forward generate_panel_end(result, panelLst)
-            shutSlaveCameo(generate_panel_end(result, panelLst))
+        case generate_panel_end(uid, panelResult) => {
+            owner forward generate_panel_end(uid, panelResult)
+            shutSlaveCameo(generate_panel_end(uid, panelResult))
         }
 
         case generate_panel_timeout() => {
@@ -76,7 +68,7 @@ class alGeneratePanelCameo(val panel_job : alPanelItem,
             )
             alWebSocket(panel_job.uid).post(msg)
             log.info(s"reason is ${reason}")
-            self ! generate_panel_end(false, "cannot generate panel")
+            self ! generate_panel_end(panel_job.uid, toJson("cannot generate panel"))
         }
 
         case msg : AnyRef => log.info(s"Warning! Message not delivered. alGeneratePanelCameo.received_msg=${msg}")

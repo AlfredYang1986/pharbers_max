@@ -51,9 +51,10 @@ class alSplitPanelComeo(item: alMaxRunning,
 
             try {
                 val (p, sb) = result.map (x => x).getOrElse(throw new Exception("cal error"))
+                println("aaaaaaaaaaaaaaaaaaaaaa"+p)
+                println("bbbbbbbbbbbbbbbbbbbbbbb"+sb)
                 val uuid = p.toString
                 self ! split_panel_end(true, item)
-
             } catch {
                 case _ : Exception => self ! split_panel_end(false, item)
             }

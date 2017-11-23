@@ -1,16 +1,3 @@
-//trait alCameoMaxDriverTrait2 extends ActorLogging with FSM[alPointState, alCalcParmary]
-//	with alLoggerMsgTrait {
-//	this: Actor =>
-//	var almp: alMaxProperty = alMaxProperty("", "", Nil)
-//	var path = ""
-//	val acts = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
-//	val queueActor = context.actorOf(alScpQueueActor.props(self))
-//	var s1 = startDate()
-//
-//	import alCameoMaxDriver._
-//
-//	def cmdActor: ActorRef = context.actorOf(alCmdActor.props())
-//
 //	startWith(alDriverJobIdle, alCalcParmary("", ""))
 //	when(split_excel) {
 //		case Event(push_split_job(file), pr) => {
@@ -44,23 +31,6 @@
 //			self ! push_group_job(mp)
 //			goto(group_file) using pr
 //		}
-//
-//		case Event(pkgend(s), pr) => {
-//			// TODO: 压缩命令结束后，Stop压缩Actor
-//			// TODO: 发送SCP命令
-//			context stop s
-//			(s"${memorySplitFile}${fileTarGz}${pr.uuid}.tar.gz", s"${scpPath}", serverHost106, serverUser) :: Nil foreach { x =>
-//				queueActor ! PushToScpQueue(x._1, x._2, x._3, x._4)
-//			}
-//			stay()
-//		}
-//
-//		case Event(scpend(s), pr) => {
-//			// TODO: SCP命令结束后，Stop ScpActor
-//			context stop s
-//			self ! push_group_job(almp)
-//			goto(group_file) using pr
-//		}
 //	}
 //
 //	when(group_file) {
@@ -88,20 +58,8 @@
 //
 //			self ! push_calc_job_2(mp, pr)
 //			goto(calc_maxing) using pr
-//
-//			// TODO : 发送pkg的压缩Actor
-//			//			almp = mp
-//			//			cmdActor ! pkgmsg(s"${memorySplitFile}${group}${mp.uuid}" :: Nil, s"${memorySplitFile}${fileTarGz}${mp.uuid}")
-//			//			stay()
 //		}
 //
-//		case Event(pkgend(s), pr) => {
-//			// TODO: 压缩命令结束后，Stop压缩Actor
-//			// TODO: 发送SCP命令
-//			context stop s
-//			(s"${memorySplitFile}${fileTarGz}${pr.uuid}.tar.gz", s"${scpPath}", serverHost106, serverUser) :: Nil foreach (x => queueActor ! PushToScpQueue(x._1, x._2, x._3, x._4))
-//			stay()
-//		}
 //
 //		case Event(scpend(s), pr) => {
 //			// TODO: SCP命令结束后，Stop ScpActor
@@ -191,37 +149,3 @@
 //			shutCameo
 //			goto(alDriverJobIdle) using new alCalcParmary("", "")
 //	}
-//
-//	whenUnhandled {
-//		case Event(msg, _) => {
-//			println(s"unknown msg=${msg}")
-//			stay()
-//		}
-//	}
-//
-//	def shutCameo() = {
-//		s1 = startDate()
-//		log.info("stopping alMaxDriverTrait cameo END")
-//		self ! PoisonPill
-//	}
-//}
-//
-//object alCameoMaxDriver {
-//
-//	case class push_filter_job(file: String, cp: alCalcParmary)
-//
-//	case class push_split_job(path: String)
-//
-//	case class max_calc_done(mp: String Map String)
-//
-//	def props = Props[alCameoMaxDriver]
-//
-//	val redisDriver = phRedisDriver()
-//	var test_num: Int = 0
-//	var finalValue: Double = 0
-//	var finalUnit: Double = 0
-//}
-//
-//class alCameoMaxDriver extends Actor with ActorLogging
-//	with alCameoMaxDriverTrait2 {
-//}

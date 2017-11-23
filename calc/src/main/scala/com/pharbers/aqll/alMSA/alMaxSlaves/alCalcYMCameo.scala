@@ -31,7 +31,6 @@ class alCalcYMCameo (val calcYM_job : alPanelItem,
     }
 
     override def receive: Receive = {
-
         case calcYM_start_impl(calcYM_job) => {
             val args: Map[String, List[String]] = Map(
                 "company" -> List(calcYM_job.company),
@@ -39,7 +38,7 @@ class alCalcYMCameo (val calcYM_job : alPanelItem,
                 "cpas" -> calcYM_job.cpa.split("&").toList,
                 "gycxs" -> calcYM_job.gycx.split("&").toList
             )
-            log.info("开始过滤日期,arg=" + calcYM_job)
+            println("开始过滤日期,arg=" + calcYM_job)
             val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
             val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
 
@@ -48,15 +47,17 @@ class alCalcYMCameo (val calcYM_job : alPanelItem,
                 "ym" -> ym,
                 "mkt" -> markets
             )
-            log.info("calc ym result = " + msg)
+            println("calc ym result = " + msg)
             alWebSocket(calcYM_job.uid).post(msg)
 
             self ! calcYM_end(true, ym)
         }
+
         case calcYM_end(result, ym) => {
             owner forward calcYM_end(result, ym)
             shutSlaveCameo(calcYM_end(result, ym))
         }
+
         case calcYM_timeout() => {
             log.info("timeout occur")
             shutSlaveCameo(calcYM_timeout())
@@ -65,13 +66,11 @@ class alCalcYMCameo (val calcYM_job : alPanelItem,
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calcYM_start_impl(calcYM_job)
 
         case cannotRestart(reason: Throwable) => {
-
             val msg = Map(
                 "type" -> "error",
                 "error" -> "cannot calcYM"
             )
             alWebSocket(calcYM_job.uid).post(msg)
-
             log.info(s"reason is ${reason}")
             self ! calcYM_end(false, "cannot calcYM")
         }

@@ -1,10 +1,12 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcStep, alMaxRunning}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_slave_status
+import com.pharbers.aqll.alStart.alEntry.alActorTest.csv_panel
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import play.api.libs.json.JsValue
 
 /**
   * Created by clock on 17-11-22.
@@ -22,10 +24,10 @@ object alMaxMaster {
     //generate panel module
     case class pushGeneratePanelJob(item: alPanelItem)
     case class generatePanelSchedule()
-    case class generatePanelResult(paths: String)
+    case class generatePanelResult(uid: String, panelResult: JsValue)
 
     //split panel module
-    case class pushSplitPanelJob(item: alMaxRunning)
+    case class pushSplitPanelJob(uid: String)
     case class splitPanelSchedule()
 
     //group module
@@ -56,10 +58,10 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         //generate panel module
         case pushGeneratePanelJob(item) => preGeneratePanelJob(item, sender)
         case generatePanelSchedule() => generatePanelScheduleJobs
-        case generatePanelResult(panelLst) => println(s"panelLst = ${panelLst}")
+        case generatePanelResult(uid, panelResult) => postGeneratePanelJob(uid, panelResult)
 
         //split panel file module
-        case pushSplitPanelJob(item) => preSplitPanelJob(item, sender)
+        case pushSplitPanelJob(uid) => preSplitPanelJob(uid, sender)
         case splitPanelSchedule() => schduleSplitPanelJob
 
         //group splited file module

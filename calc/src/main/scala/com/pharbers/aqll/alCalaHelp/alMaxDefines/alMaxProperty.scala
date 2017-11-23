@@ -16,7 +16,7 @@ case class alMaxProperty(parent : String,
                         ) extends java.io.Serializable
 
 
-case class alCalcStep() extends Enumeration{
+case class alCalcStep() extends Enumeration with java.io.Serializable{
     val ONLINE = Value(0)
     val YM = Value(1)
     val PANEL = Value(2)
@@ -28,9 +28,4 @@ case class alCalcStep() extends Enumeration{
     val STOP = Value(-1)
 }
 
-case class alMaxRunning(uid:String,
-                        rid: String, parent: String,
-                        ym: String, mkt: String,
-                        panel: String,
-                        var subs: List[alMaxRunning],
-                        var step: alCalcStep#Value) extends java.io.Serializable
+case class alMaxRunning(panel: String = "", cid: String, parent: String, uid: String) extends java.io.Serializable
