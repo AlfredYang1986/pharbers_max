@@ -2,14 +2,11 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
-import com.pharbers.aqll.alCalcOther.alMessgae.alMessageProxy
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.EmChatMessage
+import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcYM.{calcYM_end, calcYM_start_impl, calcYM_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alUpBeforeItem
 import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json._
-import play.api.libs.json.Json.toJson
-
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
 
@@ -38,18 +35,22 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
         case calcYM_start_impl(calcYM_job) => {
             val args: Map[String, List[String]] = Map(
                 "company" -> List(calcYM_job.company),
-                "user" -> List(calcYM_job.user),
+                "uid" -> List(calcYM_job.user),
                 "cpas" -> calcYM_job.cpa.split("&").toList,
                 "gycxs" -> calcYM_job.gycx.split("&").toList
             )
             println("开始计算日期:" + args)
             val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
             val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
-            val msg = toJson(Map("ym" -> ym, "mkt" -> markets)).toString()
-            println("msg = " + msg)
 
-//            EmChatMessage().sendEMMessage(calcYM_job.company, "", "", "", "calc_ym_result", "", msg)
-            alMessageProxy().sendMsg(msg , calcYM_job.user, Map("type" -> "calc_ym_result"))
+            val msg = Map(
+                "type" -> "calc_ym_result",
+                "ym" -> ym,
+                "mkt" -> markets
+            )
+            println("msg = " + msg)
+            alWebSocket(calcYM_job.user).post(msg)
+
             self ! calcYM_end(true, ym)
         }
         case calcYM_end(result, ym) => {
@@ -57,14 +58,20 @@ class alCalcYMCameo (val calcYM_job : alUpBeforeItem,
             shutSlaveCameo(calcYM_end(result, ym))
         }
         case calcYM_timeout() => {
-            log.debug("timeout occur")
+            log.info("timeout occur")
             shutSlaveCameo(calcYM_timeout())
         }
 
         case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calcYM_start_impl(calcYM_job)
 
         case cannotRestart(reason: Throwable) => {
-            new alMessageProxy().sendMsg("cannot calcYM", calcYM_job.user, Map("type" -> "txt"))
+
+            val msg = Map(
+                "type" -> "error",
+                "error" -> "cannot calcYM"
+            )
+            alWebSocket(calcYM_job.user).post(msg)
+
             log.info(s"reason is ${reason}")
             self ! calcYM_end(false, "cannot calcYM")
         }

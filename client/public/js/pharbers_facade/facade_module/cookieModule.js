@@ -15,5 +15,5 @@ CookieHandler.prototype.cleanAllCookie = function () {
         $.each(keys, function(i, v) {
             $.cookie(v, "", {"path": "/", "expires": -1 });
         });
-    };
+    }
 };

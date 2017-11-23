@@ -32,6 +32,7 @@
         <error reason="token content action error" code="-217" description="token动作内容解析出错" />
         <error reason="upload error" code="-218" description="上传文件出错" />
         <error reason="successful application discuss" code="-219" description="目前还在沟通商讨中" />
+        <error reason="old password error" code="-220" description="旧密码输入错误!" />
 
         <error reason="reg push error" code="-301" description="验证码发送失败" />
         <error reason="reg phone or code error" code="-302" description="电话号码或者验证码出错" />

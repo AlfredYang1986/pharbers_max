@@ -8,12 +8,16 @@ import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.token.AuthTokenTrait
 import module.register.RegisterData._
 import module.register.RegisterMessage._
+
 import scala.collection.immutable.Map
 
 object RegisterModule extends ModuleTrait with RegisterData {
+
+	val redisDriver = phRedisDriver().commonDriver
 
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case msg_check_user_is_apply(data) => check_user_is_apply(data)
@@ -222,7 +226,8 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val db = conn.queryDBInstance("cli").get
 			val app = pr.get("user_token")
-			val token = app.as[String]
+			val accessToken = app.as[String]
+			val token = redisDriver.get(accessToken).getOrElse(throw new Exception("token expired"))
 			val reVal = att.decrypt2JsValue(token)
 			val regid = (reVal \ "user_id").as[String]
 			db.queryObject(DBObject("reg_id" -> regid), "reg_apply") { x =>

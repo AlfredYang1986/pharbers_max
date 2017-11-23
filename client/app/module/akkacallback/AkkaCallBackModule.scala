@@ -6,6 +6,7 @@ import play.api.libs.json.Json.toJson
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.message.send.SendMessageTrait
+import com.pharbers.message.websocket.WebSocketOutActorRef
 import module.akkacallback.AkkaCallBackMessage.MsgAkkaCallBack
 
 object AkkaCallBackModule extends ModuleTrait {

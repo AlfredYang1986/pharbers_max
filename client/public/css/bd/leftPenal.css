@@ -60,7 +60,7 @@ a:hover {
 }
 
 .black {
-    color: #494c57;
+    color: #ffffff;
 }
 
 .black :hover {
@@ -73,14 +73,7 @@ a:hover {
 
 /****************************块******************************/
 
-.left-tool {
-    position: fixed;
-    top: 60px;
-    bottom: 0;
-    left: 0;
-    overflow-x: hidden;
-    z-index: 1000;
-}
+
 
 .cer-content {
     position: relative;
@@ -89,47 +82,14 @@ a:hover {
     left: 0;
     height: 100%;
     overflow-x: hidden;
-    z-index: 1000;
 }
 
-.center-content {
-    position: fixed;
-    top: 60px;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    overflow-x: hidden;
-    z-index: 1000;
-}
+
 
 .main-content {
     padding: 20px 0px;
 }
 
-.right-content {
-    position: fixed;
-    top: 60px;
-    bottom: 0;
-    left: 200px;
-    height: 100%;
-    overflow-x: hidden;
-    z-index: 1000;
-}
-
-.sub-tool {
-    padding: 10px 0px;
-}
-
-.logo {
-    top: 0px;
-    left: 0px;
-    position: fixed;
-    height: 60px;
-    width: 100%;
-    line-height: 60px;
-    padding: 0 20px;
-    background-color: #ffffff;
-}
 
 .logo-user {
     top: 0px;
@@ -140,15 +100,6 @@ a:hover {
     line-height: 60px;
     padding: 0 20px;
     background-color: #ffffff;
-}
-
-.logo-font {
-    float: left;
-    position: relative;
-    height: 60px;
-    font-size: 1.5em;
-    text-align: center;
-    color: #393d49;
 }
 
 .login-info {
@@ -332,15 +283,6 @@ a:hover {
     max-width: 600px;
 }
 
-/*****************other****************
- */
-.inCenParent {
-    text-align: center;
-}
-
-.inCenChild {
-    display: inline-block;
-}
 
 /********************修改*********************************/
 .layui-btn-primary{

@@ -1,0 +1,688 @@
+<div class ="row" id="sampleResult">
+    <div class="row">
+        <div class="hidden-xs col-md-1 col-lg-1"></div>
+        <div class="col-sm-12 col-md-10 col-lg-10">
+            <div class="row">
+                <div class="row space-height"></div>
+                <div class="row middle-font">
+                    <span class="snd-cpa"></span ><span>、</span><span class="snd-gycx"></span>文件中，<span id="sample_month"></span>的样本检查结果，将作为最终分析报告可靠程度的重要参考依据。
+                </div>
+                <div class="row space-height"></div>
+                <div class="row chart-panel">
+                    <div class="col-sm-12 col-md-4 col-lg-4">
+                        <div class="chart-main" id="mainChart"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <div class="row char-h1">h1 - this is a main title</div>
+                        <div class="row char-h1">h1 - this is a main title</div>
+                        <div class="row char-h1">h1 - this is a main title</div>
+                    </div>
+                    <div class="col-sm-12 col-md-5 col-lg-5">
+                        <div class="row middle-font chart-intro">
+                    This an introduction text.It has a fixed size ,and a custom line height,troduction text.It has a fixed size ,and a custom line height,
+                            This an introduction text.It has a fixed size ,and a custom line height,troduction text.It has a fixed size ,and a custom line height,
+                            This an introduction text.It has a fixed size ,and a custom line height,troduction text.It has a fixed size ,and a custom line height,
+                            This an introduction text.It has a fixed size ,and a custom line height,troduction text.It has a fixed size ,and a custom line height,
+                        </div>
+                    </div>
+                </div>
+                <div class="row space-height"></div>
+                <div class="row space-height"></div>
+                <div class="row">
+                    <div class="col-sm-2 col-sm-offset-8"><button class="layui-btn layui-btn-primary" onclick="location='/calcul/step'">重新导入文件</button></div>
+                    <div lass="col-sm-2"><button class="layui-btn layui-btn-primary" id="to-third-btn">开始计算</button></div>
+                </div>
+            </div>
+
+            <div class="space-height bottom-line-bold"></div>
+        </div>
+        <div class="hidden-xs col-md-1 col-lg-1"></div>
+    </div>
+    <div class="row">
+        <div class="hidden-xs col-md-1 col-lg-1"></div>
+        <div class="col-sm-12 col-md-10 col-lg-10">
+            <div class="row">
+                <div class="row space-height"></div>
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                       <label class="col-sm-2 control-label">市场</label>
+                       <div class="col-sm-4">
+                           <select class="form-control">
+                               <option>1</option>
+                               <option>2</option>
+                               <option>3</option>
+                               <option>4</option>
+                               <option>5</option>
+                           </select>
+                       </div>
+                   </div>
+                    <div class="col-sm-4 form-group">
+                       <label class="col-sm-2 control-label">月份</label>
+                       <div class="col-sm-4">
+                           <select class="form-control">
+                               <option>1</option>
+                               <option>2</option>
+                               <option>3</option>
+                               <option>4</option>
+                               <option>5</option>
+                           </select>
+                       </div>
+                   </div>
+                    <div class="col-sm-2"><button class="layui-btn layui-btn-primary">筛选</button></div>
+                </div>
+                <div class="row space-height"></div>
+                <div>
+                    <div class="layui-collapse">
+                        <div class="layui-colla-item">
+                            <h2 class="layui-colla-title">样本中&nbsp医院数量&nbsp检查结果</h2>
+                            <div class="layui-colla-content layui-show t-body">
+                                <div class="row t-num">
+                                    <div class="col-sm-3 col-md-2 col-lg-2 inCenParent">
+                                        <div class="middle-font inCenChild">2231</div>
+                                        <div class="small-font">当前产品数量</div>
+                                    </div>
+                                    <div class="col-sm-3 col-md-2 col-lg-2 inCenParent">
+                                        <div class="middle-font inCenChild">2231</div>
+                                        <div class="small-font">上期医院数量</div>
+                                    </div>
+                                    <div class="col-sm-3 col-md-2 col-lg-2 inCenParent">
+                                        <div class="middle-font inCenChild">2231</div>
+                                        <div class="small-font">去年同期</div>
+                                    </div>
+                                </div>
+                                <div class="row t-content">
+                                    <div class="col-xs-10 col-md-5 col-lg-5">
+                                        <div class="t-lineChart" id="t1">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-offset-8 col-md-4">历史数据</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-10 col-md-4 col-lg-4">
+                                        <div class="t-describe">
+                                             This an introduction text.It has a fixed size ,and a custom line height,troduction text.It has a fixed size ,and a custom line height,
+                                            This an introduction text.It has a fixed size ,and a custom line height,troduction text.It has a fixed size ,and a custom line height,
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-10 col-md-3 col-lg-3">
+                                        <div class="chart-main" id="t-char1"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-colla-item">
+                            <h2 class="layui-colla-title">样本中&nbsp产品数量&nbsp检查结果</h2>
+                            <div class="layui-colla-content layui-show">
+                                <div class="row t-num">
+                                    <div class="col-sm-3 col-md-2 col-lg-2 inCenParent">
+                                        <div class="middle-font inCenChild">2231</div>
+                                        <div class="small-font">当前产品数量</div>
+                                    </div>
+                                    <div class="col-sm-3 col-md-2 col-lg-2 inCenParent">
+                                        <div class="middle-font inCenChild">2231</div>
+                                        <div class="small-font">上期医院数量</div>
+                                    </div>
+                                    <div class="col-sm-3 col-md-2 col-lg-2 inCenParent">
+                                        <div class="middle-font inCenChild">2231</div>
+                                        <div class="small-font">去年同期</div>
+                                    </div>
+                                </div>
+                                <div class="row t-content">
+                                    <div class="col-xs-10 col-md-5 col-lg-5">
+                                        <div class="t-lineChart" id="t2">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-offset-8 col-md-4">历史数据</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-10 col-md-4 col-lg-4">
+                                        <div class="t-describe">
+                                             This an introduction text.It has a fixed size ,and a custom line height,troduction text.It has a fixed size ,and a custom line height,
+                                            This an introduction text.It has a fixed size ,and a custom line height,troduction text.It has a fixed size ,and a custom line height,
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-10 col-md-3 col-lg-3">
+                                        <div class="chart-main" id="t-char2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-colla-item">
+                            <h2 class="layui-colla-title">样本中&nbsp市场数量&nbsp检查结果</h2>
+                            <div class="layui-colla-content layui-show">
+                                <div class="row t-num">
+                                    <div class="col-sm-3 col-md-2 col-lg-2 inCenParent">
+                                        <div class="middle-font inCenChild">2231</div>
+                                        <div class="small-font">当前产品数量</div>
+                                    </div>
+                                    <div class="col-sm-3 col-md-2 col-lg-2 inCenParent">
+                                        <div class="middle-font inCenChild">2231</div>
+                                        <div class="small-font">上期医院数量</div>
+                                    </div>
+                                    <div class="col-sm-3 col-md-2 col-lg-2 inCenParent">
+                                        <div class="middle-font inCenChild">2231</div>
+                                        <div class="small-font">去年同期</div>
+                                    </div>
+                                </div>
+                                <div class="row t-content">
+                                    <div class="col-xs-10 col-md-5 col-lg-5">
+                                        <div class="t-lineChart" id="t3">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-offset-8 col-md-4">历史数据</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-10 col-md-4 col-lg-4">
+                                        <div class="t-describe">
+                                             This an introduction text.It has a fixed size ,and a custom line height,troduction text.It has a fixed size ,and a custom line height,
+                                            This an introduction text.It has a fixed size ,and a custom line height,troduction text.It has a fixed size ,and a custom line height,
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-10 col-md-3 col-lg-3">
+                                        <div class="chart-main" id="t-char3"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="layui-colla-item">
+                            <h2 class="layui-colla-title">样本中&nbsp销售额&nbsp检查结果</h2>
+                            <div class="layui-colla-content layui-show">
+                                <div class="row t-content">
+                                    <div id="bar1" class="sample-bar">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="space-height"></div>
+        </div>
+        <div class="hidden-xs col-md-1 col-lg-1"></div>
+    </div>
+    <div class="row">
+        <div class="hidden-xs col-md-1 col-lg-1"></div>
+        <div class="col-sm-12 col-md-10 col-lg-10">
+            <div class="space-height"></div>
+            <div>
+                <div class="layui-collapse">
+                    <div class="layui-colla-item">
+                        <h2 class="layui-colla-title">样本医院</h2>
+                        <div class="layui-colla-content layui-show">
+                            <div class="row">
+                                <table class="layui-table">
+                                    <colgroup>
+                                        <col width="150">
+                                        <col width="200">
+                                        <col>
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>昵称</th>
+                                            <th>加入时间</th>
+                                            <th>签名</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>贤心</td>
+                                            <td>2016-11-29</td>
+                                            <td>人生就像是一场修行</td>
+                                        </tr>
+                                        <tr>
+                                            <td>许闲心</td>
+                                            <td>2016-11-28</td>
+                                            <td>于千万人之中遇见你所遇见的人，于千万年之中，时间的无涯的荒野里…</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row">
+                                <div class="space-height"></div>
+                                <div class="col-md-6 col-md-offset-6">
+                                    <div id="hosPage"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="space-height"></div>
+        </div>
+        <div class="hidden-xs col-md-1 col-lg-1"></div>
+    </div>
+</div>
+<script>
+    layui.use('element', function(){
+        var element = layui.element;
+
+        //…
+    });
+    layui.use('laypage', function(){
+        var laypage = layui.laypage;
+
+        //执行一个laypage实例
+        laypage.render({
+            elem: 'hosPage'
+            ,count: 50 //数据总数，从服务端得到
+        });
+    });
+    var loadMainChart = function (v, id, title) {
+        var mainChart = echarts.init(document.getElementById(id));
+        var option = {
+            "title": {
+                "text": title,
+                "top": '85%',
+                "left": 'center',
+                "textStyle": {
+                    "fontSize": 14,
+                    "fontWeight": "normal",
+                    "color": "#bcbfff"
+                }
+            },
+            "tooltip": {
+                "trigger": 'item',
+                "formatter": "{a} : ({d}%)"
+            },
+            "series": [
+                {
+                "name": "内圈",
+                "center": [
+                    "50%",
+                    "40%"
+                ],
+                "radius": [
+                    "49%",
+                    "50%"
+                ],
+                "clockWise": false,
+                "hoverAnimation": false,
+                "type": "pie",
+                "data": [{
+                    "value":v,
+                    "name": "",
+                    "label": {
+                        "normal": {
+                            "show": true,
+                            "formatter": '{d} %',
+                            "textStyle": {
+                                "fontSize": 20,
+                                "fontWeight": "normal"
+                            },
+                            "position": "center"
+                        }
+                    },
+                    "labelLine": {
+                        "show": false
+                    },
+                    "itemStyle": {
+                        "normal": {
+                            "color": "#5886f0",
+                            "borderColor": new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: '#00a2ff'
+                            }, {
+                                offset: 1,
+                                color: '#70ffac'
+                            }]),
+                            "borderWidth": 10
+                        },
+                        "emphasis": {
+                            "color": "#5886f0",
+                            "borderColor": new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: '#85b6b2'
+                            }, {
+                                offset: 1,
+                                color: '#6d4f8d'
+                            }]),
+                            "borderWidth": 14
+                        }
+                    },
+                }, {
+                    "name": " ",
+                    "value": 100-v,
+                    "itemStyle": {
+                        "normal": {
+                            "label": {
+                                "show": false
+                            },
+                            "labelLine": {
+                                "show": false
+                            },
+                            "color": 'rgba(0,0,0,0)',
+                            "borderColor": 'rgba(0,0,0,0)',
+                            "borderWidth": 0
+                        },
+                        "emphasis": {
+                            "color": 'rgba(0,0,0,0)',
+                            "borderColor": 'rgba(0,0,0,0)',
+                            "borderWidth": 0
+                        }
+                    }
+                }]
+            },
+                {
+                "name": "外圈",
+                "center": [
+                    "50%",
+                    "40%"
+                ],
+                "radius": [
+                    "59%",
+                    "60%"
+                ],
+                "clockWise": false,
+                "hoverAnimation": false,
+                "type": "pie",
+                "data": [{
+                    "value": 100,
+                    "name": "",
+                    "label": {
+                        "normal": {
+                            "show": false,
+                            "formatter": '{d} %',
+                            "textStyle": {
+//                                "fontSize": 28,
+                                "fontWeight": "normal"
+                            },
+                            "position": "center"
+                        }
+                    },
+                    "labelLine": {
+                        "show": false
+                    },
+                    "itemStyle": {
+                        "normal": {
+                            "color": "#5886f0",
+                            "borderColor": new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: '#00a2ff'
+                            }, {
+                                offset: 1,
+                                color: '#70ffac'
+                            }]),
+                            "borderWidth": 1
+                        },
+                        "emphasis": {
+                            "color": "#5886f0",
+                            "borderColor": new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: '#85b6b2'
+                            }, {
+                                offset: 1,
+                                color: '#6d4f8d'
+                            }]),
+                            "borderWidth": 1
+                        }
+                    },
+                }, {
+                    "name": " ",
+                    "value": 0,
+                    "itemStyle": {
+                        "normal": {
+                            "label": {
+                                "show": false
+                            },
+                            "labelLine": {
+                                "show": false
+                            },
+                            "color": 'rgba(0,0,0,0)',
+                            "borderColor": 'rgba(0,0,0,0)',
+                            "borderWidth": 0
+                        },
+                        "emphasis": {
+                            "color": 'rgba(0,0,0,0)',
+                            "borderColor": 'rgba(0,0,0,0)',
+                            "borderWidth": 0
+                        }
+                    }
+                }]
+            }]
+        };
+        mainChart.setOption(option);
+    }
+    var loadLineChart = function (id) {
+        var lineChart = echarts.init(document.getElementById(id));
+        var timeData = ['0:00', '0:30',
+            '1:00', '1:30',
+            '2:00', '2:30',
+            '3:00', '3:30',
+            '4:00', '4:30',
+            '5:00', '5:30',
+            '6:00', '6:30',
+            '7:00', '7:30',
+            '8:00', '8:30',
+            '9:00', '9:30',
+            '10:00', '10:30',
+            '11:00', '11:30',
+            '12:00', '12:30',
+            '13:00', '13:30',
+            '14:00', '14:30',
+            '15:00', '15:30',
+            '16:00', '16:30',
+            '17:00', '17:30',
+            '18:00', '18:30',
+            '19:00', '19:30',
+            '20:00', '20:30',
+            '21:00', '21:30',
+            '22:00', '22:30',
+            '23:00', '23:30'
+        ];
+
+        var option = {
+            title: {
+                x: 'left',
+            },
+            tooltip: {
+                trigger: 'axis',
+
+                axisPointer: {
+                    animation: false
+                }
+            },
+            legend: {
+                data: ['流量'],
+                x: 'left'
+            },
+            toolbox: {
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: 'none'
+                    },
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            axisPointer: {
+                link: {
+                    xAxisIndex: 'all'
+                }
+            },
+            dataZoom: [{
+                show: true,
+                realtime: true,
+                start: 30,
+                end: 70,
+
+                xAxisIndex: [0, 1]
+            }, {
+                type: 'inside',
+                realtime: true,
+                start: 30,
+                end: 70,
+                xAxisIndex: [0, 1]
+            }],
+            grid: [{
+                left: 40,
+                right: 40,
+            }, {
+                left: 40,
+                right: 40,
+            }],
+            xAxis: [{
+
+
+                type: 'category',
+                boundaryGap: false,
+                axisLine: {
+                    onZero: true
+                },
+                data: timeData
+            }, {
+                gridIndex: 1
+            }],
+
+            yAxis: [{
+
+                type: 'value',
+                max: 500,
+                name: '单位:',
+                min: 0,
+                interval: 25,
+
+
+            }, {
+                gridIndex: 1
+            }],
+            series: [{
+                name: '数值',
+                type: 'line',
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 9,
+                showSymbol: false,
+                lineStyle: {
+                    normal: {
+                        width: 1
+                    }
+                },
+                markPoint: {
+                    data: [{
+                        type: 'max',
+                        name: '最大值'
+                    }, {
+                        type: 'min',
+                        name: '最小值'
+                    }]
+                },
+                markArea: {
+                    silent: true,
+                    label: {
+                        normal: {
+                            position: ['10%', '50%']
+                        }
+                    },
+                    data: [
+                        [{
+                            name: '优',
+                            yAxis: 100,
+                            itemStyle: {
+                                normal: {
+                                    color: 'rgba(0,153,153,0.27)'
+                                }
+                            },
+                        }, {
+                            yAxis: 200
+                        }],
+                        [{
+                            name: '良',
+                            yAxis: 200,
+                            itemStyle: {
+                                normal: {
+                                    color: 'rgba(153,204,51,0.2)'
+                                }
+                            },
+                        }, {
+                            yAxis: 300,
+                        }],
+                        [{
+                            name: '差',
+                            yAxis: 300,
+                            itemStyle: {
+                                normal: {
+                                    color: 'rgba(250,250,51,0.2)'
+                                }
+                            }
+                        }, {
+                            yAxis: 400,
+                        }]
+                    ]
+                },
+                data: [113, 132, 123, 122, 132, 132, 123, 225, 223, 232, 223, 222, 223, 312, 223, 222, 223, 222, 232, 262, 232, 232, 223, 222, 223, 332, 223, 232, 223, 322, 123, 222, 231, 322, 233, 122, 223, 232, 232, 222, 223, 232, 232, 222, 232, 132, 123, 212]
+
+            }]
+        };
+        lineChart.setOption(option);
+    }
+    var sample_bar = function (id) {
+        var bar = echarts.init(document.getElementById(id));
+        var option = {
+            color: ['#3398DB'],
+            tooltip : {
+                trigger: 'axis',
+                axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                    type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis : [
+                {
+                    type : 'category',
+                    data : ['1', '2', '3', '4', '5', '6', '7','8','9','10','11','12'],
+                    axisTick: {
+                        alignWithLabel: true
+                    }
+                }
+            ],
+            yAxis : [
+                {
+                    // type : 'category',
+                    // data : ['10','20','30','40'],
+                    axisTick: {
+                        alignWithLabel: true
+                    }
+                }
+            ],
+            series : [
+                {
+                    name:'直接访问',
+                    type:'bar',
+                    barWidth: '60%',
+                    data:[1, 3, 2, 3, 4, 2, 1,3,3,2,3,2]
+                },
+
+            ],
+            label: {
+                normal: {
+                    show: true,
+                    position: 'top',
+                    formatter: '{c}'
+                }
+            },
+            itemStyle: {
+                normal: {
+
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        color: 'rgba(17, 168,171, 1)'
+                    }, {
+                        offset: 1,
+                        color: 'rgba(17, 168,171, 0.1)'
+                    }]),
+                    shadowColor: 'rgba(0, 0, 0, 0.1)',
+                    shadowBlur: 10
+                }
+            }
+        };
+        bar.setOption(option);
+    }
+</script>

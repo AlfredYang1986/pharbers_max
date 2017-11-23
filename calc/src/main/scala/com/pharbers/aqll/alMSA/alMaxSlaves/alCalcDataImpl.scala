@@ -1,32 +1,30 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import java.io._ 
+import java.io.File
+import java.nio.charset.StandardCharsets
 import java.util.UUID
-import java.math.BigInteger
 
 import scala.concurrent.stm.{Ref, atomic}
-
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
-import com.pharbers.aqll.alCalaHelp.dbcores.dbc
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
 import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alDumpcollScp
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
-import com.pharbers.aqll.common.alFileHandler.serverConfig.serverHost215
-import com.pharbers.bson.writer.phBsonWriterByMap
-
+import com.pharbers.baseModules.PharbersInjectModule
+import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
+import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.memory.pages.fop.dir.dirPageStorage
+import com.pharbers.memory.pages.{dirFlushMemory, pageMemory, pageMemory2}
 
 /**
   * Created by alfredyang on 13/07/2017.
@@ -38,8 +36,17 @@ object alCalcDataImpl {
     def props = Props[alCalcDataImpl]
 }
 
-class alCalcDataImpl extends Actor with ActorLogging {
+class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
     import alCalcDataImpl._
+
+    override val id: String = "calc-path"
+    override val configPath: String = "pharbers_config/calc_path.xml"
+    override val md = "bson-path" :: "hosp" ::
+            "field-names-hosp" :: "integrated" ::
+            "field-names-integrated" :: Nil
+
+    val bson_path = config.mc.find(p => p._1 == "bson-path").get._2.toString
+
     var unit: Double = 0.0
 	var value: Double = 0.0
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
@@ -48,12 +55,14 @@ class alCalcDataImpl extends Actor with ActorLogging {
     override def receive: Receive = {
         case calc_data_hand() => sender ! calc_data_hand()
         case calc_data_start_impl(p, c) => {
+            log.info("&& T7 START &&")
+            val t7 = startDate()
+            println("&& T7 && alCalcDataImpl.calc_data_start_impl")
             tmp = p
             val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> p.uuid, worker_core_calc_jobs.calc_uuid -> p.subs.head.uuid))
             cj.result
 
             val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
-
 
             val recall = resignIntegratedData(p.parent)(concert)
             concert.data.zipWithIndex.foreach { x =>
@@ -63,33 +72,85 @@ class alCalcDataImpl extends Actor with ActorLogging {
                     Some(s"${x._2}/${concert.data.length}"))(recall)(c)
             }
             log.info(s"concert uuid ${p.subs.head.uuid} end")
-            val s = (maxSum.toList.groupBy(_._1) map { x =>
-                (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
-            }).toList
-            atomic { implicit txn =>
-                
-                sumSender() = sumSender.single.get :+ sender()
-                sumSegment() = sumSegment.single.get ++ s
-                if(sumSender.single.get.size == server_info.cpu) {
-                    val uid = UUID.randomUUID().toString
-                    val path = s"${memorySplitFile}${calc}$uid"
-                    val temp = sumSegment.single.get map { x => alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3)}
-                    val dir = alFileOpt(path)
-                    if(!dir.isExists) dir.createDir
-                    val file = alFileOpt(path + "/" + "segmentData")
-                    if (!file.isExists) file.createFile
-                    file.appendData2File(temp)
-                    sumSender.single.get.foreach(_ ! calc_data_sum2(path))
-                    sumSender() = Nil
-                    sumSegment() = Nil
-                }
+
+            val uid = UUID.randomUUID().toString
+            val seg_path = s"${memorySplitFile}${calc}segment"
+            val dir = alFileOpt(seg_path)
+            if(!dir.isExists) dir.createDir
+            val file = alFileOpt(seg_path + "/" + uid)
+            if (!file.isExists) file.createFile
+
+            maxSum.toList.groupBy(_._1) foreach { x =>
+                file.appendData2File(s"${x._1},${x._2.map(z => z._2._1).sum},${x._2.map(z => z._2._2).sum},${x._2.map(z => z._2._3).sum}"::Nil)
             }
+
+            sender ! calc_data_sum2(seg_path + "/" + uid)
+
+//            val s = (maxSum.toList.groupBy(_._1) map { x =>
+//                (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+//            }).toList
+
+//            atomic { implicit txn =>
+//
+//                sumSender() = sumSender.single.get :+ sender()
+//                sumSegment() = sumSegment.single.get ++ s
+//                if(sumSender.single.get.size == server_info.cpu) {
+//                    val uid = UUID.randomUUID().toString
+//                    val path = s"${memorySplitFile}${calc}$uid"
+//                    val temp = sumSegment.single.get map { x => alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3)}
+//                    val dir = alFileOpt(path)
+//                    if(!dir.isExists) dir.createDir
+//                    val file = alFileOpt(path + "/" + "segmentData")
+//                    if (!file.isExists) file.createFile
+//                    file.appendData2File(temp)
+//                    sumSender.single.get.foreach(_ ! calc_data_sum2(path))
+//                    sumSender() = Nil
+//                    sumSegment() = Nil
+//                }
+//            }
+            endDate("&& T7 && ", t7)
+            log.info("&& T7 END &&")
             // TODO : 超出传输界限
 //            sender ! calc_data_sum(s)
         }
-        case calc_data_average(avg) => {
-            import scala.math.BigDecimal
 
+        case calc_data_start_impl2(p, c) => {
+            log.info("&& T7_2 START &&")
+            val t7 = startDate()
+            println("&& T7_2 && alCalcDataImpl.calc_data_start_impl")
+            tmp = p
+            val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> p.uuid, worker_core_calc_jobs.calc_uuid -> p.subs.head.uuid))
+            cj.result
+
+            val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
+
+            val recall = resignIntegratedData(p.parent)(concert)
+            concert.data.zipWithIndex.foreach { x =>
+
+                max_precess(x._1.asInstanceOf[IntegratedData],
+                    p.subs.head.uuid,
+                    Some(s"${x._2}/${concert.data.length}"))(recall)(c)
+            }
+
+            val f = (m1 : Map[String, Any], m2 : Map[String, Any]) => {
+                m1.map(x => (x._1 -> (x._2.toString.toDouble + m2.get(x._1).get.toString.toDouble)))
+            }
+
+            val phSetDriver = phRedisDriver().phSetDriver
+            maxSum.foreach { x =>
+                phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
+            }
+
+            sender ! calc_data_sum2("segment")
+            endDate("&& T7_2 && ", t7)
+            log.info("&& T7_2 END &&")
+        }
+
+        case calc_data_average2(avg_path) => {
+            import scala.math.BigDecimal
+            log.info("&& T10 START &&")
+            val t10 = startDate()
+            println("&& T10 && alCalcDataImpl.calc_data_average2")
             val sub_uuid = tmp.subs.head.uuid
 
             val path = s"${memorySplitFile}${calc}$sub_uuid"
@@ -97,37 +158,65 @@ class alCalcDataImpl extends Actor with ActorLogging {
             val dir = alFileOpt(path)
             if (!dir.isExists)
                 dir.createDir
-            val source = alFileOpt(path + "/" + "data")
-            val bson_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
-            if (source.isExists) {
-              source.enumDataWithFunc { line =>
-                  val mrd = alShareData.txt2WestMedicineIncome2(line)
-                  val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
-                  if (mrd.ifPanelAll == "1") {
-                      mrd.set_finalResultsValue(mrd.sumValue)
-                      mrd.set_finalResultsUnit(mrd.volumeUnit)
-                  }else {
-                       avg.find(p => p._1 == seed.hashCode.toString).map { x =>
-                          mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                          mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                      }.getOrElse(Unit)
-                  }
+//            val source = alFileOpt(path + "/" + "data")
+            val source = new File(path)
+//            val bw_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
+//            val bw = phBsonWriter(bw_path)
+            val bfm = bsonFlushMemory(bson_path)
+            if (source.exists && source.isDirectory) {
 
-                  unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-                  value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+                val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map { x =>
+                                val line_tmp = x.toString.split(",")
+                                (line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble)
+                            }
+                            
+                val dr = dirPageStorage(path)
+                dr.readAllData { line =>
 
-                  phBsonWriterByMap().apply(westMedicineIncome2map(mrd), bson_path)
+//                val page = pageMemory2(path + "/" + "data")
+//                val totalPage = page.pageCount.toInt
+//                (0 until totalPage) foreach { i =>
+//                    page.pageData(i).foreach { line =>
 
-              }
-              log.info(s"calc done at ${sub_uuid}")
-                 
+                        val mrd = alShareData.txt2WestMedicineIncome2(line)
+                        val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+                        if (mrd.ifPanelAll == "1") {
+                            mrd.set_finalResultsValue(mrd.sumValue)
+                            mrd.set_finalResultsUnit(mrd.volumeUnit)
+                        } else {
+
+                            avg.find(p => p._1 == seed.hashCode.toString).map { x =>
+                                mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                                mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                            }.getOrElse(Unit)
+                        }
+
+                        unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+                        value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+                        val map_tmp = westMedicineIncome2map(mrd)
+
+//                        bw.writeBsonFile2(bw.map2bson(map_tmp))
+                         bfm.appendObject(bfm.map2bson(map_tmp))
+                    }
+//                }
+
+                bfm.close
+//                bw.flush
+//                bw.close
+//                page.closeStorage
+
+                log.info(s"calc done at ${sub_uuid}")
+
             }else {
-                log.info(s"Error! source=${source} not exist!")
+//                log.info(s"Error! source=${source} not exist!")
                 sender() ! calc_data_end(true, tmp)
             }
             sender() ! calc_data_result(value, unit)
             sender() ! calc_data_end(true, tmp)
+            endDate("&& T10 && ", t10)
+            log.info("&& T10 END &&")
         }
+
         case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
     }
 
@@ -152,7 +241,6 @@ class alCalcDataImpl extends Actor with ActorLogging {
                         element.getDrugIncome, element.getClimicDrugIncome, element.getClimicWestenIncome,
                         element.getHospitalizedDrugIncome, element.getHospitalizedWestenIncome, 0.0, 0.0)
                     backfireData(mrd)(recall)
-
                 }
 
             val path = s"${memorySplitFile}${calc}$sub_uuid"
@@ -161,11 +249,15 @@ class alCalcDataImpl extends Actor with ActorLogging {
             if (!dir.isExists)
                 dir.createDir
 
-            val file = alFileOpt(path + "/" + "data")
-            if (!file.isExists)
-                file.createFile
+//            val file = alFileOpt(path + "/" + "data")
+//            if (!file.isExists)
+//                file.createFile
+//
+//            file.appendData2File2(data_tmp)
 
-            file.appendData2File(data_tmp)
+            val d = dirFlushMemory(path)
+            data_tmp.foreach (l => d.appendLine(l.toString))
+            d.close
         }
     }
 
@@ -220,18 +312,18 @@ class alCalcDataImpl extends Actor with ActorLogging {
     }
 
     def westMedicineIncome2map(mrd: westMedicineIncome) : Map[String, Any] = {
-        Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString)) ++
-            Map("Provice" -> mrd.getV("province").toString) ++
-            Map("City" -> mrd.getV("prefecture").toString) ++
-            Map("Panel_ID" -> mrd.phaid) ++
-            Map("Market" -> mrd.getV("market1Ch").toString) ++
-            Map("Product" ->  mrd.minimumUnitCh) ++
-            Map("f_units" -> mrd.finalResultsUnit) ++
-            Map("f_sales" -> mrd.finalResultsValue) ++
-            Map("Date" -> DateUtil.getDateLong(mrd.yearAndmonth.toString)) ++
-            Map("prov_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString))) ++
-            Map("city_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("prefecture").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString))) ++
-            Map("hosp_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString +
+        Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString),
+            "Provice" -> mrd.getV("province").toString,
+            "City" -> mrd.getV("prefecture").toString,
+            "Panel_ID" -> mrd.phaid,
+            "Market" -> mrd.getV("market1Ch").toString,
+            "Product" ->  mrd.minimumUnitCh,
+            "f_units" -> mrd.finalResultsUnit,
+            "f_sales" -> mrd.finalResultsValue,
+            "Date" -> DateUtil.getDateLong(mrd.yearAndmonth.toString),
+            "prov_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString)),
+            "city_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString + mrd.getV("prefecture").toString + mrd.getV("market1Ch").toString + mrd.minimumUnitCh + DateUtil.getDateLong(mrd.yearAndmonth.toString)),
+            "hosp_Index" -> alEncryptionOpt.md5(mrd.getV("province").toString +
                 mrd.getV("prefecture").toString +
                 mrd.phaid +
                 mrd.getV("market1Ch").toString +

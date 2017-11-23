@@ -3,13 +3,15 @@
         <contrast_file_path value="config/FileBase/" />
         <client_file_path value="/Client/" />
         <product_vs_ims_file value="/Manage/产品标准化 vs IMS_Pfizer_6市场others.xlsx" />
-        <universe_inf_file value="/Manage/matchFile/universe_???_online.xlsx" />
+        <universe_inf_file value="/Manage/matchFile/universe_##market##_online.xlsx" />
         <markets_file value="/Manage/通用名市场定义.xlsx" />
         <unpublished_hos_file value="/Manage/2017年未出版医院名单.xlsx" />
         <fill_hos_data_file value="/Manage/补充医院.csv" />
         <cache_file value="/Cache/" />
         <output_file value="/Output/" />
-        <makets value="INF,SPE" />
-        <!--INF,SPE-->
+        <makets value="INF" />
+        <!--INF,SPE,AI_S,CNS_Z,ELQ-->
+        <!--没有匹配文件的市场 HTN2,LD,PAIN_C,URO-->
+        <!--Error For input String "" 的市场 AI_W-->
     </data-parse>
 </pharbers-modules>

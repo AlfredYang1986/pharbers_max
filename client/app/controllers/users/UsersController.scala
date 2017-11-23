@@ -74,8 +74,19 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 //			:: msg_register_token_create(jv) TODO: 通讯协议不一致导致message不能重用，稍后重构
 			:: msg_user_chang_pwd(jv)
 			:: msg_first_push_user(jv)
-			:: MsgAuthCreateIMUser(jv)
-			:: MsgAuthScanningRoomsAddUser(jv)
+			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
+	})
+	//核对密码并修改
+	def user_chang_new_pwd = Action(request => requestArgsQuery().requestArgsV2(request) {jv =>
+		import com.pharbers.bmpattern.LogMessage.common_log
+		import com.pharbers.bmpattern.ResultMessage.common_result
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("change pwd"))), jv)
+			:: MsgAuthCheckTokenAction(jv)
+			:: MsgAuthTokenParser(jv)
+			:: MsgAuthTokenExpire(jv)
+			:: msg_user_token_op(jv)
+			:: msg_user_check_pwd(jv)
+			:: msg_user_chang_pwd(jv)
 			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
 	})
 }
