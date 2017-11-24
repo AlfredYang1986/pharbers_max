@@ -1,12 +1,16 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import javax.activation.MimetypesFileTypeMap
+
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_jobs, max_split_csv_jobs}
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.{split_panel_end, split_panel_start_impl, split_panel_timeout}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileBase, outPut}
+
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
 
@@ -36,27 +40,26 @@ class alSplitPanelComeo(item: alMaxRunning,
             shutSlaveCameo(split_panel_timeout())
         }
 
-        case result : split_panel_end => {
-            owner forward result
-            shutSlaveCameo(result)
+        case split_panel_end(item, parent, subs) => {
+            owner forward split_panel_end(item, parent, subs)
+            shutSlaveCameo(split_panel_end(item, parent, subs))
         }
 
         case split_panel_start_impl(item) => {
-            println(s"&& alSplitExcelComeo.split_excel_start_impl")
-
-            val result = if("text/plain" == new MimetypesFileTypeMap().getContentType(item.panel))
-                max_split_csv_jobs(item.panel).result
-            else
-                max_jobs(item.panel).result
+            val file = fileBase + "fea9f203d4f593a96f0d6faa91ba24ba" + outPut + item.panel
+            val result = if("application/octet-stream" == new MimetypesFileTypeMap().getContentType(file)){
+                println("split scv file ==> " + file)
+                max_split_csv_jobs(file).result
+            } else {
+                println("split excel file ==> " + file)
+                max_jobs(file).result
+            }
 
             try {
-                val (p, sb) = result.map (x => x).getOrElse(throw new Exception("cal error"))
-                println("aaaaaaaaaaaaaaaaaaaaaa"+p)
-                println("bbbbbbbbbbbbbbbbbbbbbbb"+sb)
-                val uuid = p.toString
-                self ! split_panel_end(true, item)
+                val (parent, subs) = result.map (x => x).getOrElse(throw new Exception("cal error"))
+                self ! split_panel_end(item, parent.asInstanceOf[String], subs.asInstanceOf[List[String]])
             } catch {
-                case _ : Exception => self ! split_panel_end(false, item)
+                case _ : Exception => self ! split_panel_end(item, "", Nil)
             }
         }
 
@@ -70,7 +73,7 @@ class alSplitPanelComeo(item: alMaxRunning,
                 "error" -> s"error with actor=${self}, reason=${reason}"
             )
             alWebSocket(item.uid).post(msg)
-            self ! split_panel_end(false, item)
+            self ! split_panel_end(item, "", Nil)
         }
     }
 

@@ -27,7 +27,8 @@ class alSplitPanelSlave extends Actor with ActorLogging {
             implicit val t = Timeout(2 seconds)
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitsplitpanelslave")
-            if (Await.result(f, t.duration).asInstanceOf[Boolean]) sender ! split_panel_hand()
+            if (Await.result(f, t.duration).asInstanceOf[Boolean])
+                sender ! split_panel_hand()
             else Unit
         }
         case split_panel_start_impl(item) => {
@@ -35,7 +36,7 @@ class alSplitPanelSlave extends Actor with ActorLogging {
             val cur = context.actorOf(alSplitPanelComeo.props(item, sender, self, counter))
             cur.tell(split_panel_start_impl(item), sender)
         }
-        case cmd : split_panel_end => {
+        case _ : split_panel_end => {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! refundNodeForRole("splitsplitpanelslave")
         }

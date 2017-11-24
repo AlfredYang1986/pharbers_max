@@ -29,6 +29,7 @@ object alMaxMaster {
     //split panel module
     case class pushSplitPanelJob(uid: String)
     case class splitPanelSchedule()
+    case class splitPanelResult(item: alMaxRunning, parent: String, subs: List[String])
 
     //group module
     case class pushGroupJob(item: alMaxRunning)
@@ -63,6 +64,7 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         //split panel file module
         case pushSplitPanelJob(uid) => preSplitPanelJob(uid, sender)
         case splitPanelSchedule() => schduleSplitPanelJob
+        case splitPanelResult(item, parent, subs) => postSplitPanelJob(item, parent, subs)
 
         //group splited file module
         case push_group_job(property) => pushGroupJob(property, sender)

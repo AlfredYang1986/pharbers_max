@@ -28,4 +28,7 @@ case class alCalcStep() extends Enumeration with java.io.Serializable{
     val STOP = Value(-1)
 }
 
-case class alMaxRunning(panel: String = "", cid: String, parent: String, uid: String) extends java.io.Serializable
+case class alMaxRunning(panel: String = "", cid: String,
+                        parent: String, uid: String,
+                        subs: List[alMaxRunning] = Nil,
+                        result: Boolean = true) extends java.io.Serializable

@@ -38,12 +38,11 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 .map(x=>x).getOrElse(throw new Exception("not found uid"))
         jv2map(panelResult).foreach{x=>
             x._2.foreach{y=>
-                val cid = UUID.randomUUID().toString
-                phRedisDriver().commonDriver.sadd(rid, cid)
-                phRedisDriver().commonDriver.hset(cid, "ym", x._1)
-                phRedisDriver().commonDriver.hset(cid, "mkt", y._1)
-                phRedisDriver().commonDriver.hset(cid, "panel", y._2.mkString(","))
-                phRedisDriver().commonDriver.hset(cid, "calcStep", 0)
+                val panel = y._2.mkString(",")
+                phRedisDriver().commonDriver.sadd(rid, panel)
+                phRedisDriver().commonDriver.hset(panel, "ym", x._1)
+                phRedisDriver().commonDriver.hset(panel, "mkt", y._1)
+//                phRedisDriver().commonDriver.hset(cid, "calcStep", 0)
             }
         }
     }
@@ -51,12 +50,10 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     def preSplitPanelJob(uid: String, sender: ActorRef) ={
         val rid = phRedisDriver().commonDriver.hget(uid, "rid")
                 .map(x=>x).getOrElse(throw new Exception("not found uid"))
-        val cidLst = phRedisDriver().commonDriver.smembers(rid)
+        val panelLst = phRedisDriver().commonDriver.smembers(rid)
                 .map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
-        cidLst.foreach{cid=>
-            val panel = phRedisDriver().commonDriver.hget(cid, "panel").get
-            println("split file is = " + panel)
-            pushSplitPanelJob(alMaxRunning(panel, cid, rid, uid), sender)
+        panelLst.foreach{panel=>
+            pushSplitPanelJob(alMaxRunning(panel, "", "", ""), sender)
         }
         val msg = Map(
             "type" -> "progress_calc",
@@ -64,6 +61,21 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             "progress" -> "1"
         )
         alWebSocket(uid).post(msg)
+    }
+
+    def postSplitPanelJob(item: alMaxRunning, parent: String, subs: List[String]) ={
+        if(parent.isEmpty || subs.isEmpty) println("拆分错了吧，空的")
+        phRedisDriver().commonDriver.hset(item.panel, "tid", parent)
+        subs.foreach{x=>
+            phRedisDriver().commonDriver.sadd(parent, x)
+        }
+//        self ! push_group_job(mp)
+        val msg = Map(
+            "type" -> "progress_calc",
+            "txt" -> "分拆文件完成",
+            "progress" -> "2"
+        )
+        alWebSocket(item.uid).post(msg)
     }
 
     def preGroupJob(item: alMaxRunning, sender: ActorRef) ={

@@ -8,7 +8,7 @@ import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcStep, alMaxRunning}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alSplitPanelSlave
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.splitPanelSchedule
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{generatePanelResult, splitPanelResult, splitPanelSchedule}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -67,7 +67,7 @@ object alCameoSplitPanel {
     case class split_panel_start()
     case class split_panel_hand()
     case class split_panel_start_impl(item: alMaxRunning)
-    case class split_panel_end(result : Boolean, item: alMaxRunning)
+    case class split_panel_end(item: alMaxRunning, parent: String, subs: List[String])
     case class split_panel_timeout()
 
     def props(item: alMaxRunning,
@@ -88,18 +88,15 @@ class alCameoSplitPanel(item: alMaxRunning,
             shutCameo(split_panel_timeout())
         }
 
-        case _ : split_panel_start => router ! split_panel_hand()
+        case split_panel_start() => router ! split_panel_hand()
 
         case split_panel_hand() => {
-            //原来这有个
-//            if (item.step == alCalcStep().PANEL) {
-                sender ! split_panel_start_impl(item)
-//                item.step = alCalcStep().PANEL
-//            }
+            sender ! split_panel_start_impl(item)
         }
 
-        case result : split_panel_end => {
-            shutCameo(result)
+        case split_panel_end(result, p, sb) => {
+            owner ! splitPanelResult(result, p, sb)
+            shutCameo(splitPanelResult(result, p, sb))
         }
     }
 
