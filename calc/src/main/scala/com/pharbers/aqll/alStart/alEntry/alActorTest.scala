@@ -2,7 +2,6 @@ package com.pharbers.aqll.alStart.alEntry
 
 import akka.actor.ActorSystem
 import akka.cluster.Cluster
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcStep, alMaxRunning}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcYMJob, pushSplitPanelJob, pushGeneratePanelJob}
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.typesafe.config.ConfigFactory

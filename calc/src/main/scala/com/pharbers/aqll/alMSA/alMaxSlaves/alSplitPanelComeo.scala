@@ -46,7 +46,7 @@ class alSplitPanelComeo(item: alMaxRunning,
         }
 
         case split_panel_start_impl(item) => {
-            val file = fileBase + "fea9f203d4f593a96f0d6faa91ba24ba" + outPut + item.panel
+            val file = fileBase + "fea9f203d4f593a96f0d6faa91ba24ba" + outPut + item.tid
             val result = if("application/octet-stream" == new MimetypesFileTypeMap().getContentType(file)){
                 println("split scv file ==> " + file)
                 max_split_csv_jobs(file).result

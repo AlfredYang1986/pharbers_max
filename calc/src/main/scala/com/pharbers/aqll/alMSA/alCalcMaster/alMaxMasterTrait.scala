@@ -1,15 +1,14 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
 import java.util.UUID
-
 import akka.actor.{Actor, ActorRef}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.pushGroupJob
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.driver.redis.phRedisDriver
 import play.api.libs.json.JsValue
-
 import scala.collection.immutable.Map
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
@@ -53,7 +52,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         val panelLst = phRedisDriver().commonDriver.smembers(rid)
                 .map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
         panelLst.foreach{panel=>
-            pushSplitPanelJob(alMaxRunning(panel, "", "", ""), sender)
+            pushSplitPanelJob(alMaxRunning(uid, panel, ""), sender)
         }
         val msg = Map(
             "type" -> "progress_calc",
@@ -65,25 +64,42 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
     def postSplitPanelJob(item: alMaxRunning, parent: String, subs: List[String]) ={
         if(parent.isEmpty || subs.isEmpty) println("拆分错了吧，空的")
-        phRedisDriver().commonDriver.hset(item.panel, "tid", parent)
+
+        phRedisDriver().commonDriver.hset(item.tid, "tid", parent)
         subs.foreach{x=>
             phRedisDriver().commonDriver.sadd(parent, x)
         }
-//        self ! push_group_job(mp)
+
+        item.tid = parent
+        item.subs = subs.map{x=>
+            alMaxRunning(item.uid, x, parent)
+        }
+        self ! pushGroupJob(item)
+
         val msg = Map(
             "type" -> "progress_calc",
             "txt" -> "分拆文件完成",
-            "progress" -> "2"
+            "progress" -> "3"
         )
         alWebSocket(item.uid).post(msg)
     }
 
     def preGroupJob(item: alMaxRunning, sender: ActorRef) ={
-
+        pushGroupJobs(item, sender)
         val msg = Map(
             "type" -> "progress_calc",
-            "txt" -> "分拆文件中",
-            "progress" -> "1"
+            "txt" -> "文件分组中",
+            "progress" -> "4"
+        )
+        alWebSocket(item.uid).post(msg)
+    }
+
+    def postGroupJob(item: alMaxRunning) ={
+        println("123412341234 = " + item)
+        val msg = Map(
+            "type" -> "progress_calc",
+            "txt" -> "等待计算",
+            "progress" -> "6"
         )
         alWebSocket(item.uid).post(msg)
     }

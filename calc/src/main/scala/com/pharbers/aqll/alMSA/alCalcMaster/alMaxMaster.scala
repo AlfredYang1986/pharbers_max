@@ -1,10 +1,10 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcStep, alMaxRunning}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_slave_status
-import com.pharbers.aqll.alStart.alEntry.alActorTest.csv_panel
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import play.api.libs.json.JsValue
 
@@ -34,6 +34,7 @@ object alMaxMaster {
     //group module
     case class pushGroupJob(item: alMaxRunning)
     case class groupSchedule()
+    case class groupPanelResult(item: alMaxRunning, parent: String, subs: List[String])
 
     //calc module
     case class pushCalcJob(item: alMaxRunning)
@@ -49,12 +50,12 @@ object alMaxMaster {
   */
 class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
     import alMaxMaster._
-    override def receive: Receive = {
+    override def receive = {
         //calc ym module
         case pushCalcYMJob(item) => preCalcYMJob(item, sender)
         case calcYMSchedule() => calcYMScheduleJobs
         case releaseCalcYMEnergy() => releaseCalcYMEnergy
-        case calcYMResult(ym) => println(s"calcYM = ${ym}")
+        case calcYMResult(ym) => println(s"calcYM = $ym")
 
         //generate panel module
         case pushGeneratePanelJob(item) => preGeneratePanelJob(item, sender)
@@ -67,8 +68,10 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case splitPanelResult(item, parent, subs) => postSplitPanelJob(item, parent, subs)
 
         //group splited file module
-        case push_group_job(property) => pushGroupJob(property, sender)
-        case group_schedule() => schduleGroupJob
+        case pushGroupJob(item) => preGroupJob(item, sender)
+        case groupSchedule() => schduleGroupJob
+        case group_data_end(item) => postGroupJob(item)
+        case groupPanelResult(item, parent, subs) => postSplitPanelJob(item, parent, subs)
 
         //calc module
         case push_calc_job_2(property, parmary) => pushCalcJob(property, parmary, sender)

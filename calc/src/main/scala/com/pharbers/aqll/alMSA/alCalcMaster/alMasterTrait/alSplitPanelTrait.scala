@@ -5,11 +5,10 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
 import akka.pattern.ask
 import akka.util.Timeout
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcStep, alMaxRunning}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alMaxSlaves.alSplitPanelSlave
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{generatePanelResult, splitPanelResult, splitPanelSchedule}
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.stm._
