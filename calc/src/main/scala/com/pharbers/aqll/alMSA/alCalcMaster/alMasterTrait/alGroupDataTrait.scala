@@ -100,14 +100,12 @@ class alCameoGroupData (item: alMaxRunning,
 
         case _ : group_data_start => {
             tol = item.subs.length
-            println("tol = " + tol)
             router ! group_data_hand()
         }
 
         case group_data_hand() => {
             if (sed < tol) {
                 val tmp = item.subs(sed)
-                println("alCameoGroupData group_data_start_impl")
                 sender ! group_data_start_impl(tmp)
                 sed += 1
             }

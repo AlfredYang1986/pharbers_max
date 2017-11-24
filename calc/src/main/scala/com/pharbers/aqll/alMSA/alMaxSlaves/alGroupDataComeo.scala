@@ -14,6 +14,7 @@ import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefine
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.split_panel_timeout
+import com.pharbers.driver.redis.phRedisDriver
 
 import scala.concurrent.duration._
 
@@ -63,34 +64,33 @@ class alGroupDataComeo (item: alMaxRunning,
             )
             val result = cj.result
             val (parent, subs) = result.get.asInstanceOf[(String, List[String])]
-            println("parent = "+ parent)
-            println("subs = "+ subs)
-
             item.subs = subs.map{x=>
-                alMaxRunning(item.uid, x, item.uid)
+                phRedisDriver().commonDriver.sadd(parent, x)
+                alMaxRunning(item.uid, x, parent)
             }
-
             impl_router ! group_data_hand()
         }
 
         case group_data_hand() => {
-            val tmp = alMaxRunning(item.uid, item.tid, item.subs(sed).tid, Nil)
+            val tmp = alMaxRunning(item.uid, item.subs(sed).tid, item.tid)
             sender ! group_data_start_impl(tmp)
             sed += 1
         }
 
-        case group_data_end(item) => {
-            if (item.result) {
+        case group_data_end(result) => {
+            if (result.result) {
                 cur += 1
+                println("cur = " + cur)
                 if (cur == core_number) {
-
                     unionResult
-
+                    println("unionResult")
                     val r = group_data_end(item)
                     owner ! r
                     shutSlaveCameo(r)
                 }
             } else {
+                println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+                item.result = false
                 val r = group_data_end(item)
                 owner ! r
                 shutSlaveCameo(r)

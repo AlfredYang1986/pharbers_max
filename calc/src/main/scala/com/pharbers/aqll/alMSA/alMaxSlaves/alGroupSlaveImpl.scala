@@ -36,7 +36,6 @@ class alGroupSlaveImpl extends Actor with ActorLogging {
             val sg = alStage(g :: Nil)
             val pp = presist_data(Some(item.tid), Some("group"))
             pp.precess(sg)
-            item.result = false
             sender ! group_data_end(item)
         }
     }

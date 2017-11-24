@@ -66,12 +66,10 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         if(parent.isEmpty || subs.isEmpty) println("拆分错了吧，空的")
 
         phRedisDriver().commonDriver.hset(item.tid, "tid", parent)
-        subs.foreach{x=>
-            phRedisDriver().commonDriver.sadd(parent, x)
-        }
 
         item.tid = parent
         item.subs = subs.map{x=>
+            phRedisDriver().commonDriver.sadd(parent, x)
             alMaxRunning(item.uid, x, parent)
         }
         self ! pushGroupJob(item)
