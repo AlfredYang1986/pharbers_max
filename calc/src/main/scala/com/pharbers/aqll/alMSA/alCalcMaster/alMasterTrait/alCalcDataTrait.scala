@@ -81,10 +81,9 @@ trait alCalcDataTrait { this : Actor =>
     }
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    val calc_schdule = context.system.scheduler.schedule(2 second, 3 second, self, calc_schedule())
+    val calc_schdule = context.system.scheduler.schedule(2 second, 3 second, self, calcSchedule())
 
     val calc_jobs = Ref(List[(alMaxProperty, alCalcParmary, ActorRef)]())
-    case class calc_schedule()
 }
 
 object alCameoCalcData {

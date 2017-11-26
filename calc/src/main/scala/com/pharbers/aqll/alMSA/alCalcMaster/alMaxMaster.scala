@@ -71,11 +71,11 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case pushGroupJob(item) => preGroupJob(item, sender)
         case groupSchedule() => schduleGroupJob
         case group_data_end(item) => postGroupJob(item)
-        case groupPanelResult(item, parent, subs) => postSplitPanelJob(item, parent, subs)
+        case groupPanelResult(item, parent, subs) => postGroupJob(item)
 
         //calc module
-        case push_calc_job_2(property, parmary) => pushCalcJob(property, parmary, sender)
-        case calc_schedule() => schduleCalcJob
+        case pushCalcJob(item) => preCalcJob(item, sender)
+        case calcSchedule() => schduleCalcJob
         case calc_slave_status() => Unit // setSlaveStatus
 
         //restore module

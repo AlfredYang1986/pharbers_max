@@ -80,16 +80,13 @@ class alGroupDataComeo (item: alMaxRunning,
         case group_data_end(result) => {
             if (result.result) {
                 cur += 1
-                println("cur = " + cur)
                 if (cur == core_number) {
                     unionResult
-                    println("unionResult")
                     val r = group_data_end(item)
                     owner ! r
                     shutSlaveCameo(r)
                 }
             } else {
-                println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
                 item.result = false
                 val r = group_data_end(item)
                 owner ! r

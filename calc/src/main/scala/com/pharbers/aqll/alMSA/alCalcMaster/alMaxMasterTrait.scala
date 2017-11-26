@@ -93,7 +93,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postGroupJob(item: alMaxRunning) ={
-        println("123412341234 = " + item)
         val msg = Map(
             "type" -> "progress_calc",
             "txt" -> "等待计算",
@@ -103,11 +102,11 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def preCalcJob(item: alMaxRunning, sender: ActorRef) ={
-
+        pushCalcJob(item)
         val msg = Map(
             "type" -> "progress_calc",
-            "txt" -> "分拆文件中",
-            "progress" -> "1"
+            "txt" -> "正在计算",
+            "progress" -> "10"
         )
         alWebSocket(item.uid).post(msg)
     }

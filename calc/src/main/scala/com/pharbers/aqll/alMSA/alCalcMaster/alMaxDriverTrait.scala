@@ -1,37 +1,3 @@
-//	when(group_file) {
-//
-//		case Event(group_data_end(r, mp), pr) => {
-//			pr.uuid = mp.uuid
-//			val msg = Map(
-//				"type" -> "progress_calc",
-//				"txt" -> "等待计算",
-//				"progress" -> "6"
-//			)
-//			alWebSocket(pr.uid).post(msg)
-//
-//			self ! push_calc_job_2(mp, pr)
-//			goto(calc_maxing) using pr
-//		}
-//
-//
-//		case Event(scpend(s), pr) => {
-//			// TODO: SCP命令结束后，Stop ScpActor
-//			context stop s
-//			self ! push_calc_job_2(almp, pr)
-//			goto(calc_maxing) using pr
-//		}
-//
-//		case Event(group_data_error(reason), pr) => {
-//			println(s"Error! group_data_error(${reason}, ${pr})")
-//			val msg = Map(
-//				"type" -> "error",
-//				"error" -> s"error with actor=${self}, reason=${reason}"
-//			)
-//			alWebSocket(pr.uid).post(msg)
-//			shutCameo
-//			goto(alDriverJobIdle) using new alCalcParmary("", "")
-//		}
-//	}
 //
 //	when(calc_maxing) {
 //		case Event(push_calc_job_2(mp, cp), pr) => {
