@@ -24,15 +24,15 @@ import scala.concurrent.duration._
 
 object alGroupDataComeo {
     def props(item: alMaxRunning,
-              originSender: ActorRef,
-              owner: ActorRef,
-              counter : ActorRef) = Props(new alGroupDataComeo(item, originSender, owner, counter))
+              comeoActor : ActorRef,
+              slaveActor : ActorRef,
+              counter : ActorRef) = Props(new alGroupDataComeo(item, comeoActor, slaveActor, counter))
     val core_number = server_info.cpu
 }
 
 class alGroupDataComeo (item: alMaxRunning,
-                        originSender: ActorRef,
-                        owner: ActorRef,
+                        comeoActor: ActorRef,
+                        slaveActor: ActorRef,
                         counter: ActorRef) extends Actor with ActorLogging {
     import alGroupDataComeo._
 
@@ -83,13 +83,13 @@ class alGroupDataComeo (item: alMaxRunning,
                 if (cur == core_number) {
                     unionResult
                     val r = group_data_end(item)
-                    owner ! r
+                    slaveActor ! r
                     shutSlaveCameo(r)
                 }
             } else {
                 item.result = false
                 val r = group_data_end(item)
-                owner ! r
+                slaveActor ! r
                 shutSlaveCameo(r)
             }
         }
@@ -99,7 +99,7 @@ class alGroupDataComeo (item: alMaxRunning,
             self ! group_data_start_impl(item)
 
         case cannotRestart(reason: Throwable) => {
-            originSender ! group_data_error(reason)
+            comeoActor ! group_data_error(reason)
             self ! group_data_end(item)
         }
     }
@@ -110,7 +110,7 @@ class alGroupDataComeo (item: alMaxRunning,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        originSender ! msg
+        comeoActor ! msg
         log.debug("grouping data cameo")
         timeoutMessager.cancel()
         context.stop(self)
