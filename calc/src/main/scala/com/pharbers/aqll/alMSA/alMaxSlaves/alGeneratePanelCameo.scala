@@ -15,15 +15,15 @@ import scala.collection.immutable.Map
   */
 object alGeneratePanelCameo {
     def props(panel_job : alPanelItem,
-              originSender : ActorRef,
-              owner : ActorRef,
-              counter : ActorRef) = Props(new alGeneratePanelCameo(panel_job, originSender, owner, counter))
+              comeoActor : ActorRef,
+              slaveActor : ActorRef,
+              counter : ActorRef) = Props(new alGeneratePanelCameo(panel_job, comeoActor, slaveActor, counter))
 }
 
-class alGeneratePanelCameo(val panel_job : alPanelItem,
-                           val originSender : ActorRef,
-                           val owner : ActorRef,
-                           val counter : ActorRef) extends Actor with ActorLogging {
+class alGeneratePanelCameo(panel_job: alPanelItem,
+                           comeoActor: ActorRef,
+                           slaveActor: ActorRef,
+                           counter: ActorRef) extends Actor with ActorLogging {
 
     override def postRestart(reason: Throwable) : Unit = {
         // TODO : 计算次数，重新计算
@@ -50,7 +50,7 @@ class alGeneratePanelCameo(val panel_job : alPanelItem,
         }
 
         case generate_panel_end(uid, panelResult) => {
-            owner forward generate_panel_end(uid, panelResult)
+            slaveActor forward generate_panel_end(uid, panelResult)
             shutSlaveCameo(generate_panel_end(uid, panelResult))
         }
 
@@ -80,7 +80,7 @@ class alGeneratePanelCameo(val panel_job : alPanelItem,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        originSender ! msg
+        comeoActor ! msg
         log.info("stopping generate panel cameo")
         timeoutMessager.cancel()
         self ! PoisonPill

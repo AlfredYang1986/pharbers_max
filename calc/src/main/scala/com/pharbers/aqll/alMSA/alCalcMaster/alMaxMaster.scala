@@ -35,7 +35,7 @@ object alMaxMaster {
     //group module
     case class pushGroupJob(item: alMaxRunning)
     case class groupSchedule()
-    case class groupPanelResult(item: alMaxRunning, parent: String, subs: List[String])
+    case class groupPanelResult(item: alMaxRunning)
 
     //calc module
     case class pushCalcJob(item: alMaxRunning)
@@ -53,26 +53,25 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
     import alMaxMaster._
     override def receive = {
         //calc ym module
-        case pushCalcYMJob(item) => preCalcYMJob(item, sender)
+        case pushCalcYMJob(item) => preCalcYMJob(item)
         case calcYMSchedule() => calcYMScheduleJobs
         case releaseCalcYMEnergy() => releaseCalcYMEnergy
         case calcYMResult(ym) => println(s"calcYM = $ym")
 
         //generate panel module
-        case pushGeneratePanelJob(item) => preGeneratePanelJob(item, sender)
+        case pushGeneratePanelJob(item) => preGeneratePanelJob(item)
         case generatePanelSchedule() => generatePanelScheduleJobs
         case generatePanelResult(uid, panelResult) => postGeneratePanelJob(uid, panelResult)
 
         //split panel file module
-        case pushSplitPanelJob(uid) => preSplitPanelJob(uid, sender)
+        case pushSplitPanelJob(uid) => preSplitPanelJob(uid)
         case splitPanelSchedule() => schduleSplitPanelJob
         case splitPanelResult(item, parent, subs) => postSplitPanelJob(item, parent, subs)
 
         //group splited file module
-        case pushGroupJob(item) => preGroupJob(item, sender)
+        case pushGroupJob(item) => preGroupJob(item)
         case groupSchedule() => schduleGroupJob
-        case group_data_end(item) => postGroupJob(item)
-        case groupPanelResult(item, parent, subs) => postGroupJob(item)
+        case groupPanelResult(item) => postGroupJob(item)
 
         //calc module
         case pushCalcJob(item) => preCalcJob(item, sender)

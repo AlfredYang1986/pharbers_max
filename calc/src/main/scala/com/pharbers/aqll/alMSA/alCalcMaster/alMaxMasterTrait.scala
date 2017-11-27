@@ -18,13 +18,13 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait
                         with alCalcDataTrait with alRestoreBsonTrait{ this : Actor =>
 
-    def preCalcYMJob(item: alPanelItem, sender: ActorRef) = pushCalcYMJobs(item, sender)
+    def preCalcYMJob(item: alPanelItem) = pushCalcYMJobs(item)
 
-    def preGeneratePanelJob(item: alPanelItem, sender: ActorRef) = {
+    def preGeneratePanelJob(item: alPanelItem) = {
         val rid = UUID.randomUUID().toString
         println("开始生成panel，本次计算流程的rid为 = " + rid)
         phRedisDriver().commonDriver.hset(item.uid, "rid", rid)
-        pushGeneratePanelJobs(item, sender)
+        pushGeneratePanelJobs(item)
     }
 
     def postGeneratePanelJob(uid: String, panelResult: JsValue) = {
@@ -37,6 +37,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         }
         val rid = phRedisDriver().commonDriver.hget(uid, "rid")
                 .map(x=>x).getOrElse(throw new Exception("not found uid"))
+
         jv2map(panelResult).foreach{x=>
             x._2.foreach{y=>
                 val panel = y._2.mkString(",")
@@ -48,13 +49,13 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         }
     }
 
-    def preSplitPanelJob(uid: String, sender: ActorRef) ={
+    def preSplitPanelJob(uid: String) ={
         val rid = phRedisDriver().commonDriver.hget(uid, "rid")
                 .map(x=>x).getOrElse(throw new Exception("not found uid"))
         val panelLst = phRedisDriver().commonDriver.smembers(rid)
                 .map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
         panelLst.foreach{panel=>
-            pushSplitPanelJob(alMaxRunning(uid, panel, ""), sender)
+            pushSplitPanelJob(alMaxRunning(uid, panel, ""))
         }
         val msg = Map(
             "type" -> "progress_calc",
@@ -84,8 +85,8 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         alWebSocket(item.uid).post(msg)
     }
 
-    def preGroupJob(item: alMaxRunning, sender: ActorRef) ={
-        pushGroupJobs(item, sender)
+    def preGroupJob(item: alMaxRunning) ={
+        pushGroupJobs(item)
         val msg = Map(
             "type" -> "progress_calc",
             "txt" -> "文件分组中",
@@ -96,7 +97,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
     def postGroupJob(item: alMaxRunning) ={
         self ! pushCalcJob(item)
-        println(s"postGroupJob.item=${item}")
         val msg = Map(
             "type" -> "progress_calc",
             "txt" -> "等待计算",

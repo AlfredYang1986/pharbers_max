@@ -1,12 +1,13 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcYM.{calcYM_end, calcYM_start_impl, calcYM_timeout}
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json._
+
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
 
@@ -15,15 +16,15 @@ import scala.concurrent.duration._
   */
 object alCalcYMCameo {
     def props(calcYM_job : alPanelItem,
-              originSender : ActorRef,
-              owner : ActorRef,
-              counter : ActorRef) = Props(new alCalcYMCameo(calcYM_job, originSender, owner, counter))
+              comeoActor : ActorRef,
+              slaveActor : ActorRef,
+              counter : ActorRef) = Props(new alCalcYMCameo(calcYM_job, comeoActor, slaveActor, counter))
 }
 
-class alCalcYMCameo (val calcYM_job : alPanelItem,
-                     val originSender : ActorRef,
-                     val owner : ActorRef,
-                     val counter : ActorRef) extends Actor with ActorLogging {
+class alCalcYMCameo (calcYM_job: alPanelItem,
+                     comeoActor: ActorRef,
+                     slaveActor: ActorRef,
+                     counter: ActorRef) extends Actor with ActorLogging {
 
     override def postRestart(reason: Throwable) : Unit = {
         // TODO : 计算次数，重新计算
@@ -54,7 +55,7 @@ class alCalcYMCameo (val calcYM_job : alPanelItem,
         }
 
         case calcYM_end(result, ym) => {
-            owner forward calcYM_end(result, ym)
+            slaveActor forward calcYM_end(result, ym)
             shutSlaveCameo(calcYM_end(result, ym))
         }
 
@@ -63,7 +64,9 @@ class alCalcYMCameo (val calcYM_job : alPanelItem,
             shutSlaveCameo(calcYM_timeout())
         }
 
-        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calcYM_start_impl(calcYM_job)
+        case canDoRestart(reason: Throwable) =>
+            super.postRestart(reason)
+            self ! calcYM_start_impl(calcYM_job)
 
         case cannotRestart(reason: Throwable) => {
             val msg = Map(
@@ -84,9 +87,9 @@ class alCalcYMCameo (val calcYM_job : alPanelItem,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        originSender ! msg
+        comeoActor ! msg
         log.info("stopping calcYM cameo")
         timeoutMessager.cancel()
-        context.stop(self)
+        self ! PoisonPill
     }
 }

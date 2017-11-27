@@ -31,11 +31,13 @@ class alSplitPanelSlave extends Actor with ActorLogging {
                 sender ! split_panel_hand()
             else Unit
         }
+
         case split_panel_start_impl(item) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
             val cur = context.actorOf(alSplitPanelComeo.props(item, sender, self, counter))
             cur.tell(split_panel_start_impl(item), sender)
         }
+
         case _ : split_panel_end => {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! refundNodeForRole("splitsplitpanelslave")

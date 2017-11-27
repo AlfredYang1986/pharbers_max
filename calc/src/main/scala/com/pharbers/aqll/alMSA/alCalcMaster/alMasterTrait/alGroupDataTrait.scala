@@ -15,7 +15,8 @@ import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.groupSchedule
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{groupPanelResult, groupSchedule}
+
 import scala.concurrent.Await
 import scala.concurrent.stm._
 import scala.concurrent.duration._
@@ -27,7 +28,7 @@ trait alGroupDataTrait { this : Actor =>
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val group_router = createGroupRouter
-    val group_jobs = Ref(List[(alMaxRunning, ActorRef)]())
+    val group_jobs = Ref(List[alMaxRunning]())
     val group_schdule = context.system.scheduler.schedule(1 second, 1 second, self, groupSchedule())
 
     def createGroupRouter = context.actorOf(
@@ -39,9 +40,9 @@ trait alGroupDataTrait { this : Actor =>
                     useRole = Some("splitgroupslave")
                 )
             ).props(alGroupDataSlave.props), name = "group-integrate-router")
-    def pushGroupJobs(item: alMaxRunning, s: ActorRef) = {
+    def pushGroupJobs(item: alMaxRunning) = {
         atomic { implicit thx =>
-            group_jobs() = group_jobs() :+ (item, s)
+            group_jobs() = group_jobs() :+ item
         }
     }
     def canSchduleGroupJob: Boolean = {
@@ -56,14 +57,14 @@ trait alGroupDataTrait { this : Actor =>
                 val tmp = group_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    doGroupData(tmp.head._1, tmp.head._2)
+                    doGroupData(tmp.head)
                     group_jobs() = group_jobs().tail
                 }
             }
         }
     }
-    def doGroupData(item: alMaxRunning, s: ActorRef) {
-        val cur = context.actorOf(alCameoGroupData.props(item, s, self, group_router))
+    def doGroupData(item: alMaxRunning) {
+        val cur = context.actorOf(alCameoGroupData.props(item, self, group_router))
         cur ! group_data_start()
     }
 }
@@ -77,15 +78,13 @@ object alCameoGroupData {
     case class group_data_error(reason: Throwable)
 
     def props(item: alMaxRunning,
-              originSender : ActorRef,
-              owner : ActorRef,
-              router : ActorRef) = Props(new alCameoGroupData(item, originSender, owner, router))
+              masterActor : ActorRef,
+              slaveActor : ActorRef) = Props(new alCameoGroupData(item, masterActor, slaveActor))
 }
 
 class alCameoGroupData (item: alMaxRunning,
-                        originSender: ActorRef,
-                        owner: ActorRef,
-                        router: ActorRef) extends Actor with ActorLogging {
+                        masterActor : ActorRef,
+                        slaveActor : ActorRef) extends Actor with ActorLogging {
     import alCameoGroupData._
 
     var sed = 0
@@ -100,7 +99,7 @@ class alCameoGroupData (item: alMaxRunning,
 
         case _ : group_data_start => {
             tol = item.subs.length
-            router ! group_data_hand()
+            slaveActor ! group_data_hand()
         }
 
         case group_data_hand() => {
@@ -119,18 +118,18 @@ class alCameoGroupData (item: alMaxRunning,
 
                 if (cur == tol) {
                     unionResult
-
-                    val r = group_data_end(item)
-                    shutCameo(r)
+                    masterActor ! groupPanelResult(item)
+                    shutCameo(group_data_end(item))
                 }
             } else {
-                val r = group_data_end(item)
-                shutCameo(r)
+                masterActor ! groupPanelResult(item)
+                shutCameo(group_data_end(item))
             }
         }
 
         case group_data_error(reason) => {
-            originSender ! group_data_error(reason)
+            println("group_data_error(reason)")
+//            masterActor ! group_data_error(reason)
         }
     }
 
@@ -140,7 +139,6 @@ class alCameoGroupData (item: alMaxRunning,
     }
 
     def shutCameo(msg : AnyRef) = {
-        originSender ! msg
         log.debug("stopping group data cameo")
         group_timer.cancel()
         context.stop(self)

@@ -19,14 +19,14 @@ import scala.concurrent.duration._
   */
 object alSplitPanelComeo {
     def props(item: alMaxRunning,
-              originSender: ActorRef,
-              owner: ActorRef,
-              counter: ActorRef) = Props(new alSplitPanelComeo(item, originSender, owner, counter))
+              comeoActor: ActorRef,
+              slaveActor: ActorRef,
+              counter: ActorRef) = Props(new alSplitPanelComeo(item, comeoActor, slaveActor, counter))
 }
 
 class alSplitPanelComeo(item: alMaxRunning,
-                        originSender : ActorRef,
-                        owner : ActorRef,
+                        comeoActor : ActorRef,
+                        slaveActor : ActorRef,
                         counter : ActorRef) extends Actor with ActorLogging {
 
     override def postRestart(reason: Throwable) : Unit = {
@@ -40,12 +40,8 @@ class alSplitPanelComeo(item: alMaxRunning,
             shutSlaveCameo(split_panel_timeout())
         }
 
-        case split_panel_end(item, parent, subs) => {
-            owner forward split_panel_end(item, parent, subs)
-            shutSlaveCameo(split_panel_end(item, parent, subs))
-        }
-
         case split_panel_start_impl(item) => {
+            //TODO 公司名，要改的
             val file = fileBase + "fea9f203d4f593a96f0d6faa91ba24ba" + outPut + item.tid
             val result = if("application/octet-stream" == new MimetypesFileTypeMap().getContentType(file)){
                 println("split scv file ==> " + file)
@@ -61,6 +57,11 @@ class alSplitPanelComeo(item: alMaxRunning,
             } catch {
                 case _ : Exception => self ! split_panel_end(item, "", Nil)
             }
+        }
+
+        case split_panel_end(item, parent, subs) => {
+            slaveActor forward split_panel_end(item, parent, subs)
+            shutSlaveCameo(split_panel_end(item, parent, subs))
         }
 
         case canDoRestart(reason: Throwable) =>
@@ -83,7 +84,7 @@ class alSplitPanelComeo(item: alMaxRunning,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        originSender ! msg
+        comeoActor ! msg
         log.debug("stopping split excel cameo")
         timeoutMessager.cancel()
         context.stop(self)

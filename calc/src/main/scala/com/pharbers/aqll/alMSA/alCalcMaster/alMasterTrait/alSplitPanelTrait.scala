@@ -20,7 +20,7 @@ trait alSplitPanelTrait { this : Actor =>
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val split_router = createSplitExcelRouter
-    val split_jobs = Ref(List[(alMaxRunning, ActorRef)]())
+    val split_jobs = Ref(List[alMaxRunning]())
     val split_schdule = context.system.scheduler.schedule(1 second, 1 second, self, splitPanelSchedule())
 
     def createSplitExcelRouter = context.actorOf(
@@ -32,9 +32,9 @@ trait alSplitPanelTrait { this : Actor =>
                     useRole = Some("splitsplitpanelslave")
                 )
             ).props(alSplitPanelSlave.props), name = "split-excel-router")
-    def pushSplitPanelJob(item: alMaxRunning, s : ActorRef) = {
+    def pushSplitPanelJob(item: alMaxRunning) = {
         atomic { implicit thx =>
-            split_jobs() = split_jobs() :+ (item, s)
+            split_jobs() = split_jobs() :+ item
         }
     }
     def canSchduleSplitPanelJob : Boolean = {
@@ -49,15 +49,15 @@ trait alSplitPanelTrait { this : Actor =>
                 val tmp = split_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    doSplitPanel(tmp.head._1, tmp.head._2)
+                    doSplitPanel(tmp.head)
                     split_jobs() = split_jobs().tail
                 }
             }
         }
     }
-    def doSplitPanel(item: alMaxRunning, s : ActorRef) = {
+    def doSplitPanel(item: alMaxRunning) = {
         import alCameoSplitPanel._
-        val cur = context.actorOf(alCameoSplitPanel.props(item, s, self, split_router))
+        val cur = context.actorOf(alCameoSplitPanel.props(item, self, split_router))
         cur ! split_panel_start()
     }
 }
@@ -70,32 +70,31 @@ object alCameoSplitPanel {
     case class split_panel_timeout()
 
     def props(item: alMaxRunning,
-              originSender : ActorRef,
-              owner : ActorRef,
-              router : ActorRef) = Props(new alCameoSplitPanel(item, originSender, owner, router))
+              masterActor: ActorRef,
+              slaveActor: ActorRef) = Props(new alCameoSplitPanel(item, masterActor, slaveActor))
 }
 
 class alCameoSplitPanel(item: alMaxRunning,
-                        originSender : ActorRef,
-                        owner : ActorRef,
-                        router : ActorRef) extends Actor with ActorLogging {
+                        masterActor: ActorRef,
+                        slaveActor: ActorRef) extends Actor with ActorLogging {
     import alCameoSplitPanel._
 
     override def receive: Receive = {
         case split_panel_timeout() => {
             log.debug("timeout occur")
-            shutCameo(split_panel_timeout())
+            println("=====split_panel_timeout")
+//            shutCameo(split_panel_timeout())
         }
 
-        case split_panel_start() => router ! split_panel_hand()
+        case split_panel_start() => slaveActor ! split_panel_hand()
 
         case split_panel_hand() => {
             sender ! split_panel_start_impl(item)
         }
 
         case split_panel_end(result, p, sb) => {
-            owner ! splitPanelResult(result, p, sb)
-            shutCameo(splitPanelResult(result, p, sb))
+            masterActor ! splitPanelResult(result, p, sb)
+            shutCameo
         }
     }
 
@@ -104,8 +103,7 @@ class alCameoSplitPanel(item: alMaxRunning,
         self ! split_panel_timeout()
     }
 
-    def shutCameo(msg : AnyRef) = {
-        originSender ! msg
+    def shutCameo = {
         log.debug("stopping split excel cameo")
         split_timer.cancel()
         context.stop(self)
