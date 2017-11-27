@@ -39,8 +39,8 @@ class alRestoreBsonSlave extends Actor with ActorLogging {
         case cmd : restore_bson_end => {
             println(s"=====alRestoreBsonSlave.restore_bson_end=====")
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            // a ! refundNodeForRole("splitrestorebsonslave")
-            a ! refundNodeForRole("splitcalcslave") // 在一台机器上实现和计算的互斥
+            a ! refundNodeForRole("splitrestorebsonslave")
+//            a ! refundNodeForRole("splitcalcslave") // 在一台机器上实现和计算的互斥
         }
     }
 

@@ -105,7 +105,6 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
             val dir2 = alFileOpt(bson_path)
             if (!dir2.isExists)
                 dir2.createDir
-            println(s"tmp.parent=${tmp.parent}")
 
 //            val source = alFileOpt(path + "/" + "data")
             val source = new File(path)
