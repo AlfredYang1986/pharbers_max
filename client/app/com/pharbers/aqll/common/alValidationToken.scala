@@ -2,7 +2,11 @@ package com.pharbers.aqll.common
 
 import java.util.Date
 
+import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.token.AuthTokenTrait
+import module.auth.AuthModule.r2m
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json.toJson
 
 class TokenAction(val num: Int, val str: String)
 case class TokenError() extends TokenAction(-1, "error")
@@ -23,6 +27,22 @@ case class alValidationToken(token: String)(implicit att : AuthTokenTrait) {
 					case "first_login" => TokenFirstLogin()
 					case _ => throw new Exception("token content action error")
 				}
+		}
+	}
+}
+case class alValidationToken2(accessToken: String) {
+	def validation: TokenAction = {
+		val redisDriver = phRedisDriver().commonDriver
+		val token = redisDriver.hgetall1(accessToken).getOrElse(Map())
+		if (token.isEmpty) TokenFail()
+		else {
+			val reVal = toJson(r2m(token))
+			(reVal \ "action").asOpt[String].getOrElse(None) match {
+				case None => TokenError()
+				case "forget_password" => TokenForgetPassword()
+				case "first_login" => TokenFirstLogin()
+				case _ => throw new Exception("token content action error")
+			}
 		}
 	}
 }

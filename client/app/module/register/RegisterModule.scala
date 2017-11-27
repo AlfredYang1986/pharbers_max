@@ -10,6 +10,7 @@ import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.token.AuthTokenTrait
+import module.auth.AuthModule.r2m
 import module.register.RegisterData._
 import module.register.RegisterMessage._
 
@@ -227,8 +228,8 @@ object RegisterModule extends ModuleTrait with RegisterData {
 			val db = conn.queryDBInstance("cli").get
 			val app = pr.get("user_token")
 			val accessToken = app.as[String]
-			val token = redisDriver.get(accessToken).getOrElse(throw new Exception("token expired"))
-			val reVal = att.decrypt2JsValue(token)
+			val token = redisDriver.hgetall1(accessToken).getOrElse(Map())
+			val reVal = toJson(r2m(token))
 			val regid = (reVal \ "user_id").as[String]
 			db.queryObject(DBObject("reg_id" -> regid), "reg_apply") { x =>
 				x += "status" -> 2.asInstanceOf[Number]
