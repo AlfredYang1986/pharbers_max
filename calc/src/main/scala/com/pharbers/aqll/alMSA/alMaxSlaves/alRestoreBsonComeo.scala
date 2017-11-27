@@ -38,7 +38,7 @@ class alRestoreBsonComeo (val uid : String,
             val rid = redisDriver.hget(uid, "rid").get
 
             alRestoreColl3().apply(s"${company}${rid}", rid)
-            self ! restore_bson_end(true, rid)
+            self ! restore_bson_end(true, uid)
         }
         case restore_bson_end(result, sub_uuid) => {
             owner forward restore_bson_end(result, sub_uuid)

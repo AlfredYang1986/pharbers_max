@@ -5,6 +5,7 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_end, calc_slave_status}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import play.api.libs.json.JsValue
 
@@ -80,9 +81,9 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case calc_slave_status() => Unit // setSlaveStatus
 
         //restore module
-        case push_restore_job(uid) => pushRestoreJob(uid)
+        case push_restore_job(uid) => preRestoreJob(uid, sender)
         case restore_bson_schedule() => schduleRestoreJob
-
+        case restore_bson_end(bool, uid) => postRestoreJob(bool, uid)
         //scp module
 //        case scpSchedule() => scanQueue()
     }

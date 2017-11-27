@@ -7,6 +7,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, takeNodeForRole}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import com.pharbers.aqll.alMSA.alMaxSlaves.alRestoreBsonSlave
 
 import scala.concurrent.Await
@@ -31,17 +32,19 @@ trait alRestoreBsonTrait { this : Actor =>
 
     val restore_router = createRestoreBsonRouter
 
-    def pushRestoreJob(uid : String) = {
+    def pushRestoreJob(uid : String, sender: ActorRef) = {
+        println(s"pushRestoreJob")
         atomic { implicit thx =>
-            restore_jobs() = restore_jobs() :+ (uid)
+            println(s"atomic")
+            restore_jobs() = restore_jobs() :+ (uid, sender)
         }
     }
 
     def canSchduleRestoreJob : Boolean = {
         implicit val t = Timeout(2 seconds)
         val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-        // val f = a ? queryIdleNodeInstanceInSystemWithRole("splitrestorebsonslave")
-        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave")
+        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitrestorebsonslave")
+//        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave")
         Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
 
@@ -51,15 +54,16 @@ trait alRestoreBsonTrait { this : Actor =>
                 val tmp = restore_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    restoreBson(tmp.head)
+                    restoreBson(tmp.head._1, tmp.head._2)
                     restore_jobs() = restore_jobs().tail
                 }
             }
         }
     }
 
-    def restoreBson(uid : String) = {
-        val cur = context.actorOf(alCameoRestoreBson.props(uid, self, restore_router))
+    def restoreBson(uid : String, sender: ActorRef) = {
+        println(s"restoreBson")
+        val cur = context.actorOf(alCameoRestoreBson.props(uid, sender, self, restore_router))
         import alCameoRestoreBson._
         cur ! restore_bson_start()
     }
@@ -67,7 +71,7 @@ trait alRestoreBsonTrait { this : Actor =>
     import scala.concurrent.ExecutionContext.Implicits.global
     val restore_schdule = context.system.scheduler.schedule(3 second, 3 second, self, restore_bson_schedule())
 
-    val restore_jobs = Ref(List[(String)]())
+    val restore_jobs = Ref(List[(String, ActorRef)]())
     case class restore_bson_schedule()
 
 }
@@ -76,15 +80,17 @@ object alCameoRestoreBson {
     case class restore_bson_start()
     case class restore_bson_hand()
     case class restore_bson_start_impl(uid : String)
-    case class restore_bson_end(result : Boolean, coll : String)
+    case class restore_bson_end(result : Boolean, uid : String)
     case class restore_bson_timeout()
 
     def props(uid : String,
+              originSender : ActorRef,
               owner : ActorRef,
-              router : ActorRef) = Props(new alCameoRestoreBson(uid, owner, router))
+              router : ActorRef) = Props(new alCameoRestoreBson(uid, originSender, owner, router))
 }
 
 class alCameoRestoreBson(val uid : String,
+                         val originSender : ActorRef,
                          val owner : ActorRef,
                          val router : ActorRef) extends Actor with ActorLogging {
 
@@ -118,7 +124,9 @@ class alCameoRestoreBson(val uid : String,
     }
 
     def shutCameo(msg : AnyRef) = {
-//        originSender ! msg
+        originSender ! msg
+//        val master = context.actorOf(alMaxMaster.props)
+//        master ! msg
         log.info("stopping cameo restore bson")
         restore_timer.cancel()
         self ! PoisonPill

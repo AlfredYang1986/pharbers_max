@@ -5,6 +5,7 @@ import akka.agent.Agent
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
+import com.pharbers.aqll.alStart.alEntry.alActorTest.system
 
 import scala.concurrent.stm.Ref
 import scala.concurrent.stm.atomic
@@ -30,8 +31,14 @@ class alMaxClusterLister extends Actor with ActorLogging {
         case MemberJoined(member) => log.info("Member Joined")
         
         case MemberUp(member) => {
+
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             member.roles.map (x => a ! refundNodeForRole(x))
+//            member.roles.map {x =>
+//                if (system.settings.config.getStringList("akka.cluster.roles").contains(x)){
+//                    a ! refundNodeForRole(x)
+//                }
+//            }
         }
         
         case MemberRemoved(member, previousStatus) => {

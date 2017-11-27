@@ -42,9 +42,9 @@ trait alCalcDataTrait { this : Actor =>
 
     val calc_router = createCalcRouter
 
-    def pushCalcJob(item: alMaxRunning) = {
+    def pushCalcJobs(item: alMaxRunning, sender: ActorRef) = {
         atomic { implicit thx =>
-            calc_jobs() = calc_jobs() :+ (item)
+            calc_jobs() = calc_jobs() :+ (item, sender)
         }
     }
 
@@ -62,15 +62,15 @@ trait alCalcDataTrait { this : Actor =>
                 if (tmp.isEmpty) Unit
                 else {
 
-                    calcData(tmp.head)
+                    calcData(tmp.head._1, tmp.head._2)
                     calc_jobs() = calc_jobs().tail
                 }
             }
         }
     }
 
-    def calcData(item: alMaxRunning) {
-        val cur = context.actorOf(alCameoCalcData.props(item, self, calc_router))
+    def calcData(item: alMaxRunning, sender: ActorRef) {
+        val cur = context.actorOf(alCameoCalcData.props(item, sender, self, calc_router))
         cur ! calc_data_start()
 
         val msg = Map(
@@ -84,7 +84,7 @@ trait alCalcDataTrait { this : Actor =>
     import scala.concurrent.ExecutionContext.Implicits.global
     val calc_schdule = context.system.scheduler.schedule(2 second, 3 second, self, calcSchedule())
 
-    val calc_jobs = Ref(List[(alMaxRunning)]())
+    val calc_jobs = Ref(List[(alMaxRunning, ActorRef)]())
 }
 
 object alCameoCalcData {
@@ -101,12 +101,14 @@ object alCameoCalcData {
     case class calc_data_timeout()
     case class calc_slave_status()
 
-    def props(item : alMaxRunning,
-              owner : ActorRef,
-              router : ActorRef) = Props(new alCameoCalcData(item, owner, router))
+    def props(item: alMaxRunning,
+              originSender: ActorRef,
+              owner: ActorRef,
+              router: ActorRef) = Props(new alCameoCalcData(item, originSender, owner, router))
 }
 
 class alCameoCalcData ( val item : alMaxRunning,
+                        val originSender : ActorRef,
                         val owner : ActorRef,
                         val router : ActorRef) extends Actor with ActorLogging {
 
@@ -226,9 +228,9 @@ class alCameoCalcData ( val item : alMaxRunning,
     }
 
     def shutCameo(msg : AnyRef) = {
-//        originSender ! msg
-        val master = context.actorOf(alMaxMaster.props)
-        master ! msg
+        originSender ! msg
+//        val master = context.actorOf(alMaxMaster.props)
+//        master ! msg
         //        slaveStatus send slave_status(true)
         log.info("stopping group data cameo")
         calc_timer.cancel()
