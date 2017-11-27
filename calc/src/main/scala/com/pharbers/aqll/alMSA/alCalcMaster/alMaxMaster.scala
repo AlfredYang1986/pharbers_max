@@ -52,18 +52,18 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
     import alMaxMaster._
     override def receive = {
         //calc ym module
-        case pushCalcYMJob(item) => preCalcYMJob(item, sender)
+        case pushCalcYMJob(item) => preCalcYMJob(item)
         case calcYMSchedule() => calcYMScheduleJobs
         case releaseCalcYMEnergy() => releaseCalcYMEnergy
         case calcYMResult(ym) => println(s"calcYM = $ym")
 
         //generate panel module
-        case pushGeneratePanelJob(item) => preGeneratePanelJob(item, sender)
+        case pushGeneratePanelJob(item) => preGeneratePanelJob(item)
         case generatePanelSchedule() => generatePanelScheduleJobs
         case generatePanelResult(uid, panelResult) => postGeneratePanelJob(uid, panelResult)
 
         //split panel file module
-        case pushSplitPanelJob(uid) => preSplitPanelJob(uid, sender)
+        case pushSplitPanelJob(uid) => preSplitPanelJob(uid)
         case splitPanelSchedule() => schduleSplitPanelJob
         case splitPanelResult(item, parent, subs) => postSplitPanelJob(item, parent, subs)
 

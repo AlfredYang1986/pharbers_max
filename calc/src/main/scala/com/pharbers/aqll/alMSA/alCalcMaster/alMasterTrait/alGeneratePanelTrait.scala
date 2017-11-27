@@ -21,7 +21,7 @@ trait alGeneratePanelTrait { this : Actor =>
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val panel_router = createGeneratePanelRouter
-    val generate_panel_jobs = Ref(List[(alPanelItem, ActorRef)]())
+    val generate_panel_jobs = Ref(List[alPanelItem]())
     val generate_panel_schedule = context.system.scheduler.schedule(1 second, 3 second, self, generatePanelSchedule())
 
     def createGeneratePanelRouter = context.actorOf(
@@ -33,9 +33,9 @@ trait alGeneratePanelTrait { this : Actor =>
                     useRole = Some("splitgeneratepanelslave")
                 )
             ).props(alGeneratePanelSlave.props), name = "generate-panel-router")
-    def pushGeneratePanelJobs(item : alPanelItem, s : ActorRef) = {
+    def pushGeneratePanelJobs(item : alPanelItem) = {
         atomic { implicit thx =>
-            generate_panel_jobs() = generate_panel_jobs() :+ (item, s)
+            generate_panel_jobs() = generate_panel_jobs() :+ item
         }
     }
     def canSchdulePanelJob : Boolean = {
@@ -52,14 +52,14 @@ trait alGeneratePanelTrait { this : Actor =>
                 if (tmp.isEmpty) Unit
                 else {
                     generate_panel_jobs() = generate_panel_jobs().tail
-                    do_generate_panel_job(tmp.head._1, tmp.head._2)
+                    do_generate_panel_job(tmp.head)
                 }
             }
         }
     }
-    def do_generate_panel_job(panel_job : alPanelItem, s : ActorRef) = {
+    def do_generate_panel_job(panel_job: alPanelItem) = {
         import alCameoGeneratePanel._
-        val cur = context.actorOf(alCameoGeneratePanel.props(panel_job, s, self, panel_router))
+        val cur = context.actorOf(alCameoGeneratePanel.props(panel_job, self, panel_router))
         cur ! generate_panel_start()
     }
 }
@@ -72,24 +72,23 @@ object alCameoGeneratePanel {
     case class generate_panel_timeout()
 
     def props(panel_job : alPanelItem,
-              originSender : ActorRef,
-              owner : ActorRef,
-              router : ActorRef) = Props(new alCameoGeneratePanel(panel_job, originSender, owner, router))
+              masterActor : ActorRef,
+              slaveActor : ActorRef) = Props(new alCameoGeneratePanel(panel_job, masterActor, slaveActor))
 }
 
 class alCameoGeneratePanel(panel_job : alPanelItem,
-                           originSender : ActorRef,
-                           owner : ActorRef,
-                           router : ActorRef) extends Actor with ActorLogging {
+                           masterActor : ActorRef,
+                           slaveActor : ActorRef) extends Actor with ActorLogging {
     import alCameoGeneratePanel._
 
     override def receive: Receive = {
-        case generate_panel_start() => router ! generate_panel_hand()
+        case generate_panel_start() => slaveActor ! generate_panel_hand()
         case generate_panel_hand() => sender ! generate_panel_start_impl(panel_job)
         case generate_panel_end(uid, panelResult) => {
-            owner ! generatePanelResult(uid, panelResult)
-            shutCameo(generate_panel_end(uid, panelResult))
+            masterActor ! generatePanelResult(uid, panelResult)
+            shutCameo
         }
+        case generate_panel_timeout() => println("=====generate_panel_timeout")
         case msg : AnyRef => log.info(s"Warning! Message not delivered. alCameoGeneratePanel.received_msg=${msg}")
     }
 
@@ -98,7 +97,7 @@ class alCameoGeneratePanel(panel_job : alPanelItem,
         self ! generate_panel_timeout()
     }
 
-    def shutCameo(msg : AnyRef) = {
+    def shutCameo = {
         log.info("stopping generate panel cameo")
         generate_panel_timer.cancel()
         self ! PoisonPill
