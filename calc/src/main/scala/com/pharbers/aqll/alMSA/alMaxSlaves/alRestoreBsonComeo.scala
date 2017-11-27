@@ -38,9 +38,9 @@ class alRestoreBsonComeo (val uid : String,
             alRestoreColl3().apply(s"${company}${bsonpath}", bsonpath)
             self ! restore_bson_end(true, uid)
         }
-        case restore_bson_end(result, sub_uuid) => {
-            owner forward restore_bson_end(result, sub_uuid)
-            shutSlaveCameo(restore_bson_end(result, sub_uuid))
+        case restore_bson_end(result, uid) => {
+            owner forward restore_bson_end(result, uid)
+            shutSlaveCameo(restore_bson_end(result, uid))
         }
         case restore_bson_timeout() => {
             log.info("timeout occur")
