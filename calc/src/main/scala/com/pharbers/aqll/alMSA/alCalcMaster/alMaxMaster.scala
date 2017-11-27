@@ -3,7 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_slave_status
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_end, calc_slave_status}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import play.api.libs.json.JsValue
@@ -41,8 +41,8 @@ object alMaxMaster {
     case class calcSchedule()
 
     //scp module
-    case class pushToScpQueue(file: String, target: String, host: String, user: String)
-    case class scpSchedule()
+//    case class pushToScpQueue(file: String, target: String, host: String, user: String)
+//    case class scpSchedule()
 }
 
 /**
@@ -76,14 +76,15 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         //calc module
         case pushCalcJob(item) => preCalcJob(item, sender)
         case calcSchedule() => schduleCalcJob
+        case calc_data_end(bool, item) => postCalcJob(bool, item)
         case calc_slave_status() => Unit // setSlaveStatus
 
         //restore module
-        case push_restore_job(coll, sub_uuids) => pushRestoreJob(coll, sub_uuids, sender)
+        case push_restore_job(uid) => pushRestoreJob(uid)
         case restore_bson_schedule() => schduleRestoreJob
 
         //scp module
-        case scpSchedule() => scanQueue()
+//        case scpSchedule() => scanQueue()
     }
 
 }

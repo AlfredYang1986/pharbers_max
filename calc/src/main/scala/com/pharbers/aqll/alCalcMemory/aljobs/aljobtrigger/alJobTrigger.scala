@@ -104,5 +104,5 @@ object alJobTrigger {
     /**
       * for restore bson
       */
-    case class push_restore_job(coll : String, sub_uuid : List[String])
+    case class push_restore_job(uid : String)
 }

@@ -40,10 +40,10 @@ class alCalcDataSlave extends Actor with ActorLogging {
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) sender ! calc_data_hand()
             else Unit
         }
-        case calc_data_start_impl(lsp, c) => {
+        case calc_data_start_impl(item) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
-            val cur = context.actorOf(alCalcDataComeo.props(c, lsp, sender, self, counter))
-            cur.tell(calc_data_start_impl(lsp, c), sender)
+            val cur = context.actorOf(alCalcDataComeo.props(item, sender, self, counter))
+            cur.tell(calc_data_start_impl(item), sender)
         }
         case cmd : calc_data_end => {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")

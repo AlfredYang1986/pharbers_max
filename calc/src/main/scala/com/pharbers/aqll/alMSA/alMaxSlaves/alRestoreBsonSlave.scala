@@ -31,10 +31,10 @@ class alRestoreBsonSlave extends Actor with ActorLogging {
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) sender ! restore_bson_hand()
             else Unit
         }
-        case restore_bson_start_impl(coll, sub_uuids) => {
+        case restore_bson_start_impl(uid) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
-            val cur = context.actorOf(alRestoreBsonComeo.props(coll, sub_uuids, sender, self, counter))
-            cur.tell(restore_bson_start_impl(coll, sub_uuids), sender)
+            val cur = context.actorOf(alRestoreBsonComeo.props(uid, sender, self, counter))
+            cur.tell(restore_bson_start_impl(uid), sender)
         }
         case cmd : restore_bson_end => {
             println(s"=====alRestoreBsonSlave.restore_bson_end=====")

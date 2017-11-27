@@ -5,11 +5,11 @@ import java.util.UUID
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.actor.SupervisorStrategy.Escalate
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, endDate, startDate}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines._
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
+import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.split_panel_timeout
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
@@ -29,13 +29,12 @@ import scala.concurrent.duration._
 //}
 
 object alCalcDataComeo {
-    def props(c : alCalcParmary, lsp : alMaxProperty, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
-        Props(new alCalcDataComeo(c, lsp, originSender, owner, counter))
+    def props(item: alMaxRunning, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
+        Props(new alCalcDataComeo(item, originSender, owner, counter))
     val core_number: Int = server_info.cpu
 }
 
-class alCalcDataComeo (c : alCalcParmary,
-                       op : alMaxProperty,
+class alCalcDataComeo (item : alMaxRunning,
                        originSender : ActorRef,
                        owner : ActorRef,
                        counter : ActorRef) extends Actor with ActorLogging {
@@ -45,7 +44,7 @@ class alCalcDataComeo (c : alCalcParmary,
     var sum = 0
     var segment : List[String] = Nil
     import alCalcDataComeo._
-    var r : alMaxProperty = null
+    var r : alMaxRunning = null
     
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Escalate
@@ -60,14 +59,6 @@ class alCalcDataComeo (c : alCalcParmary,
         case calc_data_timeout() => {
             log.info("timeout occur")
             shutSlaveCameo(split_panel_timeout())
-        }
-        case calc_data_sum(sub_sum) => {
-            r.sum = r.sum ++: sub_sum
-            sum += 1
-            if (sum == core_number) {
-                r.isSumed = true
-                originSender ! calc_data_sum(r.sum)
-            }
         }
         case calc_data_sum2(path) => {
             log.info(s"&& T8 STRAT path = ${path} &&")
@@ -114,19 +105,24 @@ class alCalcDataComeo (c : alCalcParmary,
             endDate("&& T11 && ", t11)
             log.info("&& T11 END &&")
         }
-        case calc_data_start_impl(_, _) => {
+        case calc_data_start_impl(_) => {
             log.info("&& T5 START &&")
             val t5 = startDate()
             println("&& T5 && alCalcDataComeo.calc_data_start_impl")
-            val core_number = server_info.cpu
-            val mid = UUID.randomUUID.toString
-            val lst = (1 to core_number).map (x => worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> op.uuid,
-                worker_calc_core_split_jobs.calc_uuid -> op.subs(0 * core_number + x - 1).uuid,
-                worker_calc_core_split_jobs.mid_uuid -> mid))).toList
-            
-            val m = lst.map (_.result.get.asInstanceOf[(String, List[String])]._2).flatten.distinct
-            val q = m.map (x => alMaxProperty(mid, x, Nil))
-            r = alMaxProperty(op.uuid, mid, q)
+//            val core_number = server_info.cpu
+//            val mid = UUID.randomUUID.toString
+//            val lst = (1 to core_number).map (x => worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> item.tid,
+//                worker_calc_core_split_jobs.calc_uuid -> item.subs(x - 1).tid,
+//                worker_calc_core_split_jobs.mid_uuid -> mid))).toList
+//
+//            println(s"T5.lst=${lst}")
+//            lst.foreach(x => println(s"&& list.x=${x}"))
+//
+//            val m = lst.map (_.result.get.asInstanceOf[(String, List[String])]._2).flatten.distinct
+//            val q = m.map (x => alMaxRunning(item.uid, x, mid, Nil))
+
+//            r = alMaxRunning(item.uid, item.tid, mid, q)
+            r = item
             
             impl_router ! calc_data_hand()
             endDate("&& T5 && ", t5)
@@ -138,21 +134,21 @@ class alCalcDataComeo (c : alCalcParmary,
             println("&& T6 && alCalcDataComeo.calc_data_hand")
             if (r != null) {
 //                sender ! calc_data_start_impl(alMaxProperty(r.parent, r.uuid, r.subs(sed) :: Nil), c)
-                sender ! calc_data_start_impl2(alMaxProperty(r.parent, r.uuid, r.subs(sed) :: Nil), c)
+                sender ! calc_data_start_impl2(r.subs(sed))
                 sed += 1
                 endDate("&& T6 && ", t6)
             }
             log.info("&& T6 END &&")
         }
         
-        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calc_data_start_impl(op, c)
+        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calc_data_start_impl(item)
         
         case cannotRestart(reason: Throwable) => {
             val msg = Map(
                 "type" -> "error",
                 "error" -> s"error with actor=${self}, reason=${reason}"
             )
-            alWebSocket(c.uid).post(msg)
+            alWebSocket(item.uid).post(msg)
 
             self ! calc_data_end(false, r)
         }

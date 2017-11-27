@@ -1,20 +1,22 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
 import java.util.UUID
+
 import akka.actor.{Actor, ActorRef}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.push_restore_job
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.pushGroupJob
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.driver.redis.phRedisDriver
 import play.api.libs.json.JsValue
+
 import scala.collection.immutable.Map
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait
-                        with alCalcDataTrait with alRestoreBsonTrait
-                        with alScpQueueTrait { this : Actor =>
+                        with alCalcDataTrait with alRestoreBsonTrait{ this : Actor =>
 
     def preCalcYMJob(item: alPanelItem, sender: ActorRef) = pushCalcYMJobs(item, sender)
 
@@ -93,6 +95,8 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postGroupJob(item: alMaxRunning) ={
+        self ! pushCalcJob(item)
+        println(s"postGroupJob.item=${item}")
         val msg = Map(
             "type" -> "progress_calc",
             "txt" -> "等待计算",
@@ -108,6 +112,29 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             "txt" -> "正在计算",
             "progress" -> "10"
         )
+        alWebSocket(item.uid).post(msg)
+    }
+
+    def postCalcJob(bool: Boolean, item: alMaxRunning) ={
+        println(s"postCalcJob.bool=${bool}")
+        println(s"item.finalValue=${item.finalValue}")
+        println(s"item.finalUnit=${item.finalUnit}")
+        self ! push_restore_job(item.uid)
+        var msg = Map[String, String]()
+        if (bool) {
+            msg = Map(
+                "type" -> "progress_calc",
+                "txt" -> "计算完成",
+                "progress" -> "11"
+            )
+        } else {
+            msg = Map(
+                "type" -> "progress_calc",
+                "txt" -> "计算失败",
+                "progress" -> "12"
+            )
+        }
+
         alWebSocket(item.uid).post(msg)
     }
 }

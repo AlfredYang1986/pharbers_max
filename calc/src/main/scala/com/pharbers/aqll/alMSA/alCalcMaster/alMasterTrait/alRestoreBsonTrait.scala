@@ -31,9 +31,9 @@ trait alRestoreBsonTrait { this : Actor =>
 
     val restore_router = createRestoreBsonRouter
 
-    def pushRestoreJob(coll : String, sub_uuids : List[String], s : ActorRef) = {
+    def pushRestoreJob(uid : String) = {
         atomic { implicit thx =>
-            restore_jobs() = restore_jobs() :+ (coll, sub_uuids, s)
+            restore_jobs() = restore_jobs() :+ (uid)
         }
     }
 
@@ -51,15 +51,15 @@ trait alRestoreBsonTrait { this : Actor =>
                 val tmp = restore_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    restoreBson(tmp.head._1, tmp.head._2, tmp.head._3)
+                    restoreBson(tmp.head)
                     restore_jobs() = restore_jobs().tail
                 }
             }
         }
     }
 
-    def restoreBson(coll : String, sub_uuids : List[String], s : ActorRef) = {
-        val cur = context.actorOf(alCameoRestoreBson.props(coll, sub_uuids, s, self, restore_router))
+    def restoreBson(uid : String) = {
+        val cur = context.actorOf(alCameoRestoreBson.props(uid, self, restore_router))
         import alCameoRestoreBson._
         cur ! restore_bson_start()
     }
@@ -67,7 +67,7 @@ trait alRestoreBsonTrait { this : Actor =>
     import scala.concurrent.ExecutionContext.Implicits.global
     val restore_schdule = context.system.scheduler.schedule(3 second, 3 second, self, restore_bson_schedule())
 
-    val restore_jobs = Ref(List[(String, List[String], ActorRef)]())
+    val restore_jobs = Ref(List[(String)]())
     case class restore_bson_schedule()
 
 }
@@ -75,20 +75,16 @@ trait alRestoreBsonTrait { this : Actor =>
 object alCameoRestoreBson {
     case class restore_bson_start()
     case class restore_bson_hand()
-    case class restore_bson_start_impl(coll : String, sub_uuids : List[String])
+    case class restore_bson_start_impl(uid : String)
     case class restore_bson_end(result : Boolean, coll : String)
     case class restore_bson_timeout()
 
-    def props(coll : String,
-              sub_uuids : List[String],
-              originSender : ActorRef,
+    def props(uid : String,
               owner : ActorRef,
-              router : ActorRef) = Props(new alCameoRestoreBson(coll, sub_uuids, originSender, owner, router))
+              router : ActorRef) = Props(new alCameoRestoreBson(uid, owner, router))
 }
 
-class alCameoRestoreBson(val coll : String,
-                         val sub_uuids : List[String],
-                         val originSender : ActorRef,
+class alCameoRestoreBson(val uid : String,
                          val owner : ActorRef,
                          val router : ActorRef) extends Actor with ActorLogging {
 
@@ -104,7 +100,7 @@ class alCameoRestoreBson(val coll : String,
         case _ : restore_bson_start => router ! restore_bson_hand()
         case restore_bson_hand() => {
             if (sign == false) {
-                sender ! restore_bson_start_impl(coll, sub_uuids)
+                sender ! restore_bson_start_impl(uid)
                 sign = true
             }
         }
@@ -122,7 +118,7 @@ class alCameoRestoreBson(val coll : String,
     }
 
     def shutCameo(msg : AnyRef) = {
-        originSender ! msg
+//        originSender ! msg
         log.info("stopping cameo restore bson")
         restore_timer.cancel()
         self ! PoisonPill

@@ -19,11 +19,11 @@ case class alRestoreColl3() extends PharbersInjectModule{
             "field-names-hosp" :: "integrated" ::
             "field-names-integrated" :: Nil
 
-    val bson_path = config.mc.find(p => p._1 == "bson-path").get._2.toString
+    var bson_path = config.mc.find(p => p._1 == "bson-path").get._2.toString
 
-    def apply(company : String, sub_uuids : List[String]) = {
+    def apply(company : String, rid : String) = {
         var isfirst : Boolean = false
-
+        bson_path = bson_path + s"/${rid}"
         val file: File = new File(bson_path)
         val fileList: Array[File] = file.listFiles()
         println(s"=== files count = ${fileList.length} ===")
