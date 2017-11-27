@@ -41,5 +41,9 @@
 .inRight{
     float: right!important;
 }
-
-/*******************************设计*********************/
+.shadow-button{
+    box-shadow:#fff 0 0 0 , #737373 1px 1px 6px,#fff 0 0 0 ,#fff 0 0 0;
+}
+.shadow-box{
+    box-shadow: #737373 1px 1px 6px;
+}

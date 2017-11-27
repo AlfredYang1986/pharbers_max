@@ -1,5 +1,7 @@
 @pageLayout.calculPanel.calculStepPanel("MAX | 添加数据") {
     <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/calculStep.css")">
+    <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/sampleResult.css")">
+    <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/calculResult.css")">
 } {
     <div id="firstStep" class="row">
         <div class="col-sm-1 col-lg-1"></div>
@@ -65,6 +67,7 @@
     @calculPages.calculStep.secondStep()
     @calculPages.calculStep.sampleResult()
     @calculPages.calculStep.thirdStep()
+    @calculPages.calculStep.calculResult()
     <div class="mask-layer"></div>
     <div class="loading"><i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size: 48px;
         color: #008B7D;">&#x1002;</i></div>
@@ -73,5 +76,8 @@
     @calculPages.calculStep.backCheck()
     @calculPages.calculStep.monthChoose()
     <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
+    <script src="@routes.Assets.versioned("eachars3.0/china.js")"></script>
     <script src="@routes.Assets.versioned("js/calcul/calculStep.js")"></script>
+    <script src="@routes.Assets.versioned("js/calcul/sampleResult.js")"></script>
+    <script src="@routes.Assets.versioned("js/calcul/calculResult.js")"></script>
 }

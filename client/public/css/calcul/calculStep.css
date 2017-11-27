@@ -3,8 +3,12 @@
 .step{
     padding: 20px 20px;
     line-height:40px;
-    height: 80px;
+    min-height: 80px;
     box-shadow: #737373 1px 1px 6px;
+}
+.step-img{
+    max-width: 300px;
+    min-width: 280px;
 }
 .backHome{
     right: 20px;
@@ -46,6 +50,10 @@
     padding-top:  80px;
     margin: 0px auto;
 }
+#calc-btn{
+    height: 100%;
+    margin: auto 0px;
+}
 .chart-panel{
     height: 200px;
     padding: 20px 20px;
@@ -59,32 +67,4 @@
     width: 450px;
 
 }
-.char-h1{
-    font-family: PingFangSC-Semibold, sans-serif;
-    font-size: 1.125em;
 
-}
-.t-body{
-    min-height: 400px;
-}
-.t-num{
-    height: 24px;
-    line-height: 24px;
-}
-.t-content{
-    min-height: 350px;
-    padding: 25px 0px;
-}
-.t-lineChart{
-    height: 320px;
-    width: 450px;
-}
-.t-describe{
-    padding: 30px;
-    min-height: 320px;
-    width: 350px;
-}
-.sample-bar{
-    height: 350px;
-    width: 950px;
-}
