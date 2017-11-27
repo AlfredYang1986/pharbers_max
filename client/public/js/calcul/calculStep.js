@@ -298,7 +298,7 @@
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            prograssBar(98, 210000, 0);
+            prograssBar(98, 6000, 0);
         }, function(e){console.error(e)});
     };
 

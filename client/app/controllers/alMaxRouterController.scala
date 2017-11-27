@@ -9,12 +9,11 @@ import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.token.AuthTokenTrait
 import play.api.mvc._
+import play.api.libs.json.Json.toJson
 
 
 // TODO 稍后进行封装
 trait alValidationController { this: Controller =>
-
-    val redisDriver = phRedisDriver().commonDriver
 
     def validation(parm: String)(implicit att: AuthTokenTrait, db: DBTrait): Result = {
         alParsingTokenUser(parm).parse match {
@@ -44,8 +43,7 @@ trait alValidationController { this: Controller =>
     }
     
     def getUserTokenByCookies(request: Request[AnyContent]): String = {
-        val accessToken = request.cookies.get("user_token").map(x => x.value).getOrElse("")
-        redisDriver.get(accessToken).getOrElse("")
+        request.cookies.get("user_token").map(x => x.value).getOrElse("")
     }
     
     def loginForType(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): Result = {
@@ -54,11 +52,12 @@ trait alValidationController { this: Controller =>
     }
 
     def showUser(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): User = {
-        val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
+//        val token = redisDriver.hgetall1(getUserTokenByCookies(request)).getOrElse(Map())
+        val token = getUserTokenByCookies(request)
         if(token.isEmpty)
             User("","","",Nil)
         else{
-            alParsingTokenUser(token).parse match {
+            alParsingTokenUser2(token).parse match {
                 case User(name, email, phone, scope) => User(name, email, phone, scope)
                 case _ => ???
             }
