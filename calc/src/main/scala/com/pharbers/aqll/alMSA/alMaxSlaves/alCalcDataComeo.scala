@@ -16,6 +16,7 @@ import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import akka.actor.SupervisorStrategy.{Escalate, Restart}
 import com.pharbers.aqll.alCalc.almain.alSegmentGroup
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
+import com.pharbers.driver.redis.phRedisDriver
 
 import scala.collection.immutable.Map
 import scala.concurrent.stm.{Ref, atomic}
@@ -83,8 +84,12 @@ class alCalcDataComeo (item : alMaxRunning,
             log.info("&& T8 END &&")
         }
         case calc_data_average(avg) => impl_router ! calc_data_average(avg)
-        case calc_data_average2(avg_path) => impl_router ! calc_data_average2(avg_path)
-
+        case calc_data_average2(avg_path, path) =>  {
+            val redisDriver = phRedisDriver().commonDriver
+            val bsonpath = UUID.randomUUID().toString
+            redisDriver.lpush("bsonpath", bsonpath)
+            impl_router ! calc_data_average2(avg_path, bsonpath)
+        }
         case calc_data_result(v, u) => originSender ! calc_data_result(v, u)
         case calc_data_end(result, p) => {
             log.info("&& T11 START &&")
@@ -123,7 +128,7 @@ class alCalcDataComeo (item : alMaxRunning,
 
 //            r = alMaxRunning(item.uid, item.tid, mid, q)
             r = item
-            
+
             impl_router ! calc_data_hand()
             endDate("&& T5 && ", t5)
             log.info("&& T5 END &&")

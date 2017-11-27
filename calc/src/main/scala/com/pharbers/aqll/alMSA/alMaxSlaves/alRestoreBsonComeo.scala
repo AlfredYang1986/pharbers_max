@@ -32,12 +32,10 @@ class alRestoreBsonComeo (val uid : String,
     override def receive: Receive = {
 
         case restore_bson_start_impl(uid) => {
-
             val redisDriver = phRedisDriver().commonDriver
             val company = redisDriver.hget(uid, "company").get
-            val rid = redisDriver.hget(uid, "rid").get
-
-            alRestoreColl3().apply(s"${company}${rid}", rid)
+            val bsonpath = redisDriver.rpop("bsonpath").get
+            alRestoreColl3().apply(s"${company}${bsonpath}", bsonpath)
             self ! restore_bson_end(true, uid)
         }
         case restore_bson_end(result, sub_uuid) => {

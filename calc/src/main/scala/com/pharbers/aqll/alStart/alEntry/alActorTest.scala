@@ -34,6 +34,12 @@ object alActorTest extends App {
 
 			redisDriver.hset("uid", "company", "fea9f203d4f593a96f0d6faa91ba24ba")	//单独测试后端临时使用
 
+			//test calc ym
+			if(false){
+				a ! pushCalcYMJob(alPanelItem("fea9f203d4f593a96f0d6faa91ba24ba", "uid", cpa_file_local, gycx_file_local))
+				println("======================================== test calc ym")
+			}
+
 			//test generter panel
 			if(false){
 				a ! pushGeneratePanelJob(alPanelItem("fea9f203d4f593a96f0d6faa91ba24ba", "uid", cpa_file_local, gycx_file_local, List("201705")))
@@ -42,14 +48,10 @@ object alActorTest extends App {
 
 			//test split -> group -> calc -> bson
 			if(true){
-				a ! pushSplitPanelJob("uid")
-				println("===================== test split -> group -> calc -> bson")
-			}
-
-//			//test calc ym
-			if(false){
-				a ! pushCalcYMJob(alPanelItem("fea9f203d4f593a96f0d6faa91ba24ba", "uid", cpa_file_local, gycx_file_local))
-				println("======================================== test calc ym")
+				1 to 2 foreach { x =>
+					a ! pushSplitPanelJob("uid")
+					println("===================== test split -> group -> calc -> bson")
+				}
 			}
 		}
 	}

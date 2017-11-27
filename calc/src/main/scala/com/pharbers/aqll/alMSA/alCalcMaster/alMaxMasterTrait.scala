@@ -119,8 +119,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         println(s"postCalcJob.bool=${bool}")
         println(s"item.finalValue=${item.finalValue}")
         println(s"item.finalUnit=${item.finalUnit}")
-        val master = context.actorOf(alMaxMaster.props)
-        master ! push_restore_job(item.uid)
+        self ! push_restore_job(item.uid)
         var msg = Map[String, String]()
         if (bool) {
             msg = Map(

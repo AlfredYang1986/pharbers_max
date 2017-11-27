@@ -87,7 +87,7 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
             log.info("&& T7_2 END &&")
         }
 
-        case calc_data_average2(avg_path) => {
+        case calc_data_average2(avg_path, bsonpath) => {
             import scala.math.BigDecimal
             log.info("&& T10 START &&")
             val t10 = startDate()
@@ -99,9 +99,7 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
             if (!dir.isExists)
                 dir.createDir
 
-            val redisDriver = phRedisDriver().commonDriver
-            val rid = redisDriver.hget(tmp.uid, "rid").get
-            bson_path = bson_path + s"/${rid}"
+            bson_path = bson_path + s"/${bsonpath}"
             val dir2 = alFileOpt(bson_path)
             if (!dir2.isExists)
                 dir2.createDir

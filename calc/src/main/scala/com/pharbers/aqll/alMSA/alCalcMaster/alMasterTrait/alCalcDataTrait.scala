@@ -95,7 +95,7 @@ object alCameoCalcData {
     case class calc_data_sum(sum : List[(String, (Double, Double, Double))])
     case class calc_data_sum2(path: String)
     case class calc_data_average(avg : List[(String, Double, Double)])
-    case class calc_data_average2(avg_path : String)
+    case class calc_data_average2(avg_path: String, bsonpath: String)
     case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, item : alMaxRunning)
     case class calc_data_timeout()
@@ -185,7 +185,7 @@ class alCameoCalcData ( val item : alMaxRunning,
                 }
                 log.info(s"done for avg $path")
 
-                sum.foreach(_ ! calc_data_average2(path + "/" + "avg"))
+                sum.foreach(_ ! calc_data_average2(path + "/" + "avg", path))
             }
             endDate("&& T9 && ", t9)
             log.info("&& T9 END &&")
