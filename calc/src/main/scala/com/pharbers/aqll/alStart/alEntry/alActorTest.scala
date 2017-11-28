@@ -53,7 +53,7 @@ object alActorTest extends App {
 
 			//test split -> group -> calc -> bson
 			if(true){
-				1 to 2 foreach { x =>
+				1 to 100 foreach { x =>
 					a ! pushSplitPanelJob("uid")
 					println("===================== test split -> group -> calc -> bson")
 				}
