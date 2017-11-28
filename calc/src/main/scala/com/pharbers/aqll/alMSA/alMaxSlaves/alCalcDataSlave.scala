@@ -5,10 +5,10 @@ import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStra
 import akka.pattern.ask
 import akka.util.Timeout
 
-import scala.concurrent.duration._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_end, calc_data_hand, calc_data_start_impl}
 
+import scala.concurrent.duration._
 import scala.concurrent.Await
 
 /**
@@ -17,13 +17,6 @@ import scala.concurrent.Await
 object alCalcDataSlave {
     def props = Props[alCalcDataSlave]
     def name = "clac-data-slave"
-
-//    import scala.concurrent.ExecutionContext.Implicits.global
-//    case class state_agent(val isRunning : Boolean)
-//    val stateAgent = Agent(state_agent(false))
-//
-//    case class slave_status(val canDoJob : Boolean)
-//    val slaveStatus = Agent(slave_status(true))
 }
 
 class alCalcDataSlave extends Actor with ActorLogging {

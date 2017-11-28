@@ -109,12 +109,7 @@ class alCameoRestoreBson(val uid : String,
                 sender ! restore_bson_start_impl(uid)
                 sign = true
             }
-        }
-        // TODO: 内存泄漏，稳定后修改
-        case result : restore_bson_end => {
-            //            slaveStatus send slave_status(true)
-            //            owner forward result
-            shutCameo(result)
+            shutCameo("End Restore Hand")
         }
     }
 
@@ -124,9 +119,6 @@ class alCameoRestoreBson(val uid : String,
     }
 
     def shutCameo(msg : AnyRef) = {
-        originSender ! msg
-//        val master = context.actorOf(alMaxMaster.props)
-//        master ! msg
         log.info("stopping cameo restore bson")
         restore_timer.cancel()
         self ! PoisonPill

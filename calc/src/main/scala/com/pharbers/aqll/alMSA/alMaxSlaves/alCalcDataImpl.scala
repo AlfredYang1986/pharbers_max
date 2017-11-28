@@ -82,7 +82,7 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
                 phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
             }
 
-            sender ! calc_data_sum2("segment")
+            sender ! calc_data_sum2()
             endDate("&& T7_2 && ", t7)
             log.info("&& T7_2 END &&")
         }
@@ -153,9 +153,6 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
 
                 log.info(s"calc done at ${sub_uuid}")
 
-            }else {
-//                log.info(s"Error! source=${source} not exist!")
-                sender() ! calc_data_end(true, tmp)
             }
             sender() ! calc_data_result(value, unit)
             sender() ! calc_data_end(true, tmp)

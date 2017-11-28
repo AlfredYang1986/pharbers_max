@@ -68,7 +68,8 @@ class alRestoreBsonComeo (val uid : String,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        originSender ! msg
+        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        a ! msg
         log.info("stopping restore bson cameo")
         timeoutMessager.cancel()
         //        context.stop(self)

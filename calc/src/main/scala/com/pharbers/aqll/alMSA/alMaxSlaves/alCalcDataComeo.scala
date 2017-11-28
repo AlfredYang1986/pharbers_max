@@ -15,6 +15,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.spli
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import akka.actor.SupervisorStrategy.{Escalate, Restart}
 import com.pharbers.aqll.alCalc.almain.alSegmentGroup
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.sumCalcJob
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
 import com.pharbers.driver.redis.phRedisDriver
 
@@ -42,7 +43,6 @@ class alCalcDataComeo (item : alMaxRunning,
     
     var cur = 0
     var sed = 0
-    var sum = 0
     var segment : List[String] = Nil
     import alCalcDataComeo._
     var r : alMaxRunning = null
@@ -61,25 +61,11 @@ class alCalcDataComeo (item : alMaxRunning,
             log.info("timeout occur")
             shutSlaveCameo(split_panel_timeout())
         }
-        case calc_data_sum2(path) => {
-            log.info(s"&& T8 STRAT path = ${path} &&")
-            println(s"&& T8 STRAT path = ${path} &&")
+        case calc_data_sum2() => {
             val t8 = startDate()
             println("&& T8 && alCalcDataComeo.calc_data_sum2")
-//            segment = path :: segment
-            // TODO: 现在单机单线程情况，暂时不需要写多机器多线
-            sum += 1
-            if (sum == core_number) {
-                val seg_path = path + "_seg"
-//                println(s"&& T8 seg_path = ${path} &&")
-//                val dir = alFileOpt(seg_path)
-//                if(!dir.isExists) dir.createDir
-//                val file = alFileOpt(seg_path + "/" + "segmentData")
-//                if (!file.isExists) file.createFile
-//                segment.foreach(one_path => file.appendData2File(readSegmentData(one_path)))
-                r.isSumed = true
-                originSender ! calc_data_sum2(seg_path)
-            }
+            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            a ! sumCalcJob(item, self)
             endDate("&& T8 && ", t8)
             log.info("&& T8 END &&")
         }
@@ -90,7 +76,11 @@ class alCalcDataComeo (item : alMaxRunning,
             redisDriver.lpush("bsonpath", bsonpath)
             impl_router ! calc_data_average2(avg_path, bsonpath)
         }
-        case calc_data_result(v, u) => originSender ! calc_data_result(v, u)
+        case calc_data_result(v, u) => {
+            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            a ! calc_data_result(v, u)
+        }
+
         case calc_data_end(result, p) => {
             log.info("&& T11 START &&")
             val t11 = startDate()
@@ -114,19 +104,6 @@ class alCalcDataComeo (item : alMaxRunning,
             log.info("&& T5 START &&")
             val t5 = startDate()
             println("&& T5 && alCalcDataComeo.calc_data_start_impl")
-//            val core_number = server_info.cpu
-//            val mid = UUID.randomUUID.toString
-//            val lst = (1 to core_number).map (x => worker_calc_core_split_jobs(Map(worker_calc_core_split_jobs.max_uuid -> item.tid,
-//                worker_calc_core_split_jobs.calc_uuid -> item.subs(x - 1).tid,
-//                worker_calc_core_split_jobs.mid_uuid -> mid))).toList
-//
-//            println(s"T5.lst=${lst}")
-//            lst.foreach(x => println(s"&& list.x=${x}"))
-//
-//            val m = lst.map (_.result.get.asInstanceOf[(String, List[String])]._2).flatten.distinct
-//            val q = m.map (x => alMaxRunning(item.uid, x, mid, Nil))
-
-//            r = alMaxRunning(item.uid, item.tid, mid, q)
             r = item
 
             impl_router ! calc_data_hand()
@@ -167,10 +144,10 @@ class alCalcDataComeo (item : alMaxRunning,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        originSender ! msg
+        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        a ! msg
         log.info("shutting calc data cameo")
         timeoutMessager.cancel()
-//        insert_db_schedule.cancel()
         context.stop(self)
     }
 

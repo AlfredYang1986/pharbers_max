@@ -1,6 +1,12 @@
 package com.pharbers.aqll.alMSA.alCalcAgent
 
 import akka.actor.{Actor, ActorLogging, Props}
+import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
+import akka.routing.{BroadcastPool, RoundRobinPool}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_end, calc_data_result}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster._
 
 /**
   * Created by alfredyang on 11/07/2017.
@@ -24,8 +30,10 @@ class alPropertyAgent extends Actor with ActorLogging {
                                         "splitcalcslave" -> 0,
                                         "splitrestorebsonslave" -> 0,
                                         "splittest" -> 0)
-    import alPropertyAgent._
 
+    val master_router = context.actorOf(BroadcastPool(1).props(alMaxMaster.props), alMaxMaster.name)
+
+    import alPropertyAgent._
     override def receive: Receive = {
         case queryIdleNodeInstanceInSystemWithRole(role) => {
             // println(s"queryIdleNodeInstanceInSystemWithRole.energy=${energy}")
@@ -46,6 +54,27 @@ class alPropertyAgent extends Actor with ActorLogging {
             // println(s"refundNodeForRole.energy=${energy}")
             sender ! true
         }
+
+        case msg: pushCalcYMJob => master_router forward msg
+
+        case msg: pushGeneratePanelJob => master_router forward msg
+        case msg: generatePanelResult => master_router forward msg
+
+        case msg: pushSplitPanelJob => {
+            println(s"&& alPropertyAgent => pushSplitPanelJob")
+            master_router forward msg
+        }
+
+        case sumCalcJob(item, s) => {
+            println(s"&& alPropertyAgent => sumCalcJob")
+            master_router ! sumCalcJob(item, s)
+        }
+        case calc_data_result(v, u) => master_router ! calcDataResult(v, u)
+        case msg: calc_data_end => master_router forward msg
+
+        case msg: restore_bson_end => master_router forward msg
+
+        case msg: AnyRef => log.info(s"Error Message[${msg}] not deliver!")
     }
 
 }

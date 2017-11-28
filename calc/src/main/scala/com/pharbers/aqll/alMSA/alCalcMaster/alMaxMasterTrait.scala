@@ -52,6 +52,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     def preSplitPanelJob(uid: String) ={
         val rid = phRedisDriver().commonDriver.hget(uid, "rid")
                 .map(x=>x).getOrElse(throw new Exception("not found uid"))
+        println(s"alMaxMasterTrait.preSplitPanelJob.rid=${rid}")
         val panelLst = phRedisDriver().commonDriver.smembers(rid)
                 .map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
         panelLst.foreach{panel=>
@@ -150,7 +151,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postRestoreJob(bool: Boolean, uid: String) ={
-        println(s"postRestoreJob.bool=${bool}")
+        println(s"还原数据库结束！postRestoreJob.bool=${bool}")
         var msg = Map[String, String]()
         if (bool) {
             msg = Map(

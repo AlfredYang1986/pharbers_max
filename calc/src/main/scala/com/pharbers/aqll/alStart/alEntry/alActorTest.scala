@@ -21,7 +21,8 @@ object alActorTest extends App {
 
 	if (system.settings.config.getStringList("akka.cluster.roles").contains("splittest")){
 		Cluster(system).registerOnMemberUp {
-			val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
+//			val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/driver-actor")
+			val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
 //			val redisDriver = phRedisDriver().commonDriver
 
 //			// 通过用户登录产生的token获取company_name
@@ -52,7 +53,7 @@ object alActorTest extends App {
 
 			//test split -> group -> calc -> bson
 			if(true){
-				1 to 50 foreach { x =>
+				1 to 2 foreach { x =>
 					a ! pushSplitPanelJob("uid")
 					println("===================== test split -> group -> calc -> bson")
 				}
@@ -75,7 +76,7 @@ object alActorTest extends App {
 				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705PAIN.xlsx", cp)
 				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705PAIN_C.xlsx", cp)
 				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705ZYVOX.xlsx", cp)
-//				a ! pushSplitPanelJob(uid)
+//				a ! pushSplitPanelJob("uid")
 			}
 		}
 	}

@@ -83,12 +83,14 @@ class alCameoGeneratePanel(panel_job : alPanelItem,
 
     override def receive: Receive = {
         case generate_panel_start() => slaveActor ! generate_panel_hand()
-        case generate_panel_hand() => sender ! generate_panel_start_impl(panel_job)
-        case generate_panel_end(uid, panelResult) => {
-            masterActor ! generatePanelResult(uid, panelResult)
+        case generate_panel_hand() => {
+            sender ! generate_panel_start_impl(panel_job)
             shutCameo
         }
-        case generate_panel_timeout() => println("=====generate_panel_timeout")
+        case generate_panel_timeout() => {
+            log.info("Error Generate_panel_timeout")
+            shutCameo
+        }
         case msg : AnyRef => log.info(s"Warning! Message not delivered. alCameoGeneratePanel.received_msg=${msg}")
     }
 

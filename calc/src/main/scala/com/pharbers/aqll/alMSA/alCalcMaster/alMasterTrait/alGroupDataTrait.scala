@@ -128,8 +128,7 @@ class alCameoGroupData (item: alMaxRunning,
         }
 
         case group_data_error(reason) => {
-            println("group_data_error(reason)")
-//            masterActor ! group_data_error(reason)
+            log.info(s"Error! group_data_error($reason)")
         }
     }
 

@@ -5,9 +5,11 @@ import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_start_impl, generate_panel_timeout}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.generatePanelResult
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json.Json.toJson
+
 import scala.collection.immutable.Map
 
 /**
@@ -51,7 +53,7 @@ class alGeneratePanelCameo(panel_job: alPanelItem,
 
         case generate_panel_end(uid, panelResult) => {
             slaveActor forward generate_panel_end(uid, panelResult)
-            shutSlaveCameo(generate_panel_end(uid, panelResult))
+            shutSlaveCameo(generatePanelResult(uid, panelResult))
         }
 
         case generate_panel_timeout() => {
@@ -80,7 +82,8 @@ class alGeneratePanelCameo(panel_job: alPanelItem,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        comeoActor ! msg
+        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        a ! msg
         log.info("stopping generate panel cameo")
         timeoutMessager.cancel()
         self ! PoisonPill

@@ -15,7 +15,6 @@ import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.calcSchedule
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
@@ -41,6 +40,10 @@ trait alCalcDataTrait { this : Actor =>
             ).props(alCalcDataSlave.props), name = "calc-data-router")
 
     val calc_router = createCalcRouter
+    val core_number: Int = server_info.cpu
+    var sum = 0
+    var uid = ""
+    var tid = ""
 
     def pushCalcJobs(item: alMaxRunning, sender: ActorRef) = {
         atomic { implicit thx =>
@@ -61,7 +64,6 @@ trait alCalcDataTrait { this : Actor =>
                 val tmp = calc_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-
                     calcData(tmp.head._1, tmp.head._2)
                     calc_jobs() = calc_jobs().tail
                 }
@@ -81,10 +83,42 @@ trait alCalcDataTrait { this : Actor =>
         alWebSocket(item.uid).post(msg)
     }
 
+    def doSum(item: alMaxRunning, s: ActorRef) {
+        println("开始求和")
+        // TODO: 现在单机多线程情况,需要时再写多机器多线
+        // TODO: 因为是在Master结点上,所以改一下判断依据即可
+        sum += 1
+        if(sum == core_number){
+            uid = item.uid
+            tid = item.tid
+            val cur = context.actorOf(alCameoCalcData.props(item, s, self, calc_router))
+            cur ! calc_data_sum2()
+            val msg = Map(
+                "type" -> "progress_calc",
+                "progress" -> "11",
+                "txt" -> "正在计算中"
+            )
+            alWebSocket(item.uid).post(msg)
+            sum = 0
+        }
+    }
+
+    def finalResult(v : Double, u : Double) {
+        val phRedisSet= phRedisDriver().phSetDriver
+        val user_cr = s"calcResultUid${uid}"
+        val cr = s"calcResultTid${tid}"
+        val map = Map(user_cr -> cr, "value" -> v, "units" -> u)
+        phRedisSet.sadd(s"${user_cr}", map, f)
+    }
+
     import scala.concurrent.ExecutionContext.Implicits.global
     val calc_schdule = context.system.scheduler.schedule(2 second, 3 second, self, calcSchedule())
 
     val calc_jobs = Ref(List[(alMaxRunning, ActorRef)]())
+
+    val f = (m1 : Map[String, Any], m2 : Map[String, Any]) => {
+        m1.map(x => (x._1 -> (x._2.toString.toDouble + m2.get(x._1).get.toString.toDouble)))
+    }
 }
 
 object alCameoCalcData {
@@ -92,14 +126,12 @@ object alCameoCalcData {
     case class calc_data_hand()
     case class calc_data_start_impl(item : alMaxRunning)
     case class calc_data_start_impl2(item : alMaxRunning)
-    case class calc_data_sum(sum : List[(String, (Double, Double, Double))])
-    case class calc_data_sum2(path: String)
+    case class calc_data_sum2()
     case class calc_data_average(avg : List[(String, Double, Double)])
     case class calc_data_average2(avg_path: String, bsonpath: String)
     case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, item : alMaxRunning)
     case class calc_data_timeout()
-    case class calc_slave_status()
 
     def props(item: alMaxRunning,
               originSender: ActorRef,
@@ -117,7 +149,6 @@ class alCameoCalcData ( val item : alMaxRunning,
     val core_number = server_info.cpu
     val tid = item.tid
 
-    var sum : List[ActorRef] = Nil
     var sed = 0
     var cur = 0
     var tol = 0
@@ -155,70 +186,39 @@ class alCameoCalcData ( val item : alMaxRunning,
                 endDate("&& T3 && ", t3)
             }
             log.info("&& T3 END &&")
+//            shutCameo("End Hand Cameo")
         }
-        case calc_data_sum2(path) => {
+        case calc_data_sum2() => {
             log.info("&& T9 START &&")
             val t9 = startDate()
             println("&& T9 && alCameoCalcData.calc_data_sum2")
             // TODO: 开始读取segment分组文件
-//            property.sum = property.sum ++: readSegmentGroupData(path)
             item.sum = item.sum ++: readRedisSegment("segment")
+            item.isSumed = true
+            item.sum = (item.sum.groupBy(_._1) map { x =>
+                (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
+            }).toList
+            val path = s"${memorySplitFile}${calc}${tid}"
+            val dir = alFileOpt(path)
+            if (!dir.isExists)
+                dir.createDir
+            val file = alFileOpt(path + "/" + "avg")
+            if (!file.isExists)
+                file.createFile
 
-            sum = sender :: sum
-            if (sum.length == tol / core_number) {
-                item.isSumed = true
-                item.sum = (item.sum.groupBy(_._1) map { x =>
-                    (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
-                }).toList
-//                log.info(s"done for suming ${property.sum}")
-                val path = s"${memorySplitFile}${calc}${item.tid}"
-                val dir = alFileOpt(path)
-                if (!dir.isExists)
-                    dir.createDir
-                val file = alFileOpt(path + "/" + "avg")
-                if (!file.isExists)
-                    file.createFile
-
-                val mapAvg = item.sum.filterNot(x => x._2._1 == 0 && x._2._2 == 0).map { x =>
-                    val avg_elem = (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
-                    file.appendData2File(s"${avg_elem._1},${avg_elem._2},${avg_elem._3}"::Nil)
-                }
-                log.info(s"done for avg $path")
-
-                sum.foreach(_ ! calc_data_average2(path + "/" + "avg", path))
+            val mapAvg = item.sum.filterNot(x => x._2._1 == 0 && x._2._2 == 0).map { x =>
+                val avg_elem = (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
+                file.appendData2File(s"${avg_elem._1},${avg_elem._2},${avg_elem._3}"::Nil)
             }
+            log.info(s"done for avg $path")
+
+            originSender ! calc_data_average2(path + "/" + "avg", path)
+
+            shutCameo("End Sum Cameo")
             endDate("&& T9 && ", t9)
             log.info("&& T9 END &&")
         }
 
-        case calc_data_result(v, u) => {
-            log.info("&& T12 START &&")
-            val t12 = startDate()
-            println("&& T12 && alCameoCalcData.calc_data_result")
-            item.finalValue += v
-            item.finalUnit += u
-            endDate("&& T12 && ", t12)
-            log.info("&& T12 END &&")
-        }
-        case calc_data_end(result, mp) => {
-            log.info("&& T14 START &&")
-            val t14 = startDate()
-            println("&& T14 && alCameoCalcData.calc_data_end")
-            if (result) {
-                cur += 1
-                if (cur == tol / core_number) {
-                    val r = calc_data_end(true, item)
-                    //                    owner ! r
-                    shutCameo(r)
-                }
-            } else {
-                val r = calc_data_end(false, item)
-                //                owner ! r
-                shutCameo(r)
-            }
-            endDate("&& T14 && ", t14)
-            log.info("&& T14 END &&")
-        }
         case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
     }
 
@@ -228,28 +228,11 @@ class alCameoCalcData ( val item : alMaxRunning,
     }
 
     def shutCameo(msg : AnyRef) = {
-        originSender ! msg
-//        val master = context.actorOf(alMaxMaster.props)
-//        master ! msg
-        //        slaveStatus send slave_status(true)
+        val commonDriver= phRedisDriver().commonDriver
+        commonDriver.del("segment")
         log.info("stopping group data cameo")
         calc_timer.cancel()
         context.stop(self)
-    }
-
-    def readSegmentGroupData(path: String) = {
-        var segmentLst: List[(String, (Double, Double, Double))] = Nil
-        val dir = alFileOpt(path)
-        if (!dir.isExists)
-            dir.createDir
-        val source = alFileOpt(path + "/" + "segmentData")
-        if (source.isExists) {
-            source.enumDataWithFunc { line =>
-                val s = alShareData.txtSegmentGroupData(line)
-                segmentLst = segmentLst :+ (s.segement, (s.sales, s.units, s.calc))
-            }
-        }
-        segmentLst
     }
 
     def readRedisSegment(setName: String) = {
