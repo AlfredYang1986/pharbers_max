@@ -1,12 +1,14 @@
 package com.pharbers.aqll.alMSA.alCalcAgent
 
 import akka.actor.{Actor, ActorLogging, Props}
+import akka.routing.RoundRobinPool
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import akka.routing.{BroadcastPool, RoundRobinPool}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_end, calc_data_result}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster._
+import com.pharbers.driver.redis.phRedisDriver
 
 /**
   * Created by alfredyang on 11/07/2017.
@@ -31,7 +33,19 @@ class alPropertyAgent extends Actor with ActorLogging {
                                         "splitrestorebsonslave" -> 0,
                                         "splittest" -> 0)
 
-    val master_router = context.actorOf(BroadcastPool(1).props(alMaxMaster.props), alMaxMaster.name)
+    // val master_router = context.actorOf(RoundRobinPool(1).props(alMaxMaster.props), alMaxMaster.name)
+
+    val master_router = context.actorOf(
+            ClusterRouterPool(RoundRobinPool(1),
+                ClusterRouterPoolSettings(
+                    totalInstances = 1,
+                    maxInstancesPerNode = 1,
+                    allowLocalRoutees = true,
+                    useRole = Some("splitmaster")
+                )
+            ).props(alMaxMaster.props), alMaxMaster.name)
+
+    val core_number: Int = server_info.cpu
 
     import alPropertyAgent._
     override def receive: Receive = {
@@ -55,26 +69,32 @@ class alPropertyAgent extends Actor with ActorLogging {
             sender ! true
         }
 
-        case msg: pushCalcYMJob => master_router forward msg
 
-        case msg: pushGeneratePanelJob => master_router forward msg
-        case msg: generatePanelResult => master_router forward msg
 
-        case msg: pushSplitPanelJob => {
-            println(s"&& alPropertyAgent => pushSplitPanelJob")
-            master_router forward msg
+        // case msg: pushCalcYMJob => master_router forward msg
+
+        // case msg: pushGeneratePanelJob => master_router forward msg
+        // case msg: generatePanelResult => master_router forward msg
+
+        // case msg: pushSplitPanelJob => println(s"alPropertyAgent.pushSplitPanelJob"); master_router forward msg
+
+        case sumCalcJob(items, s) => {
+            // TODO: 现在单机多线程情况,需要时再写多机器多线
+            // TODO: 因为是在Master结点上,所以改一下判断依据即可
+            val redisDriver = phRedisDriver().commonDriver
+            var sum = redisDriver.get(s"Uid${items.uid}calcSum").get.toInt
+            sum += 1
+            redisDriver.set(s"Uid${items.uid}calcSum", sum)
+            if(sum == core_number){
+                master_router ! sumCalcJob(items, s)
+                sum = 0
+            }
         }
+        // case msg: calc_data_end => master_router forward msg
 
-        case sumCalcJob(item, s) => {
-            println(s"&& alPropertyAgent => sumCalcJob")
-            master_router ! sumCalcJob(item, s)
-        }
-        case calc_data_result(v, u) => master_router ! calcDataResult(v, u)
-        case msg: calc_data_end => master_router forward msg
+        // case msg: restore_bson_end => master_router forward msg
 
-        case msg: restore_bson_end => master_router forward msg
-
-        case msg: AnyRef => log.info(s"Error Message[${msg}] not deliver!")
+         case msg: AnyRef => master_router forward msg
     }
 
 }

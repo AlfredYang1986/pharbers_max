@@ -12,7 +12,7 @@ object alActorTest extends App {
 	val config = ConfigFactory.load("split-test")
 	val system : ActorSystem = ActorSystem("calc", config)
 
-	val uid = "test-uid"
+	val uid = "uid"
 	val company = "fea9f203d4f593a96f0d6faa91ba24ba"
 	val cpa_file_local = "1705 CPA.xlsx"
 	val gycx_file_local = "1705 GYC.xlsx"
@@ -71,10 +71,30 @@ object alActorTest extends App {
 
 			//test split -> group -> calc -> bson
 			if(true){
-				1 to 50 foreach { x =>
+				1 to 15 foreach { x =>
 					a ! pushSplitPanelJob(uid)
 					println("===================== test split -> group -> calc -> bson")
 				}
+//				println("===================== test split -> group -> calc -> bson")
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705INF.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705Specialty.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705Urology.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705AI_R.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705AI_S.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705AI_D.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705AI_W.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705CNS_R.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705CNS_Z.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705DVP.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705ELIQUIS.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705HTN.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705HTN2.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705LD.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705ONC.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705PAIN.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705PAIN_C.xlsx", cp)
+				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705ZYVOX.xlsx", cp)
+//				a ! pushSplitPanelJob(uid)
 			}
 		}
 	}

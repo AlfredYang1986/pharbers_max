@@ -39,8 +39,7 @@ object alMaxMaster {
 
     //calc module
     case class pushCalcJob(item: alMaxRunning)
-    case class sumCalcJob(item: alMaxRunning, s: ActorRef)
-    case class calcDataResult(v : Double, u : Double)
+    case class sumCalcJob(items: alMaxRunning, s: ActorRef)
     case class calcSchedule()
 
 }
@@ -77,8 +76,7 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
 
         //calc module
         case pushCalcJob(item) => preCalcJob(item, sender)
-        case sumCalcJob(item, s) => doSum(item, s)
-        case calcDataResult(v, u) => finalResult(v, u)
+        case sumCalcJob(items, s) => doSum(items, s)
         case calcSchedule() => schduleCalcJob
         case calc_data_end(bool, item) => postCalcJob(bool, item)
 
@@ -86,6 +84,8 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case push_restore_job(uid) => preRestoreJob(uid, sender)
         case restore_bson_schedule() => schduleRestoreJob
         case restore_bson_end(bool, uid) => postRestoreJob(bool, uid)
+
+        case msg: AnyRef => log.info(s"Error Master msg=${msg}")
     }
 
 }

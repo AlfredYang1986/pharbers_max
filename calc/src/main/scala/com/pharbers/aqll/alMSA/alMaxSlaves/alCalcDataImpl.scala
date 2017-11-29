@@ -15,7 +15,8 @@ import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_average_pre, _}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.sumCalcJob
 import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
@@ -55,6 +56,11 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
     override def receive: Receive = {
         case calc_data_hand() => sender ! calc_data_hand()
 
+        case calc_data_average_pre(item, avg_path, path) => sender ! calc_data_average3(item, avg_path, path)
+        case calc_data_average_pre2(item, avg_path, path) => {
+            sender ! calc_data_average_po(item, avg_path, path)
+        }
+
         case calc_data_start_impl2(item) => {
             log.info("&& T7_2 START &&")
             val t7 = startDate()
@@ -82,7 +88,43 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
                 phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
             }
 
-            sender ! calc_data_sum2()
+//            sender ! calc_data_sum2()
+            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            a ! sumCalcJob(item, self)
+            endDate("&& T7_2 && ", t7)
+            log.info("&& T7_2 END &&")
+        }
+
+        case calc_data_start_impl3(sub_item, items) => {
+            log.info("&& T7_2 START &&")
+            val t7 = startDate()
+            println("&& T7_2 && alCalcDataImpl.calc_data_start_impl")
+            tmp = sub_item
+            println(s"&&calc_data_start_impl2.item=${sub_item}")
+            val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> sub_item.parent, worker_core_calc_jobs.calc_uuid -> sub_item.tid))
+            cj.result
+
+            val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
+
+            val recall = resignIntegratedData(sub_item.parent)(concert)
+            concert.data.zipWithIndex.foreach { x =>
+                max_precess2(x._1.asInstanceOf[IntegratedData],
+                    sub_item.tid,
+                    Some(s"${x._2}/${concert.data.length}"))(recall)(sub_item.uid)
+            }
+
+            val f = (m1 : Map[String, Any], m2 : Map[String, Any]) => {
+                m1.map(x => (x._1 -> (x._2.toString.toDouble + m2.get(x._1).get.toString.toDouble)))
+            }
+
+            val phSetDriver = phRedisDriver().phSetDriver
+            maxSum.foreach { x =>
+                phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
+            }
+
+//            sender ! calc_data_sum2()
+            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            a ! sumCalcJob(items, self)
             endDate("&& T7_2 && ", t7)
             log.info("&& T7_2 END &&")
         }

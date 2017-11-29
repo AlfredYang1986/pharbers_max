@@ -24,6 +24,7 @@ case class alRestoreColl3() extends PharbersInjectModule{
     def apply(company : String, bsonpath : String) = {
         var isfirst : Boolean = false
         bson_path = bson_path + s"/${bsonpath}"
+        println(s"&& => alRestoreColl3.bson_path=${bson_path}")
         val file: File = new File(bson_path)
         val fileList: Array[File] = file.listFiles()
         println(s"=== files count = ${fileList.length} ===")

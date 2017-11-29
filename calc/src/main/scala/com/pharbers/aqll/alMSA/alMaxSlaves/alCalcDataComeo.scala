@@ -43,6 +43,7 @@ class alCalcDataComeo (item : alMaxRunning,
     
     var cur = 0
     var sed = 0
+    var sum = 0
     var segment : List[String] = Nil
     import alCalcDataComeo._
     var r : alMaxRunning = null
@@ -73,12 +74,36 @@ class alCalcDataComeo (item : alMaxRunning,
         case calc_data_average2(avg_path, path) =>  {
             val redisDriver = phRedisDriver().commonDriver
             val bsonpath = UUID.randomUUID().toString
-            redisDriver.lpush("bsonpath", bsonpath)
+            println(s"&& => calc_data_average2.bsonpath=${bsonpath}")
+            redisDriver.lpush(s"bsonPathUid${item.uid}", bsonpath)
             impl_router ! calc_data_average2(avg_path, bsonpath)
         }
+        case calc_data_average3(items, avg_path, path) =>  {
+            sender ! calc_data_average_pre2(items.subs(sed), avg_path, path)
+            sed += 1
+            sum += 1
+            if (sum == core_number) sum = 0
+        }
+        case calc_data_average_po(items, avg_path, path) =>  {
+            sum += 1
+            if (sum == core_number) {
+                val redisDriver = phRedisDriver().commonDriver
+                val bsonpath = UUID.randomUUID().toString
+                println(s"&& => calc_data_average2.bsonpath=${bsonpath}")
+                redisDriver.lpush(s"bsonPathUid${item.uid}", bsonpath)
+                impl_router ! calc_data_average2(avg_path, bsonpath)
+                shutSlaveCameo("End calc_data_hand!")
+            }
+        }
+        case calc_data_average_pre(items, avg_path, path) =>  {
+            impl_router ! calc_data_average_pre(items, avg_path, path)
+        }
         case calc_data_result(v, u) => {
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            a ! calc_data_result(v, u)
+            val phRedisSet= phRedisDriver().phSetDriver
+            val user_cr = s"calcResultUid${item.uid}"
+            val cr = s"calcResultTid${item.tid}"
+            val map = Map(user_cr -> cr, "value" -> v, "units" -> u)
+            phRedisSet.sadd(s"${user_cr}", map, f)
         }
 
         case calc_data_end(result, p) => {
@@ -114,12 +139,14 @@ class alCalcDataComeo (item : alMaxRunning,
             log.info("&& T6 START &&")
             val t6 = startDate()
             println("&& T6 && alCalcDataComeo.calc_data_hand")
+            sum += 1
             if (r != null) {
 //                sender ! calc_data_start_impl(alMaxProperty(r.parent, r.uuid, r.subs(sed) :: Nil), c)
-                sender ! calc_data_start_impl2(r.subs(sed))
+                sender ! calc_data_start_impl3(r.subs(sed), r)
                 sed += 1
                 endDate("&& T6 && ", t6)
             }
+            if (sum == core_number) shutSlaveCameo("End calc_data_hand!")
             log.info("&& T6 END &&")
         }
         
@@ -156,6 +183,10 @@ class alCalcDataComeo (item : alMaxRunning,
             val line_tmp = x.toString.split(",")
             alSegmentGroup(line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble, line_tmp(3).toDouble)
         }
+    }
+
+    val f = (m1 : Map[String, Any], m2 : Map[String, Any]) => {
+        m1.map(x => (x._1 -> (x._2.toString.toDouble + m2.get(x._1).get.toString.toDouble)))
     }
     
     val impl_router =

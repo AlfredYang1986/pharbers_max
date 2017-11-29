@@ -34,7 +34,8 @@ class alRestoreBsonComeo (val uid : String,
         case restore_bson_start_impl(uid) => {
             val redisDriver = phRedisDriver().commonDriver
             val company = redisDriver.hget(uid, "company").get
-            val bsonpath = redisDriver.rpop("bsonpath").get
+            val bsonpath = redisDriver.rpop(s"bsonPathUid${uid}").get
+            println(s"&& => restore_bson_start_impl.bsonpath=${bsonpath}")
             alRestoreColl3().apply(s"${company}${bsonpath}", bsonpath)
             self ! restore_bson_end(true, uid)
         }
