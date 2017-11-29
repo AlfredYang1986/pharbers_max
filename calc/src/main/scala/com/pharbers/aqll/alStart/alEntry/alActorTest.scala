@@ -36,28 +36,27 @@ object alActorTest extends App {
 
 			//test calc ym
 			if(false){
-				a ! pushCalcYMJob(alPanelItem("fea9f203d4f593a96f0d6faa91ba24ba", "uid", cpa_file_local, gycx_file_local))
 				println("======================================== test calc ym")
+				a ! pushCalcYMJob(alPanelItem(company, uid, cpa_file_local, gycx_file_local))
 			}
 
 			//test generter panel
-//			if(true) {
-//				println("================================== test generter panel")
-//				a ! pushGeneratePanelJob(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
-//			} else {
-//				val rid = UUID.randomUUID().toString
-//				redisDriver.hset(uid, "rid", rid)
-//				redisDriver.hset(uid, "company", company)
-//				redisDriver.sadd(rid,csv_panel)
-//			}
+			if(false) {
+				println("================================== test generter panel")
+				a ! pushGeneratePanelJob(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
+			} else {
+				val rid = UUID.randomUUID().toString
+				redisDriver.hset(uid, "rid", rid)
+				redisDriver.hset(uid, "company", company)
+				redisDriver.sadd(rid,csv_panel)
+			}
 
 			//test split -> group -> calc -> bson
 			if(true){
-				1 to 100 foreach { x =>
+				1 to 50 foreach { x =>
 					a ! pushSplitPanelJob("uid")
 					println("===================== test split -> group -> calc -> bson")
 				}
-//				println("===================== test split -> group -> calc -> bson")
 				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705INF.xlsx", cp)
 				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705Specialty.xlsx", cp)
 				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705Urology.xlsx", cp)
@@ -76,7 +75,7 @@ object alActorTest extends App {
 				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705PAIN.xlsx", cp)
 				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705PAIN_C.xlsx", cp)
 				//		a ! push_filter_job("/mnt/config/FileBase/201705/CPA_GYCX_panel_201705ZYVOX.xlsx", cp)
-//				a ! pushSplitPanelJob("uid")
+//				a ! pushSplitPanelJob(uid)
 			}
 		}
 	}
