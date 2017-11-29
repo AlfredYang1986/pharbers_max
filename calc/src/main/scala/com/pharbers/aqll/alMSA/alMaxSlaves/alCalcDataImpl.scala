@@ -210,14 +210,14 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
 
             val redisDriver = phRedisDriver().commonDriver
             val company = redisDriver.hget(uid, "company").get
-            val rid = redisDriver.hget(uid,"rid").get
-            val cid = redisDriver.smembers(rid).get.head.get
-            val ym = redisDriver.hget(cid, "ym").get
-            val mkt = redisDriver.hget(cid, "mkt").get
+//            val rid = redisDriver.hget(uid,"rid").get
+//            val cid = redisDriver.smembers(rid).get.head.get
+//            val ym = redisDriver.hget(cid, "ym").get
+//            val mkt = redisDriver.hget(cid, "mkt").get
 
-            val universe = alEncryptionOpt.md5(company + ym + mkt)
+//            val universe = alEncryptionOpt.md5(company + ym + mkt)
             val data_tmp =
-                alShareData.hospdata(universe, company) map { element =>
+                alShareData.hospdata("universe", company) map { element =>
                     val mrd = westMedicineIncome(element.getCompany, element2.getYearAndmonth, 0.0, 0.0, element2.getMinimumUnit,
                         element2.getMinimumUnitCh, element2.getMinimumUnitEn, element2.getMarket1Ch,
                         element2.getMarket1En, element.getSegment, element.getFactor, element.getIfPanelAll,

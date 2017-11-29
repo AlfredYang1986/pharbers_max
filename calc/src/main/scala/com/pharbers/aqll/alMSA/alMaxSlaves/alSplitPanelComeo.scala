@@ -1,9 +1,7 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import javax.activation.MimetypesFileTypeMap
-
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_jobs, max_split_csv_jobs}
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
@@ -43,12 +41,14 @@ class alSplitPanelComeo(item: alMaxRunning,
         case split_panel_start_impl(item) => {
             //TODO 公司名，要改的
             val file = fileBase + "fea9f203d4f593a96f0d6faa91ba24ba" + outPut + item.tid
-            val result = if("application/octet-stream" == new MimetypesFileTypeMap().getContentType(file)){
-                println("split scv file ==> " + file)
-                max_split_csv_jobs(file).result
-            } else {
+
+            //方便测试
+            val result = if(file.endsWith(".xlsx")){
                 println("split excel file ==> " + file)
                 max_jobs(file).result
+            } else {
+                println("split csv file ==> " + file)
+                max_split_csv_jobs(file).result
             }
 
             try {

@@ -56,7 +56,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         val panelLst = phRedisDriver().commonDriver.smembers(rid)
                 .map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
         panelLst.foreach{panel=>
-            pushSplitPanelJob(alMaxRunning(uid, panel, ""))
+            pushSplitPanelJob(alMaxRunning(uid, panel, rid))
         }
         val msg = Map(
             "type" -> "progress_calc",
