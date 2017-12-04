@@ -64,7 +64,7 @@ object alActorTest extends App {
 //				redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN.xlsx")
 //				redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN_C.xlsx")
 //				redisDriver.sadd(rid, "CPA_GYCX_panel_201705ZYVOX.xlsx")
-				Thread.sleep(30000)
+				Thread.sleep(3000)
 			}
 
 			//test split -> group -> calc -> bson

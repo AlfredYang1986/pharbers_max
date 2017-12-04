@@ -91,6 +91,7 @@ class alCalcDataComeo (item : alMaxRunning,
 
         case calc_data_result(v, u) => {
                 val phRedisSet= phRedisDriver().phSetDriver
+            val phRedisSet= phRedisDriver().phSetDriver
             val user_cr = s"calcResultUid${item.uid}"
             val cr = s"calcResultTid${item.tid}"
             val map = Map(user_cr -> cr, "value" -> v, "units" -> u)

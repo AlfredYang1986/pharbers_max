@@ -130,8 +130,6 @@ class alCameoCalcData ( val item : alMaxRunning,
     import alCameoCalcData._
 
     val core_number = server_info.cpu
-    val tid = item.tid
-
     var sed = 0
     var cur = 0
     var tol = 0
@@ -145,7 +143,7 @@ class alCameoCalcData ( val item : alMaxRunning,
         case _ : calc_data_start => {
             log.info("&& T1 && alCameoCalcData.calc_data_start")
             val t1 = startDate()
-            println("&& T1 && alCameoCalcData.calc_data_start")
+            println(s"&& T1 && alCameoCalcData.calc_data_start item=${item}")
 
             val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> item.tid))
             val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
@@ -155,6 +153,7 @@ class alCameoCalcData ( val item : alMaxRunning,
             tol = item.subs.length
             router ! calc_data_hand()
             endDate("&& T1 &&", t1)
+            println(s"&& T1 END item=${item} &&")
             log.info("&& T1 END &&")
         }
         case calc_data_hand() => {
@@ -181,7 +180,7 @@ class alCameoCalcData ( val item : alMaxRunning,
             item.sum = (item.sum.groupBy(_._1) map { x =>
                 (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
             }).toList
-            val path = s"${memorySplitFile}${calc}${tid}"
+            val path = s"${memorySplitFile}${calc}${item.tid}"
             val dir = alFileOpt(path)
             if (!dir.isExists)
                 dir.createDir

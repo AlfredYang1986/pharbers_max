@@ -47,7 +47,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 //                phRedisDriver().commonDriver.hset(cid, "calcStep", 0)
             }
         }
-        self ! pushSplitPanel(uid)
     }
 
     def preSplitPanelJob(uid: String) ={
