@@ -108,12 +108,10 @@ object alCameoCalcData {
     case class calc_data_start_impl2(item : alMaxRunning)
     case class calc_data_start_impl3(sub_item : alMaxRunning, items : alMaxRunning)
     case class calc_data_sum2()
-    case class calc_data_average(avg : List[(String, Double, Double)])
-    case class calc_data_average2(avg_path: String, bsonpath: String)
-    case class calc_data_average3(item : alMaxRunning, avg_path: String, bsonpath: String)
-    case class calc_data_average_pre(item : alMaxRunning, avg_path: String, bsonpath: String)
-    case class calc_data_average_pre2(item : alMaxRunning, avg_path: String, bsonpath: String)
-    case class calc_data_average_po(item : alMaxRunning, avg_path: String, bsonpath: String)
+    case class calc_data_average(item : alMaxRunning, avg_path: String, bsonpath: String)
+    case class calc_data_average_pre(avg_path: String, bsonpath: String)
+    case class calc_data_average_one(avg_path: String, bsonpath: String)
+    case class calc_data_average_post(item : alMaxRunning, avg_path: String, bsonpath: String)
     case class calc_data_result(v : Double, u : Double)
     case class calc_data_end(result : Boolean, item : alMaxRunning)
     case class calc_data_timeout()
@@ -198,7 +196,7 @@ class alCameoCalcData ( val item : alMaxRunning,
             log.info(s"done for avg $path")
 
             item.sum = Nil
-            router ! calc_data_average3(item, path + "/" + "avg", path)
+            router ! calc_data_average(item, path + "/" + "avg", path)
 
             shutCameo("End Sum Cameo")
             endDate("&& T9 && ", t9)

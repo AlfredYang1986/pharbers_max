@@ -41,10 +41,10 @@ class alCalcDataSlave extends Actor with ActorLogging {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! refundNodeForRole("splitcalcslave")
         }
-        case calc_data_average3(item, avg_path, bsonpath) => {
+        case calc_data_average(items, avg_path, bsonpath) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
-            val cur = context.actorOf(alCalcDataComeo.props(item, sender, self, counter))
-            cur.tell(calc_data_average_pre(item, avg_path, bsonpath), sender)
+            val cur = context.actorOf(alCalcDataComeo.props(items, sender, self, counter))
+            cur.tell(calc_data_average_pre(avg_path, bsonpath), sender)
         }
         case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
     }

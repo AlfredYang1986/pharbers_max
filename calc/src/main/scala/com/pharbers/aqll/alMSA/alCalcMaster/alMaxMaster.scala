@@ -28,7 +28,7 @@ object alMaxMaster {
     case class generatePanelResult(uid: String, panelResult: JsValue)
 
     //split panel module
-    case class pushSplitPanelJob(uid: String)
+    case class pushSplitPanel(uid: String)
     case class splitPanelSchedule()
     case class splitPanelResult(item: alMaxRunning, parent: String, subs: List[String])
 
@@ -62,7 +62,7 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case generatePanelResult(uid, panelResult) => postGeneratePanelJob(uid, panelResult)
 
         //split panel file module
-        case pushSplitPanelJob(uid) => {
+        case pushSplitPanel(uid) => {
             println(s"master.pushSplitPanelJob(${uid})")
             preSplitPanelJob(uid)
         }

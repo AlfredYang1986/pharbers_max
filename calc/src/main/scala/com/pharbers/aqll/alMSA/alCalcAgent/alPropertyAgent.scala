@@ -86,8 +86,9 @@ class alPropertyAgent extends Actor with ActorLogging {
             sum += 1
             redisDriver.set(s"Uid${items.uid}calcSum", sum)
             if(sum == core_number){
-                master_router ! sumCalcJob(items, s)
                 sum = 0
+                redisDriver.set(s"Uid${items.uid}calcSum", sum)
+                master_router ! sumCalcJob(items, s)
             }
         }
         // case msg: calc_data_end => master_router forward msg

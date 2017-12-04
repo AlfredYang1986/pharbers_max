@@ -70,36 +70,27 @@ class alCalcDataComeo (item : alMaxRunning,
             endDate("&& T8 && ", t8)
             log.info("&& T8 END &&")
         }
-        case calc_data_average(avg) => impl_router ! calc_data_average(avg)
-        case calc_data_average2(avg_path, path) =>  {
-            val redisDriver = phRedisDriver().commonDriver
-            val bsonpath = UUID.randomUUID().toString
-            println(s"&& => calc_data_average2.bsonpath=${bsonpath}")
-            redisDriver.lpush(s"bsonPathUid${item.uid}", bsonpath)
-            impl_router ! calc_data_average2(avg_path, bsonpath)
+
+        case calc_data_average_pre(avg_path, path) =>  {
+            impl_router ! calc_data_average_pre(avg_path, path)
         }
-        case calc_data_average3(items, avg_path, path) =>  {
-            sender ! calc_data_average_pre2(items.subs(sed), avg_path, path)
+        case calc_data_average_one(avg_path, path) =>  {
+            sender ! calc_data_average_post(item.subs(sed), avg_path, path)
             sed += 1
-            sum += 1
-            if (sum == core_number) sum = 0
         }
-        case calc_data_average_po(items, avg_path, path) =>  {
+        case calc_data_average_post(items, avg_path, path) =>  {
             sum += 1
             if (sum == core_number) {
                 val redisDriver = phRedisDriver().commonDriver
                 val bsonpath = UUID.randomUUID().toString
                 println(s"&& => calc_data_average2.bsonpath=${bsonpath}")
                 redisDriver.lpush(s"bsonPathUid${item.uid}", bsonpath)
-                impl_router ! calc_data_average2(avg_path, bsonpath)
-                shutSlaveCameo("End calc_data_hand!")
+                impl_router ! calc_data_average_one(avg_path, bsonpath)
             }
         }
-        case calc_data_average_pre(items, avg_path, path) =>  {
-            impl_router ! calc_data_average_pre(items, avg_path, path)
-        }
+
         case calc_data_result(v, u) => {
-            val phRedisSet= phRedisDriver().phSetDriver
+                val phRedisSet= phRedisDriver().phSetDriver
             val user_cr = s"calcResultUid${item.uid}"
             val cr = s"calcResultTid${item.tid}"
             val map = Map(user_cr -> cr, "value" -> v, "units" -> u)
@@ -130,7 +121,6 @@ class alCalcDataComeo (item : alMaxRunning,
             val t5 = startDate()
             println("&& T5 && alCalcDataComeo.calc_data_start_impl")
             r = item
-
             impl_router ! calc_data_hand()
             endDate("&& T5 && ", t5)
             log.info("&& T5 END &&")
@@ -146,7 +136,7 @@ class alCalcDataComeo (item : alMaxRunning,
                 sed += 1
                 endDate("&& T6 && ", t6)
             }
-            if (sum == core_number) shutSlaveCameo("End calc_data_hand!")
+//            if (sum == core_number) shutSlaveCameo("End calc_data_hand!")
             log.info("&& T6 END &&")
         }
         
@@ -176,13 +166,6 @@ class alCalcDataComeo (item : alMaxRunning,
         log.info("shutting calc data cameo")
         timeoutMessager.cancel()
         context.stop(self)
-    }
-
-    def readSegmentData(path: String) = {
-        alFileOpt(path).requestDataFromFile(x => x).map { x =>
-            val line_tmp = x.toString.split(",")
-            alSegmentGroup(line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble, line_tmp(3).toDouble)
-        }
     }
 
     val f = (m1 : Map[String, Any], m2 : Map[String, Any]) => {

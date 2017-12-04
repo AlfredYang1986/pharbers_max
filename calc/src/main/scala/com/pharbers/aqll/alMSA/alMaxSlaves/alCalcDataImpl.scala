@@ -56,51 +56,11 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
     override def receive: Receive = {
         case calc_data_hand() => sender ! calc_data_hand()
 
-        case calc_data_average_pre(item, avg_path, path) => sender ! calc_data_average3(item, avg_path, path)
-        case calc_data_average_pre2(item, avg_path, path) => {
-            sender ! calc_data_average_po(item, avg_path, path)
-        }
-
-        case calc_data_start_impl2(item) => {
-            log.info("&& T7_2 START &&")
-            val t7 = startDate()
-            println("&& T7_2 && alCalcDataImpl.calc_data_start_impl")
-            tmp = item
-            println(s"&&calc_data_start_impl2.item=${item}")
-            val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> item.parent, worker_core_calc_jobs.calc_uuid -> item.tid))
-            cj.result
-
-            val concert = cj.cur.get.storages.head.asInstanceOf[alStorage]
-
-            val recall = resignIntegratedData(item.parent)(concert)
-            concert.data.zipWithIndex.foreach { x =>
-                max_precess2(x._1.asInstanceOf[IntegratedData],
-                    item.tid,
-                    Some(s"${x._2}/${concert.data.length}"))(recall)(item.uid)
-            }
-
-            val f = (m1 : Map[String, Any], m2 : Map[String, Any]) => {
-                m1.map(x => (x._1 -> (x._2.toString.toDouble + m2.get(x._1).get.toString.toDouble)))
-            }
-
-            val phSetDriver = phRedisDriver().phSetDriver
-            maxSum.foreach { x =>
-                phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
-            }
-
-//            sender ! calc_data_sum2()
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            a ! sumCalcJob(item, self)
-            endDate("&& T7_2 && ", t7)
-            log.info("&& T7_2 END &&")
-        }
-
         case calc_data_start_impl3(sub_item, items) => {
             log.info("&& T7_2 START &&")
             val t7 = startDate()
             println("&& T7_2 && alCalcDataImpl.calc_data_start_impl")
             tmp = sub_item
-            println(s"&&calc_data_start_impl2.item=${sub_item}")
             val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> sub_item.parent, worker_core_calc_jobs.calc_uuid -> sub_item.tid))
             cj.result
 
@@ -129,7 +89,15 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
             log.info("&& T7_2 END &&")
         }
 
-        case calc_data_average2(avg_path, bsonpath) => {
+        case calc_data_average_pre(avg_path, path) => sender ! {
+            calc_data_average_one(avg_path, path)
+        }
+        case calc_data_average_post(item, avg_path, path) => {
+            tmp = item
+            sender ! calc_data_average_post(item, avg_path, path)
+        }
+
+        case calc_data_average_one(avg_path, bsonpath) => {
             import scala.math.BigDecimal
             log.info("&& T10 START &&")
             val t10 = startDate()
@@ -196,8 +164,8 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
                 log.info(s"calc done at ${sub_uuid}")
 
             }
-            sender() ! calc_data_result(value, unit)
-            sender() ! calc_data_end(true, tmp)
+            sender ! calc_data_result(value, unit)
+            sender ! calc_data_end(true, tmp)
             endDate("&& T10 && ", t10)
             log.info("&& T10 END &&")
         }
@@ -251,7 +219,7 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
             log.info(s"concert calc in $longPath")
 
             val redisDriver = phRedisDriver().commonDriver
-            val company = redisDriver.hget(uid, "company").get
+            val company = redisDriver.hget(s"calc:${uid}", "company").get
 //            val rid = redisDriver.hget(uid,"rid").get
 //            val cid = redisDriver.smembers(rid).get.head.get
 //            val ym = redisDriver.hget(cid, "ym").get

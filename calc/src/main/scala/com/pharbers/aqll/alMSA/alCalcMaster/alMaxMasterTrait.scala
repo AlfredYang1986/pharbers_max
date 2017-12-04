@@ -7,7 +7,7 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.push_restore_job
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcJob, pushGroupJob}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcJob, pushGroupJob, pushSplitPanel}
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.driver.redis.phRedisDriver
 import play.api.libs.json.JsValue
@@ -47,6 +47,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 //                phRedisDriver().commonDriver.hset(cid, "calcStep", 0)
             }
         }
+        self ! pushSplitPanel(uid)
     }
 
     def preSplitPanelJob(uid: String) ={
