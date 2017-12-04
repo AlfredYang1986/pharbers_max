@@ -32,7 +32,7 @@
                 containLabel: true
             },
             legend: {
-                data: ['增速', '销量']
+                data: ['市场销量', '份额变化趋势']
             },
             xAxis: [{
                 type: 'category',
@@ -104,20 +104,23 @@
                 trigger: 'item',
                 formatter: '{b}'
             },
-            visualMap: {
+            visualMap: {//视觉映射组件
+                type : "piecewise",
+                splitNumber : 5,
                 seriesIndex: 0,
+                pieces : [
+                    {gt: 2000, color : '#60B3AD'},            // (1500, Infinity]
+                    {gt: 1500, lte: 2000, color : '#80CDC8'},  // (900, 1500]
+                    {gt: 1000, lte: 1500, color : '#9DE0DC'},  // (310, 1000]
+                    {gt: 500, lte: 1000, color : '#D2F5F2'},
+                    {lt :500 ,color : '#D7D7D7'}
+                ],
                 min: 0,
                 max: 2500,
                 left: 'left',
                 top: 'bottom',
                 text: ['高','低'],           // 文本，默认为数值文本
                 calculable: true
-            },
-            grid: {
-                height: 200,
-                width: 8,
-                right: 80,
-                bottom: 10
             },
             xAxis: {
                 type: 'category',
@@ -151,8 +154,8 @@
                     name: '中国',
                     type: 'map',
                     mapType: 'china',
-                    selectedMode : 'multiple',
-                    roam: true,
+                    // selectedMode : 'multiple',
+                    roam: false,//不进行缩放
                     left: 0,
                     right: '15%',
                     label: {
@@ -199,20 +202,6 @@
                         {name: '香港',value: randomData() },
                         {name: '澳门',value: randomData() }
                     ]
-                },
-                {
-                    zlevel: 2,
-                    name: '地图指示',
-                    type: 'bar',
-                    barWidth: 5,
-                    itemStyle: {
-                        normal: {
-                            color: undefined,
-                            shadowColor: 'rgba(0, 0, 0, 0.1)',
-                            shadowBlur: 10
-                        }
-                    },
-                    data: [20]
                 }
             ]
         };
@@ -255,7 +244,7 @@
             return '#' + gR + gG + gB;
         }
 
-        setTimeout(function() {
+        /*setTimeout(function() {
             var TOPN = 25
 
             var option = map.getOption()
@@ -307,16 +296,16 @@
                 }
             })(data)
             map.setOption(option)
-        }, 0);
+        }, 0);*/
 
     }
 
     function bar_chart(id) {
         var barChart = echarts.init(document.getElementById(id));
         var option = {
-            title: {
-                text: '需求驳回率排名',
-            },
+            // title: {
+            //     text: '需求驳回率排名',
+            // },
             tooltip: {
                 trigger: 'axis',
                 axisPointer: {
@@ -324,7 +313,10 @@
                 }
             },
             legend: {
-                data: ['驳回率', '创建率']
+                data: ['市场总销售额', '产品销售额'],
+                bottom:'10px',
+                right:'10px',
+                orient:'vertical'
             },
             grid: {
                 left: '3%',
@@ -338,7 +330,7 @@
             },
             yAxis: {
                 type: 'category',
-                data: ['XX某1','XX某2','XX某3','XX某4','XX某5','XX某', 'XX某6','XX某7','XX某8','XX某9'],
+                data: ['01 江苏 15','01 江苏 15','01 江苏 15','01 江苏 15','01 江苏 15','01 江苏 15', '01 江苏 15','01 江苏 15','01 江苏 15','01 江苏 15'],
                 axisLabel: {
                     show: true,
                     interval: 'auto',
@@ -347,10 +339,11 @@
             },
             series: [
                 {
-                    name: '驳回率',
+                    name: '市场总销售额',
                     type: 'bar',
                     itemStyle: {
                         normal: {
+                            color : '#ADADAD',//柱状图颜色
                             label: {
                                 textStyle: {
                                     color: '#000000',
@@ -368,11 +361,11 @@
 
                 },
                 {
-                    name: '创建率',
+                    name: '产品销售额',
                     type: 'bar',
                     itemStyle: {
                         normal: {
-                            color: '#ADADAD',
+                            color: '#60B3AD',
                             label: {
                                 textStyle: {
 

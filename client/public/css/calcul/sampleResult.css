@@ -1,5 +1,5 @@
 #sampleResult{
-    min-width: 1000px;
+    min-width: 1200px;
 }
 .small-font-sample{
     font-size: 12px!important;
@@ -24,7 +24,7 @@
 
 }
 .sample-panel{
-    min-width: 1000px;
+    min-width: 1200px;
     max-width: 1380px;
     margin:20px auto;
     min-height: 1044px;
@@ -63,14 +63,24 @@
 }
 .chart-body{
     height: 322px;
-    width: 100%;
+    width: 1200px;
+    margin:0px auto;
 }
 .table-sample{
-    min-width: 1000px;
+    min-width: 1200px;
     max-width: 1380px;
     margin: 20px auto;
 }
 .market-trend{
-    width: 100%;
+    width: 1200px;
     height: 300px;
+    margin: 0px auto;
+}
+body{
+    min-width: 1200px;
+}
+@media (max-width: 768px){
+    .col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9 {
+        float: left;
+    }
 }

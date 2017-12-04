@@ -52,6 +52,9 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
                 case s: String if s.startsWith("/register/") => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                 case s: String if s.equals("/") => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                 case s: String if s.equals("/login") => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
+                case s: String if s.equals("/password/find")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
+                case s: String if s.equals("/user/forgetWithPassword")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
+                case s: String if s.equals("/akka/callback")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                 case _ => {
                     val token = java.net.URLDecoder.decode(getCookies(requestHeader).get("user_token").map(x => x).getOrElse(""), "UTF-8")
                     if (token.isEmpty) {
