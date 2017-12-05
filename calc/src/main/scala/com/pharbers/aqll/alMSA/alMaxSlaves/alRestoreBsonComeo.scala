@@ -40,7 +40,7 @@ class alRestoreBsonComeo (val uid : String,
             self ! restore_bson_end(true, uid)
         }
         case restore_bson_end(result, uid) => {
-            owner forward restore_bson_end(result, uid)
+//            owner forward restore_bson_end(result, uid)
             shutSlaveCameo(restore_bson_end(result, uid))
         }
         case restore_bson_timeout() => {

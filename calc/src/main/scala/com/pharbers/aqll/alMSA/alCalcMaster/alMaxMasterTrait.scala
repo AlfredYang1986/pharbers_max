@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorRef}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.push_restore_job
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcJob, pushGroupJob, pushSplitPanel}
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
@@ -151,7 +152,10 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postRestoreJob(bool: Boolean, uid: String) ={
-        println(s"还原数据库结束！postRestoreJob.bool=${bool}")
+        println(s"还原数据库结束！")
+        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        a ! refundNodeForRole("splitrestorebsonslave")
+        println(s"还原数据库结果 => ${bool}")
         var msg = Map[String, String]()
         if (bool) {
             msg = Map(
