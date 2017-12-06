@@ -53,6 +53,14 @@ trait AuthData {
 			"phone" -> toJson(profile.getAs[String]("phone").map(x => x).getOrElse("")),
 			"scope" -> toJson(profile.as[MongoDBList]("scope").toList.asInstanceOf[List[String]]))
 	}
+
+	implicit val r2m: Map[String, String] => Map[String, JsValue] = { obj =>
+		Map("email" -> toJson(obj.get("email").map(x => x).getOrElse("")),
+			"name" -> toJson(obj.get("name").map(x => x).getOrElse("")),
+			"user_id" -> toJson(obj.get("user_id").map(x => x).getOrElse("")),
+			"phone" -> toJson(obj.get("phone").map(x => x).getOrElse("")),
+			"scope" -> toJson(obj.get("scope").map(x => x.slice(5,x.size-1).split(",").toList)))
+	}
 	
 	def reg_d2m(obj: DBObject): String Map JsValue = {
 		val reg_content = obj.as[MongoDBObject]("reg_content")

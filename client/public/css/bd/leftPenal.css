@@ -60,11 +60,13 @@ a:hover {
 }
 
 .black {
+    color: #ffffff;
+}
+.bd-black {
     color: #494c57;
 }
-
-.black :hover {
-    color: #ffffff;
+.bd-black :hover {
+    color: #ffffff!important;
 }
 
 .over {
@@ -72,25 +74,14 @@ a:hover {
 }
 
 /****************************块******************************/
-
-.left-tool {
+.bd-left-tool {
     position: fixed;
     top: 60px;
     bottom: 0;
     left: 0;
     /*overflow-x: hidden;*/
 }
-
-.cer-content {
-    position: relative;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    height: 100%;
-    overflow-x: hidden;
-}
-
-.center-content {
+.bd-center-content {
     position: fixed;
     top: 60px;
     bottom: 0;
@@ -99,12 +90,7 @@ a:hover {
     overflow-x: hidden;
     z-index: 1000;
 }
-
-.main-content {
-    padding: 20px 0px;
-}
-
-.right-content {
+.bd-right-content {
     position: fixed;
     width:100%;
     top: 60px;
@@ -130,6 +116,30 @@ a:hover {
     padding: 0 20px;
     background-color: #ffffff;
 }
+.logo-font {
+    float: left;
+    position: relative;
+    height: 60px;
+    font-size: 1.5em;
+    text-align: center;
+    color: #393d49;
+}
+
+.cer-content {
+    position: relative;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    /*height: 100%;*/
+    overflow-x: hidden;
+}
+
+
+
+.main-content {
+    padding: 20px 0px;
+}
+
 
 .logo-user {
     top: 0px;
@@ -140,15 +150,6 @@ a:hover {
     line-height: 60px;
     padding: 0 20px;
     background-color: #ffffff;
-}
-
-.logo-font {
-    float: left;
-    position: relative;
-    height: 60px;
-    font-size: 1.5em;
-    text-align: center;
-    color: #393d49;
 }
 
 .login-info {

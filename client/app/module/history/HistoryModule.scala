@@ -33,7 +33,7 @@ object HistoryModule extends ModuleTrait with HistoryData {
 			}
 			(Some(Map("condition" -> toJson(result))), None)
 		} catch {
-			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+			case ex: Exception => println(s"ErrorCode=${ErrorCode}"); (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
 	

@@ -1,11 +1,17 @@
 
-.cal-title{
-    height: 60px;
-    line-height: 60px;
-}
+
 .step{
-    padding: 40px 20px;
+    padding: 20px 20px;
     line-height:40px;
+    min-height: 80px;
+    min-width: 1200px;
+    box-shadow: #737373 1px 1px 6px;
+}
+.step-img{
+    min-width: 200px;
+}
+.step-img > img{
+    max-width: 280px;
 }
 .backHome{
     right: 20px;
@@ -44,7 +50,21 @@
 }
 .begin-check{
     height: 400px;
-    padding-top: 50px;
+    padding-top:  80px;
+    margin: 0px auto;
+}
+.begin-calcul{
+    height: 400px;
+    padding-top:  80px;
+    margin: 0px auto;
+}
+#calc-btn{
+    height: 100%;
+    margin: auto 0px;
+}
+.calculMsg{
+    width: 98px;
+    margin: 0 auto;
 }
 .chart-panel{
     height: 200px;
@@ -59,32 +79,4 @@
     width: 450px;
 
 }
-.char-h1{
-    font-family: PingFangSC-Semibold, sans-serif;
-    font-size: 1.125em;
 
-}
-.t-body{
-    min-height: 400px;
-}
-.t-num{
-    height: 24px;
-    line-height: 24px;
-}
-.t-content{
-    min-height: 350px;
-    padding: 25px 0px;
-}
-.t-lineChart{
-    height: 320px;
-    width: 450px;
-}
-.t-describe{
-    padding: 30px;
-    min-height: 320px;
-    width: 350px;
-}
-.sample-bar{
-    height: 350px;
-    width: 950px;
-}

@@ -1,6 +1,9 @@
 package com.pharbers.aqll.alMSA.alCalcAgent
 
 import akka.actor.{Actor, ActorLogging, Props}
+import akka.routing.RoundRobinPool
+import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 
 /**
   * Created by alfredyang on 11/07/2017.
@@ -19,14 +22,23 @@ class alPropertyAgent extends Actor with ActorLogging {
     var energy : Map[String, Int] = Map("splitmaster" -> 0,
                                         "splitgeneratepanelslave" -> 0,
                                         "splitcalcymslave" -> 0,
-                                        "splitfilterexcelslave" -> 0,
-                                        "splitsplitexcelslave" -> 0,
+                                        "splitsplitpanelslave" -> 0,
                                         "splitgroupslave" -> 0,
                                         "splitcalcslave" -> 0,
                                         "splitrestorebsonslave" -> 0,
                                         "splittest" -> 0)
-    import alPropertyAgent._
 
+    val master_router = context.actorOf(
+            ClusterRouterPool(RoundRobinPool(1),
+                ClusterRouterPoolSettings(
+                    totalInstances = 1,
+                    maxInstancesPerNode = 1,
+                    allowLocalRoutees = true,
+                    useRole = Some("splitmaster")
+                )
+            ).props(alMaxMaster.props), alMaxMaster.name)
+
+    import alPropertyAgent._
     override def receive: Receive = {
         case queryIdleNodeInstanceInSystemWithRole(role) => {
             // println(s"queryIdleNodeInstanceInSystemWithRole.energy=${energy}")
@@ -47,6 +59,7 @@ class alPropertyAgent extends Actor with ActorLogging {
             // println(s"refundNodeForRole.energy=${energy}")
             sender ! true
         }
+        case msg: AnyRef => master_router forward msg
     }
 
 }

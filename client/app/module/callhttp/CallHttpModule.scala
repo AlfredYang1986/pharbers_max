@@ -6,7 +6,7 @@ import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import module.callhttp.CallHttpMessage.MsgCallHttpServer
 import play.api.libs.json.JsValue
-
+import play.api.libs.json.Json.toJson
 import scala.collection.immutable.Map
 
 object CallHttpModule extends ModuleTrait {
@@ -18,7 +18,13 @@ object CallHttpModule extends ModuleTrait {
 	def callHttpServer(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val businessType = (data \ "businessType").get.asOpt[String].getOrElse("error input")
-			val result = alCallHttp(businessType, data).call
+//			val result = alCallHttp(businessType, data).call
+			val result = toJson(
+				Map(
+					"result" -> toJson("ok"),
+					"status" -> toJson(0)
+				)
+			)
 			val js_result = (result \ "result").get.asOpt[JsValue].get
 			val js_status = (result \ "status").get.asOpt[String].get
 			js_status match {

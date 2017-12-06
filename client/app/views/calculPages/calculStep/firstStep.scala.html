@@ -1,10 +1,13 @@
 @pageLayout.calculPanel.calculStepPanel("MAX | 添加数据") {
     <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/calculStep.css")">
+    <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/sampleResult.css")">
+    <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/calculResult.css")">
 } {
     <div id="firstStep" class="row">
-        <div class="col-sm-1 col-lg-2"></div>
+        <div class="col-sm-1 col-lg-1"></div>
         <div class="col-sm-10">
             <div class="row">
+                <div class="space-height"></div>
                 <div>
                     <span class="small_info">
                         This an introduction text. It has a fixed size,and a custom line height,so you can experiment
@@ -16,7 +19,7 @@
             </div>
             <div class="space-height"></div>
             <div class="row">
-                <div class="col-md-6 col-xs-10">
+                <div class="col-lg-6 col-md-5 col-sm-12">
                     <div class="file-box">
                         <div class="middle-font">CPA文件</div>
                         <div class="file-up">
@@ -36,8 +39,8 @@
 
                     </div>
                 </div>
-                <div class="col-md-1 col-xs-2"></div>
-                <div class="col-md-5 col-xs-10">
+                <div class="col-md-2"></div>
+                <div class="col-lg-6 col-md-5 col-sm-12">
                     <div class="file-box">
                         <div class="middle-font">国药诚信文件GYCX文件</div>
                         <div class="file-up">
@@ -59,11 +62,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-1 col-lg-2"></div>
+        <div class="col-sm-1 col-lg-1"></div>
     </div>
     @calculPages.calculStep.secondStep()
     @calculPages.calculStep.sampleResult()
     @calculPages.calculStep.thirdStep()
+    @calculPages.calculStep.calculResult()
     <div class="mask-layer"></div>
     <div class="loading"><i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size: 48px;
         color: #008B7D;">&#x1002;</i></div>
@@ -72,5 +76,8 @@
     @calculPages.calculStep.backCheck()
     @calculPages.calculStep.monthChoose()
     <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
+    <script src="@routes.Assets.versioned("eachars3.0/china.js")"></script>
     <script src="@routes.Assets.versioned("js/calcul/calculStep.js")"></script>
+    <script src="@routes.Assets.versioned("js/calcul/sampleResult.js")"></script>
+    <script src="@routes.Assets.versioned("js/calcul/calculResult.js")"></script>
 }

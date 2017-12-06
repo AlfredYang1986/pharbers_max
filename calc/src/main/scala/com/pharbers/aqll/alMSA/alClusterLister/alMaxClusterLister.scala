@@ -1,14 +1,14 @@
 package com.pharbers.aqll.alMSA.alClusterLister
 
-import akka.actor.{Actor, ActorLogging, Address, RootActorPath}
-import akka.agent.Agent
+import akka.actor.{Actor, ActorLogging}
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
+import akka.util.Timeout
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, refundNodeForRole, takeNodeForRole}
 
-import scala.concurrent.stm.Ref
-import scala.concurrent.stm.atomic
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import akka.pattern.ask
 
 /**
   * Created by alfredyang on 11/07/2017.
@@ -27,16 +27,27 @@ class alMaxClusterLister extends Actor with ActorLogging {
     }
     
     override def receive = {
-        case MemberJoined(member) => log.info("Member Joined")
+        case MemberJoined(member) => log.info(s"Member ${member} Joined")
         
         case MemberUp(member) => {
+            log.info(s"MemberUp => ${member} !!!")
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             member.roles.map (x => a ! refundNodeForRole(x))
         }
         
         case MemberRemoved(member, previousStatus) => {
+            log.info(s"MemberRemoved => ${member} !!!")
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             member.roles.map (x => a ! takeNodeForRole(x))
         }
+
+        case UnreachableMember(member) => {
+            log.info(s"UnreachableMember => ${member} !!!")
+        }
+
+        case ReachableMember(member) => {
+            log.info(s"ReachableMember => ${member} !!!")
+        }
     }
+
 }

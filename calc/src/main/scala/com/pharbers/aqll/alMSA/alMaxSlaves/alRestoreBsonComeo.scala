@@ -5,6 +5,7 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRes
 import com.pharbers.aqll.alCalcOther.alMessgae.{alMessageProxy, alWebSocket}
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl3
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.{restore_bson_end, restore_bson_start_impl, restore_bson_timeout}
+import com.pharbers.driver.redis.phRedisDriver
 
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
@@ -13,15 +14,13 @@ import scala.concurrent.duration._
   * Created by jeorch on 17-10-30.
   */
 object alRestoreBsonComeo {
-    def props(coll : String,
-              sub_uuids : List[String],
+    def props(uid : String,
               originSender : ActorRef,
               owner : ActorRef,
-              counter : ActorRef) = Props(new alRestoreBsonComeo(coll, sub_uuids, originSender, owner, counter))
+              counter : ActorRef) = Props(new alRestoreBsonComeo(uid, originSender, owner, counter))
 }
 
-class alRestoreBsonComeo (val coll : String,
-                          val sub_uuids : List[String],
+class alRestoreBsonComeo (val uid : String,
                           val originSender : ActorRef,
                           val owner : ActorRef,
                           val counter : ActorRef) extends Actor with ActorLogging {
@@ -32,29 +31,33 @@ class alRestoreBsonComeo (val coll : String,
 
     override def receive: Receive = {
 
-        case restore_bson_start_impl(coll, sub_uuids) => {
-            alRestoreColl3().apply(s"${coll}", sub_uuids)
-            self ! restore_bson_end(true, coll)
+        case restore_bson_start_impl(uid) => {
+            val redisDriver = phRedisDriver().commonDriver
+            val company = redisDriver.hget(s"calc:${uid}", "company").get
+            val bsonpath = redisDriver.rpop(s"bsonPathUid${uid}").get
+            println(s"&& => restore_bson_start_impl.bsonpath=${bsonpath}")
+            alRestoreColl3().apply(s"${company}${bsonpath}", bsonpath)
+            self ! restore_bson_end(true, uid)
         }
-        case restore_bson_end(result, sub_uuid) => {
-            owner forward restore_bson_end(result, sub_uuid)
-            shutSlaveCameo(restore_bson_end(result, sub_uuid))
+        case restore_bson_end(result, uid) => {
+//            owner forward restore_bson_end(result, uid)
+            shutSlaveCameo(restore_bson_end(result, uid))
         }
         case restore_bson_timeout() => {
             log.info("timeout occur")
             shutSlaveCameo(restore_bson_timeout())
         }
 
-        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! restore_bson_start_impl(coll, sub_uuids)
+        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! restore_bson_start_impl(uid)
 
         case cannotRestart(reason: Throwable) => {
             val msg = Map(
                 "type" -> "error",
                 "error" -> "cannot restore bson"
             )
-            alWebSocket(coll).post(msg)
+            alWebSocket(uid).post(msg)
             log.info(s"reason is ${reason}")
-            self ! restore_bson_end(false, coll)
+            self ! restore_bson_end(false, uid)
         }
 
         case msg : AnyRef => log.info(s"Warning! Message not delivered. alRestoreBsonCameo.received_msg=${msg}")
@@ -66,7 +69,8 @@ class alRestoreBsonComeo (val coll : String,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        originSender ! msg
+        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        a ! msg
         log.info("stopping restore bson cameo")
         timeoutMessager.cancel()
         //        context.stop(self)
