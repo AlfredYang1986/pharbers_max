@@ -63,18 +63,13 @@
 }
 .chart-body{
     height: 322px;
-    width: 1200px;
-    margin:0px auto;
+    width: 100%;
+    min-width: 1000px;
 }
 .table-sample{
     min-width: 1200px;
     max-width: 1380px;
     margin: 20px auto;
-}
-.market-trend{
-    width: 1200px;
-    height: 300px;
-    margin: 0px auto;
 }
 body{
     min-width: 1200px;

@@ -1,9 +1,8 @@
 /**
  * Created by yym on 11/22/17.
  */
-"use strict";
-(function ($, w) {
 
+(function ($, w) {
     layui.use('laypage', function () {
         var laypage = layui.laypage;
 
@@ -188,130 +187,7 @@
         };
         mainChart.setOption(option);
     }
-    var xLineData = ['2017']
-    var loadLineChart = function (id) {
-        var lineChart = echarts.init(document.getElementById(id));
-        var data = [220, 182, 191, 234, 190, 330, 310,50,200];
-        var markLineData = [];
-        for (var i = 1; i < data.length; i++) {
-            markLineData.push([{
-                xAxis: i - 1,
-                yAxis: data[i - 1],
-                value: (data[i] + data[i-1]).toFixed(2)
-            }, {
-                xAxis: i,
-                yAxis: data[i]
-            }]);
-        }
-        var option = {
-            tooltip : {
-                trigger: 'axis'
-            },
-            xAxis: {
-                splitNumber : 12,
-                data: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-            },
-            yAxis: {},
-            series: [{
-                type: 'line',
-                data : data,
-                // markPoint: {
-                //     data: [
-                //         {type: 'max', name: '最大值'},
-                //         {type: 'min', name: '最小值'}
-                //     ]
-                // },
-                lineStyle : {
-                    normal : {color : '#60B3AD'}
-                },
-                itemStyle : {
-                    normal : {color : '#60B3AD'}
-                },
-                markLine: {
-                    smooth: true,
-                    effect: {
-                        show: true
-                    },
-                    distance: 10,
-                    label: {
-                        normal: {
-                            position: 'middle'
-                        }
-                    },
-                    symbol: ['none', 'none'],
-                    data: markLineData
-                }
-            }]
-        };
-        lineChart.setOption(option);
-    }
-    var loadBarChart = function (id) {
-        var lineChart = echarts.init(document.getElementById(id));
-        var option = {
-            color: ['#3398DB'],
-            tooltip : {
-                trigger: 'axis',
-                axisPointer : {            // 坐标轴指示器，坐标轴触发有效
-                    type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-                }
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis : [
-                {
-                    type : 'category',
-                    data : ['13:00', '13:05', '13:10', '13:15', '13:20', '13:25', '13:30','13:35','13:40','13:45','13:50','13:55'],
-                    axisTick: {
-                        alignWithLabel: true
-                    }
-                }
-            ],
-            yAxis : [
-                {
-                    // type : 'category',
-                    // data : ['10','20','30','40'],
-                    axisTick: {
-                        alignWithLabel: true
-                    }
-                }
-            ],
-            series : [
-                {
-                    name:'直接访问',
-                    type:'bar',
-                    barWidth: '40%',
-                    data:[1, 3, 2, 3, 4, 2, 1,3,3,2,3,2]
-                },
 
-            ],
-            label: {
-                normal: {
-                    show: true,
-                    position: 'top',
-                    formatter: '{c}'
-                }
-            },
-            itemStyle: {
-                normal: {
-
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                        offset: 0,
-                        color: 'rgba(17, 168,171, 1)'
-                    }, {
-                        offset: 1,
-                        color: 'rgba(17, 168,171, 0.1)'
-                    }]),
-                    shadowColor: 'rgba(0, 0, 0, 0.1)',
-                    shadowBlur: 10
-                }
-            }
-        };
-        lineChart.setOption(option);
-    }
     var sample_bar = function (id) {
         var bar = echarts.init(document.getElementById(id));
         var option = {
@@ -378,8 +254,8 @@
             }
         };
         bar.setOption(option);
+        $(window).resize(function() {
+            bar.resize();
+        });
     }
-    loadLineChart("lineChart1");
-    loadLineChart("lineChart2");
-    loadBarChart("barChart1");
 }(jQuery, window))
