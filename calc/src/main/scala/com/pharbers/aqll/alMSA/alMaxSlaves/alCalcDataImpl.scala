@@ -52,7 +52,6 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
 	var value: Double = 0.0
 	val maxSum: scala.collection.mutable.Map[String, (Double, Double, Double)] = scala.collection.mutable.Map.empty
 
-    var tmp : alMaxRunning = null
     override def receive: Receive = {
         case calc_data_hand() => sender ! calc_data_hand()
 
@@ -60,7 +59,6 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
             log.info("&& T7_2 START &&")
             val t7 = startDate()
             println("&& T7_2 && alCalcDataImpl.calc_data_start_impl")
-            tmp = sub_item
             val cj = worker_core_calc_jobs(Map(worker_core_calc_jobs.max_uuid -> sub_item.parent, worker_core_calc_jobs.calc_uuid -> sub_item.tid))
             cj.result
 
@@ -82,27 +80,18 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
                 phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
             }
 
-//            sender ! calc_data_sum2()
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            a ! sumCalcJob(items, self)
+            a ! sumCalcJob(items, sender)
             endDate("&& T7_2 && ", t7)
             log.info("&& T7_2 END &&")
         }
 
-        case calc_data_average_pre(avg_path, path) => sender ! {
-            calc_data_average_one(avg_path, path)
-        }
-        case calc_data_average_post(item, avg_path, path) => {
-            tmp = item
-            sender ! calc_data_average_post(item, avg_path, path)
-        }
-
-        case calc_data_average_one(avg_path, bsonpath) => {
+        case calc_data_average_one(avg_path, bsonpath) => sender ! calc_data_average_one(avg_path, bsonpath)
+        case calc_data_average_post(item, avg_path, bsonpath) => {
             import scala.math.BigDecimal
             log.info("&& T10 START &&")
             val t10 = startDate()
-            println("&& T10 && alCalcDataImpl.calc_data_average2")
-            val sub_uuid = tmp.tid
+            val sub_uuid = item.tid
 
             val path = s"${memorySplitFile}${calc}$sub_uuid"
             val dir = alFileOpt(path)
@@ -114,58 +103,56 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
             if (!dir2.isExists)
                 dir2.createDir
 
-//            val source = alFileOpt(path + "/" + "data")
+            //            val source = alFileOpt(path + "/" + "data")
             val source = new File(path)
-//            val bw_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
-//            val bw = phBsonWriter(bw_path)
+            //            val bw_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
+            //            val bw = phBsonWriter(bw_path)
             val bfm = bsonFlushMemory(bson_path)
             if (source.exists && source.isDirectory) {
 
                 val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map { x =>
-                                val line_tmp = x.toString.split(",")
-                                (line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble)
-                            }
-                            
+                    val line_tmp = x.toString.split(",")
+                    (line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble)
+                }
+
                 val dr = dirPageStorage(path)
                 dr.readAllData { line =>
 
-//                val page = pageMemory2(path + "/" + "data")
-//                val totalPage = page.pageCount.toInt
-//                (0 until totalPage) foreach { i =>
-//                    page.pageData(i).foreach { line =>
+                    //                val page = pageMemory2(path + "/" + "data")
+                    //                val totalPage = page.pageCount.toInt
+                    //                (0 until totalPage) foreach { i =>
+                    //                    page.pageData(i).foreach { line =>
 
-                        val mrd = alShareData.txt2WestMedicineIncome2(line)
-                        val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
-                        if (mrd.ifPanelAll == "1") {
-                            mrd.set_finalResultsValue(mrd.sumValue)
-                            mrd.set_finalResultsUnit(mrd.volumeUnit)
-                        } else {
-
-                            avg.find(p => p._1 == seed.hashCode.toString).map { x =>
-                                mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                                mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                            }.getOrElse(Unit)
-                        }
-
-                        unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
-                        value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
-                        val map_tmp = westMedicineIncome2map(mrd)
-
-//                        bw.writeBsonFile2(bw.map2bson(map_tmp))
-                         bfm.appendObject(bfm.map2bson(map_tmp))
+                    val mrd = alShareData.txt2WestMedicineIncome2(line)
+                    val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
+                    if (mrd.ifPanelAll == "1") {
+                        mrd.set_finalResultsValue(mrd.sumValue)
+                        mrd.set_finalResultsUnit(mrd.volumeUnit)
+                    } else {
+                        avg.find(p => p._1 == seed.hashCode.toString).map { x =>
+                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
+                        }.getOrElse(Unit)
                     }
-//                }
+                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
+                    value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+                    val map_tmp = westMedicineIncome2map(mrd)
+
+                    //                        bw.writeBsonFile2(bw.map2bson(map_tmp))
+                    bfm.appendObject(bfm.map2bson(map_tmp))
+                }
+                //                }
 
                 bfm.close
-//                bw.flush
-//                bw.close
-//                page.closeStorage
+                //                bw.flush
+                //                bw.close
+                //                page.closeStorage
 
                 log.info(s"calc done at ${sub_uuid}")
 
             }
-            sender ! calc_data_result(value, unit)
-            sender ! calc_data_end(true, tmp)
+            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            a ! calc_data_result(item.uid, item.parent, value, unit, true)
             endDate("&& T10 && ", t10)
             log.info("&& T10 END &&")
         }

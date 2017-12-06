@@ -3,8 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_end
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.group_data_end
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_result
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import play.api.libs.json.JsValue
@@ -75,10 +74,10 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case groupPanelResult(item) => postGroupJob(item)
 
         //calc module
-        case pushCalcJob(item) => preCalcJob(item, sender)
+        case pushCalcJob(item) => preCalcJob(item)
         case sumCalcJob(items, s) => doSum(items, s)
         case calcSchedule() => schduleCalcJob
-        case calc_data_end(bool, item) => postCalcJob(bool, item)
+        case calc_data_result(uid, tid, v, u, result) => postCalcJob(uid, tid, v, u, result)
 
         //restore module
         case push_restore_job(uid) => preRestoreJob(uid, sender)
