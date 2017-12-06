@@ -3,15 +3,18 @@ package com.pharbers.aqll.alMSA.alCalcMaster
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_end
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_result
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import com.typesafe.config.ConfigFactory
 import play.api.libs.json.JsValue
 
 /**
   * Created by clock on 17-11-22.
   */
 object alMaxMaster {
+    val masterIP = ConfigFactory.load("split-new-mester").getString("akka.remote.netty.tcp.hostname")
     def props = Props[alMaxMaster]
     def name = "driver-actor"
 

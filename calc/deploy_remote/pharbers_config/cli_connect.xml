@@ -1,6 +1,6 @@
 <pharbers-modules>
     <mongodb-connect>
-        <server_host value="localhost" />
+        <server_host value="10.47.209.85" />
         <server_port value="27017" />
         <connect_name value="" />
         <connect_pwd value="" />

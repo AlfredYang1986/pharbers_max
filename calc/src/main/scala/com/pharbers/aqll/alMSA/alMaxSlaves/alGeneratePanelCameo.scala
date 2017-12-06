@@ -1,15 +1,15 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import scala.concurrent.duration._
-import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
-import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_start_impl, generate_panel_timeout}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.generatePanelResult
-import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json.Json.toJson
-
+import com.pharbers.panel.pfizer.phPfizerHandle
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.generatePanelResult
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_start_impl, generate_panel_timeout}
 import scala.collection.immutable.Map
 
 /**
@@ -61,7 +61,9 @@ class alGeneratePanelCameo(panel_job: alPanelItem,
             shutSlaveCameo(generate_panel_timeout())
         }
 
-        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! generate_panel_start_impl(panel_job)
+        case canDoRestart(reason: Throwable) =>
+            super.postRestart(reason)
+            self ! generate_panel_start_impl(panel_job)
 
         case cannotRestart(reason: Throwable) => {
             val msg = Map(
@@ -82,7 +84,7 @@ class alGeneratePanelCameo(panel_job: alPanelItem,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         a ! msg
         log.info("stopping generate panel cameo")
         timeoutMessager.cancel()

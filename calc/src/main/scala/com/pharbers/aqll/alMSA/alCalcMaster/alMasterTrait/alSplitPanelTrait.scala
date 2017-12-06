@@ -1,17 +1,18 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import akka.routing.BroadcastPool
 import akka.pattern.ask
 import akka.util.Timeout
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
-import com.pharbers.aqll.alMSA.alMaxSlaves.alSplitPanelSlave
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{generatePanelResult, splitPanelResult, splitPanelSchedule}
+import scala.concurrent.stm._
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.concurrent.stm._
+import akka.routing.BroadcastPool
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import com.pharbers.aqll.alMSA.alMaxSlaves.alSplitPanelSlave
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{splitPanelResult, splitPanelSchedule}
 
 /**
   * Created by clock on 12/07/2017.
@@ -39,7 +40,7 @@ trait alSplitPanelTrait { this : Actor =>
     }
     def canSchduleSplitPanelJob : Boolean = {
         implicit val t = Timeout(2 seconds)
-        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         val f = a ? queryIdleNodeInstanceInSystemWithRole("splitsplitpanelslave")
         Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }

@@ -1,15 +1,14 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.SupervisorStrategy.Restart
-import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.pattern.ask
 import akka.util.Timeout
-
+import scala.concurrent.Await
 import scala.concurrent.duration._
+import akka.actor.SupervisorStrategy.Restart
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_hand, generate_panel_start_impl}
-
-import scala.concurrent.Await
 
 /**
   * Created by jeorch on 17-10-11.
@@ -27,7 +26,7 @@ class alGeneratePanelSlave extends Actor with ActorLogging {
     override def receive: Receive = {
         case generate_panel_hand() => {
             implicit val t = Timeout(2 seconds)
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitgeneratepanelslave")
 //            val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) {
@@ -43,7 +42,7 @@ class alGeneratePanelSlave extends Actor with ActorLogging {
         }
 
         case generate_panel_end(_, _) => {
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             a ! refundNodeForRole("splitgeneratepanelslave")
 //            a ! refundNodeForRole("splitcalcslave") // 在一台机器上实现和计算的互斥
         }

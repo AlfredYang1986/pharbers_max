@@ -45,7 +45,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 phRedisDriver().commonDriver.sadd(rid, panel)
                 phRedisDriver().commonDriver.hset(panel, "ym", x._1)
                 phRedisDriver().commonDriver.hset(panel, "mkt", y._1)
-//                phRedisDriver().commonDriver.hset(cid, "calcStep", 0)
             }
         }
     }

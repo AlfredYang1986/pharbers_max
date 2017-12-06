@@ -1,10 +1,11 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
-import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
-import akka.routing.BroadcastPool
-import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import akka.util.Timeout
 import akka.pattern.ask
+import akka.util.Timeout
+import akka.routing.BroadcastPool
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{generatePanelResult, generatePanelSchedule}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
@@ -40,7 +41,7 @@ trait alGeneratePanelTrait { this : Actor =>
     }
     def canSchdulePanelJob : Boolean = {
         implicit val t = Timeout(2 seconds)
-        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         val f = a ? queryIdleNodeInstanceInSystemWithRole("splitgeneratepanelslave")
         // val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave") // 在一台机器上实现和计算的互斥
         Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改

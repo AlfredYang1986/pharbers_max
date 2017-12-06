@@ -1,6 +1,7 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import akka.actor.SupervisorStrategy.Restart
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcYM.{calcYM_end, calcYM_hand, calcYM_start_impl}
@@ -19,7 +20,7 @@ class alCalcYMSlave extends Actor with ActorLogging {
 
     override def receive: Receive = {
         case calcYM_hand() => {
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             a ! takeNodeForRole("splitcalcymslave")
             sender ! calcYM_hand()
         }
@@ -31,7 +32,7 @@ class alCalcYMSlave extends Actor with ActorLogging {
         }
 
         case calcYM_end(_, _) => {
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             a ! refundNodeForRole("splitcalcymslave")
         }
 

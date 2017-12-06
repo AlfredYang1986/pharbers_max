@@ -1,6 +1,5 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import javax.activation.MimetypesFileTypeMap
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_jobs, max_split_csv_jobs}
@@ -8,7 +7,6 @@ import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.{split_panel_end, split_panel_start_impl, split_panel_timeout}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileBase, outPut}
-
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
 

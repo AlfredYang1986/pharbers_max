@@ -1,14 +1,15 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.SupervisorStrategy.Restart
-import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.pattern.ask
 import akka.util.Timeout
+import scala.concurrent.Await
 import scala.concurrent.duration._
+import akka.actor.SupervisorStrategy.Restart
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alMSA.alMaxCmdMessage.{alCmdActor, unpkgend}
+import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_hand, group_data_start_impl}
-import com.pharbers.aqll.alMSA.alMaxCmdMessage.{alCmdActor, unpkgend}
-import scala.concurrent.Await
 
 /**
   * Created by alfredyang on 12/07/2017.
@@ -28,7 +29,7 @@ class alGroupDataSlave extends Actor with ActorLogging {
     override def receive: Receive = {
         case group_data_hand() => {
             implicit val t = Timeout(2 seconds)
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitgroupslave")
             if (Await.result(f, t.duration).asInstanceOf[Boolean])
                 sender ! group_data_hand()
@@ -48,7 +49,7 @@ class alGroupDataSlave extends Actor with ActorLogging {
         }
 
         case _ : group_data_end => {
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             a ! refundNodeForRole("splitgroupslave")
         }
     }

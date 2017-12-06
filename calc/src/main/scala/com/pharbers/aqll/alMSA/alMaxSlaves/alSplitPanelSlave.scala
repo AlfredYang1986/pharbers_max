@@ -1,13 +1,14 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.SupervisorStrategy.Restart
-import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.pattern.ask
 import akka.util.Timeout
+import scala.concurrent.Await
 import scala.concurrent.duration._
+import akka.actor.SupervisorStrategy.Restart
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.{split_panel_end, split_panel_hand, split_panel_start_impl}
-import scala.concurrent.Await
 
 /**
   * Created by alfredyang on 12/07/2017.
@@ -25,7 +26,7 @@ class alSplitPanelSlave extends Actor with ActorLogging {
     override def receive: Receive = {
         case split_panel_hand() => {
             implicit val t = Timeout(2 seconds)
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitsplitpanelslave")
             if (Await.result(f, t.duration).asInstanceOf[Boolean])
                 sender ! split_panel_hand()
@@ -39,7 +40,7 @@ class alSplitPanelSlave extends Actor with ActorLogging {
         }
 
         case _ : split_panel_end => {
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             a ! refundNodeForRole("splitsplitpanelslave")
         }
     }

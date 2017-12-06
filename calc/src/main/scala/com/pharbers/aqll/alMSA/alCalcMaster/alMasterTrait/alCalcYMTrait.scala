@@ -1,15 +1,14 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
+import scala.concurrent.stm._
+import scala.concurrent.duration._
+import akka.routing.BroadcastPool
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcYMSlave
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import akka.routing.BroadcastPool
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.generate_panel_timeout
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{calcYMResult, calcYMSchedule, releaseCalcYMEnergy}
-import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcYMSlave
-import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-
-import scala.concurrent.duration._
-import scala.concurrent.stm._
 
 /**
   * Created by jeorch on 17-10-11.
