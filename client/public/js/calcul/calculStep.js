@@ -14,6 +14,7 @@
     $('#secondStep').hide();
     $('#sampleResult').hide();
     $('#thirdStep').hide();
+    $('#calculResult').hide();
 
     var show_loading = function() {
         $('.mask-layer').show();
@@ -200,7 +201,9 @@
                 txt(obj);
                 break;
             case 'error':
-                layer.msg(obj.error);
+                layui.use('layer', function () {
+                    layer.msg(obj.error);
+                });
                 break;
             default:
                 console.warn(obj.type);
@@ -287,6 +290,10 @@
         $('#secondStep').hide();
         $('#sampleResult').show();
     }
+    function toCalculResult() {
+        $('#thirdStep').hide();
+        $('#calculResult').show();
+    };
 
     var calc_action = function() {
         var json = JSON.stringify({
@@ -301,6 +308,7 @@
             prograssBar(98, 6000, 0);
         }, function(e){console.error(e)});
     };
+
 
     var calc_base_progress = 0;
     var progress_calc = function(obj) {
@@ -417,13 +425,13 @@
         rotate.setOption(option);
     };
 
-    loadMainChart(82, 'mainChart', '文档总体可信度');
-    loadMainChart(18, 't-char1', '文档总体可信度');
-    loadMainChart(18, 't-char2', '文档总体可信度');
-    loadMainChart(18, 't-char3', '文档总体可信度');
-    loadLineChart('t1');
-    loadLineChart('t2');
-    loadLineChart('t3');
-    sample_bar('bar1');
+    // loadMainChart(82, 'mainChart', '文档总体可信度');
+    // loadMainChart(18, 't-char1', '文档总体可信度');
+    // loadMainChart(18, 't-char2', '文档总体可信度');
+    // loadMainChart(18, 't-char3', '文档总体可信度');
+    // loadLineChart('t1');
+    // loadLineChart('t2');
+    // loadLineChart('t3');
+    // sample_bar('bar1');
 
 }(jQuery, window));

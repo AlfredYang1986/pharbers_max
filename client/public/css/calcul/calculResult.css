@@ -1,0 +1,93 @@
+
+.small-font-result{
+    font-size: 12px!important;
+    letter-spacing: 2px!important;
+    font-family: PingFangSC-Regular;
+}
+.middle-font-result{
+    font-size: 18px!important;
+    letter-spacing: 4px!important;
+    font-family: PingFangSC-Regular;
+}
+.large-font-result{
+    font-size: 24px!important;
+    letter-spacing: 4px!important;
+    font-family: PingFangSC-Regular;
+}
+
+
+
+.calcul-box{
+    min-width: 1000px;
+    padding:20px 30px;
+    margin: 0px auto;
+}
+.calcul-box > div{
+    margin: 20px 0px;
+}
+.choose-condition-box{
+    min-height:75px;
+    width: 100%;
+    padding: 0 20px;
+    line-height: 75px;
+}
+.market-incident-panel{
+    min-height:450px;
+    width: 100%;
+    padding: 0 20px;
+}
+.market-penal > .title-h1{
+    font-family: PingFangSC-Regular;
+    height: 58px;
+    line-height: 58px;
+    font-size: 24px;
+    letter-spacing:1px;
+}
+.market-val{
+    padding: 0px 0px 20px 0px;
+    border-bottom: 1px solid #d8d8d8;
+}
+.total-market{
+    width: 175px;
+    margin: 0px auto;
+
+}
+.sales-market{
+    width: 171px;
+    margin: 0px auto;
+}
+.share-market{
+    width: 83px;
+    margin: 0px auto;
+}
+.market-map-panel{
+    min-height:600px;
+    width: 100%;
+    padding: 0 20px;
+}
+.market-map{
+    min-height: 600px;
+    max-width: 900px;
+    margin: 0px auto;
+}
+.market-bar{
+    min-height: 600px;
+    max-width: 1000px;
+    margin: 0px auto;
+}
+
+/*按钮*/
+.btn-result{
+    border: none;
+    width: 97px;
+    text-align: center;
+    border-radius: 2px;
+}
+.btn-result-info{
+    color: #ababab;
+    background-color: #d8d8d8;
+}
+.btn-active{
+    color: white;
+    background-color: #b1b1b1;
+}
