@@ -1,19 +1,46 @@
-<div id="thirdStep" class="row" style="height: 800px">
-    @*<div class="col-sm-2 col-lg-3"></div>*@
-    <div class="col-sm-12 col-lg-12" style=" position: relative;top: 50%;transform: translateY(-50%);">
+<div id="thirdStep" class="row" style="min-height: 600px">
+    <div class="col-sm-12 col-lg-12">
         <div class="row">
+            <div class="space-height"></div>
             <div style="width: 462px;margin: auto">
                 <span class="small_info">
                         本次计算估计耗时30分钟，请确保您的装置电量充足，保持联络，在计算完成前，请勿离开此页面。
                 </span>
+                <div class="space-height"></div>
+                @*<div class="row begin-calcul" id="calc-rotate">
+                <div id="calc-btn" >
+                <img style="margin: auto" class="img-responsive tohref" src="@routes.Assets.versioned("images/calculStep/begin.png")">
+                </div>
+                <div>正在进行max计算...</div>
+                </div>*@
+                <div class="row">
+                    <div class="begin-check" id="calc-rotate">
+                        <div id="calc-btn">
+                            <img style="margin: 0px auto"  class="img-responsive tohref" src="@routes.Assets.versioned("images/calculStep/begin.png")">
+                        </div>
+                    </div>
+                </div>
+                <div class="row calculMsg inCenParent" id="calculInof">
+                    <a class="inCenChild small-font">MAX正在计算...</a>
+                </div>
             </div>
         </div>
-        <div class="space-height"></div>
+        @*<div class="space-height"></div>
         <div class="row begin-calcul" id="calc-rotate">
             <div id="calc-btn" >
                 <img style="margin: auto" class="img-responsive tohref" src="@routes.Assets.versioned("images/calculStep/begin.png")">
             </div>
+            <div>正在进行max计算...</div>
         </div>
+        <div class="row">
+            <div class="begin-check" id="calc-rotate">
+                <div id="calc-btn">
+                    <img style="margin: 0px auto"  class="img-responsive tohref" src="@routes.Assets.versioned("images/calculStep/begin.png")">
+                </div>
+            </div>
+        </div>
+        <div class="row calculMsg inCenParent" id="calculInof">
+            <a class="inCenChild small-font">MAX正在计算...</a>
+        </div>*@
     </div>
-    @*<div class="col-sm-2 col-lg-3"></div>*@
 </div>

@@ -3,6 +3,7 @@
  */
 "use strict";
 (function ($, w) {
+
     bar_line_chart("market_trend");
     map_chart("market_map");
     bar_chart("market_bar");
@@ -91,6 +92,9 @@
             }]
         };
         barLineChart.setOption(option);
+        $(window).resize(function () {
+            barLineChart.resize();
+        })
     }
 
     function map_chart(id) {
@@ -205,7 +209,10 @@
                 }
             ]
         };
-        map.setOption(option)
+        map.setOption(option);
+        $(window).resize(function () {
+            map.resize();
+        });
 
         /**
          * 根据值获取线性渐变颜色
@@ -385,6 +392,9 @@
             ]
         }
         barChart.setOption(option);
+        $(window).resize(function () {
+            barChart.resize();
+        });
 
     }
 

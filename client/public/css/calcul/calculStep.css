@@ -53,9 +53,18 @@
     padding-top:  80px;
     margin: 0px auto;
 }
+.begin-calcul{
+    height: 400px;
+    padding-top:  80px;
+    margin: 0px auto;
+}
 #calc-btn{
     height: 100%;
     margin: auto 0px;
+}
+.calculMsg{
+    width: 98px;
+    margin: 0 auto;
 }
 .chart-panel{
     height: 200px;
