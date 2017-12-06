@@ -6,50 +6,41 @@ import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_hand, group_data_start_impl}
-import com.pharbers.aqll.alMSA.alMaxCmdMessage.{alCmdActor, unpkgend}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.{split_panel_end, split_panel_hand, split_panel_start_impl}
 import scala.concurrent.Await
 
 /**
   * Created by alfredyang on 12/07/2017.
   */
-object alGroupDataSlave {
-    def props = Props[alGroupDataSlave]
-    def name = "group-data-slave"
+object alSplitPanelSlave {
+    def props = Props[alSplitPanelSlave]
+    def name = "split-panel-slave"
 }
 
-class alGroupDataSlave extends Actor with ActorLogging {
-    def cmdActor = context.actorOf(alCmdActor.props())
-
+class alSplitPanelSlave extends Actor with ActorLogging {
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Restart
     }
 
     override def receive: Receive = {
-        case group_data_hand() => {
+        case split_panel_hand() => {
             implicit val t = Timeout(2 seconds)
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            val f = a ? takeNodeForRole("splitgroupslave")
+            val f = a ? takeNodeForRole("splitsplitpanelslave")
             if (Await.result(f, t.duration).asInstanceOf[Boolean])
-                sender ! group_data_hand()
+                sender ! split_panel_hand()
             else Unit
         }
 
-        case unpkgend(s) => {
-            // TODO: 销毁解压消息
-            context stop s
-            sender ! group_data_hand()
-        }
-
-        case group_data_start_impl(item) => {
+        case split_panel_start_impl(item) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
-            val cur = context.actorOf(alGroupDataComeo.props(item, sender, self, counter))
-            cur.tell(group_data_start_impl(item), sender)
+            val cur = context.actorOf(alSplitPanelComeo.props(item, sender, self, counter))
+            cur.tell(split_panel_start_impl(item), sender)
         }
 
-        case _ : group_data_end => {
+        case _ : split_panel_end => {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            a ! refundNodeForRole("splitgroupslave")
+            a ! refundNodeForRole("splitsplitpanelslave")
         }
     }
 }

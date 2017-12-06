@@ -13,7 +13,7 @@
 /*字*/
 .small-font{
     font-family: PingFangSC-Regular, sans-serif !important;
-    font-size: 0.8125em;
+    font-size: 14px;
     color: #494c57;
 }
 .middle-font{
@@ -41,5 +41,9 @@
 .inRight{
     float: right!important;
 }
-
-/*******************************设计*********************/
+.shadow-button{
+    box-shadow:#fff 0 0 0 , #737373 1px 1px 6px,#fff 0 0 0 ,#fff 0 0 0;
+}
+.shadow-box{
+    box-shadow: #737373 1px 1px 6px;
+}

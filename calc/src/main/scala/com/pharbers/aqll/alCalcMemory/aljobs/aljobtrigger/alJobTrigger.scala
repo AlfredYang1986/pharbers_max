@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger
 
 import akka.actor.{ActorRef, ActorSelection}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, alMaxRunning}
 import com.pharbers.alCalcMemory.aljobs.alJob
 
 /**
@@ -15,7 +15,6 @@ object alJobTrigger {
       */
     case class worker_register()
     case class push_max_job(path : String, p: alCalcParmary)
-    case class push_split_excel_job(path : String, p: alCalcParmary)
     case class push_group_job(property : alMaxProperty)
     case class finish_max_job(uuid : String)
     case class finish_max_group_job(uuid: String)
@@ -31,7 +30,6 @@ object alJobTrigger {
     case class calc_register(a : ActorRef)
 
     case class filter_excel_jobs(file: String, p: alCalcParmary, actorSelection: ActorSelection)
-    case class filter_excel_job_2(file : String, p : alCalcParmary)
     case class commit_finalresult_jobs(company: String, uuid: String)
     case class check_excel_jobs(company: String,filename: String)
     /**
@@ -106,5 +104,5 @@ object alJobTrigger {
     /**
       * for restore bson
       */
-    case class push_restore_job(coll : String, sub_uuid : List[String])
+    case class push_restore_job(uid : String)
 }
