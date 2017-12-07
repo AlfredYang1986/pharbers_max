@@ -163,7 +163,7 @@ class alCameoCalcData (item: alMaxRunning,
             println("&& T3 && alCameoCalcData.calc_data_hand")
             tol = it.subs.length
             if (sed < tol / core_number) {
-                val tmp = for (index <- sed * core_number to (sed + 1) * core_number - 1) yield item.subs(index)
+                val tmp = for (index <- sed * core_number to (sed + 1) * core_number - 1) yield it.subs(index)
                 sender ! calc_data_start_impl(alMaxRunning(item.uid, item.tid, item.parent, tmp.toList))
                 sed += 1
                 endDate("&& T3 && ", t3)
