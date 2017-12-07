@@ -33,9 +33,9 @@ class alCalcDataSlave extends Actor with ActorLogging {
     override def receive: Receive = {
         case calc_unpkg(tid, s) => {
             val cmdActor = context.actorOf(alCmdActor.props())
-            val sync = s"${memorySplitFile}${sync}${tid}"
-            val group = s"${memorySplitFile}${group}${tid}"
-            cmdActor ! unpkgmsgMutiPath(sync :: group ::Nil, ".", s)
+            val sync_pkg = s"${memorySplitFile}${sync}${tid}"
+            val group_pkg = s"${memorySplitFile}${group}${tid}"
+            cmdActor ! unpkgmsgMutiPath(sync_pkg :: group_pkg ::Nil, ".", s)
         }
         case unpkgend(s) => s ! calc_data_start()
 
