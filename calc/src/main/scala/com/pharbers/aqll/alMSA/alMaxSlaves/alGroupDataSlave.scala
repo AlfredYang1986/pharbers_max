@@ -5,8 +5,8 @@ import akka.util.Timeout
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.SupervisorStrategy.Restart
+import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
-import com.pharbers.aqll.alMSA.alMaxCmdMessage.{alCmdActor, unpkgend}
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_hand, group_data_start_impl}
@@ -34,12 +34,6 @@ class alGroupDataSlave extends Actor with ActorLogging {
             if (Await.result(f, t.duration).asInstanceOf[Boolean])
                 sender ! group_data_hand()
             else Unit
-        }
-
-        case unpkgend(s) => {
-            // TODO: 销毁解压消息
-            context stop s
-            sender ! group_data_hand()
         }
 
         case group_data_start_impl(item) => {

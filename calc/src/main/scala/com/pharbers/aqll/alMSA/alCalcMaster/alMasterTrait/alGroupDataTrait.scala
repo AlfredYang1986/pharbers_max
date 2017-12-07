@@ -40,17 +40,20 @@ trait alGroupDataTrait { this : Actor =>
                     useRole = Some("splitgroupslave")
                 )
             ).props(alGroupDataSlave.props), name = "group-integrate-router")
+
     def pushGroupJobs(item: alMaxRunning) = {
         atomic { implicit thx =>
             group_jobs() = group_jobs() :+ item
         }
     }
+
     def canSchduleGroupJob: Boolean = {
         implicit val t = Timeout(2 seconds)
         val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         val f = a ? queryIdleNodeInstanceInSystemWithRole("splitgroupslave")
         Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
+
     def schduleGroupJob = {
         if (canSchduleGroupJob) {
             atomic { implicit thx =>
@@ -63,6 +66,7 @@ trait alGroupDataTrait { this : Actor =>
             }
         }
     }
+
     def doGroupData(item: alMaxRunning) {
         val cur = context.actorOf(alCameoGroupData.props(item, self, group_router))
         cur ! group_data_start()

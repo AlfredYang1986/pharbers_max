@@ -1,22 +1,20 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
 import java.util.UUID
-
-import akka.actor.{Actor, ActorRef}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.push_restore_job
-import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcJob, pushGroupJob, pushSplitPanel}
-import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import com.pharbers.driver.redis.phRedisDriver
 import play.api.libs.json.JsValue
-
+import akka.actor.{Actor, ActorRef}
 import scala.collection.immutable.Map
+import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster._
+import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.push_restore_job
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
-                        with alSplitPanelTrait with alGroupDataTrait
+                        with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
                         with alCalcDataTrait with alRestoreBsonTrait{ this : Actor =>
 
     def preCalcYMJob(item: alPanelItem) = pushCalcYMJobs(item)
@@ -97,11 +95,41 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postGroupJob(item: alMaxRunning) ={
-        self ! pushCalcJob(item)
+        self ! pushScpJob(item)
         val msg = Map(
             "type" -> "progress_calc",
             "txt" -> "等待计算",
             "progress" -> "6"
+        )
+        alWebSocket(item.uid).post(msg)
+    }
+
+    def preScpJob(item: alMaxRunning) ={
+        pushScpJobs(item)
+        val msg = Map(
+            "type" -> "progress_calc",
+            "txt" -> "正在发送",
+            "progress" -> "7"
+        )
+        alWebSocket(item.uid).post(msg)
+    }
+
+    def postScpJob(item: alMaxRunning) ={
+        println("aaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaa")
+        self ! pushCalcJob(item)
+
+        val msg = Map(
+            "type" -> "progress_calc",
+            "txt" -> "等待计算",
+            "progress" -> "8"
         )
         alWebSocket(item.uid).post(msg)
     }
