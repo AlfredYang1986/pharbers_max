@@ -83,8 +83,8 @@ class alCameoScp(item: alMaxRunning) extends Actor with ActorLogging {
 
     def scp ={
         val cmdActor = context.actorOf(alCmdActor.props())
-        val file = s"${memorySplitFile}${group}${item.tid}"
-        val targetHost = ConfigFactory.load("split-new-mester").getString("akka.remote.netty.tcp.hostname")
+        val file = s"${memorySplitFile}${group}${item.tid}.tar.gz"
+        val targetHost = ConfigFactory.load("split-calc-slave").getString("akka.remote.netty.tcp.hostname")
         cmdActor ! scpmsg(file, scpPath, targetHost, user)
     }
 

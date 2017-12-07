@@ -153,7 +153,7 @@ class alCameoCalcData (item: alMaxRunning,
         case calc_unpkg() =>
             val cmdActor = context.actorOf(alCmdActor.props())
             val file = s"${memorySplitFile}${group}${item.tid}"
-            cmdActor ! unpkgmsg(file, file)
+            cmdActor ! unpkgmsg(file, ".")
 
         case unpkgend(s) => self ! calc_data_start()
 

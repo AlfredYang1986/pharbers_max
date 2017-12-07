@@ -115,7 +115,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postScpJob(item: alMaxRunning) ={
-        println("aaaaaaaaaaaaaaaaaaaa")
         self ! pushCalcJob(item)
 
         val msg = Map(
