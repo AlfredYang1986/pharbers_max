@@ -10,7 +10,7 @@ import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor._
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoScp._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{masterIP, scpResult, scpSchedule}
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{group, memorySplitFile, scpPath, user}
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{sync, group, memorySplitFile, scpPath, user}
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -77,15 +77,19 @@ class alCameoScp(item: alMaxRunning) extends Actor with ActorLogging {
 
     def pkg ={
         val cmdActor = context.actorOf(alCmdActor.props())
-        val file = s"${memorySplitFile}${group}${item.tid}"
-        cmdActor ! pkgmsg(file :: Nil, file)
+        val sync_file = s"${memorySplitFile}${sync}${item.tid}"
+        val group_file = s"${memorySplitFile}${group}${item.tid}"
+        cmdActor ! pkgmsg(sync_file :: Nil, sync_file)
+        cmdActor ! pkgmsg(group_file :: Nil, group_file)
     }
 
     def scp ={
         val cmdActor = context.actorOf(alCmdActor.props())
-        val file = s"${memorySplitFile}${group}${item.tid}.tar.gz"
+        val sync_file = s"${memorySplitFile}${sync}${item.tid}.tar.gz"
+        val group_file = s"${memorySplitFile}${group}${item.tid}.tar.gz"
         val targetHost = ConfigFactory.load("split-calc-slave").getString("akka.remote.netty.tcp.hostname")
-        cmdActor ! scpmsg(file, scpPath, targetHost, user)
+        cmdActor ! scpmsg(sync_file, s"${scpPath}${sync}/", targetHost, user)
+        cmdActor ! scpmsg(group_file, s"${scpPath}${group}/", targetHost, user)
     }
 
     def end ={
