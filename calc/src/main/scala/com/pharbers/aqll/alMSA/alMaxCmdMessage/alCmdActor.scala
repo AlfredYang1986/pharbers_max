@@ -10,6 +10,7 @@ object alCmdActor {
 
 	case class pkgmsg(file: List[String], target: String)
 	case class scpmsg(file: String, target: String, host: String, user: String)
+	case class scpmsgMutiPath(targets: List[Map[String, String]], host: String, user: String)
 	case class unpkgmsg(target: String, des_dir: String, s: ActorRef)
 	case class unpkgmsgMutiPath(target: List[String], des_dir: String, s: ActorRef)
 
@@ -27,6 +28,10 @@ class alCmdActor extends Actor with ActorLogging {
 		}
 		case scpmsg(file, target, host, user) => {
 			scpCmd(file, target, host, user).excute
+			sender() ! scpend(self)
+		}
+		case scpmsgMutiPath(targets, host, user) => {
+			targets.foreach(x => scpCmd(x.get("file").get, x.get("target").get, host, user).excute)
 			sender() ! scpend(self)
 		}
 		case unpkgmsg(target, des_dir, s) => {
