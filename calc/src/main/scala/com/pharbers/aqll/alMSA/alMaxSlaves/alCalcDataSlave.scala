@@ -6,7 +6,10 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{group, memorySplitFile}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
+import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor
+import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor.{unpkgend, unpkgmsg}
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -26,6 +29,13 @@ class alCalcDataSlave extends Actor with ActorLogging {
     }
 
     override def receive: Receive = {
+        case calc_unpkg(tid, s) => {
+            val cmdActor = context.actorOf(alCmdActor.props())
+            val file = s"${memorySplitFile}${group}${tid}"
+            cmdActor ! unpkgmsg(file, ".", s)
+        }
+        case unpkgend(s) => s ! calc_data_start()
+
         case calc_data_hand() => {
             implicit val t = Timeout(2 seconds)
             val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")

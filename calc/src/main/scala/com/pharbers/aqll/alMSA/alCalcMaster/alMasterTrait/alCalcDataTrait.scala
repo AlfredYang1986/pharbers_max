@@ -14,7 +14,7 @@ import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, group, memorySplitFile}
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
@@ -77,7 +77,7 @@ trait alCalcDataTrait { this : Actor =>
 
     def calcData(item: alMaxRunning) {
         val cur = context.actorOf(alCameoCalcData.props(item, self, calc_router))
-        cur ! calc_unpkg()
+        cur ! calc_unpkg(item.tid, self)
         val redisDriver = phRedisDriver().commonDriver
         redisDriver.set(s"Uid${item.uid}calcSum",0)
         val msg = Map(
@@ -91,9 +91,11 @@ trait alCalcDataTrait { this : Actor =>
     def doSum(items: alMaxRunning, s: ActorRef) {
         val redisDriver = phRedisDriver().commonDriver
         var sum = redisDriver.get(s"Uid${items.uid}calcSum").get.toInt
+        println(s"&& master doSum sum = ${sum}")
         sum += 1
         redisDriver.set(s"Uid${items.uid}calcSum", sum)
         if(sum == core_number){
+            println("开始求和")
             sum = 0
             redisDriver.set(s"Uid${items.uid}calcSum", sum)
             s ! PoisonPill
@@ -113,7 +115,7 @@ trait alCalcDataTrait { this : Actor =>
 }
 
 object alCameoCalcData {
-    case class calc_unpkg()
+    case class calc_unpkg(tid: String, s: ActorRef)
     case class calc_data_start()
     case class calc_data_hand()
     case class calc_data_start_impl(item : alMaxRunning)
@@ -150,12 +152,7 @@ class alCameoCalcData (item: alMaxRunning,
             shutCameo(calc_data_timeout())
         }
 
-        case calc_unpkg() =>
-            val cmdActor = context.actorOf(alCmdActor.props())
-            val file = s"${memorySplitFile}${group}${item.tid}"
-            cmdActor ! unpkgmsg(file, ".")
-
-        case unpkgend(s) => self ! calc_data_start()
+        case calc_unpkg(tid, s) => router ! calc_unpkg(tid, self)
 
         case _ : calc_data_start => {
             log.info("&& T1 && alCameoCalcData.calc_data_start")
