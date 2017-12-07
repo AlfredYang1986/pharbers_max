@@ -4,6 +4,8 @@ import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.pattern.ask
 import akka.util.Timeout
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{group, memorySplitFile}
@@ -36,12 +38,16 @@ class alCalcDataSlave extends Actor with ActorLogging {
         }
         case unpkgend(s) => s ! calc_data_start()
 
-        case calc_data_hand() => {
+        case calc_data_hand2(item_tmp) => {
             implicit val t = Timeout(2 seconds)
             val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitcalcslave")
-            if (Await.result(f, t.duration).asInstanceOf[Boolean]) sender ! calc_data_hand()
-            else Unit
+            if (Await.result(f, t.duration).asInstanceOf[Boolean]) {
+                val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> item_tmp.tid))
+                val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
+                item_tmp.subs = sb map (x => alMaxRunning(item_tmp.uid, x, p, Nil))
+                sender ! calc_data_hand2(item_tmp)
+            } else Unit
         }
         case calc_data_start_impl(item) => {
             val counter = context.actorOf(alCommonErrorCounter.props)

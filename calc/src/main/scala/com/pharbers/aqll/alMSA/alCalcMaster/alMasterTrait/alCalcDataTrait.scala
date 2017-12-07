@@ -118,6 +118,7 @@ object alCameoCalcData {
     case class calc_unpkg(tid: String, s: ActorRef)
     case class calc_data_start()
     case class calc_data_hand()
+    case class calc_data_hand2(item: alMaxRunning)
     case class calc_data_start_impl(item : alMaxRunning)
     case class calc_data_start_impl2(item : alMaxRunning)
     case class calc_data_start_impl3(sub_item : alMaxRunning, items : alMaxRunning)
@@ -154,27 +155,13 @@ class alCameoCalcData (item: alMaxRunning,
 
         case calc_unpkg(tid, s) => router ! calc_unpkg(tid, self)
 
-        case _ : calc_data_start => {
-            log.info("&& T1 && alCameoCalcData.calc_data_start")
-            val t1 = startDate()
-            println(s"&& T1 && alCameoCalcData.calc_data_start item=${item}")
+        case _ : calc_data_start => router ! calc_data_hand2(item)
 
-            val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> item.tid))
-            val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
-            item.subs = sb map (x => alMaxRunning(item.uid, x, p, Nil))
-            println(s"## p=${p}")
-            println(s"## sb=${sb}")
-            tol = item.subs.length
-            router ! calc_data_hand()
-            endDate("&& T1 &&", t1)
-            println(s"&& T1 END item=${item} &&")
-            log.info("&& T1 END &&")
-        }
-
-        case calc_data_hand() => {
+        case calc_data_hand2(it) => {
             log.info("&& T3 START &&")
             val t3 = startDate()
             println("&& T3 && alCameoCalcData.calc_data_hand")
+            tol = it.subs.length
             if (sed < tol / core_number) {
                 val tmp = for (index <- sed * core_number to (sed + 1) * core_number - 1) yield item.subs(index)
                 sender ! calc_data_start_impl(alMaxRunning(item.uid, item.tid, item.parent, tmp.toList))
