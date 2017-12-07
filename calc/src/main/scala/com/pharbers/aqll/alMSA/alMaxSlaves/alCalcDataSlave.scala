@@ -8,10 +8,10 @@ import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{group, memorySplitFile}
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{group, memorySplitFile, sync}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor
-import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor.{unpkgend, unpkgmsg}
+import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor.{unpkgend, unpkgmsgMutiPath}
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -33,8 +33,9 @@ class alCalcDataSlave extends Actor with ActorLogging {
     override def receive: Receive = {
         case calc_unpkg(tid, s) => {
             val cmdActor = context.actorOf(alCmdActor.props())
-            val file = s"${memorySplitFile}${group}${tid}"
-            cmdActor ! unpkgmsg(file, ".", s)
+            val sync = s"${memorySplitFile}${sync}${tid}"
+            val group = s"${memorySplitFile}${group}${tid}"
+            cmdActor ! unpkgmsgMutiPath(sync :: group ::Nil, ".", s)
         }
         case unpkgend(s) => s ! calc_data_start()
 
