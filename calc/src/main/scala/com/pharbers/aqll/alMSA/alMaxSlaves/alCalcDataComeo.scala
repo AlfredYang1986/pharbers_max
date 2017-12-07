@@ -3,32 +3,23 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, PoisonPill, Props, SupervisorStrategy}
-import akka.actor.SupervisorStrategy.Escalate
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines._
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.split_panel_timeout
-import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
-import akka.actor.SupervisorStrategy.{Escalate, Restart}
-import com.pharbers.aqll.alCalc.almain.alSegmentGroup
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.sumCalcJob
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
+import akka.actor.SupervisorStrategy.Escalate
 import com.pharbers.driver.redis.phRedisDriver
 
 import scala.collection.immutable.Map
-import scala.concurrent.stm.{Ref, atomic}
 import scala.concurrent.duration._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
 
 /**
   * Created by alfredyang on 12/07/2017.
   */
-
-//trait alCalcAtomicTrait { this: Actor =>
-//}
 
 object alCalcDataComeo {
     def props(item: alMaxRunning, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
@@ -103,7 +94,7 @@ class alCalcDataComeo (item : alMaxRunning,
             )
             alWebSocket(item.uid).post(msg)
 
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             a ! calc_data_result(item.uid, item.tid, 0, 0, false)
             shutSlaveCameo(s"cannotRestart.reason=${reason.getMessage}")
         }

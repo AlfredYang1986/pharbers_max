@@ -7,6 +7,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcYMJob, pushGene
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.driver.redis.phRedisDriver
 import com.typesafe.config.ConfigFactory
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
 
 object alActorTest extends App {
 	val config = ConfigFactory.load("split-test")
@@ -19,7 +20,7 @@ object alActorTest extends App {
 
 	if (system.settings.config.getStringList("akka.cluster.roles").contains("splittest")){
 		Cluster(system).registerOnMemberUp {
-			val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+			val a = system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
 			val redisDriver = phRedisDriver().commonDriver
 
 			// 通过用户登录产生的token获取company_name

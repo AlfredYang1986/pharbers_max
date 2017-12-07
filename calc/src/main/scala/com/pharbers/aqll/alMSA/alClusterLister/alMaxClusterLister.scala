@@ -3,12 +3,9 @@ package com.pharbers.aqll.alMSA.alClusterLister
 import akka.actor.{Actor, ActorLogging}
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
-import akka.util.Timeout
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, refundNodeForRole, takeNodeForRole}
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import akka.pattern.ask
+import com.typesafe.config.ConfigFactory
 
 /**
   * Created by alfredyang on 11/07/2017.
@@ -16,6 +13,7 @@ import akka.pattern.ask
 class alMaxClusterLister extends Actor with ActorLogging {
     
     val cluster = Cluster(context.system)
+    val masterIP = ConfigFactory.load("split-new-master").getString("akka.remote.netty.tcp.hostname")
     
     override def preStart() = {
         cluster.subscribe(self, initialStateMode = InitialStateAsEvents,
@@ -31,13 +29,13 @@ class alMaxClusterLister extends Actor with ActorLogging {
         
         case MemberUp(member) => {
             log.info(s"MemberUp => ${member} !!!")
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             member.roles.map (x => a ! refundNodeForRole(x))
         }
         
         case MemberRemoved(member, previousStatus) => {
             log.info(s"MemberRemoved => ${member} !!!")
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             member.roles.map (x => a ! takeNodeForRole(x))
         }
 

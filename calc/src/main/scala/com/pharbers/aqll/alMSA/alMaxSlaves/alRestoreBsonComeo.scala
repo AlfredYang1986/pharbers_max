@@ -6,6 +6,7 @@ import com.pharbers.aqll.alCalcOther.alMessgae.{alMessageProxy, alWebSocket}
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl3
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.{restore_bson_end, restore_bson_start_impl, restore_bson_timeout}
 import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
 
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
@@ -69,7 +70,7 @@ class alRestoreBsonComeo (val uid : String,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         a ! msg
         log.info("stopping restore bson cameo")
         timeoutMessager.cancel()

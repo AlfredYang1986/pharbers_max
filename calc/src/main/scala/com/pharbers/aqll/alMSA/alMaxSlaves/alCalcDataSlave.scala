@@ -5,6 +5,7 @@ import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStra
 import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 
 import scala.concurrent.duration._
@@ -27,7 +28,7 @@ class alCalcDataSlave extends Actor with ActorLogging {
     override def receive: Receive = {
         case calc_data_hand() => {
             implicit val t = Timeout(2 seconds)
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitcalcslave")
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) sender ! calc_data_hand()
             else Unit

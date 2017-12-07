@@ -13,7 +13,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.res
   * Created by clock on 17-11-22.
   */
 object alMaxMaster {
-    val masterIP = ConfigFactory.load("split-calc-slave").getString("akka.remote.netty.tcp.hostname")
+    val masterIP = ConfigFactory.load("split-new-master").getString("akka.remote.netty.tcp.hostname")
     def props = Props[alMaxMaster]
     def name = "driver-actor"
 

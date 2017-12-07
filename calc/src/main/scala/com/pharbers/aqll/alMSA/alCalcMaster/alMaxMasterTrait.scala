@@ -116,14 +116,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
     def postScpJob(item: alMaxRunning) ={
         println("aaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaa")
         self ! pushCalcJob(item)
 
         val msg = Map(
@@ -167,7 +159,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                     "progress" -> "11"
                 )
                 alWebSocket(uid).post(msg)
-                val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+                val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
                 a ! refundNodeForRole("splitcalcslave")
                 self ! push_restore_job(uid)
             }
@@ -179,7 +171,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 "progress" -> "12"
             )
             alWebSocket(uid).post(msg)
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             a ! refundNodeForRole("splitcalcslave")
         }
     }
@@ -197,7 +189,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
     def postRestoreJob(bool: Boolean, uid: String) ={
         println(s"还原数据库结束！")
-        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         a ! refundNodeForRole("splitrestorebsonslave")
         println(s"还原数据库结果 => ${bool}")
         var msg = Map[String, String]()

@@ -8,6 +8,7 @@ import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, t
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.{restore_bson_end, restore_bson_hand, restore_bson_start_impl}
 import scala.concurrent.duration._
 import scala.concurrent.Await
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
 
 /**
   * Created by jeorch on 17-10-30.
@@ -25,7 +26,7 @@ class alRestoreBsonSlave extends Actor with ActorLogging {
     override def receive: Receive = {
         case restore_bson_hand() => {
             implicit val t = Timeout(2 seconds)
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitrestorebsonslave")
 //            val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) sender ! restore_bson_hand()
@@ -38,7 +39,7 @@ class alRestoreBsonSlave extends Actor with ActorLogging {
         }
         case cmd : restore_bson_end => {
             println(s"=====alRestoreBsonSlave.restore_bson_end=====")
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             a ! refundNodeForRole("splitrestorebsonslave")
 //            a ! refundNodeForRole("splitcalcslave") // 在一台机器上实现和计算的互斥
         }
