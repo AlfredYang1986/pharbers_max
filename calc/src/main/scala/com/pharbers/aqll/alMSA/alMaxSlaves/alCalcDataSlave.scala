@@ -6,9 +6,9 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{sync, group, calc, memorySplitFile}
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{root, sync, group, calc, memorySplitFile}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor
 import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor.{unpkgend, unpkgmsgMutiPath}
@@ -37,7 +37,7 @@ class alCalcDataSlave extends Actor with ActorLogging {
             val cmdActor = context.actorOf(alCmdActor.props())
             val sync_pkg = s"${memorySplitFile}${sync}${tid}"
             val group_pkg = s"${memorySplitFile}${group}${tid}"
-            cmdActor ! unpkgmsgMutiPath(sync_pkg :: group_pkg ::Nil, ".", s)
+            cmdActor ! unpkgmsgMutiPath(sync_pkg :: group_pkg ::Nil, root, s)
         }
         case unpkgend(s) => s ! calc_data_start()
 
