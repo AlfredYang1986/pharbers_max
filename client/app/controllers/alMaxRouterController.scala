@@ -6,12 +6,15 @@ import akka.actor.ActorSystem
 import com.pharbers.aqll.common._
 import com.pharbers.cliTraits.DBTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.token.AuthTokenTrait
 import play.api.mvc._
+import play.api.libs.json.Json.toJson
 
 
 // TODO 稍后进行封装
 trait alValidationController { this: Controller =>
+
     def validation(parm: String)(implicit att: AuthTokenTrait, db: DBTrait): Result = {
         alParsingTokenUser(parm).parse match {
             case TokenFail() => Redirect("/token/fail")
@@ -39,7 +42,9 @@ trait alValidationController { this: Controller =>
         }
     }
     
-    def getUserTokenByCookies(request: Request[AnyContent]): String = request.cookies.get("user_token").map(x => x.value).getOrElse("")
+    def getUserTokenByCookies(request: Request[AnyContent]): String = {
+        request.cookies.get("user_token").map(x => x.value).getOrElse("")
+    }
     
     def loginForType(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): Result = {
         if(showUser(request).scope.contains("BD")) Redirect("/login/db")
@@ -47,11 +52,12 @@ trait alValidationController { this: Controller =>
     }
 
     def showUser(request: Request[AnyContent])(implicit att: AuthTokenTrait, db: DBTrait): User = {
-        val token = java.net.URLDecoder.decode(getUserTokenByCookies(request), "UTF-8")
+//        val token = redisDriver.hgetall1(getUserTokenByCookies(request)).getOrElse(Map())
+        val token = getUserTokenByCookies(request)
         if(token.isEmpty)
             User("","","",Nil)
         else{
-            alParsingTokenUser(token).parse match {
+            alParsingTokenUser2(token).parse match {
                 case User(name, email, phone, scope) => User(name, email, phone, scope)
                 case _ => ???
             }

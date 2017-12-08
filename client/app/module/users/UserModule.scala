@@ -11,6 +11,7 @@ import play.api.libs.json.Json.toJson
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.message.send.SendMessageTrait
 import com.pharbers.sercuity.Sercurity
 import com.pharbers.token.AuthTokenTrait
@@ -20,7 +21,7 @@ import scala.collection.immutable.Map
 
 
 object UserModule extends ModuleTrait with UserData {
-    
+
     def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_user_push(data) => push_user(data)(pr)
         case msg_user_delete(data) => delete_user(data)
@@ -159,13 +160,13 @@ object UserModule extends ModuleTrait with UserData {
     
     def change_user_pwd(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
         try {
-            
+            val redisDriver = phRedisDriver().commonDriver
+            val expire = (data \ "condition" \ "token_expire").asOpt[Int].map(x => x).getOrElse(60 * 60 * 24)	//default expire in 24h
             val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
             val db = conn.queryDBInstance("cli").get
-            val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
-
+//            val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
+//            val date = new Date().getTime
             val user = (MergeStepResult(data, pr) \ "user").asOpt[JsValue].map(x => x).getOrElse(throw new Exception("data not exist"))
-            
             val condition = toJson(Map("user" -> toJson(user.as[Map[String, JsValue]] ++ Map("password" -> toJson((data \ "user" \ "password").asOpt[String].getOrElse(""))))))
             val o = m2d(condition)
             val email = o.getAs[MongoDBObject]("profile").get.getAs[String]("email").get
@@ -179,12 +180,15 @@ object UserModule extends ModuleTrait with UserData {
                     o
                 }
             }
-
-            val date = new Date().getTime
+//            val reVal = one - "name" - "email" - "phone" - "company" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
+//			  val auth_token = att.encrypt2Token(toJson(reVal))
+            val reVal = one - "name" - "company"
             val uid = Sercurity.md5Hash(one("email").as[String])
-            val reVal = one - "name" - "email" - "phone" - "company" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
-			val auth_token = att.encrypt2Token(toJson(reVal))
-			(Some(Map("user_token" -> toJson(auth_token), "uid" -> toJson(uid))), None)
+            val accessToken = s"bearer${uid}"
+            reVal.foreach(x => redisDriver.hset(accessToken, x._1, x._2.asOpt[String].getOrElse(x._2.as[List[String]].toString())))
+            redisDriver.hset(accessToken, "name", one("name").as[String].getBytes("ISO8859-1"))
+            redisDriver.expire(accessToken, expire)
+			(Some(Map("user_token" -> toJson(accessToken), "uid" -> toJson(uid))), None)
         }catch {
             case ex: Exception =>
                 (None, Some(ErrorCode.errorToJson(ex.getMessage)))

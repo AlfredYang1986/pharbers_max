@@ -873,6 +873,7 @@
     };
 
 
+
     var calc_base_progress = 0;
     var progress_calc = function(obj) {
         var progress = window.socket.getValue(obj)('progress');

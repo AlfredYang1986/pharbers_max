@@ -10,11 +10,9 @@ import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json._
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcYMJob, pushGeneratePanelJob}
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver.{max_calc_done, push_filter_job}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.{pushCalcYMJobs, pushGeneratePanelJobs}
-import com.pharbers.http.HTTP
 
 import scala.collection.immutable.Map
 
@@ -27,9 +25,7 @@ class alAkkaHttpFunctionApi(system: ActorSystem, timeout: Timeout) extends alAkk
 }
 
 case class Item(str: String, lst: List[String])
-
-case class alUpBeforeItem(company: String, user: String, cpa: String, gycx: String)
-case class alUploadItem(company: String, user: String, cpa: String, gycx: String, ym: List[String])
+case class alPanelItem(company: String, uid: String, cpa: String, gycx: String, ym: List[String] = Nil)
 case class alCheckItem(company: String, filename: String, uname: String)
 case class alCalcItem(filename: List[String], company: String, imuname: String, uid: String)
 case class alCommitItem(company: String, uuid: String, uname: String, uid: String)
@@ -41,8 +37,7 @@ case class alHttpCreateIMUser(name: String, pwd: String)
 trait PlayJson extends PlayJsonSupport {
 	implicit val itemJson = format[Item]
 
-	implicit val itemFormatUpBefore = format[alUpBeforeItem]
-	implicit val itemFormatUpload = format[alUploadItem]
+	implicit val itemFormatPanel = format[alPanelItem]
 	implicit val itemFormatCheck = format[alCheckItem]
 	implicit val itemFormatCalc = format[alCalcItem]
 	implicit val itemFormatCommit = format[alCommitItem]
@@ -70,9 +65,9 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 
 	def alCalcYM = post {
 		path("calcYM") {
-			entity(as[alUpBeforeItem]) { item =>
+			entity(as[alPanelItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-				a ! pushCalcYMJobs(item)
+				a ! pushCalcYMJob(item)
 				complete(toJson(successToJson().get))
 			}
 		}
@@ -80,9 +75,9 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 
 	def alGenternPanel = post {
 		path("genternPanel") {
-			entity(as[alUploadItem]) { item =>
+			entity(as[alPanelItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
-				a ! pushGeneratePanelJobs(item)
+				a ! pushGeneratePanelJob(item)
 				complete(toJson(successToJson().get))
 			}
 		}
@@ -103,7 +98,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
 				item.filename foreach { x =>
 					val path = fileBase + item.company + outPut + x
-					a ! push_filter_job(path, new alCalcParmary(item.company, item.imuname, item.uid))
+//					a ! push_filter_job(path, new alCalcParmary(item.company, item.imuname, item.uid))
 				}
 				complete(toJson(successToJson().get))
 			}
@@ -115,7 +110,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 			entity(as[alCommitItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
 				val map = Map("company" -> item.company, "uuid" -> item.uuid, "uname" -> item.uname, "uid" -> item.uid)
-				a ! max_calc_done(map)
+//				a ! max_calc_done(map)
 				val result = alSampleCheckCommit().apply(item.company)
 				complete(result)
 			}

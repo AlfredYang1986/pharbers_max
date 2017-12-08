@@ -2,14 +2,16 @@ package com.pharbers.aqll.common
 
 import java.util.Date
 import javax.inject.Inject
-
 import com.mongodb.casbah.Imports._
 import akka.stream.Materializer
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.token.AuthTokenTrait
+import module.auth.AuthModule.r2m
 import play.api.http.HttpFilters
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json.toJson
 import play.api.mvc._
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class Filters @Inject()(token: TokenFilter) extends HttpFilters {
@@ -39,6 +41,7 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
     implicit val db = dbt.queryDBInstance("cli").get
 
     //恳请杨总不杀
+    val noLogingUrlMapping = "/assets/" :: "/auth/" :: "/register/" :: Nil
     val bdUrlMapping = "/bd/bdUser" :: "/bd/addMember" :: "/login/db" :: Nil
 
     def apply(nextFilter: RequestHeader => Future[Result])
@@ -56,15 +59,17 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
                 case s: String if s.equals("/user/forgetWithPassword")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                 case s: String if s.equals("/akka/callback")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                 case _ => {
-                    val token = java.net.URLDecoder.decode(getCookies(requestHeader).get("user_token").map(x => x).getOrElse(""), "UTF-8")
-                    if (token.isEmpty) {
+                    val accessToken = getCookies(requestHeader).get("user_token").map(x => x).getOrElse("")
+                    if (accessToken.isEmpty) {
                         Results.Redirect(Call("GET", "/"))
                     } else {
-                        validationToken(token) match {
+                        validationToken2(accessToken) match {
                             case TokenFail() => Results.Redirect(Call("GET", "/"))
                             case User(_, _, _, scope) =>
-                                if(scope.contains("NC") && bdUrlMapping.contains(requestHeader.uri)) Results.NotFound
-                                else  result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
+                                if(scope.contains("NC") && bdUrlMapping.contains(requestHeader.uri)) {
+                                    Results.NotFound
+                                }
+                                else result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                             case _ => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                         }
                     }
@@ -87,6 +92,19 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
                 reMap.get.get("email").map(x => x.as[String]).getOrElse(""),
                 reMap.get.get("phone").map(x => x.as[String]).getOrElse(""),
                 reMap.get.get("scope").map(x => x.as[List[String]]).getOrElse(Nil))
+        }
+    }
+
+    def validationToken2(accessToken: String): TokenAction = {
+        val redisDriver = phRedisDriver().commonDriver
+        val token = redisDriver.hgetall1(accessToken).getOrElse(Map())
+        if (token.isEmpty) TokenFail()
+        else {
+            val reVal = toJson(r2m(token))
+            User((reVal \ "name").asOpt[String].getOrElse(""),
+                (reVal \ "email").asOpt[String].getOrElse(""),
+                (reVal \ "phone").asOpt[String].getOrElse(""),
+                (reVal \ "scope").asOpt[List[String]].getOrElse(Nil))
         }
     }
 }

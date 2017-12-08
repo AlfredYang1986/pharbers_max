@@ -13,30 +13,30 @@ object alCalcYMSlave {
     def name = "calc-ym-slave"
 }
 class alCalcYMSlave extends Actor with ActorLogging {
-
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Restart
     }
 
     override def receive: Receive = {
-
         case calcYM_hand() => {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! takeNodeForRole("splitcalcymslave")
             sender ! calcYM_hand()
         }
+
         case calcYM_start_impl(calcYM_job) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
             val cur = context.actorOf(alCalcYMCameo.props(calcYM_job, sender, self, counter))
             cur.tell(calcYM_start_impl(calcYM_job), sender)
         }
-        case calcYM_end(result, ym) => {
+
+        case calcYM_end(_, _) => {
             val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
             a ! refundNodeForRole("splitcalcymslave")
         }
 
-        case msg : AnyRef => log.info(s"Warning! Message not delivered. alCalcYMSlave.received_msg=${msg}")
-
+        case msg : AnyRef =>
+            log.info(s"Warning! Message not delivered. alCalcYMSlave.received_msg=${msg}")
     }
 
 }
