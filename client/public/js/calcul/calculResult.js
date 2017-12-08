@@ -65,7 +65,7 @@
                 label: {
                     normal: {
                         show: true,
-                        position: 'top',
+                        position: 'top'
                     }
                 },
                 lineStyle: {

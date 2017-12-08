@@ -36,14 +36,15 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("calc").get
 			val group = DBObject("_id" -> DBObject("Market" -> "$Market"), "Sales" -> DBObject("$sum" -> "$f_sales"), "Units" -> DBObject("$sum" -> "$f_units"))
+			
 			val para = (data \ "condition" \ "marketWithYear").asOpt[String] match {
-				case None => DBObject("Market" -> default(data)(pr).get("Market").get)
+				case None => DBObject("Market" -> default(data)(pr).getOrElse("Market", ""), "Product" -> "")
 				case Some(x) =>
 					val tmp = x.split("-")
-					DBObject("Market" -> tmp.tail.head)
+					DBObject("Market" -> tmp.tail.head, "Product" -> "")
 			}
-			val uid = Sercurity.md5Hash(default(data)(pr).get("Date").get + para.getAs[String]("Market").get)
-			val sumSales = db.aggregate(para, default(data)(pr).get("user_company").get, group)(aggregateSalesResult(_)(uid))
+			val uid = Sercurity.md5Hash(default(data)(pr).getOrElse("Date", "") + para.getAs[String]("Market").get)
+			val sumSales = db.aggregate(para, default(data)(pr).getOrElse("user_company", ""), group)(aggregateSalesResult(_)(uid))
 			(Some(Map("allSalesSum" -> toJson(sumSales.get)) ++ pr.get), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
