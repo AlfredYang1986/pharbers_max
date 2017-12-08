@@ -77,25 +77,20 @@ class alCameoScp(item: alMaxRunning) extends Actor with ActorLogging {
 
     def pkg ={
         val cmdActor = context.actorOf(alCmdActor.props())
-        val sync_file = s"${memorySplitFile}${sync}${item.tid}"
-        val group_file = s"${memorySplitFile}${group}${item.tid}"
-        cmdActor ! pkgmsg(sync_file :: Nil, sync_file)
-        cmdActor ! pkgmsg(group_file :: Nil, group_file)
+        val sync_map = Map("file" -> s"${memorySplitFile}${sync}${item.tid}",
+            "target" -> s"${memorySplitFile}${sync}${item.tid}")
+        val group_map = Map("file" -> s"${memorySplitFile}${group}${item.tid}",
+            "target" -> s"${memorySplitFile}${group}${item.tid}")
+        cmdActor ! pkgmsgMuti(sync_map :: group_map :: Nil)
     }
 
     def scp ={
         val cmdActor = context.actorOf(alCmdActor.props())
-//        val sync_file = s"${memorySplitFile}${sync}${item.tid}.tar.gz"
         val sync_map = Map("file" -> s"${memorySplitFile}${sync}${item.tid}.tar.gz",
             "target" -> s"${scpPath}${sync}/")
-
-//        val group_file = s"${memorySplitFile}${group}${item.tid}.tar.gz"
         val group_map = Map("file" -> s"${memorySplitFile}${group}${item.tid}.tar.gz",
             "target" -> s"${scpPath}${group}/")
-
         val targetHost = ConfigFactory.load("split-calc-slave").getString("akka.remote.netty.tcp.hostname")
-//        cmdActor ! scpmsg(sync_file, s"${scpPath}${sync}/", targetHost, user)
-//        cmdActor ! scpmsg(group_file, s"${scpPath}${group}/", targetHost, user)
         cmdActor ! scpmsgMutiPath(sync_map :: group_map :: Nil, targetHost, user)
     }
 

@@ -9,6 +9,7 @@ object alCmdActor {
 	def props() = Props[alCmdActor]
 
 	case class pkgmsg(file: List[String], target: String)
+	case class pkgmsgMuti(targets: List[Map[String, String]])
 	case class scpmsg(file: String, target: String, host: String, user: String)
 	case class scpmsgMutiPath(targets: List[Map[String, String]], host: String, user: String)
 	case class unpkgmsg(target: String, des_dir: String, s: ActorRef)
@@ -24,6 +25,10 @@ class alCmdActor extends Actor with ActorLogging {
 	override def receive: Receive = {
 		case pkgmsg(file, target) => {
 			pkgCmd(file, target).excute
+			sender() ! pkgend(self)
+		}
+		case pkgmsgMuti(targets) => {
+			targets.foreach(x => pkgCmd(x.get("file").get :: Nil, x.get("target").get).excute)
 			sender() ! pkgend(self)
 		}
 		case scpmsg(file, target, host, user) => {

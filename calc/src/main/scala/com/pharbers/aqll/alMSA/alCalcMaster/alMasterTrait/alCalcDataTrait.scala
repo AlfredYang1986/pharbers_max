@@ -123,7 +123,7 @@ object alCameoCalcData {
     case class calc_data_start_impl2(item : alMaxRunning)
     case class calc_data_start_impl3(sub_item : alMaxRunning, items : alMaxRunning)
     case class calc_data_sum()
-    case class calc_data_average(item : alMaxRunning, avg_path: String)
+    case class calc_data_average(item : alMaxRunning)
     case class calc_data_average_pre(avg_path: String)
     case class calc_data_average_one(avg_path: String, bsonpath: String)
     case class calc_data_average_post(item : alMaxRunning, avg_path: String, bsonpath: String)
@@ -173,36 +173,8 @@ class alCameoCalcData (item: alMaxRunning,
         }
 
         case calc_data_sum() => {
-            log.info("&& T9 START &&")
-            val t9 = startDate()
-            println("&& T9 && alCameoCalcData.calc_data_sum2")
-            // TODO: 开始读取segment分组文件
-            item.sum = item.sum ++: readRedisSegment("segment")
-            item.isSumed = true
-            item.sum = (item.sum.groupBy(_._1) map { x =>
-                (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
-            }).toList
-            val path = s"${memorySplitFile}${calc}${item.tid}"
-            val dir = alFileOpt(path)
-            if (!dir.isExists)
-                dir.createDir
-            val file = alFileOpt(path + "/avg")
-            if (!file.isExists)
-                file.createFile
-
-            val mapAvg = item.sum.filterNot(x => x._2._1 == 0 && x._2._2 == 0).map { x =>
-                val avg_elem = (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
-                file.appendData2File(s"${avg_elem._1},${avg_elem._2},${avg_elem._3}"::Nil)
-            }
-            log.info(s"done for avg $path")
-            item.sum = Nil
-            router ! calc_data_average(item, path + "/" + "avg")
-
-            val commonDriver= phRedisDriver().commonDriver
-            commonDriver.del("segment")
+            router ! calc_data_average(item)
             shutCameo("End CalcSum Cameo")
-            endDate("&& T9 && ", t9)
-            log.info("&& T9 END &&")
         }
 
         case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
@@ -217,17 +189,6 @@ class alCameoCalcData (item: alMaxRunning,
         log.info(s"stopping calc data cameo msg=${msg}")
         calc_timer.cancel()
         context.stop(self)
-    }
-
-    def readRedisSegment(setName: String) = {
-        var segmentLst: List[(String, (Double, Double, Double))] = Nil
-        val phSetDriver = phRedisDriver().phSetDriver
-        val phHashDriver = phRedisDriver().phHashDriver
-        phSetDriver.smembers(setName).foreach{x =>
-            val h = phHashDriver.hgetall(x)
-            segmentLst = segmentLst :+ (x, (h.get("sales").get.toDouble, h.get("unit").get.toDouble, h.get("calc").get.toDouble))
-        }
-        segmentLst
     }
 
 }
