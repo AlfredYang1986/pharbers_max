@@ -21,12 +21,12 @@
         $('#firstStep').hide();
         $('#secondStep').show();
         $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
-        // if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-        //     rotate_name = "panel-rotate";
-        //     $('#firstStep').hide();
-        //     $('#secondStep').show();
-        //     $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
-        // }
+        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
+            rotate_name = "panel-rotate";
+            $('#firstStep').hide();
+            $('#secondStep').show();
+            $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
+        }
     };
 
     var toThirdStep = function () {
@@ -47,59 +47,33 @@
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
     //测试
-    $("#snd-btn").click(function () {toSecondStep()});
-    $("#sample-btn").click(function () {toSampleResult()});
-    $("#thd-btn").click(function () {toThirdStep()});
+    // $("#snd-btn").click(function () {toSecondStep()});
+    // $("#sample-btn").click(function () {toSampleResult()});
+    // $("#thd-btn").click(function () {toThirdStep()});
     $("#calculInof").click(function(){toFourthStep()});
 
-    $("#test-echarts").click(function(){test_echart()});
-
-    var test_echart = function () {
-        // $('#secondStep').show();
-        // $('#sampleResult').show();
-        // loadLineChart("lineChart1");
-        // loadLineChart("lineChart2");
-        // loadBarChart("barChart1");
-        // window.onload = function () {
-        //     loadLineChart("lineChart1");
-        //     loadLineChart("lineChart2");
-        //     loadBarChart("barChart1");
-        // }
-        // $('#thirdStep').show();
-        // $('#calculResult').show();
-        // $('#thirdStep').hide();
-        // $('#calculResult').show();
-        // bar_line_chart('market_trend');
-        // map_chart('market_map');
-        // bar_chart('market_bar');
-        // window.onload = function () {
-        //     bar_line_chart('market_trend');
-        //     map_chart('market_map');
-        //     bar_chart('market_bar');
-        // }
-    };
 
     var check_file = function(){
         var info = $("#loadInof");
         info.empty();
         info.text("MAX正在解析您的文件...");
         prograssBar(10, 2000, 0);
-        // if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-        //     var info = $("#loadInof");
-        //     info.empty();
-        //     info.text("MAX正在解析您的文件...");
-        //     prograssBar(10, 2000, 0);
-        //     var json = JSON.stringify({
-        //         "businessType": "/calcYM",
-        //         "company": company,
-        //         "user": $.cookie('uid'),
-        //         "cpa": sourceMap.cpa,
-        //         "gycx": sourceMap.gycx
-        //     });
-        //     f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-        // }else{
-        //     layer.msg('上传数据不全');
-        // }
+        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
+            var info = $("#loadInof");
+            info.empty();
+            info.text("MAX正在解析您的文件...");
+            prograssBar(10, 2000, 0);
+            var json = JSON.stringify({
+                "businessType": "/calcYM",
+                "company": company,
+                "user": $.cookie('uid'),
+                "cpa": sourceMap.cpa,
+                "gycx": sourceMap.gycx
+            });
+            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
+        }else{
+            layer.msg('上传数据不全');
+        }
     };
 
     var generat_panel_action = function() {
@@ -899,22 +873,6 @@
     };
 
 
-    var calc_action = function() {
-        var json = JSON.stringify({
-            "businessType": "/modelcalc",
-            "company": company,
-            "filename": fileNames,
-            "uid": $.cookie('uid'),
-            "imuname": ""//遗留症，必须传，重构时清理
-        });
-        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
-            layer.msg("开始计算");
-            prograssBar(98, 6000, 0);
-        }, function(e){console.error(e)});
-    };
-
-
-
 
     var calc_base_progress = 0;
     var progress_calc = function(obj) {
@@ -1032,13 +990,5 @@
         rotate.setOption(option);
     };
 
-    // loadMainChart(82, 'mainChart', '文档总体可信度');
-    // loadMainChart(18, 't-char1', '文档总体可信度');
-    // loadMainChart(18, 't-char2', '文档总体可信度');
-    // loadMainChart(18, 't-char3', '文档总体可信度');
-    // loadLineChart('t1');
-    // loadLineChart('t2');
-    // loadLineChart('t3');
-    // sample_bar('bar1');
 
 }(jQuery, window));
