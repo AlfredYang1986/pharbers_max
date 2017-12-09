@@ -53,7 +53,7 @@ object AuthModule extends ModuleTrait with AuthData {
 //					phRedisSet.sadd("token", reVal, (old_map : Map[String, Any], new_map : Map[String, Any]) => new_map)
 					val reVal = one - "name"
 					val uid = Sercurity.md5Hash(one("email").as[String])
-					val accessToken = s"bearer${uid}"
+					val accessToken = s"bearer$uid"
 					reVal.foreach(x => redisDriver.hset(accessToken, x._1, x._2.asOpt[String].getOrElse(x._2.as[List[String]].toString())))
 					redisDriver.hset(accessToken, "name", one("name").as[String].getBytes)
 					redisDriver.expire(accessToken, expire)
@@ -130,7 +130,7 @@ object AuthModule extends ModuleTrait with AuthData {
 		try {
 			val redisDriver = phRedisDriver().commonDriver
 			val accessToken = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("input error"))
-
+			
 			val token = redisDriver.hgetall1(accessToken).get
 			if (token.isEmpty) (None, None)
 			else {

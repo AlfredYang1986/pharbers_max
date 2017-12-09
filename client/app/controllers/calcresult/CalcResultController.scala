@@ -25,11 +25,11 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 	def querySalesVsShare =  Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
+		
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCalcResult"))), jv)
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
-//			::
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
 			:: MsgCalcResultHistorySumSales(jv)
 			:: ParallelMessage(paralleSalesVsShare(jv), salesVsShareResultMerge)
@@ -43,7 +43,6 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
-			//			::
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
 			:: MsgCalcResultHistoryCurVsPreWithCity(jv)
 			:: ParallelMessage(paralleCurVsPreWithCity(jv), curVsPreWithCity)
@@ -57,7 +56,6 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
-			//			::
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
 			:: MsgCalcResultHistoryWithYearForCurVsPre(jv)
 			:: ParallelMessage(paralleWithYearForCurVsPre(jv), withYeaForCurVsPre)

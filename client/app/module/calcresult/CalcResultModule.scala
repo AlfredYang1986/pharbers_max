@@ -38,10 +38,10 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 			val group = DBObject("_id" -> DBObject("Market" -> "$Market"), "Sales" -> DBObject("$sum" -> "$f_sales"), "Units" -> DBObject("$sum" -> "$f_units"))
 			
 			val para = (data \ "condition" \ "marketWithYear").asOpt[String] match {
-				case None => DBObject("Market" -> default(data)(pr).getOrElse("Market", ""), "Product" -> "")
+				case None => DBObject("Market" -> default(data)(pr).getOrElse("Market", ""), "Product" -> DBObject("$regex" -> ".*辉瑞.*") )
 				case Some(x) =>
 					val tmp = x.split("-")
-					DBObject("Market" -> tmp.tail.head, "Product" -> "")
+					DBObject("Market" -> tmp.tail.head, "Product" -> DBObject("$regex" -> ".*辉瑞.*") )
 			}
 			val uid = Sercurity.md5Hash(default(data)(pr).getOrElse("Date", "") + para.getAs[String]("Market").get)
 			val sumSales = db.aggregate(para, default(data)(pr).getOrElse("user_company", ""), group)(aggregateSalesResult(_)(uid))

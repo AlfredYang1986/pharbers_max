@@ -41,7 +41,7 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
     implicit val db = dbt.queryDBInstance("cli").get
 
     //恳请杨总不杀
-    val noLogingUrlMapping = "/assets/" :: "/auth/" :: "/register/" :: "/test" :: Nil
+    val noLogingUrlMapping = "/assets/" :: "/auth/" :: "/register/" :: Nil
     val bdUrlMapping = "/bd/bdUser" :: "/bd/addMember" :: "/login/db" :: Nil
 
     def apply(nextFilter: RequestHeader => Future[Result])
@@ -59,6 +59,10 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
                 case s: String if s.equals("/user/forgetWithPassword")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                 case s: String if s.equals("/akka/callback")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                 case s: String if s.equals("/test")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
+                
+                case s: String if s.equals("/calc/querySalesVsShare")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
+                case s: String if s.equals("/calc/queryCurVsPreWithCity")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
+                case s: String if s.equals("/calc/queryWithYearForCurVsPre")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
                 case _ => {
                     val accessToken = getCookies(requestHeader).get("user_token").map(x => x).getOrElse("")
                     if (accessToken.isEmpty) {

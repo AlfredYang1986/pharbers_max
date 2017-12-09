@@ -3,15 +3,17 @@
     var f = new Facade();
     var itemStyleColor = ['#3AD1C2', '#60C6CF', '#FFFFFF', '#009992'];
     var barLineChart;
+    var map;
     $(function() {
         bar_line_chart('market-trend');
-
+        map_chart("market-map");
         // f.ajaxModule.baseCall('', {}, 'POST', function(r) {
         //     console.info(r)
         // });
 
         $(w).resize(function () {
             barLineChart.resize();
+            map.resize();
         })
     });
 
@@ -111,6 +113,113 @@
             ]
         };
         barLineChart.setOption(option);
+    }
+
+    function map_chart(id) {
+        map = echarts.init(document.getElementById(id));
+        function randomData() {
+            return Math.round(Math.random()*2500);
+        }
+
+        var option = {
+            title: {
+                // text: '中国大区分布图',
+                // subtext: '中国的八大区分布',
+                // sublink: '#',
+
+                itemGap: 30,
+
+                left: 'center',
+                textStyle: {
+                    color: '#1a1b4e',
+                    fontStyle: 'normal',
+                    fontWeight: 'bold',
+                    fontSize: 30
+
+                },
+                subtextStyle: {
+                    color: '#58d9df',
+                    fontStyle: 'normal',
+                    fontWeight: 'bold',
+                    fontSize: 16
+                }
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            visualMap: {
+                type : "piecewise",
+                pieces : [
+                    {gt: 2000, color : '#60B3AD'},            // (1500, Infinity]
+                    {gt: 1500, lte: 2000, color : '#80CDC8'},  // (900, 1500]
+                    {gt: 1000, lte: 1500, color : '#9DE0DC'},  // (310, 1000]
+                    {gt: 500, lte: 1000, color : '#D2F5F2'},
+                    {lt :500 ,color : '#D7D7D7'}
+                ],
+                splitNumber : 5,
+                seriesIndex: 0,
+                min: 0,
+                max: 3500,
+                left: 'left',
+                top: 'bottom',
+                text: ['高', '低'],
+                calculable: true
+            },
+            series: [{
+                name: '中国',
+                type: 'map',
+                zoom: 1.2,
+                mapType: 'china',
+                roam: false,//不进行缩放
+                // left: '0',
+                // right: '0',
+                label: {
+                    normal: {
+                        show: true
+                    }
+                },
+                data: [
+                    {name: '北京',value: randomData() },
+                    {name: '天津',value: randomData() },
+                    {name: '上海',value: randomData() },
+                    {name: '重庆',value: randomData() },
+                    {name: '河北',value: randomData() },
+                    {name: '河南',value: randomData() },
+                    {name: '云南',value: randomData() },
+                    {name: '辽宁',value: randomData() },
+                    {name: '黑龙江',value: randomData() },
+                    {name: '湖南',value: randomData() },
+                    {name: '安徽',value: randomData() },
+                    {name: '山东',value: randomData() },
+                    {name: '新疆',value: randomData() },
+                    {name: '江苏',value: randomData() },
+                    {name: '浙江',value: randomData() },
+                    {name: '江西',value: randomData() },
+                    {name: '湖北',value: randomData() },
+                    {name: '广西',value: randomData() },
+                    {name: '甘肃',value: randomData() },
+                    {name: '山西',value: randomData() },
+                    {name: '内蒙古',value: randomData() },
+                    {name: '陕西',value: randomData() },
+                    {name: '吉林',value: randomData() },
+                    {name: '福建',value: randomData() },
+                    {name: '贵州',value: randomData() },
+                    {name: '广东',value: randomData() },
+                    {name: '青海',value: randomData() },
+                    {name: '西藏',value: randomData() },
+                    {name: '四川',value: randomData() },
+                    {name: '宁夏',value: randomData() },
+                    {name: '海南',value: randomData() },
+                    {name: '台湾',value: randomData() },
+                    {name: '香港',value: randomData() },
+                    {name: '澳门',value: randomData() }
+                ]
+            }]
+        };
+
+
+        map.setOption(option);
+
     }
 
 
