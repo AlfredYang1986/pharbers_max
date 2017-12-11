@@ -25,7 +25,6 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 	def querySalesVsShare =  Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCalcResult"))), jv)
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)

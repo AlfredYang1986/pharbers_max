@@ -17,6 +17,7 @@ import com.pharbers.sercuity.Sercurity
 import scala.collection.JavaConversions._
 import scala.collection.immutable.Map
 
+// TODO: 这次记住 要重构，已经看不下去了
 object CalcResultModule extends ModuleTrait with CalcResultData {
 	
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
@@ -31,18 +32,18 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		case MsgCalcResultWithYearForCurVsPre(data: JsValue) => queryCalcResultWithYearForCurVsPre(data)(pr)
 		case _ => throw new Exception("function is not impl")
 	}
-	
+
 	def queryCalcResultHistory(data: JsValue)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("calc").get
 			val group = DBObject("_id" -> DBObject("Date" -> "$Date", "Market" -> "$Market", "Product" -> "$Product"), "Sales" -> DBObject("$sum" -> "$f_sales"), "Units" -> DBObject("$sum" -> "$f_units"))
-			
+
 			val para = (data \ "condition" \ "marketWithYear").asOpt[String] match {
-				case None => DBObject("Date" -> DBObject("$lt" -> DateUtil.getDateLong(default(data)(pr).get("Date").get)), "Market" -> default(data)(pr).getOrElse("Market", ""))
+				case None => DBObject("Date" -> DBObject("$lte" -> DateUtil.getDateLong(default(data)(pr).getOrElse("Date", throw new Exception("")))), "Market" -> default(data)(pr).getOrElse("Market", ""))
 				case Some(x) =>
 					val tmp = x.split("-")
-					DBObject("Date" -> DBObject("$lt" -> DateUtil.getDateLong(tmp.head)), "Market" -> tmp.tail.head)
+					DBObject("Date" -> DBObject("$lte" -> DateUtil.getDateLong(tmp.head)), "Market" -> tmp.tail.head)
 			}
 			val uid = Sercurity.md5Hash(default(data)(pr).getOrElse("Date", "") + para.getAs[String]("Market").get)
 			val sumSales = db.aggregate(para, default(data)(pr).getOrElse("user_company", ""), group)(aggregateSalesResult(_)(uid))
@@ -182,25 +183,32 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		val mergerResult = MergeParallelResult(lst)
 		val selectDate = (pr.get("condition") \ "marketWithYear").as[String].split("-").head
 		val selectMarket = (pr.get("condition") \ "marketWithYear").as[String].split("-").tail.head
+		// TODO： 想一想，怎么才能知道公司名字呢
 		val product = "辉瑞"
 		
-		val timeLst = alNearDecemberMonth.diff12Month(selectDate).toList.filterNot(f => f == selectDate)
+		val timeLst = alNearDecemberMonth.diff12Month(selectDate).toList//.filterNot(f => f == selectDate)
 		
 		val curTemp = mergerResult("cur").as[String Map List[String Map String]].values.toList.flatten
 		val historyTemp = mergerResult("history").as[String Map List[String Map String]].values.toList.flatten
 
-		val curPSumS = curTemp.filter(f => f("Product").contains(product)).map(x => x("Sales").toDouble).sum
-		val curMSumS = curTemp.map(x => x("Sales").toDouble).sum
-
 		val result = historyTemp match {
 			case Nil =>
-				timeLst.map ( x =>Map("Date" -> toJson(x), "Market" -> toJson(selectMarket), "Sales" -> toJson("0"), "Share" -> toJson(0))) :+
-				Map("Date" -> toJson(selectDate), "Market" -> toJson(selectMarket), "Sales" -> toJson(curMSumS), "Share" -> toJson((curPSumS / curMSumS) * 100))
+				val curPSumS = curTemp.filter(f => f("Product").contains(product)).map(x => x("Sales").toDouble).sum
+				val curMSumS = curTemp.map(x => x("Sales").toDouble).sum
+				val curMSumU = curTemp.map(x => x("Units").toDouble).sum
+				val share = if(curMSumS == 0) 0 else (curPSumS / curMSumS) * 100
+
+ 				timeLst.filterNot(f => f == selectDate).map ( x =>Map("Date" -> x, "Market" -> selectMarket, "Sales" -> "0", "Units" ->"0", "Share" ->"0")) :+
+				Map("Date" -> selectDate, "Market" -> selectMarket, "Sales" -> curMSumS.toString, "Units" ->curMSumU.toString, "Share" -> share.toString)
 			case hlst =>
-				
-				Nil
+				timeLst.map{ x =>
+					val hisPSumS = hlst.filter(f => f("Date") == x && f("Product").contains(product)).map(z => z("Sales").toDouble).sum
+					val hisMSumS = hlst.filter(f => f("Date") == x).map(z => z("Sales").toDouble).sum
+					val hisMSumU = hlst.filter(f => f("Date") == x).map(z => z("Units").toDouble).sum
+					val share = if(hisMSumS == 0) 0 else (hisPSumS / hisMSumS) * 100
+					Map("Date" -> x, "Market" -> selectMarket , "Sales" -> hisMSumS.toString, "Units" -> hisMSumU.toString, "Share" -> share.toString)
+				}
 		}
-		
 		Map("condition" -> toJson(result))
 	}
 	
