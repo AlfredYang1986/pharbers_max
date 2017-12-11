@@ -18,11 +18,11 @@ trait CalcResultData {
 		else {
 			val result = x.getAs[MongoDBList]("result").get
 			val list = result.toList.asInstanceOf[List[DBObject]]
-			list.find(x => x.getAs[DBObject]("_id") != None).map { z =>
-				val reVal = z.getAs[DBObject]("_id").get
-				val map = Map("Date" -> toJson(alDateOpt.Timestamp2yyyyMM(reVal.getAs[Number]("Date").get.longValue())), "Market" -> toJson(reVal.getAs[String]("Market").get))
-				Map(UUID.randomUUID().toString -> toJson(map))
-			}.getOrElse(throw new Exception(""))
+			val map = list.filter(x => x.getAs[DBObject]("_id").isDefined).map { z =>
+				val reVal = z.getAs[DBObject]("_id").getOrElse(throw new Exception(""))
+				Map("Date" -> toJson(alDateOpt.Timestamp2yyyyMM(reVal.getAs[Number]("Date").get.longValue())), "Market" -> toJson(reVal.getAs[String]("Market").get))
+			}
+			Map(UUID.randomUUID().toString -> toJson(map))
 		}
 	}
 	
@@ -34,13 +34,15 @@ trait CalcResultData {
 			val list = result.toList.asInstanceOf[List[DBObject]]
 			val r = list.map{ x =>
 				val reVal = x.getAs[DBObject]("_id").get
-				val sales = x.getAs[Number]("Sales").get.doubleValue()
-				val units = x.getAs[Number]("Units").get.doubleValue()
+				val sales = x.getAs[Number]("Sales").get.doubleValue().toString
+				val units = x.getAs[Number]("Units").get.doubleValue().toString
 				val date = alDateOpt.Timestamp2yyyyMM(reVal.getAs[Number]("Date").map(x => x.longValue()).getOrElse(0))
 				val market = reVal.getAs[String]("Market").get
+				val product = reVal.getAs[String]("Product").get
 				val city = reVal.getAs[String]("City").getOrElse("")
 				Map("Date" -> toJson(date),
 					"Market" -> toJson(market),
+					"Product" -> toJson(product),
 					"City" -> toJson(city),
 					"Sales" -> toJson(sales),
 					"Units" -> toJson(units))
