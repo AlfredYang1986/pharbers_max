@@ -37,13 +37,13 @@ trait CalcResultData {
 				val sales = x.getAs[Number]("Sales").get.doubleValue().toString
 				val units = x.getAs[Number]("Units").get.doubleValue().toString
 				val date = alDateOpt.Timestamp2yyyyMM(reVal.getAs[Number]("Date").map(x => x.longValue()).getOrElse(0))
-				val market = reVal.getAs[String]("Market").get
-				val product = reVal.getAs[String]("Product").get
-				val city = reVal.getAs[String]("City").getOrElse("")
+				val market = reVal.getAs[String]("Market").getOrElse("")
+				val product = reVal.getAs[String]("Product").getOrElse("")
+				val province = reVal.getAs[String]("Provice").getOrElse("")
 				Map("Date" -> toJson(date),
 					"Market" -> toJson(market),
 					"Product" -> toJson(product),
-					"City" -> toJson(city),
+					"Province" -> toJson(province),
 					"Sales" -> toJson(sales),
 					"Units" -> toJson(units))
 			}
@@ -58,25 +58,23 @@ object alNearDecemberMonth {
 		val year = date.substring(0, 4).toInt
 		val month = date.substring(4, date.length).toInt
 		val temp = new ArrayBuffer[String]()
-		val lst = diffDate(year, month, (year.toInt - 1), month)(temp)
+		val lst = diffDate(year, month, (year - 1), month)(temp)
 		lst.sortBy(x => x)
 	}
 	
 	def diffDate(cur_year: Int, cur_month: Int, ear_year: Int, ear_month: Int)(temp: ArrayBuffer[String]): Array[String] = {
 		(ear_year, ear_month) match {
 			case (x, y) if x.equals(cur_year) && y.equals(cur_month) => temp.toArray
-			case _ => {
+			case _ =>
 				ear_month match {
-					case i if i >= 12 => {
+					case i if i >= 12 =>
 						temp += s"$cur_year${diffMonth(s"${i + 1 - 12}")}"
 						diffDate(cur_year, cur_month, cur_year, i + 1 - 12)(temp)
-					}
-					case _ => {
+					case _ =>
 						temp += s"$ear_year${diffMonth(s"${ear_month + 1}")}"
 						diffDate(cur_year, cur_month, ear_year, ear_month + 1)(temp)
-					}
+					
 				}
-			}
 		}
 	}
 	

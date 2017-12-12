@@ -3,17 +3,75 @@
     var f = new Facade();
     var itemStyleColor = ['#3AD1C2', '#60C6CF', '#FFFFFF', '#009992'];
     var barLineChart;
-    var map;
+    var mapChart;
+    var barChart;
     $(function() {
         bar_line_chart('market-trend');
         map_chart("market-map");
-        // f.ajaxModule.baseCall('', {}, 'POST', function(r) {
-        //     console.info(r)
-        // });
+        bar_chart("market-bar");
+
+        var json = JSON.stringify(f.parameterPrefix.conditions({"tables": ["fea9f203d4f593a96f0d6faa91ba24ba"], "user_token": "bearer47ee6f05c8994e9ddbe12c2971600766", "marketWithYear": "201502-INF"}));
+
+        f.ajaxModule.baseCall('calc/querySalesVsShare', json, 'POST', function(r) {
+            if(r.status === 'ok') {
+                var $echart_option = barLineChart.getOption();
+                var xAxisData = [];
+                var seriesBarData = [];
+                var seriesLineData = [];
+                $.each(r.result.condition, function(i, v) {
+                    xAxisData.push(v.Date);
+                    seriesBarData.push((v.Sales / 1000000).toFixed(2));
+                    seriesLineData.push(v.Share);
+                });
+                $echart_option.xAxis[0].data = xAxisData;
+                $echart_option.series[0].data = seriesBarData;
+                $echart_option.series[1].data = seriesLineData;
+                barLineChart.setOption($echart_option);
+            } else {
+                console.error("error");
+            }
+        });
+
+        f.ajaxModule.baseCall('calc/queryCurVsPreWithCity', json, 'POST', function(r) {
+            if(r.status === 'ok') {
+                var $echart_map_option = mapChart.getOption();
+                var $echart_bar_option = barChart.getOption();
+
+                var seriesMapData = [];
+                var yAxisBarData = [];
+                var seriesBarMarketData = [];
+                var seriesBarProductData = [];
+
+                $.each(r.result.condition, function(i, v) {
+                    seriesMapData.push({name: v.Province, value: v.Sales});
+                });
+
+                $.each(r.result.bar, function(i, v) {
+                    yAxisBarData.push(v.Province);
+                    seriesBarMarketData.push(v.Sales);
+                    seriesBarProductData.push(v.ProductSales);
+                });
+                $echart_map_option.series[0].data = seriesMapData;
+                $echart_map_option.visualMap[0].max = seriesMapData[0].value;
+
+                $echart_bar_option.yAxis[0].data = yAxisBarData;
+                $echart_bar_option.series[0].data = seriesBarMarketData;
+                $echart_bar_option.series[1].data = seriesBarProductData;
+
+                mapChart.setOption($echart_map_option);
+                barChart.setOption($echart_bar_option);
+
+            } else {
+                console.error("error");
+            }
+        });
+
+
 
         $(w).resize(function () {
             barLineChart.resize();
-            map.resize();
+            mapChart.resize();
+            barChart.resize();
         })
     });
 
@@ -40,7 +98,7 @@
                     name: '日期',
                     nameGap: 40,
                     type: 'category',
-                    data: ['2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016'],
+                    data: [], //['2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016'],
                     splitLine: {
                         show:false
                     }
@@ -72,11 +130,12 @@
                     type:'bar',
                     barWidth: '80%',
                     yAxisIndex: 0,
-                    data: [209, 236, 325, 439, 507, 576, 722, 879, 938, 1364, 1806, 1851, 1931, 2198, 2349, 2460, 2735],
+                    data: [], //[209, 236, 325, 439, 507, 576, 722, 879, 938, 1364, 1806, 1851, 1931, 2198, 2349, 2460, 2735],
                     label: {
                         normal: {
-                            show: true,
-                            position: 'top'
+                            show: false,
+                            color: "#FFFFFF",
+                            position: 'minddle'
                         }
                     },
                     itemStyle: {
@@ -89,7 +148,7 @@
                     name:'MAX Mono Share',
                     type:'line',
                     yAxisIndex: 1,
-                    data: [1, 13, 37, 35, 15, 13, 25, 21, 6, 45, 32, 2, 4, 13, 6, 4, 10],
+                    data: [], //[1, 13, 37, 35, 15, 13, 25, 21, 6, 45, 32, 2, 4, 13, 6, 4, 10],
                     label: {
                         normal: {
                             show: true,
@@ -116,10 +175,7 @@
     }
 
     function map_chart(id) {
-        map = echarts.init(document.getElementById(id));
-        function randomData() {
-            return Math.round(Math.random()*2500);
-        }
+        mapChart = echarts.init(document.getElementById(id));
 
         var option = {
             title: {
@@ -148,79 +204,96 @@
                 trigger: 'item'
             },
             visualMap: {
-                type : "piecewise",
-                pieces : [
-                    {gt: 2000, color : '#60B3AD'},            // (1500, Infinity]
-                    {gt: 1500, lte: 2000, color : '#80CDC8'},  // (900, 1500]
-                    {gt: 1000, lte: 1500, color : '#9DE0DC'},  // (310, 1000]
-                    {gt: 500, lte: 1000, color : '#D2F5F2'},
-                    {lt :500 ,color : '#D7D7D7'}
-                ],
-                splitNumber : 5,
-                seriesIndex: 0,
                 min: 0,
-                max: 3500,
+                max: 56173792,
                 left: 'left',
                 top: 'bottom',
-                text: ['高', '低'],
-                calculable: true
+                text: ['高','低'],
+                inRange: {
+                    color: ['#EBF0EF', '#37D1C1']
+                },
+                calculable : true
             },
             series: [{
                 name: '中国',
                 type: 'map',
                 zoom: 1.2,
                 mapType: 'china',
-                roam: false,//不进行缩放
-                // left: '0',
-                // right: '0',
-                label: {
-                    normal: {
-                        show: true
-                    }
-                },
-                data: [
-                    {name: '北京',value: randomData() },
-                    {name: '天津',value: randomData() },
-                    {name: '上海',value: randomData() },
-                    {name: '重庆',value: randomData() },
-                    {name: '河北',value: randomData() },
-                    {name: '河南',value: randomData() },
-                    {name: '云南',value: randomData() },
-                    {name: '辽宁',value: randomData() },
-                    {name: '黑龙江',value: randomData() },
-                    {name: '湖南',value: randomData() },
-                    {name: '安徽',value: randomData() },
-                    {name: '山东',value: randomData() },
-                    {name: '新疆',value: randomData() },
-                    {name: '江苏',value: randomData() },
-                    {name: '浙江',value: randomData() },
-                    {name: '江西',value: randomData() },
-                    {name: '湖北',value: randomData() },
-                    {name: '广西',value: randomData() },
-                    {name: '甘肃',value: randomData() },
-                    {name: '山西',value: randomData() },
-                    {name: '内蒙古',value: randomData() },
-                    {name: '陕西',value: randomData() },
-                    {name: '吉林',value: randomData() },
-                    {name: '福建',value: randomData() },
-                    {name: '贵州',value: randomData() },
-                    {name: '广东',value: randomData() },
-                    {name: '青海',value: randomData() },
-                    {name: '西藏',value: randomData() },
-                    {name: '四川',value: randomData() },
-                    {name: '宁夏',value: randomData() },
-                    {name: '海南',value: randomData() },
-                    {name: '台湾',value: randomData() },
-                    {name: '香港',value: randomData() },
-                    {name: '澳门',value: randomData() }
-                ]
+                roam: false,
+                label: {normal: {show: true}},
+                data: []
             }]
         };
 
 
-        map.setOption(option);
+        mapChart.setOption(option);
 
     }
 
+    function bar_chart(id) {
+        barChart = echarts.init(document.getElementById(id));
+        var option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {type: 'shadow'}
+            },
+            legend: {
+                data: ['市场总销售额', '产品销售额'],
+                bottom:'10px',
+                right:'10px',
+                orient:'vertical'
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                boundaryGap: [0, 0.01]
+            },
+            yAxis: {
+                type: 'category',
+                data: [],
+                axisLabel: {show: true, interval: 'auto', formatter: '{value}%'}
+            },
+            series: [
+                {
+                    name: '市场总销售额',
+                    type: 'bar',
+                    itemStyle: {
+                        normal: {
+                            color : '#ADADAD',//柱状图颜色
+                            label: {
+                                // textStyle: {color: '#000000', fontSize: 3},
+                                show: false,
+                                position: 'right'
+                                // formatter: '{c}%'
+                            }
+                        }
+                    },
+                    data: []
+                },
+                {
+                    name: '产品销售额',
+                    type: 'bar',
+                    itemStyle: {
+                        normal: {
+                            color: '#60B3AD',
+                            label: {
+                                // textStyle: {color: '#000000', fontSize: 3},
+                                show: false,
+                                position: 'right'
+                                // formatter: '{c}%'
+                            }
+                        }
+                    },
+                    data: []
+                }
+            ]
+        };
 
+        barChart.setOption(option);
+    }
 })(jQuery, window);
