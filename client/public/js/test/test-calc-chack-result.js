@@ -14,6 +14,7 @@
 
         f.ajaxModule.baseCall('calc/querySalesVsShare', json, 'POST', function(r) {
             if(r.status === 'ok') {
+                // r.result.result_condition
                 var $echart_option = barLineChart.getOption();
                 var xAxisData = [];
                 var seriesBarData = [];
@@ -43,7 +44,7 @@
                 var seriesBarProductData = [];
 
                 $.each(r.result.condition, function(i, v) {
-                    seriesMapData.push({name: v.Province, value: v.Sales});
+                    seriesMapData.push({name: v.Province, value: v.Sales, productSales: v.ProductSales, share: v.Share});
                 });
 
                 $.each(r.result.bar, function(i, v) {
@@ -65,8 +66,6 @@
                 console.error("error");
             }
         });
-
-
 
         $(w).resize(function () {
             barLineChart.resize();
@@ -201,7 +200,15 @@
                 }
             },
             tooltip: {
-                trigger: 'item'
+                trigger: 'item',
+                textStyle: {align: 'left'},
+                formatter: function (v) {
+                    var tip_content = '省份：'+ v.data.name +'<br/>';
+                    tip_content += '市场销量：'+ (f.thousandsModule.formatNum(v.data.value)) +'<br/>';
+                    tip_content += '产品销量：'+ (f.thousandsModule.formatNum(v.data.productSales)) +'<br/>';
+                    tip_content += '份额：'+ (parseFloat(v.data.share) < 0 ? 0 : v.data.share) +'%';
+                    return tip_content;
+                }
             },
             visualMap: {
                 min: 0,
@@ -235,6 +242,7 @@
         var option = {
             tooltip: {
                 trigger: 'axis',
+                textStyle: {align: 'left'},
                 axisPointer: {type: 'shadow'}
             },
             legend: {

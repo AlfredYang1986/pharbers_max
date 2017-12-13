@@ -139,18 +139,18 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		// TODO： 想一想，怎么才能知道公司名字呢
 		val product = "辉瑞"
 		
-		val timeLst = alNearDecemberMonth.diff12Month(selectDate).toList//.filterNot(f => f == selectDate)
+		val timeLst = alNearDecemberMonth.diff12Month(selectDate).toList
 		
 		val curTemp = mergerResult("cur").as[String Map List[String Map String]].values.toList.flatten
 		val historyTemp = mergerResult("history").as[String Map List[String Map String]].values.toList.flatten
-
+		
+		val curPSumS = curTemp.filter(f => f("Product").contains(product)).map(x => x("Sales").toDouble).sum
+		val curMSumS = curTemp.map(x => x("Sales").toDouble).sum
+		val curMSumU = curTemp.map(x => x("Units").toDouble).sum
+		
 		val result = historyTemp match {
 			case Nil =>
-				val curPSumS = curTemp.filter(f => f("Product").contains(product)).map(x => x("Sales").toDouble).sum
-				val curMSumS = curTemp.map(x => x("Sales").toDouble).sum
-				val curMSumU = curTemp.map(x => x("Units").toDouble).sum
 				val share = if(curMSumS == 0) 0 else (curPSumS / curMSumS) * 100
-
  				timeLst.filterNot(f => f == selectDate).map ( x =>Map("Date" -> x, "Market" -> selectMarket, "Sales" -> "0", "Units" ->"0", "Share" ->"0")) :+
 				Map("Date" -> selectDate, "Market" -> selectMarket, "Sales" -> curMSumS.toString, "Units" ->curMSumU.toString, "Share" -> share.toString)
 			case hlst =>
@@ -162,7 +162,11 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 					Map("Date" -> x, "Market" -> selectMarket , "Sales" -> hisMSumS.toString, "Units" -> hisMSumU.toString, "Share" -> share.toString)
 				}
 		}
-		Map("condition" -> toJson(result))
+		Map("condition" -> toJson(result),
+			"result_condition" -> (mergerResult("result_condition") \ "select_values").getOrElse(throw new Exception("")),
+			"cursales" -> toJson(curMSumS),
+			"curproductsales" -> toJson(curPSumS)
+		   )
 	}
 	
 	def salesMapWithCityResultMerge(lst: List[Map[String, JsValue]])(pr: Option[Map[String, JsValue]]): Map[String, JsValue] = {
