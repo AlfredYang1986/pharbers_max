@@ -68,10 +68,7 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case generatePanelResult(uid, panelResult) => postGeneratePanelJob(uid, panelResult)
 
         //split panel file module
-        case pushSplitPanel(uid) => {
-            println(s"master.pushSplitPanelJob(${uid})")
-            preSplitPanelJob(uid)
-        }
+        case pushSplitPanel(uid) => preSplitPanelJob(uid)
         case splitPanelSchedule() => schduleSplitPanelJob
         case splitPanelResult(item, parent, subs) => postSplitPanelJob(item, parent, subs)
 
@@ -83,7 +80,8 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         //scp module
         case pushScpJob(item) => preScpJob(item)
         case scpSchedule() => schduleScpJobs
-        case scpResult(item) => postScpJob(item)
+        case scpResult(item) => releaseScpEnergy
+            postScpJob(item)
 
         //calc module
         case pushCalcJob(item) => preCalcJob(item)

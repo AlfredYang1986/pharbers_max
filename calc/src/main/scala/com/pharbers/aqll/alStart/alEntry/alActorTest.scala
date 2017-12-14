@@ -47,7 +47,7 @@ object alActorTest extends App {
 				println("================================== write panel to redis")
 				val rid = UUID.randomUUID().toString
 				redisDriver.hset(uid, "rid", rid)
-				redisDriver.sadd(rid, "CPA_GYCX_panel_201705INF.xlsx")
+//				redisDriver.sadd(rid, "CPA_GYCX_panel_201705INF.xlsx")
 //				redisDriver.sadd(rid, "CPA_GYCX_panel_201705Specialty.xlsx")
 //				redisDriver.sadd(rid, "CPA_GYCX_panel_201705Urology.xlsx")
 //				redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")

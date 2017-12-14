@@ -65,8 +65,6 @@ object alCameoScp {
 }
 
 class alCameoScp(item: alMaxRunning) extends Actor with ActorLogging {
-    import alCameoCalcYM._
-
     override def receive: Receive = {
         case scp_pkg() => pkg
         case pkgend(s) => scp

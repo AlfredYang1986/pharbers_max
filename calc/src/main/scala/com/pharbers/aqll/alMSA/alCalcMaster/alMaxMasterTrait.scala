@@ -50,9 +50,11 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     def preSplitPanelJob(uid: String) ={
         val rid = phRedisDriver().commonDriver.hget(uid, "rid")
                 .map(x=>x).getOrElse(throw new Exception("not found uid"))
-        println(s"alMaxMasterTrait.preSplitPanelJob.rid=${rid}")
         val panelLst = phRedisDriver().commonDriver.smembers(rid)
                 .map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
+        val startTime = System.currentTimeMillis()
+        phRedisDriver().commonDriver.hset(uid, "sTime", startTime)
+
         panelLst.foreach{panel=>
             pushSplitPanelJob(alMaxRunning(uid, panel, rid))
         }
@@ -95,6 +97,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postGroupJob(item: alMaxRunning) ={
+        println("group item = " + item)
         self ! pushScpJob(item)
         val msg = Map(
             "type" -> "progress_calc",
@@ -105,6 +108,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def preScpJob(item: alMaxRunning) ={
+        println("scp+ " + item.tid)
         pushScpJobs(item)
         val msg = Map(
             "type" -> "progress_calc",
@@ -115,7 +119,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postScpJob(item: alMaxRunning) ={
-        self ! pushCalcJob(item)
+//        self ! pushCalcJob(item)
 
         val msg = Map(
             "type" -> "progress_calc",
@@ -136,7 +140,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postCalcJob(uid: String, tid: String, v: Double, u: Double, result: Boolean) {
-
         var msg = Map[String, String]()
         if (result) {
             val phRedisSet= phRedisDriver().phSetDriver

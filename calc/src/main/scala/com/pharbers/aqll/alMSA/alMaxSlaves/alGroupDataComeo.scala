@@ -64,6 +64,7 @@ class alGroupDataComeo (item: alMaxRunning,
             )
             val result = cj.result
             val (parent, subs) = result.get.asInstanceOf[(String, List[String])]
+
             item.subs = subs.map{x=>
                 phRedisDriver().commonDriver.sadd(parent, x)
                 alMaxRunning(item.uid, x, parent)

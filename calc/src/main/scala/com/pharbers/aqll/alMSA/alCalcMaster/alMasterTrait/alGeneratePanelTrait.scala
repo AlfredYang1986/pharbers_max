@@ -6,8 +6,8 @@ import akka.routing.BroadcastPool
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, takeNodeForRole}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{generatePanelResult, generatePanelSchedule}
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.generatePanelSchedule
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import play.api.libs.json.JsValue
