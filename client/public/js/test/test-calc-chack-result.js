@@ -1,42 +1,20 @@
-/**
- * Created by yym on 11/27/17.
- */
-var step_chart = (function ($, w) {
-
+(function($, w) {
     "use strict";
     var f = new Facade();
     var itemStyleColor = ['#3AD1C2', '#60C6CF', '#FFFFFF', '#009992'];
     var barLineChart;
     var mapChart;
     var barChart;
-
-    $(function(){
-        bar_line_chart("market_trend");
-        map_chart("market_map");
-        bar_chart("market_bar");
+    $(function() {
+        bar_line_chart('market-trend');
+        map_chart("market-map");
+        bar_chart("market-bar");
 
         var json = JSON.stringify(f.parameterPrefix.conditions({"tables": ["fea9f203d4f593a96f0d6faa91ba24ba"], "user_token": "bearer47ee6f05c8994e9ddbe12c2971600766", "marketWithYear": "201502-INF"}));
 
-        f.ajaxModule.baseCall('/calc/querySalesVsShare', json, 'POST', function(r) {
+        f.ajaxModule.baseCall('calc/querySalesVsShare', json, 'POST', function(r) {
             if(r.status === 'ok') {
-                var $select_month =  $('select[name="calc-result-month"]');
-                var $select_market = $('select[name="calc-result-market"]');
-                $select_month.empty();
-                $select_market.empty();
-                var market_lst = [];
-                $.each(r.result.result_condition, function(i, v){
-                    market_lst.push(v.Market);
-                    $select_month.append('<option value="'+ v.Date +'">' + v.Date + '</option>');
-                });
-                $.each($.unique(market_lst), function(i, v){
-                   $select_market.append('<option  value="'+ v +'">' + v + '</option>');
-                });
-
-                $('span[name="sumsales"]').empty().text(parseFloat(r.result.cursales / 1000000).toFixed(2));
-                $('span[name="productsales"]').empty().text(parseFloat(r.result.curproductsales / 1000000).toFixed(2));
-                $('span[name="share"]').empty().text((parseFloat(r.result.curproductsales) / parseFloat(r.result.cursales) * 100).toFixed(2));
-
-
+                // r.result.result_condition
                 var $echart_option = barLineChart.getOption();
                 var xAxisData = [];
                 var seriesBarData = [];
@@ -55,7 +33,7 @@ var step_chart = (function ($, w) {
             }
         });
 
-        f.ajaxModule.baseCall('/calc/queryCurVsPreWithCity', json, 'POST', function(r) {
+        f.ajaxModule.baseCall('calc/queryCurVsPreWithCity', json, 'POST', function(r) {
             if(r.status === 'ok') {
                 var $echart_map_option = mapChart.getOption();
                 var $echart_bar_option = barChart.getOption();
@@ -286,7 +264,7 @@ var step_chart = (function ($, w) {
             yAxis: {
                 type: 'category',
                 data: [],
-                axisLabel: {show: true, interval: 'auto', formatter: '{value}'}
+                axisLabel: {show: true, interval: 'auto', formatter: '{value}%'}
             },
             series: [
                 {
@@ -326,10 +304,4 @@ var step_chart = (function ($, w) {
 
         barChart.setOption(option);
     }
-
-    return {
-        "barLineChart": function() {return barLineChart;},
-        "mapChart": function() {return mapChart;},
-        "barChart": function() {return barChart;}
-    }
-}(jQuery, window));
+})(jQuery, window);

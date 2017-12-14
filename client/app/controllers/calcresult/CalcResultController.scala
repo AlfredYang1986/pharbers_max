@@ -29,7 +29,6 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
-//			::
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
 			:: MsgCalcResultHistorySumSales(jv)
 			:: ParallelMessage(paralleSalesVsShare(jv), salesVsShareResultMerge)
@@ -43,24 +42,9 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
-			//			::
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
 			:: MsgCalcResultHistoryCurVsPreWithCity(jv)
-			:: ParallelMessage(paralleCurVsPreWithCity(jv), curVsPreWithCity)
-			:: msg_CommonResultMessage() :: Nil, None)
-	})
-	
-	def queryWithYearForCurVsPre = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
-		import com.pharbers.bmpattern.LogMessage.common_log
-		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryWithYearForCurVsPre"))), jv)
-			:: MsgAuthTokenParser(jv)
-			:: MsgAuthTokenExpire(jv)
-			:: msg_user_token_op(jv)
-			//			::
-			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
-			:: MsgCalcResultHistoryWithYearForCurVsPre(jv)
-			:: ParallelMessage(paralleWithYearForCurVsPre(jv), withYeaForCurVsPre)
+			:: ParallelMessage(paralleCurVsPreWithCity(jv), salesMapWithCityResultMerge)
 			:: msg_CommonResultMessage() :: Nil, None)
 	})
 	
@@ -76,12 +60,7 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x - "tables").getOrElse(throw new Exception(""))
 		reVal map ( x => MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(x)) ++ js )))) :: Nil, None))
 	}
-	
-	def paralleWithYearForCurVsPre(jv: JsValue): List[MessageRoutes] = {
-		val reVal = (jv \ "condition" \ "tables").asOpt[List[String]].map(x => x).getOrElse(throw new Exception(""))
-		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x - "tables").getOrElse(throw new Exception(""))
-		reVal map ( x => MessageRoutes(MsgCalcResultWithYearForCurVsPre(toJson(Map("condition" -> toJson(Map("table" -> toJson(x)) ++ js )))) :: Nil, None))
-	}
+
 	
 	def paralleCondition(jv: JsValue): List[MessageRoutes] = {
 		val reVal = (jv \ "condition" \ "tables").asOpt[List[String]].map(x => x).getOrElse(throw new Exception(""))

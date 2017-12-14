@@ -131,7 +131,7 @@ object AuthModule extends ModuleTrait with AuthData {
 		try {
 			val redisDriver = phRedisDriver().commonDriver
 			val accessToken = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("input error"))
-
+			
 			val token = redisDriver.hgetall1(accessToken).get
 			if (token.isEmpty) (None, None)
 			else {
@@ -179,7 +179,7 @@ object AuthModule extends ModuleTrait with AuthData {
 			val name = (js \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
 			//TODO 还未知该URL参数是否有用，暂时不删除
 			val reVal = att.encrypt2Token(toJson(js.as[Map[String, JsValue]] + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000)) + ("action" -> toJson("first_login"))))
-			val url = s"http://192.168.100.174:9000/validation/token/${java.net.URLEncoder.encode(accessToken, "ISO-8859-1")}"
+			val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(accessToken, "ISO-8859-1")}"
 			emailAtiveAccount(email, reVal)
 			val o: DBObject = DBObject("token" -> accessToken)
 			db.insertObject(o, "authorizationcode", "token")
