@@ -15,23 +15,52 @@ var step_chart = (function ($, w) {
         map_chart("market_map");
         bar_chart("market_bar");
 
-        var json = JSON.stringify(f.parameterPrefix.conditions({"tables": ["fea9f203d4f593a96f0d6faa91ba24ba"], "user_token": "bearer47ee6f05c8994e9ddbe12c2971600766", "marketWithYear": "201502-INF"}));
+        $(w).resize(function () {
+            barLineChart.resize();
+            mapChart.resize();
+            barChart.resize();
+        });
 
-        f.ajaxModule.baseCall('/calc/querySalesVsShare', json, 'POST', function(r) {
+
+        $('div[name="btn-query-calcresult"]').click(function(){
+            var marketWithYear = $('select[name="calc-result-month"]').val() + '-' + $('select[name="calc-result-market"]').val();
+            var json = JSON.stringify(f.parameterPrefix.conditions({
+                "user_token": $.cookie("user_token"),
+                "marketWithYear": marketWithYear,
+                "uid": $.cookie("uid")
+            }));
+
+            query_data(json);
+        });
+    });
+
+    var query_data = function(json) {
+        f.ajaxModule.baseCall('/calc/querySelectBox', JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")})), 'POST', function (r) {
             if(r.status === 'ok') {
                 var $select_month =  $('select[name="calc-result-month"]');
                 var $select_market = $('select[name="calc-result-market"]');
                 $select_month.empty();
                 $select_market.empty();
                 var market_lst = [];
-                $.each(r.result.result_condition, function(i, v){
-                    market_lst.push(v.Market);
-                    $select_month.append('<option value="'+ v.Date +'">' + v.Date + '</option>');
-                });
-                $.each($.unique(market_lst), function(i, v){
-                   $select_market.append('<option  value="'+ v +'">' + v + '</option>');
-                });
+                var time_lst = [];
 
+                $.each(r.result.result_condition.select_values, function(i, v){
+                    time_lst.push(v.Date);
+                    market_lst.push(v.Market);
+                });
+                $.each($.unique(market_lst), function(i, v){$select_market.append('<option  value="'+ v +'">' + v + '</option>');});
+                $.each($.unique(time_lst).sort(), function(i, v){$select_month.append('<option  value="'+ v +'">' + v + '</option>');});
+            }
+        });
+        barLineChart.showLoading();
+        barChart.showLoading();
+        mapChart.showLoading();
+
+        var j = json || JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")}));
+        //JSON.stringify(f.parameterPrefix.conditions({"tables": ["fea9f203d4f593a96f0d6faa91ba24ba"], "user_token": "bearer47ee6f05c8994e9ddbe12c2971600766", "marketWithYear": "201502-INF"}));
+
+        f.ajaxModule.baseCall('/calc/querySalesVsShare', j, 'POST', function(r) {
+            if(r.status === 'ok') {
                 $('span[name="sumsales"]').empty().text(parseFloat(r.result.cursales / 1000000).toFixed(2));
                 $('span[name="productsales"]').empty().text(parseFloat(r.result.curproductsales / 1000000).toFixed(2));
                 $('span[name="share"]').empty().text((parseFloat(r.result.curproductsales) / parseFloat(r.result.cursales) * 100).toFixed(2));
@@ -50,12 +79,13 @@ var step_chart = (function ($, w) {
                 $echart_option.series[0].data = seriesBarData;
                 $echart_option.series[1].data = seriesLineData;
                 barLineChart.setOption($echart_option);
+                barLineChart.hideLoading();
             } else {
                 console.error("error");
             }
         });
 
-        f.ajaxModule.baseCall('/calc/queryCurVsPreWithCity', json, 'POST', function(r) {
+        f.ajaxModule.baseCall('/calc/queryCurVsPreWithCity', j, 'POST', function(r) {
             if(r.status === 'ok') {
                 var $echart_map_option = mapChart.getOption();
                 var $echart_bar_option = barChart.getOption();
@@ -83,18 +113,14 @@ var step_chart = (function ($, w) {
 
                 mapChart.setOption($echart_map_option);
                 barChart.setOption($echart_bar_option);
+                barChart.hideLoading();
+                mapChart.hideLoading();
 
             } else {
                 console.error("error");
             }
         });
-
-        $(w).resize(function () {
-            barLineChart.resize();
-            mapChart.resize();
-            barChart.resize();
-        })
-    });
+    };
 
     function bar_line_chart(id) {
         barLineChart = echarts.init(document.getElementById(id));
@@ -197,7 +223,6 @@ var step_chart = (function ($, w) {
 
     function map_chart(id) {
         mapChart = echarts.init(document.getElementById(id));
-
         var option = {
             title: {
                 // text: '中国大区分布图',
@@ -253,10 +278,7 @@ var step_chart = (function ($, w) {
                 data: []
             }]
         };
-
-
         mapChart.setOption(option);
-
     }
 
     function bar_chart(id) {
@@ -330,6 +352,7 @@ var step_chart = (function ($, w) {
     return {
         "barLineChart": function() {return barLineChart;},
         "mapChart": function() {return mapChart;},
-        "barChart": function() {return barChart;}
+        "barChart": function() {return barChart;},
+        "query_data": query_data
     }
 }(jQuery, window));

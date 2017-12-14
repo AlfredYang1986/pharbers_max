@@ -52,7 +52,7 @@
     // $("#sample-btn").click(function () {toSampleResult()});
     // $("#thd-btn").click(function () {toThirdStep()});
     $("#calculInof").click(function(){toFourthStep()});
-    $("#test-show").click(function(){toFourthStep()});
+    // $("#test-show").click(function(){toFourthStep()});
 
 
     var check_file = function(){
@@ -141,6 +141,7 @@
         w.step_chart.barLineChart().resize();
         w.step_chart.mapChart().resize();
         w.step_chart.barChart().resize();
+        w.step_chart.query_data();
         // w.step_chart.barLineChart.resize();
         // bar_line_chart('market_trend');
         // map_chart('market_map');
