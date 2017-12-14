@@ -43,14 +43,10 @@ object AuthModule extends ModuleTrait with AuthData {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("cli").get
 			val date = new Date().getTime
-//			val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val map = m2d(data)
 			db.queryObject(map, "users") match {
 				case None => throw new Exception("data not exist")
 				case Some(one) =>
-//					val reVal = one - "email" - "phone" - "name" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
-//					val auth_token = att.encrypt2Token(toJson(reVal))
-//					phRedisSet.sadd("token", reVal, (old_map : Map[String, Any], new_map : Map[String, Any]) => new_map)
 					val reVal = one - "name"
 					val uid = Sercurity.md5Hash(one("email").as[String])
 					val tmp = Sercurity.md5Hash(one("email").as[String] + date)

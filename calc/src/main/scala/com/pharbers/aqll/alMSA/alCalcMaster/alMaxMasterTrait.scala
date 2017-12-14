@@ -119,7 +119,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postScpJob(item: alMaxRunning) ={
-//        self ! pushCalcJob(item)
+        self ! pushCalcJob(item)
 
         val msg = Map(
             "type" -> "progress_calc",

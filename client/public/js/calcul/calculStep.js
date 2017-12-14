@@ -68,7 +68,7 @@
             var json = JSON.stringify({
                 "businessType": "/calcYM",
                 "company": company,
-                "user": $.cookie('uid'),
+                "uid": $.cookie('uid'),
                 "cpa": sourceMap.cpa,
                 "gycx": sourceMap.gycx
             });
@@ -92,7 +92,7 @@
         var json = JSON.stringify({
             "businessType": "/genternPanel",
             "company": company,
-            "user": $.cookie('uid'),
+            "uid": $.cookie('uid'),
             "cpa": sourceMap.cpa,
             "gycx": sourceMap.gycx,
             "ym": ym_lst
@@ -110,14 +110,11 @@
     var calc_action = function() {
         var json = JSON.stringify({
             "businessType": "/modelcalc",
-            "company": company,
-            "filename": fileNames,
-            "uid": $.cookie('uid'),
-            "imuname": ""//遗留症，必须传，重构时清理
+            "uid": $.cookie('uid')
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            prograssBar(98, 210000, 0);
+            prograssBar(98, 20000, 0);
         }, function(e){console.error(e)});
     };
 
@@ -132,7 +129,6 @@
             loadLineChart("lineChart2");
             loadBarChart("barChart1");
         }
-
     }
 
     function toCalculResult() {
@@ -146,7 +142,7 @@
         // bar_line_chart('market_trend');
         // map_chart('market_map');
         // bar_chart('market_bar');
-    };
+    }
 
     var loadLineChart = function (id) {
         var lineChart = echarts.init(document.getElementById(id));
