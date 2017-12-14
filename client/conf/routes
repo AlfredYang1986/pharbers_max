@@ -73,6 +73,7 @@ POST    /upload/queryUserCompnay                    controllers.upload.FopContro
 POST    /calc/callhttp                              controllers.callhttp.CallHttpController.callHttpServer
 
 # 获取本次计算数据
+POST    /calc/querySelectBox                        controllers.calcresult.CalcResultController.querySelectBoxValue
 POST    /calc/querySalesVsShare                     controllers.calcresult.CalcResultController.querySalesVsShare
 POST    /calc/queryCurVsPreWithCity                 controllers.calcresult.CalcResultController.queryCurVsPreWithCity
 
