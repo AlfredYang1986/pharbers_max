@@ -23,9 +23,13 @@ var step_chart = (function ($, w) {
                 var $select_market = $('select[name="calc-result-market"]');
                 $select_month.empty();
                 $select_market.empty();
+                var market_lst = [];
                 $.each(r.result.result_condition, function(i, v){
+                    market_lst.push(v.Market);
                     $select_month.append('<option value="'+ v.Date +'">' + v.Date + '</option>');
-                    $select_market.append('<option  value="'+ v.Market +'">' + v.Market + '</option>');
+                });
+                $.each($.unique(market_lst), function(i, v){
+                   $select_market.append('<option  value="'+ v +'">' + v + '</option>');
                 });
 
                 $('span[name="sumsales"]').empty().text(parseFloat(r.result.cursales / 1000000).toFixed(2));
