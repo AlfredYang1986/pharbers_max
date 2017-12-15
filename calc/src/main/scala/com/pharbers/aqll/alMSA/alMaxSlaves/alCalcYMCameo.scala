@@ -7,7 +7,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcYM.{calcYM_
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json._
-
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
 
@@ -40,18 +40,20 @@ class alCalcYMCameo (calcYM_job: alPanelItem,
                 "gycxs" -> calcYM_job.gycx.split("&").toList
             )
             println("开始过滤日期,arg=" + calcYM_job)
-            val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
-            val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
-
-            val msg = Map(
-                "type" -> "calc_ym_result",
-                "ym" -> ym,
-                "mkt" -> markets
-            )
-            println("calc ym result = " + msg)
-            alWebSocket(calcYM_job.uid).post(msg)
-
-            self ! calcYM_end(true, ym)
+            try {
+                val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
+                val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
+                val msg = Map(
+                    "type" -> "calc_ym_result",
+                    "ym" -> ym,
+                    "mkt" -> markets
+                )
+                self ! calcYM_end(true, ym)
+                println("calc ym result = " + msg)
+                alWebSocket(calcYM_job.uid).post(msg)
+            } catch {
+                case _: Exception => self ! cannotRestart
+            }
         }
 
         case calcYM_end(result, ym) => {

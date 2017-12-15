@@ -22,6 +22,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     def preGeneratePanelJob(item: alPanelItem) = {
         val rid = UUID.randomUUID().toString
         println("开始生成panel，本次计算流程的rid为 = " + rid)
+        phRedisDriver().commonDriver.hset(s"calc:${item.uid}", "company", "fea9f203d4f593a96f0d6faa91ba24ba")
         phRedisDriver().commonDriver.hset(item.uid, "rid", rid)
         pushGeneratePanelJobs(item)
     }
@@ -190,22 +191,21 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postRestoreJob(bool: Boolean, uid: String) ={
-        println(s"还原数据库结束！")
         val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         a ! refundNodeForRole("splitrestorebsonslave")
         println(s"还原数据库结果 => ${bool}")
         var msg = Map[String, String]()
         if (bool) {
             msg = Map(
-                "type" -> "progress_calc",
+                "type" -> "progress_calc_result",
                 "txt" -> "入库完成",
-                "progress" -> "14"
+                "progress" -> "100"
             )
         } else {
             msg = Map(
-                "type" -> "progress_calc",
+                "type" -> "progress_calc_result",
                 "txt" -> "入库失败",
-                "progress" -> "15"
+                "progress" -> "100"
             )
         }
         alWebSocket(uid).post(msg)

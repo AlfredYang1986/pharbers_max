@@ -20,7 +20,6 @@ object alMaxMaster {
     //calc ym module
     case class pushCalcYMJob(item: alPanelItem)
     case class calcYMSchedule()
-    case class releaseCalcYMEnergy()
     case class calcYMResult(ym: String)
 
     //generate panel module
@@ -59,7 +58,6 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         //calc ym module
         case pushCalcYMJob(item) => preCalcYMJob(item)
         case calcYMSchedule() => calcYMScheduleJobs
-        case releaseCalcYMEnergy() => releaseCalcYMEnergy
         case calcYMResult(ym) => println(s"calcYM = $ym")
 
         //generate panel module

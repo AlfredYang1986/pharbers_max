@@ -114,7 +114,7 @@
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            prograssBar(98, 20000, 0);
+            prograssBar(99, 20000, 0);
         }, function(e){console.error(e)});
     };
 
@@ -878,7 +878,7 @@
         if(progress === "100"){
             calc_base_progress += 1;
             if(calc_base_progress === ym_mkt_num){
-                prograssBar(100, 300, 98);
+                prograssBar(100, 300, 99);
                 alert("计算完成");
                 isCalcDone = true;
             }
