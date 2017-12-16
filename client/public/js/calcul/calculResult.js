@@ -34,7 +34,7 @@ var step_chart = (function ($, w) {
         });
     });
 
-    var query_data = function(json) {
+    var query_select = function() {
         f.ajaxModule.baseCall('/calc/querySelectBox', JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")})), 'POST', function (r) {
             if(r.status === 'ok') {
                 var $select_month =  $('select[name="calc-result-month"]');
@@ -52,6 +52,10 @@ var step_chart = (function ($, w) {
                 $.each($.unique(time_lst).sort(), function(i, v){$select_month.append('<option  value="'+ v +'">' + v + '</option>');});
             }
         });
+    }
+
+    var query_data = function(json) {
+
         barLineChart.showLoading();
         barChart.showLoading();
         mapChart.showLoading();
@@ -353,6 +357,7 @@ var step_chart = (function ($, w) {
         "barLineChart": function() {return barLineChart;},
         "mapChart": function() {return mapChart;},
         "barChart": function() {return barChart;},
-        "query_data": query_data
+        "query_data": query_data,
+        "query_select": query_select
     }
 }(jQuery, window));
