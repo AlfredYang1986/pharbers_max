@@ -55,7 +55,7 @@ trait alCalcDataTrait { this : Actor =>
         }
     }
 
-    def canCalcGroupJob : Boolean = {
+    def canCalcJob : Boolean = {
         implicit val t = Timeout(2 seconds)
         val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave")
@@ -63,7 +63,7 @@ trait alCalcDataTrait { this : Actor =>
     }
 
     def schduleCalcJob = {
-        if (canCalcGroupJob) {
+        if (canCalcJob) {
             atomic { implicit thx =>
                 val tmp = calc_jobs.single.get
                 if (tmp.isEmpty) Unit

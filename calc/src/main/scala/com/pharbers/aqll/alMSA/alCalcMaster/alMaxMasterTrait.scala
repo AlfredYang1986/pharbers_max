@@ -98,7 +98,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postGroupJob(item: alMaxRunning) ={
-        println("group item = " + item)
         self ! pushScpJob(item)
         val msg = Map(
             "type" -> "progress_calc",
@@ -109,7 +108,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def preScpJob(item: alMaxRunning) ={
-        println("scp+ " + item.tid)
         pushScpJobs(item)
         val msg = Map(
             "type" -> "progress_calc",
@@ -121,7 +119,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
     def postScpJob(item: alMaxRunning) ={
         self ! pushCalcJob(item)
-
         val msg = Map(
             "type" -> "progress_calc",
             "txt" -> "等待计算",
