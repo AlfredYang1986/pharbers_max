@@ -36,7 +36,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             }
         }
         val rid = phRedisDriver().commonDriver.hget(uid, "rid")
-                .map(x=>x).getOrElse(throw new Exception("not found uid"))
+                .map(x=>x).getOrElse(throw new Exception("not found rid"))
 
         jv2map(panelResult).foreach{x=>
             x._2.foreach{y=>
@@ -50,7 +50,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
     def preSplitPanelJob(uid: String) ={
         val rid = phRedisDriver().commonDriver.hget(uid, "rid")
-                .map(x=>x).getOrElse(throw new Exception("not found uid"))
+                .map(x=>x).getOrElse(throw new Exception("not found rid"))
         val panelLst = phRedisDriver().commonDriver.smembers(rid)
                 .map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
         val startTime = System.currentTimeMillis()
