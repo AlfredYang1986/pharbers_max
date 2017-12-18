@@ -37,10 +37,10 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 			val group = DBObject("_id" -> DBObject("Date" -> "$Date", "Market" -> "$Market", "Product" -> "$Product"), "Sales" -> DBObject("$sum" -> "$f_sales"), "Units" -> DBObject("$sum" -> "$f_units"))
 			
 			val para = (data \ "condition" \ "marketWithYear").asOpt[String] match {
-				case None => DBObject("Date" -> DBObject("$lte" -> DateUtil.getDateLong(default(pr).getOrElse("Date", throw new Exception("")))), "Market" -> default(pr).getOrElse("Market", ""))
+				case None => DBObject("Date" -> DBObject("$lt" -> DateUtil.getDateLong(default(pr).getOrElse("Date", throw new Exception("")))), "Market" -> default(pr).getOrElse("Market", ""))
 				case Some(x) =>
 					val tmp = x.split("-")
-					DBObject("Date" -> DBObject("$lte" -> DateUtil.getDateLong(tmp.head)), "Market" -> tmp.tail.head)
+					DBObject("Date" -> DBObject("$lt" -> DateUtil.getDateLong(tmp.head)), "Market" -> tmp.tail.head)
 			}
 			val uid = Sercurity.md5Hash(default(pr).getOrElse("Date", "") + para.getAs[String]("Market").get)
 			val sumSales = db.aggregate(para, default(pr).getOrElse("user_company", ""), group)(aggregateSalesResult(_)(uid))
@@ -154,10 +154,10 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		val curPSumS = curTemp.filter(f => f("Product").contains(product)).map(x => x("Sales").toDouble).sum
 		val curMSumS = curTemp.map(x => x("Sales").toDouble).sum
 		val curMSumU = curTemp.map(x => x("Units").toDouble).sum
+		val share = if(curMSumS == 0) 0 else ((curPSumS / curMSumS) * 100).formatted("%.2f").toDouble
 		
 		val result = historyTemp match {
 			case Nil =>
-				val share = if(curMSumS == 0) 0 else (curPSumS / curMSumS) * 100
  				timeLst.filterNot(f => f == selectDate).map ( x =>Map("Date" -> x, "Market" -> selectMarket, "Sales" -> "0", "Units" ->"0", "Share" ->"0")) :+
 				Map("Date" -> selectDate, "Market" -> selectMarket, "Sales" -> curMSumS.toString, "Units" ->curMSumU.toString, "Share" -> share.toString)
 			case hlst =>
@@ -167,8 +167,9 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 					val hisMSumU = hlst.filter(f => f("Date") == x).map(z => z("Units").toDouble).sum
 					val share = if(hisMSumS == 0) 0 else ((hisPSumS / hisMSumS) * 100).formatted("%.2f").toDouble
 					Map("Date" -> x, "Market" -> selectMarket , "Sales" -> hisMSumS.toString, "Units" -> hisMSumU.toString, "Share" -> share.toString)
-				}
+				} :+ Map("Date" -> selectDate, "Market" -> selectMarket, "Sales" -> curMSumS.toString, "Units" ->curMSumU.toString, "Share" -> share.toString)
 		}
+
 		Map("condition" -> toJson(result),
 			"result_condition" -> (mergerResult("result_condition") \ "select_values").getOrElse(throw new Exception("")),
 			"cursales" -> toJson(curMSumS),
