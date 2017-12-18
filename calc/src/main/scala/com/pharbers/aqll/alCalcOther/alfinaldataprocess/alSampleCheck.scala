@@ -6,7 +6,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.alCalaHelp.dbcores._
 import com.pharbers.aqll.alCalaHelp.DefaultData
 import com.pharbers.aqll.alCalc.almodel.java.AdminHospitalDataBase
-import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
+import com.pharbers.aqll.alCalcOther.alWebSocket.alWebSocket
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._

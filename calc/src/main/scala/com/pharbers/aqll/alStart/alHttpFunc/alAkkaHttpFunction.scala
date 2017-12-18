@@ -3,14 +3,18 @@ package com.pharbers.aqll.alStart.alHttpFunc
 import akka.util.Timeout
 import akka.actor.ActorSystem
 import play.api.libs.json.Json._
+
 import scala.collection.immutable.Map
 import play.api.libs.json.Json.toJson
+
 import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alCalaHelp.alAkkaHttpJson.PlayJsonSupport
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg.pushCalcYMJob
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{masterIP, pushCalcYMJob, pushGeneratePanelJob, pushSplitPanel}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushGeneratePanelJob, pushSplitPanel}
 
 /**
   * Created by qianpeng on 2017/6/5.

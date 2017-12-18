@@ -1,8 +1,6 @@
 package com.pharbers.aqll.alCalc.almain
 
 import java.util.UUID
-
-import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
@@ -11,24 +9,21 @@ import com.pharbers.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointSta
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.common.alCmd.pkgcmd.unPkgCmd
-import com.pharbers.aqll.common.alDao.dataFactory._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.alCalcEnergy.alCalcSupervisorStrategy
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
 import com.pharbers.alCalcMemory.aljobs.aljobstates.alMaxCalcJobStates.{calc_coreing, calc_maxing}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.do_pkg
-import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
-import com.pharbers.aqll.common.alFileHandler.serverConfig._
-
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import com.pharbers.aqll.alCalaHelp.dbcores._
-
+import com.pharbers.aqll.alCalcOther.alWebSocket.alWebSocket
 import scala.collection.immutable.Map
 
+//TODO shanchu
 object alCalcActor {
     def props : Props = Props[alCalcActor]
 

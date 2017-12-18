@@ -13,15 +13,16 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
+import com.pharbers.aqll.alCalcOther.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.calcSchedule
-import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor
-import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor.{pkgmsg, unpkgend, unpkgmsg}
+import com.pharbers.aqll.alMSA.alMaxCmdJob.alCmdActor
+import com.pharbers.aqll.alMSA.alMaxCmdJob.alCmdActor.{pkgmsg, unpkgend, unpkgmsg}
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
+
 import scala.collection.immutable.Map
 import scala.concurrent.Await
 import scala.concurrent.stm._

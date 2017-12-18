@@ -24,7 +24,7 @@ import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.memory.pages.fop.dir.dirPageStorage
 import com.pharbers.memory.pages.{dirFlushMemory, pageMemory, pageMemory2}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 /**
   * Created by alfredyang on 13/07/2017.

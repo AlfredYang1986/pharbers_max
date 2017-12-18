@@ -8,7 +8,7 @@ import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, t
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.{restore_bson_end, restore_bson_hand, restore_bson_start_impl}
 import scala.concurrent.duration._
 import scala.concurrent.Await
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 /**
   * Created by jeorch on 17-10-30.

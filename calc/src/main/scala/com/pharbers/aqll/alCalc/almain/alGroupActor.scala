@@ -1,7 +1,6 @@
 package com.pharbers.aqll.alCalc.almain
 
-import akka.actor.SupervisorStrategy.Restart
-import akka.actor.{Actor, ActorLogging, FSM, Kill, Props, Terminated}
+import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
@@ -12,7 +11,7 @@ import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcEnergy.{alCalcSupervisorStrategy}
+import com.pharbers.aqll.alCalcEnergy.alCalcSupervisorStrategy
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, grouping_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.alCalcMemory.aljobs.aljobstates.alMaxGroupJobStates.{group_coreing, group_doing}
@@ -20,22 +19,20 @@ import com.pharbers.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointSta
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alMessgae.{alWebSocket}
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import com.pharbers.aqll.alCalaHelp.dbcores._
+import com.pharbers.aqll.alCalcOther.alWebSocket.alWebSocket
 
 import scala.collection.immutable.Map
 
 /**
   * Created by BM on 11/03/2017.
   */
-
-case class FileParentUuid(var uuid: String)
-
+//TODO shanchu
 object alGroupActor {
     def props : Props = Props[alGroupActor]
     val core_number = server_info.cpu

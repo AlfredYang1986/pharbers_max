@@ -4,12 +4,13 @@ import scala.concurrent.duration._
 import play.api.libs.json.Json.toJson
 import com.pharbers.panel.pfizer.phPfizerHandle
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.generatePanelResult
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
+import com.pharbers.aqll.alCalcOther.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_start_impl, generate_panel_timeout}
+
 import scala.collection.immutable.Map
 
 /**

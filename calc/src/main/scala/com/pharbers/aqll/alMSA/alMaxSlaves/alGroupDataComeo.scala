@@ -15,7 +15,7 @@ import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.split_panel_timeout
 import com.pharbers.driver.redis.phRedisDriver
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 import scala.concurrent.duration._
 

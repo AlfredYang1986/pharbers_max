@@ -45,7 +45,6 @@ object alAkkaHttpMain extends App with RequestTimeout {
 		if(calcSystem.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
 			Cluster(calcSystem).registerOnMemberUp {
 				alAkkaSystemGloble.system = calcSystem
-				calcSystem.actorOf(alMaxMaster.props, alMaxMaster.name)
 				calcSystem.actorOf(alAgentSingleton.props, alAgentSingleton.name)
 				calcSystem.actorOf(Props[alMaxClusterLister], "akka-listener")
 			}

@@ -7,15 +7,15 @@ import akka.routing.BroadcastPool
 import com.pharbers.aqll.alCalaHelp.alMaxDefines._
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.split_panel_timeout
 import akka.actor.SupervisorStrategy.Escalate
+import com.pharbers.aqll.alCalcOther.alWebSocket.alWebSocket
 import com.pharbers.driver.redis.phRedisDriver
 
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 /**
   * Created by alfredyang on 12/07/2017.

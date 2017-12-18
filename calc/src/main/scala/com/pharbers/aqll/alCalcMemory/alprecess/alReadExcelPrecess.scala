@@ -7,7 +7,6 @@ import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alprecess.alPrecess
 import com.pharbers.alCalcMemory.alstages.{alInitStage, alMemoryStage, alPresisStage, alStage}
-import com.pharbers.aqll.alCalcOther.alLog.alLoggerMsgTrait
 import com.pharbers.aqll.common.alErrorCode.alErrorCode.errorToJson
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
 
@@ -18,7 +17,7 @@ import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
 
 case class excelHandlers() extends alExcelDataParser(new IntegratedData, DefaultData.integratedxmlpath_en, DefaultData.integratedxmlpath_ch) with alFileHandlers
 
-class alReadExcelPrecess extends alPrecess with alLoggerMsgTrait{
+class alReadExcelPrecess extends alPrecess {
     def precess(j : alStage) : List[alStage] = {
         
         def precessAcc(path : String) : alStorage = alStorage(path, excelHandlers())

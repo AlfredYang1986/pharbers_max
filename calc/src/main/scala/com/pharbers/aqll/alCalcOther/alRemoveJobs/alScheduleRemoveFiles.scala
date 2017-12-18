@@ -11,7 +11,7 @@ import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 /**
   * Created by qianpeng on 2017/3/27.
   */
-
+// TODO xuyao chongxie
 trait alFilePath {
 
 	def calcPath = root + program + memorySplitFile

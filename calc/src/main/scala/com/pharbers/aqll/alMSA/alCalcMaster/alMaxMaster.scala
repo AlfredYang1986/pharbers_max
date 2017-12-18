@@ -2,8 +2,10 @@ package com.pharbers.aqll.alMSA.alCalcMaster
 
 import play.api.libs.json.JsValue
 import com.typesafe.config.ConfigFactory
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_result
@@ -13,14 +15,8 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.res
   * Created by clock on 17-11-22.
   */
 object alMaxMaster {
-    val masterIP = ConfigFactory.load("split-new-master").getString("akka.remote.netty.tcp.hostname")
     def props = Props[alMaxMaster]
     def name = "driver-actor"
-
-    //calc ym module
-    case class pushCalcYMJob(item: alPanelItem)
-    case class calcYMSchedule()
-    case class calcYMResult(ym: String)
 
     //generate panel module
     case class pushGeneratePanelJob(item: alPanelItem)
@@ -92,7 +88,7 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case restore_bson_schedule() => schduleRestoreJob
         case restore_bson_end(bool, uid) => postRestoreJob(bool, uid)
 
-        case msg: AnyRef => log.info(s"Error Master msg=${msg}")
+        case msg: AnyRef => alTempLog("alMaxMaster not match msg = " + msg)
     }
 
 }

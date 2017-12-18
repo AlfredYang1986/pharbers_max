@@ -1,13 +1,13 @@
 package com.pharbers.aqll.alStart.alEntry
 
 import java.util.UUID
-import akka.actor.ActorSystem
 import akka.cluster.Cluster
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcYMJob, pushGeneratePanelJob, pushSplitPanel}
-import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import com.pharbers.driver.redis.phRedisDriver
+import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcYMJob, pushGeneratePanelJob, pushSplitPanel}
 
 object alActorTest extends App {
 	val config = ConfigFactory.load("split-test")
@@ -24,12 +24,8 @@ object alActorTest extends App {
 			val redisDriver = phRedisDriver().commonDriver
 
 			// 通过用户登录产生的token获取company_name
-//			val company = redisDriver.hget(s"bearer${uid}", "user_id").get
 			redisDriver.pipeline{ pipe =>
 				pipe.hset(s"calc:${uid}", "company", s"${company}")
-//				pipe.hset(s"calc:${uid}", "rid", s"${rid}")
-//				pipe.hset(s"calc:${uid}", "cpa", s"${cpa_file_local}")
-//				pipe.hset(s"calc:${uid}", "gycx", s"${gycx_file_local}")
 			}
 
 			//test calc ym
