@@ -5,7 +5,7 @@ import com.pharbers.aqll.common.MergeParallelResult
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
-import module.calcresult.CalcResultData.{CalcResultData, alNearDecemberMonth}
+import module.calcresult.CalcResultData.CalcResultData
 import module.calcresult.CalcResultMessage._
 import play.api.libs.json.{JsObject, JsValue}
 import play.api.libs.json.Json._
@@ -13,6 +13,7 @@ import com.mongodb.casbah.Imports._
 import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import com.pharbers.sercuity.Sercurity
+import module.common.alNearDecemberMonth
 
 import scala.collection.immutable.Map
 
