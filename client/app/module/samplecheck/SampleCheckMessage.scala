@@ -13,7 +13,7 @@ object SampleCheckMessage {
 	
 	case class MsgQueryProductNumber(data: JsValue) extends MsgSampleCheckCommand
 	
-	case class MsgQuerySampleProductNumber(data: JsValue) extends MsgSampleCheckCommand
+	case class MsgQuerySampleSales(data: JsValue) extends MsgSampleCheckCommand
 	
 	case class MsgQueryNotSampleHospital(data: JsValue) extends MsgSampleCheckCommand
 }

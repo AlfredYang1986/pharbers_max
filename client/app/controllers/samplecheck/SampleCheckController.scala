@@ -33,4 +33,31 @@ class SampleCheckController @Inject() (as_inject: ActorSystem, dbt: dbInstanceMa
 			:: MsgQueryHospitalNumber(jv)
 			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
+	
+	def queryProductNumber = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+		import com.pharbers.bmpattern.LogMessage.common_log
+		import com.pharbers.bmpattern.ResultMessage.common_result
+		
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryProductNumber"))), jv)
+			:: MsgQueryProductNumber(jv)
+			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+	})
+	
+	def querySampleSales = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+		import com.pharbers.bmpattern.LogMessage.common_log
+		import com.pharbers.bmpattern.ResultMessage.common_result
+		
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("querySampleSales"))), jv)
+			:: MsgQuerySampleSales(jv)
+			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+	})
+
+	def queryHospitalList = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+		import com.pharbers.bmpattern.LogMessage.common_log
+		import com.pharbers.bmpattern.ResultMessage.common_result
+		
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryHospitalList"))), jv)
+			:: MsgQueryNotSampleHospital(jv)
+			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+	})
 }
