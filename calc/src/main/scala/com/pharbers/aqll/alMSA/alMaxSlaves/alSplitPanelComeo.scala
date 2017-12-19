@@ -1,91 +1,115 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_jobs, max_split_csv_jobs}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.{split_panel_end, split_panel_start_impl, split_panel_timeout}
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.alCalcOther.alWebSocket.alWebSocket
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileBase, outPut}
-
-import scala.collection.immutable.Map
 import scala.concurrent.duration._
+import scala.collection.immutable.Map
+import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import scala.concurrent.ExecutionContext.Implicits.global
+import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanel._
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileBase, outPut}
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_jobs, max_split_csv_jobs}
 
 /**
   * Created by alfredyang on 12/07/2017.
+  *     Modify by clock on 2017.12.19
   */
 object alSplitPanelComeo {
     def props(item: alMaxRunning,
-              comeoActor: ActorRef,
-              slaveActor: ActorRef,
-              counter: ActorRef) = Props(new alSplitPanelComeo(item, comeoActor, slaveActor, counter))
+              counter: ActorRef) = Props(new alSplitPanelComeo(item, counter))
 }
 
-class alSplitPanelComeo(item: alMaxRunning,
-                        comeoActor : ActorRef,
-                        slaveActor : ActorRef,
-                        counter : ActorRef) extends Actor with ActorLogging {
-
-    override def postRestart(reason: Throwable) : Unit = {
-        // TODO : 计算次数，重新计算
-        counter ! canIReStart(reason)
-    }
-
-    override def receive: Receive = {
-        case split_panel_timeout() => {
-            log.debug("timeout occur")
-            shutSlaveCameo(split_panel_timeout())
-        }
-
-        case split_panel_start_impl(item) => {
-            //TODO 公司名，要改的
-            val file = fileBase + "fea9f203d4f593a96f0d6faa91ba24ba" + outPut + item.tid
-
-            //方便测试
-            val result = if(file.endsWith(".xlsx")){
-                println("split excel file ==> " + file)
-                max_jobs(file).result
-            } else {
-                println("split csv file ==> " + file)
-                max_split_csv_jobs(file).result
-            }
-
-            try {
-                val (parent, subs) = result.map (x => x).getOrElse(throw new Exception("cal error"))
-                self ! split_panel_end(item, parent.asInstanceOf[String], subs.asInstanceOf[List[String]])
-            } catch {
-                case _ : Exception => self ! split_panel_end(item, "", Nil)
-            }
-        }
-
-        case split_panel_end(item, parent, subs) => {
-            slaveActor forward split_panel_end(item, parent, subs)
-            shutSlaveCameo(split_panel_end(item, parent, subs))
-        }
-
-        case canDoRestart(reason: Throwable) =>
-            super.postRestart(reason)
-            self ! split_panel_start_impl(item)
-
-        case cannotRestart(reason: Throwable) => {
-            val msg = Map(
-                "type" -> "error",
-                "error" -> s"error with actor=${self}, reason=${reason}"
-            )
-            alWebSocket(item.uid).post(msg)
-            self ! split_panel_end(item, "", Nil)
-        }
-    }
-
-    import scala.concurrent.ExecutionContext.Implicits.global
+class alSplitPanelComeo(item: alMaxRunning, counter: ActorRef) extends Actor with ActorLogging {
+    //TODO shijian chuancan
     val timeoutMessager = context.system.scheduler.scheduleOnce(10 minute) {
         self ! split_panel_timeout()
     }
 
+    override def postRestart(reason: Throwable) = {
+        counter ! canIReStart(reason)
+    }
+
+    override def receive: Receive = {
+        case split_panel_start_impl(item) => {
+            val company = phRedisDriver().commonDriver.hget(item.uid, "company").map(x=>x).getOrElse(throw new Exception("not found company"))
+            val file = fileBase + company + outPut + item.tid
+
+            //方便测试
+            val r = if(file.endsWith(".xlsx")){
+                alTempLog("开始 split excel file ==> " + file)
+                max_jobs(file).result
+            } else {
+                alTempLog("开始 split csv file ==> " + file)
+                max_split_csv_jobs(file).result
+            }
+
+            val (result, parent, subs) = try {
+                val (p,s) = r.map (x => x).getOrElse(throw new Exception("cal error"))
+                (true, p.asInstanceOf[String],s.asInstanceOf[List[String]])
+            } catch {
+                case ex : Exception =>
+                    alTempLog("Warning! cannot calcYM" + ex.getMessage)
+                    (false, "", Nil)
+            }
+
+            self ! split_panel_end(result, item, parent, subs)
+        }
+
+        case split_panel_end(result, item, parent, subs) => {
+            result match {
+                case true => {
+                    val msg = Map(
+                        "type" -> "progress_calc",
+                        "txt" -> "分拆文件完成",
+                        "progress" -> "1"
+                    )
+                    alWebSocket(item.uid).post(msg)
+                }
+                case false => {
+                    val msg = Map(
+                        "type" -> "error",
+                        "error" -> "cannot split panel"
+                    )
+                    alWebSocket(item.uid).post(msg)
+                }
+            }
+            shutSlaveCameo(splitPanelResult(item, parent, subs))
+        }
+
+        case split_panel_timeout() => {
+            log.info("Warning! split panel timeout")
+            alTempLog("Warning! split panel timeout")
+            self ! split_panel_end(false, item, "", Nil)
+        }
+
+        case canDoRestart(reason: Throwable) =>
+            super.postRestart(reason)
+            alTempLog("Warning! split_panel Node canDoRestart")
+            self ! split_panel_start_impl(item)
+
+        case cannotRestart(reason: Throwable) => {
+            log.info(s"Warning! split_panel Node reason is $reason")
+            alTempLog(s"Warning! split_panel Node cannotRestart, reason is $reason")
+            self ! split_panel_end(false, item, " ", Nil)
+        }
+
+        case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alSplitPanelComeo.received_msg=$msg")
+    }
+
+
     def shutSlaveCameo(msg : AnyRef) = {
-        comeoActor ! msg
-        log.debug("stopping split excel cameo")
         timeoutMessager.cancel()
-        context.stop(self)
+
+        val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+        agent ! msg
+
+        log.info("stop split panel cameo")
+        alTempLog("stop split panel cameo")
+
+        self ! PoisonPill
     }
 }

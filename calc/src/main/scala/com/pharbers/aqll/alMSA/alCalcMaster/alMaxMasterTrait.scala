@@ -4,7 +4,9 @@ import java.util.UUID
 
 import play.api.libs.json.JsValue
 import akka.actor.{Actor, ActorRef}
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+
 import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
@@ -13,23 +15,35 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.push_restore_job
-import com.pharbers.aqll.alCalcOther.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.generatePanel.generate_panel_end
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanel.split_panel_end
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
                         with alCalcDataTrait with alRestoreBsonTrait{ this : Actor =>
 
-    def preCalcYMJob(item: alPanelItem) = pushCalcYMJobs(item)
+    def preCalcYMJob(item: alPanelItem) = {
+        pushCalcYMJobs(item)
+    }
+
+    def postCalcYMJob(ym: List[String], mkt: List[String]) = {
+        alTempLog(s"calcYM result, ym = $ym, mkt = $mkt")
+        val a = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+        a ! refundNodeForRole("splitcalcymslave")
+    }
 
     def preGeneratePanelJob(item: alPanelItem) = {
         val rid = UUID.randomUUID().toString
-        println("开始生成panel，本次计算流程的rid为 = " + rid)
-        phRedisDriver().commonDriver.hset(s"calc:${item.uid}", "company", "fea9f203d4f593a96f0d6faa91ba24ba")
+        alTempLog("开始生成panel，本次计算流程的rid为 = " + rid)
+        phRedisDriver().commonDriver.hset(item.uid, "company", item.company)
         phRedisDriver().commonDriver.hset(item.uid, "rid", rid)
         pushGeneratePanelJobs(item)
     }
 
     def postGeneratePanelJob(uid: String, panelResult: JsValue) = {
+        alTempLog(s"generate panel result = $panelResult")
+        val rid = phRedisDriver().commonDriver.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
         def jv2map(data: JsValue): Map[String, Map[String, List[String]]] ={
             data.as[Map[String, JsValue]].map{ x =>
                 x._1 -> x._2.as[Map[String, JsValue]].map{y =>
@@ -37,10 +51,8 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 }
             }
         }
-        val rid = phRedisDriver().commonDriver.hget(uid, "rid")
-                .map(x=>x).getOrElse(throw new Exception("not found rid"))
 
-        jv2map(panelResult).foreach{x=>
+        jv2map(panelResult).foreach{ x=>
             x._2.foreach{y=>
                 val panel = y._2.mkString(",")
                 phRedisDriver().commonDriver.sadd(rid, panel)
@@ -48,45 +60,38 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 phRedisDriver().commonDriver.hset(panel, "mkt", y._1)
             }
         }
+
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitgeneratepanelslave")
     }
 
-    def preSplitPanelJob(uid: String) ={
-        val rid = phRedisDriver().commonDriver.hget(uid, "rid")
-                .map(x=>x).getOrElse(throw new Exception("not found rid"))
-        val panelLst = phRedisDriver().commonDriver.smembers(rid)
-                .map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
-        val startTime = System.currentTimeMillis()
-        phRedisDriver().commonDriver.hset(uid, "sTime", startTime)
+    def preSplitPanelJob(uid: String) = {
+        val rid = phRedisDriver().commonDriver.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
+        val panelLst = phRedisDriver().commonDriver.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
+        phRedisDriver().commonDriver.hset(uid, "sTime", System.currentTimeMillis())
 
-        panelLst.foreach{panel=>
-            pushSplitPanelJob(alMaxRunning(uid, panel, rid))
+        panelLst.foreach{ panel =>
+            pushSplitPanelJobs(alMaxRunning(uid, panel, rid))
         }
-        val msg = Map(
-            "type" -> "progress_calc",
-            "txt" -> "分拆文件中",
-            "progress" -> "1"
-        )
-        alWebSocket(uid).post(msg)
     }
 
     def postSplitPanelJob(item: alMaxRunning, parent: String, subs: List[String]) ={
-        if(parent.isEmpty || subs.isEmpty) println("拆分错了吧，空的")
+        if(parent.isEmpty || subs.isEmpty)
+            alTempLog("拆分错了吧，空的")
 
-        phRedisDriver().commonDriver.hset(item.tid, "tid", parent)
+//        phRedisDriver().commonDriver.hset(item.tid, "tid", parent)
 
-        item.tid = parent
-        item.subs = subs.map{x=>
-            phRedisDriver().commonDriver.sadd(parent, x)
-            alMaxRunning(item.uid, x, parent)
-        }
-        self ! pushGroupJob(item)
+//        item.tid = parent
+//        item.subs = subs.map{x=>
+//            phRedisDriver().commonDriver.sadd(parent, x)
+//            alMaxRunning(item.uid, x, parent)
+//        }
+//        self ! pushGroupJob(item)
 
-        val msg = Map(
-            "type" -> "progress_calc",
-            "txt" -> "分拆文件完成",
-            "progress" -> "3"
-        )
-        alWebSocket(item.uid).post(msg)
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitsplitpanelslave")
+        println("aaaaaaaaa")
+        println("aaaaaaaaa")
     }
 
     def preGroupJob(item: alMaxRunning) ={

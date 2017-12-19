@@ -17,7 +17,7 @@ import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alWeightSum
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alCalaHelp.dbcores._
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor._
-import com.pharbers.aqll.alCalcOther.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
 import com.pharbers.message.send.Mail
 
 import scala.collection.immutable.Map

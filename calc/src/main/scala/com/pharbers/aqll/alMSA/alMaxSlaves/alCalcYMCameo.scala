@@ -1,108 +1,108 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
-import com.pharbers.aqll.alCalcOther.alWebSocket.alWebSocket
-import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import com.pharbers.panel.pfizer.phPfizerHandle
 import play.api.libs.json._
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
-
-import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
-import scala.collection.immutable.Map
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.collection.immutable.Map
+import com.pharbers.panel.pfizer.phPfizerHandle
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import scala.concurrent.ExecutionContext.Implicits.global
+import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 
 /**
   * Created by jeorch on 17-10-11.
+  *     Modify by clock on 2017.12.19
   */
 object alCalcYMCameo {
-    def props(calcYM_job : alPanelItem,
-              slaveActor : ActorRef,
-              counter : ActorRef) = Props(new alCalcYMCameo(calcYM_job, slaveActor, counter))
+    def props(calcYM_job: alPanelItem,
+              counter: ActorRef) = Props(new alCalcYMCameo(calcYM_job, counter))
 }
 
-class alCalcYMCameo (calcYM_job: alPanelItem,
-                     slaveActor: ActorRef,
-                     counter: ActorRef) extends Actor with ActorLogging {
+class alCalcYMCameo(calcYMJob: alPanelItem, counter: ActorRef) extends Actor with ActorLogging {
+    //TODO shijian chuancan
     val timeoutMessager = context.system.scheduler.scheduleOnce(30 minute) {
         self ! calcYM_timeout()
     }
 
-    override def postRestart(reason: Throwable) : Unit = {
-        // TODO : 计算次数，重新计算
+    override def postRestart(reason: Throwable) = {
         counter ! canIReStart(reason)
     }
 
     override def receive: Receive = {
-        case calcYM_start_impl(calcYM_job) => {
+        case calcYM_start_impl(_) => {
             val args: Map[String, List[String]] = Map(
-                "company" -> List(calcYM_job.company),
-                "uid" -> List(calcYM_job.uid),
-                "cpas" -> calcYM_job.cpa.split("&").toList,
-                "gycxs" -> calcYM_job.gycx.split("&").toList
+                "company" -> List(calcYMJob.company),
+                "uid" -> List(calcYMJob.uid),
+                "cpas" -> calcYMJob.cpa.split("&").toList,
+                "gycxs" -> calcYMJob.gycx.split("&").toList
             )
             alTempLog("开始过滤日期,arg=" + args)
 
             val (result, ym, mkt) = try {
                 val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
                 val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
-                alTempLog(s"calcYM result, ym = $ym, mkt = $mkt")
+                alTempLog(s"calcYM result, ym = $ym, mkt = $markets")
                 (true, ym, markets)
             } catch {
                 case ex: Exception =>
-                    alTempLog("cannot calcYM" + ex.getMessage)
-                    (false, "0"," ")
+                    alTempLog("Warning! cannot calcYM" + ex.getMessage)
+                    (false, " "," ")
             }
 
-            self ! calcYM_end2(result, ym, mkt)
+            self ! calcYM_end(result, ym, mkt)
         }
 
-        case calcYM_end2(result, ym, mkt) => {
+        case calcYM_end(result, ym, mkt) => {
             result match {
-               case true =>
+               case true => {
                    val msg = Map(
                        "type" -> "calc_ym_result",
                        "ym" -> ym,
                        "mkt" -> mkt
                    )
-                   alWebSocket(calcYM_job.uid).post(msg)
-               case false =>
+                   alWebSocket(calcYMJob.uid).post(msg)
+               }
+               case false => {
                    val msg = Map(
                        "type" -> "error",
-                       "error" -> "cannot calcYM"
+                       "error" -> "cannot calc ym"
                    )
-                   alWebSocket(calcYM_job.uid).post(msg)
+                   alWebSocket(calcYMJob.uid).post(msg)
+               }
             }
-            slaveActor ! calcYM_end2(result, ym, mkt)
-            shutSlaveCameo(calcYMResult(ym))
+            shutSlaveCameo(calcYMResult(ym.split(",").toList, mkt.split(",").toList))
         }
 
         case calcYM_timeout() => {
-            log.info("timeout occur")
-            alTempLog("calc ym timeout")
-            shutSlaveCameo(calcYM_timeout())
+            log.info("Warning! calc ym timeout")
+            alTempLog("Warning! calc ym timeout")
+            self ! calcYM_end(false, " ", " ")
         }
 
-        case canDoRestart(reason: Throwable) =>
+        case canDoRestart(reason: Throwable) => {
             super.postRestart(reason)
-            self ! calcYM_start_impl(calcYM_job)
+            alTempLog("Warning! calc_ym Node canDoRestart")
+            self ! calcYM_start_impl(calcYMJob)
+        }
 
         case cannotRestart(reason: Throwable) => {
-            log.info(s"reason is ${reason}")
-            self ! calcYM_end(false, "cannot calcYM")
+            log.info(s"Warning! calc_ym Node reason is $reason")
+            alTempLog(s"Warning! calc_ym Node cannotRestart, reason is $reason")
+            self ! calcYM_end(false, " ", " ")
         }
 
-        case msg : AnyRef => alTempLog(s"Warning! Message not delivered. alCalcYMCameo.received_msg=$msg")
+        case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alCalcYMCameo.received_msg=$msg")
     }
 
 
-    def shutSlaveCameo(msg : AnyRef) = {
+    def shutSlaveCameo(msg: AnyRef) = {
         timeoutMessager.cancel()
 
-        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
         agent ! msg
 
         log.info("stop calcYM cameo")

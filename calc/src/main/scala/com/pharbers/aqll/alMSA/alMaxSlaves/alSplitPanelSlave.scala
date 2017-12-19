@@ -5,13 +5,15 @@ import akka.util.Timeout
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.SupervisorStrategy.Restart
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanel._
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.{split_panel_end, split_panel_hand, split_panel_start_impl}
 
 /**
   * Created by alfredyang on 12/07/2017.
+  *     Modify by clock on 2017.12.19
   */
 object alSplitPanelSlave {
     def props = Props[alSplitPanelSlave]
@@ -25,9 +27,10 @@ class alSplitPanelSlave extends Actor with ActorLogging {
 
     override def receive: Receive = {
         case split_panel_hand() => {
+            //TODO ask shenyong
             implicit val t = Timeout(2 seconds)
-            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-            val f = a ? takeNodeForRole("splitsplitpanelslave")
+            val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+            val f = agent ? takeNodeForRole("splitsplitpanelslave")
             if (Await.result(f, t.duration).asInstanceOf[Boolean])
                 sender ! split_panel_hand()
             else Unit
@@ -35,13 +38,10 @@ class alSplitPanelSlave extends Actor with ActorLogging {
 
         case split_panel_start_impl(item) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
-            val cur = context.actorOf(alSplitPanelComeo.props(item, sender, self, counter))
+            val cur = context.actorOf(alSplitPanelComeo.props(item, counter))
             cur.tell(split_panel_start_impl(item), sender)
         }
 
-        case _ : split_panel_end => {
-            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-            a ! refundNodeForRole("splitsplitpanelslave")
-        }
+        case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alSplitPanelSlave.received_msg=$msg")
     }
 }

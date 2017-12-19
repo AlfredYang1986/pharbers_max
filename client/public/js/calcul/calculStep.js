@@ -391,9 +391,9 @@
                 toSecondStep();
                 progress_generat_panel(obj);
                 break;
-            case 'generat_panel_result':
+            case 'generate_panel_result':
                 toSecondStep();
-                generat_panel_result(obj);
+                generate_panel_result(obj);
                 break;
             case 'progress_calc':
                 toThirdStep();
@@ -455,7 +455,7 @@
         }
     };
 
-    var generat_panel_result = function (obj) {
+    var generate_panel_result = function (obj) {
         console.info(obj);
         layer.msg("panel生成完成");
         var result = JSON.parse(obj.result);
