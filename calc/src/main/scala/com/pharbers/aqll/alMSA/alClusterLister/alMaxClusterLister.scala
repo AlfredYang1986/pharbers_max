@@ -13,8 +13,7 @@ class alMaxClusterLister extends Actor with ActorLogging {
     val cluster = Cluster(context.system)
     
     override def preStart() = {
-        cluster.subscribe(self, initialStateMode = InitialStateAsEvents,
-            classOf[MemberUp], classOf[MemberRemoved], classOf[UnreachableMember], classOf[ReachableMember])
+        cluster.subscribe(self, initialStateMode = InitialStateAsEvents,classOf[MemberUp], classOf[MemberRemoved])
     }
     
     override def postStop() = {
@@ -34,14 +33,6 @@ class alMaxClusterLister extends Actor with ActorLogging {
             log.info(s"MemberRemoved => $member !!!")
             val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             member.roles.foreach (x => a ! takeNodeForRole(x))
-        }
-
-        case UnreachableMember(member) => {
-            log.info(s"UnreachableMember => $member !!!")
-        }
-
-        case ReachableMember(member) => {
-            log.info(s"ReachableMember => $member !!!")
         }
     }
 }

@@ -52,6 +52,20 @@ object alCalcMsg {
         case class split_panel_timeout()
     }
 
+    //group module
+    object group {
+        case class pushGroupJob(item: alMaxRunning)
+        case class groupSchedule()
+        case class groupPanelResult(item: alMaxRunning)
+
+        case class group_data_start()
+        case class group_data_hand()
+        case class group_data_start_impl(item : alMaxRunning)
+        case class group_data_end(item : alMaxRunning)
+        case class group_data_timeout()
+        case class group_data_error(reason: Throwable)
+    }
+
     //scp module
     object scpMsg {
         case class pkgmsg(file: List[String], target: String)

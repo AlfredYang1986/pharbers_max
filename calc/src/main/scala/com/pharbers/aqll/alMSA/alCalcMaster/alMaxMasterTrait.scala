@@ -12,16 +12,16 @@ import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.group._
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.push_restore_job
 import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.generatePanel.generate_panel_end
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanel.split_panel_end
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
                         with alCalcDataTrait with alRestoreBsonTrait{ this : Actor =>
+    val rd =  phRedisDriver().commonDriver
 
     def preCalcYMJob(item: alPanelItem) = {
         pushCalcYMJobs(item)
@@ -36,14 +36,14 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     def preGeneratePanelJob(item: alPanelItem) = {
         val rid = UUID.randomUUID().toString
         alTempLog("开始生成panel，本次计算流程的rid为 = " + rid)
-        phRedisDriver().commonDriver.hset(item.uid, "company", item.company)
-        phRedisDriver().commonDriver.hset(item.uid, "rid", rid)
+        rd.hset(item.uid, "company", item.company)
+        rd.hset(item.uid, "rid", rid)
         pushGeneratePanelJobs(item)
     }
 
     def postGeneratePanelJob(uid: String, panelResult: JsValue) = {
         alTempLog(s"generate panel result = $panelResult")
-        val rid = phRedisDriver().commonDriver.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
+        val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
         def jv2map(data: JsValue): Map[String, Map[String, List[String]]] ={
             data.as[Map[String, JsValue]].map{ x =>
                 x._1 -> x._2.as[Map[String, JsValue]].map{y =>
@@ -55,9 +55,9 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         jv2map(panelResult).foreach{ x=>
             x._2.foreach{y=>
                 val panel = y._2.mkString(",")
-                phRedisDriver().commonDriver.sadd(rid, panel)
-                phRedisDriver().commonDriver.hset(panel, "ym", x._1)
-                phRedisDriver().commonDriver.hset(panel, "mkt", y._1)
+                rd.sadd(rid, panel)
+                rd.hset(panel, "ym", x._1)
+                rd.hset(panel, "mkt", y._1)
             }
         }
 
@@ -68,7 +68,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     def preSplitPanelJob(uid: String) = {
         val rid = phRedisDriver().commonDriver.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
         val panelLst = phRedisDriver().commonDriver.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
-        phRedisDriver().commonDriver.hset(uid, "sTime", System.currentTimeMillis())
 
         panelLst.foreach{ panel =>
             pushSplitPanelJobs(alMaxRunning(uid, panel, rid))
@@ -77,21 +76,24 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
     def postSplitPanelJob(item: alMaxRunning, parent: String, subs: List[String]) ={
         if(parent.isEmpty || subs.isEmpty)
-            alTempLog("拆分错了吧，空的")
+            alTempLog("split error, result is empty")
+        else {
+            val panel = item.tid
+            rd.hset(panel, "tid", parent)
 
-//        phRedisDriver().commonDriver.hset(item.tid, "tid", parent)
-
-//        item.tid = parent
-//        item.subs = subs.map{x=>
-//            phRedisDriver().commonDriver.sadd(parent, x)
-//            alMaxRunning(item.uid, x, parent)
-//        }
-//        self ! pushGroupJob(item)
-
+            val arg = alMaxRunning(
+                uid = item.uid,
+                tid = parent,
+                parent = panel,
+                subs = subs.map{x =>
+                    rd.sadd(parent, x)//TODO keyi shanle
+                    alMaxRunning(item.uid, x, parent, Nil)
+                }
+            )
+            self ! pushGroupJob(arg)
+        }
         val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         agent ! refundNodeForRole("splitsplitpanelslave")
-        println("aaaaaaaaa")
-        println("aaaaaaaaa")
     }
 
     def preGroupJob(item: alMaxRunning) ={
@@ -153,7 +155,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             val map = Map(user_cr -> cr, "value" -> v, "units" -> u)
             phRedisSet.sadd(s"${user_cr}", map, dealSameMapFunc)
 
-            val redisDriver = phRedisDriver().commonDriver
+            val redisDriver = rd
             var sum = redisDriver.get(s"Uid${uid}calcSum").get.toInt
             sum += 1
             redisDriver.set(s"Uid${uid}calcSum", sum)

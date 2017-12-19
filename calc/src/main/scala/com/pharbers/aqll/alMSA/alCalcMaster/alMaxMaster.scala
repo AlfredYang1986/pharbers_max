@@ -8,6 +8,7 @@ import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.group._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_result
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
@@ -18,11 +19,6 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.res
 object alMaxMaster {
     def props = Props[alMaxMaster]
     def name = "driver-actor"
-
-    //group module
-    case class pushGroupJob(item: alMaxRunning)
-    case class groupSchedule()
-    case class groupPanelResult(item: alMaxRunning)
 
     //scp module
     case class pushScpJob(item: alMaxRunning)
@@ -63,7 +59,7 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
 
         //group splited file module
         case pushGroupJob(item) => preGroupJob(item)
-        case groupSchedule() => schduleGroupJob
+        case groupSchedule() => groupScheduleJobs
         case groupPanelResult(item) => postGroupJob(item)
 
         //scp module
