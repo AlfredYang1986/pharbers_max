@@ -68,6 +68,7 @@ class alSplitPanelComeo(item: alMaxRunning, counter: ActorRef) extends Actor wit
                         "progress" -> "1"
                     )
                     alWebSocket(item.uid).post(msg)
+                    alTempLog("split panel file => Success")
                 }
                 case false => {
                     val msg = Map(
@@ -75,6 +76,7 @@ class alSplitPanelComeo(item: alMaxRunning, counter: ActorRef) extends Actor wit
                         "error" -> "cannot split panel"
                     )
                     alWebSocket(item.uid).post(msg)
+                    alTempLog("split panel file => Failed")
                 }
             }
             shutSlaveCameo(splitPanelResult(item, parent, subs))

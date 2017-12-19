@@ -5,14 +5,15 @@ import akka.util.Timeout
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.SupervisorStrategy.Restart
-import com.pharbers.aqll.alMSA.alMaxCmdJob.alCmdActor
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.group._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGroupData.{group_data_end, group_data_hand, group_data_start_impl}
 
 /**
   * Created by alfredyang on 12/07/2017.
+  *     Modify by clock on 2017.12.19
   */
 object alGroupDataSlave {
     def props = Props[alGroupDataSlave]
@@ -20,14 +21,13 @@ object alGroupDataSlave {
 }
 
 class alGroupDataSlave extends Actor with ActorLogging {
-    def cmdActor = context.actorOf(alCmdActor.props())
-
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Restart
     }
 
     override def receive: Receive = {
         case group_data_hand() => {
+            //TODO ask shenyong
             implicit val t = Timeout(2 seconds)
             val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitgroupslave")
@@ -38,13 +38,10 @@ class alGroupDataSlave extends Actor with ActorLogging {
 
         case group_data_start_impl(item) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
-            val cur = context.actorOf(alGroupDataComeo.props(item, sender, self, counter))
+            val cur = context.actorOf(alGroupDataComeo.props(item, sender, counter))
             cur.tell(group_data_start_impl(item), sender)
         }
 
-        case _ : group_data_end => {
-            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-            a ! refundNodeForRole("splitgroupslave")
-        }
+        case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alGroupDataSlave.received_msg=$msg")
     }
 }

@@ -2,27 +2,28 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import akka.pattern.ask
 import akka.util.Timeout
-
-import scala.concurrent.Await
 import scala.concurrent.stm._
-import akka.routing.BroadcastPool
-
+import scala.concurrent.Await
 import scala.concurrent.duration._
+import akka.routing.BroadcastPool
+import scala.collection.immutable.Map
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalc.almain.alShareData
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import scala.concurrent.ExecutionContext.Implicits.global
+import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
+import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.group._
+import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.common_jobs
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.group._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * Created by alfredyang on 12/07/2017.
@@ -82,10 +83,15 @@ object alCameoGroupData {
               slaveActor : ActorRef) = Props(new alCameoGroupData(item, slaveActor))
 }
 
+//TODO xuyao zixi kankan
 class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor with ActorLogging {
+    var tol = 0
     var sed = 0
     var cur = 0
-    var tol = 0
+
+    val timeoutMessager = context.system.scheduler.scheduleOnce(60 minute) {
+        self ! group_data_timeout()
+    }
 
     override def receive: Receive = {
         case group_data_start() => {
@@ -101,45 +107,54 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
             }
         }
 
-        case group_data_end(item) => {
-            if (item.result) {
-                cur += 1
-
-                resetSubGrouping(item)
-
-                if (cur == tol) {
-                    unionResult
-//                    masterActor ! groupPanelResult(item)
-                    shutCameo(group_data_end(item))
+        case group_data_end(result, groupResult) => {
+            result match {
+                case true =>
+                    cur += 1
+                    resetSubGrouping(groupResult)
+                    if (cur == tol) {
+                        unionResult
+                        val msg = Map(
+                            "type" -> "progress_calc",
+                            "txt" -> "数据分组完成",
+                            "progress" -> "2"
+                        )
+                        alWebSocket(groupResult.uid).post(msg)
+                    }
+                case false => {
+                    val msg = Map(
+                        "type" -> "error",
+                        "error" -> "cannot group data"
+                    )
+                    alWebSocket(groupResult.uid).post(msg)
                 }
-            } else {
-//                masterActor ! groupPanelResult(item)
-                shutCameo(group_data_end(item))
             }
+
+            shutCameo(groupPanelResult(groupResult))
         }
 
-        case group_data_error(reason) => {
-            log.info(s"Error! group_data_error($reason)")
+        case group_data_timeout() => {
+            log.info("Warning! group data trait timeout")
+            alTempLog("Warning! group data trait timeout")
+            self ! group_data_end(false, item)
         }
-    }
-
-    import scala.concurrent.ExecutionContext.Implicits.global
-    val group_timer = context.system.scheduler.scheduleOnce(60 minute) {
-        self ! group_data_timeout()
     }
 
     def shutCameo(msg : AnyRef) = {
-        log.debug("stopping group data cameo")
-        group_timer.cancel()
-        context.stop(self)
+        timeoutMessager.cancel()
+
+        val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+        agent ! msg
+
+        log.debug("stopping group data trait cameo")
+        alTempLog("stopping group data trait cameo")
+
+        self ! PoisonPill
     }
 
     def unionResult = {
-        import com.pharbers.aqll.common.alFileHandler.fileConfig._
         val common = common_jobs()
-
-        common.cur = Some(alStage(item.subs map (x => s"${memorySplitFile}${group}${x.tid}")))
-
+        common.cur = Some(alStage(item.subs map (x => s"$memorySplitFile$group${x.tid}")))
         common.process = restore_grouped_data() ::
             do_calc() :: do_union() :: do_calc() ::
             do_map (alShareData.txt2IntegratedData(_)) :: do_calc() :: Nil
@@ -150,7 +165,7 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
             (x.asInstanceOf[IntegratedData].getYearAndmonth, x.asInstanceOf[IntegratedData].getMinimumUnitCh)
         )(concert)
 
-        val g = alStorage(m.values.map (x => x.asInstanceOf[alStorage].data.head.toString).toList)
+        val g = alStorage(m.values.map (x => x.data.head.toString).toList)
         g.doCalc
         val sg = alStage(g :: Nil)
         val pp = presist_data(Some(item.tid), Some("group"))

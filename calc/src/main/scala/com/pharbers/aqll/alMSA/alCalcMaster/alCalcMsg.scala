@@ -61,9 +61,8 @@ object alCalcMsg {
         case class group_data_start()
         case class group_data_hand()
         case class group_data_start_impl(item : alMaxRunning)
-        case class group_data_end(item : alMaxRunning)
+        case class group_data_end(result: Boolean, item : alMaxRunning)
         case class group_data_timeout()
-        case class group_data_error(reason: Throwable)
     }
 
     //scp module
