@@ -10,7 +10,7 @@ import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import akka.actor.SupervisorStrategy.Escalate
 import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanel.split_panel_timeout
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanelMsg.split_panel_timeout
 import com.pharbers.driver.redis.phRedisDriver
 
 import scala.collection.immutable.Map

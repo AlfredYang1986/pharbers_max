@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.group._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._

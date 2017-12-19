@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.generatePanel._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg.calcYM_end
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 

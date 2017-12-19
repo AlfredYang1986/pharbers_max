@@ -1,14 +1,17 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.generatePanel._
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanel._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanelMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg._
+
+
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.group._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_result
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
@@ -19,11 +22,6 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.res
 object alMaxMaster {
     def props = Props[alMaxMaster]
     def name = "driver-actor"
-
-    //scp module
-    case class pushScpJob(item: alMaxRunning)
-    case class scpSchedule()
-    case class scpResult(item: alMaxRunning)
 
     //calc module
     case class pushCalcJob(item: alMaxRunning)
@@ -64,9 +62,8 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
 
         //scp module
         case pushScpJob(item) => preScpJob(item)
-        case scpSchedule() => schduleScpJobs
-        case scpResult(item) => releaseScpEnergy
-            postScpJob(item)
+        case scpSchedule() => scpSchduleJobs
+        case scpResult(item) => postScpJob(item)
 
         //calc module
         case pushCalcJob(item) => preCalcJob(item)

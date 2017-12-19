@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.generatePanel._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 

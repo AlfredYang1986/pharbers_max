@@ -7,7 +7,7 @@ import scala.concurrent.duration._
 import akka.actor.SupervisorStrategy.Restart
 import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanel._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanelMsg._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 

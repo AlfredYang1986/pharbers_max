@@ -1,20 +1,23 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
 import java.util.UUID
+
 import play.api.libs.json.JsValue
 import akka.actor.{Actor, ActorRef}
+
 import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster._
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.pushCalcJob
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.group._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg.pushGroupJob
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.push_restore_job
 import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.pushScpJob
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
@@ -103,15 +106,8 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         alTempLog(s"group data result, parent = ${item.tid}")
         val subs = item.subs.map(_.tid).mkString(",")
         alTempLog(s"group data result, subs = $subs")
-//        self ! pushScpJob(item)
-//        val msg = Map(
-//            "type" -> "progress_calc",
-//            "txt" -> "等待计算",
-//            "progress" -> "6"
-//        )
-//        alWebSocket(item.uid).post(msg)
 
-
+        self ! pushScpJob(item)
 
         val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         agent ! refundNodeForRole("splitgroupslave")
@@ -119,20 +115,15 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
     def preScpJob(item: alMaxRunning) ={
         pushScpJobs(item)
-        val msg = Map(
-            "type" -> "progress_calc",
-            "txt" -> "正在发送",
-            "progress" -> "7"
-        )
-        alWebSocket(item.uid).post(msg)
     }
 
     def postScpJob(item: alMaxRunning) ={
+        releaseScpEnergy
         self ! pushCalcJob(item)
         val msg = Map(
             "type" -> "progress_calc",
             "txt" -> "等待计算",
-            "progress" -> "8"
+            "progress" -> "3"
         )
         alWebSocket(item.uid).post(msg)
     }

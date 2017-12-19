@@ -27,7 +27,7 @@ object alCalcMsg {
     }
 
     //generate panel module
-    object generatePanel {
+    object panelMsg {
         case class pushGeneratePanelJob(item: alPanelItem)
         case class generatePanelSchedule()
         case class generatePanelResult(uid: String, panelResult: JsValue)
@@ -40,7 +40,7 @@ object alCalcMsg {
     }
 
     //split panel module
-    object splitPanel {
+    object splitPanelMsg {
         case class pushSplitPanel(uid: String)
         case class splitPanelSchedule()
         case class splitPanelResult(item: alMaxRunning, parent: String, subs: List[String])
@@ -53,7 +53,7 @@ object alCalcMsg {
     }
 
     //group module
-    object group {
+    object groupMsg {
         case class pushGroupJob(item: alMaxRunning)
         case class groupSchedule()
         case class groupPanelResult(item: alMaxRunning)
@@ -67,6 +67,14 @@ object alCalcMsg {
 
     //scp module
     object scpMsg {
+        case class pushScpJob(item: alMaxRunning)
+        case class scpSchedule()
+        case class scpResult(item: alMaxRunning)
+
+        case class scp_pkg()
+        case class scp_unpkg()
+        case class scp_timeout()
+
         case class pkgmsg(file: List[String], target: String)
         case class pkgmsgMuti(targets: List[Map[String, String]])
         case class scpmsg(file: String, target: String, host: String, user: String)
