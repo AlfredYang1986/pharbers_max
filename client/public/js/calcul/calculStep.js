@@ -49,12 +49,12 @@
     $("#generat-panel-btn").click(function(){generat_panel_action()});
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
-    //测试
+    /// 测试
     // $("#snd-btn").click(function () {toSecondStep()});
     // $("#sample-btn").click(function () {toSampleResult()});
     // $("#thd-btn").click(function () {toThirdStep()});
-    //$("#calculInof").click(function(){toFourthStep()});
-    $('#test-step2').click(function () {toSampleResult()});
+    // $("#calculInof").click(function(){toFourthStep()});
+    // $('#test-step2').click(function () {toSampleResult()});
 
 
     var check_file = function(){
@@ -342,8 +342,7 @@
                 });
             });
         });
-        // setTimeout(function(){toSampleResult()}, 2000);
-        toSampleResult();
+        setTimeout(function(){toSampleResult()}, 1000);
     };
 
     var calc_base_progress = 0;
