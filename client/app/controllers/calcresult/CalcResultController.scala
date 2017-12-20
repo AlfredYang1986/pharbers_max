@@ -21,32 +21,40 @@ import play.api.mvc.Action
 
 trait redisController {
 	def getRedisCollections(uid: String): List[String] = {
-		val redisDriver = phRedisDriver().commonDriver
-		val rid = redisDriver.hget(uid, "rid").getOrElse(throw new Exception(""))
-		val panelLst = redisDriver.smembers(rid).getOrElse(throw new Exception("")).map(x => x.get)
-		val tids = panelLst.map(x => redisDriver.hget(x, "tid").getOrElse(""))
-		tids.map(x => redisDriver.smembers(x).get.head.get).toList
+		val rd = phRedisDriver().commonDriver
+		val rid = rd.hget(uid, "rid")
+					.map(x=>x).getOrElse(throw new Exception("not found uid"))
+		rd.smembers(s"resultCheck${rid}").getOrElse(throw new Exception("")).map(_.get).toList
 	}
 	
 	def paralleSalesVsShare(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
 		
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
-		getRedisCollections(uid).map(x => MessageRoutes(MsgCalcResultSalesVsShare(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js )))) :: Nil, None))
+		getRedisCollections(uid).map { x =>
+			println("table name1 = " + x)
+			MessageRoutes(MsgCalcResultSalesVsShare(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js)))) :: Nil, None)
+		}
 	}
 	
 	def paralleCurVsPreWithCity(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
 		
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
-		getRedisCollections(uid).map ( x => MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js )))) :: Nil, None)).toList
+		getRedisCollections(uid).map { x =>
+			println("table name2 = " + x)
+			MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js )))) :: Nil, None)
+		}
 	}
-	
+
 	def paralleCondition(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
-		
+		println(jv)
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
+		println(uid)
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
-		getRedisCollections(uid).map ( x => MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js )))) :: Nil, None)).toList
+		val aa = getRedisCollections(uid)
+		println(aa)
+		aa.map ( x => MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js )))) :: Nil, None)).toList
 	}
 }
 

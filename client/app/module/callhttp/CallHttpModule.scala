@@ -18,13 +18,7 @@ object CallHttpModule extends ModuleTrait {
 	def callHttpServer(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val businessType = (data \ "businessType").get.asOpt[String].getOrElse("error input")
-//			val result = alCallHttp(businessType, data).call
-			val result = toJson(
-				Map(
-					"result" -> toJson("ok"),
-					"status" -> toJson(0)
-				)
-			)
+			val result = alCallHttp(businessType, data).call
 			val js_result = (result \ "result").get.asOpt[JsValue].get
 			val js_status = (result \ "status").get.asOpt[String].get
 			js_status match {

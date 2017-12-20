@@ -1,0 +1,12 @@
+<pharbers-modules>
+    <email-content>
+        <from value="project@pharbers.com" />
+        <pwd value="project" />
+        <port value="25" />
+        <host value="smtp.ym.163.com" />
+        <tls value="false" />
+        <ssl value="false" />
+        <theme value="Pharbers运营" />
+        <context value="亲爱的用户您好，感谢您订购本产品，该邮件为自动发送，请勿回复！" />
+    </email-content>
+</pharbers-modules>

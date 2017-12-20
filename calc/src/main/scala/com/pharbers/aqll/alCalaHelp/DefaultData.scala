@@ -1,16 +1,15 @@
 package com.pharbers.aqll.alCalaHelp
 
-import com.pharbers.aqll.alCalc.almodel.java.{AdminHospitalDataBase, IntegratedData}
 import com.pharbers.aqll.common.alDao.dataFactory._
+import com.pharbers.baseModules.PharbersInjectModule
 import com.pharbers.aqll.common.alDao.data_connection
-import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.databaseConfig._
-import com.pharbers.baseModules.PharbersInjectModule
-
+import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
+import com.pharbers.aqll.alCalc.almodel.java.{AdminHospitalDataBase, IntegratedData}
 
 object DefaultData {
-    case class file_path() extends PharbersInjectModule {
+    object file_path extends PharbersInjectModule {
         override val id: String = "calc-path"
         override val configPath: String = "pharbers_config/calc_path.xml"
         override val md = "bson-path" :: "hosp" ::
@@ -24,19 +23,17 @@ object DefaultData {
     }
 
     def hospdatabase(path: String, company: String): List[AdminHospitalDataBase] = {
-        val hospdata_ch_file = file_path().hosp
-        val hospdata_en_file = file_path().field_names_hosp
+        val hospdata_ch_file = file_path.hosp
+        val hospdata_en_file = file_path.field_names_hosp
         type targt = AdminHospitalDataBase
         val hospdatabase = new alExcelDataParser(new targt, hospdata_en_file, hospdata_ch_file)
 
-//        hospdatabase.prase(fileBase + company + hospitalData + path)("")
         hospdatabase.prase(fileBase + company + hospitalData + "20ffa035fed5a5e72623075139e151b9")("")
-
         hospdatabase.data.toList.asInstanceOf[List[targt]]
     }
 
-    val integratedxmlpath_ch = file_path().integrated
-    val integratedxmlpath_en = file_path().field_names_integrated
+    val integratedxmlpath_ch = file_path.integrated
+    val integratedxmlpath_en = file_path.field_names_integrated
 
     def integratedbase(filename: String, company: String): List[IntegratedData] = {
         type targt = IntegratedData

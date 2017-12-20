@@ -5,9 +5,8 @@ import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import akka.routing.BroadcastPool
 import akka.pattern.ask
 import akka.util.Timeout
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, takeNodeForRole}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.alMSA.alMaxSlaves.alRestoreBsonSlave
 
 import scala.concurrent.Await
@@ -42,7 +41,7 @@ trait alRestoreBsonTrait { this : Actor =>
 
     def canSchduleRestoreJob : Boolean = {
         implicit val t = Timeout(2 seconds)
-        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         val f = a ? queryIdleNodeInstanceInSystemWithRole("splitrestorebsonslave")
 //        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave")
         Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改

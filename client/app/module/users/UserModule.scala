@@ -164,8 +164,7 @@ object UserModule extends ModuleTrait with UserData {
             val expire = (data \ "condition" \ "token_expire").asOpt[Int].map(x => x).getOrElse(60 * 60 * 24)	//default expire in 24h
             val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
             val db = conn.queryDBInstance("cli").get
-//            val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
-//            val date = new Date().getTime
+            val date = new Date().getTime
             val user = (MergeStepResult(data, pr) \ "user").asOpt[JsValue].map(x => x).getOrElse(throw new Exception("data not exist"))
             val condition = toJson(Map("user" -> toJson(user.as[Map[String, JsValue]] ++ Map("password" -> toJson((data \ "user" \ "password").asOpt[String].getOrElse(""))))))
             val o = m2d(condition)
@@ -180,11 +179,10 @@ object UserModule extends ModuleTrait with UserData {
                     o
                 }
             }
-//            val reVal = one - "name" - "email" - "phone" - "company" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
-//			  val auth_token = att.encrypt2Token(toJson(reVal))
             val reVal = one - "name" - "company"
             val uid = Sercurity.md5Hash(one("email").as[String])
-            val accessToken = s"bearer${uid}"
+            val tmp = Sercurity.md5Hash(one("email").as[String] + date)
+            val accessToken = s"bearer${tmp}"
             reVal.foreach(x => redisDriver.hset(accessToken, x._1, x._2.asOpt[String].getOrElse(x._2.as[List[String]].toString())))
             redisDriver.hset(accessToken, "name", one("name").as[String].getBytes("ISO8859-1"))
             redisDriver.expire(accessToken, expire)

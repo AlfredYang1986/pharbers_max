@@ -2,10 +2,11 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
-import com.pharbers.aqll.alCalcOther.alMessgae.{alMessageProxy, alWebSocket}
+import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl3
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.{restore_bson_end, restore_bson_start_impl, restore_bson_timeout}
 import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
@@ -24,7 +25,7 @@ class alRestoreBsonComeo (val uid : String,
                           val originSender : ActorRef,
                           val owner : ActorRef,
                           val counter : ActorRef) extends Actor with ActorLogging {
-    override def postRestart(reason: Throwable) : Unit = {
+    override def postRestart(reason: Throwable) = {
         // TODO : 计算次数，重新计算
         counter ! canIReStart(reason)
     }
@@ -35,6 +36,9 @@ class alRestoreBsonComeo (val uid : String,
             val redisDriver = phRedisDriver().commonDriver
             val company = redisDriver.hget(s"calc:${uid}", "company").get
             val bsonpath = redisDriver.rpop(s"bsonPathUid${uid}").get
+            val rid = phRedisDriver().commonDriver.hget(uid, "rid")
+                    .map(x=>x).getOrElse(throw new Exception("not found uid"))
+            phRedisDriver().commonDriver.sadd(s"resultCheck${rid}", bsonpath)
             println(s"&& => restore_bson_start_impl.bsonpath=${bsonpath}")
             alRestoreColl3().apply(s"${company}${bsonpath}", bsonpath)
             self ! restore_bson_end(true, uid)
@@ -69,7 +73,7 @@ class alRestoreBsonComeo (val uid : String,
     }
 
     def shutSlaveCameo(msg : AnyRef) = {
-        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         a ! msg
         log.info("stopping restore bson cameo")
         timeoutMessager.cancel()

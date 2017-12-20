@@ -108,7 +108,6 @@
                     laydate.render({
                         elem: '#date',
                         type: 'month'
-//                        range: "~"
                     });
                 });
                 layui.use(['form', 'laydate'], function () {
@@ -124,12 +123,12 @@
             var windowWidth = function () {
                 var clientWidth = document.documentElement.clientWidth - 200;
                 $(".right-content").css("width", clientWidth +"px")
-            }
+            };
             var windowHeigth = function () {
                 var clientHeight = document.documentElement.clientHeight-60;
-                console.log(clientHeight)
+///                console.log(clientHeight);
                 $(".right-content").css("height", clientHeight+"px");
-            }
+            };
             var userLogin = function () {
                 var token = $.cookie("user_token");
                 var tojs = {
@@ -210,7 +209,7 @@
                 $('.mask-layer').show();
                 $('.loading').show();
                 f.ajaxModule.baseCall('/history/queryHistoryByPage', json, 'POST', function (r) {
-                    console.log(json)
+///                    console.log(json);
                     if (r.status === 'ok') {
                         var lst = $('#historyLst');
                         lst.empty();

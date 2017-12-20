@@ -24,10 +24,7 @@ class alAkkaMonitor extends Actor with ActorLogging with alRegisterJob{
 	
 	Cluster(context.system).subscribe(self, classOf[MemberEvent])
 	val cluster = Cluster(context.system)
-//	var memberSeq = Seq[Member]()
-	
-	
-	
+
 	override def preStart() = {
 		cluster.subscribe(self, initialStateMode = InitialStateAsEvents,
 			classOf[MemberUp], classOf[MemberExited], classOf[MemberRemoved], classOf[UnreachableMember], classOf[MemberEvent])

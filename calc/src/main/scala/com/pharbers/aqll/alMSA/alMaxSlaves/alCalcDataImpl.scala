@@ -1,7 +1,6 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import java.io.File
-import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 import scala.concurrent.stm.{Ref, atomic}
@@ -14,8 +13,7 @@ import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_average_pre, _}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.sumCalcJob
 import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
@@ -26,20 +24,17 @@ import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.memory.pages.fop.dir.dirPageStorage
 import com.pharbers.memory.pages.{dirFlushMemory, pageMemory, pageMemory2}
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 /**
   * Created by alfredyang on 13/07/2017.
   */
 
 object alCalcDataImpl {
-    val sumSender = Ref(List[ActorRef]())
-    val sumSegment = Ref(List[(String, (Double, Double, Double))]())
     def props = Props[alCalcDataImpl]
 }
 
 class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
-    import alCalcDataImpl._
-
     override val id: String = "calc-path"
     override val configPath: String = "pharbers_config/calc_path.xml"
     override val md = "bson-path" :: "hosp" ::
@@ -80,7 +75,7 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
                 phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
             }
 
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             a ! sumCalcJob(items, sender)
             endDate("&& T7_2 && ", t7)
             log.info("&& T7_2 END &&")
@@ -151,7 +146,7 @@ class alCalcDataImpl extends Actor with ActorLogging with PharbersInjectModule {
                 log.info(s"calc done at ${sub_uuid}")
 
             }
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             a ! calc_data_result(item.uid, item.parent, value, unit, true)
             endDate("&& T10 && ", t10)
             log.info("&& T10 END &&")

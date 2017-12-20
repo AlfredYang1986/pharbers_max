@@ -19,6 +19,7 @@ import scala.concurrent.stm.{Ref, atomic}
 /**
   * Created by Alfred on 13/03/2017.
   */
+//TODO shanchu
 object alConcertCalcActor {
 	def props: Props = Props[alConcertCalcActor]
 }

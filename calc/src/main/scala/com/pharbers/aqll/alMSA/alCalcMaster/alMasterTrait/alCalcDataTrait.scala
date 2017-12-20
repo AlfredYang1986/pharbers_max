@@ -8,17 +8,14 @@ import akka.routing.BroadcastPool
 import akka.pattern.ask
 import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines._
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_start, calc_data_sum}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.{calc_data_start, calc_data_sum, calc_unpkg}
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
 import com.pharbers.driver.redis.phRedisDriver
-import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
+import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.calcSchedule
-import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 
 import scala.collection.immutable.Map
 import scala.concurrent.Await
@@ -30,19 +27,22 @@ import scala.math.BigDecimal
   * Created by alfredyang on 13/07/2017.
   */
 trait alCalcDataTrait { this : Actor =>
-    def createCalcRouter =
-        context.actorOf(
-            ClusterRouterPool(BroadcastPool(1),
-                ClusterRouterPoolSettings(
-                    totalInstances = 1,
-                    maxInstancesPerNode = 1,
-                    allowLocalRoutees = false,
-                    useRole = Some("splitcalcslave")
-                )
-            ).props(alCalcDataSlave.props), name = "calc-data-router")
+    import scala.concurrent.ExecutionContext.Implicits.global
 
-    val calc_router = createCalcRouter
     val core_number: Int = server_info.cpu
+    val calc_router = createCalcRouter
+    val calc_jobs = Ref(List[alMaxRunning]())
+    val calc_schdule = context.system.scheduler.schedule(2 second, 3 second, self, calcSchedule())
+
+    def createCalcRouter = context.actorOf(
+        ClusterRouterPool(BroadcastPool(1),
+            ClusterRouterPoolSettings(
+                totalInstances = 1,
+                maxInstancesPerNode = 1,
+                allowLocalRoutees = false,
+                useRole = Some("splitcalcslave")
+            )
+        ).props(alCalcDataSlave.props), name = "calc-data-router")
 
     def pushCalcJobs(item: alMaxRunning) = {
         atomic { implicit thx =>
@@ -50,15 +50,15 @@ trait alCalcDataTrait { this : Actor =>
         }
     }
 
-    def canCalcGroupJob : Boolean = {
+    def canCalcJob : Boolean = {
         implicit val t = Timeout(2 seconds)
-        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave")
         Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
     }
 
     def schduleCalcJob = {
-        if (canCalcGroupJob) {
+        if (canCalcJob) {
             atomic { implicit thx =>
                 val tmp = calc_jobs.single.get
                 if (tmp.isEmpty) Unit
@@ -72,7 +72,7 @@ trait alCalcDataTrait { this : Actor =>
 
     def calcData(item: alMaxRunning) {
         val cur = context.actorOf(alCameoCalcData.props(item, self, calc_router))
-        cur ! calc_data_start()
+        cur ! calc_unpkg(item.tid, self)
         val redisDriver = phRedisDriver().commonDriver
         redisDriver.set(s"Uid${item.uid}calcSum",0)
         val msg = Map(
@@ -86,9 +86,11 @@ trait alCalcDataTrait { this : Actor =>
     def doSum(items: alMaxRunning, s: ActorRef) {
         val redisDriver = phRedisDriver().commonDriver
         var sum = redisDriver.get(s"Uid${items.uid}calcSum").get.toInt
+        println(s"&& master doSum sum = ${sum}")
         sum += 1
         redisDriver.set(s"Uid${items.uid}calcSum", sum)
         if(sum == core_number){
+            println("开始求和")
             sum = 0
             redisDriver.set(s"Uid${items.uid}calcSum", sum)
             s ! PoisonPill
@@ -102,24 +104,21 @@ trait alCalcDataTrait { this : Actor =>
             alWebSocket(items.uid).post(msg)
         }
     }
-
-    import scala.concurrent.ExecutionContext.Implicits.global
-    val calc_schdule = context.system.scheduler.schedule(2 second, 3 second, self, calcSchedule())
     val dealSameMapFunc = (m1 : Map[String, Any], m2 : Map[String, Any]) => {
         m1.map(x => (x._1 -> (x._2.toString.toDouble + m2.get(x._1).get.toString.toDouble)))
     }
-    val calc_jobs = Ref(List[alMaxRunning]())
-
 }
 
 object alCameoCalcData {
+    case class calc_unpkg(tid: String, s: ActorRef)
     case class calc_data_start()
     case class calc_data_hand()
+    case class calc_data_hand2(item: alMaxRunning)
     case class calc_data_start_impl(item : alMaxRunning)
     case class calc_data_start_impl2(item : alMaxRunning)
     case class calc_data_start_impl3(sub_item : alMaxRunning, items : alMaxRunning)
     case class calc_data_sum()
-    case class calc_data_average(item : alMaxRunning, avg_path: String)
+    case class calc_data_average(item : alMaxRunning)
     case class calc_data_average_pre(avg_path: String)
     case class calc_data_average_one(avg_path: String, bsonpath: String)
     case class calc_data_average_post(item : alMaxRunning, avg_path: String, bsonpath: String)
@@ -131,9 +130,9 @@ object alCameoCalcData {
               router: ActorRef) = Props(new alCameoCalcData(item, owner, router))
 }
 
-class alCameoCalcData ( val item : alMaxRunning,
-                        val owner : ActorRef,
-                        val router : ActorRef) extends Actor with ActorLogging {
+class alCameoCalcData (item: alMaxRunning,
+                       owner: ActorRef,
+                       router: ActorRef) extends Actor with ActorLogging {
 
     import alCameoCalcData._
 
@@ -148,28 +147,18 @@ class alCameoCalcData ( val item : alMaxRunning,
             log.info("timeout occur")
             shutCameo(calc_data_timeout())
         }
-        case _ : calc_data_start => {
-            log.info("&& T1 && alCameoCalcData.calc_data_start")
-            val t1 = startDate()
-            println(s"&& T1 && alCameoCalcData.calc_data_start item=${item}")
 
-            val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> item.tid))
-            val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
-            item.subs = sb map (x => alMaxRunning(item.uid, x, p, Nil))
-            println(s"## p=${p}")
-            println(s"## sb=${sb}")
-            tol = item.subs.length
-            router ! calc_data_hand()
-            endDate("&& T1 &&", t1)
-            println(s"&& T1 END item=${item} &&")
-            log.info("&& T1 END &&")
-        }
-        case calc_data_hand() => {
+        case calc_unpkg(tid, s) => router ! calc_unpkg(tid, self)
+
+        case _ : calc_data_start => router ! calc_data_hand2(item)
+
+        case calc_data_hand2(it) => {
             log.info("&& T3 START &&")
             val t3 = startDate()
             println("&& T3 && alCameoCalcData.calc_data_hand")
+            tol = it.subs.length
             if (sed < tol / core_number) {
-                val tmp = for (index <- sed * core_number to (sed + 1) * core_number - 1) yield item.subs(index)
+                val tmp = for (index <- sed * core_number to (sed + 1) * core_number - 1) yield it.subs(index)
                 sender ! calc_data_start_impl(alMaxRunning(item.uid, item.tid, item.parent, tmp.toList))
                 sed += 1
                 endDate("&& T3 && ", t3)
@@ -179,36 +168,8 @@ class alCameoCalcData ( val item : alMaxRunning,
         }
 
         case calc_data_sum() => {
-            log.info("&& T9 START &&")
-            val t9 = startDate()
-            println("&& T9 && alCameoCalcData.calc_data_sum2")
-            // TODO: 开始读取segment分组文件
-            item.sum = item.sum ++: readRedisSegment("segment")
-            item.isSumed = true
-            item.sum = (item.sum.groupBy(_._1) map { x =>
-                (x._1, (x._2.map(z => z._2._1).sum, x._2.map(z => z._2._2).sum, x._2.map(z => z._2._3).sum))
-            }).toList
-            val path = s"${memorySplitFile}${calc}${item.tid}"
-            val dir = alFileOpt(path)
-            if (!dir.isExists)
-                dir.createDir
-            val file = alFileOpt(path + "/avg")
-            if (!file.isExists)
-                file.createFile
-
-            val mapAvg = item.sum.filterNot(x => x._2._1 == 0 && x._2._2 == 0).map { x =>
-                val avg_elem = (x._1, (BigDecimal((x._2._1 / x._2._3).toString).toDouble),(BigDecimal((x._2._2 / x._2._3).toString).toDouble))
-                file.appendData2File(s"${avg_elem._1},${avg_elem._2},${avg_elem._3}"::Nil)
-            }
-            log.info(s"done for avg $path")
-            item.sum = Nil
-            router ! calc_data_average(item, path + "/" + "avg")
-
-            val commonDriver= phRedisDriver().commonDriver
-            commonDriver.del("segment")
+            router ! calc_data_average(item)
             shutCameo("End CalcSum Cameo")
-            endDate("&& T9 && ", t9)
-            log.info("&& T9 END &&")
         }
 
         case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
@@ -223,17 +184,6 @@ class alCameoCalcData ( val item : alMaxRunning,
         log.info(s"stopping calc data cameo msg=${msg}")
         calc_timer.cancel()
         context.stop(self)
-    }
-
-    def readRedisSegment(setName: String) = {
-        var segmentLst: List[(String, (Double, Double, Double))] = Nil
-        val phSetDriver = phRedisDriver().phSetDriver
-        val phHashDriver = phRedisDriver().phHashDriver
-        phSetDriver.smembers(setName).foreach{x =>
-            val h = phHashDriver.hgetall(x)
-            segmentLst = segmentLst :+ (x, (h.get("sales").get.toDouble, h.get("unit").get.toDouble, h.get("calc").get.toDouble))
-        }
-        segmentLst
     }
 
 }

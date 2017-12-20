@@ -3,6 +3,7 @@ package com.pharbers.aqll.alCalaHelp.alMaxDefines
 /**
   * Created by Alfred on 11/03/2017.
   */
+//TODO shanchu
 case class alMaxProperty(parent : String,
                          uuid : String,
                          var subs : List[alMaxProperty],
@@ -14,7 +15,7 @@ case class alMaxProperty(parent : String,
                          var finalValue : Double = 0.0,
                          var finalUnit : Double = 0.0
                         ) extends java.io.Serializable
-
+//TODO zhujian shanchu
 case class alMaxRunning(var uid: String,
                         var tid: String,
                         var parent: String,

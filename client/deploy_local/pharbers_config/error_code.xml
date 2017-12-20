@@ -1,0 +1,61 @@
+<pharbers-modules>
+    <error_code>
+        <error reason="wrong input" code="-1" description="输入的参数有错误" />
+
+        <error reason="url get error" code="-101" description="URL 有误" />
+        <error reason="primary key error" code="-102" description="主键重复创建或者主键出错" />
+        <error reason="data not exist" code="-103" description="数据不存在" />
+        <error reason="data duplicate" code="-104" description="搜索结果不唯一, 请用query multiple搜索" />
+        <error reason="function is not impl" code="-105" description="函数未实现" />
+        <error reason="pr data not exist" code="-106" description="pr数据不存在" />
+        <error reason="not instance data" code="-107" description="无实例数据" />
+        <error reason="time bound error" code="-108" description="时间界限错误" />
+        <error reason="actor is not impl" code="-109" description="Actor未实现" />
+
+        <error reason="user have no email" code="-201" description="无用户邮箱" />
+        <error reason="user have no secret" code="-202" description="无用户密码" />
+        <error reason="user not exist" code="-203" description="用户不存在" />
+        <error reason="info input password" code="-204" description="请输入密码" />
+        <error reason="info input phone" code="-205" description="请输入手机号码" />
+        <error reason="info input email" code="-206" description="请输入联系邮箱" />
+        <error reason="info input company name" code="-207" description="请输入公司名称" />
+        <error reason="info input linkman name" code="-208" description="请输入联系人" />
+        <error reason="user is repeat" code="-209" description="用户重复" />
+        <error reason="user is not BD" code="-210" description="该用户不是BD人员" />
+        <error reason="user is not AD" code="-211" description="该用户不是AD人员" />
+        <error reason="user already exists" code="-212" description="用户已存在, 请尝试登入" />
+        <error reason="successful application" code="-213" description="授权码已经申请成功，请走授权码过期流程" />
+        <error reason="successful application please login" code="-214" description="申请通过, 请直接登入系统" />
+        <error reason="phone code time is lt 60 seconds" code="-215" description="请60秒过后再次尝试发送手机验证码" />
+        <error reason="authorizationcode already used" code="-216" description="授权码已经被使用" />
+        <error reason="successful application fail BD or AD" code="-216" description="申请未经BD或AD审核通过" />
+        <error reason="token content action error" code="-217" description="token动作内容解析出错" />
+        <error reason="upload error" code="-218" description="上传文件出错" />
+        <error reason="successful application discuss" code="-219" description="目前还在沟通商讨中" />
+        <error reason="old password error" code="-220" description="旧密码输入错误!" />
+
+        <error reason="reg push error" code="-301" description="验证码发送失败" />
+        <error reason="reg phone or code error" code="-302" description="电话号码或者验证码出错" />
+        <error reason="please try in 10 minutes" code="-303" description="请十分钟后再次尝试发送申请" />
+
+        <error reason="im error parameter" code="-401" description="IM参数错误" />
+        <error reason="im error server" code="-402" description="IM消息服务器异常" />
+        <error reason="im error client secre" code="-403" description="IM客户端安全码异常" />
+        <error reason="im error appkey" code="-404" description="IM应用标识错误" />
+
+
+        <error reason="not implement" code="-998" description="工程师正在玩命的开发中" />
+
+
+        <error reason="no db connection" code="-9001" description="没有找到数据库链接" />
+        <error reason="db prase error" code="-9002" description="数据库结构发现错误" />
+        <error reason="no encrypt impl" code="-9003" description="权限加密方式不清晰或者Token不存在" />
+        <error reason="token parse error" code="-9004" description="token数据解析出现错误" />
+        <error reason="token expired" code="-9005" description="token过期" />
+        <error reason="db aggregation error " code="-9006" description="数据Map Reduce操作发生错误" />
+        <error reason="actor system get error" code="-9007" description="后去系统Actor System失败" />
+        <error reason="no message impl" code="-9008" description="没有Message实例" />
+
+        <error reason="unknown error" code="-9999" description="unknown error" />
+    </error_code>
+</pharbers-modules>
