@@ -2,200 +2,98 @@
  * Created by yym on 11/22/17.
  */
 
-(function ($, w) {
-    layui.use('laypage', function () {
-        var laypage = layui.laypage;
+var sample = (function ($, w) {
 
-        //执行一个laypage实例
-        laypage.render({
-            elem: 'hosPage'
-            , count: 50 //数据总数，从服务端得到
+    var lineChart1, lineChart2, barChart;
+    var $select_market = $('div[name="select-box"] select[name="sample-market"]');
+    var $select_date = $('div[name="select-box"] select[name="sample-date"]');
+    var f = new Facade();
+
+    $(function(){
+        sample_hospital_number('lineChart1');
+        sample_product_number('lineChart2');
+        sample_sales("barChart1");
+
+        $(w).resize(function() {
+            lineChart1.resize();
+            lineChart2.resize();
+            barChart.resize();
         });
     });
-    var loadMainChart = function (v, id, title) {
-        var mainChart = echarts.init(document.getElementById(id));
-        var option = {
-            "title": {
-                "text": title,
-                "top": '85%',
-                "left": 'center',
-                "textStyle": {
-                    "fontSize": 14,
-                    "fontWeight": "normal",
-                    "color": "#bcbfff"
+
+    var query_selectBox = function(){
+        var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")}));
+        f.ajaxModule.baseCall('/sample/querySelectBox', json, 'POST', function(r) {
+            var market= [];
+            var date = [];
+            $select_market.empty();
+            $select_date.empty();
+            if(r.status === 'ok') {
+                $.each(r.result.data.selectBox, function(i, v){
+                    market.push(v.market);
+                    date.push(v.date);
+                });
+                $.each($.unique(market), function (i, v) {
+                    $select_market.append('<option value="' + v + '">' + v + '</option>');
+                });
+                $.each($.unique(date), function (i, v) {
+                    $select_date.append('<option value="' + v + '">' + v + '</option>');
+                });
+            }
+            var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid"), "market": $select_market.val(), "date": $select_date.val()}));
+            query_data(json);
+        });
+    };
+
+    var common = function(leftName) {
+        return {
+            tooltip : {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
                 }
             },
-            "tooltip": {
-                "trigger": 'item',
-                "formatter": "{a} : ({d}%)"
+            xAxis: {
+                splitNumber : 12,
+                data: []
             },
-            "series": [
-                {
-                    "name": "内圈",
-                    "center": [
-                        "50%",
-                        "40%"
-                    ],
-                    "radius": [
-                        "49%",
-                        "50%"
-                    ],
-                    "clockWise": false,
-                    "hoverAnimation": false,
-                    "type": "pie",
-                    "data": [{
-                        "value": v,
-                        "name": "",
-                        "label": {
-                            "normal": {
-                                "show": true,
-                                "formatter": '{d} %',
-                                "textStyle": {
-                                    "fontSize": 20,
-                                    "fontWeight": "normal"
-                                },
-                                "position": "center"
-                            }
-                        },
-                        "labelLine": {
-                            "show": false
-                        },
-                        "itemStyle": {
-                            "normal": {
-                                "color": "#5886f0",
-                                "borderColor": new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                                    offset: 0,
-                                    color: '#00a2ff'
-                                }, {
-                                    offset: 1,
-                                    color: '#70ffac'
-                                }]),
-                                "borderWidth": 10
-                            },
-                            "emphasis": {
-                                "color": "#5886f0",
-                                "borderColor": new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                                    offset: 0,
-                                    color: '#85b6b2'
-                                }, {
-                                    offset: 1,
-                                    color: '#6d4f8d'
-                                }]),
-                                "borderWidth": 14
-                            }
-                        },
-                    }, {
-                        "name": " ",
-                        "value": 100 - v,
-                        "itemStyle": {
-                            "normal": {
-                                "label": {
-                                    "show": false
-                                },
-                                "labelLine": {
-                                    "show": false
-                                },
-                                "color": 'rgba(0,0,0,0)',
-                                "borderColor": 'rgba(0,0,0,0)',
-                                "borderWidth": 0
-                            },
-                            "emphasis": {
-                                "color": 'rgba(0,0,0,0)',
-                                "borderColor": 'rgba(0,0,0,0)',
-                                "borderWidth": 0
-                            }
-                        }
-                    }]
+            yAxis: {
+                type: 'value',
+                name: leftName,
+                position: "left"
+            },
+            series: [{
+                name: leftName,
+                type: 'line',
+                data : [],
+                lineStyle : {
+                    normal : {color : '#60B3AD'}
                 },
-                {
-                    "name": "外圈",
-                    "center": [
-                        "50%",
-                        "40%"
-                    ],
-                    "radius": [
-                        "59%",
-                        "60%"
-                    ],
-                    "clockWise": false,
-                    "hoverAnimation": false,
-                    "type": "pie",
-                    "data": [{
-                        "value": 100,
-                        "name": "",
-                        "label": {
-                            "normal": {
-                                "show": false,
-                                "formatter": '{d} %',
-                                "textStyle": {
-//                                "fontSize": 28,
-                                    "fontWeight": "normal"
-                                },
-                                "position": "center"
-                            }
-                        },
-                        "labelLine": {
-                            "show": false
-                        },
-                        "itemStyle": {
-                            "normal": {
-                                "color": "#5886f0",
-                                "borderColor": new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                                    offset: 0,
-                                    color: '#00a2ff'
-                                }, {
-                                    offset: 1,
-                                    color: '#70ffac'
-                                }]),
-                                "borderWidth": 1
-                            },
-                            "emphasis": {
-                                "color": "#5886f0",
-                                "borderColor": new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                                    offset: 0,
-                                    color: '#85b6b2'
-                                }, {
-                                    offset: 1,
-                                    color: '#6d4f8d'
-                                }]),
-                                "borderWidth": 1
-                            }
-                        },
-                    }, {
-                        "name": " ",
-                        "value": 0,
-                        "itemStyle": {
-                            "normal": {
-                                "label": {
-                                    "show": false
-                                },
-                                "labelLine": {
-                                    "show": false
-                                },
-                                "color": 'rgba(0,0,0,0)',
-                                "borderColor": 'rgba(0,0,0,0)',
-                                "borderWidth": 0
-                            },
-                            "emphasis": {
-                                "color": 'rgba(0,0,0,0)',
-                                "borderColor": 'rgba(0,0,0,0)',
-                                "borderWidth": 0
-                            }
-                        }
-                    }]
-                }]
+                itemStyle : {
+                    normal : {color : '#60B3AD'}
+                }
+            }]
         };
-        mainChart.setOption(option);
+    };
+
+    function sample_hospital_number (id) {
+        lineChart1 = echarts.init(document.getElementById(id));
+        lineChart1.setOption(common('医院数量'));
     }
 
-    var sample_bar = function (id) {
-        var bar = echarts.init(document.getElementById(id));
+    function sample_product_number(id) {
+        lineChart2 = echarts.init(document.getElementById(id));
+        lineChart2.setOption(common('产品数量'));
+}
+
+    function sample_sales (id) {
+        barChart = echarts.init(document.getElementById(id));
         var option = {
             color: ['#3398DB'],
-            tooltip: {
+            tooltip : {
                 trigger: 'axis',
-                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
-                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                    type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
                 }
             },
             grid: {
@@ -204,31 +102,23 @@
                 bottom: '3%',
                 containLabel: true
             },
-            xAxis: [
+            xAxis : [
                 {
-                    type: 'category',
-                    data: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+                    type : 'category',
+                    data : [],
                     axisTick: {
                         alignWithLabel: true
                     }
                 }
             ],
-            yAxis: [
+            yAxis : [{axisTick: {alignWithLabel: true}}],
+            series : [
                 {
-                    // type : 'category',
-                    // data : ['10','20','30','40'],
-                    axisTick: {
-                        alignWithLabel: true
-                    }
+                    name:'样本销售额',
+                    type:'bar',
+                    barWidth: '40%',
+                    data:[]
                 }
-            ],
-            series: [
-                {
-                    name: '直接访问',
-                    type: 'bar',
-                    barWidth: '60%',
-                    data: [1, 3, 2, 3, 4, 2, 1, 3, 3, 2, 3, 2]
-                },
 
             ],
             label: {
@@ -253,9 +143,92 @@
                 }
             }
         };
-        bar.setOption(option);
-        $(window).resize(function() {
-            bar.resize();
-        });
+        barChart.setOption(option);
     }
-}(jQuery, window))
+
+    var query_data = function(json) {
+
+        f.ajaxModule.baseCall('/sample/queryHospitalNumber', json, 'POST', function(r){
+            if(r.status === 'ok') {
+                $('div[name="cur-hospital-number"]').empty().text(r.result.data.curHospitalNumber);
+                $('div[name="pre-hospital-number"]').empty().text(r.result.data.preHospitalNumber);
+                $('div[name="last-hospital-number"]').empty().text(r.result.data.lastHospitalNumber);
+                var date = [];
+                var value = [];
+                var $echart_option = lineChart1.getOption();
+                $.each(r.result.data.hospitalList, function(i, v){
+                    date.push(v.date);
+                    value.push(v.hospitalNumber);
+                });
+                $echart_option.xAxis[0].data = date;
+                $echart_option.series[0].data = value;
+            }
+            lineChart1.setOption($echart_option);
+        });
+        f.ajaxModule.baseCall('/sample/queryProductNumber', json, 'POST', function(r){
+            if(r.status === 'ok') {
+                $('div[name="cur-product-number"]').empty().text(r.result.data.curProductNumber);
+                $('div[name="pre-product-number"]').empty().text(r.result.data.preProductNumber);
+                $('div[name="last-product-number"]').empty().text(r.result.data.lastProductNumber);
+                var date = [];
+                var value = [];
+                var $echart_option = lineChart2.getOption();
+                $.each(r.result.data.productList, function(i, v){
+                    date.push(v.date);
+                    value.push(v.productNumber);
+                });
+                $echart_option.xAxis[0].data = date;
+                $echart_option.series[0].data = value;
+            }
+            lineChart2.setOption($echart_option);
+        });
+        f.ajaxModule.baseCall('/sqmple/querySampleSales', json, 'POST', function(r){
+            if(r.status === 'ok') {
+                var date = [];
+                var value = [];
+                var $echart_option = barChart.getOption();
+                $.each(r.result.data.sampleSalesList, function(i, v){
+                    date.push(v.date);
+                    value.push(v.sampleSales);
+                });
+                $echart_option.xAxis[0].data = date;
+                $echart_option.series[0].data = value;
+            }
+            barChart.setOption($echart_option);
+        });
+
+        f.ajaxModule.baseCall('/sample/queryHospitalList', json, 'POST', function(r){
+            if(r.status === 'ok') {
+                var $table = $('#sample-tbody');
+                $table.empty();
+                $.each(r.result.data, function(i, v){
+                    $table.append('<tr><td>' + v["PHA医院名称"] + '</td><td>' + v["Province"] + '</td><td>' +  v["Prefecture"] + '</td><td>' + v["City Tier 2010"] + '</td></tr>');
+                });
+                layui.use('table', function(){
+                    var table = layui.table;
+                    table.init('sample-hospital', {
+                        height: 315,
+                        page: true //开启分页
+                        // id: 'sample-hospital'
+                    });
+
+                });
+            }
+        });
+
+    };
+
+    $('#query-sample').click(function(){
+        var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid"), "market": $select_market.val(), "date": $select_date.val()}));
+        query_data(json);
+    });
+
+    return {
+        "query_selectBox" : query_selectBox,
+        "lineChart1": function() {return lineChart1},
+        "lineChart2": function() {return lineChart2},
+        "barChart": function() {return barChart},
+        "query_data": query_data
+    }
+
+}(jQuery, window));

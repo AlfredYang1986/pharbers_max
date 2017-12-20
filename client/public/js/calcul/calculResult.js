@@ -6,9 +6,7 @@ var step_chart = (function ($, w) {
     "use strict";
     var f = new Facade();
     var itemStyleColor = ['#3AD1C2', '#60C6CF', '#FFFFFF', '#009992'];
-    var barLineChart;
-    var mapChart;
-    var barChart;
+    var barLineChart, mapChart, barChart;
 
     $(function(){
         bar_line_chart("market_trend");
@@ -61,7 +59,6 @@ var step_chart = (function ($, w) {
         mapChart.showLoading();
 
         var j = json || JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")}));
-        //JSON.stringify(f.parameterPrefix.conditions({"tables": ["fea9f203d4f593a96f0d6faa91ba24ba"], "user_token": "bearer47ee6f05c8994e9ddbe12c2971600766", "marketWithYear": "201502-INF"}));
 
         f.ajaxModule.baseCall('/calc/querySalesVsShare', j, 'POST', function(r) {
             if(r.status === 'ok') {
