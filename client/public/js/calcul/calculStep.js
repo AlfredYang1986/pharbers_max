@@ -41,7 +41,7 @@
         $('#firstStep').hide();
         $('#thirdStep').hide();
         $('.fth-img')[0].src = "/assets/images/calculStep/step4.png";
-        toCalculResult()
+        toCalculResult();
     };
 
     $("#check-btn").click(function(){check_file()});
@@ -49,10 +49,7 @@
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
 
-
-    //TODO: 测试
-    $('#test-step2').click(function () {toSampleResult()});
-
+    // $('#test-calc-result').click(function(){toFourthStep()});
 
     var check_file = function(){
         var info = $("#loadInof");
@@ -137,18 +134,7 @@
         w.step_chart.barChart().resize();
         w.step_chart.query_select();
         w.step_chart.query_data();
-    };
-
-    var show_loading = function() {
-        $('.mask-layer').show();
-        $('.loading').show();
-    };
-    var hide_loading = function() {
-        $('.mask-layer').hide();
-        $('.loading').hide();
-    };
-
-
+    }
 
     query_company();
     load_cpa_source();
@@ -250,10 +236,6 @@
         });
     }
 
-
-
-
-
     //web socket 回调
     w.socket.callback2obj(function(obj){
         var type = window.socket.getValue(obj)('type') !== 'Null' ? window.socket.getValue(obj)('type') : layer.msg("ws信息回调出错");
@@ -321,8 +303,6 @@
         }
     };
 
-
-
     var panel_base_progress = 20;
     var progress_generat_panel = function (obj) {
         console.info(obj);
@@ -348,8 +328,6 @@
         });
         setTimeout(function(){toSampleResult()}, 1000);
     };
-
-
 
     var calc_base_progress = 0;
     var progress_calc = function(obj) {
@@ -466,6 +444,5 @@
 
         rotate.setOption(option);
     };
-
 
 }(jQuery, window));
