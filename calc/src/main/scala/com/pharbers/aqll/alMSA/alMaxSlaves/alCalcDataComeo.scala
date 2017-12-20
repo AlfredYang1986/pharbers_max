@@ -16,9 +16,14 @@ import com.pharbers.driver.redis.phRedisDriver
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import alCalcDataComeo._
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 /**
   * Created by alfredyang on 12/07/2017.
+  *     Modify by clock on 2017.12.20
   */
 
 object alCalcDataComeo {
@@ -31,47 +36,46 @@ class alCalcDataComeo (item : alMaxRunning,
                        originSender : ActorRef,
                        owner : ActorRef,
                        counter : ActorRef) extends Actor with ActorLogging {
-    
     var cur = 0
     var sed = 0
-    var segment : List[String] = Nil
-    import alCalcDataComeo._
-    var r : alMaxRunning = null
-    
+    var segment: List[String] = Nil
+    var r: alMaxRunning = _
+
+    val impl_router = context.actorOf(
+            BroadcastPool(core_number).props(alCalcDataImpl.props),
+            name = "concert-calc-router"
+        )
+
+    val timeoutMessager = context.system.scheduler.scheduleOnce(6000 minute) {
+        self ! calc_data_timeout()
+    }
+
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Escalate
     }
     
-    override def postRestart(reason: Throwable) : Unit = {
-        // TODO : 计算次数，重新计算
+    override def postRestart(reason: Throwable) = {
         counter ! canIReStart(reason)
     }
     
     override def receive: Receive = {
+        case calc_data_start_impl(_) => {
+            r = item
+            impl_router ! calc_data_hand()
+            alTempLog("C3. router start segment")
+        }
+
+        case calc_data_hand() => {
+            if (r != null) {
+                alTempLog(s"C3.$sed router start segment => Success")
+                sender ! calc_data_start_impl3(r.subs(sed), r)
+                sed += 1
+            }
+        }
+
         case calc_data_timeout() => {
             log.info("timeout occur")
             shutSlaveCameo(split_panel_timeout())
-        }
-
-        case calc_data_start_impl(_) => {
-            log.info("&& T5 START &&")
-            val t5 = startDate()
-            println("&& T5 && alCalcDataComeo.calc_data_start_impl")
-            r = item
-            impl_router ! calc_data_hand()
-            endDate("&& T5 && ", t5)
-            log.info("&& T5 END &&")
-        }
-        case calc_data_hand() => {
-            log.info("&& T6 START &&")
-            val t6 = startDate()
-            println("&& T6 && alCalcDataComeo.calc_data_hand")
-            if (r != null) {
-                sender ! calc_data_start_impl3(r.subs(sed), r)
-                sed += 1
-                endDate("&& T6 && ", t6)
-            }
-            log.info("&& T6 END &&")
         }
 
         case calc_data_average_pre(avg_path) =>  {
@@ -100,17 +104,11 @@ class alCalcDataComeo (item : alMaxRunning,
         }
         case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
     }
-    
-    import scala.concurrent.ExecutionContext.Implicits.global
-    val timeoutMessager = context.system.scheduler.scheduleOnce(6000 minute) {
-        self ! calc_data_timeout()
-    }
-    def shutSlaveCameo(msg : AnyRef) = {
+
+    def shutSlaveCameo(msg: AnyRef) = {
         log.info(s"shutting calc data slave cameo msg=${msg}")
         timeoutMessager.cancel()
         self ! PoisonPill
     }
-    val impl_router =
-        context.actorOf(BroadcastPool(core_number).props(alCalcDataImpl.props), name = "concert-calc-router")
 
 }

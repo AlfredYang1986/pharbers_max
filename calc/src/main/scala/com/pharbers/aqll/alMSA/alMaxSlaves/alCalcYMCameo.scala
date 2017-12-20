@@ -58,23 +58,16 @@ class alCalcYMCameo(calcYMJob: alPanelItem, counter: ActorRef) extends Actor wit
 
         case calcYM_end(result, ym, mkt) => {
             result match {
-               case true => {
-                   val msg = Map(
-                       "type" -> "calc_ym_result",
-                       "ym" -> ym,
-                       "mkt" -> mkt
-                   )
-                   alWebSocket(calcYMJob.uid).post(msg)
-               }
-               case false => {
+               case true => alTempLog("calc ym => Success")
+               case false =>
                    val msg = Map(
                        "type" -> "error",
                        "error" -> "cannot calc ym"
                    )
                    alWebSocket(calcYMJob.uid).post(msg)
-               }
+                   alTempLog("calc ym => Failed")
             }
-            shutSlaveCameo(calcYMResult(ym.split(",").toList, mkt.split(",").toList))
+            shutSlaveCameo(calcYMResult(calcYMJob.uid, ym, mkt))
         }
 
         case calcYM_timeout() => {

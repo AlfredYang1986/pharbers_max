@@ -61,15 +61,7 @@ class alSplitPanelComeo(item: alMaxRunning, counter: ActorRef) extends Actor wit
 
         case split_panel_end(result, item, parent, subs) => {
             result match {
-                case true => {
-                    val msg = Map(
-                        "type" -> "progress_calc",
-                        "txt" -> "分拆文件完成",
-                        "progress" -> "1"
-                    )
-                    alWebSocket(item.uid).post(msg)
-                    alTempLog("split panel file => Success")
-                }
+                case true => alTempLog("split panel file => Success")
                 case false => {
                     val msg = Map(
                         "type" -> "error",

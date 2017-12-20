@@ -41,6 +41,7 @@ class alGroupDataComeo (item: alMaxRunning,
         BroadcastPool(alGroupDataComeo.core_number).props(alGroupSlaveImpl.props),
         name = "concert-group-router"
     )
+
     val timeoutMessager = context.system.scheduler.scheduleOnce(60 minute) {
         self ! group_data_timeout()
     }
@@ -66,7 +67,7 @@ class alGroupDataComeo (item: alMaxRunning,
             val (parent, subs) = result.get.asInstanceOf[(String, List[String])]//this parent = item.tid
 
             item.subs = subs.map{x=>
-                phRedisDriver().commonDriver.sadd(parent, x)
+                phRedisDriver().commonDriver.sadd(s"grouped:$parent", x)
                 alMaxRunning(item.uid, x, parent)
             }
             impl_router ! group_data_hand()

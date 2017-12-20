@@ -17,7 +17,7 @@ object alCalcMsg {
     object ymMsg {
         case class pushCalcYMJob(item: alPanelItem)
         case class calcYMSchedule()
-        case class calcYMResult(ym: List[String], mkt: List[String])
+        case class calcYMResult(uid: String, ym: String, mkt: String)
 
         case class calcYM_start()
         case class calcYM_hand()
@@ -86,5 +86,27 @@ object alCalcMsg {
         case class scpend(s: ActorRef) extends stop(0, "scp")
         case class pkgend(s: ActorRef) extends stop(1, "pkg")
         case class unpkgend(s: ActorRef) extends stop(2, "unpkg")
+    }
+
+    //calc module
+    object calcMsg {
+        case class pushCalcJob(item: alMaxRunning)
+        case class sumCalcJob(items: alMaxRunning, s: ActorRef)
+        case class calcSchedule()
+
+        case class calc_unpkg(tid: String, s: ActorRef)
+        case class calc_data_start()
+        case class calc_data_hand()
+        case class calc_data_hand2(item: alMaxRunning)
+        case class calc_data_start_impl(item: alMaxRunning)
+        case class calc_data_start_impl2(item: alMaxRunning)
+        case class calc_data_start_impl3(sub_item: alMaxRunning, items: alMaxRunning)
+        case class calc_data_sum()
+        case class calc_data_average(item: alMaxRunning)
+        case class calc_data_average_pre(avg_path: String)
+        case class calc_data_average_one(avg_path: String, bsonpath: String)
+        case class calc_data_average_post(item: alMaxRunning, avg_path: String, bsonpath: String)
+        case class calc_data_result(uid: String, tid: String, v: Double, u: Double, result: Boolean)
+        case class calc_data_timeout()
     }
 }

@@ -7,10 +7,10 @@ import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.{unpkgend, unpkgmsgMutiPath}
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, group, memorySplitFile, root, sync}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
 import com.pharbers.aqll.alMSA.alMaxCmdJob.alCmdActor
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
@@ -20,6 +20,7 @@ import scala.concurrent.Await
 
 /**
   * Created by alfredyang on 13/07/2017.
+  *     Modify by clock on 2017.12.20
   */
 object alCalcDataSlave {
     def props = Props[alCalcDataSlave]
@@ -27,7 +28,6 @@ object alCalcDataSlave {
 }
 
 class alCalcDataSlave extends Actor with ActorLogging {
-
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Restart
     }
@@ -35,28 +35,35 @@ class alCalcDataSlave extends Actor with ActorLogging {
     override def receive: Receive = {
         case calc_unpkg(tid, s) => {
             val cmdActor = context.actorOf(alCmdActor.props())
-            val sync_pkg = s"${memorySplitFile}${sync}${tid}"
-            val group_pkg = s"${memorySplitFile}${group}${tid}"
+            val sync_pkg = s"$memorySplitFile$sync$tid"
+            val group_pkg = s"$memorySplitFile$group$tid"
             cmdActor ! unpkgmsgMutiPath(sync_pkg :: group_pkg ::Nil, root, s)
         }
+
         case unpkgend(s) => s ! calc_data_start()
 
-        case calc_data_hand2(item_tmp) => {
+        case calc_data_hand2(item) => {
+            //TODO ask shenyong
             implicit val t = Timeout(2 seconds)
             val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitcalcslave")
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) {
-                val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> item_tmp.tid))
-                val (p, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
-                item_tmp.subs = sb map (x => alMaxRunning(item_tmp.uid, x, p, Nil))
-                sender ! calc_data_hand2(item_tmp)
-            } else Unit
+                val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> item.tid))
+                val (parent, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
+                item.subs = sb.map{x =>
+                    phRedisDriver().commonDriver.sadd(s"calced:$parent", x)//this parent = item.tid
+                    alMaxRunning(item.uid, x, parent, Nil)
+                }
+                sender ! calc_data_hand2(item)
+            }
         }
+
         case calc_data_start_impl(item) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
             val cur = context.actorOf(alCalcDataComeo.props(item, sender, self, counter))
             cur.tell(calc_data_start_impl(item), sender)
         }
+
         case calc_data_average(items) => {
             println(s"calc_data_average3 items = ${items}")
 

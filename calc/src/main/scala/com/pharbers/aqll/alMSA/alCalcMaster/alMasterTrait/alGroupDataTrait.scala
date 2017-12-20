@@ -114,12 +114,7 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
                     resetSubGrouping(groupResult)
                     if (cur == tol) {
                         unionResult
-                        val msg = Map(
-                            "type" -> "progress_calc",
-                            "txt" -> "数据分组完成",
-                            "progress" -> "2"
-                        )
-                        alWebSocket(groupResult.uid).post(msg)
+                        alTempLog("group data trait => Success")
                     }
                 case false => {
                     val msg = Map(
@@ -127,9 +122,11 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
                         "error" -> "cannot group data"
                     )
                     alWebSocket(groupResult.uid).post(msg)
+                    alTempLog("group data trait => Failed")
                 }
             }
 
+            groupResult.parent = item.parent // transmit panel id
             shutCameo(groupPanelResult(groupResult))
         }
 
