@@ -140,14 +140,6 @@
         w.step_chart.query_data();
     }
 
-    var show_loading = function() {
-        $('.mask-layer').show();
-        $('.loading').show();
-    };
-        $('.mask-layer').hide();
-        $('.loading').hide();
-    };
-
     query_company();
     load_cpa_source();
     load_gycx_source();
