@@ -147,7 +147,7 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		// TODO： 想一想，怎么才能知道公司名字呢
 		val product = "辉瑞"
 		
-		val timeLst = alNearDecemberMonth.diff12Month(selectDate).toList
+		val timeLst = alNearDecemberMonth.diff12Month(selectDate).toList.dropRight(1)
 		
 		val curTemp = mergerResult("cur").as[String Map List[String Map String]].values.toList.flatten
 		val historyTemp = mergerResult("history").as[String Map List[String Map String]].values.toList.flatten
@@ -156,7 +156,6 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		val curMSumS = curTemp.map(x => x("Sales").toDouble).sum
 		val curMSumU = curTemp.map(x => x("Units").toDouble).sum
 		val share = if(curMSumS == 0) 0 else ((curPSumS / curMSumS) * 100).formatted("%.2f").toDouble
-		
 		val result = historyTemp match {
 			case Nil =>
  				timeLst.filterNot(f => f == selectDate).map ( x =>Map("Date" -> x, "Market" -> selectMarket, "Sales" -> "0", "Units" ->"0", "Share" ->"0")) :+

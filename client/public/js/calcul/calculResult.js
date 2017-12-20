@@ -2,7 +2,6 @@
  * Created by yym on 11/27/17.
  */
 var step_chart = (function ($, w) {
-
     "use strict";
     var f = new Facade();
     var itemStyleColor = ['#3AD1C2', '#60C6CF', '#FFFFFF', '#009992'];
@@ -12,14 +11,11 @@ var step_chart = (function ($, w) {
         bar_line_chart("market_trend");
         map_chart("market_map");
         bar_chart("market_bar");
-
         $(w).resize(function () {
             barLineChart.resize();
             mapChart.resize();
             barChart.resize();
         });
-
-
         $('div[name="btn-query-calcresult"]').click(function(){
             var marketWithYear = $('select[name="calc-result-month"]').val() + '-' + $('select[name="calc-result-market"]').val();
             var json = JSON.stringify(f.parameterPrefix.conditions({
@@ -53,7 +49,10 @@ var step_chart = (function ($, w) {
     }
 
     var query_data = function(json) {
-
+        $(document).ajaxStop(function(){
+            hide_loading();
+        });
+        show_loading();
         barLineChart.showLoading();
         barChart.showLoading();
         mapChart.showLoading();
@@ -65,7 +64,6 @@ var step_chart = (function ($, w) {
                 $('span[name="sumsales"]').empty().text(parseFloat(r.result.cursales / 1000000).toFixed(2));
                 $('span[name="productsales"]').empty().text(parseFloat(r.result.curproductsales / 1000000).toFixed(2));
                 $('span[name="share"]').empty().text((parseFloat(r.result.curproductsales) / parseFloat(r.result.cursales) * 100).toFixed(2));
-
 
                 var $echart_option = barLineChart.getOption();
                 var xAxisData = [];

@@ -147,7 +147,10 @@ var sample = (function ($, w) {
     }
 
     var query_data = function(json) {
-
+        $(document).ajaxStop(function(){
+            hide_loading();
+        });
+        show_loading();
         f.ajaxModule.baseCall('/sample/queryHospitalNumber', json, 'POST', function(r){
             if(r.status === 'ok') {
                 $('div[name="cur-hospital-number"]').empty().text(r.result.data.curHospitalNumber);
