@@ -48,14 +48,9 @@
     $("#generat-panel-btn").click(function(){generat_panel_action()});
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
-    //测试
-    // $("#snd-btn").click(function () {toSecondStep()});
-    // $("#sample-btn").click(function () {toSampleResult()});
-    // $("#thd-btn").click(function () {toThirdStep()});
-    $("#calculInof").click(function(){toFourthStep()});
 
-    // TODO: 测试样本检查，功能完成测试后删除
-    // $('#test-step2').click(function () {toSampleResult()});
+    //TODO: 测试
+    $('#test-step2').click(function () {toSampleResult()});
 
 
     var check_file = function(){
@@ -119,7 +114,7 @@
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            prograssBar(98, 210000, 0);
+            prograssBar(98, 60000, 0);
         }, function(e){console.error(e)});
     };
 
@@ -141,12 +136,7 @@
         w.step_chart.barChart().resize();
         w.step_chart.query_select();
         w.step_chart.query_data();
-        // bar_line_chart('market_trend');
-        // map_chart('market_map');
-        // bar_chart('market_bar');
     };
-
-
 
     var show_loading = function() {
         $('.mask-layer').show();
@@ -315,12 +305,19 @@
 
         $ym_div.empty();
         sample_month.empty();
-        $.each(obj.ym.split(","), function( index, ym ) {
-            $ym_div.append('<div class="col-sm-3"><div class="checkbox"> <label> <input type="checkbox" value="'+ ym +'">'+ym+'</label> </div> </div>');
-            sample_month.append(ym +"&nbsp;");
-        });
-        ym_mkt_num = obj.ym.split(",").length * obj.mkt.split(",").length;
-        $('#chooseMonth').modal('show');
+
+        if(obj.ym === "0"){
+            alert("无法解析月份，请刷新重试")
+        }else{
+            $.each(obj.ym.split(","), function( index, ym ) {
+                $ym_div.append('<div class="col-sm-3"><div class="checkbox"> <label> <input type="checkbox" value="'+ ym +'">'+ym+'</label> </div> </div>');
+                sample_month.append(ym +"&nbsp;");
+            });
+            $.each(obj.mkt.split(","), function( index, mkt ) {
+                mkt_lst.push(mkt)
+            });
+            $('#chooseMonth').modal('show');
+        }
     };
 
 
@@ -348,6 +345,7 @@
                 });
             });
         });
+        // setTimeout(function(){toSampleResult()}, 2000);
         toSampleResult();
     };
 
