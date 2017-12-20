@@ -62,8 +62,8 @@ class alCalcYMCameo (calcYM_job: alPanelItem,
         }
 
         case calcYM_timeout() => {
-            log.info("timeout occur")
-            shutSlaveCameo(calcYM_timeout())
+//            log.info("timeout occur")
+//            shutSlaveCameo(calcYM_timeout())
         }
 
         case canDoRestart(reason: Throwable) =>
