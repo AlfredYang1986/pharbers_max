@@ -49,6 +49,7 @@
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
 
+
     //TODO: 测试
     $('#test-step2').click(function () {toSampleResult()});
 
@@ -345,8 +346,7 @@
                 });
             });
         });
-        // setTimeout(function(){toSampleResult()}, 2000);
-        toSampleResult();
+        setTimeout(function(){toSampleResult()}, 1000);
     };
 
 
