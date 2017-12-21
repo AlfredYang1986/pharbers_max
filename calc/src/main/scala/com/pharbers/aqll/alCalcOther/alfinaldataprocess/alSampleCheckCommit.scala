@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alCalcOther.alfinaldataprocess
 
 import com.mongodb.casbah.Imports._
-import com.pharbers.aqll.alCalaHelp.dbcores._
+import com.pharbers.aqll.alCalcHelp.dbcores._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.JsValue

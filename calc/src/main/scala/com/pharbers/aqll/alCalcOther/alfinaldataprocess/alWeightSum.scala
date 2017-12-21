@@ -8,7 +8,7 @@ import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.alCalaHelp.dbcores._
+import com.pharbers.aqll.alCalcHelp.dbcores._
 
 /**
   * Created by liwei on 17-3-17.

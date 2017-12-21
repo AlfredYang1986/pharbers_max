@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalaHelp.alAkkaHttpJson
+package com.pharbers.aqll.alCalcHelp.alAkkaHttpJson
 
 import akka.http.scaladsl.marshalling.{ Marshaller, ToEntityMarshaller }
 import akka.http.scaladsl.model.ContentTypeRange

@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalaHelp.alMaxDefines
+package com.pharbers.aqll.alCalcHelp.alMaxDefines
 
 /**
   * Created by Alfred on 11/03/2017.

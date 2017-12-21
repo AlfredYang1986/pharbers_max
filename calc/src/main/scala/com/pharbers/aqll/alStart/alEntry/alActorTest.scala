@@ -1,13 +1,11 @@
 package com.pharbers.aqll.alStart.alEntry
 
 import java.util.UUID
-
 import akka.cluster.Cluster
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg.pushRestoreJob
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
@@ -44,30 +42,31 @@ object alActorTest extends App {
 					val rid = UUID.randomUUID().toString
 					redisDriver.hset(uid, "rid", rid)
 					redisDriver.sadd(rid, "CPA_GYCX_panel_201705INF.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705Specialty.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705Urology.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_S.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_D.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_W.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705CNS_R.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705CNS_Z.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705DVP.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705ELIQUIS.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705HTN.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705HTN2.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705LD.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705ONC.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN_C.xlsx")
-//					redisDriver.sadd(rid, "CPA_GYCX_panel_201705ZYVOX.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705Specialty.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705Urology.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_S.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_D.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_W.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705CNS_R.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705CNS_Z.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705DVP.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705ELIQUIS.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705HTN.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705HTN2.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705LD.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705ONC.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN_C.xlsx")
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705ZYVOX.xlsx")
+
+					redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
 					Thread.sleep(3000)
 				}
 
 				//test calc
 				if(true){
 					println("===================== test split -> group -> calc -> bson")
-					agent ! pushRestoreJob(uid, "CPA_GYCX_panel_201705INF.xlsx")
+					agent ! startCalc(uid)
 				}
 			}
 		}

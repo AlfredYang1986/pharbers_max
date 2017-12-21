@@ -5,7 +5,7 @@ import akka.pattern.ask
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.SupervisorStrategy.Restart
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole

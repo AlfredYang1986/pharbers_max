@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger
 
 import akka.actor.{ActorRef, ActorSelection}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, alMaxRunning}
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.{alCalcParmary, alMaxProperty, alMaxRunning}
 import com.pharbers.alCalcMemory.aljobs.alJob
 
 /**

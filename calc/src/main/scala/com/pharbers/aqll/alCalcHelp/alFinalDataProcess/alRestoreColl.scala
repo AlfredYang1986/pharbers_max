@@ -1,9 +1,9 @@
-package com.pharbers.aqll.alCalaHelp.alFinalDataProcess
+package com.pharbers.aqll.alCalcHelp.alFinalDataProcess
 
 import java.io.File
-import com.pharbers.aqll.alCalaHelp.dbcores._
+import com.pharbers.aqll.alCalcHelp.dbcores._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.common.alCmd.dbcmd.dbrestoreCmd3
 import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 

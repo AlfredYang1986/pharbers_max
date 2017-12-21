@@ -11,11 +11,11 @@ import com.redis.RedisClient
 import play.api.libs.json.JsValue
 import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
-import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
 

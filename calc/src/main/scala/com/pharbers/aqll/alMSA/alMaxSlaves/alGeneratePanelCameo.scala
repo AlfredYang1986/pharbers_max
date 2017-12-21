@@ -5,10 +5,10 @@ import play.api.libs.json.JsString
 import scala.collection.immutable.Map
 import play.api.libs.json.Json.toJson
 import com.pharbers.panel.pfizer.phPfizerHandle
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._

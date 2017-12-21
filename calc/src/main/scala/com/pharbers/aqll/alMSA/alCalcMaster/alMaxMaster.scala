@@ -10,7 +10,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg._
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent._
 
 /**

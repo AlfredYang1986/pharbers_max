@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalaHelp.alLog
+package com.pharbers.aqll.alCalcHelp.alLog
 
 /**
   * Created by clock on 17-12-18.

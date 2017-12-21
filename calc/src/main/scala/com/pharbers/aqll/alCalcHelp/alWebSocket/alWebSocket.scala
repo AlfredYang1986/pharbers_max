@@ -1,8 +1,8 @@
-package com.pharbers.aqll.alCalaHelp.alWebSocket
+package com.pharbers.aqll.alCalcHelp.alWebSocket
 
 import com.pharbers.http.HTTP
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import scala.collection.immutable.Map
 import com.pharbers.baseModules.PharbersInjectModule
 

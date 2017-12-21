@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalc.almodel.java;
+package com.pharbers.aqll.alCalcHelp.alModel.java;
 
 
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.java.Excel;

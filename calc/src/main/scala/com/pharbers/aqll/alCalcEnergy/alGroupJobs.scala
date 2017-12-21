@@ -2,7 +2,6 @@ package com.pharbers.aqll.alCalcEnergy
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.util.Timeout
-import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 
@@ -12,17 +11,18 @@ import scala.concurrent.duration._
 import akka.pattern.ask
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalcHelp.alModel.java.IntegratedData
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, split_group_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
-import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor._
+import com.pharbers.aqll.alCalcHelp.alShareData
 
 /**
   * Created by qianpeng on 2017/5/17.

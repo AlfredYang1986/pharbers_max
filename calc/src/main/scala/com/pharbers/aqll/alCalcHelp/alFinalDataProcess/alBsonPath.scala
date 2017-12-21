@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalaHelp.alFinalDataProcess
+package com.pharbers.aqll.alCalcHelp.alFinalDataProcess
 
 import com.pharbers.baseModules.PharbersInjectModule
 

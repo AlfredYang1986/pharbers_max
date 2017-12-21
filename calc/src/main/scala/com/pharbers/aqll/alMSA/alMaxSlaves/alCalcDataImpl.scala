@@ -2,7 +2,6 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import java.io.File
 import java.util.UUID
-
 import scala.math.BigDecimal
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.driver.redis.phRedisDriver
@@ -10,18 +9,18 @@ import com.pharbers.bson.writer.bsonFlushMemory
 import com.pharbers.memory.pages.dirFlushMemory
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.baseModules.PharbersInjectModule
 import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.memory.pages.fop.dir.dirPageStorage
-import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
-import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
-import com.pharbers.aqll.alCalaHelp.alFinalDataProcess.alBsonPath
+import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.alBsonPath
+import com.pharbers.aqll.alCalcHelp.alModel.java.IntegratedData
+import com.pharbers.aqll.alCalcHelp.alModel.scala.westMedicineIncome
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
-import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
+import com.pharbers.aqll.alCalcHelp.{alSegmentGroup, alShareData}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
@@ -30,7 +29,6 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_cal
   * Created by alfredyang on 13/07/2017.
   *     Modify by clock on 2017.12.20
   */
-
 object alCalcDataImpl {
     def props = Props[alCalcDataImpl]
 }

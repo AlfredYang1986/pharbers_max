@@ -3,7 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster
 import akka.actor.ActorRef
 import play.api.libs.json.JsValue
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 
 /**
   * Created by clock on 17-12-18.

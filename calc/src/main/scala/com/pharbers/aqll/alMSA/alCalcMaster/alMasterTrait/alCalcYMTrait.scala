@@ -6,7 +6,7 @@ import scala.concurrent.stm._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcYMSlave
 import scala.concurrent.ExecutionContext.Implicits.global

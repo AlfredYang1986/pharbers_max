@@ -4,13 +4,12 @@ import akka.actor.{Actor, ActorLogging, FSM, Props, Terminated}
 import akka.routing.BroadcastPool
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.{alCalcParmary, alMaxProperty}
 import com.pharbers.aqll.common.alCmd.pkgcmd.{pkgCmd, unPkgCmd}
 import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.clusterListenerConfig._
 import com.pharbers.aqll.common.alFileHandler.serverConfig._
-import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
 import com.pharbers.aqll.alCalcEnergy.alCalcSupervisorStrategy
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, grouping_jobs}
 import com.pharbers.aqll.alCalcMemory.aljobs.alPkgJob
@@ -19,13 +18,15 @@ import com.pharbers.alCalcMemory.aljobs.aljobstates.{alMasterJobIdle, alPointSta
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
+import com.pharbers.aqll.alCalcHelp.alModel.java.IntegratedData
+import com.pharbers.aqll.alCalcHelp.alShareData
 
 import scala.concurrent.stm.atomic
 import scala.concurrent.stm.Ref
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import com.pharbers.aqll.alCalaHelp.dbcores._
-import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.dbcores._
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
 
 import scala.collection.immutable.Map
 

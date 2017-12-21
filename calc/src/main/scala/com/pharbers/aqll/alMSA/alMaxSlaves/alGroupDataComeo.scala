@@ -1,18 +1,18 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import akka.routing.BroadcastPool
+
 import scala.concurrent.duration._
 import scala.collection.immutable.Map
 import akka.actor.SupervisorStrategy.Escalate
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
-import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
@@ -20,6 +20,8 @@ import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, grouping_jobs}
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, PoisonPill, Props, SupervisorStrategy}
+import com.pharbers.aqll.alCalcHelp.alModel.java.IntegratedData
+import com.pharbers.aqll.alCalcHelp.alShareData
 
 /**
   * Created by alfredyang on 12/07/2017.

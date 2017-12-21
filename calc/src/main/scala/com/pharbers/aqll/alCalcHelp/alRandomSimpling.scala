@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalaHelp
+package com.pharbers.aqll.alCalcHelp
 
 import scala.util.Random
 

@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalcOther.alRemoveJobs
+package com.pharbers.aqll.alCalcHelp.alRemoveJobs
 
 import java.util.Calendar
 

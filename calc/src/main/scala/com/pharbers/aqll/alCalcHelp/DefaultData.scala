@@ -1,12 +1,12 @@
-package com.pharbers.aqll.alCalaHelp
+package com.pharbers.aqll.alCalcHelp
 
+import com.pharbers.aqll.alCalcHelp.alModel.java.{AdminHospitalDataBase, IntegratedData}
 import com.pharbers.aqll.common.alDao.dataFactory._
 import com.pharbers.baseModules.PharbersInjectModule
 import com.pharbers.aqll.common.alDao.data_connection
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
-import com.pharbers.aqll.alCalc.almodel.java.{AdminHospitalDataBase, IntegratedData}
 
 object DefaultData {
     object file_path extends PharbersInjectModule {

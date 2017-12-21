@@ -1,4 +1,4 @@
-package com.pharbers.aqll.alCalaHelp.alMaxDefines
+package com.pharbers.aqll.alCalcHelp.alMaxDefines
 
 import java.util.Calendar
 import scala.concurrent.stm.Ref

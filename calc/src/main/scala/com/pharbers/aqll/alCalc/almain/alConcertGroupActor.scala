@@ -3,7 +3,7 @@ package com.pharbers.aqll.alCalc.almain
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
+import com.pharbers.aqll.alCalcHelp.alModel.java.IntegratedData
 
 import scala.concurrent.stm.Ref
 import scala.concurrent.stm.atomic

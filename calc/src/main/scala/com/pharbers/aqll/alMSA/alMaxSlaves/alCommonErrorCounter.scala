@@ -1,6 +1,6 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 

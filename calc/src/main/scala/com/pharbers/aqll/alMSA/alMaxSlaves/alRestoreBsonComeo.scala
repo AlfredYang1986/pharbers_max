@@ -3,14 +3,14 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import scala.concurrent.duration._
 import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
-import com.pharbers.aqll.alCalaHelp.alFinalDataProcess.alRestoreColl
+import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.alRestoreColl
 
 /**
   * Created by jeorch on 17-10-30.

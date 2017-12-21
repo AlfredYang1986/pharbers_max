@@ -4,10 +4,10 @@ import play.api.libs.json._
 import scala.concurrent.duration._
 import scala.collection.immutable.Map
 import com.pharbers.panel.pfizer.phPfizerHandle
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
