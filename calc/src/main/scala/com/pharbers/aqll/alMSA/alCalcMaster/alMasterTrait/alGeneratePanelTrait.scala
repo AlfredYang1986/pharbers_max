@@ -81,7 +81,7 @@ class alCameoGeneratePanel(panel_job : alPanelItem,
         case generate_panel_hand() =>
             sender ! generate_panel_start_impl(panel_job)
             shutCameo
-        case msg : AnyRef =>
+        case msg: AnyRef =>
             alTempLog(s"Warning! Message not delivered. alCameoGeneratePanel.received_msg=$msg")
             shutCameo
     }

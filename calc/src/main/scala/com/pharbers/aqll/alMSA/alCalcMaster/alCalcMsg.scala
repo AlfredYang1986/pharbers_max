@@ -93,20 +93,20 @@ object alCalcMsg {
         case class pushCalcJob(item: alMaxRunning)
         case class sumCalcJob(items: alMaxRunning, s: ActorRef)
         case class calcSchedule()
+        case class calcDataResult(result: Boolean, uid: String)
 
         case class calc_unpkg(tid: String, s: ActorRef)
         case class calc_data_start()
         case class calc_data_hand()
         case class calc_data_hand2(item: alMaxRunning)
         case class calc_data_start_impl(item: alMaxRunning)
-        case class calc_data_start_impl2(item: alMaxRunning)
         case class calc_data_start_impl3(sub_item: alMaxRunning, items: alMaxRunning)
         case class calc_data_sum()
         case class calc_data_average(item: alMaxRunning)
         case class calc_data_average_pre(avg_path: String)
         case class calc_data_average_one(avg_path: String, bsonpath: String)
         case class calc_data_average_post(item: alMaxRunning, avg_path: String, bsonpath: String)
-        case class calc_data_result(uid: String, tid: String, v: Double, u: Double, result: Boolean)
+        case class calc_data_end(result: Boolean, v: Double, u: Double)
         case class calc_data_timeout()
     }
 }

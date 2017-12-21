@@ -1,26 +1,24 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, PoisonPill, Props}
-import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import akka.routing.BroadcastPool
 import akka.pattern.ask
 import akka.util.Timeout
-import com.pharbers.aqll.alCalaHelp.alMaxDefines._
-import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
-import com.pharbers.driver.redis.phRedisDriver
-import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
-
-import scala.collection.immutable.Map
-import scala.concurrent.Await
 import scala.concurrent.stm._
+import scala.concurrent.Await
+import akka.routing.BroadcastPool
 import scala.concurrent.duration._
+import scala.collection.immutable.Map
+import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.alCalaHelp.alMaxDefines._
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import scala.concurrent.ExecutionContext.Implicits.global
+import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
+import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
+import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
+import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, PoisonPill, Props}
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 
 /**
   * Created by alfredyang on 13/07/2017.
@@ -30,6 +28,7 @@ trait alCalcDataTrait { this : Actor =>
     val core_number: Int = server_info.cpu
     val calc_router: ActorRef = createCalcRouter
     val calc_jobs = Ref(List[alMaxRunning]())
+
     //TODO shijian chuan can
     val calc_schdule: Cancellable = context.system.scheduler.schedule(2 second, 3 second, self, calcSchedule())
 
@@ -71,36 +70,27 @@ trait alCalcDataTrait { this : Actor =>
     }
 
     def doCalcData(item: alMaxRunning) {
-        phRedisDriver().commonDriver.hset(item.parent, "calcSum", 0)//Sum counter
+        phRedisDriver().commonDriver.set("sum:"+item.tid, 0)//Sum counter
         val cur = context.actorOf(alCameoCalcData.props(item, calc_router))
         cur ! calc_unpkg(item.tid, self)
     }
 
-    def doSum(items: alMaxRunning, s: ActorRef) {
+    //TODO ti dao bie chu
+    def doSum(item: alMaxRunning, s: ActorRef) {
         val rd = phRedisDriver().commonDriver
-        println("+++doSum++++items++++++++++++++++++"+items)
-
-        var sum = rd.hget(items.parent, "calcSum").get.toInt//redisDriver.get(s"Uid${items.uid}calcSum").get.toInt
-        println(s"&& master doSum sum = $sum")
+        var sum = rd.get("sum:"+item.tid).get.toInt
+        alTempLog(s"C3. router segment => Success$sum")
         sum += 1
-        rd.hset(items.parent, "calcSum", sum)//rd.set(s"Uid${items.uid}calcSum", sum)
+        rd.set("sum:"+item.tid, sum)
+
         if(sum == core_number){
-            println("开始求和")
             sum = 0
-            rd.set(s"Uid${items.uid}calcSum", sum)
+            rd.set("sum:"+item.tid, 0)
             s ! PoisonPill
-//            val cur = context.actorOf(alCameoCalcData.props(items, self, calc_router))
-//            cur ! calc_data_sum()
-            val msg = Map(
-                "type" -> "progress_calc",
-                "progress" -> "11",
-                "txt" -> "正在计算中"
-            )
-            alWebSocket(items.uid).post(msg)
+
+            val cur = context.actorOf(alCameoCalcData.props(item, calc_router))
+            cur ! calc_data_sum()
         }
-    }
-    val dealSameMapFunc = (m1 : Map[String, Any], m2 : Map[String, Any]) => {
-        m1.map(x => x._1 -> (x._2.toString.toDouble + m2(x._1).toString.toDouble))
     }
 }
 
@@ -118,9 +108,18 @@ class alCameoCalcData (item: alMaxRunning,
     override def receive: Receive = {
         case calc_unpkg(tid, _) => router ! calc_unpkg(tid, self)
 
-        case calc_data_start() =>
+        case calc_data_start() =>{
             alTempLog("C1. calc unzip => Success")
+
+            val msg = Map(
+                "type" -> "progress_calc",
+                "progress" -> "5",
+                "txt" -> "开始计算"
+            )
+            alWebSocket(item.uid).post(msg)
+
             router ! calc_data_hand2(item)
+        }
 
         case calc_data_hand2(splitResult) => {
             tol = splitResult.subs.length
@@ -132,30 +131,20 @@ class alCameoCalcData (item: alMaxRunning,
                 alTempLog("C2. calc split => Success")
                 sed += 1
             }
-            shutCameo("End CalcHand Cameo")
+            shutCameo
         }
 
-        case calc_data_timeout() => {
-            log.info("timeout occur")
-            shutCameo(calc_data_timeout())
-        }
-
-        case calc_data_sum() => {
+        case calc_data_sum() =>
             router ! calc_data_average(item)
-            shutCameo("End CalcSum Cameo")
-        }
+            shutCameo
 
-        case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
+        case msg: Any =>
+            alTempLog(s"Warning! Message not delivered. alCameoCalcData.received_msg=$msg")
+            shutCameo
     }
 
-    val timeoutMessager = context.system.scheduler.scheduleOnce(6000 minute) {
-        self ! calc_data_timeout()
-    }
-
-    def shutCameo(msg : AnyRef) = {
-        log.info(s"stopping calc data cameo msg=${msg}")
-        timeoutMessager.cancel()
+    def shutCameo = {
+        alTempLog("stopping calc data cameo")
         self ! PoisonPill
     }
-
 }

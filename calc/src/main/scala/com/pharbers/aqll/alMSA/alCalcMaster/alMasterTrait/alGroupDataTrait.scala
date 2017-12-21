@@ -135,6 +135,10 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
             alTempLog("Warning! group data trait timeout")
             self ! group_data_end(false, item)
         }
+
+        case msg: AnyRef =>
+            alTempLog(s"Warning! Message not delivered. alCameoGroupData.received_msg=$msg")
+            shutCameo(msg)
     }
 
     def shutCameo(msg : AnyRef) = {
@@ -169,6 +173,5 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
         pp.precess(sg)
     }
 
-    def resetSubGrouping(mp : alMaxRunning) =
-        item.subs = item.subs.filterNot(x => x.tid == mp.tid) :+ mp
+    def resetSubGrouping(mp : alMaxRunning) = item.subs = item.subs.filterNot(x => x.tid == mp.tid) :+ mp
 }

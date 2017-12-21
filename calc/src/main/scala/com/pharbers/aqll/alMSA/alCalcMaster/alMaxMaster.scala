@@ -56,9 +56,9 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
 
         //calc module
         case pushCalcJob(item) => preCalcJob(item)
-        case sumCalcJob(items, s) => doSum(items, s)
         case calcSchedule() => calcScheduleJobs
-        case calc_data_result(uid, tid, v, u, result) => postCalcJob(uid, tid, v, u, result)
+        case sumCalcJob(items, s) => doSum(items, s)
+        case calcDataResult(result, uid) => postCalcJob(result, uid)
 
         //restore module
         case push_restore_job(uid) => preRestoreJob(uid, sender)

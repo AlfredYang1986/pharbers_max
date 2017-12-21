@@ -183,43 +183,49 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         alWebSocket(item.uid).post(msg)
     }
 
-    def postCalcJob(uid: String, tid: String, v: Double, u: Double, result: Boolean) {
-        var msg = Map[String, String]()
-        if (result) {
-            val phRedisSet= phRedisDriver().phSetDriver
-            val user_cr = s"calcResultUid${uid}"
-            val cr = s"calcResultTid${tid}"
-            val map = Map(user_cr -> cr, "value" -> v, "units" -> u)
-            phRedisSet.sadd(s"${user_cr}", map, dealSameMapFunc)
-
-            val redisDriver = rd
-            var sum = redisDriver.get(s"Uid${uid}calcSum").get.toInt
-            sum += 1
-            redisDriver.set(s"Uid${uid}calcSum", sum)
-            if(sum == core_number){
-                sum = 0
-                redisDriver.set(s"Uid${uid}calcSum", sum)
-                msg = Map(
-                    "type" -> "progress_calc",
-                    "txt" -> "计算完成",
-                    "progress" -> "11"
-                )
-                alWebSocket(uid).post(msg)
-                val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-                a ! refundNodeForRole("splitcalcslave")
-                self ! push_restore_job(uid)
-            }
-
-        } else {
-            msg = Map(
-                "type" -> "progress_calc",
-                "txt" -> "计算失败",
-                "progress" -> "12"
-            )
-            alWebSocket(uid).post(msg)
-            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-            a ! refundNodeForRole("splitcalcslave")
-        }
+    def postCalcJob(result: Boolean, uid: String) = {
+        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
+        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
+//        var msg = Map[String, String]()
+//        if (result) {
+//            val phRedisSet= phRedisDriver().phSetDriver
+//            val user_cr = s"calcResultUid${uid}"
+//            val cr = s"calcResultTid${tid}"
+//            val map = Map(user_cr -> cr, "value" -> v, "units" -> u)
+//            phRedisSet.sadd(s"${user_cr}", map, dealSameMapFunc)
+//
+//            val redisDriver = rd
+//            var sum = redisDriver.get(s"Uid${uid}calcSum").get.toInt
+//            sum += 1
+//            redisDriver.set(s"Uid${uid}calcSum", sum)
+//            if(sum == core_number){
+//                sum = 0
+//                redisDriver.set(s"Uid${uid}calcSum", sum)
+//                msg = Map(
+//                    "type" -> "progress_calc",
+//                    "txt" -> "计算完成",
+//                    "progress" -> "11"
+//                )
+//                alWebSocket(uid).post(msg)
+//                val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+//                a ! refundNodeForRole("splitcalcslave")
+//                self ! push_restore_job(uid)
+//            }
+//
+//        } else {
+//            msg = Map(
+//                "type" -> "progress_calc",
+//                "txt" -> "计算失败",
+//                "progress" -> "12"
+//            )
+//            alWebSocket(uid).post(msg)
+//            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+//            a ! refundNodeForRole("splitcalcslave")
+//        }
     }
 
     def preRestoreJob(uid: String, sender: ActorRef) ={

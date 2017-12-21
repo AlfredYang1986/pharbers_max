@@ -2,28 +2,27 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import java.io.File
 import java.util.UUID
-
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import scala.math.BigDecimal
+import akka.actor.{Actor, ActorLogging, Props}
+import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.bson.writer.bsonFlushMemory
+import com.pharbers.memory.pages.dirFlushMemory
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
-import com.pharbers.aqll.alCalaHelp.alMaxDefines._
-import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
-import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
-import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
-import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
-import com.pharbers.aqll.common.alDate.java.DateUtil
-import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
-import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
 import com.pharbers.baseModules.PharbersInjectModule
-import com.pharbers.bson.writer.{bsonFlushMemory, phBsonWriter}
-import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.common.alDate.java.DateUtil
 import com.pharbers.memory.pages.fop.dir.dirPageStorage
-import com.pharbers.memory.pages.{dirFlushMemory, pageMemory, pageMemory2}
+import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
+import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
+import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
+import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
+import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
+import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
 
 /**
   * Created by alfredyang on 13/07/2017.
@@ -71,7 +70,8 @@ class alCalcDataImpl extends Actor with ActorLogging{
             val f = (m1: Map[String, Any], m2: Map[String, Any]) => m1.map(x => x._1 -> (x._2.toString.toDouble + m2(x._1).toString.toDouble))
 
             maxSum.foreach { x =>
-                phRedisDriver().phSetDriver.sadd("segment:"+items.parent, alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
+                    //TODO key 没有唯一性
+                    phRedisDriver().phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
             }
 
             val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
@@ -79,82 +79,55 @@ class alCalcDataImpl extends Actor with ActorLogging{
         }
 
         case calc_data_average_one(avg_path, bsonpath) => sender ! calc_data_average_one(avg_path, bsonpath)
-        case calc_data_average_post(item, avg_path, bsonpath) => {
-            import scala.math.BigDecimal
-            log.info("&& T10 START &&")
-            val t10 = startDate()
-            val sub_uuid = item.tid
 
-            val path = s"${memorySplitFile}${calc}$sub_uuid"
+        case calc_data_average_post(item, avg_path, bsonpath) => {
+            val sub_uuid = item.tid
+            val path = s"$memorySplitFile$calc$sub_uuid"
             val dir = alFileOpt(path)
             if (!dir.isExists)
                 dir.createDir
-
-            bson_path = bson_path + s"/${bsonpath}"
+            bson_path = bson_path + bsonpath
             val dir2 = alFileOpt(bson_path)
             if (!dir2.isExists)
                 dir2.createDir
 
-            //            val source = alFileOpt(path + "/" + "data")
             val source = new File(path)
-            //            val bw_path = s"config/dumpdb/Max_Cores/${sub_uuid}.bson"
-            //            val bw = phBsonWriter(bw_path)
             val bfm = bsonFlushMemory(bson_path)
             if (source.exists && source.isDirectory) {
-
                 val avg = alFileOpt(avg_path).requestDataFromFile(x => x).map { x =>
                     val line_tmp = x.toString.split(",")
                     (line_tmp(0), line_tmp(1).toDouble, line_tmp(2).toDouble)
                 }
-
                 val dr = dirPageStorage(path)
                 dr.readAllData { line =>
-
-                    //                val page = pageMemory2(path + "/" + "data")
-                    //                val totalPage = page.pageCount.toInt
-                    //                (0 until totalPage) foreach { i =>
-                    //                    page.pageData(i).foreach { line =>
-
                     val mrd = alShareData.txt2WestMedicineIncome2(line)
                     val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
                     if (mrd.ifPanelAll == "1") {
                         mrd.set_finalResultsValue(mrd.sumValue)
                         mrd.set_finalResultsUnit(mrd.volumeUnit)
                     } else {
-                        avg.find(p => p._1 == seed.hashCode.toString).map { x =>
-                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation.get._2 * mrd.factor.toDouble).toString).toDouble)
-                        }.getOrElse(Unit)
+                        avg.find(p => p._1 == seed.hashCode.toString).foreach { x =>
+                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation().get._2 * mrd.factor).toString).toDouble)
+                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation().get._2 * mrd.factor).toString).toDouble)
+                        }
                     }
-                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
                     value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
+                    unit = BigDecimal((unit + mrd.finalResultsUnit).toString).toDouble
                     val map_tmp = westMedicineIncome2map(mrd)
-
-                    //                        bw.writeBsonFile2(bw.map2bson(map_tmp))
                     bfm.appendObject(bfm.map2bson(map_tmp))
                 }
-                //                }
-
                 bfm.close
-                //                bw.flush
-                //                bw.close
-                //                page.closeStorage
-
-                log.info(s"calc done at ${sub_uuid}")
-
+                alTempLog(s"C5 Calc write $sub_uuid bson => Success")
+                log.info(s"calc done at $sub_uuid")
             }
-            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-            a ! calc_data_result(item.uid, item.parent, value, unit, true)
-            endDate("&& T10 && ", t10)
-            log.info("&& T10 END &&")
+
+            sender ! calc_data_end(true, value, unit)
         }
 
-        case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
+        case msg: Any => alTempLog(s"Warning! Message not delivered. alCalcDataImpl.received_msg=$msg")
     }
 
-
     private def resignIntegratedData(parent_uuid: String)(group: alStorage): List[IntegratedData] = {
-        println("seed2")
         val recall = common_jobs()
         val path = s"$memorySplitFile$sync$parent_uuid"
         recall.cur = Some(alStage(alFileOpt(path).exHideListFile))
@@ -175,7 +148,6 @@ class alCalcDataImpl extends Actor with ActorLogging{
     private def max_precess(element: IntegratedData, sub_uuid: String, longPath: Option[String] = None)
                            (recall: List[IntegratedData])(uid: String) = {
         if (!longPath.isEmpty) {
-            println("seed1")
             val redisDriver = phRedisDriver().commonDriver
             val company = redisDriver.hget(uid, "company").get
 
@@ -232,13 +204,11 @@ class alCalcDataImpl extends Actor with ActorLogging{
           */
         if (mrd.ifPanelTouse == "1") {
             val seed = mrd.segment + mrd.minimumUnitCh + mrd.yearAndmonth.toString
-            println("seed")
              maxSum += seed.hashCode.toString ->
                  maxSum.find(p => p._1 == seed.hashCode.toString).map { x =>
                         (x._2._1 + mrd.sumValue, x._2._2 + mrd.volumeUnit, x._2._3 + mrd.selectvariablecalculation().get._2)
                 }.getOrElse((mrd.sumValue, mrd.volumeUnit, mrd.selectvariablecalculation().get._2))
         }
-        println("maxSum = " + maxSum)
         mrd.copy()
     }
 

@@ -69,7 +69,9 @@ class alCameoScp(item: alMaxRunning) extends Actor with ActorLogging {
         case pkgend(_) => scp_job
         case scpend(_) => scp_end
         case scp_timeout() => println("=====scp_timeout")
-        case msg : AnyRef => log.info(s"Warning! Message not delivered. alCameoCalcYM.received_msg=${msg}")
+        case msg: AnyRef =>
+            alTempLog(s"Warning! Message not delivered. alCameoScp.received_msg=$msg")
+            shutCameo
     }
 
     def pkg_job ={
