@@ -71,9 +71,8 @@ class alCalcYMCameo(calcYMJob: alPanelItem, counter: ActorRef) extends Actor wit
         }
 
         case calcYM_timeout() => {
-            log.info("Warning! calc ym timeout")
-            alTempLog("Warning! calc ym timeout")
-            self ! calcYM_end(false, " ", " ")
+//            log.info("timeout occur")
+//            shutSlaveCameo(calcYM_timeout())
         }
 
         case canDoRestart(reason: Throwable) => {

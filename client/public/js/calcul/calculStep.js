@@ -2,15 +2,21 @@
  * Created by yym on 11/7/17.
  */
 (function ($, w) {
-    //变量
+    "use strict";
+
+    // show_loading();
+
     var company = "";
     var isCalcDone = false;
     var sourceMap = {"cpa":"","gycx":""};
     var f = new Facade();
     var fileNames = [];
-    var mkt_lst = [];
-    var ym_mkt_num = 1;
+    var ym_mkt_num = 0;
     var rotate_name = "";
+
+    var panel_base_progress = 20;
+    var calc_base_progress = 0;
+    var result_base_progress = 0;
 
     $('#secondStep').hide();
     $('#sampleResult').hide();
@@ -19,9 +25,9 @@
 
     var toSecondStep = function () {
         rotate_name = "panel-rotate";
-        $('#firstStep').hide();
-        $('#secondStep').show();
-        $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
+        // $('#firstStep').hide();
+        // $('#secondStep').show();
+        // $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
             rotate_name = "panel-rotate";
             $('#firstStep').hide();
@@ -33,28 +39,25 @@
     var toThirdStep = function () {
         rotate_name = "calc-rotate";
         $('#sampleResult').hide();
+        $('#firstStep').hide();
+        $('#calculResult').hide();
+        $('#secondStep').hide();
         $('#thirdStep').show();
         $('.thd-img')[0].src = "/assets/images/calculStep/step3.png";
     };
 
     var toFourthStep = function () {
         $('#firstStep').hide();
+        $('#sampleResult').hide();
         $('#thirdStep').hide();
         $('.fth-img')[0].src = "/assets/images/calculStep/step4.png";
-        toCalculResult()
+        toCalculResult();
     };
 
     $("#check-btn").click(function(){check_file()});
     $("#generat-panel-btn").click(function(){generat_panel_action()});
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
-    //测试
-    /// $("#snd-btn").click(function () {toSecondStep()});
-    /// $("#sample-btn").click(function () {toSampleResult()});
-    /// $("#thd-btn").click(function () {toThirdStep()});
-    /// $("#calculInof").click(function(){toFourthStep()});
-    /// $("#test-show").click(function(){toFourthStep()});
-
 
     var check_file = function(){
         var info = $("#loadInof");
@@ -62,14 +65,13 @@
         info.text("MAX正在解析您的文件...");
         prograssBar(10, 2000, 0);
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-            var info = $("#loadInof");
             info.empty();
             info.text("MAX正在解析您的文件...");
             prograssBar(10, 2000, 0);
             var json = JSON.stringify({
                 "businessType": "/calcYM",
                 "company": company,
-                "uid": $.cookie('uid'),
+                "user": $.cookie('uid'),
                 "cpa": sourceMap.cpa,
                 "gycx": sourceMap.gycx
             });
@@ -90,11 +92,10 @@
             return;
         }
 
-        ym_mkt_num = ym_lst.length * mkt_lst.length;
         var json = JSON.stringify({
             "businessType": "/genternPanel",
             "company": company,
-            "uid": $.cookie('uid'),
+            "user": $.cookie('uid'),
             "cpa": sourceMap.cpa,
             "gycx": sourceMap.gycx,
             "ym": ym_lst
@@ -112,30 +113,37 @@
     var calc_action = function() {
         var json = JSON.stringify({
             "businessType": "/modelcalc",
-            "uid": $.cookie('uid')
+            "company": company,
+            "filename": fileNames,
+            "uid": $.cookie('uid'),
+            "imuname": ""//遗留症，必须传，重构时清理
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            prograssBar(99, 60000, 0);
+            prograssBar(98, 60000, 0);
         }, function(e){console.error(e)});
     };
 
     function toSampleResult() {
+        $('#firstStep').hide();
         $('#secondStep').hide();
+        $('#calculResult').hide();
+        $('#thirdStep').hide();
         $('#sampleResult').show();
-        loadLineChart("lineChart1");
-        loadLineChart("lineChart2");
-        loadBarChart("barChart1");
-        window.onload = function () {
-            loadLineChart("lineChart1");
-            loadLineChart("lineChart2");
-            loadBarChart("barChart1");
-        }
+
+        w.sample.query_selectBox();
+        w.sample.lineChart1().resize();
+        w.sample.lineChart2().resize();
+        w.sample.barChart().resize();
     }
 
     function toCalculResult() {
+        $('#firstStep').hide();
+        $('#secondStep').hide();
+        $('#sampleResult').hide();
         $('#thirdStep').hide();
         $('#calculResult').show();
+
         w.step_chart.barLineChart().resize();
         w.step_chart.mapChart().resize();
         w.step_chart.barChart().resize();
@@ -143,143 +151,10 @@
         w.step_chart.query_data();
     }
 
-    var loadLineChart = function (id) {
-        var lineChart = echarts.init(document.getElementById(id));
-        var data = [220, 182, 191, 234, 190, 330, 310,50,200];
-        var markLineData = [];
-        for (var i = 1; i < data.length; i++) {
-            markLineData.push([{
-                xAxis: i - 1,
-                yAxis: data[i - 1],
-                value: (data[i] + data[i-1]).toFixed(2)
-            }, {
-                xAxis: i,
-                yAxis: data[i]
-            }]);
-        }
-        var option = {
-            tooltip : {
-                trigger: 'axis'
-            },
-            xAxis: {
-                splitNumber : 12,
-                data: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-            },
-            yAxis: {},
-            series: [{
-                type: 'line',
-                data : data,
-                lineStyle : {
-                    normal : {color : '#60B3AD'}
-                },
-                itemStyle : {
-                    normal : {color : '#60B3AD'}
-                },
-                markLine: {
-                    smooth: true,
-                    effect: {
-                        show: true
-                    },
-                    distance: 10,
-                    label: {
-                        normal: {
-                            position: 'middle'
-                        }
-                    },
-                    symbol: ['none', 'none'],
-                    data: markLineData
-                }
-            }]
-        };
-        lineChart.setOption(option);
-        $(window).resize(function() {
-            lineChart.resize();
-        });
-    };
-
-    var loadBarChart = function (id) {
-        var chart = echarts.init(document.getElementById(id));
-        var option = {
-            color: ['#3398DB'],
-            tooltip : {
-                trigger: 'axis',
-                axisPointer : {            // 坐标轴指示器，坐标轴触发有效
-                    type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-                }
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis : [
-                {
-                    type : 'category',
-                    data : ['13:00', '13:05', '13:10', '13:15', '13:20', '13:25', '13:30','13:35','13:40','13:45','13:50','13:55'],
-                    axisTick: {
-                        alignWithLabel: true
-                    }
-                }
-            ],
-            yAxis : [
-                {
-                    axisTick: {
-                        alignWithLabel: true
-                    }
-                }
-            ],
-            series : [
-                {
-                    name:'直接访问',
-                    type:'bar',
-                    barWidth: '40%',
-                    data:[1, 3, 2, 3, 4, 2, 1,3,3,2,3,2]
-                },
-
-            ],
-            label: {
-                normal: {
-                    show: true,
-                    position: 'top',
-                    formatter: '{c}'
-                }
-            },
-            itemStyle: {
-                normal: {
-
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                        offset: 0,
-                        color: 'rgba(17, 168,171, 1)'
-                    }, {
-                        offset: 1,
-                        color: 'rgba(17, 168,171, 0.1)'
-                    }]),
-                    shadowColor: 'rgba(0, 0, 0, 0.1)',
-                    shadowBlur: 10
-                }
-            }
-        };
-        chart.setOption(option);
-        $(window).resize(function() {
-            chart.resize();
-        });
-    };
-
-    var show_loading = function() {
-        $('.mask-layer').show();
-        $('.loading').show();
-    };
-    var hide_loading = function() {
-        $('.mask-layer').hide();
-        $('.loading').hide();
-    };
-
     query_company();
     load_cpa_source();
     load_gycx_source();
 
-    //函数
     function query_company() {
         layui.use('layer', function () {
             var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
@@ -391,9 +266,9 @@
                 toSecondStep();
                 progress_generat_panel(obj);
                 break;
-            case 'generate_panel_result':
+            case 'generat_panel_result':
                 toSecondStep();
-                generate_panel_result(obj);
+                generat_panel_result(obj);
                 break;
             case 'progress_calc':
                 toThirdStep();
@@ -406,7 +281,6 @@
                 txt(obj);
                 break;
             case 'error':
-                console.info(obj);
                 layui.use('layer', function () {
                     layer.msg(obj.error);
                 });
@@ -429,6 +303,7 @@
 
         $ym_div.empty();
         sample_month.empty();
+
         if(obj.ym === "0"){
             alert("无法解析月份，请刷新重试")
         }else{
@@ -443,7 +318,6 @@
         }
     };
 
-    var panel_base_progress = 20;
     var progress_generat_panel = function (obj) {
         console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
@@ -455,7 +329,7 @@
         }
     };
 
-    var generate_panel_result = function (obj) {
+    var generat_panel_result = function (obj) {
         console.info(obj);
         layer.msg("panel生成完成");
         var result = JSON.parse(obj.result);
@@ -466,26 +340,23 @@
                 });
             });
         });
-        toSampleResult();
+        setTimeout(function(){toSampleResult()}, 1000);
     };
 
-    var calc_base_progress = 0;
+
     var progress_calc = function(obj) {
-        console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
         if(progress === "100"){
             calc_base_progress += 1;
             if(calc_base_progress === ym_mkt_num){
-                prograssBar(100, 300, 99);
+                prograssBar(100, 300, 98);
                 alert("计算完成");
                 isCalcDone = true;
             }
         }
     };
 
-    var result_base_progress = 0;
     var progress_calc_result = function(obj) {
-        console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
         if(progress === "100"){
             result_base_progress += 1;
@@ -586,6 +457,5 @@
 
         rotate.setOption(option);
     };
-
 
 }(jQuery, window));

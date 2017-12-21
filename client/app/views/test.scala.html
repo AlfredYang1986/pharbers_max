@@ -2,12 +2,8 @@
     @*<script src="@routes.Assets.versioned("js/test/test-im.js")" defer="defer"></script>*@
 
     <center style="height: 100%">
-        @*<button id="test-websocket">Fuck</button>*@
-        <div id="market-trend" class="market-trend" style="width: 100%; height: 100%;"></div>
-        <div id="market-map" class="market-map" style="width: 100%; height: 100%;"></div>
-        <div id="market-bar" class="market-map" style="width: 100%; height: 100%;"></div>
     </center>
-    <script src="@routes.Assets.versioned("eachars3.0/echarts.js")"></script>
-    <script src="@routes.Assets.versioned("eachars3.0/china.js")"></script>
-    <script src="@routes.Assets.versioned("js/test/test-calc-chack-result.js")" defer="defer"></script>
+    <script>
+            $.getScript('@routes.Assets.versioned("js/test/test-other.js")');
+    </script>
 }

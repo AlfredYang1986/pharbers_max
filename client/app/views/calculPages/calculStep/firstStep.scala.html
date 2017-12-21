@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/sampleResult.css")">
     <link rel="stylesheet" href="@routes.Assets.versioned("css/calcul/calculResult.css")">
 } {
-    <div id="firstStep" class="row">
+    <div id="firstStep" class="row upload-file-source">
         <div class="col-sm-1 col-lg-1"></div>
         <div class="col-sm-10">
             <div class="row">
@@ -36,7 +36,6 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
                 <div class="col-md-2"></div>
@@ -68,10 +67,6 @@
     @calculPages.calculStep.sampleResult()
     @calculPages.calculStep.thirdStep()
     @calculPages.calculStep.calculResult()
-    <div class="mask-layer"></div>
-    <div class="loading"><i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size: 48px;
-        color: #008B7D;">&#x1002;</i></div>
-
 } {
     @calculPages.calculStep.backCheck()
     @calculPages.calculStep.monthChoose()

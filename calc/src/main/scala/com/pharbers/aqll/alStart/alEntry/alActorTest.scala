@@ -27,15 +27,15 @@ object alActorTest extends App {
 				redisDriver.hset(uid, "company", company)
 
 				//test calc ym
-				if (false) {
+				if(false){
 					println("======================================== test calc ym")
-					agent ! startCalcYm(alPanelItem(company, uid, cpa_file_local, gycx_file_local))
+					a ! pushCalcYMJob(alPanelItem(company, uid, cpa_file_local, gycx_file_local))
 				}
 
 				//test generter panel
-				if (false) {
+				if(false) {
 					println("================================== test generter panel")
-					agent ! startGeneratePanel(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
+					a ! pushGeneratePanelJob(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
 					Thread.sleep(300000)
 				} else if(true){
 					println("================================== write panel to redis")
@@ -63,7 +63,7 @@ object alActorTest extends App {
 					Thread.sleep(3000)
 				}
 
-				//test calc
+				//test split -> group -> calc -> bson
 				if(true){
 					println("===================== test split -> group -> calc -> bson")
 					agent ! startCalc(uid)

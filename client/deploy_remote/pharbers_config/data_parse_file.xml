@@ -1,0 +1,14 @@
+<pharbers-modules>
+    <data-parse>
+        <contrast_file_path value="/mnt/config/FileBase"/>
+        <client_file_path value=""/>
+        <product_vs_ims_file value="" />
+        <universe_inf_file value="/Manage/matchFile/universe_##market##_online.xlsx" />
+        <markets_file value="" />
+        <unpublished_hos_file value="" />
+        <fill_hos_data_file value="" />
+        <cache_file value="" />
+        <output_file value="/Output/" />
+        <makets value="" />
+    </data-parse>
+</pharbers-modules>
