@@ -1,8 +1,5 @@
 var show_loading = function() {
-    var $h = $('.container-fluid').height();
-    $('.mask-layer').css({
-        "height": $h
-    }).show();
+    $('.mask-layer').show();
     $('.loading').show();
 };
 var hide_loading = function() {

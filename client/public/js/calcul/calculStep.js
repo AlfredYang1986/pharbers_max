@@ -4,6 +4,8 @@
 (function ($, w) {
     "use strict";
 
+    // show_loading();
+
     var company = "";
     var isCalcDone = false;
     var sourceMap = {"cpa":"","gycx":""};
@@ -12,6 +14,10 @@
     var ym_mkt_num = 0;
     var rotate_name = "";
 
+    var panel_base_progress = 20;
+    var calc_base_progress = 0;
+    var result_base_progress = 0;
+
     $('#secondStep').hide();
     $('#sampleResult').hide();
     $('#thirdStep').hide();
@@ -19,9 +25,9 @@
 
     var toSecondStep = function () {
         rotate_name = "panel-rotate";
-        $('#firstStep').hide();
-        $('#secondStep').show();
-        $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
+        // $('#firstStep').hide();
+        // $('#secondStep').show();
+        // $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
             rotate_name = "panel-rotate";
             $('#firstStep').hide();
@@ -33,12 +39,16 @@
     var toThirdStep = function () {
         rotate_name = "calc-rotate";
         $('#sampleResult').hide();
+        $('#firstStep').hide();
+        $('#calculResult').hide();
+        $('#secondStep').hide();
         $('#thirdStep').show();
         $('.thd-img')[0].src = "/assets/images/calculStep/step3.png";
     };
 
     var toFourthStep = function () {
         $('#firstStep').hide();
+        $('#sampleResult').hide();
         $('#thirdStep').hide();
         $('.fth-img')[0].src = "/assets/images/calculStep/step4.png";
         toCalculResult();
@@ -48,8 +58,6 @@
     $("#generat-panel-btn").click(function(){generat_panel_action()});
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
-
-    // $('#test-calc-result').click(function(){toFourthStep()});
 
     var check_file = function(){
         var info = $("#loadInof");
@@ -117,7 +125,10 @@
     };
 
     function toSampleResult() {
+        $('#firstStep').hide();
         $('#secondStep').hide();
+        $('#calculResult').hide();
+        $('#thirdStep').hide();
         $('#sampleResult').show();
 
         w.sample.query_selectBox();
@@ -127,8 +138,12 @@
     }
 
     function toCalculResult() {
+        $('#firstStep').hide();
+        $('#secondStep').hide();
+        $('#sampleResult').hide();
         $('#thirdStep').hide();
         $('#calculResult').show();
+
         w.step_chart.barLineChart().resize();
         w.step_chart.mapChart().resize();
         w.step_chart.barChart().resize();
@@ -303,7 +318,6 @@
         }
     };
 
-    var panel_base_progress = 20;
     var progress_generat_panel = function (obj) {
         console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
@@ -329,7 +343,7 @@
         setTimeout(function(){toSampleResult()}, 1000);
     };
 
-    var calc_base_progress = 0;
+
     var progress_calc = function(obj) {
         var progress = window.socket.getValue(obj)('progress');
         if(progress === "100"){
@@ -342,7 +356,6 @@
         }
     };
 
-    var result_base_progress = 0;
     var progress_calc_result = function(obj) {
         var progress = window.socket.getValue(obj)('progress');
         if(progress === "100"){

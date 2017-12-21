@@ -1,13 +1,15 @@
 @(title: String)(content: Html)
 @main(title) {
-    <body>
-        <div class="logo">
-            <span class="logo-font">Pharbers&nbsp;&nbsp;数据平台</span>
+    <div class="mask-layer"></div>
+    <div class="loading">
+        <i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size: 48px;color: #008B7D;">&#x1002;</i>
+    </div>
+    <div class="logo">
+        <span class="logo-font">Pharbers&nbsp;&nbsp;数据平台</span>
+    </div>
+    <div class="center-content fullHeight">
+        <div class="container-fluid fullHeight">
+            @content
         </div>
-        <div class="center-content fullHeight">
-            <div class="container-fluid fullHeight">
-                @content
-            </div>
-        </div>
-    </body>
+    </div>
 }
