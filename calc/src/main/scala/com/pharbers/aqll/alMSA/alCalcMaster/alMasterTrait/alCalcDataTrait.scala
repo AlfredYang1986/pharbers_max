@@ -113,8 +113,8 @@ class alCameoCalcData (item: alMaxRunning,
 
             val msg = Map(
                 "type" -> "progress_calc",
-                "progress" -> "5",
-                "txt" -> "开始计算"
+                "txt" -> "开始计算",
+                "progress" -> "5"
             )
             alWebSocket(item.uid).post(msg)
 

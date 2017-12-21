@@ -96,7 +96,7 @@ class alCameoScp(item: alMaxRunning) extends Actor with ActorLogging {
 
         val sync_map = Map(
             "file" -> s"$memorySplitFile$sync${item.tid}.tar.gz",
-            "target" -> s"$scpPath}$sync"
+            "target" -> s"$scpPath$sync"
         )
         val group_map = Map(
             "file" -> s"$memorySplitFile$group${item.tid}.tar.gz",
