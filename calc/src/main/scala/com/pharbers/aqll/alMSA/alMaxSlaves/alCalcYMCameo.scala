@@ -10,8 +10,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 
 /**
   * Created by jeorch on 17-10-11.
@@ -90,7 +90,6 @@ class alCalcYMCameo(calcYMJob: alPanelItem, counter: ActorRef) extends Actor wit
 
         case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alCalcYMCameo.received_msg=$msg")
     }
-
 
     def shutSlaveCameo(msg: AnyRef) = {
         timeoutMessager.cancel()

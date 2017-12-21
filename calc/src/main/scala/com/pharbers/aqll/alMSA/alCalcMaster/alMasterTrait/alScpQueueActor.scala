@@ -58,6 +58,7 @@ object alCameoScp {
     def props(item: alMaxRunning) = Props(new alCameoScp(item))
 }
 
+//scp cuowu chuli
 class alCameoScp(item: alMaxRunning) extends Actor with ActorLogging {
     //TODO shijian chuan can
     val timeoutMessager = context.system.scheduler.scheduleOnce(30 minute) {

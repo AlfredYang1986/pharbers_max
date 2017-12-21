@@ -7,12 +7,11 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanelMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg._
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
 
 /**
   * Created by clock on 2017.12.18
@@ -58,12 +57,12 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case pushCalcJob(item) => preCalcJob(item)
         case calcSchedule() => calcScheduleJobs
         case sumCalcJob(items, s) => doSum(items, s)
-        case calcDataResult(result, uid) => postCalcJob(result, uid)
+        case calcDataResult(result, uid, panel) => postCalcJob(result, uid, panel)
 
         //restore module
-        case push_restore_job(uid) => preRestoreJob(uid, sender)
-        case restore_bson_schedule() => schduleRestoreJob
-        case restore_bson_end(bool, uid) => postRestoreJob(bool, uid)
+        case pushRestoreJob(uid, panel) => preRestoreJob(uid, panel)
+        case restoreBsonSchedule() => restoreSchduleJobs
+        case restoreBsonResult(result, uid) => postRestoreJob(result, uid)
 
         //Energy Manage
         case refundNodeSuccess() => Unit

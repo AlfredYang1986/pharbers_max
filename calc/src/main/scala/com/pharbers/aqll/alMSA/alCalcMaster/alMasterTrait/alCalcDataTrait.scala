@@ -95,18 +95,18 @@ trait alCalcDataTrait { this : Actor =>
 }
 
 object alCameoCalcData {
-    def props(item: alMaxRunning, router: ActorRef) = Props(new alCameoCalcData(item, router))
+    def props(item: alMaxRunning, slaveActor: ActorRef) = Props(new alCameoCalcData(item, slaveActor))
 }
 
 class alCameoCalcData (item: alMaxRunning,
-                       router: ActorRef) extends Actor with ActorLogging {
+                       slaveActor: ActorRef) extends Actor with ActorLogging {
     val core_number = server_info.cpu
     var sed = 0
     var cur = 0
     var tol = 0
 
     override def receive: Receive = {
-        case calc_unpkg(tid, _) => router ! calc_unpkg(tid, self)
+        case calc_unpkg(tid, _) => slaveActor ! calc_unpkg(tid, self)
 
         case calc_data_start() =>{
             alTempLog("C1. calc unzip => Success")
@@ -118,7 +118,7 @@ class alCameoCalcData (item: alMaxRunning,
             )
             alWebSocket(item.uid).post(msg)
 
-            router ! calc_data_hand2(item)
+            slaveActor ! calc_data_hand2(item)
         }
 
         case calc_data_hand2(splitResult) => {
@@ -135,7 +135,7 @@ class alCameoCalcData (item: alMaxRunning,
         }
 
         case calc_data_sum() =>
-            router ! calc_data_average(item)
+            slaveActor ! calc_data_average(item)
             shutCameo
 
         case msg: Any =>

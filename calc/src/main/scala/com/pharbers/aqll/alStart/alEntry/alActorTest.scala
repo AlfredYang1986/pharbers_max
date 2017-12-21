@@ -1,11 +1,13 @@
 package com.pharbers.aqll.alStart.alEntry
 
 import java.util.UUID
+
 import akka.cluster.Cluster
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg.pushRestoreJob
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
@@ -37,7 +39,7 @@ object alActorTest extends App {
 					println("================================== test generter panel")
 					agent ! startGeneratePanel(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
 					Thread.sleep(300000)
-				} else if(true){
+				} else if(false){
 					println("================================== write panel to redis")
 					val rid = UUID.randomUUID().toString
 					redisDriver.hset(uid, "rid", rid)
@@ -65,7 +67,7 @@ object alActorTest extends App {
 				//test calc
 				if(true){
 					println("===================== test split -> group -> calc -> bson")
-					agent ! startCalc(uid)
+					agent ! pushRestoreJob(uid, "CPA_GYCX_panel_201705INF.xlsx")
 				}
 			}
 		}

@@ -13,6 +13,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, PoisonPill, Props, SupervisorStrategy}
@@ -94,8 +95,8 @@ class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor wi
 
                 if(sum == core_number){
                     rd.set("sum:"+item.tid, 0)
-                    alTempLog("calc data => Success")
-                    shutComeoAndSendAgent(calcDataResult(true, item.uid))
+                    alTempLog("Calc data => Success")
+                    shutComeoAndSendAgent(calcDataResult(true, item.uid, item.parent))
                 }
             } else {
                 rd.set("sum:"+item.tid, 0)
@@ -105,14 +106,14 @@ class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor wi
                 )
                 alWebSocket(item.uid).post(msg)
                 alTempLog("calc data => Failed")
-                shutComeoAndSendAgent(calcDataResult(false, item.uid))
+                shutComeoAndSendAgent(calcDataResult(false, item.uid, item.parent))
             }
         }
 
         case calc_data_timeout() => {
             log.info("Warning! calc data timeout")
             alTempLog("Warning! calc data timeout")
-            shutComeoAndSendAgent(calcDataResult(false, item.uid))
+            shutComeoAndSendAgent(calcDataResult(false, item.uid, item.parent))
         }
 
         case canDoRestart(reason: Throwable) => {
@@ -124,7 +125,7 @@ class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor wi
         case cannotRestart(reason: Throwable) => {
             log.info(s"Warning! calc_data Node reason is $reason")
             alTempLog(s"Warning! calc_data Node cannotRestart, reason is $reason")
-            shutComeoAndSendAgent(calcDataResult(false, item.uid))
+            shutComeoAndSendAgent(calcDataResult(false, item.uid, item.parent))
         }
 
         case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alCalcDataComeo.received_msg=$msg")

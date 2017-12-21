@@ -2,6 +2,7 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import java.io.File
 import java.util.UUID
+
 import scala.math.BigDecimal
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.driver.redis.phRedisDriver
@@ -18,6 +19,7 @@ import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
 import com.pharbers.aqll.alCalc.almodel.scala.westMedicineIncome
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alCalaHelp.alFinalDataProcess.alBsonPath
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.alCalc.almain.{alSegmentGroup, alShareData}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
@@ -31,14 +33,6 @@ import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_cal
 
 object alCalcDataImpl {
     def props = Props[alCalcDataImpl]
-}
-
-case class alBsonPath() extends PharbersInjectModule {
-    override val id: String = "calc-path"
-    override val configPath: String = "pharbers_config/calc_path.xml"
-    override val md = "bson-path" :: "hosp" :: "field-names-hosp" :: "integrated" :: "field-names-integrated" :: Nil
-
-    val bson_file_path = config.mc.find(p => p._1 == "bson-path").get._2.toString
 }
 
 class alCalcDataImpl extends Actor with ActorLogging{

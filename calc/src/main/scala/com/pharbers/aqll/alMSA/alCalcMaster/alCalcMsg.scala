@@ -88,12 +88,12 @@ object alCalcMsg {
         case class unpkgend(s: ActorRef) extends stop(2, "unpkg")
     }
 
-    //calc module
+    //calc data module
     object calcMsg {
         case class pushCalcJob(item: alMaxRunning)
         case class sumCalcJob(items: alMaxRunning, s: ActorRef)
         case class calcSchedule()
-        case class calcDataResult(result: Boolean, uid: String)
+        case class calcDataResult(result: Boolean, uid: String, panel: String)
 
         case class calc_unpkg(tid: String, s: ActorRef)
         case class calc_data_start()
@@ -108,5 +108,27 @@ object alCalcMsg {
         case class calc_data_average_post(item: alMaxRunning, avg_path: String, bsonpath: String)
         case class calc_data_end(result: Boolean, v: Double, u: Double)
         case class calc_data_timeout()
+    }
+
+    // restore bson module
+    object restoreMsg {
+        case class pushRestoreJob(uid: String, panel: String)
+        case class restoreBsonSchedule()
+        case class restoreBsonResult(result: Boolean, uid: String)
+
+        case class restore_bson_start()
+        case class restore_bson_hand()
+        case class restore_bson_start_impl(uid: String, panel: String)
+        case class restore_bson_end(result: Boolean)
+        case class restore_bson_timeout()
+    }
+
+    /**
+      * for reStart count
+      */
+    object reStartMsg {
+        case class canIReStart(reason: Throwable)
+        case class canDoRestart(reason: Throwable)
+        case class cannotRestart(reason: Throwable)
     }
 }

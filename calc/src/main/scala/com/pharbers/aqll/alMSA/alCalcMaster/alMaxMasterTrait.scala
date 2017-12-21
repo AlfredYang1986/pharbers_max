@@ -1,29 +1,28 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
-
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg.pushGroupJob
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.pushScpJob
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg.pushCalcJob
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg.pushRestoreJob
 
 import java.util.UUID
-
+import akka.actor.Actor
+import com.redis.RedisClient
 import play.api.libs.json.JsValue
-import akka.actor.{Actor, ActorRef}
 import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
+import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.push_restore_job
-import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
                         with alCalcDataTrait with alRestoreBsonTrait{ this : Actor =>
-    val rd =  phRedisDriver().commonDriver
+    val rd: RedisClient =  phRedisDriver().commonDriver
 
     def preCalcYMJob(item: alPanelItem): Unit = {
         pushCalcYMJobs(item)
@@ -156,11 +155,11 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         agent ! refundNodeForRole("splitgroupslave")
     }
 
-    def preScpJob(item: alMaxRunning) ={
+    def preScpJob(item: alMaxRunning): Unit ={
         pushScpJobs(item)
     }
 
-    def postScpJob(item: alMaxRunning) ={
+    def postScpJob(item: alMaxRunning): Unit ={
         releaseScpEnergy
         self ! pushCalcJob(item)
 
@@ -172,7 +171,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         alWebSocket(item.uid).post(msg)
     }
 
-    def preCalcJob(item: alMaxRunning) ={
+    def preCalcJob(item: alMaxRunning): Unit ={
         pushCalcJobs(item)
 
         val msg = Map(
@@ -183,80 +182,46 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         alWebSocket(item.uid).post(msg)
     }
 
-    def postCalcJob(result: Boolean, uid: String) = {
-        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
-        println("aaaaaaaaaaaaaaaaaaaaaaaaaa")
-//        var msg = Map[String, String]()
-//        if (result) {
-//            val phRedisSet= phRedisDriver().phSetDriver
-//            val user_cr = s"calcResultUid${uid}"
-//            val cr = s"calcResultTid${tid}"
-//            val map = Map(user_cr -> cr, "value" -> v, "units" -> u)
-//            phRedisSet.sadd(s"${user_cr}", map, dealSameMapFunc)
-//
-//            val redisDriver = rd
-//            var sum = redisDriver.get(s"Uid${uid}calcSum").get.toInt
-//            sum += 1
-//            redisDriver.set(s"Uid${uid}calcSum", sum)
-//            if(sum == core_number){
-//                sum = 0
-//                redisDriver.set(s"Uid${uid}calcSum", sum)
-//                msg = Map(
-//                    "type" -> "progress_calc",
-//                    "txt" -> "计算完成",
-//                    "progress" -> "11"
-//                )
-//                alWebSocket(uid).post(msg)
-//                val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-//                a ! refundNodeForRole("splitcalcslave")
-//                self ! push_restore_job(uid)
-//            }
-//
-//        } else {
-//            msg = Map(
-//                "type" -> "progress_calc",
-//                "txt" -> "计算失败",
-//                "progress" -> "12"
-//            )
-//            alWebSocket(uid).post(msg)
-//            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-//            a ! refundNodeForRole("splitcalcslave")
-//        }
+    def postCalcJob(result: Boolean, uid: String, panel: String): Unit = {
+        alTempLog(s"calc data result = $result")
+        if(result) {
+            self ! pushRestoreJob(uid, panel)
+
+            val msg = Map(
+                "type" -> "progress_calc",
+                "txt" -> "计算完成",
+                "progress" -> "90"
+            )
+            alWebSocket(uid).post(msg)
+        }
+
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitcalcslave")
     }
 
-    def preRestoreJob(uid: String, sender: ActorRef) ={
-        println("正在入库")
-        pushRestoreJob(uid, sender)
+    def preRestoreJob(uid: String, panel: String): Unit ={
+        pushRestoreJobs(uid, panel)
+
         val msg = Map(
             "type" -> "progress_calc",
             "txt" -> "正在入库",
-            "progress" -> "13"
+            "progress" -> "91"
         )
         alWebSocket(uid).post(msg)
     }
 
-    def postRestoreJob(bool: Boolean, uid: String) ={
-        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-        a ! refundNodeForRole("splitrestorebsonslave")
-        println(s"还原数据库结果 => ${bool}")
-        var msg = Map[String, String]()
-        if (bool) {
-            msg = Map(
+    def postRestoreJob(result: Boolean, uid: String): Unit ={
+        alTempLog(s"restore bosn result = $result")
+        if(result){
+            val msg = Map(
                 "type" -> "progress_calc_result",
                 "txt" -> "入库完成",
                 "progress" -> "100"
             )
-        } else {
-            msg = Map(
-                "type" -> "progress_calc_result",
-                "txt" -> "入库失败",
-                "progress" -> "100"
-            )
+            alWebSocket(uid).post(msg)
         }
-        alWebSocket(uid).post(msg)
+
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitrestorebsonslave")
     }
 }
