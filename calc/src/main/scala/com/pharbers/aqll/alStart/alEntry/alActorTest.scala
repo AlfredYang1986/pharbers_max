@@ -29,13 +29,13 @@ object alActorTest extends App {
 				//test calc ym
 				if(false){
 					println("======================================== test calc ym")
-					a ! pushCalcYMJob(alPanelItem(company, uid, cpa_file_local, gycx_file_local))
+					agent ! startCalcYm(alPanelItem(company, uid, cpa_file_local, gycx_file_local))
 				}
 
 				//test generter panel
 				if(false) {
 					println("================================== test generter panel")
-					a ! pushGeneratePanelJob(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
+					agent ! startGeneratePanel(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
 					Thread.sleep(300000)
 				} else if(true){
 					println("================================== write panel to redis")

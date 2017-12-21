@@ -91,7 +91,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
     def preSplitPanelJob(uid: String): Unit = {
         val rid = phRedisDriver().commonDriver.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
-        val panelLst = phRedisDriver().commonDriver.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
+        val panelLst = phRedisDriver().commonDriver.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
 
         panelLst.foreach{ panel =>
             pushSplitPanelJobs(alMaxRunning(uid, panel, rid))
