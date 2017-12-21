@@ -5,13 +5,15 @@ import akka.util.Timeout
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.SupervisorStrategy.Restart
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.generatePanel._
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.{generate_panel_end, generate_panel_hand, generate_panel_start_impl}
 
 /**
   * Created by jeorch on 17-10-11.
+  *     Modify by clock on 2017.12.19
   */
 object alGeneratePanelSlave {
     def props = Props[alGeneratePanelSlave]
@@ -25,29 +27,22 @@ class alGeneratePanelSlave extends Actor with ActorLogging {
 
     override def receive: Receive = {
         case generate_panel_hand() => {
+            //TODO ask shenyong
             implicit val t = Timeout(2 seconds)
             val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitgeneratepanelslave")
-//            val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
-            if (Await.result(f, t.duration).asInstanceOf[Boolean]) {
+            if (Await.result(f, t.duration).asInstanceOf[Boolean])
                 sender ! generate_panel_hand()
-            }
             else Unit
         }
 
-        case generate_panel_start_impl(panel_job) => {
+        case generate_panel_start_impl(panelJob) => {
             val counter = context.actorOf(alCommonErrorCounter.props)
-            val cur = context.actorOf(alGeneratePanelCameo.props(panel_job, sender, self, counter))
-            cur.tell(generate_panel_start_impl(panel_job), sender)
+            val cur = context.actorOf(alGeneratePanelCameo.props(panelJob, counter))
+            cur.tell(generate_panel_start_impl(panelJob), sender)
         }
 
-        case generate_panel_end(_, _) => {
-            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-            a ! refundNodeForRole("splitgeneratepanelslave")
-//            a ! refundNodeForRole("splitcalcslave") // 在一台机器上实现和计算的互斥
-        }
-
-        case msg : AnyRef => log.info(s"Warning! Message not delivered. alGeneratePanelSlave.received_msg=${msg}")
+        case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alGeneratePanelSlave.received_msg=$msg")
     }
 
 }

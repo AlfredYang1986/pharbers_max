@@ -3,14 +3,17 @@ package com.pharbers.aqll.alStart.alHttpFunc
 import akka.util.Timeout
 import akka.actor.ActorSystem
 import play.api.libs.json.Json._
+
 import scala.collection.immutable.Map
 import play.api.libs.json.Json.toJson
+
 import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
 import com.pharbers.aqll.alCalaHelp.alAkkaHttpJson.PlayJsonSupport
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.{alExport, alFileExport, alSampleCheck, alSampleCheckCommit}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{masterIP, pushCalcYMJob, pushGeneratePanelJob, pushSplitPanel}
 
 /**
   * Created by qianpeng on 2017/6/5.
@@ -67,7 +70,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("calcYM") {
 			entity(as[alCalcYmItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-				a ! pushCalcYMJob(alPanelItem(item.company, item.uid, item.cpa, item.gycx))
+				a ! startCalcYm(alPanelItem(item.company, item.uid, item.cpa, item.gycx))
 				complete(toJson(successToJson().get))
 			}
 		}
@@ -77,7 +80,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("genternPanel") {
 			entity(as[alPanelItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-				a ! pushGeneratePanelJob(item)
+				a ! startGeneratePanel(item)
 				complete(toJson(successToJson().get))
 			}
 		}
@@ -96,7 +99,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("modelcalc") {
 			entity(as[alCalcItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-				a ! pushSplitPanel(item.uid)
+				a ! startCalc(item.uid)
 				complete(toJson(successToJson().get))
 			}
 		}

@@ -2,11 +2,11 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
-import com.pharbers.aqll.alCalcOther.alMessgae.{alMessageProxy, alWebSocket}
+import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alCalcOther.alfinaldataprocess.alRestoreColl3
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.{restore_bson_end, restore_bson_start_impl, restore_bson_timeout}
 import com.pharbers.driver.redis.phRedisDriver
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 import scala.collection.immutable.Map
 import scala.concurrent.duration._
@@ -25,7 +25,7 @@ class alRestoreBsonComeo (val uid : String,
                           val originSender : ActorRef,
                           val owner : ActorRef,
                           val counter : ActorRef) extends Actor with ActorLogging {
-    override def postRestart(reason: Throwable) : Unit = {
+    override def postRestart(reason: Throwable) = {
         // TODO : 计算次数，重新计算
         counter ! canIReStart(reason)
     }

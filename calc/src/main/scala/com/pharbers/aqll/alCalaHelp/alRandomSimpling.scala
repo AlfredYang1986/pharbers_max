@@ -1,10 +1,11 @@
-package com.pharbers.aqll.alStart.alEntry
+package com.pharbers.aqll.alCalaHelp
 
 import scala.util.Random
 
 /**
   * Created by jeorch on 17-8-30.
   * 在start到end的范围内，抽取simpleCount个随机样例
+  * ///Random test use
   */
 trait alRandomSimpling {
     def getRandomSimplingList(start : Int, end : Int, simpleCount : Int) : List[Int] = {
@@ -17,7 +18,7 @@ trait alRandomSimpling {
             if (status(r)==0){
                 list = r :: list
                 r match {
-                    case x if(x == end) => status(r) = start
+                    case x if x == end => status(r) = start
                     case _ => status(r) = r + 1
                 }
             } else {
@@ -27,13 +28,12 @@ trait alRandomSimpling {
                 }while (status(temp) != 0)
                 list = temp :: list
                 temp match {
-                    case x if(x == end) => status(temp) = start
+                    case x if x == end => status(temp) = start
                     case _ => status(temp) = temp + 1
                 }
             }
 
         }
-//        println(s"最终结果${list}")
         list
     }
 }

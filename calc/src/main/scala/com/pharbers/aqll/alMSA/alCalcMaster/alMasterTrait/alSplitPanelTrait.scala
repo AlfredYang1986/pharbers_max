@@ -6,25 +6,27 @@ import scala.concurrent.stm._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.routing.BroadcastPool
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alMSA.alMaxSlaves.alSplitPanelSlave
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanel._
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{splitPanelResult, splitPanelSchedule}
 
 /**
   * Created by clock on 12/07/2017.
+  *     Modify by clock on 2017.12.19
   */
 trait alSplitPanelTrait { this : Actor =>
-    import scala.concurrent.ExecutionContext.Implicits.global
-
-    val split_router = createSplitExcelRouter
+    val split_router = createSplitPanelRouter
     val split_jobs = Ref(List[alMaxRunning]())
+    //TODO shijian chuan can
     val split_schdule = context.system.scheduler.schedule(1 second, 1 second, self, splitPanelSchedule())
 
-    def createSplitExcelRouter = context.actorOf(
+    def createSplitPanelRouter = context.actorOf(
             ClusterRouterPool(BroadcastPool(1),
                 ClusterRouterPoolSettings(
                     totalInstances = 1,
@@ -32,81 +34,59 @@ trait alSplitPanelTrait { this : Actor =>
                     allowLocalRoutees = false,
                     useRole = Some("splitsplitpanelslave")
                 )
-            ).props(alSplitPanelSlave.props), name = "split-excel-router")
-    def pushSplitPanelJob(item: alMaxRunning) = {
+            ).props(alSplitPanelSlave.props), name = "split-panel-router")
+
+    def pushSplitPanelJobs(item: alMaxRunning) = {
         atomic { implicit thx =>
             split_jobs() = split_jobs() :+ item
         }
     }
-    def canSchduleSplitPanelJob : Boolean = {
+
+    //TODO ask shenyong
+    def canSplitPanelJob : Boolean = {
         implicit val t = Timeout(2 seconds)
         val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         val f = a ? queryIdleNodeInstanceInSystemWithRole("splitsplitpanelslave")
-        Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
+        Await.result(f, t.duration).asInstanceOf[Int] > 0
     }
-    def schduleSplitPanelJob = {
-        if (canSchduleSplitPanelJob) {
+
+    def splitPanelSchduleJobs = {
+        if (canSplitPanelJob) {
             atomic { implicit thx =>
                 val tmp = split_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    doSplitPanel(tmp.head)
                     split_jobs() = split_jobs().tail
+                    doSplitPanel(tmp.head)
                 }
             }
         }
     }
+
     def doSplitPanel(item: alMaxRunning) = {
-        import alCameoSplitPanel._
-        val cur = context.actorOf(alCameoSplitPanel.props(item, self, split_router))
+        val cur = context.actorOf(alCameoSplitPanel.props(item, split_router))
         cur ! split_panel_start()
     }
 }
 
 object alCameoSplitPanel {
-    case class split_panel_start()
-    case class split_panel_hand()
-    case class split_panel_start_impl(item: alMaxRunning)
-    case class split_panel_end(item: alMaxRunning, parent: String, subs: List[String])
-    case class split_panel_timeout()
-
     def props(item: alMaxRunning,
-              masterActor: ActorRef,
-              slaveActor: ActorRef) = Props(new alCameoSplitPanel(item, masterActor, slaveActor))
+              slaveActor: ActorRef) = Props(new alCameoSplitPanel(item, slaveActor))
 }
 
-class alCameoSplitPanel(item: alMaxRunning,
-                        masterActor: ActorRef,
-                        slaveActor: ActorRef) extends Actor with ActorLogging {
-    import alCameoSplitPanel._
-
+class alCameoSplitPanel(item: alMaxRunning, slaveActor: ActorRef) extends Actor with ActorLogging {
     override def receive: Receive = {
-        case split_panel_timeout() => {
-            log.debug("timeout occur")
-            println("=====split_panel_timeout")
-//            shutCameo(split_panel_timeout())
-        }
-
         case split_panel_start() => slaveActor ! split_panel_hand()
-
-        case split_panel_hand() => {
+        case split_panel_hand() =>
             sender ! split_panel_start_impl(item)
-        }
-
-        case split_panel_end(result, p, sb) => {
-            masterActor ! splitPanelResult(result, p, sb)
             shutCameo
-        }
-    }
-
-    import scala.concurrent.ExecutionContext.Implicits.global
-    val split_timer = context.system.scheduler.scheduleOnce(10 minute) {
-        self ! split_panel_timeout()
+        case msg: AnyRef =>
+            alTempLog(s"Warning! Message not delivered. alCameoSplitPanel.received_msg=$msg")
+            shutCameo
     }
 
     def shutCameo = {
-        log.debug("stopping split excel cameo")
-        split_timer.cancel()
-        context.stop(self)
+        alTempLog("stopping split panel cameo")
+        self ! PoisonPill
     }
 }

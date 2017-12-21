@@ -4,14 +4,19 @@
 (function ($, w) {
     "use strict";
 
+    // show_loading();
+
     var company = "";
     var isCalcDone = false;
     var sourceMap = {"cpa":"","gycx":""};
     var f = new Facade();
     var fileNames = [];
-    var mkt_lst = [];
-    var ym_mkt_num = 1;
+    var ym_mkt_num = 0;
     var rotate_name = "";
+
+    var panel_base_progress = 20;
+    var calc_base_progress = 0;
+    var result_base_progress = 0;
 
     $('#secondStep').hide();
     $('#sampleResult').hide();
@@ -20,9 +25,9 @@
 
     var toSecondStep = function () {
         rotate_name = "panel-rotate";
-        $('#firstStep').hide();
-        $('#secondStep').show();
-        $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
+        // $('#firstStep').hide();
+        // $('#secondStep').show();
+        // $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
             rotate_name = "panel-rotate";
             $('#firstStep').hide();
@@ -34,28 +39,25 @@
     var toThirdStep = function () {
         rotate_name = "calc-rotate";
         $('#sampleResult').hide();
+        $('#firstStep').hide();
+        $('#calculResult').hide();
+        $('#secondStep').hide();
         $('#thirdStep').show();
         $('.thd-img')[0].src = "/assets/images/calculStep/step3.png";
     };
 
     var toFourthStep = function () {
         $('#firstStep').hide();
+        $('#sampleResult').hide();
         $('#thirdStep').hide();
         $('.fth-img')[0].src = "/assets/images/calculStep/step4.png";
-        toCalculResult()
+        toCalculResult();
     };
 
     $("#check-btn").click(function(){check_file()});
     $("#generat-panel-btn").click(function(){generat_panel_action()});
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
-    /// 测试
-    // $("#snd-btn").click(function () {toSecondStep()});
-    // $("#sample-btn").click(function () {toSampleResult()});
-    // $("#thd-btn").click(function () {toThirdStep()});
-    // $("#calculInof").click(function(){toFourthStep()});
-    // $('#test-step2').click(function () {toSampleResult()});
-
 
     var check_file = function(){
         var info = $("#loadInof");
@@ -69,7 +71,7 @@
             var json = JSON.stringify({
                 "businessType": "/calcYM",
                 "company": company,
-                "uid": $.cookie('uid'),
+                "user": $.cookie('uid'),
                 "cpa": sourceMap.cpa,
                 "gycx": sourceMap.gycx
             });
@@ -90,11 +92,10 @@
             return;
         }
 
-        ym_mkt_num = ym_lst.length * mkt_lst.length;
         var json = JSON.stringify({
             "businessType": "/genternPanel",
             "company": company,
-            "uid": $.cookie('uid'),
+            "user": $.cookie('uid'),
             "cpa": sourceMap.cpa,
             "gycx": sourceMap.gycx,
             "ym": ym_lst
@@ -112,7 +113,10 @@
     var calc_action = function() {
         var json = JSON.stringify({
             "businessType": "/modelcalc",
-            "uid": $.cookie('uid')
+            "company": company,
+            "filename": fileNames,
+            "uid": $.cookie('uid'),
+            "imuname": ""//遗留症，必须传，重构时清理
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
@@ -121,7 +125,10 @@
     };
 
     function toSampleResult() {
+        $('#firstStep').hide();
         $('#secondStep').hide();
+        $('#calculResult').hide();
+        $('#thirdStep').hide();
         $('#sampleResult').show();
 
         w.sample.query_selectBox();
@@ -131,8 +138,12 @@
     }
 
     function toCalculResult() {
+        $('#firstStep').hide();
+        $('#secondStep').hide();
+        $('#sampleResult').hide();
         $('#thirdStep').hide();
         $('#calculResult').show();
+
         w.step_chart.barLineChart().resize();
         w.step_chart.mapChart().resize();
         w.step_chart.barChart().resize();
@@ -270,7 +281,6 @@
                 txt(obj);
                 break;
             case 'error':
-                console.info(obj);
                 layui.use('layer', function () {
                     layer.msg(obj.error);
                 });
@@ -308,9 +318,6 @@
         }
     };
 
-
-
-    var panel_base_progress = 20;
     var progress_generat_panel = function (obj) {
         console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
@@ -336,9 +343,8 @@
         setTimeout(function(){toSampleResult()}, 1000);
     };
 
-    var calc_base_progress = 0;
+
     var progress_calc = function(obj) {
-        console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
         if(progress === "100"){
             calc_base_progress += 1;
@@ -350,9 +356,7 @@
         }
     };
 
-    var result_base_progress = 0;
     var progress_calc_result = function(obj) {
-        console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
         if(progress === "100"){
             result_base_progress += 1;
@@ -453,6 +457,5 @@
 
         rotate.setOption(option);
     };
-
 
 }(jQuery, window));

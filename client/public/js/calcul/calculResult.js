@@ -290,8 +290,6 @@ var step_chart = (function ($, w) {
             },
             legend: {
                 data: ['市场总销售额', '产品销售额'],
-                bottom:'10px',
-                right:'10px',
                 orient:'vertical'
             },
             grid: {

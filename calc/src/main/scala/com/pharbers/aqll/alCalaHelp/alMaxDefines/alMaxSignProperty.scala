@@ -1,16 +1,14 @@
 package com.pharbers.aqll.alCalaHelp.alMaxDefines
 
 import java.util.Calendar
-
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.stm.Ref
+import scala.collection.mutable.ListBuffer
 
 /**
   * Created by BM on 11/03/2017.
   */
 
-case class alMaxCrash(uuid: String)
-
+//TODO shan chu
 case class alCalcParmary(var company: String,
 						 var imuname: String,
 						 var uid: String = "",
@@ -21,12 +19,14 @@ case class alCalcParmary(var company: String,
 						 maxTimeTry: Int = 3,
 						 var faultTimes: Int = 0
                         )
-
+//TODO shanchu
 object alCalcParmary {
 	val alParmary = Ref(ListBuffer[alCalcParmary]())
 }
 
-object startDate {def apply(): Long = System.currentTimeMillis}
+object startDate {
+	def apply(): Long = System.currentTimeMillis
+}
 
 object endDate {
 	def apply(content: String, startDate: Long): Unit = {
@@ -36,5 +36,3 @@ object endDate {
 		println(s"$content 耗时 : ${c.get(Calendar.MINUTE)} 分, ${c.get(Calendar.SECOND)} 秒, ${c.get(Calendar.MILLISECOND)} 毫秒")
 	}
 }
-
-case class alMaxSignProperty (signed : Boolean)

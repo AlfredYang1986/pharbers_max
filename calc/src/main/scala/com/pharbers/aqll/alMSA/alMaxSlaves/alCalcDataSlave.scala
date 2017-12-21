@@ -7,11 +7,11 @@ import akka.util.Timeout
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{root, sync, group, calc, memorySplitFile}
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.{unpkgend, unpkgmsgMutiPath}
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, group, memorySplitFile, root, sync}
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
-import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor
-import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor.{unpkgend, unpkgmsgMutiPath}
+import com.pharbers.aqll.alMSA.alMaxCmdJob.alCmdActor
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 

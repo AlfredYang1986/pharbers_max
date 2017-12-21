@@ -8,7 +8,7 @@ import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import akka.pattern.ask
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

@@ -2,15 +2,16 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import scala.concurrent.stm._
 import scala.concurrent.duration._
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, Props}
 
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor
-import com.pharbers.aqll.alMSA.alMaxCmdMessage.alCmdActor._
+import com.pharbers.aqll.alMSA.alMaxCmdJob.alCmdActor
 import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoScp._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{masterIP, scpResult, scpSchedule}
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{sync, group, memorySplitFile, scpPath, user}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{scpResult, scpSchedule}
+import com.pharbers.aqll.common.alFileHandler.fileConfig.{group, memorySplitFile, scpPath, sync, user}
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -37,7 +38,6 @@ trait alScpQueueTrait { this: Actor =>
                         doScpJob(head)
                     }
                 }
-
                 case Nil => Unit
                 case _ => throw new Exception("queue error")
             }

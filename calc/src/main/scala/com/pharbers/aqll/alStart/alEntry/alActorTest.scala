@@ -1,13 +1,13 @@
 package com.pharbers.aqll.alStart.alEntry
 
 import java.util.UUID
-import akka.actor.ActorSystem
 import akka.cluster.Cluster
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcYMJob, pushGeneratePanelJob, pushSplitPanel}
-import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import com.pharbers.driver.redis.phRedisDriver
+import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.masterIP
+import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 object alActorTest extends App {
 	val config = ConfigFactory.load("split-test")
@@ -19,7 +19,7 @@ object alActorTest extends App {
 
 	if (system.settings.config.getStringList("akka.cluster.roles").contains("splittest")){
 		Cluster(system).registerOnMemberUp {
-			val a = system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+			val agent = system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
 			val redisDriver = phRedisDriver().commonDriver
 
 			(1 to 2) foreach { i =>
@@ -68,7 +68,7 @@ object alActorTest extends App {
 				//test split -> group -> calc -> bson
 				if(true){
 					println("===================== test split -> group -> calc -> bson")
-					a ! pushSplitPanel(uid)
+					agent ! startCalc(uid)
 				}
 			}
 		}
