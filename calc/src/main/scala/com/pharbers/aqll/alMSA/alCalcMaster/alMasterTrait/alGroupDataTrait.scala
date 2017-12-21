@@ -2,26 +2,29 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import akka.pattern.ask
 import akka.util.Timeout
+
 import scala.concurrent.stm._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.routing.BroadcastPool
+
 import scala.collection.immutable.Map
 import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
-import com.pharbers.aqll.alCalc.almodel.java.IntegratedData
-import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.group._
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.common_jobs
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.common_jobs
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
+import com.pharbers.aqll.alCalcHelp.alModel.java.IntegratedData
+import com.pharbers.aqll.alCalcHelp.alShareData
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 
@@ -114,12 +117,7 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
                     resetSubGrouping(groupResult)
                     if (cur == tol) {
                         unionResult
-                        val msg = Map(
-                            "type" -> "progress_calc",
-                            "txt" -> "数据分组完成",
-                            "progress" -> "2"
-                        )
-                        alWebSocket(groupResult.uid).post(msg)
+                        alTempLog("group data trait => Success")
                     }
                 case false => {
                     val msg = Map(
@@ -127,9 +125,11 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
                         "error" -> "cannot group data"
                     )
                     alWebSocket(groupResult.uid).post(msg)
+                    alTempLog("group data trait => Failed")
                 }
             }
 
+            groupResult.parent = item.parent // transmit panel id
             shutCameo(groupPanelResult(groupResult))
         }
 
@@ -138,6 +138,10 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
             alTempLog("Warning! group data trait timeout")
             self ! group_data_end(false, item)
         }
+
+        case msg: AnyRef =>
+            alTempLog(s"Warning! Message not delivered. alCameoGroupData.received_msg=$msg")
+            shutCameo(msg)
     }
 
     def shutCameo(msg : AnyRef) = {
@@ -172,6 +176,5 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
         pp.precess(sg)
     }
 
-    def resetSubGrouping(mp : alMaxRunning) =
-        item.subs = item.subs.filterNot(x => x.tid == mp.tid) :+ mp
+    def resetSubGrouping(mp : alMaxRunning) = item.subs = item.subs.filterNot(x => x.tid == mp.tid) :+ mp
 }

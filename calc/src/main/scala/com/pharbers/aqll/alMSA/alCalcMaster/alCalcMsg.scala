@@ -3,7 +3,7 @@ package com.pharbers.aqll.alMSA.alCalcMaster
 import akka.actor.ActorRef
 import play.api.libs.json.JsValue
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 
 /**
   * Created by clock on 17-12-18.
@@ -17,7 +17,7 @@ object alCalcMsg {
     object ymMsg {
         case class pushCalcYMJob(item: alPanelItem)
         case class calcYMSchedule()
-        case class calcYMResult(ym: List[String], mkt: List[String])
+        case class calcYMResult(uid: String, ym: String, mkt: String)
 
         case class calcYM_start()
         case class calcYM_hand()
@@ -27,7 +27,7 @@ object alCalcMsg {
     }
 
     //generate panel module
-    object generatePanel {
+    object panelMsg {
         case class pushGeneratePanelJob(item: alPanelItem)
         case class generatePanelSchedule()
         case class generatePanelResult(uid: String, panelResult: JsValue)
@@ -40,7 +40,7 @@ object alCalcMsg {
     }
 
     //split panel module
-    object splitPanel {
+    object splitPanelMsg {
         case class pushSplitPanel(uid: String)
         case class splitPanelSchedule()
         case class splitPanelResult(item: alMaxRunning, parent: String, subs: List[String])
@@ -53,7 +53,7 @@ object alCalcMsg {
     }
 
     //group module
-    object group {
+    object groupMsg {
         case class pushGroupJob(item: alMaxRunning)
         case class groupSchedule()
         case class groupPanelResult(item: alMaxRunning)
@@ -67,6 +67,14 @@ object alCalcMsg {
 
     //scp module
     object scpMsg {
+        case class pushScpJob(item: alMaxRunning)
+        case class scpSchedule()
+        case class scpResult(item: alMaxRunning)
+
+        case class scp_pkg()
+        case class scp_unpkg()
+        case class scp_timeout()
+
         case class pkgmsg(file: List[String], target: String)
         case class pkgmsgMuti(targets: List[Map[String, String]])
         case class scpmsg(file: String, target: String, host: String, user: String)
@@ -78,5 +86,49 @@ object alCalcMsg {
         case class scpend(s: ActorRef) extends stop(0, "scp")
         case class pkgend(s: ActorRef) extends stop(1, "pkg")
         case class unpkgend(s: ActorRef) extends stop(2, "unpkg")
+    }
+
+    //calc data module
+    object calcMsg {
+        case class pushCalcJob(item: alMaxRunning)
+        case class sumCalcJob(items: alMaxRunning, s: ActorRef)
+        case class calcSchedule()
+        case class calcDataResult(result: Boolean, uid: String, panel: String)
+
+        case class calc_unpkg(tid: String, s: ActorRef)
+        case class calc_data_start()
+        case class calc_data_hand()
+        case class calc_data_hand2(item: alMaxRunning)
+        case class calc_data_start_impl(item: alMaxRunning)
+        case class calc_data_start_impl3(sub_item: alMaxRunning, items: alMaxRunning)
+        case class calc_data_sum()
+        case class calc_data_average(item: alMaxRunning)
+        case class calc_data_average_pre(avg_path: String)
+        case class calc_data_average_one(avg_path: String, bsonpath: String)
+        case class calc_data_average_post(item: alMaxRunning, avg_path: String, bsonpath: String)
+        case class calc_data_end(result: Boolean, v: Double, u: Double)
+        case class calc_data_timeout()
+    }
+
+    // restore bson module
+    object restoreMsg {
+        case class pushRestoreJob(uid: String, panel: String)
+        case class restoreBsonSchedule()
+        case class restoreBsonResult(result: Boolean, uid: String)
+
+        case class restore_bson_start()
+        case class restore_bson_hand()
+        case class restore_bson_start_impl(uid: String, panel: String)
+        case class restore_bson_end(result: Boolean)
+        case class restore_bson_timeout()
+    }
+
+    /**
+      * for reStart count
+      */
+    object reStartMsg {
+        case class canIReStart(reason: Throwable)
+        case class canDoRestart(reason: Throwable)
+        case class cannotRestart(reason: Throwable)
     }
 }

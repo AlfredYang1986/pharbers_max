@@ -6,7 +6,7 @@ import scala.concurrent.stm._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcYMSlave
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -22,7 +22,7 @@ import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstance
   */
 trait alCalcYMTrait { this : Actor =>
     val calcYM_router = createCalcYMRouter
-    val calc_ym_jobs = Ref(List[alPanelItem]())
+    val calcYMJobs = Ref(List[alPanelItem]())
     //TODO shijian chuan can
     val calc_ym_schedule = context.system.scheduler.schedule(1 second, 1 second, self, calcYMSchedule())
 
@@ -38,7 +38,7 @@ trait alCalcYMTrait { this : Actor =>
 
     def pushCalcYMJobs(item: alPanelItem) = {
         atomic { implicit thx =>
-            calc_ym_jobs() = calc_ym_jobs() :+ item
+            calcYMJobs() = calcYMJobs() :+ item
         }
     }
 
@@ -53,10 +53,10 @@ trait alCalcYMTrait { this : Actor =>
     def calcYMScheduleJobs = {
         if (canCalcYMJob) {
             atomic { implicit thx =>
-                val tmp = calc_ym_jobs.single.get
+                val tmp = calcYMJobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    calc_ym_jobs() = calc_ym_jobs().tail
+                    calcYMJobs() = calcYMJobs().tail
                     doCalcYMJob(tmp.head)
                 }
             }

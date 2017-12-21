@@ -6,11 +6,11 @@ import scala.concurrent.stm._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alMSA.alMaxSlaves.alSplitPanelSlave
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanel._
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanelMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}

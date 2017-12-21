@@ -22,13 +22,14 @@ import play.api.mvc.Action
 trait redisController {
 	def getRedisCollections(uid: String): List[String] = {
 		val rd = phRedisDriver().commonDriver
-		val rid = rd.hget(uid, "rid")
-					.map(x=>x).getOrElse(throw new Exception("not found uid"))
-		rd.smembers(s"resultCheck${rid}").getOrElse(throw new Exception("")).map(_.get).toList
+		val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found uid"))
+		val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
+		panelLst.map{panel =>
+			rd.hget(panel, "tid").getOrElse(throw new Exception("not found tid"))
+		}.toList
 	}
 	
 	def paralleSalesVsShare(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
-		
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
 		getRedisCollections(uid).map { x =>

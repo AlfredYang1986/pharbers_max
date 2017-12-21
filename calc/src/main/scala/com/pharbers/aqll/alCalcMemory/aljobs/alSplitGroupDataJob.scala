@@ -1,6 +1,5 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
-import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
@@ -14,6 +13,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.util.Timeout
 import com.pharbers.alCalcMemory.aljobs.alJob
+import com.pharbers.aqll.alCalcHelp.alShareData
 import com.pharbers.aqll.alStart.alHttpFunc.alAkkaSystemGloble
 
 

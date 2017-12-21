@@ -6,13 +6,13 @@ import scala.concurrent.stm._
 import scala.concurrent.Await
 import akka.routing.BroadcastPool
 import scala.concurrent.duration._
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.generatePanel._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 
@@ -81,7 +81,7 @@ class alCameoGeneratePanel(panel_job : alPanelItem,
         case generate_panel_hand() =>
             sender ! generate_panel_start_impl(panel_job)
             shutCameo
-        case msg : AnyRef =>
+        case msg: AnyRef =>
             alTempLog(s"Warning! Message not delivered. alCameoGeneratePanel.received_msg=$msg")
             shutCameo
     }

@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alMSA.alCalcAgent
 
 import akka.routing.RoundRobinPool
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}

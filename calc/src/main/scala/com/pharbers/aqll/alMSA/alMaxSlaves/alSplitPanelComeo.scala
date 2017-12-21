@@ -3,16 +3,17 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import scala.concurrent.duration._
 import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanel._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanelMsg._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileBase, outPut}
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_jobs, max_split_csv_jobs}
+import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.{max_jobs, max_split_csv_jobs}
 
 /**
   * Created by alfredyang on 12/07/2017.
@@ -61,15 +62,7 @@ class alSplitPanelComeo(item: alMaxRunning, counter: ActorRef) extends Actor wit
 
         case split_panel_end(result, item, parent, subs) => {
             result match {
-                case true => {
-                    val msg = Map(
-                        "type" -> "progress_calc",
-                        "txt" -> "分拆文件完成",
-                        "progress" -> "1"
-                    )
-                    alWebSocket(item.uid).post(msg)
-                    alTempLog("split panel file => Success")
-                }
+                case true => alTempLog("split panel file => Success")
                 case false => {
                     val msg = Map(
                         "type" -> "error",

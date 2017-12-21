@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger
 
 import akka.actor.{ActorRef, ActorSelection}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.{alCalcParmary, alMaxProperty, alMaxRunning}
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.{alCalcParmary, alMaxProperty, alMaxRunning}
 import com.pharbers.alCalcMemory.aljobs.alJob
 
 /**
@@ -61,7 +61,6 @@ object alJobTrigger {
       */
     case class group_job(j : alMaxProperty, p: alCalcParmary)
     case class grouping_job(j : alJob)
-   
     case class group_result(uuid : String, sub_uuid : String)
 
     /**
@@ -93,16 +92,4 @@ object alJobTrigger {
     case class crash_calc(uuid: String, msg: String)
     case class crash_group(uuid: String, msg: String)
     case class clean_crash_actor(uuid: String)
-
-    /**
-      * for reStart count
-      */
-    case class canIReStart(reason: Throwable)
-    case class canDoRestart(reason: Throwable)
-    case class cannotRestart(reason: Throwable)
-
-    /**
-      * for restore bson
-      */
-    case class push_restore_job(uid : String)
 }

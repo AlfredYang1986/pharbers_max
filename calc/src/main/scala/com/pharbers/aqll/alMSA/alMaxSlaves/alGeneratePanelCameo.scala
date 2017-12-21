@@ -5,15 +5,15 @@ import play.api.libs.json.JsString
 import scala.collection.immutable.Map
 import play.api.libs.json.Json.toJson
 import com.pharbers.panel.pfizer.phPfizerHandle
-import com.pharbers.aqll.alCalaHelp.alLog.alTempLog
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alCalaHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.generatePanel._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg.calcYM_end
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.{canDoRestart, canIReStart, cannotRestart}
 
 /**
   * Created by jeorch on 17-10-11.
@@ -59,20 +59,14 @@ class alGeneratePanelCameo(panelJob: alPanelItem, counter: ActorRef) extends Act
 
         case generate_panel_end(result, panelResult) => {
             result match {
-                case true => {
-                    val msg = Map(
-                        "type" -> "generate_panel_result",
-                        "result" -> panelResult.toString
-                    )
-                    alWebSocket(panelJob.uid).post(msg)
-                }
-                case false => {
+                case true => alTempLog("generate panel => Success")
+                case false =>
                     val msg = Map(
                         "type" -> "error",
                         "error" -> "cannot generate panel"
                     )
                     alWebSocket(panelJob.uid).post(msg)
-                }
+                    alTempLog("generate panel => Failed")
             }
             shutSlaveCameo(generatePanelResult(panelJob.uid, panelResult))
         }
@@ -80,7 +74,7 @@ class alGeneratePanelCameo(panelJob: alPanelItem, counter: ActorRef) extends Act
         case generate_panel_timeout() => {
             log.info("Warning! generate panel timeout")
             alTempLog("Warning! generate panel timeout")
-            self ! generate_panel_end(false, toJson("cannot generate panel"))
+            self ! generate_panel_end(false, toJson(" "))
         }
 
         case canDoRestart(reason: Throwable) =>
@@ -91,7 +85,7 @@ class alGeneratePanelCameo(panelJob: alPanelItem, counter: ActorRef) extends Act
         case cannotRestart(reason: Throwable) => {
             log.info(s"Warning! generate_panel Node reason is ${reason}")
             alTempLog("Warning! generate_panel Node cannotRestart, reason is $reason")
-            self ! generate_panel_end(true, toJson("cannot generate panel"))
+            self ! generate_panel_end(false, toJson(" "))
         }
 
         case msg : AnyRef => alTempLog(s"Warning! Message not delivered. alGeneratePanelCameo.received_msg=$msg")
