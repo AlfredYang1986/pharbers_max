@@ -12,7 +12,7 @@ import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.split_group_jobs
+import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.split_group_jobs
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.{unpkgend, unpkgmsgMutiPath}

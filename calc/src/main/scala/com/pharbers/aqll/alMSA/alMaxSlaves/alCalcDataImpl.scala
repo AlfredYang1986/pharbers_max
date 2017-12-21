@@ -23,7 +23,7 @@ import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.aqll.alCalcHelp.{alSegmentGroup, alShareData}
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile, sync}
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, worker_core_calc_jobs}
+import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.{common_jobs, worker_core_calc_jobs}
 
 /**
   * Created by alfredyang on 13/07/2017.

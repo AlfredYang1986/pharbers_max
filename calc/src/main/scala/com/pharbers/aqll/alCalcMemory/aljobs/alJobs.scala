@@ -5,7 +5,7 @@ import com.pharbers.alCalcMemory.aljobs._
 /**
   * Created by Alfred on 10/03/2017.
   */
-object alJob {
+object alJobs {
     object common_jobs extends job_defines(99, "common jobs") {
          def apply() : alCommonJob = new alCommonJob
     }

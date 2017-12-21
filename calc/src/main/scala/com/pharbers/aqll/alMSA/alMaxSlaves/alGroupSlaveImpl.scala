@@ -5,7 +5,7 @@ import com.pharbers.alCalcMemory.aldata.alStorage
 import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alCalcHelp.alModel.java.IntegratedData
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.concert_grouping_jobs
+import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.concert_grouping_jobs
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.presist_data
 
 /**

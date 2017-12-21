@@ -18,7 +18,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{common_jobs, grouping_jobs}
+import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.{common_jobs, grouping_jobs}
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, PoisonPill, Props, SupervisorStrategy}
 import com.pharbers.aqll.alCalcHelp.alModel.java.IntegratedData
 import com.pharbers.aqll.alCalcHelp.alShareData

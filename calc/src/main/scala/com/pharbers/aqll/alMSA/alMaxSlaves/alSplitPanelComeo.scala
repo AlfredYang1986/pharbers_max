@@ -13,7 +13,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanelMsg._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileBase, outPut}
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.{max_jobs, max_split_csv_jobs}
+import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.{max_jobs, max_split_csv_jobs}
 
 /**
   * Created by alfredyang on 12/07/2017.

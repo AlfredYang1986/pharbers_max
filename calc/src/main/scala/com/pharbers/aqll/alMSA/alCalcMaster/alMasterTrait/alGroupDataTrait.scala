@@ -19,7 +19,7 @@ import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
 import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
 import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.common_jobs
+import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.common_jobs
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
