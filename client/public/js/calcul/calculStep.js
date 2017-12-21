@@ -4,14 +4,13 @@
 (function ($, w) {
     "use strict";
 
-    // show_loading();
-
     var company = "";
     var isCalcDone = false;
     var sourceMap = {"cpa":"","gycx":""};
     var f = new Facade();
     var fileNames = [];
-    var ym_mkt_num = 0;
+    var mkt_lst = [];
+    var ym_mkt_num = 1;
     var rotate_name = "";
 
     var panel_base_progress = 20;
@@ -25,9 +24,6 @@
 
     var toSecondStep = function () {
         rotate_name = "panel-rotate";
-        // $('#firstStep').hide();
-        // $('#secondStep').show();
-        // $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
             rotate_name = "panel-rotate";
             $('#firstStep').hide();
@@ -71,7 +67,7 @@
             var json = JSON.stringify({
                 "businessType": "/calcYM",
                 "company": company,
-                "user": $.cookie('uid'),
+                "uid": $.cookie('uid'),
                 "cpa": sourceMap.cpa,
                 "gycx": sourceMap.gycx
             });
@@ -95,12 +91,13 @@
         var json = JSON.stringify({
             "businessType": "/genternPanel",
             "company": company,
-            "user": $.cookie('uid'),
+            "uid": $.cookie('uid'),
             "cpa": sourceMap.cpa,
             "gycx": sourceMap.gycx,
             "ym": ym_lst
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
+            ym_mkt_num = ym_lst.length * mkt_lst.length;
             layer.msg("开始生成panel");
             prograssBar(20, 6000, 10);
             $('#chooseMonth').modal('hide');
@@ -113,14 +110,11 @@
     var calc_action = function() {
         var json = JSON.stringify({
             "businessType": "/modelcalc",
-            "company": company,
-            "filename": fileNames,
-            "uid": $.cookie('uid'),
-            "imuname": ""//遗留症，必须传，重构时清理
+            "uid": $.cookie('uid')
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            prograssBar(98, 60000, 0);
+            prograssBar(99, 60000, 0);
         }, function(e){console.error(e)});
     };
 
@@ -266,9 +260,9 @@
                 toSecondStep();
                 progress_generat_panel(obj);
                 break;
-            case 'generat_panel_result':
+            case 'generate_panel_result':
                 toSecondStep();
-                generat_panel_result(obj);
+                generate_panel_result(obj);
                 break;
             case 'progress_calc':
                 toThirdStep();
@@ -281,6 +275,7 @@
                 txt(obj);
                 break;
             case 'error':
+                console.info(obj);
                 layui.use('layer', function () {
                     layer.msg(obj.error);
                 });
@@ -329,7 +324,7 @@
         }
     };
 
-    var generat_panel_result = function (obj) {
+    var generate_panel_result = function (obj) {
         console.info(obj);
         layer.msg("panel生成完成");
         var result = JSON.parse(obj.result);
@@ -345,18 +340,12 @@
 
 
     var progress_calc = function(obj) {
+        console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
-        if(progress === "100"){
-            calc_base_progress += 1;
-            if(calc_base_progress === ym_mkt_num){
-                prograssBar(100, 300, 98);
-                alert("计算完成");
-                isCalcDone = true;
-            }
-        }
     };
 
     var progress_calc_result = function(obj) {
+        console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
         if(progress === "100"){
             result_base_progress += 1;

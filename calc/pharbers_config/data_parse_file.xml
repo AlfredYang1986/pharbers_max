@@ -9,7 +9,7 @@
         <fill_hos_data_file value="/Manage/补充医院.csv" />
         <cache_file value="/Cache/" />
         <output_file value="/Output/" />
-        <makets value="INF,SPE,URO" />
+        <makets value="INF" />
         <!--INF,SPE,AI_S,CNS_Z,ELQ-->
     </data-parse>
 </pharbers-modules>
