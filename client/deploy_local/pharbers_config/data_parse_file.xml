@@ -9,9 +9,6 @@
         <fill_hos_data_file value="" />
         <cache_file value="" />
         <output_file value="/Output/" />
-        <makets value="INF" />
-        <!--<makets value="AI_S,AI_W,CNS_Z,LD,URO" />-->
-        <!--INF,SPE,AI_S,AI_W,CNS_Z,ELQ,LD,URO-->
-        <!--PAIN_C,HTN2，ELQ-->
+        <makets value="" />
     </data-parse>
 </pharbers-modules>
