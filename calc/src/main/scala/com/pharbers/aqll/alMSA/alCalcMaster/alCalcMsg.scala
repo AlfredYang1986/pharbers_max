@@ -93,7 +93,7 @@ object alCalcMsg {
         case class pushCalcJob(item: alMaxRunning)
         case class sumCalcJob(items: alMaxRunning, s: ActorRef)
         case class calcSchedule()
-        case class calcDataResult(result: Boolean, uid: String, panel: String)
+        case class calcDataResult(result: Boolean, uid: String, panel: String, v: Double, u: Double)
 
         case class calc_unpkg(tid: String, s: ActorRef)
         case class calc_data_start()
@@ -106,7 +106,6 @@ object alCalcMsg {
         case class calc_data_average_pre(avg_path: String)
         case class calc_data_average_one(avg_path: String, bsonpath: String)
         case class calc_data_average_post(item: alMaxRunning, avg_path: String, bsonpath: String)
-        case class calc_data_end(result: Boolean, v: Double, u: Double)
         case class calc_data_timeout()
     }
 
