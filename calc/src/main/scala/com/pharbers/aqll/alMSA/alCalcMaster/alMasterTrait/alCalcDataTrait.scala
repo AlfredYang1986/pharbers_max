@@ -78,7 +78,7 @@ trait alCalcDataTrait { this : Actor =>
     //TODO ti dao bie chu
     def doSum(item: alMaxRunning, s: ActorRef) {
         val rd = phRedisDriver().commonDriver
-        var sum = rd.get("sum:"+item.tid).get.toInt
+        var sum = rd.get("sum:"+item.tid).getOrElse("0").toInt
         alTempLog(s"C3. router segment => Success$sum")
         sum += 1
         rd.set("sum:"+item.tid, sum)

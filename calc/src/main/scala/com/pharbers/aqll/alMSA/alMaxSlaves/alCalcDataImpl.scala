@@ -72,7 +72,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
 
         case calc_data_average_one(avg_path, bsonpath) => sender ! calc_data_average_one(avg_path, bsonpath)
 
-        case calc_data_average_post(item, avg_path, bsonpath) => {
+        case calc_data_average_post(item, panel, avg_path, bsonpath) => {
             val sub_uuid = item.tid
             val path = s"$memorySplitFile$calc$sub_uuid"
             val dir = alFileOpt(path)
@@ -114,7 +114,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
             }
 
             val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-            agent ! calcDataResult(true, item.uid, item.parent, value, unit)
+            agent ! calcDataResult(true, item.uid, panel, value, unit)
         }
 
         case msg: Any => alTempLog(s"Warning! Message not delivered. alCalcDataImpl.received_msg=$msg")

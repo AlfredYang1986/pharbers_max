@@ -53,7 +53,7 @@ class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor wi
 
         case calc_data_hand() => {
             val rd = phRedisDriver().commonDriver
-            var sum = rd.get("sum:"+item.tid).get.toInt
+            var sum = rd.get("sum:"+item.tid).getOrElse("0").toInt
             alTempLog(s"C3.$sum router start segment")
             sender ! calc_data_start_impl3(item.subs(sum), item)
             sum += 1
@@ -70,9 +70,9 @@ class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor wi
 
         case calc_data_average_one(avg_path, bsonpath) =>  {
             val rd = phRedisDriver().commonDriver
-            var sum = rd.get("sum:"+item.tid).get.toInt
+            var sum = rd.get("sum:"+item.tid).getOrElse("0").toInt
             alTempLog(s"C5.$sum Calc start write bson")
-            sender ! calc_data_average_post(item.subs(sum), avg_path, bsonpath)
+            sender ! calc_data_average_post(item.subs(sum), item.parent, avg_path, bsonpath)
             sum += 1
             rd.set("sum:"+item.tid, sum)
             if(sum == core_number){
