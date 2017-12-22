@@ -3,18 +3,6 @@ package com.pharbers.aqll.alCalcHelp.alMaxDefines
 /**
   * Created by Alfred on 11/03/2017.
   */
-//TODO shanchu
-case class alMaxProperty(parent : String,
-                         uuid : String,
-                         var subs : List[alMaxProperty],
-                         var signed : Boolean = false,
-                         var grouped : Boolean = false,
-                         var isSumed : Boolean = false,
-                         var sum : List[(String, (Double, Double, Double))] = Nil,
-                         var isCalc : Boolean = false,
-                         var finalValue : Double = 0.0,
-                         var finalUnit : Double = 0.0
-                        ) extends java.io.Serializable
 //TODO zhujian shanchu
 case class alMaxRunning(var uid: String,
                         var tid: String,

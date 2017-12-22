@@ -15,7 +15,6 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, PoisonPill, Props, SupervisorStrategy}
 
 /**
@@ -81,39 +80,10 @@ class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor wi
             }
         }
 
-        case calc_data_end(result, v, u) => {
-            val rd = phRedisDriver().commonDriver
-            if (result) {
-                var sum = rd.get("sum:"+item.tid).get.toInt
-                sum += 1
-                rd.set("sum:"+item.tid, sum)
-
-                val old_value = rd.hget("calced:"+item.tid, "value").getOrElse("0").toDouble
-                val old_unit = rd.hget("calced:"+item.tid, "unit").getOrElse("0").toDouble
-                rd.hset("calced:"+item.tid, "value", old_value + v)
-                rd.hset("calced:"+item.tid, "unit", old_unit + u)
-
-                if(sum == core_number){
-                    rd.set("sum:"+item.tid, 0)
-                    alTempLog("Calc data => Success")
-                    shutComeoAndSendAgent(calcDataResult(true, item.uid, item.parent))
-                }
-            } else {
-                rd.set("sum:"+item.tid, 0)
-                val msg = Map(
-                    "type" -> "error",
-                    "error" -> "cannot calc data"
-                )
-                alWebSocket(item.uid).post(msg)
-                alTempLog("calc data => Failed")
-                shutComeoAndSendAgent(calcDataResult(false, item.uid, item.parent))
-            }
-        }
-
         case calc_data_timeout() => {
             log.info("Warning! calc data timeout")
             alTempLog("Warning! calc data timeout")
-            shutComeoAndSendAgent(calcDataResult(false, item.uid, item.parent))
+            shutComeoAndSendAgent(calcDataResult(false, item.uid, item.parent, 0, 0))
         }
 
         case canDoRestart(reason: Throwable) => {
@@ -125,7 +95,7 @@ class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor wi
         case cannotRestart(reason: Throwable) => {
             log.info(s"Warning! calc_data Node reason is $reason")
             alTempLog(s"Warning! calc_data Node cannotRestart, reason is $reason")
-            shutComeoAndSendAgent(calcDataResult(false, item.uid, item.parent))
+            shutComeoAndSendAgent(calcDataResult(false, item.uid, item.parent, 0, 0))
         }
 
         case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alCalcDataComeo.received_msg=$msg")

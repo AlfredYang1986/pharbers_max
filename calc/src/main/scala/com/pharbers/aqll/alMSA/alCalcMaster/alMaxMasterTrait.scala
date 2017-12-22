@@ -182,17 +182,34 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         alWebSocket(item.uid).post(msg)
     }
 
-    def postCalcJob(result: Boolean, uid: String, panel: String): Unit = {
-        alTempLog(s"calc data result = $result")
-        if(result) {
-            self ! pushRestoreJob(uid, panel)
+    def postCalcJob(result: Boolean, uid: String, panel: String, v: Double, u: Double): Unit = {
+        val rd = phRedisDriver().commonDriver
+        val tid = rd.hget(panel, "tid").get
 
+        if (result) {
+            var sum = rd.get("sum:"+tid).get.toInt
+            sum += 1
+            rd.set("sum:"+tid, sum)
+
+            val old_value = rd.hget("calced:"+tid, "value").getOrElse("0").toDouble
+            val old_unit = rd.hget("calced:"+tid, "unit").getOrElse("0").toDouble
+            rd.hset("calced:"+tid, "value", old_value + v)
+            rd.hset("calced:"+tid, "unit", old_unit + u)
+
+            if(sum == core_number){
+                rd.set("sum:"+tid, 0)
+                alTempLog("Calc data => Success")
+            }
+
+            self ! pushRestoreJob(uid, panel)
+        } else {
+            rd.set("sum:"+tid, 0)
             val msg = Map(
-                "type" -> "progress_calc",
-                "txt" -> "计算完成",
-                "progress" -> "90"
+                "type" -> "error",
+                "error" -> "cannot calc data"
             )
             alWebSocket(uid).post(msg)
+            alTempLog("calc data => Failed")
         }
 
         val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")

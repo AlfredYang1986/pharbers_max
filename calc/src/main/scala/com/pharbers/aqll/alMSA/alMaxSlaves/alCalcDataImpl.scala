@@ -113,7 +113,8 @@ class alCalcDataImpl extends Actor with ActorLogging{
                 log.info(s"calc done at $sub_uuid")
             }
 
-            sender ! calc_data_end(true, value, unit)
+            val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+            agent ! calcDataResult(true, item.uid, item.parent, value, unit)
         }
 
         case msg: Any => alTempLog(s"Warning! Message not delivered. alCalcDataImpl.received_msg=$msg")

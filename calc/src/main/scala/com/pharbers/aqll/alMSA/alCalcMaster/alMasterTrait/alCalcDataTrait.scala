@@ -84,7 +84,6 @@ trait alCalcDataTrait { this : Actor =>
         rd.set("sum:"+item.tid, sum)
 
         if(sum == core_number){
-            sum = 0
             rd.set("sum:"+item.tid, 0)
             s ! PoisonPill
 
