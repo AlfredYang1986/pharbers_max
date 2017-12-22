@@ -105,7 +105,7 @@ object alCalcMsg {
         case class calc_data_average(item: alMaxRunning)
         case class calc_data_average_pre(avg_path: String)
         case class calc_data_average_one(avg_path: String, bsonpath: String)
-        case class calc_data_average_post(item: alMaxRunning, avg_path: String, bsonpath: String)
+        case class calc_data_average_post(item: alMaxRunning, panel: String, avg_path: String, bsonpath: String)
         case class calc_data_timeout()
     }
 

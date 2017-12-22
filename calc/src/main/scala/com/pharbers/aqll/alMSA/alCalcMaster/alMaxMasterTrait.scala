@@ -187,33 +187,35 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         val tid = rd.hget(panel, "tid").get
 
         if (result) {
-            var sum = rd.get("sum:"+tid).get.toInt
+            var sum = rd.get("sum:" + tid).getOrElse("0").toInt
             sum += 1
-            rd.set("sum:"+tid, sum)
+            rd.set("sum:" + tid, sum)
 
-            val old_value = rd.hget("calced:"+tid, "value").getOrElse("0").toDouble
-            val old_unit = rd.hget("calced:"+tid, "unit").getOrElse("0").toDouble
-            rd.hset("calced:"+tid, "value", old_value + v)
-            rd.hset("calced:"+tid, "unit", old_unit + u)
+            val old_value = rd.hget("calced:" + tid, "value").getOrElse("0").toDouble
+            val old_unit = rd.hget("calced:" + tid, "unit").getOrElse("0").toDouble
+            rd.hset("calced:" + tid, "value", old_value + v)
+            rd.hset("calced:" + tid, "unit", old_unit + u)
 
-            if(sum == core_number){
-                rd.set("sum:"+tid, 0)
+            if (sum == core_number) {
+                rd.set("sum:" + tid, 0)
                 alTempLog(s"$panel calc data => Success")
-            }
+                self ! pushRestoreJob(uid, panel)
 
-            self ! pushRestoreJob(uid, panel)
+                val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+                agent ! refundNodeForRole("splitcalcslave")
+            }
         } else {
-            rd.set("sum:"+tid, 0)
+            rd.set("sum:" + tid, 0)
             val msg = Map(
                 "type" -> "error",
                 "error" -> "cannot calc data"
             )
             alWebSocket(uid).post(msg)
             alTempLog("calc data => Failed")
-        }
 
-        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-        agent ! refundNodeForRole("splitcalcslave")
+            val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+            agent ! refundNodeForRole("splitcalcslave")
+        }
     }
 
     def preRestoreJob(uid: String, panel: String): Unit ={
