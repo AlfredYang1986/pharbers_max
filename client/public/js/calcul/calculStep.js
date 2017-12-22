@@ -55,11 +55,11 @@
         var info = $("#loadInof");
         info.empty();
         info.text("MAX正在解析您的文件...");
-        prograssBar(10, 2000, 0);
+        prograssBar(10, 2, 0);
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
             info.empty();
             info.text("MAX正在解析您的文件...");
-            prograssBar(10, 2000, 0);
+            prograssBar(10, 2, 0);
             var json = JSON.stringify({
                 "businessType": "/calcYM",
                 "company": company,
@@ -95,7 +95,7 @@
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             ym_mkt_num = ym_lst.length * mkt_lst.length;
             layer.msg("开始生成panel");
-            prograssBar(20, 6000, 10);
+            prograssBar(20, 6, 10);
             $('#chooseMonth').modal('hide');
             var info = $("#loadInof");
             info.empty();
@@ -110,7 +110,7 @@
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            prograssBar(99, 60000, 0);
+            prograssBar(99, 60, 0);
         }, function(e){console.error(e)});
     };
 
@@ -310,6 +310,7 @@
     };
 
     var progress_generat_panel = function (obj) {
+        console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
         prograssBar(progress);
     };
@@ -343,9 +344,10 @@
         console.info(msg.data);
     };
 
-    var prograssBar = function (end, time, begin) {
-        time = (typeof time !== 'undefined') ?  time : 1;
-        begin = (typeof begin !== 'undefined') ?  begin : end-1;
+    var prograssBar = function (e, t, b) {
+        var end = parseInt(e);
+        var time = (typeof t !== 'undefined') ?  parseInt(t)*1000 : 1;
+        var begin = (typeof b !== 'undefined') ?  parseInt(b) : end-1;
 
         var rotate = echarts.init(document.getElementById(rotate_name));
         var option = {
