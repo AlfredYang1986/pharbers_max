@@ -90,8 +90,8 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def preSplitPanelJob(uid: String): Unit = {
-        val rid = phRedisDriver().commonDriver.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
-        val panelLst = phRedisDriver().commonDriver.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
+        val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
+        val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
 
         panelLst.foreach{ panel =>
             pushSplitPanelJobs(alMaxRunning(uid, panel, rid))
@@ -183,7 +183,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
 
     def postCalcJob(result: Boolean, uid: String, panel: String, v: Double, u: Double): Unit = {
-        val rd = phRedisDriver().commonDriver
         val tid = rd.hget(panel, "tid").get
 
         if (result) {
@@ -232,10 +231,33 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     def postRestoreJob(result: Boolean, uid: String): Unit ={
         alTempLog(s"restore bosn result = $result")
         if(result){
+            val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
+            val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
+            val panelSum = panelLst.size
+            var overSum = rd.get("overSum:" + uid).getOrElse("0").toInt
+            overSum += 1
+            rd.set("overSum:" + uid, overSum)
             val msg = Map(
-                "type" -> "progress_calc_result",
+                "type" -> "progress_calc",
                 "txt" -> "入库完成",
-                "progress" -> "100"
+                "progress" -> "99"
+            )
+            alWebSocket(uid).post(msg)
+
+            if(overSum == panelSum){
+                val msg = Map(
+                    "type" -> "progress_calc_result",
+                    "txt" -> "计算完成",
+                    "progress" -> "100"
+                )
+                alWebSocket(uid).post(msg)
+            }
+        } else {
+            var overSum = rd.get("overSum:" + uid).getOrElse("0").toInt
+            rd.set("overSum:" + uid, overSum += 1)
+            val msg = Map(
+                "type" -> "error",
+                "error" -> "cannot restore bson"
             )
             alWebSocket(uid).post(msg)
         }

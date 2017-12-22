@@ -13,10 +13,6 @@
     var ym_mkt_num = 1;
     var rotate_name = "";
 
-    var panel_base_progress = 20;
-    var calc_base_progress = 0;
-    var result_base_progress = 0;
-
     $('#secondStep').hide();
     $('#sampleResult').hide();
     $('#thirdStep').hide();
@@ -314,14 +310,8 @@
     };
 
     var progress_generat_panel = function (obj) {
-        console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
-
-        prograssBar( Math.floor(panel_base_progress + progress / ym_mkt_num * 0.8 ) );
-
-        if(progress === "100"){
-            panel_base_progress = panel_base_progress + (100-20)/ym_mkt_num;
-        }
+        prograssBar(progress);
     };
 
     var generate_panel_result = function (obj) {
@@ -338,22 +328,15 @@
         setTimeout(function(){toSampleResult()}, 1000);
     };
 
-
     var progress_calc = function(obj) {
         console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
     };
 
-    var progress_calc_result = function(obj) {
+    var progress_calc_result = function(obj){
         console.info(obj);
-        var progress = window.socket.getValue(obj)('progress');
-        if(progress === "100"){
-            result_base_progress += 1;
-            if(result_base_progress === ym_mkt_num){
-                layer.msg("还原数据库完成");
-                toFourthStep()
-            }
-        }
+        layer.msg("计算完成");
+        toFourthStep()
     };
 
     var txt = function(msg) {
