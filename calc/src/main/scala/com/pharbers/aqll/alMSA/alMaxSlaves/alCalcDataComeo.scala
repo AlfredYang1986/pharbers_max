@@ -48,7 +48,7 @@ class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor wi
     override def receive: Receive = {
         case calc_data_start_impl(_) => {
             impl_router ! calc_data_hand()
-            alTempLog("C3. router start segment")
+            alTempLog(s"C3. ${item.parent} start segment")
         }
 
         case calc_data_hand() => {

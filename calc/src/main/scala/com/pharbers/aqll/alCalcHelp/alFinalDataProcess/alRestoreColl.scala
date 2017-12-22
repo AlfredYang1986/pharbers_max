@@ -17,6 +17,7 @@ case class alRestoreColl() {
         var bson_path = alBsonPath().bson_file_path
         val file = new File(bson_path + bsonpath)
         val fileList = file.listFiles()
+        alTempLog(s"restore bson path = ${bson_path + bsonpath}")
         alTempLog(s"restore bson files count = ${fileList.length}")
 
         fileList.foreach(x => {

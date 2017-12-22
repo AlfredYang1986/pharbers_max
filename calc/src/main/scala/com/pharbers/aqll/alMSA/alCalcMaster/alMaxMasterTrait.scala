@@ -198,7 +198,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
             if(sum == core_number){
                 rd.set("sum:"+tid, 0)
-                alTempLog("Calc data => Success")
+                alTempLog(s"$panel calc data => Success")
             }
 
             self ! pushRestoreJob(uid, panel)
