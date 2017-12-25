@@ -18,6 +18,12 @@
     $('#thirdStep').hide();
     $('#calculResult').hide();
 
+    $(function(){
+        $('button[name="upload-next"]').click(function(){
+            toSecondStep();
+        });
+    });
+
     var toSecondStep = function () {
         rotate_name = "panel-rotate";
         if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
@@ -248,10 +254,6 @@
             });
         });
     }
-
-    $('button[name="upload-next"]').click(function(){
-        toSecondStep();
-    });
 
     //web socket 回调
     w.socket.callback2obj(function(obj){
