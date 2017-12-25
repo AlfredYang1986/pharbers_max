@@ -189,6 +189,10 @@
                         hide_loading();
                         $('.cpa-file').css("color", "#009688");
                         sourceMap.cpa = res.result[0];
+                        if(sourceMap.cpa !== '' && sourceMap.gycx !== '') {
+                            var $btn = $('button[name="upload-next"]');
+                            $btn.attr({'class': 'layui-btn layui-btn-radius', 'disabled': false})
+                        }
                         return;
                     }
                     this.error(index, upload);
@@ -229,7 +233,11 @@
                         hide_loading();
                         $('.gycx-file').css("color", "#009688");
                         sourceMap.gycx = res.result[0];
-                        toSecondStep();
+                        if(sourceMap.cpa !== '' && sourceMap.gycx !== '') {
+                            var $btn = $('button[name="upload-next"]');
+                            $btn.attr({'class': 'layui-btn layui-btn-radius', 'disabled': false})
+                        }
+                        // toSecondStep();
                         return;
                     }
                     this.error(index, upload);
@@ -240,6 +248,10 @@
             });
         });
     }
+
+    $('button[name="upload-next"]').click(function(){
+        toSecondStep();
+    });
 
     //web socket 回调
     w.socket.callback2obj(function(obj){
