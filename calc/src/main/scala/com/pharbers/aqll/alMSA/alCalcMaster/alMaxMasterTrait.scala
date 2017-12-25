@@ -245,6 +245,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             alWebSocket(uid).post(msg)
 
             if(overSum == panelSum){
+                rd.set("overSum:" + uid, 0)
                 val msg = Map(
                     "type" -> "progress_calc_result",
                     "txt" -> "计算完成",
