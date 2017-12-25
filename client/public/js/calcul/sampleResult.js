@@ -14,6 +14,18 @@ var sample = (function ($, w) {
         sample_product_number('lineChart2');
         sample_sales("barChart1");
 
+        $('#reset-upload').click(function(){
+            layui.use('layer', function(){
+                var layer = layui.layer;
+                layer.confirm('是否重新上传源文件？', {
+                    btn: ['重新上传', '取消'], //按钮
+                    closeBtn: 0
+                }, function(){
+                    w.location = '/calcul/step';
+                }, function(){});
+            });
+        });
+
         $(w).resize(function() {
             lineChart1.resize();
             lineChart2.resize();
