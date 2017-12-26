@@ -70,7 +70,10 @@ trait alCalcDataTrait { this : Actor =>
     }
 
     def doCalcData(item: alMaxRunning) {
-        phRedisDriver().commonDriver.set("sum:"+item.tid, 0)//Sum counter
+        phRedisDriver().commonDriver.set("segmentSum:"+item.tid, 0)
+        phRedisDriver().commonDriver.set("segmentOverSum:"+item.tid, 0)
+        phRedisDriver().commonDriver.set("avgSum:"+item.tid, 0)
+        phRedisDriver().commonDriver.set("calcSum:"+item.tid, 0)
         val cur = context.actorOf(alCameoCalcData.props(item, calc_router))
         cur ! calc_unpkg(item.tid, self)
     }
@@ -78,15 +81,13 @@ trait alCalcDataTrait { this : Actor =>
     //TODO ti dao bie chu
     def doSum(item: alMaxRunning, s: ActorRef) {
         val rd = phRedisDriver().commonDriver
-        var sum = rd.get("sum:"+item.tid).getOrElse("0").toInt
-        alTempLog(s"C3. router segment => Success$sum")
-        sum += 1
-        rd.set("sum:"+item.tid, sum)
+        var segmentOverSum = rd.get("segmentOverSum:"+item.tid).getOrElse("0").toInt
+        alTempLog(s"C3. router segment => Success$segmentOverSum")
+        segmentOverSum += 1
+        rd.set("segmentOverSum:"+item.tid, segmentOverSum)
 
-        if(sum == core_number){
-            rd.set("sum:"+item.tid, 0)
+        if(segmentOverSum == core_number){
             s ! PoisonPill
-
             val cur = context.actorOf(alCameoCalcData.props(item, calc_router))
             cur ! calc_data_sum()
         }

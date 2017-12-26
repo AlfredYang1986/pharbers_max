@@ -22,7 +22,7 @@ object alActorTest extends App {
 			val agent = system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
 			val redisDriver = phRedisDriver().commonDriver
 
-			(1 to 1) foreach { x =>
+			(1 to 2) foreach { x =>
 				val uid = "uid" + x
 				redisDriver.hset(uid, "company", company)
 
@@ -59,7 +59,7 @@ object alActorTest extends App {
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN_C.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ZYVOX.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
 					} else if (uid == "uid2"){
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706INF.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706Specialty.xlsx")
@@ -78,7 +78,7 @@ object alActorTest extends App {
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706PAIN.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706PAIN_C.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706ZYVOX.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
 					}
 
 					Thread.sleep(3000)

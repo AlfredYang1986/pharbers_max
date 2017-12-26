@@ -53,13 +53,12 @@ class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor wi
 
         case calc_data_hand() => {
             val rd = phRedisDriver().commonDriver
-            var sum = rd.get("sum:"+item.tid).getOrElse("0").toInt
-            alTempLog(s"C3.$sum router start segment")
-            sender ! calc_data_start_impl3(item.subs(sum), item)
-            sum += 1
-            rd.set("sum:"+item.tid, sum)
-            if(sum == core_number){
-                rd.set("sum:"+item.tid, 0)
+            var segmentSum = rd.get("segmentSum:"+item.tid).getOrElse("0").toInt
+            alTempLog(s"C3.$segmentSum router start segment")
+            sender ! calc_data_start_impl3(item.subs(segmentSum), item)
+            segmentSum += 1
+            rd.set("segmentSum:"+item.tid, segmentSum)
+            if(segmentSum == core_number){
                 shutSlaveCameo
             }
         }
@@ -70,14 +69,11 @@ class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor wi
 
         case calc_data_average_one(avg_path, bsonpath) =>  {
             val rd = phRedisDriver().commonDriver
-            var sum = rd.get("sum:"+item.tid).getOrElse("0").toInt
-            alTempLog(s"C5.$sum Calc start write bson")
-            sender ! calc_data_average_post(item.subs(sum), item.parent, avg_path, bsonpath)
-            sum += 1
-            rd.set("sum:"+item.tid, sum)
-            if(sum == core_number){
-                rd.set("sum:"+item.tid, 0)
-            }
+            var avgSum = rd.get("avgSum:"+item.tid).getOrElse("0").toInt
+            alTempLog(s"C5.$avgSum Calc start write bson")
+            sender ! calc_data_average_post(item.subs(avgSum), item.parent, avg_path, bsonpath)
+            avgSum += 1
+            rd.set("avgSum:"+item.tid, avgSum)
         }
 
         case calc_data_timeout() => {
