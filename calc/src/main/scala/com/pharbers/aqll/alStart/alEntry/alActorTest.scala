@@ -27,13 +27,13 @@ object alActorTest extends App {
 				redisDriver.hset(uid, "company", company)
 
 				//test calc ym
-				if(false){
+				if (false){
 					println("======================================== test calc ym")
 					agent ! startCalcYm(alPanelItem(company, uid, cpa_file_local, gycx_file_local))
 				}
 
 				//test generter panel
-				if(false) {
+				if (false) {
 					println("================================== test generter panel")
 					agent ! startGeneratePanel(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
 					Thread.sleep(300000)
@@ -59,7 +59,7 @@ object alActorTest extends App {
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN_C.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ZYVOX.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
 					} else if (uid == "uid2"){
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706INF.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706Specialty.xlsx")
@@ -78,7 +78,7 @@ object alActorTest extends App {
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706PAIN.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706PAIN_C.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706ZYVOX.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
 					}
 
 					Thread.sleep(3000)
@@ -89,6 +89,7 @@ object alActorTest extends App {
 					println("===================== test split -> group -> calc -> bson")
 					agent ! startCalc(uid)
 				}
+
 				if(true){
 					println("===================== test calc -> aggregation")
 					agent ! startAggregationCalcData("47ee6f05c8994e9ddbe12c2971600766")

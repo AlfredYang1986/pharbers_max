@@ -92,6 +92,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     def preSplitPanelJob(uid: String): Unit = {
         val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
         val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
+        rd.set("overSum:" + uid, 0)
 
         panelLst.foreach{ panel =>
             pushSplitPanelJobs(alMaxRunning(uid, panel, rid))
@@ -186,17 +187,16 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         val tid = rd.hget(panel, "tid").get
 
         if (result) {
-            var sum = rd.get("sum:" + tid).getOrElse("0").toInt
-            sum += 1
-            rd.set("sum:" + tid, sum)
+            var calcSum = rd.get("calcSum:" + tid).getOrElse("0").toInt
+            calcSum += 1
+            rd.set("calcSum:" + tid, calcSum)
 
             val old_value = rd.hget("calced:" + tid, "value").getOrElse("0").toDouble
             val old_unit = rd.hget("calced:" + tid, "unit").getOrElse("0").toDouble
             rd.hset("calced:" + tid, "value", old_value + v)
             rd.hset("calced:" + tid, "unit", old_unit + u)
 
-            if (sum == core_number) {
-                rd.set("sum:" + tid, 0)
+            if (calcSum == core_number) {
                 alTempLog(s"$panel calc data => Success")
                 self ! pushRestoreJob(uid, panel)
 
@@ -204,7 +204,8 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 agent ! refundNodeForRole("splitcalcslave")
             }
         } else {
-            rd.set("sum:" + tid, 0)
+            val calcSum = rd.get("calcSum:" + tid).getOrElse("0").toInt
+            rd.set("calcSum:" + tid, calcSum + 1)
             val msg = Map(
                 "type" -> "error",
                 "error" -> "cannot calc data"
@@ -245,7 +246,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             alWebSocket(uid).post(msg)
 
             if(overSum == panelSum){
-                rd.set("overSum:" + uid, 0)
                 val msg = Map(
                     "type" -> "progress_calc_result",
                     "txt" -> "计算完成",
