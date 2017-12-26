@@ -18,5 +18,5 @@ trait alCallHttpTrait {
 
 case class alCallHttp(businessType: String, data: JsValue) extends alCallHttpTrait {
 
-    override val url: String = s"${akkaIp}:${akkaPort}${businessType}"
+    override val url: String = s"$akkaIp:$akkaPort$businessType"
 }

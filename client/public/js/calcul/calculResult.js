@@ -6,7 +6,7 @@ var step_chart = (function ($, w) {
     var f = new Facade();
     var itemStyleColor = ['#3AD1C2', '#60C6CF', '#FFFFFF', '#009992'];
     var barLineChart, mapChart, barChart;
-
+    var table_num = 0;
     $(function(){
         bar_line_chart("market_trend");
         map_chart("market_map");
@@ -27,7 +27,18 @@ var step_chart = (function ($, w) {
             query_data(json);
         });
         $('#submit-data').click(function(){
-
+            show_loading();
+            var json = JSON.stringify({
+                "businessType": "/datacommit",
+                "uid": $.cookie('uid')
+            });
+            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function (r) {
+                if (r.status === 'ok') {
+                    table_num = r.result.result.result.size;
+                } else {
+                    console.error("Error");
+                }
+            }, null, null, null, false);
         });
     });
 
@@ -49,10 +60,11 @@ var step_chart = (function ($, w) {
                 $.each($.unique(time_lst).sort(), function(i, v){$select_month.append('<option  value="'+ v +'">' + v + '</option>');});
             }
         });
-    }
+    };
 
     var query_data = function(json) {
         $(document).ajaxStop(function(){
+            console.info("lalala");
             hide_loading();
         });
         show_loading();
@@ -354,6 +366,7 @@ var step_chart = (function ($, w) {
         "mapChart": function() {return mapChart;},
         "barChart": function() {return barChart;},
         "query_data": query_data,
-        "query_select": query_select
+        "query_select": query_select,
+        "table_num": function(){return table_num;}
     }
 }(jQuery, window));
