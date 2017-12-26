@@ -9,8 +9,6 @@
     var sourceMap = {"cpa":"","gycx":""};
     var f = new Facade();
     var fileNames = [];
-    var mkt_lst = [];
-    var ym_mkt_num = 1;
     var rotate_name = "";
     var aggregation_num = 0;
 
@@ -104,7 +102,6 @@
             "ym": ym_lst
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
-            ym_mkt_num = ym_lst.length * mkt_lst.length;
             layer.msg("开始生成panel");
             prograssBar(20, 6, 10);
             $('#chooseMonth').modal('hide');
@@ -323,9 +320,6 @@
             $.each(obj.ym.split(","), function( index, ym ) {
                 $ym_div.append('<div class="col-sm-3"><div class="checkbox"> <label> <input type="checkbox" value="'+ ym +'">'+ym+'</label> </div> </div>');
                 sample_month.append(ym +"&nbsp;");
-            });
-            $.each(obj.mkt.split(","), function( index, mkt ) {
-                mkt_lst.push(mkt)
             });
             $('#chooseMonth').modal('show');
         }
