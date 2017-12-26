@@ -14,6 +14,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alCalcHelp.alAkkaHttpJson.PlayJsonSupport
+import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.alFileExport
 import play.api.libs.json.OFormat
 
 /**
@@ -29,6 +30,7 @@ case class alCalcYmItem(company: String, uid: String, cpa: String, gycx: String)
 case class alPanelItem(company: String, uid: String, cpa: String, gycx: String, ym: List[String] = Nil)
 case class alCalcItem(uid: String)
 case class alCommitItem(uid: String)
+case class alExportItem(uid: String, filetype: String, datatype: String, market: List[String], staend: List[String])
 
 trait PlayJson extends PlayJsonSupport {
 	implicit val itemJson: OFormat[Item] = format[Item]
@@ -36,6 +38,7 @@ trait PlayJson extends PlayJsonSupport {
 	implicit val itemFormatPanel: OFormat[alPanelItem]  = format[alPanelItem]
 	implicit val itemFormatCalc: OFormat[alCalcItem]  = format[alCalcItem]
 	implicit val itemFormatCommitItem: OFormat[alCommitItem]  = format[alCommitItem]
+	implicit val itemFormatExportItem: OFormat[alExportItem]  = format[alExportItem]
 }
 
 trait alAkkaHttpFunction extends Directives with PlayJson{
@@ -43,7 +46,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 	implicit def requestTimeout: Timeout
 	type route = server.Route
 
-	val routes:route = alCalcYM ~ alCalcData ~ alGenternPanel ~ alDataCommit
+	val routes: route = alCalcYM ~ alCalcData ~ alGenternPanel ~ alDataCommit ~ alDataExport
 	
 	def Test: route = post {
 		path("test") {
@@ -92,6 +95,15 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 				println(item.uid)
 				a ! startAggregationCalcData(item.uid)
 				complete(Map("result" -> "ok"))
+			}
+		}
+	}
+
+	def alDataExport: route = post {
+		path("dataExport") {
+			entity(as[alExportItem]) { item =>
+				val result = alFileExport(item).export
+				complete(toJson(successToJson(toJson(Map("result" -> result)))))
 			}
 		}
 	}

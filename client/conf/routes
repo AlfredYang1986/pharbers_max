@@ -68,6 +68,7 @@ POST    /phonecode/check                            controllers.phonecode.PhoneS
 POST    /panel/upload                               controllers.upload.FopController.uploadFile
 POST    /source/upload                              controllers.upload.FopController.uploadFile
 POST    /upload/queryUserCompnay                    controllers.upload.FopController.queryUserCompnay
+GET     /pharbers/files/:name                       controllers.upload.FopController.downloadFile(name)
 
 # Call Http
 POST    /calc/callhttp                              controllers.callhttp.CallHttpController.callHttpServer
@@ -124,4 +125,4 @@ GET     /calc                                       controllers.alMaxRouterContr
 GET     /historyData                                controllers.alMaxRouterController.historyData
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                        controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file                               controllers.Assets.versioned(path="/public", file: Asset)
