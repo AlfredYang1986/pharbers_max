@@ -29,7 +29,7 @@ trait alCalcDataTrait { this : Actor =>
     val calc_router: ActorRef = createCalcRouter
     val calc_jobs = Ref(List[alMaxRunning]())
 
-    //TODO shijian chuan can
+    //TODO 时间传参
     val calc_schdule: Cancellable = context.system.scheduler.schedule(2 second, 3 second, self, calcSchedule())
 
     def createCalcRouter = context.actorOf(
@@ -48,7 +48,7 @@ trait alCalcDataTrait { this : Actor =>
         }
     }
 
-    //TODO ask shenyong
+    //TODO ask 慎用
     def canCalcJob : Boolean = {
         implicit val t = Timeout(2 seconds)
         val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
@@ -75,7 +75,7 @@ trait alCalcDataTrait { this : Actor =>
         cur ! calc_unpkg(item.tid, self)
     }
 
-    //TODO ti dao bie chu
+    //TODO 提到别处
     def doSum(item: alMaxRunning, s: ActorRef) {
         val rd = phRedisDriver().commonDriver
         var sum = rd.get("sum:"+item.tid).getOrElse("0").toInt
@@ -86,7 +86,6 @@ trait alCalcDataTrait { this : Actor =>
         if(sum == core_number){
             rd.set("sum:"+item.tid, 0)
             s ! PoisonPill
-
             val cur = context.actorOf(alCameoCalcData.props(item, calc_router))
             cur ! calc_data_sum()
         }

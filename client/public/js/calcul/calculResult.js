@@ -26,6 +26,9 @@ var step_chart = (function ($, w) {
 
             query_data(json);
         });
+        $('#submit-data').click(function(){
+
+        });
     });
 
     var query_select = function() {
