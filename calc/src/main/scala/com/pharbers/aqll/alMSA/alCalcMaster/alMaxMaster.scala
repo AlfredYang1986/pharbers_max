@@ -8,6 +8,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.aggregationMsg._
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
@@ -27,6 +28,7 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case startCalcYm(item) => self ! pushCalcYMJob(item)
         case startGeneratePanel(item) => self ! pushGeneratePanelJob(item)
         case startCalc(uid) => self ! pushSplitPanel(uid)
+        case startAggregationCalcData(uid) => self ! pushAggregationJob(uid)
 
         //calc ym module
         case pushCalcYMJob(item) => preCalcYMJob(item)
@@ -63,6 +65,11 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case pushRestoreJob(uid, panel) => preRestoreJob(uid, panel)
         case restoreBsonSchedule() => restoreSchduleJobs
         case restoreBsonResult(result, uid) => postRestoreJob(result, uid)
+
+        //aggregation module
+        case pushAggregationJob(uid) => preAggregationJob(uid)
+        case aggregationDataSchedule() => aggregationSchduleJobs()
+        case aggregationDataResult(uid, table, result) => postAggregationJob(uid, table, result)
 
         //Energy Manage
         case refundNodeSuccess() => Unit

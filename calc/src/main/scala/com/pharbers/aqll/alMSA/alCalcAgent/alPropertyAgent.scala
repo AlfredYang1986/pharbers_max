@@ -28,6 +28,7 @@ class alPropertyAgent extends Actor with ActorLogging {
                                         "splitgroupslave" -> 0,
                                         "splitcalcslave" -> 0,
                                         "splitrestorebsonslave" -> 0,
+                                        "splitaggregationslave" -> 0,
                                         "splittest" -> 0)
 
     val master_router: ActorRef = context.actorOf(
@@ -42,26 +43,23 @@ class alPropertyAgent extends Actor with ActorLogging {
 
     import alPropertyAgent._
     override def receive: Receive = {
-        case queryIdleNodeInstanceInSystemWithRole(role) => {
-            sender ! energy.get(role).map (x => x).getOrElse(-1)
-        }
+        case queryIdleNodeInstanceInSystemWithRole(role) => sender ! energy.get(role).map (x => x).getOrElse(-1)
 
-        case takeNodeForRole(role) => {
+        case takeNodeForRole(role) =>
             val f = energy.find(role == _._1)
-            val can = f.map (_._2 > 0).getOrElse(false)
+            val can = f.map (_._2 > 0).exists(x => x)
             if (can) {
                 energy = energy.filterNot(_._1 == role) + (role -> (f.get._2 - 1))
                 alTempLog(s"take $role Node, Now Energy = ${f.get._2 - 1} ")
                 sender ! true
             } else sender ! false
-        }
+        
 
-        case refundNodeForRole(role) => {
+        case refundNodeForRole(role) =>
             val f = energy.find(role == _._1)
             energy = energy.filterNot(x => x._1 == role) + (role -> (f.get._2 + 1))
             alTempLog(s"refund $role Node, Now Energy = ${f.get._2 + 1} ")
             sender ! refundNodeSuccess()
-        }
 
         case msg: AnyRef => master_router forward msg
     }

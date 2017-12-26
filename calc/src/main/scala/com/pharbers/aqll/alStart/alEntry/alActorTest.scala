@@ -22,22 +22,22 @@ object alActorTest extends App {
 			val agent = system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
 			val redisDriver = phRedisDriver().commonDriver
 
-			(1 to 2) foreach { x =>
+			(1 to 20) foreach { x =>
 				val uid = "uid" + x
 				redisDriver.hset(uid, "company", company)
 
 				//test calc ym
-				if(false){
+				if (false){
 					println("======================================== test calc ym")
 					agent ! startCalcYm(alPanelItem(company, uid, cpa_file_local, gycx_file_local))
 				}
 
 				//test generter panel
-				if(false) {
+				if (false) {
 					println("================================== test generter panel")
 					agent ! startGeneratePanel(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
 					Thread.sleep(300000)
-				} else if(true){
+				} else if(false){
 					println("================================== write panel to redis")
 					val rid = UUID.randomUUID().toString
 					redisDriver.hset(uid, "rid", rid)
@@ -85,9 +85,14 @@ object alActorTest extends App {
 				}
 
 				//test split -> group -> calc -> bson
-				if(true){
+				if(false){
 					println("===================== test split -> group -> calc -> bson")
 					agent ! startCalc(uid)
+				}
+
+				if(true){
+					println("===================== test calc -> aggregation")
+					agent ! startAggregationCalcData("47ee6f05c8994e9ddbe12c2971600766")
 				}
 			}
 		}

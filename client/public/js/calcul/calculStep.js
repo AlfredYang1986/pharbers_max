@@ -22,6 +22,10 @@
         $('button[name="upload-next"]').click(function(){
             toSecondStep();
         });
+
+        $('#test-calc-result').click(function(){
+            toFourthStep()
+        });
     });
 
     var toSecondStep = function () {
