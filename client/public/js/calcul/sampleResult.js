@@ -19,6 +19,8 @@ var sample = (function ($, w) {
                 var layer = layui.layer;
                 layer.confirm('是否重新上传源文件？', {
                     btn: ['重新上传', '取消'], //按钮
+                    resize: false,
+                    maxWidth: 'auto',
                     closeBtn: 0
                 }, function(){
                     w.location = '/calcul/step';

@@ -362,15 +362,11 @@
             aggregation_num = aggregation_num + 1
         } else {}
 
-        console.info(aggregation_num);
-        console.info(w.step_chart.table_num());
-        console.info(parseInt(obj.progress) === 100);
-        console.info((aggregation_num === w.step_chart.table_num() && parseInt(obj.progress) === 100));
-        console.info((parseInt(aggregation_num) === parseInt(w.step_chart.table_num()) && parseInt(obj.progress) === 100));
-
         if (parseInt(aggregation_num) === parseInt(w.step_chart.table_num()) && parseInt(obj.progress) === 100) {
             layer.msg("保存结束");
             hide_loading();
+            layer.msg("1秒后将自动跳转，历史查询界面");
+            setTimeout(function(){w.location = '/calcul/home'}, 1500);
         } else {
             //TODO: 后续接入进度条
         }
@@ -468,4 +464,4 @@
         rotate.setOption(option);
     };
 
-}(jQuery, window));
+})(jQuery, window);
