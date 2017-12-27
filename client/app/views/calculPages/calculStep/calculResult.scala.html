@@ -1,0 +1,67 @@
+<div class="row" id="calculResult" style="display: none;">
+    <div class="calcul-box">
+        <div class="row shadow-box ">
+            <div class="choose-condition">
+                <div class="form-inline col-sm-8 col-md-8 col-lg-8 choose-tool">
+                    <div class="form-group">
+                        <label>市场</label>
+                        <select class="form-control sample-select" name="calc-result-market"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>月份</label>
+                        <select class="form-control sample-select" name="calc-result-month"></select>
+                    </div>
+                    <div name="btn-query-calcresult" class="layui-btn layui-btn-primary btn-sample">查看</div>
+                </div>
+                <div class="col-sm-4 col-md-3 col-lg-2 col-md-offset-1 col-lg-offset-2">
+                    <div class="layui-btn layui-btn-primary btn-sample">保存&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="row shadow-box">
+            <div class="market-incident-panel market-penal">
+                <div class="title-h1">市场指标</div>
+                <div class="row market-val">
+                    <div class="col-xs-4">
+                        <div class="total-market">
+                            <div class="small-font-result">市场总销量</div>
+                            <div class="large-font-result">￥<span name="sumsales"></span> <span class="middle-font-result">Mil</span></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="sales-market">
+                            <div class="small-font-result">产品销量</div>
+                            <div class="large-font-result">￥<span name="productsales"></span><span class="middle-font-result">Mil</span></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="share-market">
+                            <div class="small-font-result">份额</div>
+                            <div class="large-font-result"><span name="share"></span>%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="title-h1">市场趋势</div>
+                <div id="market_trend" class="market-trend">
+                </div>
+            </div>
+        </div>
+        <div class="row shadow-box">
+            <div class="market-map-panel market-penal">
+                <div class="title-h1">市场&nbsp;地区层面分析</div>
+                <div class="middle-font-result">全国</div>
+                <div class=""><button class="btn-result btn-active">市场规模</button><button class="btn-result btn-result-info">市场增长率</button></div>
+                <div class="row">
+                    <div class="col-lg-8 col-md-12 col-sm-12">
+                        <div class="market-map" id="market_map"></div>
+                    </div>
+                    <div class="col-lg-4 col-md-12 col-sm-12">
+                        <div><button class="btn-result btn-active">省</button><button class="btn-result btn-result-info">城市</button></div>
+                        @*<div><span>排名&nbsp;</span><span>产品份额</span><span style="padding-left: 30px">销售额</span></div>*@
+                        <div class="market-bar" id="market_bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

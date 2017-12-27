@@ -1,6 +1,0 @@
-<pharbers-modules>
-    <mongodb-connect-nodes>
-        <connect-config-path name="cli" value="pharbers_config/cli_connect.xml" />
-        <connect-config-path name="calc" value="pharbers_config/calc_connect.xml" />
-    </mongodb-connect-nodes>
-</pharbers-modules>

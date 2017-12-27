@@ -42,18 +42,15 @@ object AuthModule extends ModuleTrait with AuthData {
 			val expire = (data \ "condition" \ "token_expire").asOpt[Int].map(x => x).getOrElse(60 * 60 * 24)	//default expire in 24h
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("cli").get
-//			val date = new Date().getTime
-//			val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
+			val date = new Date().getTime
 			val map = m2d(data)
 			db.queryObject(map, "users") match {
 				case None => throw new Exception("data not exist")
 				case Some(one) =>
-//					val reVal = one - "email" - "phone" - "name" + ("expire_in" -> toJson(date + 60 * 60 * 1000 * 24))
-//					val auth_token = att.encrypt2Token(toJson(reVal))
-//					phRedisSet.sadd("token", reVal, (old_map : Map[String, Any], new_map : Map[String, Any]) => new_map)
 					val reVal = one - "name"
 					val uid = Sercurity.md5Hash(one("email").as[String])
-					val accessToken = s"bearer${uid}"
+					val tmp = Sercurity.md5Hash(one("email").as[String] + date)
+					val accessToken = s"bearer${tmp}"
 					reVal.foreach(x => redisDriver.hset(accessToken, x._1, x._2.asOpt[String].getOrElse(x._2.as[List[String]].toString())))
 					redisDriver.hset(accessToken, "name", one("name").as[String].getBytes)
 					redisDriver.expire(accessToken, expire)
@@ -130,7 +127,7 @@ object AuthModule extends ModuleTrait with AuthData {
 		try {
 			val redisDriver = phRedisDriver().commonDriver
 			val accessToken = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("input error"))
-
+			
 			val token = redisDriver.hgetall1(accessToken).get
 			if (token.isEmpty) (None, None)
 			else {
@@ -178,7 +175,7 @@ object AuthModule extends ModuleTrait with AuthData {
 			val name = (js \ "name").asOpt[String].map(x => x).getOrElse(throw new Exception("data not exit"))
 			//TODO 还未知该URL参数是否有用，暂时不删除
 			val reVal = att.encrypt2Token(toJson(js.as[Map[String, JsValue]] + ("expire_in" -> toJson(new Date().getTime + 60 * 60 * 1000)) + ("action" -> toJson("first_login"))))
-			val url = s"http://192.168.100.174:9000/validation/token/${java.net.URLEncoder.encode(accessToken, "ISO-8859-1")}"
+			val url = s"http://127.0.0.1:9000/validation/token/${java.net.URLEncoder.encode(accessToken, "ISO-8859-1")}"
 			emailAtiveAccount(email, reVal)
 			val o: DBObject = DBObject("token" -> accessToken)
 			db.insertObject(o, "authorizationcode", "token")

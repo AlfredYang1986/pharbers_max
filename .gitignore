@@ -92,3 +92,8 @@ client/ember_web/node_modules
 client/ember_web/bower_components
 client/ember_web/public/assets
 client/public/assets
+
+client/deploy_local/
+client/deploy_remote/
+calc/deploy_remote/
+calc/deploy_local/

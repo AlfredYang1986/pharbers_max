@@ -6,7 +6,7 @@ import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import module.callhttp.CallHttpMessage.MsgCallHttpServer
 import play.api.libs.json.JsValue
-
+import play.api.libs.json.Json.toJson
 import scala.collection.immutable.Map
 
 object CallHttpModule extends ModuleTrait {

@@ -1,44 +1,95 @@
 package com.pharbers.aqll.alStart.alEntry
 
-import java.io.File
-
-import akka.actor.ActorSystem
+import java.util.UUID
 import akka.cluster.Cluster
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxDriver.pushGeneratePanelJobs
-import com.pharbers.aqll.alStart.alHttpFunc.alUploadItem
+import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alCalcParmary
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoMaxDriver._
+import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 object alActorTest extends App {
 	val config = ConfigFactory.load("split-test")
 	val system : ActorSystem = ActorSystem("calc", config)
-	val cp = new alCalcParmary("fea9f203d4f593a96f0d6faa91ba24ba", "jeorch")
 
-	if(system.settings.config.getStringList("akka.cluster.roles").contains("splittest")) Cluster(system).registerOnMemberUp {
-        val a = system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/portion-actor")
+	val company = "fea9f203d4f593a96f0d6faa91ba24ba"
+	val cpa_file_local = "1705 CPA.xlsx"
+	val gycx_file_local = "1705 GYC.xlsx"
 
-		// val calc_path = "config/FileBase/201705oversize"
-		// val file: File = new File(calc_path)
-		// val fileList: Array[File] = file.listFiles()
-		// println(s"=== files count = ${fileList.length} ===")
-		// fileList.foreach(x => {
-		// 	println(s"=== file = ${x} ===")
-		// 	1 to 1 foreach (i => a ! push_filter_job(x.toString, cp))
-		// })
+	if (system.settings.config.getStringList("akka.cluster.roles").contains("splittest")){
+		Cluster(system).registerOnMemberUp {
+			val agent = system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+			val redisDriver = phRedisDriver().commonDriver
 
-		// a ! push_filter_job("config/FileBase/201705/CPA_GYCX_panel_201705Urology.xlsx", cp)
-		 a ! push_filter_job("config/FileBase/2017-05.xlsx", cp)
+			(1 to 2) foreach { x =>
+				val uid = "uid" + x
+				redisDriver.hset(uid, "company", company)
 
-		//a ! push_filter_job("config/FileBase/201705AI_R.xlsx", cp)
+				//test calc ym
+				if(false){
+					println("======================================== test calc ym")
+					agent ! startCalcYm(alPanelItem(company, uid, cpa_file_local, gycx_file_local))
+				}
 
-//		val cpa_file_local = "/CPA/1705 CPA.xlsx"
-//		val gycx_file_local = "/GYCX/1705 GYC.xlsx"
-//
-//
-//		1 to 1 foreach (x => {
-//			a ! pushGeneratePanelJobs(alUploadItem("fea9f203d4f593a96f0d6faa91ba24ba", "user", cpa_file_local, gycx_file_local, "201705" :: Nil))
-//		})
+				//test generter panel
+				if(false) {
+					println("================================== test generter panel")
+					agent ! startGeneratePanel(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
+					Thread.sleep(300000)
+				} else if(true){
+					println("================================== write panel to redis")
+					val rid = UUID.randomUUID().toString
+					redisDriver.hset(uid, "rid", rid)
+					if(uid == "uid1"){
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705INF.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705Specialty.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705Urology.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_S.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_D.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_W.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705CNS_R.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705CNS_Z.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705DVP.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ELIQUIS.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705HTN.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705HTN2.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705LD.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ONC.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN_C.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ZYVOX.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
+					} else if (uid == "uid2"){
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706INF.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706Specialty.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706Urology.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706AI_S.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706AI_D.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706AI_W.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706CNS_R.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706CNS_Z.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706DVP.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706ELIQUIS.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706HTN.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706HTN2.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706LD.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706ONC.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706PAIN.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706PAIN_C.xlsx")
+						redisDriver.sadd(rid, "CPA_GYCX_panel_201706ZYVOX.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
+					}
 
-    }
+					Thread.sleep(3000)
+				}
+
+				//test split -> group -> calc -> bson
+				if(true){
+					println("===================== test split -> group -> calc -> bson")
+					agent ! startCalc(uid)
+				}
+			}
+		}
+	}
 }

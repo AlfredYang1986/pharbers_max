@@ -1,10 +1,51 @@
+/*新文件上传*/
+.upload-container {
+    margin: 5% 0;
+    padding: 3.5% 0;
+    border-radius: 5px;
+    box-shadow:0 0 10px #000;
+    background-color: #F9F9F9;
+}
 
+.upload-tip {
+    width: 270px;
+    font: 14px bold Monaco;
+}
+
+.upload-box {
+    width: 330px;
+    padding: 20px 30px;
+    margin: 20px auto;
+}
+
+.upload-box > .file-box {
+    width: 270px;
+    height: 300px;
+    border: 1px solid #AEAEAE;
+    border-radius: 5px;
+}
+
+.upload-file {
+    position: relative;
+    z-index: auto;
+    top: -25px;
+    width: 270px;
+    margin: 0 auto;
+}
+/*新上传结束*/
 
 .step{
     padding: 20px 20px;
     line-height:40px;
-    height: 80px;
+    min-height: 80px;
+    min-width: 1200px;
     box-shadow: #737373 1px 1px 6px;
+}
+.step-img{
+    min-width: 200px;
+}
+.step-img > img{
+    max-width: 280px;
 }
 .backHome{
     right: 20px;
@@ -46,6 +87,18 @@
     padding-top:  80px;
     margin: 0px auto;
 }
+.begin-calcul{
+    height: 400px;
+    padding-top:  80px;
+    margin: 0px auto;
+}
+#calc-btn{
+    height: 100%;
+    margin: auto 0px;
+}
+.calculMsg{
+    margin: 0 auto;
+}
 .chart-panel{
     height: 200px;
     padding: 20px 20px;
@@ -59,32 +112,4 @@
     width: 450px;
 
 }
-.char-h1{
-    font-family: PingFangSC-Semibold, sans-serif;
-    font-size: 1.125em;
 
-}
-.t-body{
-    min-height: 400px;
-}
-.t-num{
-    height: 24px;
-    line-height: 24px;
-}
-.t-content{
-    min-height: 350px;
-    padding: 25px 0px;
-}
-.t-lineChart{
-    height: 320px;
-    width: 450px;
-}
-.t-describe{
-    padding: 30px;
-    min-height: 320px;
-    width: 350px;
-}
-.sample-bar{
-    height: 350px;
-    width: 950px;
-}

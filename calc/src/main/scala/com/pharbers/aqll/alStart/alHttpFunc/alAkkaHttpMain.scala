@@ -6,15 +6,10 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import com.pharbers.aqll.alCalcEnergy.alAkkaMonitoring.alAkkaMonitor
-import com.pharbers.aqll.alCalcEnergy.{alCalcRegisterActor, alDriverSingleton, alGroupRegisterActor}
-import com.pharbers.aqll.alCalcOther.alRemoveJobs.{alScheduleRemoveFiles, rmFile}
 import com.pharbers.aqll.alMSA.alCalcAgent.alAgentSingleton
-import com.pharbers.aqll.alMSA.alCalcMaster.{alMaxDriver, alMaxMaster}
+import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
 import com.pharbers.aqll.alMSA.alClusterLister.alMaxClusterLister
-import com.pharbers.aqll.alStart.alEntry.alMaxMaterEntry.system
 import com.typesafe.config.{Config, ConfigFactory}
-
 import scala.concurrent.Future
 
 /**
@@ -50,8 +45,6 @@ object alAkkaHttpMain extends App with RequestTimeout {
 		if(calcSystem.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
 			Cluster(calcSystem).registerOnMemberUp {
 				alAkkaSystemGloble.system = calcSystem
-				calcSystem.actorOf(alMaxMaster.props, alMaxMaster.name)
-				calcSystem.actorOf(alMaxDriver.props, alMaxDriver.name)
 				calcSystem.actorOf(alAgentSingleton.props, alAgentSingleton.name)
 				calcSystem.actorOf(Props[alMaxClusterLister], "akka-listener")
 			}

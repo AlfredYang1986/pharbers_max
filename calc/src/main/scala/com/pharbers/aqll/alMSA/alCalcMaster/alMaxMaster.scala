@@ -1,42 +1,72 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_slave_status
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanelMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg._
+
+import akka.actor.{Actor, ActorLogging, Props}
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent._
 
 /**
-  * Created by alfredyang on 11/s07/2017.
+  * Created by clock on 2017.12.18
+  *     Modify by clock on 2017.12.20
   */
 object alMaxMaster {
     def props = Props[alMaxMaster]
     def name = "driver-actor"
 }
 
-class alMaxMaster extends Actor
-                    with ActorLogging
-                    with alFilterExcelTrait
-                    with alSplitExcelTrait
-                    with alGroupDataTrait
-                    with alRestoreBsonTrait
-                    with alCalcDataTrait {
+class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
+    override def receive = {
+        case startCalcYm(item) => self ! pushCalcYMJob(item)
+        case startGeneratePanel(item) => self ! pushGeneratePanelJob(item)
+        case startCalc(uid) => self ! pushSplitPanel(uid)
 
-    override def receive: Receive = {
-        case filter_excel_job_2(file, parmary) => pushFilterJob(file, parmary, sender)
-        case filter_excel_schedule() => schduleFilterJob
+        //calc ym module
+        case pushCalcYMJob(item) => preCalcYMJob(item)
+        case calcYMSchedule() => calcYMScheduleJobs
+        case calcYMResult(uid, ym, mkt) => postCalcYMJob(uid, ym, mkt)
 
-        case push_split_excel_job(file, parmary) => pushSplitExcelJob(file, parmary, sender)
-        case split_excel_schedule() => schduleSplitExcelJob
+        //generate panel module
+        case pushGeneratePanelJob(item) => preGeneratePanelJob(item)
+        case generatePanelSchedule() => generatePanelScheduleJobs
+        case generatePanelResult(uid, panelResult) => postGeneratePanelJob(uid, panelResult)
 
-        case push_group_job(property) => pushGroupJob(property, sender)
-        case group_schedule() => schduleGroupJob
+        //split panel file module
+        case pushSplitPanel(uid) => preSplitPanelJob(uid)
+        case splitPanelSchedule() => splitPanelSchduleJobs
+        case splitPanelResult(item, parent, subs) => postSplitPanelJob(item, parent, subs)
 
-        case push_calc_job_2(property, parmary) => pushCalcJob(property, parmary, sender)
-        case calc_schedule() => schduleCalcJob
-        case calc_slave_status() => Unit // setSlaveStatus
+        //group splited file module
+        case pushGroupJob(item) => preGroupJob(item)
+        case groupSchedule() => groupScheduleJobs
+        case groupPanelResult(item) => postGroupJob(item)
 
-        case push_restore_job(coll, sub_uuids) => pushRestoreJob(coll, sub_uuids, sender)
-        case restore_bson_schedule() => schduleRestoreJob
+        //scp module
+        case pushScpJob(item) => preScpJob(item)
+        case scpSchedule() => scpSchduleJobs
+        case scpResult(item) => postScpJob(item)
+
+        //calc module
+        case pushCalcJob(item) => preCalcJob(item)
+        case calcSchedule() => calcScheduleJobs
+        case sumCalcJob(items, s) => doSum(items, s)
+        case calcDataResult(result, uid, panel, v, u) => postCalcJob(result, uid, panel, v, u)
+
+        //restore module
+        case pushRestoreJob(uid, panel) => preRestoreJob(uid, panel)
+        case restoreBsonSchedule() => restoreSchduleJobs
+        case restoreBsonResult(result, uid) => postRestoreJob(result, uid)
+
+        //Energy Manage
+        case refundNodeSuccess() => Unit
+
+        case msg: AnyRef => alTempLog("alMaxMaster not match msg = " + msg)
     }
-
 }

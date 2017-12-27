@@ -4,8 +4,6 @@
                 margin: 5% auto;
             }
     </style>
-    <div class="loading"><i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size: 48px;
-        color: #008B7D;">&#x1002;</i></div>
     <div class="layui-fluid">
         <div>&nbsp;</div>
         <div class="layui-row shadow-tool" style="padding: 20px 20px"><!-- layui-bg-gray background-color: #f2f2f2; -->
@@ -78,6 +76,12 @@
     <script>
             var f = new Facade();
             $(function () {
+                windowWidth();
+                $(window).resize(function(){
+                    windowWidth();
+                    windowHeigth()
+                });
+
                 userLogin();
                 loadSelect();
                 var queryBtn = $('#query');
@@ -102,7 +106,6 @@
                     laydate.render({
                         elem: '#date',
                         type: 'month'
-//                        range: "~"
                     });
                 });
                 layui.use(['form', 'laydate'], function () {
@@ -115,7 +118,15 @@
 
                 $('li[pharbers-filter="history"]').addClass("layui-this");
             });
-
+            var windowWidth = function () {
+                var clientWidth = document.documentElement.clientWidth - 200;
+                $(".right-content").css("width", clientWidth +"px")
+            };
+            var windowHeigth = function () {
+                var clientHeight = document.documentElement.clientHeight-60;
+///                console.log(clientHeight);
+                $(".right-content").css("height", clientHeight+"px");
+            };
             var userLogin = function () {
                 var token = $.cookie("user_token");
                 var tojs = {
@@ -195,19 +206,19 @@
             var loadHistory = function (json) {
                 $('.mask-layer').show();
                 $('.loading').show();
-//                f.ajaxModule.baseCall('/history/queryHistoryByPage', json, 'POST', function (r) {
-//                    console.log(json)
-//                    if (r.status === 'ok') {
-//                        var lst = $('#historyLst');
-//                        lst.empty();
-//                        lst.append(r.result.condition);
-//                        page(r.result.count, r.result.skip, r.result.take);
-//                        $('.mask-layer').hide();
-//                        $('.loading').hide();
-//                    }
-//                }, function (e) {
-//                    console.error(e)
-//                })
+                f.ajaxModule.baseCall('/history/queryHistoryByPage', json, 'POST', function (r) {
+///                    console.log(json);
+                    if (r.status === 'ok') {
+                        var lst = $('#historyLst');
+                        lst.empty();
+                        lst.append(r.result.condition);
+                        page(r.result.count, r.result.skip, r.result.take);
+                        $('.mask-layer').hide();
+                        $('.loading').hide();
+                    }
+                }, function (e) {
+                    console.error(e)
+                })
             };
     </script>
 }

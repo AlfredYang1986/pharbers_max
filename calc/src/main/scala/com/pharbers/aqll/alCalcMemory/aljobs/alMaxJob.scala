@@ -1,7 +1,7 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
 import com.pharbers.alCalcMemory.aljobs.alJob
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_jobs._
+import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.max_jobs._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy.read_excel_split
 import com.pharbers.alCalcMemory.alstages.alStage

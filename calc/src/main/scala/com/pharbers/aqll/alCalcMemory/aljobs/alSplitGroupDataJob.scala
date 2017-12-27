@@ -1,6 +1,5 @@
 package com.pharbers.aqll.alCalcMemory.aljobs
 
-import com.pharbers.aqll.alCalc.almain.alShareData
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy._
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
@@ -8,11 +7,13 @@ import com.pharbers.alCalcMemory.alstages.alStage
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import akka.pattern.ask
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.util.Timeout
 import com.pharbers.alCalcMemory.aljobs.alJob
+import com.pharbers.aqll.alCalcHelp.alShareData
 import com.pharbers.aqll.alStart.alHttpFunc.alAkkaSystemGloble
 
 
@@ -30,7 +31,7 @@ class alSplitGroupDataJob(u : String) extends alJob {
     }
     
     def query() = {
-        val r =  alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception") ? queryIdleNodeInstanceInSystemWithRole("splitgroupslave")
+        val r =  alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception") ? queryIdleNodeInstanceInSystemWithRole("splitgroupslave")
         val result = Await.result(r, timeout.duration).asInstanceOf[Int]
         println(s"result ===---===>>> ${result}")
         result
