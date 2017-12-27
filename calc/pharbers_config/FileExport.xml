@@ -1,0 +1,25 @@
+<export>
+    <body>
+        <Provice>Date</Provice>
+        <Provice>Provice</Provice>
+        <Provice>Market</Provice>
+        <Provice>Product</Provice>
+        <Provice>Sales</Provice>
+        <Provice>Units</Provice>
+        <City>Date</City>
+        <City>Provice</City>
+        <City>City</City>
+        <City>Market</City>
+        <City>Product</City>
+        <City>Sales</City>
+        <City>Units</City>
+        <Hospital>Date</Hospital>
+        <Hospital>Provice</Hospital>
+        <Hospital>City</Hospital>
+        <Hospital>Panel_ID</Hospital>
+        <Hospital>Market</Hospital>
+        <Hospital>Product</Hospital>
+        <Hospital>Sales</Hospital>
+        <Hospital>Units</Hospital>
+    </body>
+</export>

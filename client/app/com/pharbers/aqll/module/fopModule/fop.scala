@@ -27,12 +27,12 @@ object fop {
 				}
 				Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))
 			} catch {
-  	    	case ex : Exception => error_handler(-1)
+  	    		case ex : Exception => error_handler(-1)
 			}
 	}
 
 	def downloadFile(name : String) : Array[Byte] = {
-		val filepath = root+program+fileBase + export_file + name
+		val filepath = memorySplitFile + export_file + name
 		val file = new File(filepath)
 		val reVal : Array[Byte] = new Array[Byte](file.length.intValue)
 		new FileInputStream(file).read(reVal)

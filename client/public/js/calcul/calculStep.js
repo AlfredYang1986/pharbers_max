@@ -9,9 +9,8 @@
     var sourceMap = {"cpa":"","gycx":""};
     var f = new Facade();
     var fileNames = [];
-    var mkt_lst = [];
-    var ym_mkt_num = 1;
     var rotate_name = "";
+    var aggregation_num = 0;
 
     $('#secondStep').hide();
     $('#sampleResult').hide();
@@ -21,6 +20,10 @@
     $(function(){
         $('button[name="upload-next"]').click(function(){
             toSecondStep();
+        });
+
+        $('#test-calc-result').click(function(){
+            toFourthStep()
         });
     });
 
@@ -99,7 +102,6 @@
             "ym": ym_lst
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
-            ym_mkt_num = ym_lst.length * mkt_lst.length;
             layer.msg("开始生成panel");
             prograssBar(20, 6, 10);
             $('#chooseMonth').modal('hide');
@@ -281,6 +283,9 @@
             case 'progress_calc_result':
                 progress_calc_result(obj);
                 break;
+            case 'progress_calc_result_done':
+                progress_calc_result_done(obj);
+                break;
             case 'txt':
                 txt(obj);
                 break;
@@ -316,9 +321,6 @@
                 $ym_div.append('<div class="col-sm-3"><div class="checkbox"> <label> <input type="checkbox" value="'+ ym +'">'+ym+'</label> </div> </div>');
                 sample_month.append(ym +"&nbsp;");
             });
-            $.each(obj.mkt.split(","), function( index, mkt ) {
-                mkt_lst.push(mkt)
-            });
             $('#chooseMonth').modal('show');
         }
     };
@@ -345,13 +347,33 @@
 
     var progress_calc = function(obj) {
         console.info(obj);
-        var progress = window.socket.getValue(obj)('progress');
+        window.socket.getValue(obj)('progress');
     };
 
     var progress_calc_result = function(obj){
         console.info(obj);
         layer.msg("计算完成");
         toFourthStep()
+    };
+
+    var progress_calc_result_done = function(obj){
+
+        if (parseInt(obj.progress) === 100) {
+            aggregation_num = aggregation_num + 1
+        } else {}
+
+        console.info(aggregation_num);
+        console.info(w.step_chart.table_num());
+        console.info(parseInt(obj.progress) === 100);
+        console.info((aggregation_num === w.step_chart.table_num() && parseInt(obj.progress) === 100));
+        console.info((parseInt(aggregation_num) === parseInt(w.step_chart.table_num()) && parseInt(obj.progress) === 100));
+
+        if (parseInt(aggregation_num) === parseInt(w.step_chart.table_num()) && parseInt(obj.progress) === 100) {
+            layer.msg("保存结束");
+            hide_loading();
+        } else {
+            //TODO: 后续接入进度条
+        }
     };
 
     var txt = function(msg) {

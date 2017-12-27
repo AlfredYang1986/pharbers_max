@@ -21,7 +21,7 @@ import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
-                        with alCalcDataTrait with alRestoreBsonTrait{ this : Actor =>
+                        with alCalcDataTrait with alRestoreBsonTrait with alAggregationDataTrait{ this : Actor =>
     val rd: RedisClient =  phRedisDriver().commonDriver
 
     def preCalcYMJob(item: alPanelItem): Unit = {
@@ -265,5 +265,42 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
         val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         agent ! refundNodeForRole("splitrestorebsonslave")
+    }
+    
+    
+    def preAggregationJob(uid: String): Unit = {
+        val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found uid"))
+        val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
+        panelLst.map(panel => rd.hget(panel, "tid").getOrElse(throw new Exception("not found tid"))).toList foreach{x =>
+            println(x)
+            pushAggregationJobs(uid, x)
+        }
+        
+        val msg = Map(
+            "type" -> "progress_calc_result_done",
+            "txt" -> "正在合并",
+            "progress" -> "10"
+        )
+        alWebSocket(uid).post(msg)
+    }
+    
+    def postAggregationJob(uid: String, table: String, result: Boolean): Unit = {
+        if (result) {
+            val msg = Map(
+                "type" -> "progress_calc_result_done",
+                "txt" -> s"$table,合并结束",
+                "progress" -> "100"
+            )
+            println(s"message => $msg")
+            alWebSocket(uid).post(msg)
+        } else {
+            val msg = Map(
+                "type" -> "error",
+                "error" -> "cannot aggregation data"
+            )
+            alWebSocket(uid).post(msg)
+        }
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitaggregationslave")
     }
 }

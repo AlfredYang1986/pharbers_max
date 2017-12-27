@@ -53,5 +53,4 @@ lazy val root = (project in file(".")).
 	name := "pharber-calc",
 	fork in run := true,
 	javaOptions += "-Xmx12G"
-  )
-    .enablePlugins(JavaAppPackaging)
+  ).enablePlugins(JavaAppPackaging)
