@@ -14,6 +14,8 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alCalcHelp.alAkkaHttpJson.PlayJsonSupport
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.alFileExport
 import play.api.libs.json.OFormat
 
@@ -94,7 +96,11 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
 				println(item.uid)
 				a ! startAggregationCalcData(item.uid)
-				complete(Map("result" -> "ok"))
+				val rd =  phRedisDriver().commonDriver
+				val rid = rd.hget(item.uid, "rid").map(x=>x).getOrElse(throw new Exception("not found uid"))
+				val size = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none")).
+					map(panel => rd.hget(panel, "tid").getOrElse(throw new Exception("not found tid"))).toList.size
+				complete(toJson(successToJson(toJson(Map("size" -> size.toString))).get))
 			}
 		}
 	}

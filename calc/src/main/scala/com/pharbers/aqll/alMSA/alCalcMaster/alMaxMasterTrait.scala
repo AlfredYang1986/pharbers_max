@@ -276,23 +276,23 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             pushAggregationJobs(uid, x)
         }
         
-//        val msg = Map(
-//            "type" -> "progress_calc_result_done",
-//            "txt" -> "正在合并",
-//            "progress" -> "10"
-//        )
-//        alWebSocket(uid).post(msg)
+        val msg = Map(
+            "type" -> "progress_calc_result_done",
+            "txt" -> "正在合并",
+            "progress" -> "10"
+        )
+        alWebSocket(uid).post(msg)
     }
     
     def postAggregationJob(uid: String, table: String, result: Boolean): Unit = {
         if (result) {
             val msg = Map(
                 "type" -> "progress_calc_result_done",
-                "txt" -> "合并结束",
+                "txt" -> s"$table,合并结束",
                 "progress" -> "100"
             )
-            println(s"fuck => $msg")
-//            alWebSocket(uid).post(msg)
+            println(s"message => $msg")
+            alWebSocket(uid).post(msg)
         } else {
             val msg = Map(
                 "type" -> "error",
