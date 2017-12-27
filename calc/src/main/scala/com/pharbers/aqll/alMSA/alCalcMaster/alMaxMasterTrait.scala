@@ -272,7 +272,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found uid"))
         val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
         panelLst.map(panel => rd.hget(panel, "tid").getOrElse(throw new Exception("not found tid"))).toList foreach{x =>
-            println(x)
             pushAggregationJobs(uid, x)
         }
         

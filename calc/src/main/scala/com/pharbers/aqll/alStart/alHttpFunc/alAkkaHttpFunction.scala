@@ -94,7 +94,6 @@ trait alAkkaHttpFunction extends Directives with PlayJson{
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
 				val a = alAkkaSystemGloble.system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-				println(item.uid)
 				a ! startAggregationCalcData(item.uid)
 				val rd =  phRedisDriver().commonDriver
 				val rid = rd.hget(item.uid, "rid").map(x=>x).getOrElse(throw new Exception("not found uid"))

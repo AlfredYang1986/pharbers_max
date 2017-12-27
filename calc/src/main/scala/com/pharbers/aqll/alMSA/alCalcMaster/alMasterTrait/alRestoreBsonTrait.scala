@@ -73,15 +73,10 @@ object alCameoRestoreBson {
 }
 
 class alCameoRestoreBson(uid: String, panel: String, slaveActor: ActorRef) extends Actor with ActorLogging {
-    var start = false
-
     override def receive: Receive = {
         case restore_bson_start() => slaveActor ! restore_bson_hand()
         case restore_bson_hand() =>
-            if (!start) {
-                sender ! restore_bson_start_impl(uid, panel)
-                start = true
-            }
+            sender ! restore_bson_start_impl(uid, panel)
             shutCameo
         case msg: AnyRef =>
             alTempLog(s"Warning! Message not delivered. alCameoRestoreBson.received_msg=$msg")

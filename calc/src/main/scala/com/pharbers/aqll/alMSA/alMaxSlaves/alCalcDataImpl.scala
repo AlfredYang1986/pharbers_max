@@ -61,9 +61,10 @@ class alCalcDataImpl extends Actor with ActorLogging{
 
             val f = (m1: Map[String, Any], m2: Map[String, Any]) => m1.map(x => x._1 -> (x._2.toString.toDouble + m2(x._1).toString.toDouble))
 
+            val rdSet = phRedisDriver().phSetDriver
             maxSum.foreach { x =>
-                    //TODO key 没有唯一性
-                    phRedisDriver().phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
+                //TODO key 没有唯一性
+                rdSet.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
             }
 
             val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
@@ -141,8 +142,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
     private def max_precess(element: IntegratedData, sub_uuid: String, longPath: Option[String] = None)
                            (recall: List[IntegratedData])(uid: String) = {
         if (!longPath.isEmpty) {
-            val redisDriver = phRedisDriver().commonDriver
-            val company = redisDriver.hget(uid, "company").get
+            val company = phRedisDriver().commonDriver.hget(uid, "company").get
 
             val data_tmp = alShareData.hospdata("universe", company) map { el =>
                 val mrd = westMedicineIncome(el.getCompany, element.getYearAndmonth, 0.0, 0.0, element.getMinimumUnit,

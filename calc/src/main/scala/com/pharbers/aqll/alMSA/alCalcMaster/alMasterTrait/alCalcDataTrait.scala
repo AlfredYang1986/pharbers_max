@@ -70,10 +70,11 @@ trait alCalcDataTrait { this : Actor =>
     }
 
     def doCalcData(item: alMaxRunning) {
-        phRedisDriver().commonDriver.set("segmentSum:"+item.tid, 0)
-        phRedisDriver().commonDriver.set("segmentOverSum:"+item.tid, 0)
-        phRedisDriver().commonDriver.set("avgSum:"+item.tid, 0)
-        phRedisDriver().commonDriver.set("calcSum:"+item.tid, 0)
+        val rd = phRedisDriver().commonDriver
+        rd.set("segmentSum:"+item.tid, 0)
+        rd.set("segmentOverSum:"+item.tid, 0)
+        rd.set("avgSum:"+item.tid, 0)
+        rd.set("calcSum:"+item.tid, 0)
         val cur = context.actorOf(alCameoCalcData.props(item, calc_router))
         cur ! calc_unpkg(item.tid, self)
     }

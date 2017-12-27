@@ -70,15 +70,10 @@ object alCameoAggregationData {
 }
 
 class alCameoAggregationData(uid: String, table: String, slaveActor: ActorRef) extends Actor with ActorLogging {
-	var start = false
-	
 	def aggregation: Receive = {
 		case aggregationDataStart() => slaveActor ! aggregationDataHand()
 		case aggregationDataHand() =>
-			if(!start) {
-				sender() ! aggregationDataImpl(uid, table)
-				start = true
-			}
+			sender() ! aggregationDataImpl(uid, table)
 			shutCameo()
 		case msg =>
 			alTempLog(s"Warning! Message not delivered. alCameoAggregationData.received_msg=$msg")
