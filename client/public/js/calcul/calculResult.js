@@ -27,18 +27,30 @@ var step_chart = (function ($, w) {
             query_data(json);
         });
         $('#submit-data').click(function(){
-            show_loading();
-            var json = JSON.stringify({
-                "businessType": "/datacommit",
-                "uid": $.cookie('uid')
+            layui.use('layer', function(){
+                var layer = layui.layer;
+                layer.confirm('请确认本次结果无误，保存入数据库中数据将无法删除！<br/>并将已有月份的数据，进行覆盖。', {
+                    btn: ['确认', '取消'], //按钮
+                    resize: false,
+                    maxWidth: 'auto',
+                    closeBtn: 0
+                }, function(index){
+                    show_loading();
+                    layer.close(index);
+                    var json = JSON.stringify({
+                        "businessType": "/datacommit",
+                        "uid": $.cookie('uid')
+                    });
+                    f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function (r) {
+                        if (r.status === 'ok') {
+                            table_num = r.result.result.result.size;
+                        } else {
+                            console.error("Error");
+                        }
+                    }, null, null, null, false);
+                }, function(){});
             });
-            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function (r) {
-                if (r.status === 'ok') {
-                    table_num = r.result.result.result.size;
-                } else {
-                    console.error("Error");
-                }
-            }, null, null, null, false);
+
         });
     });
 
@@ -64,7 +76,6 @@ var step_chart = (function ($, w) {
 
     var query_data = function(json) {
         $(document).ajaxStop(function(){
-            console.info("lalala");
             hide_loading();
         });
         show_loading();
