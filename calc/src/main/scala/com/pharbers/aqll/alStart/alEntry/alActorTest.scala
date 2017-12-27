@@ -78,7 +78,7 @@ object alActorTest extends App {
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706PAIN.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706PAIN_C.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706ZYVOX.xlsx")
-//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201706AI_R.xlsx")
 					}
 
 					Thread.sleep(3000)
