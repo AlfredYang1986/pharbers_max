@@ -105,7 +105,8 @@ body, html{
 
 /*个人信息*/
 .peopleInfo {
-    margin:0px 20px 0px;
+    cursor: pointer;
+    margin:0 20px;
     height: 60px;
 }
 .people-name {
