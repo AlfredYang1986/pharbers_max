@@ -29,7 +29,8 @@ class alAggregationDataComeo(uid: String, table: String, counter: ActorRef) exte
 	
 	def aggregation: Receive = {
 		case aggregationDataImpl(id, t) =>
-//			val rd = phRedisDriver().commonDriver // 预留
+			/// 预留
+//			val rd = phRedisDriver().commonDriver
 			alWeightSum(id, "fea9f203d4f593a96f0d6faa91ba24ba", s"fea9f203d4f593a96f0d6faa91ba24ba$t", 1).aggregation
 			self ! aggregationDataEnd(true)
 			
