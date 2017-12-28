@@ -22,9 +22,9 @@
             toSecondStep();
         });
 
-        $('#test-calc-result').click(function(){
-            toFourthStep()
-        });
+        // $('#test-calc-result').click(function(){
+        //     toFourthStep()
+        // });
     });
 
     var toSecondStep = function () {
