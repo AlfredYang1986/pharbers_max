@@ -5,10 +5,11 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.pushScpJob
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg.pushCalcJob
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg.pushRestoreJob
 
-import java.util.UUID
 import akka.actor.Actor
 import com.redis.RedisClient
+import java.util.{Date, UUID}
 import play.api.libs.json.JsValue
+import java.text.SimpleDateFormat
 import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
@@ -23,6 +24,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
                         with alCalcDataTrait with alRestoreBsonTrait with alAggregationDataTrait{ this : Actor =>
     val rd: RedisClient =  phRedisDriver().commonDriver
+    val df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
     def preCalcYMJob(item: alPanelItem): Unit = {
         pushCalcYMJobs(item)
@@ -252,6 +254,8 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                     "progress" -> "100"
                 )
                 alWebSocket(uid).post(msg)
+
+                alTempLog(s"计算完成 in ${df.format(new Date())}")
             }
         } else {
             var overSum = rd.get("overSum:" + uid).getOrElse("0").toInt
@@ -290,7 +294,8 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 "txt" -> s"$table,合并结束",
                 "progress" -> "100"
             )
-            println(s"message => $msg")
+
+            alTempLog(s"合并完成 in ${df.format(new Date())}")
             alWebSocket(uid).post(msg)
         } else {
             val msg = Map(
