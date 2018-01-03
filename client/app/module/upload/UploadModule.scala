@@ -22,8 +22,8 @@ object UploadModule extends ModuleTrait {
 		try {
 			val conn = cm.modules.get.get("db").map (x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("cli").get
-			val uid = (MergeStepResult(data, pr) \ "user" \ "user_id").asOpt[String].getOrElse(throw new Exception(""))
-			db.queryObject(DBObject("user_id" -> uid), "users") { x =>
+			val user_id = (MergeStepResult(data, pr) \ "user" \ "user_id").asOpt[String].getOrElse(throw new Exception(""))
+			db.queryObject(DBObject("user_id" -> user_id), "users") { x =>
 				val reVal = x.as[MongoDBObject]("profile")
 				val company = reVal.getAs[String]("company")
 				Map("company" -> toJson(company))

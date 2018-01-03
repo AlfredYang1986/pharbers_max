@@ -12,7 +12,7 @@ class alCalcSplitJob(u : String, val parent : String, val mid : String) extends 
     override val uuid: String = mid
     val ps = presist_data(Some(uuid), Some("calc"), Some(u))
 
-    def init(args : Map[String, Any]) = {
+    override def init(args : Map[String, Any]) = {
 
         val restore_path = s"${memorySplitFile}${calc}$parent/$u"
 

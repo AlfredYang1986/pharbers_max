@@ -1,7 +1,7 @@
 /**
  * Created by clock on 17-9-28.
  */
-
+///
 (function ($) {
     'use strict';
     $('li[pharbers-filter="calc"]').addClass("layui-this");

@@ -1,328 +1,321 @@
 /**
  * Created by yym on 11/27/17.
  */
-"use strict";
-(function ($, w) {
-
-    bar_line_chart("market_trend");
-    map_chart("market_map");
-    bar_chart("market_bar");
-    function bar_line_chart(id) {
-        var barLineChart = echarts.init(document.getElementById(id));
-        var option = {
-            title: {
-            },
-            tooltip: {
-                trigger: 'axis'
-            },
-            // toolbox: {
-            //     feature: {
-            //         dataView: {
-            //             show: true,
-            //             readOnly: false
-            //         },
-            //         restore: {
-            //             show: true
-            //         },
-            //         saveAsImage: {
-            //             show: true
-            //         }
-            //     }
-            // },
-            grid: {
-                containLabel: true
-            },
-            legend: {
-                data: ['市场销量', '份额变化趋势']
-            },
-            xAxis: [{
-                type: 'category',
-                axisTick: {
-                    alignWithLabel: true
-                },
-                data: ['2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016']
-            }],
-            yAxis: [{
-                type: 'value',
-                name: '增速',
-                min: 0,
-                max: 50,
-                position: 'right',
-                axisLabel: {
-                    formatter: '{value} %'
-                }
-            }, {
-                type: 'value',
-                name: '销量',
-                min: 0,
-                max: 3000,
-                position: 'left'
-            }],
-            series: [{
-                name: '增速',
-                type: 'line',
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'top',
-                    }
-                },
-                lineStyle: {
-                    normal: {
-                        width: 3,
-                        shadowColor: 'rgba(0,0,0,0.4)',
-                        shadowBlur: 10,
-                        shadowOffsetY: 10
-                    }
-                },
-                data: [1, 13, 37, 35, 15, 13, 25, 21, 6, 45, 32, 2, 4, 13, 6, 4, 11]
-            }, {
-                name: '销量',
-                type: 'bar',
-                yAxisIndex: 1,
-                stack: '总量',
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'top'
-                    }
-                },
-                data: [209, 236, 325, 439, 507, 576, 722, 879, 938, 1364, 1806, 1851, 1931, 2198, 2349, 2460, 2735]
-            }]
-        };
-        barLineChart.setOption(option);
-        $(window).resize(function () {
+var step_chart = (function ($, w) {
+    "use strict";
+    var f = new Facade();
+    var itemStyleColor = ['#3AD1C2', '#60C6CF', '#FFFFFF', '#009992'];
+    var barLineChart, mapChart, barChart;
+    var table_num = 0;
+    $(function(){
+        bar_line_chart("market_trend");
+        map_chart("market_map");
+        bar_chart("market_bar");
+        $(w).resize(function () {
             barLineChart.resize();
-        })
-    }
+            mapChart.resize();
+            barChart.resize();
+        });
+        $('div[name="btn-query-calcresult"]').click(function(){
+            var marketWithYear = $('select[name="calc-result-month"]').val() + '-' + $('select[name="calc-result-market"]').val();
+            var json = JSON.stringify(f.parameterPrefix.conditions({
+                "user_token": $.cookie("user_token"),
+                "marketWithYear": marketWithYear,
+                "uid": $.cookie("uid")
+            }));
 
-    function map_chart(id) {
-        var map = echarts.init(document.getElementById(id));
-        function randomData() {
-            return Math.round(Math.random()*2500);
-        }
-
-        var option = {
-            tooltip: {
-                trigger: 'item',
-                formatter: '{b}'
-            },
-            visualMap: {//视觉映射组件
-                type : "piecewise",
-                splitNumber : 5,
-                seriesIndex: 0,
-                pieces : [
-                    {gt: 2000, color : '#60B3AD'},            // (1500, Infinity]
-                    {gt: 1500, lte: 2000, color : '#80CDC8'},  // (900, 1500]
-                    {gt: 1000, lte: 1500, color : '#9DE0DC'},  // (310, 1000]
-                    {gt: 500, lte: 1000, color : '#D2F5F2'},
-                    {lt :500 ,color : '#D7D7D7'}
-                ],
-                min: 0,
-                max: 2500,
-                left: 'left',
-                top: 'bottom',
-                text: ['高','低'],           // 文本，默认为数值文本
-                calculable: true
-            },
-            xAxis: {
-                type: 'category',
-                data: [],
-                splitNumber: 1,
-                show: false
-            },
-            yAxis: {
-                position: 'right',
-                min: 0,
-                max: 20,
-                splitNumber: 20,
-                inverse: true,
-                axisLabel: {
-                    show: true
-                },
-                axisLine: {
-                    show: false
-                },
-                splitLine: {
-                    show: false
-                },
-                axisTick: {
-                    show: false
-                },
-                data: []
-            },
-            series: [
-                {
-                    zlevel: 1,
-                    name: '中国',
-                    type: 'map',
-                    mapType: 'china',
-                    // selectedMode : 'multiple',
-                    roam: false,//不进行缩放
-                    left: 0,
-                    right: '15%',
-                    label: {
-                        normal: {
-                            show: true
-                        },
-                        emphasis: {
-                            show: true
+            query_data(json);
+        });
+        $('#submit-data').click(function(){
+            layui.use('layer', function(){
+                var layer = layui.layer;
+                layer.confirm('请确认本次结果无误，保存入数据库中数据将无法删除！<br/>并将已有月份的数据，进行覆盖。', {
+                    btn: ['确认', '取消'], //按钮
+                    resize: false,
+                    maxWidth: 'auto',
+                    closeBtn: 0
+                }, function(index){
+                    show_loading();
+                    layer.close(index);
+                    var json = JSON.stringify({
+                        "businessType": "/datacommit",
+                        "uid": $.cookie('uid')
+                    });
+                    f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function (r) {
+                        if (r.status === 'ok') {
+                            table_num = r.result.result.result.size;
+                        } else {
+                            console.error("Error");
                         }
-                    },
-                    data:[
-                        {name: '北京',value: randomData() },
-                        {name: '天津',value: randomData() },
-                        {name: '上海',value: randomData() },
-                        {name: '重庆',value: randomData() },
-                        {name: '河北',value: randomData() },
-                        {name: '河南',value: randomData() },
-                        {name: '云南',value: randomData() },
-                        {name: '辽宁',value: randomData() },
-                        {name: '黑龙江',value: randomData() },
-                        {name: '湖南',value: randomData() },
-                        {name: '安徽',value: randomData() },
-                        {name: '山东',value: randomData() },
-                        {name: '新疆',value: randomData() },
-                        {name: '江苏',value: randomData() },
-                        {name: '浙江',value: randomData() },
-                        {name: '江西',value: randomData() },
-                        {name: '湖北',value: randomData() },
-                        {name: '广西',value: randomData() },
-                        {name: '甘肃',value: randomData() },
-                        {name: '山西',value: randomData() },
-                        {name: '内蒙古',value: randomData() },
-                        {name: '陕西',value: randomData() },
-                        {name: '吉林',value: randomData() },
-                        {name: '福建',value: randomData() },
-                        {name: '贵州',value: randomData() },
-                        {name: '广东',value: randomData() },
-                        {name: '青海',value: randomData() },
-                        {name: '西藏',value: randomData() },
-                        {name: '四川',value: randomData() },
-                        {name: '宁夏',value: randomData() },
-                        {name: '海南',value: randomData() },
-                        {name: '台湾',value: randomData() },
-                        {name: '香港',value: randomData() },
-                        {name: '澳门',value: randomData() }
-                    ]
-                }
-            ]
-        };
-        map.setOption(option);
-        $(window).resize(function () {
-            map.resize();
+                    }, null, null, null, false);
+                }, function(){});
+            });
+
+        });
+    });
+
+    var query_select = function() {
+        f.ajaxModule.baseCall('/calc/querySelectBox', JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")})), 'POST', function (r) {
+            if(r.status === 'ok') {
+                var $select_month =  $('select[name="calc-result-month"]');
+                var $select_market = $('select[name="calc-result-market"]');
+                $select_month.empty();
+                $select_market.empty();
+                var market_lst = [];
+                var time_lst = [];
+
+                $.each(r.result.result_condition.select_values, function(i, v){
+                    time_lst.push(v.Date);
+                    market_lst.push(v.Market);
+                });
+                $.each($.unique(market_lst), function(i, v){$select_market.append('<option  value="'+ v +'">' + v + '</option>');});
+                $.each($.unique(time_lst).sort(), function(i, v){$select_month.append('<option  value="'+ v +'">' + v + '</option>');});
+            }
+        });
+    };
+
+    var query_data = function(json) {
+        $(document).ajaxStop(function(){
+            hide_loading();
+        });
+        show_loading();
+        barLineChart.showLoading();
+        barChart.showLoading();
+        mapChart.showLoading();
+
+        var j = json || JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")}));
+
+        f.ajaxModule.baseCall('/calc/querySalesVsShare', j, 'POST', function(r) {
+            if(r.status === 'ok') {
+                $('span[name="sumsales"]').empty().text(parseFloat(r.result.cursales / 1000000).toFixed(2));
+                $('span[name="productsales"]').empty().text(parseFloat(r.result.curproductsales / 1000000).toFixed(2));
+                $('span[name="share"]').empty().text((parseFloat(r.result.curproductsales) / parseFloat(r.result.cursales) * 100).toFixed(2));
+
+                var $echart_option = barLineChart.getOption();
+                var xAxisData = [];
+                var seriesBarData = [];
+                var seriesLineData = [];
+                $.each(r.result.condition, function(i, v) {
+                    xAxisData.push(v.Date);
+                    seriesBarData.push((v.Sales / 1000000).toFixed(2));
+                    seriesLineData.push(v.Share);
+                });
+                $echart_option.xAxis[0].data = xAxisData;
+                $echart_option.series[0].data = seriesBarData;
+                $echart_option.series[1].data = seriesLineData;
+                barLineChart.setOption($echart_option);
+                barLineChart.hideLoading();
+            } else {
+                console.error("error");
+            }
         });
 
-        /**
-         * 根据值获取线性渐变颜色
-         * @param  {String} start 起始颜色
-         * @param  {String} end   结束颜色
-         * @param  {Number} max   最多分成多少分
-         * @param  {Number} val   渐变取值
-         * @return {String}       颜色
-         */
-        function getGradientColor (start, end, max, val) {
-            var rgb = /#((?:[0-9]|[a-fA-F]){2})((?:[0-9]|[a-fA-F]){2})((?:[0-9]|[a-fA-F]){2})/;
-            var sM = start.match(rgb);
-            var eM = end.match(rgb);
-            var err = '';
-            max = max || 1
-            val = val || 0
-            if (sM === null) {
-                err = 'start';
+        f.ajaxModule.baseCall('/calc/queryCurVsPreWithCity', j, 'POST', function(r) {
+            if(r.status === 'ok') {
+                var $echart_map_option = mapChart.getOption();
+                var $echart_bar_option = barChart.getOption();
+
+                var seriesMapData = [];
+                var yAxisBarData = [];
+                var seriesBarMarketData = [];
+                var seriesBarProductData = [];
+
+                $.each(r.result.condition, function(i, v) {
+                    seriesMapData.push({name: v.Province, value: v.Sales, productSales: v.ProductSales, share: v.Share});
+                });
+
+                $.each(r.result.bar, function(i, v) {
+                    yAxisBarData.push(v.Province);
+                    seriesBarMarketData.push(v.Sales);
+                    seriesBarProductData.push(v.ProductSales);
+                });
+                $echart_map_option.series[0].data = seriesMapData;
+                $echart_map_option.visualMap[0].max = seriesMapData[0].value;
+
+                $echart_bar_option.yAxis[0].data = yAxisBarData;
+                $echart_bar_option.series[0].data = seriesBarMarketData;
+                $echart_bar_option.series[1].data = seriesBarProductData;
+
+                mapChart.setOption($echart_map_option);
+                barChart.setOption($echart_bar_option);
+                barChart.hideLoading();
+                mapChart.hideLoading();
+
+            } else {
+                console.error("error");
             }
-            if (eM === null) {
-                err = 'end';
-            }
-            if (err.length > 0) {
-                throw new Error('Invalid ' + err + ' color format, required hex color');
-            }
-            var sR = parseInt(sM[1], 16),
-                sG = parseInt(sM[2], 16),
-                sB = parseInt(sM[3], 16);
-            var eR = parseInt(eM[1], 16),
-                eG = parseInt(eM[2], 16),
-                eB = parseInt(eM[3], 16);
-            var p = val / max;
-            var gR = Math.round(sR + (eR - sR) * p).toString(16),
-                gG = Math.round(sG + (eG - sG) * p).toString(16),
-                gB = Math.round(sB + (eB - sB) * p).toString(16);
-            return '#' + gR + gG + gB;
-        }
+        });
+    };
 
-        /*setTimeout(function() {
-            var TOPN = 25
-
-            var option = map.getOption()
-            // 修改top
-            option.grid[0].height = TOPN * 20
-            option.yAxis[0].max = TOPN
-            option.yAxis[0].splitNumber = TOPN
-            option.series[1].data[0] = TOPN
-            // 排序
-            var data = option.series[0].data.sort(function(a, b) {
-                return b.value - a.value
-            })
-
-            var maxValue = data[0].value,
-                minValue = data.length > TOPN ? data[TOPN - 1].value : data[data.length - 1].value
-
-            var s = option.visualMap[0].controller.inRange.color[0],
-                e = option.visualMap[0].controller.inRange.color.slice(-1)[0]
-            var sColor = getGradientColor(s, e, maxValue, minValue)
-            var eColor = getGradientColor(s, e, maxValue, maxValue)
-
-            option.series[1].itemStyle.normal.color = new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                offset: 1,
-                color: sColor
-            }, {
-                offset: 0,
-                color: eColor
-            }])
-
-            // yAxis
-            var newYAxisArr = []
-            echarts.util.each(data, function(item, i) {
-                if (i >= TOPN) {
-                    return false
-                }
-                var c = getGradientColor(sColor, eColor, maxValue, item.value)
-                newYAxisArr.push({
-                    value: item.name,
-                    textStyle: {
-                        color: c
-                    }
-                })
-            })
-            option.yAxis[0].data = newYAxisArr
-            option.yAxis[0].axisLabel.formatter = (function(data) {
-                return function(value, i) {
-                    if (!value) return ''
-                    return value + ' ' + data[i].value
-                }
-            })(data)
-            map.setOption(option)
-        }, 0);*/
-
-    }
-
-    function bar_chart(id) {
-        var barChart = echarts.init(document.getElementById(id));
+    function bar_line_chart(id) {
+        barLineChart = echarts.init(document.getElementById(id));
         var option = {
-            // title: {
-            //     text: '需求驳回率排名',
-            // },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
             tooltip: {
                 trigger: 'axis',
+                textStyle: {
+                    align: 'left'
+                },
                 axisPointer: {
                     type: 'shadow'
                 }
             },
+            xAxis: [
+                {
+                    name: '日期',
+                    nameGap: 40,
+                    type: 'category',
+                    data: [], //['2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016'],
+                    splitLine: {
+                        show:false
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: '市场销量(百万)',
+                    // max: 10000,
+                    position: "left"
+                },
+                {
+                    type: 'value',
+                    name: '份额变化趋势',
+                    show: true,
+                    position: 'right',
+                    axisLabel: {
+                        formatter: '{value} %'
+                    },
+                    splitLine: {
+                        show:false
+                    }
+                }
+            ],
+            series: [
+                {
+                    name:'Market Sales',
+                    type:'bar',
+                    barWidth: '80%',
+                    yAxisIndex: 0,
+                    data: [], //[209, 236, 325, 439, 507, 576, 722, 879, 938, 1364, 1806, 1851, 1931, 2198, 2349, 2460, 2735],
+                    label: {
+                        normal: {
+                            show: false,
+                            color: "#FFFFFF",
+                            position: 'minddle'
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: itemStyleColor[0]
+                        }
+                    }
+                },
+                {
+                    name:'MAX Mono Share',
+                    type:'line',
+                    yAxisIndex: 1,
+                    data: [], //[1, 13, 37, 35, 15, 13, 25, 21, 6, 45, 32, 2, 4, 13, 6, 4, 10],
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'top'
+                        }
+                    },
+                    lineStyle: {
+                        normal: {
+                            color: itemStyleColor[1],
+                            width: 3,
+                            shadowBlur: 10,
+                            shadowOffsetY: 10
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: itemStyleColor[3]
+                        }
+                    }
+                }
+            ]
+        };
+        barLineChart.setOption(option);
+    }
+
+    function map_chart(id) {
+        mapChart = echarts.init(document.getElementById(id));
+        var option = {
+            title: {
+                // text: '中国大区分布图',
+                // subtext: '中国的八大区分布',
+                // sublink: '#',
+
+                itemGap: 30,
+
+                left: 'center',
+                textStyle: {
+                    color: '#1a1b4e',
+                    fontStyle: 'normal',
+                    fontWeight: 'bold',
+                    fontSize: 30
+
+                },
+                subtextStyle: {
+                    color: '#58d9df',
+                    fontStyle: 'normal',
+                    fontWeight: 'bold',
+                    fontSize: 16
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                textStyle: {align: 'left'},
+                formatter: function (v) {
+                    var tip_content = '省份：'+ v.data.name +'<br/>';
+                    tip_content += '市场销量：'+ (f.thousandsModule.formatNum(v.data.value)) +'<br/>';
+                    tip_content += '产品销量：'+ (f.thousandsModule.formatNum(v.data.productSales)) +'<br/>';
+                    tip_content += '份额：'+ (parseFloat(v.data.share) < 0 ? 0 : v.data.share) +'%';
+                    return tip_content;
+                }
+            },
+            visualMap: {
+                min: 0,
+                max: 56173792,
+                left: 'left',
+                top: 'bottom',
+                text: ['高','低'],
+                inRange: {
+                    color: ['#EBF0EF', '#37D1C1']
+                },
+                calculable : true
+            },
+            series: [{
+                name: '中国',
+                type: 'map',
+                zoom: 1.2,
+                mapType: 'china',
+                roam: false,
+                label: {normal: {show: true}},
+                data: []
+            }]
+        };
+        mapChart.setOption(option);
+    }
+
+    function bar_chart(id) {
+        barChart = echarts.init(document.getElementById(id));
+        var option = {
+            tooltip: {
+                trigger: 'axis',
+                textStyle: {align: 'left'},
+                axisPointer: {type: 'shadow'}
+            },
             legend: {
                 data: ['市场总销售额', '产品销售额'],
-                bottom:'10px',
-                right:'10px',
                 orient:'vertical'
             },
             grid: {
@@ -337,12 +330,8 @@
             },
             yAxis: {
                 type: 'category',
-                data: ['01 江苏 15','01 江苏 15','01 江苏 15','01 江苏 15','01 江苏 15','01 江苏 15', '01 江苏 15','01 江苏 15','01 江苏 15','01 江苏 15'],
-                axisLabel: {
-                    show: true,
-                    interval: 'auto',
-                    formatter: '{value}%',
-                },
+                data: [],
+                axisLabel: {show: true, interval: 'auto', formatter: '{value}'}
             },
             series: [
                 {
@@ -352,20 +341,14 @@
                         normal: {
                             color : '#ADADAD',//柱状图颜色
                             label: {
-                                textStyle: {
-                                    color: '#000000',
-                                    fontSize: 3
-                                },
-                                show: true,
-                                position: 'right',
-                                formatter: '{c}%',
-
-
+                                // textStyle: {color: '#000000', fontSize: 3},
+                                show: false,
+                                position: 'right'
+                                // formatter: '{c}%'
                             }
                         }
                     },
-                    data: [8, 13, 15, 17, 22, 24, 28, 31, 35, 37],
-
+                    data: []
                 },
                 {
                     name: '产品销售额',
@@ -374,28 +357,27 @@
                         normal: {
                             color: '#60B3AD',
                             label: {
-                                textStyle: {
-
-                                    color: '#000000',
-                                    fontSize: 3
-                                },
-                                show: true,
-                                position: 'right',
-                                formatter: '{c}%',
-
-
+                                // textStyle: {color: '#000000', fontSize: 3},
+                                show: false,
+                                position: 'right'
+                                // formatter: '{c}%'
                             }
                         }
                     },
-                    data: [9, 21, 13, 22, 13, 16, 13, 15, 17, 22]
+                    data: []
                 }
             ]
-        }
-        barChart.setOption(option);
-        $(window).resize(function () {
-            barChart.resize();
-        });
+        };
 
+        barChart.setOption(option);
     }
 
-}(jQuery))
+    return {
+        "barLineChart": function() {return barLineChart;},
+        "mapChart": function() {return mapChart;},
+        "barChart": function() {return barChart;},
+        "query_data": query_data,
+        "query_select": query_select,
+        "table_num": function(){return table_num;}
+    }
+}(jQuery, window));

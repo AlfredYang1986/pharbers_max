@@ -1,25 +1,29 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import akka.routing.BroadcastPool
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoGeneratePanel.generate_panel_timeout
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{calcYMResult, calcYMSchedule, releaseCalcYMEnergy}
-import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcYMSlave
-import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-
-import scala.concurrent.duration._
+import akka.pattern.ask
+import akka.util.Timeout
 import scala.concurrent.stm._
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import akka.routing.BroadcastPool
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcYMSlave
+import scala.concurrent.ExecutionContext.Implicits.global
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 
 /**
   * Created by jeorch on 17-10-11.
+  *     Modify by clock on 2017.12.19
   */
 trait alCalcYMTrait { this : Actor =>
-    import scala.concurrent.ExecutionContext.Implicits.global
-
-    val calcYMLimit = Ref(1)
     val calcYM_router = createCalcYMRouter
-    val calc_ym_jobs = Ref(List[alPanelItem]())
+    val calcYMJobs = Ref(List[alPanelItem]())
+    //TODO shijian chuan can
     val calc_ym_schedule = context.system.scheduler.schedule(1 second, 1 second, self, calcYMSchedule())
 
     def createCalcYMRouter = context.actorOf(
@@ -34,74 +38,55 @@ trait alCalcYMTrait { this : Actor =>
 
     def pushCalcYMJobs(item: alPanelItem) = {
         atomic { implicit thx =>
-            calc_ym_jobs() = calc_ym_jobs() :+ item
+            calcYMJobs() = calcYMJobs() :+ item
         }
     }
 
+    //TODO ask shenyong
+    def canCalcYMJob : Boolean = {
+        implicit val t = Timeout(2 seconds)
+        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcymslave")
+        Await.result(f, t.duration).asInstanceOf[Int] > 0
+    }
+
     def calcYMScheduleJobs = {
-        if (calcYMLimit.single.get > 0) {
+        if (canCalcYMJob) {
             atomic { implicit thx =>
-                val tmp = calc_ym_jobs.single.get
+                val tmp = calcYMJobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
-                    calcYMLimit() = calcYMLimit.single.get - 1
-                    calc_ym_jobs() = calc_ym_jobs().tail
+                    calcYMJobs() = calcYMJobs().tail
                     doCalcYMJob(tmp.head)
                 }
             }
         }
     }
 
-    def doCalcYMJob(calcYM_job: alPanelItem) = {
-        import alCameoCalcYM._
-        val cur = context.actorOf(alCameoCalcYM.props(calcYM_job, self, calcYM_router))
+    def doCalcYMJob(calcYMJob: alPanelItem) = {
+        val cur = context.actorOf(alCameoCalcYM.props(calcYMJob, calcYM_router))
         cur ! calcYM_start()
-    }
-
-    def releaseCalcYMEnergy = {
-        atomic { implicit thx =>
-            calcYMLimit() = calcYMLimit.single.get + 1
-        }
     }
 }
 
 object alCameoCalcYM {
-    case class calcYM_start()
-    case class calcYM_hand()
-    case class calcYM_start_impl(panel_job: alPanelItem)
-    case class calcYM_end(result: Boolean, ym: String)
-    case class calcYM_timeout()
-
-    def props(calcYM_job: alPanelItem,
-              masterActor: ActorRef,
-              slaveActor: ActorRef) = Props(new alCameoCalcYM(calcYM_job, masterActor, slaveActor))
+    def props(calcYMJob: alPanelItem,
+              slaveActor: ActorRef) = Props(new alCameoCalcYM(calcYMJob, slaveActor))
 }
 
-class alCameoCalcYM(calcYM_job: alPanelItem,
-                    masterActor: ActorRef,
-                    slaveActor: ActorRef) extends Actor with ActorLogging {
-    import alCameoCalcYM._
-
+class alCameoCalcYM(calcYM_job: alPanelItem, slaveActor: ActorRef) extends Actor with ActorLogging {
     override def receive: Receive = {
         case calcYM_start() => slaveActor ! calcYM_hand()
-        case calcYM_hand() => sender ! calcYM_start_impl(calcYM_job)
-        case calcYM_end(result, ym) => {
-            self ! releaseCalcYMEnergy()
-            self ! calcYMResult(ym)
+        case calcYM_hand() =>
+            sender ! calcYM_start_impl(calcYM_job)
             shutCameo
-        }
-        case calcYM_timeout() => println("=====calcYM_timeout")
-        case msg : AnyRef => log.info(s"Warning! Message not delivered. alCameoCalcYM.received_msg=${msg}")
-    }
-
-    import scala.concurrent.ExecutionContext.Implicits.global
-    val calcYM_timer = context.system.scheduler.scheduleOnce(30 minute) {
-        self ! calcYM_timeout()
+        case msg: AnyRef =>
+            alTempLog(s"Warning! Message not delivered. alCameoCalcYM.received_msg=$msg")
+            shutCameo
     }
 
     def shutCameo = {
-        log.info("stopping generate panel cameo")
-        calcYM_timer.cancel()
-        context.stop(self)
+        alTempLog("stopping calc ym cameo")
+        self ! PoisonPill
     }
 }

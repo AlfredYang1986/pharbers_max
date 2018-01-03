@@ -18,11 +18,11 @@ trait CalcResultData {
 		else {
 			val result = x.getAs[MongoDBList]("result").get
 			val list = result.toList.asInstanceOf[List[DBObject]]
-			list.find(x => x.getAs[DBObject]("_id") != None).map { z =>
-				val reVal = z.getAs[DBObject]("_id").get
-				val map = Map("Date" -> toJson(alDateOpt.Timestamp2yyyyMM(reVal.getAs[Number]("Date").get.longValue())), "Market" -> toJson(reVal.getAs[String]("Market").get))
-				Map(UUID.randomUUID().toString -> toJson(map))
-			}.getOrElse(throw new Exception(""))
+			val map = list.filter(x => x.getAs[DBObject]("_id").isDefined).map { z =>
+				val reVal = z.getAs[DBObject]("_id").getOrElse(throw new Exception(""))
+				Map("Date" -> toJson(alDateOpt.Timestamp2yyyyMM(reVal.getAs[Number]("Date").get.longValue())), "Market" -> toJson(reVal.getAs[String]("Market").get))
+			}
+			Map(UUID.randomUUID().toString -> toJson(map))
 		}
 	}
 	
@@ -34,52 +34,20 @@ trait CalcResultData {
 			val list = result.toList.asInstanceOf[List[DBObject]]
 			val r = list.map{ x =>
 				val reVal = x.getAs[DBObject]("_id").get
-				val sales = x.getAs[Number]("Sales").get.doubleValue()
-				val units = x.getAs[Number]("Units").get.doubleValue()
+				val sales = x.getAs[Number]("Sales").get.doubleValue().toString
+				val units = x.getAs[Number]("Units").get.doubleValue().toString
 				val date = alDateOpt.Timestamp2yyyyMM(reVal.getAs[Number]("Date").map(x => x.longValue()).getOrElse(0))
-				val market = reVal.getAs[String]("Market").get
-				val city = reVal.getAs[String]("City").getOrElse("")
+				val market = reVal.getAs[String]("Market").getOrElse("")
+				val product = reVal.getAs[String]("Product").getOrElse("")
+				val province = reVal.getAs[String]("Provice").getOrElse("")
 				Map("Date" -> toJson(date),
 					"Market" -> toJson(market),
-					"City" -> toJson(city),
+					"Product" -> toJson(product),
+					"Province" -> toJson(province),
 					"Sales" -> toJson(sales),
 					"Units" -> toJson(units))
 			}
 			Map(id -> toJson(r))
 		}
-	}
-}
-
-object alNearDecemberMonth {
-	
-	def diff12Month(date: String): Array[String] = {
-		val year = date.substring(0, 4).toInt
-		val month = date.substring(4, date.length).toInt
-		val temp = new ArrayBuffer[String]()
-		val lst = diffDate(year, month, (year.toInt - 1), month)(temp)
-		lst.sortBy(x => x)
-	}
-	
-	def diffDate(cur_year: Int, cur_month: Int, ear_year: Int, ear_month: Int)(temp: ArrayBuffer[String]): Array[String] = {
-		(ear_year, ear_month) match {
-			case (x, y) if x.equals(cur_year) && y.equals(cur_month) => temp.toArray
-			case _ => {
-				ear_month match {
-					case i if i >= 12 => {
-						temp += s"$cur_year${diffMonth(s"${i + 1 - 12}")}"
-						diffDate(cur_year, cur_month, cur_year, i + 1 - 12)(temp)
-					}
-					case _ => {
-						temp += s"$ear_year${diffMonth(s"${ear_month + 1}")}"
-						diffDate(cur_year, cur_month, ear_year, ear_month + 1)(temp)
-					}
-				}
-			}
-		}
-	}
-	
-	def diffMonth(month: String): String = month.length match {
-		case 1 => 0 + month
-		case _ => month
 	}
 }

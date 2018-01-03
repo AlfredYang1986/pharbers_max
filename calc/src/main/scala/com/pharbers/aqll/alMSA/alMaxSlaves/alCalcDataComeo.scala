@@ -1,125 +1,114 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import java.util.UUID
-
-import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, PoisonPill, Props, SupervisorStrategy}
-import akka.actor.SupervisorStrategy.Escalate
+import alCalcDataComeo._
 import akka.routing.BroadcastPool
-import com.pharbers.aqll.alCalaHelp.alMaxDefines._
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.worker_calc_core_split_jobs
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
-import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoSplitPanel.split_panel_timeout
-import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
-import akka.actor.SupervisorStrategy.{Escalate, Restart}
-import com.pharbers.aqll.alCalc.almain.alSegmentGroup
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.sumCalcJob
-import com.pharbers.aqll.common.alFileHandler.fileConfig.{calc, memorySplitFile}
-import com.pharbers.driver.redis.phRedisDriver
-
-import scala.collection.immutable.Map
-import scala.concurrent.stm.{Ref, atomic}
 import scala.concurrent.duration._
+import scala.collection.immutable.Map
+import akka.actor.SupervisorStrategy.Escalate
+import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.alCalcHelp.alMaxDefines._
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
+import scala.concurrent.ExecutionContext.Implicits.global
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
+import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
+import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, PoisonPill, Props, SupervisorStrategy}
 
 /**
   * Created by alfredyang on 12/07/2017.
+  *     Modify by clock on 2017.12.21
   */
-
-//trait alCalcAtomicTrait { this: Actor =>
-//}
-
 object alCalcDataComeo {
-    def props(item: alMaxRunning, originSender : ActorRef, owner : ActorRef, counter : ActorRef) =
-        Props(new alCalcDataComeo(item, originSender, owner, counter))
+    def props(item: alMaxRunning, originSender : ActorRef) = Props(new alCalcDataComeo(item, originSender))
     val core_number: Int = server_info.cpu
 }
 
-class alCalcDataComeo (item : alMaxRunning,
-                       originSender : ActorRef,
-                       owner : ActorRef,
-                       counter : ActorRef) extends Actor with ActorLogging {
-    
-    var cur = 0
-    var sed = 0
-    var segment : List[String] = Nil
-    import alCalcDataComeo._
-    var r : alMaxRunning = null
-    
+class alCalcDataComeo (item : alMaxRunning, counter : ActorRef) extends Actor with ActorLogging {
+    val impl_router = context.actorOf(
+            BroadcastPool(core_number).props(alCalcDataImpl.props),
+            name = "concert-calc-router"
+        )
+
+    //TODO shijian chuancan
+    val timeoutMessager = context.system.scheduler.scheduleOnce(6000 minute) {
+        self ! calc_data_timeout()
+    }
+
     override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
         case _ => Escalate
     }
     
-    override def postRestart(reason: Throwable) : Unit = {
-        // TODO : 计算次数，重新计算
+    override def postRestart(reason: Throwable) = {
         counter ! canIReStart(reason)
     }
     
     override def receive: Receive = {
-        case calc_data_timeout() => {
-            log.info("timeout occur")
-            shutSlaveCameo(split_panel_timeout())
-        }
-
         case calc_data_start_impl(_) => {
-            log.info("&& T5 START &&")
-            val t5 = startDate()
-            println("&& T5 && alCalcDataComeo.calc_data_start_impl")
-            r = item
             impl_router ! calc_data_hand()
-            endDate("&& T5 && ", t5)
-            log.info("&& T5 END &&")
+            alTempLog(s"C3. ${item.parent} start segment")
         }
+
         case calc_data_hand() => {
-            log.info("&& T6 START &&")
-            val t6 = startDate()
-            println("&& T6 && alCalcDataComeo.calc_data_hand")
-            if (r != null) {
-                sender ! calc_data_start_impl3(r.subs(sed), r)
-                sed += 1
-                endDate("&& T6 && ", t6)
+            val rd = phRedisDriver().commonDriver
+            var segmentSum = rd.get("segmentSum:"+item.tid).getOrElse("0").toInt
+            alTempLog(s"C3.$segmentSum router start segment")
+            sender ! calc_data_start_impl3(item.subs(segmentSum), item)
+            segmentSum += 1
+            rd.set("segmentSum:"+item.tid, segmentSum)
+            if(segmentSum == core_number){
+                shutSlaveCameo
             }
-            log.info("&& T6 END &&")
         }
 
-        case calc_data_average_pre(avg_path) =>  {
-            val redisDriver = phRedisDriver().commonDriver
-            val bsonpath = UUID.randomUUID().toString
-            redisDriver.lpush(s"bsonPathUid${item.uid}", bsonpath)
-            impl_router ! calc_data_average_one(avg_path, bsonpath)
+        case calc_data_average_pre(avg_path) => {
+            impl_router ! calc_data_average_one(avg_path, item.tid)
         }
+
         case calc_data_average_one(avg_path, bsonpath) =>  {
-            sender ! calc_data_average_post(item.subs(sed), avg_path, bsonpath)
-            sed += 1
+            val rd = phRedisDriver().commonDriver
+            var avgSum = rd.get("avgSum:"+item.tid).getOrElse("0").toInt
+            alTempLog(s"C5.$avgSum Calc start write bson")
+            sender ! calc_data_average_post(item.subs(avgSum), item.parent, avg_path, bsonpath)
+            avgSum += 1
+            rd.set("avgSum:"+item.tid, avgSum)
         }
 
-        case canDoRestart(reason: Throwable) => super.postRestart(reason); self ! calc_data_start_impl(item)
+        case calc_data_timeout() => {
+            log.info("Warning! calc data timeout")
+            alTempLog("Warning! calc data timeout")
+            shutComeoAndSendAgent(calcDataResult(false, item.uid, item.parent, 0, 0))
+        }
+
+        case canDoRestart(reason: Throwable) => {
+            super.postRestart(reason)
+            alTempLog("Warning! calc_data Node canDoRestart")
+            self ! calc_data_start_impl(item)
+        }
         
         case cannotRestart(reason: Throwable) => {
-            val msg = Map(
-                "type" -> "error",
-                "error" -> s"error with actor=${self}, reason=${reason}"
-            )
-            alWebSocket(item.uid).post(msg)
-
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            a ! calc_data_result(item.uid, item.tid, 0, 0, false)
-            shutSlaveCameo(s"cannotRestart.reason=${reason.getMessage}")
+            log.info(s"Warning! calc_data Node reason is $reason")
+            alTempLog(s"Warning! calc_data Node cannotRestart, reason is $reason")
+            shutComeoAndSendAgent(calcDataResult(false, item.uid, item.parent, 0, 0))
         }
-        case msg : Any => log.info(s"Error msg=[${msg}] was not delivered.in actor=${self}")
+
+        case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alCalcDataComeo.received_msg=$msg")
     }
-    
-    import scala.concurrent.ExecutionContext.Implicits.global
-    val timeoutMessager = context.system.scheduler.scheduleOnce(6000 minute) {
-        self ! calc_data_timeout()
-    }
-    def shutSlaveCameo(msg : AnyRef) = {
-        log.info(s"shutting calc data slave cameo msg=${msg}")
+
+    def shutSlaveCameo = {
         timeoutMessager.cancel()
+
+        log.info("stop calc data cameo")
+        alTempLog("stop calc data cameo")
+
         self ! PoisonPill
     }
-    val impl_router =
-        context.actorOf(BroadcastPool(core_number).props(alCalcDataImpl.props), name = "concert-calc-router")
 
+    def shutComeoAndSendAgent(msg: AnyRef) = {
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! msg
+        shutSlaveCameo
+    }
 }

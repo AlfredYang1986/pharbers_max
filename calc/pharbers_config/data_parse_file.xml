@@ -10,8 +10,8 @@
         <cache_file value="/Cache/" />
         <output_file value="/Output/" />
         <makets value="INF" />
-        <!--INF,SPE,AI_S,CNS_Z,ELQ-->
-        <!--没有匹配文件的市场 HTN2,LD,PAIN_C,URO-->
-        <!--Error For input String "" 的市场 AI_W-->
+        <!--INF,SPE,URO,AI_W,CNS_Z,DVP,ELQ,AI_S,        LD,ONC,PAIN,HTN,AI_R-->
+        <!--CNS_R,HTN2,PAIN_C       -panel-->
+        <!--AI_D,ZYVOX       -no match-->
     </data-parse>
 </pharbers-modules>

@@ -1,31 +1,19 @@
-<div class ="row" id="sampleResult">
+<div class ="row" id="sampleResult" style="display: none;">
     <div class="row sample-panel shadow-button">
-        <div class="choose-condition shadow-button">
+        <div class="choose-condition shadow-button" name="select-box">
             <div class="form-inline col-sm-8 col-md-8 col-lg-8 choose-tool">
                 <div class="form-group">
                     <label>市场</label>
-                    <select class="form-control sample-select">
-                        <option>INF Market</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
-                    </select>
+                    <select class="form-control sample-select" name="sample-market"></select>
                 </div>
                 <div class="form-group">
                     <label>月份</label>
-                    <select class="form-control sample-select">
-                        <option>2017/03</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
-                    </select>
+                    <select class="form-control sample-select" name="sample-date"></select>
                 </div>
-                <div class="layui-btn layui-btn-primary btn-sample">查看</div>
+                <div class="layui-btn layui-btn-primary btn-sample" id="query-sample">查看</div>
             </div>
             <div class="col-sm-4 col-md-4 col-lg-4">
-                <div class="layui-btn layui-btn-primary btn-sample">重新导入文件</div>
+                <div class="layui-btn layui-btn-primary btn-sample" id="reset-upload">重新导入文件</div>
                 <div id="to-third-btn" class="layui-btn layui-btn-primary btn-sample">下一步</div>
             </div>
         </div>
@@ -37,21 +25,19 @@
                 <div class="col-sm-4 col-md-6 col-lg-7">
                     <div class="t-num">
                         <div class="inCenParent">
-                            <div class="middle-font-sample inCenChild">2231</div>
+                            <div class="middle-font-sample inCenChild" name="cur-hospital-number"></div>
                             <div class="small-font-sample">当前医院数量</div>
                         </div>
                         <div class="inCenParent">
-                            <div class="middle-font-sample inCenChild">2231</div>
+                            <div class="middle-font-sample inCenChild" name="pre-hospital-number"></div>
                             <div class="small-font-sample">上期医院数量</div>
                         </div>
-                        <div class=" inCenParent">
-                            <div class="middle-font-sample inCenChild">2231</div>
+                        <div class="inCenParent">
+                            <div class="middle-font-sample inCenChild" name="last-hospital-number"></div>
                             <div class="small-font-sample">去年同期</div>
                         </div>
                     </div>
-                    <div class="row">
-
-                </div>
+                    <div class="row"></div>
                 </div>
                 <div class="col-sm-8 col-md-6 col-lg-5">
                     <div class="small-font-sample">
@@ -62,9 +48,7 @@
                 </div>
             </div>
             <div class="chart-body" id="lineChart1"></div>
-            <div class="chart-bottom">
-        </div>
-
+            <div class="chart-bottom"></div>
         </div>
         <div class="chart-sample shadow-button">
             <div class="title-s middle-font-sample">
@@ -74,21 +58,19 @@
                 <div class="col-sm-4 col-md-5 col-lg-7">
                     <div class="t-num">
                         <div class="inCenParent">
-                            <div class="middle-font-sample inCenChild">2231</div>
+                            <div class="middle-font-sample inCenChild" name="cur-product-number"></div>
                             <div class="small-font-sample">当前产品数量</div>
                         </div>
                         <div class="inCenParent">
-                            <div class="middle-font-sample inCenChild">2231</div>
+                            <div class="middle-font-sample inCenChild" name="pre-product-number"></div>
                             <div class="small-font-sample">上期产品数量</div>
                         </div>
                         <div class=" inCenParent">
-                            <div class="middle-font-sample inCenChild">2231</div>
+                            <div class="middle-font-sample inCenChild" name="last-product-number"></div>
                             <div class="small-font-sample">去年同期</div>
                         </div>
                     </div>
-                    <div class="row">
-
-                </div>
+                    <div class="row"></div>
                 </div>
                 <div class="col-sm-8 col-md-7 col-lg-5">
                     <div class="small-font-sample">
@@ -108,67 +90,32 @@
                 样本中&nbsp;销售额&nbsp;检查结果
             </div>
             <div class="chart-body" id="barChart1"></div>
-            <div class="chart-bottom">
-        </div>
-
+            <div class="chart-bottom"></div>
         </div>
     </div>
     <div class="row table-sample">
         <div class="layui-collapse">
-                <div class="layui-colla-item">
-                    <h2 class="layui-colla-title middle-font-sample" style="background-color: #60B3AD;
-                        color: #fff">源文件中&nbsp;缺少的样本医院清单</h2>
-                    <div class="layui-colla-content layui-show">
-                        <div class="row">
-                            <table class="layui-table">
-                                <colgroup>
-                                    <col width="150">
-                                    <col width="200">
-                                    <col>
-                                </colgroup>
-                                <thead>
-                                    <tr>
-                                        <th>序号</th>
-                                        <th>医院名称</th>
-                                        <th>省份</th>
-                                        <th>城市</th>
-                                        <th>城市级别</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>鞍山市中心医院</td>
-                                        <td>辽宁</td>
-                                        <td>鞍山市</td>
-                                        <td>4</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>鞍山市中心医院</td>
-                                        <td>辽宁</td>
-                                        <td>鞍山市</td>
-                                        <td>4</td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td>鞍山市中心医院</td>
-                                        <td>辽宁</td>
-                                        <td>鞍山市</td>
-                                        <td>4</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="row">
-                            <div class="space-height"></div>
-                            <div class="col-sm-6 col-md-4 col-sm-6 col-md-offset-8">
-                                <div id="hosPage"></div>
-                            </div>
-                        </div>
+            <div class="layui-colla-item">
+                <h2 class="layui-colla-title middle-font-sample" style="background-color: #60B3AD;color: #fff">源文件中&nbsp;缺少的样本医院清单</h2>
+                <div class="layui-colla-content layui-show">
+                    <div class="row">
+                        <table class="layui-table" lay-filter="sample-hospital">
+                            <thead>
+                                <tr>
+                                    @*<th type="numbers">序号</th>*@
+                                    <th lay-data="{field:'hospitalName', width:'24%'}">医院名称</th>
+                                    <th lay-data="{field:'province', width:'24%'}">省份</th>
+                                    <th lay-data="{field:'city', width:'24%'}">城市</th>
+                                    <th lay-data="{field:'cityjb', width:'24%'}">城市级别</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sample-tbody">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+        </div>
     </div>
 </div>
 

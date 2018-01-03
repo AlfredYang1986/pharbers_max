@@ -1,59 +1,39 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoCalcData.calc_data_result
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.restore_bson_end
-import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import play.api.libs.json.JsValue
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanelMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.aggregationMsg._
+
+import akka.actor.{Actor, ActorLogging, Props}
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent._
 
 /**
-  * Created by clock on 17-11-22.
+  * Created by clock on 2017.12.18
+  *     Modify by clock on 2017.12.20
   */
 object alMaxMaster {
     def props = Props[alMaxMaster]
     def name = "driver-actor"
-
-    //calc ym module
-    case class pushCalcYMJob(item: alPanelItem)
-    case class calcYMSchedule()
-    case class releaseCalcYMEnergy()
-    case class calcYMResult(ym: String)
-
-    //generate panel module
-    case class pushGeneratePanelJob(item: alPanelItem)
-    case class generatePanelSchedule()
-    case class generatePanelResult(uid: String, panelResult: JsValue)
-
-    //split panel module
-    case class pushSplitPanel(uid: String)
-    case class splitPanelSchedule()
-    case class splitPanelResult(item: alMaxRunning, parent: String, subs: List[String])
-
-    //group module
-    case class pushGroupJob(item: alMaxRunning)
-    case class groupSchedule()
-    case class groupPanelResult(item: alMaxRunning)
-
-    //calc module
-    case class pushCalcJob(item: alMaxRunning)
-    case class sumCalcJob(items: alMaxRunning, s: ActorRef)
-    case class calcSchedule()
-
 }
 
-/**
-  * Created by alfredyang on 11/s07/2017.
-  */
 class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
-    import alMaxMaster._
     override def receive = {
+        case startCalcYm(item) => self ! pushCalcYMJob(item)
+        case startGeneratePanel(item) => self ! pushGeneratePanelJob(item)
+        case startCalc(uid) => self ! pushSplitPanel(uid)
+        case startAggregationCalcData(uid) => self ! pushAggregationJob(uid)
+
         //calc ym module
         case pushCalcYMJob(item) => preCalcYMJob(item)
         case calcYMSchedule() => calcYMScheduleJobs
-        case releaseCalcYMEnergy() => releaseCalcYMEnergy
-        case calcYMResult(ym) => println(s"calcYM = $ym")
+        case calcYMResult(uid, ym, mkt) => postCalcYMJob(uid, ym, mkt)
 
         //generate panel module
         case pushGeneratePanelJob(item) => preGeneratePanelJob(item)
@@ -61,30 +41,39 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case generatePanelResult(uid, panelResult) => postGeneratePanelJob(uid, panelResult)
 
         //split panel file module
-        case pushSplitPanel(uid) => {
-            println(s"master.pushSplitPanelJob(${uid})")
-            preSplitPanelJob(uid)
-        }
-        case splitPanelSchedule() => schduleSplitPanelJob
+        case pushSplitPanel(uid) => preSplitPanelJob(uid)
+        case splitPanelSchedule() => splitPanelSchduleJobs
         case splitPanelResult(item, parent, subs) => postSplitPanelJob(item, parent, subs)
 
         //group splited file module
         case pushGroupJob(item) => preGroupJob(item)
-        case groupSchedule() => schduleGroupJob
+        case groupSchedule() => groupScheduleJobs
         case groupPanelResult(item) => postGroupJob(item)
+
+        //scp module
+        case pushScpJob(item) => preScpJob(item)
+        case scpSchedule() => scpSchduleJobs
+        case scpResult(item) => postScpJob(item)
 
         //calc module
         case pushCalcJob(item) => preCalcJob(item)
+        case calcSchedule() => calcScheduleJobs
         case sumCalcJob(items, s) => doSum(items, s)
-        case calcSchedule() => schduleCalcJob
-        case calc_data_result(uid, tid, v, u, result) => postCalcJob(uid, tid, v, u, result)
+        case calcDataResult(result, uid, panel, v, u) => postCalcJob(result, uid, panel, v, u)
 
         //restore module
-        case push_restore_job(uid) => preRestoreJob(uid, sender)
-        case restore_bson_schedule() => schduleRestoreJob
-        case restore_bson_end(bool, uid) => postRestoreJob(bool, uid)
+        case pushRestoreJob(uid, panel) => preRestoreJob(uid, panel)
+        case restoreBsonSchedule() => restoreSchduleJobs
+        case restoreBsonResult(result, uid) => postRestoreJob(result, uid)
 
-        case msg: AnyRef => log.info(s"Error Master msg=${msg}")
+        //aggregation module
+        case pushAggregationJob(uid) => preAggregationJob(uid)
+        case aggregationDataSchedule() => aggregationSchduleJobs()
+        case aggregationDataResult(uid, table, result) => postAggregationJob(uid, table, result)
+
+        //Energy Manage
+        case refundNodeSuccess() => Unit
+
+        case msg: AnyRef => alTempLog("alMaxMaster not match msg = " + msg)
     }
-
 }

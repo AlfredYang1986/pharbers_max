@@ -1,22 +1,25 @@
 @(title: String)(link : Html)(content: Html)(script: Html)
 @main(title) {
 @link
-<body>
-    <div class="container-fluid" style="min-width: 1200px">
-        <div class="cal-title row inCenParent">
-            <span class="text-center title-font inCenChild">添加数据</span>
-            <i class="layui-icon backHome title-font text-right inRight" id="stepBack" style="cursor:pointer;">&#x1007;</i>
+    <body>
+        <div class="mask-layer"></div>
+        <div class="loading">
+            <i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size: 48px;color: #008B7D;">&#x1002;</i>
         </div>
-        <div class="step row" >
-            <div class="col-sm-3 col-md-3  col-lg-3 step-img"><img class="img-responsive" src="@routes.Assets.versioned("images/calculStep/step11.png")"></div>
-            <div class="col-sm-3 col-md-3 col-lg-3 step-img"><img class="img-responsive scd-img" src="@routes.Assets.versioned("images/calculStep/step22.png")"></div>
-            <div class="col-sm-3 col-md-3 col-lg-3 step-img"><img class="img-responsive thd-img" src="@routes.Assets.versioned("images/calculStep/step33.png")"></div>
-            <div class="col-sm-3 col-md-3 col-lg-3 step-img"><img class="img-responsive fth-img" src="@routes.Assets.versioned("images/calculStep/step44.png")"></div>
+        <div class="container-fluid" style="min-width: 1200px;">
+            <div class="cal-title row inCenParent">
+                <span class="text-center title-font inCenChild">添加数据</span>
+                <i class="layui-icon backHome title-font text-right inRight" id="stepBack" style="cursor:pointer;">&#x1007;</i>
+            </div>
+            <div class="step row" >
+                <div class="col-sm-3 col-md-3  col-lg-3 step-img"><img class="img-responsive" src="@routes.Assets.versioned("images/calculStep/step11.png")"></div>
+                <div class="col-sm-3 col-md-3 col-lg-3 step-img"><img class="img-responsive scd-img" src="@routes.Assets.versioned("images/calculStep/step22.png")"></div>
+                <div class="col-sm-3 col-md-3 col-lg-3 step-img"><img class="img-responsive thd-img" src="@routes.Assets.versioned("images/calculStep/step33.png")"></div>
+                <div class="col-sm-3 col-md-3 col-lg-3 step-img" id="test-calc-result"><img class="img-responsive fth-img" src="@routes.Assets.versioned("images/calculStep/step44.png")"></div>
+            </div>
+            @content
         </div>
-        @content
-    </div>
-
-</body>
-@script
- <script src="@routes.Assets.versioned("js/calcul/calculPanel.js")"></script>
+        @script
+        <script src="@routes.Assets.versioned("js/calcul/calculPanel.js")"></script>
+    </body>
 }

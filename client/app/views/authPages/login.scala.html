@@ -57,6 +57,7 @@
                     $input[0].focus();
                     f.validationModule.input_blur("userName", "email");
                     f.validationModule.input_blur("pwd", "isEmp");
+                    f.cookieModule.cleanAllCookie();
                 });
 
                 layui.use(['form', 'layer'], function () {

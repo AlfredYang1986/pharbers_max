@@ -1,192 +1,310 @@
 package com.pharbers.aqll.alMSA.alCalcMaster
 
-import java.util.UUID
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg.pushGroupJob
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.pushScpJob
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg.pushCalcJob
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg.pushRestoreJob
 
-import akka.actor.{Actor, ActorRef}
-import com.pharbers.aqll.alCalaHelp.alMaxDefines.alMaxRunning
-import com.pharbers.aqll.alCalcMemory.aljobs.aljobtrigger.alJobTrigger.push_restore_job
-import com.pharbers.aqll.alCalcOther.alMessgae.alWebSocket
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{pushCalcJob, pushGroupJob, pushSplitPanel}
-import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import com.pharbers.driver.redis.phRedisDriver
+import akka.actor.Actor
+import com.redis.RedisClient
+import java.util.{Date, UUID}
 import play.api.libs.json.JsValue
-
+import java.text.SimpleDateFormat
 import scala.collection.immutable.Map
+import com.pharbers.driver.redis.phRedisDriver
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
+import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
-                        with alSplitPanelTrait with alGroupDataTrait
-                        with alCalcDataTrait with alRestoreBsonTrait{ this : Actor =>
+                        with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
+                        with alCalcDataTrait with alRestoreBsonTrait with alAggregationDataTrait{ this : Actor =>
+    val rd: RedisClient =  phRedisDriver().commonDriver
+    val df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-    def preCalcYMJob(item: alPanelItem) = pushCalcYMJobs(item)
+    def preCalcYMJob(item: alPanelItem): Unit = {
+        pushCalcYMJobs(item)
+    }
 
-    def preGeneratePanelJob(item: alPanelItem) = {
+    def postCalcYMJob(uid: String, ym: String, mkt: String): Unit = {
+        alTempLog(s"calcYM result, ym = $ym, mkt = $mkt")
+
+        val success = !(ym.isEmpty || mkt.isEmpty)
+        if(success){
+            val msg = Map(
+                "type" -> "calc_ym_result",
+                "ym" -> ym,
+                "mkt" -> mkt
+            )
+            alWebSocket(uid).post(msg)
+        }
+
+        val a = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+        a ! refundNodeForRole("splitcalcymslave")
+    }
+
+    def preGeneratePanelJob(item: alPanelItem): Unit = {
         val rid = UUID.randomUUID().toString
-        println("开始生成panel，本次计算流程的rid为 = " + rid)
-        phRedisDriver().commonDriver.hset(item.uid, "rid", rid)
+        alTempLog("开始生成panel，本次计算流程的rid为 = " + rid)
+        rd.hset(item.uid, "company", item.company)
+        rd.hset(item.uid, "rid", rid)
         pushGeneratePanelJobs(item)
     }
 
-    def postGeneratePanelJob(uid: String, panelResult: JsValue) = {
-        def jv2map(data: JsValue): Map[String, Map[String, List[String]]] ={
-            data.as[Map[String, JsValue]].map{ x =>
-                x._1 -> x._2.as[Map[String, JsValue]].map{y =>
-                    y._1 -> y._2.as[List[String]]
+    private def jv2map(data: JsValue): Map[String, Map[String, List[String]]] ={
+        data.as[Map[String, JsValue]].map{ x =>
+            x._1 -> x._2.as[Map[String, JsValue]].map{y =>
+                y._1 -> y._2.as[List[String]]
+            }
+        }
+    }
+
+    def postGeneratePanelJob(uid: String, panelResult: JsValue): Unit = {
+        alTempLog(s"generate panel result = $panelResult")
+
+        val success = panelResult.asOpt[Map[String, JsValue]]
+        success match {
+            case Some(_) =>
+                val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
+                jv2map(panelResult).foreach{ x=>
+                    x._2.foreach{y=>
+                        val panel = y._2.mkString(",")
+                        rd.sadd(rid, panel)
+                        rd.hset(panel, "ym", x._1)
+                        rd.hset(panel, "mkt", y._1)
+                    }
                 }
-            }
-        }
-        val rid = phRedisDriver().commonDriver.hget(uid, "rid")
-                .map(x=>x).getOrElse(throw new Exception("not found uid"))
 
-        jv2map(panelResult).foreach{x=>
-            x._2.foreach{y=>
-                val panel = y._2.mkString(",")
-                phRedisDriver().commonDriver.sadd(rid, panel)
-                phRedisDriver().commonDriver.hset(panel, "ym", x._1)
-                phRedisDriver().commonDriver.hset(panel, "mkt", y._1)
-//                phRedisDriver().commonDriver.hset(cid, "calcStep", 0)
-            }
+                val msg = Map(
+                    "type" -> "generate_panel_result",
+                    "result" -> panelResult.toString
+                )
+                alWebSocket(uid).post(msg)
+            case None => Unit
+        }
+
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitgeneratepanelslave")
+    }
+
+    def preSplitPanelJob(uid: String): Unit = {
+        val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
+        val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
+        rd.set("overSum:" + uid, 0)
+
+        panelLst.foreach{ panel =>
+            pushSplitPanelJobs(alMaxRunning(uid, panel, rid))
         }
     }
 
-    def preSplitPanelJob(uid: String) ={
-        val rid = phRedisDriver().commonDriver.hget(uid, "rid")
-                .map(x=>x).getOrElse(throw new Exception("not found uid"))
-        println(s"alMaxMasterTrait.preSplitPanelJob.rid=${rid}")
-        val panelLst = phRedisDriver().commonDriver.smembers(rid)
-                .map(x=>x.map(_.get)).getOrElse(throw new Exception("rid list is none"))
-        panelLst.foreach{panel=>
-            pushSplitPanelJob(alMaxRunning(uid, panel, rid))
+    def postSplitPanelJob(item: alMaxRunning, parent: String, subs: List[String]): Unit ={
+        alTempLog(s"split panel result, parent = $parent")
+        alTempLog(s"split panel result, subs = $subs")
+
+        if(parent.isEmpty || subs.isEmpty)
+            alTempLog("split error, result is empty")
+        else {
+            val msg = Map(
+                "type" -> "progress_calc",
+                "txt" -> "分拆文件完成",
+                "progress" -> "1"
+            )
+            alWebSocket(item.uid).post(msg)
+
+            val panel = item.tid
+            rd.hset(panel, "tid", subs.head)
+
+            val arg = alMaxRunning(
+                uid = item.uid,
+                tid = parent,
+                parent = panel,
+                subs = subs.map{x =>
+                    alMaxRunning(item.uid, x, parent, Nil)
+                }
+            )
+            self ! pushGroupJob(arg)
         }
-        val msg = Map(
-            "type" -> "progress_calc",
-            "txt" -> "分拆文件中",
-            "progress" -> "1"
-        )
-        alWebSocket(uid).post(msg)
+
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitsplitpanelslave")
     }
 
-    def postSplitPanelJob(item: alMaxRunning, parent: String, subs: List[String]) ={
-        if(parent.isEmpty || subs.isEmpty) println("拆分错了吧，空的")
+    def preGroupJob(item: alMaxRunning): Unit ={
+        pushGroupJobs(item)
+    }
 
-        phRedisDriver().commonDriver.hset(item.tid, "tid", parent)
+    def postGroupJob(item: alMaxRunning): Unit ={
+        alTempLog(s"group data result, parent = ${item.tid}")
+        val subs = item.subs.map(_.tid).mkString(",")
+        alTempLog(s"group data result, subs = $subs")
 
-        item.tid = parent
-        item.subs = subs.map{x=>
-            phRedisDriver().commonDriver.sadd(parent, x)
-            alMaxRunning(item.uid, x, parent)
+        val success = !subs.isEmpty
+        if(success){
+            val msg = Map(
+                "type" -> "progress_calc",
+                "txt" -> "数据分组完成",
+                "progress" -> "2"
+            )
+            alWebSocket(item.uid).post(msg)
+
+            self ! pushScpJob(item)
         }
-        self ! pushGroupJob(item)
+
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitgroupslave")
+    }
+
+    def preScpJob(item: alMaxRunning): Unit ={
+        pushScpJobs(item)
+    }
+
+    def postScpJob(item: alMaxRunning): Unit ={
+        releaseScpEnergy
+        self ! pushCalcJob(item)
 
         val msg = Map(
             "type" -> "progress_calc",
-            "txt" -> "分拆文件完成",
+            "txt" -> "SCP完成",
             "progress" -> "3"
         )
         alWebSocket(item.uid).post(msg)
     }
 
-    def preGroupJob(item: alMaxRunning) ={
-        pushGroupJobs(item)
+    def preCalcJob(item: alMaxRunning): Unit ={
+        pushCalcJobs(item)
+
         val msg = Map(
             "type" -> "progress_calc",
-            "txt" -> "文件分组中",
+            "txt" -> "等待计算",
             "progress" -> "4"
         )
         alWebSocket(item.uid).post(msg)
     }
 
-    def postGroupJob(item: alMaxRunning) ={
-        self ! pushCalcJob(item)
-        val msg = Map(
-            "type" -> "progress_calc",
-            "txt" -> "等待计算",
-            "progress" -> "6"
-        )
-        alWebSocket(item.uid).post(msg)
-    }
+    def postCalcJob(result: Boolean, uid: String, panel: String, v: Double, u: Double): Unit = {
+        val tid = rd.hget(panel, "tid").get
 
-    def preCalcJob(item: alMaxRunning) ={
-        pushCalcJobs(item)
-        val msg = Map(
-            "type" -> "progress_calc",
-            "txt" -> "正在计算",
-            "progress" -> "10"
-        )
-        alWebSocket(item.uid).post(msg)
-    }
-
-    def postCalcJob(uid: String, tid: String, v: Double, u: Double, result: Boolean) {
-
-        var msg = Map[String, String]()
         if (result) {
-            val phRedisSet= phRedisDriver().phSetDriver
-            val user_cr = s"calcResultUid${uid}"
-            val cr = s"calcResultTid${tid}"
-            val map = Map(user_cr -> cr, "value" -> v, "units" -> u)
-            phRedisSet.sadd(s"${user_cr}", map, dealSameMapFunc)
+            var calcSum = rd.get("calcSum:" + tid).getOrElse("0").toInt
+            calcSum += 1
+            rd.set("calcSum:" + tid, calcSum)
 
-            val redisDriver = phRedisDriver().commonDriver
-            var sum = redisDriver.get(s"Uid${uid}calcSum").get.toInt
-            sum += 1
-            redisDriver.set(s"Uid${uid}calcSum", sum)
-            if(sum == core_number){
-                sum = 0
-                redisDriver.set(s"Uid${uid}calcSum", sum)
-                msg = Map(
-                    "type" -> "progress_calc",
-                    "txt" -> "计算完成",
-                    "progress" -> "11"
-                )
-                alWebSocket(uid).post(msg)
-                val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-                a ! refundNodeForRole("splitcalcslave")
-                self ! push_restore_job(uid)
+            val old_value = rd.hget("calced:" + tid, "value").getOrElse("0").toDouble
+            val old_unit = rd.hget("calced:" + tid, "unit").getOrElse("0").toDouble
+            rd.hset("calced:" + tid, "value", old_value + v)
+            rd.hset("calced:" + tid, "unit", old_unit + u)
+
+            if (calcSum == core_number) {
+                alTempLog(s"$panel calc data => Success")
+                self ! pushRestoreJob(uid, panel)
+
+                val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+                agent ! refundNodeForRole("splitcalcslave")
             }
-
         } else {
-            msg = Map(
-                "type" -> "progress_calc",
-                "txt" -> "计算失败",
-                "progress" -> "12"
+            val calcSum = rd.get("calcSum:" + tid).getOrElse("0").toInt
+            rd.set("calcSum:" + tid, calcSum + 1)
+            val msg = Map(
+                "type" -> "error",
+                "error" -> "cannot calc data"
             )
             alWebSocket(uid).post(msg)
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            a ! refundNodeForRole("splitcalcslave")
+            alTempLog("calc data => Failed")
+
+            val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+            agent ! refundNodeForRole("splitcalcslave")
         }
     }
 
-    def preRestoreJob(uid: String, sender: ActorRef) ={
-        println("正在入库")
-        pushRestoreJob(uid, sender)
+    def preRestoreJob(uid: String, panel: String): Unit ={
+        pushRestoreJobs(uid, panel)
+
         val msg = Map(
             "type" -> "progress_calc",
             "txt" -> "正在入库",
-            "progress" -> "13"
+            "progress" -> "91"
         )
         alWebSocket(uid).post(msg)
     }
 
-    def postRestoreJob(bool: Boolean, uid: String) ={
-        println(s"还原数据库结束！")
-        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-        a ! refundNodeForRole("splitrestorebsonslave")
-        println(s"还原数据库结果 => ${bool}")
-        var msg = Map[String, String]()
-        if (bool) {
-            msg = Map(
+    def postRestoreJob(result: Boolean, uid: String): Unit ={
+        alTempLog(s"restore bosn result = $result")
+        if(result){
+            val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found rid"))
+            val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
+            val panelSum = panelLst.size
+            var overSum = rd.get("overSum:" + uid).getOrElse("0").toInt
+            overSum += 1
+            rd.set("overSum:" + uid, overSum)
+            val msg = Map(
                 "type" -> "progress_calc",
                 "txt" -> "入库完成",
-                "progress" -> "14"
+                "progress" -> "99"
             )
+            alWebSocket(uid).post(msg)
+
+            if(overSum == panelSum){
+                val msg = Map(
+                    "type" -> "progress_calc_result",
+                    "txt" -> "计算完成",
+                    "progress" -> "100"
+                )
+                alWebSocket(uid).post(msg)
+
+                alTempLog(s"计算完成 in ${df.format(new Date())}")
+            }
         } else {
-            msg = Map(
-                "type" -> "progress_calc",
-                "txt" -> "入库失败",
-                "progress" -> "15"
+            var overSum = rd.get("overSum:" + uid).getOrElse("0").toInt
+            rd.set("overSum:" + uid, overSum += 1)
+            val msg = Map(
+                "type" -> "error",
+                "error" -> "cannot restore bson"
             )
+            alWebSocket(uid).post(msg)
         }
+
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitrestorebsonslave")
+    }
+    
+    
+    def preAggregationJob(uid: String): Unit = {
+        val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found uid"))
+        val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
+        panelLst.map(panel => rd.hget(panel, "tid").getOrElse(throw new Exception("not found tid"))).toList foreach{x =>
+            pushAggregationJobs(uid, x)
+        }
+        
+        val msg = Map(
+            "type" -> "progress_calc_result_done",
+            "txt" -> "正在合并",
+            "progress" -> "10"
+        )
         alWebSocket(uid).post(msg)
+    }
+    
+    def postAggregationJob(uid: String, table: String, result: Boolean): Unit = {
+        if (result) {
+            val msg = Map(
+                "type" -> "progress_calc_result_done",
+                "txt" -> s"$table,合并结束",
+                "progress" -> "100"
+            )
+
+            alTempLog(s"合并完成 in ${df.format(new Date())}")
+            alWebSocket(uid).post(msg)
+        } else {
+            val msg = Map(
+                "type" -> "error",
+                "error" -> "cannot aggregation data"
+            )
+            alWebSocket(uid).post(msg)
+        }
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitaggregationslave")
     }
 }

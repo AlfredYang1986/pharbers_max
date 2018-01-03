@@ -4,8 +4,6 @@
                 margin: 5% auto;
             }
     </style>
-    <div class="loading"><i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size: 48px;
-        color: #008B7D;">&#x1002;</i></div>
     <div class="layui-fluid">
         <div>&nbsp;</div>
         <div class="layui-row shadow-tool" style="padding: 20px 20px"><!-- layui-bg-gray background-color: #f2f2f2; -->
@@ -15,7 +13,6 @@
                         <label class="layui-form-label">类型</label>
                         <div class="layui-input-block">
                             <select name="datatype">
-                                <option value="">请选择</option>
                                 <option value="provinces">省份</option>
                                 <option value="city">城市</option>
                             </select>
@@ -58,8 +55,8 @@
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#">CSV</a></li>
-                                        <li><a href="#">TXT</a></li>
+                                        <li><a href="#" id="exportToCSV">CSV</a></li>
+                                        <li><a href="#" id="exportToTXT">TXT</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -108,7 +105,6 @@
                     laydate.render({
                         elem: '#date',
                         type: 'month'
-//                        range: "~"
                     });
                 });
                 layui.use(['form', 'laydate'], function () {
@@ -121,15 +117,18 @@
 
                 $('li[pharbers-filter="history"]').addClass("layui-this");
             });
+
             var windowWidth = function () {
                 var clientWidth = document.documentElement.clientWidth - 200;
                 $(".right-content").css("width", clientWidth +"px")
-            }
+            };
+
             var windowHeigth = function () {
                 var clientHeight = document.documentElement.clientHeight-60;
-                console.log(clientHeight)
+///                console.log(clientHeight);
                 $(".right-content").css("height", clientHeight+"px");
-            }
+            };
+
             var userLogin = function () {
                 var token = $.cookie("user_token");
                 var tojs = {
@@ -210,7 +209,7 @@
                 $('.mask-layer').show();
                 $('.loading').show();
                 f.ajaxModule.baseCall('/history/queryHistoryByPage', json, 'POST', function (r) {
-                    console.log(json)
+///                    console.log(json);
                     if (r.status === 'ok') {
                         var lst = $('#historyLst');
                         lst.empty();
@@ -223,5 +222,47 @@
                     console.error(e)
                 })
             };
+
+            var exportCSVBtn = $('#exportToCSV');
+            exportCSVBtn.click(function () {
+                exportAction(".csv")
+            });
+
+            var exportTXTBtn = $('#exportToTXT');
+            exportTXTBtn.click(function () {
+                exportAction(".txt")
+            });
+
+            function exportAction(fileType){
+                show_loading();
+                var datatype = $('select[name="datatype"]').val();
+                var market = $('select[name="market"]').val();
+                var date = $('input[name="date"]').val().replace(/[^0-9]/ig,"");
+                var to_date = $('input[name="to_date"]').val().replace(/[^0-9]/ig,"");
+
+                var json = JSON.stringify({
+                    "businessType": "/dataExport",
+                    "uid": $.cookie('uid'),
+                    "filetype": fileType,
+                    "datatype": datatype,
+                    "market": [market],
+                    "staend":[date, to_date]
+                });
+                f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
+                    if(r.status === 'ok') {
+                        hide_loading();
+                        var result = r.result.result.result.result;
+                        if(result.endsWith(fileType))
+                            location = "/pharbers/files/"+result;
+                        else
+                            console.error("error")
+                    }else{
+                        alert("export error")
+                    }
+                }, function(e){
+                    hide_loading();
+                    console.error(e)
+                });
+            }
     </script>
 }

@@ -3,8 +3,8 @@ package com.pharbers.aqll.alCalcMemory.aljobs
 import com.pharbers.alCalcMemory.aljobs.alJob
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.alSplitStrategy.read_excel_split
 import com.pharbers.alCalcMemory.alstages.alStage
-import com.pharbers.aqll.alCalc.almain.alShareData
-import com.pharbers.aqll.alCalcMemory.aljobs.alJob.max_split_csv_jobs._
+import com.pharbers.aqll.alCalcHelp.alShareData
+import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.max_split_csv_jobs._
 import com.pharbers.aqll.alCalcMemory.alprecess.alprecessdefines.alPrecessDefines.{do_map, presist_data, restore_data, split_data}
 
 /**

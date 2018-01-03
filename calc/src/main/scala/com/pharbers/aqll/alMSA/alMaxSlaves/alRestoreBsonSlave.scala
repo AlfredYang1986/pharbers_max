@@ -1,16 +1,19 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
-import akka.actor.SupervisorStrategy.Restart
-import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.util.Timeout
 import akka.pattern.ask
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{refundNodeForRole, takeNodeForRole}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait.alCameoRestoreBson.{restore_bson_end, restore_bson_hand, restore_bson_start_impl}
-import scala.concurrent.duration._
 import scala.concurrent.Await
+import scala.concurrent.duration._
+import akka.actor.SupervisorStrategy.Restart
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg._
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.takeNodeForRole
+import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, SupervisorStrategy}
 
 /**
   * Created by jeorch on 17-10-30.
+  *     Modify by clock on 2017.12.21
   */
 object alRestoreBsonSlave {
     def props = Props[alRestoreBsonSlave]
@@ -24,24 +27,21 @@ class alRestoreBsonSlave extends Actor with ActorLogging {
 
     override def receive: Receive = {
         case restore_bson_hand() => {
+            //TODO ask shenyong
             implicit val t = Timeout(2 seconds)
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+            val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitrestorebsonslave")
-//            val f = a ? takeNodeForRole("splitcalcslave")   // 在一台机器上实现和计算的互斥
-            if (Await.result(f, t.duration).asInstanceOf[Boolean]) sender ! restore_bson_hand()
+            if (Await.result(f, t.duration).asInstanceOf[Boolean])
+                sender ! restore_bson_hand()
             else Unit
         }
-        case restore_bson_start_impl(uid) => {
-            val counter = context.actorOf(alCommonErrorCounter.props)
-            val cur = context.actorOf(alRestoreBsonComeo.props(uid, sender, self, counter))
-            cur.tell(restore_bson_start_impl(uid), sender)
-        }
-        case cmd : restore_bson_end => {
-            println(s"=====alRestoreBsonSlave.restore_bson_end=====")
-            val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
-            a ! refundNodeForRole("splitrestorebsonslave")
-//            a ! refundNodeForRole("splitcalcslave") // 在一台机器上实现和计算的互斥
-        }
-    }
 
+        case restore_bson_start_impl(uid, panel) => {
+            val counter = context.actorOf(alCommonErrorCounter.props)
+            val cur = context.actorOf(alRestoreBsonComeo.props(uid, panel, counter))
+            cur.tell(restore_bson_start_impl(uid, panel), sender)
+        }
+
+        case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alSplitPanelSlave.received_msg=$msg")
+    }
 }

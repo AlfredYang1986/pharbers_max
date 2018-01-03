@@ -1,4 +1,38 @@
+/*新文件上传*/
+.upload-container {
+    margin: 5% 0;
+    padding: 3.5% 0;
+    border-radius: 5px;
+    box-shadow:0 0 10px #000;
+    background-color: #F9F9F9;
+}
 
+.upload-tip {
+    width: 270px;
+    font: 14px bold Monaco;
+}
+
+.upload-box {
+    width: 330px;
+    padding: 20px 30px;
+    margin: 20px auto;
+}
+
+.upload-box > .file-box {
+    width: 270px;
+    height: 300px;
+    border: 1px solid #AEAEAE;
+    border-radius: 5px;
+}
+
+.upload-file {
+    position: relative;
+    z-index: auto;
+    top: -25px;
+    width: 270px;
+    margin: 0 auto;
+}
+/*新上传结束*/
 
 .step{
     padding: 20px 20px;
@@ -63,7 +97,6 @@
     margin: auto 0px;
 }
 .calculMsg{
-    width: 98px;
     margin: 0 auto;
 }
 .chart-panel{

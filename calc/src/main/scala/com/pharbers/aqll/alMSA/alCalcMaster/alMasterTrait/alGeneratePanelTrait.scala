@@ -1,27 +1,29 @@
 package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
-import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
-import akka.routing.BroadcastPool
-import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
-import akka.util.Timeout
 import akka.pattern.ask
-import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.{queryIdleNodeInstanceInSystemWithRole, takeNodeForRole}
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster.{generatePanelResult, generatePanelSchedule}
-import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
-import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
-import play.api.libs.json.JsValue
-import scala.concurrent.Await
-import scala.concurrent.duration._
+import akka.util.Timeout
 import scala.concurrent.stm._
+import scala.concurrent.Await
+import akka.routing.BroadcastPool
+import scala.concurrent.duration._
+import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
+import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+import scala.concurrent.ExecutionContext.Implicits.global
+import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
+import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
+import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
+import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
 
 /**
   * Created by jeorch on 17-8-31.
+  *     Modify by clock on 2017.12.19
   */
 trait alGeneratePanelTrait { this : Actor =>
-    import scala.concurrent.ExecutionContext.Implicits.global
-
     val panel_router = createGeneratePanelRouter
     val generate_panel_jobs = Ref(List[alPanelItem]())
+    //TODO shijan chuancan
     val generate_panel_schedule = context.system.scheduler.schedule(1 second, 3 second, self, generatePanelSchedule())
 
     def createGeneratePanelRouter = context.actorOf(
@@ -33,75 +35,59 @@ trait alGeneratePanelTrait { this : Actor =>
                     useRole = Some("splitgeneratepanelslave")
                 )
             ).props(alGeneratePanelSlave.props), name = "generate-panel-router")
+
     def pushGeneratePanelJobs(item : alPanelItem) = {
         atomic { implicit thx =>
             generate_panel_jobs() = generate_panel_jobs() :+ item
         }
     }
-    def canSchdulePanelJob : Boolean = {
+
+    //TODO ask shenyong
+    def canGeneratePanelJob : Boolean = {
         implicit val t = Timeout(2 seconds)
-        val a = context.actorSelection("akka.tcp://calc@127.0.0.1:2551/user/agent-reception")
+        val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         val f = a ? queryIdleNodeInstanceInSystemWithRole("splitgeneratepanelslave")
-        // val f = a ? queryIdleNodeInstanceInSystemWithRole("splitcalcslave") // 在一台机器上实现和计算的互斥
-        Await.result(f, t.duration).asInstanceOf[Int] > 0        // TODO：现在只有一个，以后由配置文件修改
+        Await.result(f, t.duration).asInstanceOf[Int] > 0
     }
+
     def generatePanelScheduleJobs = {
-        if (canSchdulePanelJob) {
+        if (canGeneratePanelJob) {
             atomic { implicit thx =>
                 val tmp = generate_panel_jobs.single.get
                 if (tmp.isEmpty) Unit
                 else {
                     generate_panel_jobs() = generate_panel_jobs().tail
-                    do_generate_panel_job(tmp.head)
+                    doGeneratePanelJob(tmp.head)
                 }
             }
         }
     }
-    def do_generate_panel_job(panel_job: alPanelItem) = {
-        import alCameoGeneratePanel._
-        val cur = context.actorOf(alCameoGeneratePanel.props(panel_job, self, panel_router))
+
+    def doGeneratePanelJob(panelJob: alPanelItem) = {
+        val cur = context.actorOf(alCameoGeneratePanel.props(panelJob, panel_router))
         cur ! generate_panel_start()
     }
 }
 
 object alCameoGeneratePanel {
-    case class generate_panel_start()
-    case class generate_panel_hand()
-    case class generate_panel_start_impl(panel_job: alPanelItem)
-    case class generate_panel_end(uid: String, panelResult: JsValue)
-    case class generate_panel_timeout()
-
     def props(panel_job : alPanelItem,
-              masterActor : ActorRef,
-              slaveActor : ActorRef) = Props(new alCameoGeneratePanel(panel_job, masterActor, slaveActor))
+              slaveActor : ActorRef) = Props(new alCameoGeneratePanel(panel_job, slaveActor))
 }
 
 class alCameoGeneratePanel(panel_job : alPanelItem,
-                           masterActor : ActorRef,
                            slaveActor : ActorRef) extends Actor with ActorLogging {
-    import alCameoGeneratePanel._
-
-    override def receive: Receive = {
+    override def receive = {
         case generate_panel_start() => slaveActor ! generate_panel_hand()
-        case generate_panel_hand() => {
+        case generate_panel_hand() =>
             sender ! generate_panel_start_impl(panel_job)
             shutCameo
-        }
-        case generate_panel_timeout() => {
-            log.info("Error Generate_panel_timeout")
+        case msg: AnyRef =>
+            alTempLog(s"Warning! Message not delivered. alCameoGeneratePanel.received_msg=$msg")
             shutCameo
-        }
-        case msg : AnyRef => log.info(s"Warning! Message not delivered. alCameoGeneratePanel.received_msg=${msg}")
-    }
-
-    import scala.concurrent.ExecutionContext.Implicits.global
-    val generate_panel_timer = context.system.scheduler.scheduleOnce(30 minute) {
-        self ! generate_panel_timeout()
     }
 
     def shutCameo = {
-        log.info("stopping generate panel cameo")
-        generate_panel_timer.cancel()
+        alTempLog("stopping generate panel cameo")
         self ! PoisonPill
     }
 }
