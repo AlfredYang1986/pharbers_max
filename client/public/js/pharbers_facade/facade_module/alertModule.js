@@ -70,3 +70,36 @@ alertHandlers.prototype.contentIFrame = function(domobj, skin, area, title, canc
         });
     });
 }
+
+alertHandlers.prototype.open = function(obj) {
+    layui.use('layer', function() {
+        this.title = obj.title || '信息';
+        this.content = obj.content || '';
+        this.area = obj.area || '35%';
+        this.offset = obj.offset || 'auto';
+        this.btns = obj.btns || [];
+        this.cancel = obj.cancel || null;
+        this.btn1 = obj.btn1 || null;
+        this.btn2 = obj.btn2 || null;
+        this.btn3 = obj.btn3 || null;
+        this.btn4 = obj.btn4 || null;
+
+        var layer = layui.layer;
+        layer.open({
+            title: this.title,
+            type: 1,
+            offset: this.offset,
+            resize: false,
+            closeBtn: 0,
+            moveOut: false,
+            area: this.area,
+            btn: this.btns,
+            yes: this.btn1,
+            btn2: this.btn2,
+            btn3: this.btn3,
+            btn4: this.btn4,
+            cancel: this.cancel,
+            content: this.content
+        });
+    });
+};
