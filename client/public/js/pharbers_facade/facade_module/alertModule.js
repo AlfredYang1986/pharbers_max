@@ -1,5 +1,6 @@
 var alertHandlers = function(){}
 
+// 暂时不要用这个
 alertHandlers.prototype.success = function(message) {
     layui.use('layer', function() {
         layer.alert(message, {
@@ -14,62 +15,36 @@ alertHandlers.prototype.success = function(message) {
     });
 }
 
-alertHandlers.prototype.error = function(message) {
-    layui.use('layer', function() {
-        layer.alert(message, {
-            title: ['提示', 'font-size:14px;height:28px;line-height:28px;'],
-            icon: 2,
-            btn: false,
-            closeBtn: 2,
-            move: false,
-            offset: ['50%','40%'],
-            area: ['30px', '100px']
-        });
-    });
-}
+alertHandlers.prototype.error = function(obj) {
+    layui.use('layer', function(){
+        this.icon = obj.icon || undefined;
+        this.title = obj.title || '信息';
+        this.content = obj.content || '';
+        this.area = obj.area || '35%';
+        this.offset = obj.offset || 'auto';
+        this.btns = obj.btns || [];
+        this.btn1 = obj.btn1 || null;
+        this.btn2 = obj.btn2 || null;
+        this.btn3 = obj.btn3 || null;
+        this.btn4 = obj.btn4 || null;
 
-alertHandlers.prototype.content = function(domobj, skin, area, title, btns, yesFun, btn2Fun, btn3Fun ,cancelFun) {
-    skin = skin || 'layer-ext-errLay';
-    area = area || ['50%'];
-    title = title || '信息';
-    layui.use('layer', function() {
-        layer.open({
-            type: 1,
-            title: title,
-            btn: btns,
-            yes: yesFun,
-            btn2: btn2Fun,
-            btn3: btn3Fun,
-            offset: ['10%'],
-            area: area,
-            zIndex: 1000,
-            skin: skin,
-            moveOut: false,
-            // scrollbar: false,
+        var layer = layui.layer;
+        layer.confirm(this.content, {
+            icon: this.icon,
+            title: '<b style="color: red; font: 16px bold Monaco;"> ' + this.title + ' </b>',
+            offset: this.offset,
+            area: this.area,
             resize: false,
-            content: domobj,
-            cancel: cancelFun
+            move: false,
+            closeBtn: 0,
+            btn: this.btns,
+            yes: this.btn1,
+            btn2: this.btn2,
+            btn3: this.btn3,
+            btn4: this.btn4
         });
     });
-}
-
-alertHandlers.prototype.contentIFrame = function(domobj, skin, area, title, cancelFun) {
-    skin = skin || 'layer-ext-errLay';
-    area = area || ['50%', '50%'];
-    title = title || '信息';
-    layui.use('layer', function() {
-        layer.open({
-            type: 2,
-            offset: ['10%'],
-            title: title,
-            moveOut: false,
-            area: area,
-            skin: skin,
-            content: domobj,
-            cancel: cancelFun
-        });
-    });
-}
+};
 
 alertHandlers.prototype.open = function(obj) {
     layui.use('layer', function() {
@@ -91,6 +66,7 @@ alertHandlers.prototype.open = function(obj) {
             offset: this.offset,
             resize: false,
             closeBtn: 0,
+            move: false,
             moveOut: false,
             area: this.area,
             btn: this.btns,

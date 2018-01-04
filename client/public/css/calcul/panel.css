@@ -18,6 +18,16 @@
     padding: 20px 0 0 0;
 }
 
-#panel-show-time, #none-show-time {
+#panel-show-time, #panel-none-show-time, #panel-error {
     display: none;
+}
+
+.panel-error-msg {
+    color: #7E7E7E;
+}
+.panel-error-msg > b {
+    font-size: 18px;
+}
+.panel-error-msg > ol {
+    text-indent:2em;
 }
