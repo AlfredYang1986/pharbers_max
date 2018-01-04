@@ -12,7 +12,7 @@ import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.message.im.EmChatMsg
 import com.pharbers.token.AuthTokenTrait
 import module.auth.AuthData._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.json.Json.toJson
 import module.auth.AuthMessage._
 import com.pharbers.message.send.SendMessageTrait
@@ -26,7 +26,9 @@ object AuthModule extends ModuleTrait with AuthData {
 	def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 		case MsgUserAuth(data) => authWithPassword(data)
 		case MsgAuthTokenParser(data) => authTokenParser(data)
+		case MsgAuthCodeParser(data) => authCodeParser(data)
 		case MsgAuthTokenExpire(data) => checkAuthTokenExpire(data)(pr)
+		case MsgAuthCodeExpire(data) => checkAuthCodeExpire(data)(pr)
 		case MsgAuthCreateToken(data) => authCreateToken(data)(pr)
 		case MsgAuthCodePushSuccess(data) => authCodePushSuccess(data)
 		case MsgAuthTokenType(data) => authTokenType(data)(pr)
@@ -123,11 +125,23 @@ object AuthModule extends ModuleTrait with AuthData {
 		}
 	}
 	
+	def checkAuthCodeExpire(data: JsValue)
+	                       (pr: Option[Map[String, JsValue]])
+	                       (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			val auth = (MergeStepResult(data, pr) \ "auth").asOpt[JsValue].map(x => x).getOrElse(throw new Exception("token parse error"))
+			val expire_in = (auth \ "expire_in").asOpt[Long].map(x => x).getOrElse(throw new Exception("token parse error"))
+			if (new Date().getTime > expire_in) throw new Exception("token expired")
+			else (pr, None)
+		} catch {
+			case ex: Exception => println(s"ErrorCode=${ErrorCode}"); (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
 	def authTokenParser(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val redisDriver = phRedisDriver().commonDriver
 			val accessToken = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("input error"))
-			
 			val token = redisDriver.hgetall1(accessToken).get
 			if (token.isEmpty) (None, None)
 			else {
@@ -138,6 +152,18 @@ object AuthModule extends ModuleTrait with AuthData {
 			case ex: Exception =>
 				println(s"authTokenParser.ErrorCode=${ErrorCode.toString}")
 				println(s"authTokenParser.ex=${ex.getMessage}")
+				(None, Some(ErrorCode.errorToJson(ex.getMessage)))
+		}
+	}
+	
+	def authCodeParser(data: JsValue)(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+		try {
+			val att = cm.modules.get.get("att").map(x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
+			val auth_token = (data \ "condition" \ "user_token").asOpt[String].map(x => x).getOrElse(throw new Exception("input error"))
+			val auth = att.decrypt2JsValue(auth_token)
+			(Some(Map("auth" -> auth)), None)
+		} catch {
+			case ex: Exception =>
 				(None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}

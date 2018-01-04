@@ -1,7 +1,7 @@
 /**
  * Created by yym on 11/7/17.
  */
-(function ($, w) {
+var calc_step = (function ($, w) {
     "use strict";
 
     var company = "";
@@ -11,6 +11,7 @@
     var fileNames = [];
     var rotate_name = "";
     var aggregation_num = 0;
+    var form, layer;
 
     $('#secondStep').hide();
     $('#sampleResult').hide();
@@ -20,6 +21,14 @@
     $(function(){
         $('button[name="upload-next"]').click(function(){
             toSecondStep();
+        });
+
+        layui.use(['form', 'layer'], function(){
+            form = layui.form; layer = layui.layer;
+            form.on('submit(*)', function (data) {
+                generat_panel_action(data, layer);
+                return false;
+            })
         });
 
         // $('#test-calc-result').click(function(){
@@ -56,7 +65,9 @@
     };
 
     $("#check-btn").click(function(){check_file()});
-    $("#generat-panel-btn").click(function(){generat_panel_action()});
+    // 无用了
+    // $("#generat-panel-btn").click(function(){generat_panel_action()});
+
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
 
@@ -82,13 +93,12 @@
         }
     };
 
-    var generat_panel_action = function() {
-        var ym_lst = [];
-        $("#month_choose input[type=checkbox]:checked").each(function(){
-            ym_lst.push($(this).val());
-        });
+    var generat_panel_action = function(data, layer) {
+        var ym_lst =[];
 
-        if(ym_lst.length < 1){
+        $.each(data.field, function(i, v){ym_lst.push(v);});
+
+        if (ym_lst.length < 1){
             layer.msg("请选择月份");
             return;
         }
@@ -104,7 +114,7 @@
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始生成panel");
             prograssBar(20, 6, 10);
-            $('#chooseMonth').modal('hide');
+            layer.closeAll();
             var info = $("#loadInof");
             info.empty();
             info.text("MAX正在解析您的样本...");
@@ -197,7 +207,7 @@
                         hide_loading();
                         $('.cpa-file').css("color", "#009688");
                         sourceMap.cpa = res.result[0];
-                        if(sourceMap.cpa !== '' && sourceMap.gycx !== '') {
+                        if(sourceMap.cpa !== '') {
                             var $btn = $('button[name="upload-next"]');
                             $btn.attr({'class': 'layui-btn layui-btn-radius', 'disabled': false})
                         }
@@ -241,7 +251,7 @@
                         hide_loading();
                         $('.gycx-file').css("color", "#009688");
                         sourceMap.gycx = res.result[0];
-                        if(sourceMap.cpa !== '' && sourceMap.gycx !== '') {
+                        if(sourceMap.cpa !== '') {
                             var $btn = $('button[name="upload-next"]');
                             $btn.attr({'class': 'layui-btn layui-btn-radius', 'disabled': false})
                         }
@@ -305,32 +315,65 @@
         console.info(obj);
     };
 
+    //未显示要计算的月份
+    var show_panel_none_month = function() {
+        var option = {
+            title: '未显示要计算的月份？',
+            offset: '160px',
+            area: ['35%', '333px'],
+            content: $('#panel-none-show-time').html(),
+            btns: ['返回选择月份', '重新上传'],
+            btn1: function(index) {layer.close(index);},
+            btn2: function() {w.location = '/calcul/step'}
+        };
+        f.alertModule.open ( option );
+    };
+
+    //生成Panel前的年月 websocket
     var calc_ym_result = function (obj) {
         console.info(obj);
 
-        var $ym_div = $('#month_choose');
-        var sample_month = $('#sample_month');
-
-        $ym_div.empty();
-        sample_month.empty();
-
-        if(obj.ym === "0"){
-            alert("无法解析月份，请刷新重试")
-        }else{
-            $.each(obj.ym.split(","), function( index, ym ) {
-                $ym_div.append('<div class="col-sm-3"><div class="checkbox"> <label> <input type="checkbox" value="'+ ym +'">'+ym+'</label> </div> </div>');
-                sample_month.append(ym +"&nbsp;");
+        if (obj.ym === "0") {
+            f.alertModule.error({
+                title: '提示',
+                offset: '160px',
+                content: $('#panel-error').html(),
+                btns: ['重新上传'],
+                btn1: function(index) {
+                    w.location = '/calcul/step';
+                    layer.close(index);
+                }
             });
-            $('#chooseMonth').modal('show');
+        } else if(obj.ym === ' ') {
+            f.alertModule.error({
+                title: '提示',
+                offset: '160px',
+                content: $('#panel-error').html(),
+                btns: ['重新上传'],
+                btn1: function(index) {
+                    w.location = '/calcul/step';
+                    layer.close(index);
+                }
+            });
+        } else {
+            var $timeObj = $('#panel-show-time');
+            var $time_lst = $timeObj.find('div[name="time-lst"]').empty();
+            $.each(obj.ym.split(","), function( index, ym ) {
+                $time_lst.append('<input type="checkbox" name="'+ ym +'" title="' + ym + '" value="' + ym + '" lay-skin="primary">')
+            });
+            f.alertModule.open({title: '选择月份', offset: '160px', content: $timeObj.html()});
+            form.render('checkbox');
         }
     };
 
+    //生成Panel进度 websocket
     var progress_generat_panel = function (obj) {
         console.info(obj);
         var progress = window.socket.getValue(obj)('progress');
         prograssBar(progress);
     };
 
+    //生成Panel结束 websocket
     var generate_panel_result = function (obj) {
         console.info(obj);
         layer.msg("panel生成完成");
@@ -345,17 +388,20 @@
         setTimeout(function(){toSampleResult()}, 1000);
     };
 
+    //计算进度 websocket
     var progress_calc = function(obj) {
         console.info(obj);
         window.socket.getValue(obj)('progress');
     };
 
+    //计算完成 websocket
     var progress_calc_result = function(obj){
         console.info(obj);
         layer.msg("计算完成");
         toFourthStep()
     };
 
+    //保存按钮 websocket
     var progress_calc_result_done = function(obj){
 
         if (parseInt(obj.progress) === 100) {
@@ -378,8 +424,8 @@
 
     var prograssBar = function (e, t, b) {
         var end = parseInt(e);
-        var time = (typeof t !== 'undefined') ?  parseInt(t)*1000 : 1;
-        var begin = (typeof b !== 'undefined') ?  parseInt(b) : end-1;
+        var time = (typeof t !== 'undefined') ?  parseInt(t) * 1000 : 1;
+        var begin = (typeof b !== 'undefined') ?  parseInt(b) : end - 1;
 
         var rotate = echarts.init(document.getElementById(rotate_name));
         var option = {
@@ -463,5 +509,9 @@
 
         rotate.setOption(option);
     };
+
+    return {
+        "show_panel_none_month": show_panel_none_month
+    }
 
 })(jQuery, window);
