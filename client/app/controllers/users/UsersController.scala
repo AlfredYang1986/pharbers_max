@@ -68,8 +68,8 @@ class UsersController @Inject () (as_inject : ActorSystem, dbt : dbInstanceManag
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("change pwd"))), jv)
 			:: MsgAuthCheckTokenAction(jv)
-			:: MsgAuthTokenParser(jv)
-			:: MsgAuthTokenExpire(jv)
+			:: MsgAuthCodeParser(jv)
+			:: MsgAuthCodeExpire(jv)
 			:: msg_user_token_op(jv)
 //			:: msg_register_token_create(jv) TODO: 通讯协议不一致导致message不能重用，稍后重构
 			:: msg_user_chang_pwd(jv)

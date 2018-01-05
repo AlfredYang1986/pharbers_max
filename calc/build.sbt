@@ -1,7 +1,7 @@
 
 lazy val commonSettings = Seq(
     organization := "com.pharbers",
-    version := "1.0",
+    version := "1.1",
     scalaVersion := "2.11.8"
 ) 
 
@@ -10,16 +10,18 @@ resolvers += Resolver.mavenLocal
 libraryDependencies ++= Seq(
     "ch.qos.logback" % "logback-classic" % "1.1.3",
     "com.easemob" % "rest-java-sdk" % "1.0.1",
-    "com.pharbers" % "pharbers-modules" % "0.1",
-    "com.pharbers" % "pharbers-data-parse" % "0.1",
-    "com.pharbers" % "pharbers-bson" % "0.1",
-    "com.pharbers" % "redis-driver" % "0.1",
-    "com.pharbers" % "errorcode" % "0.1",
-    "com.pharbers" % "pharbers-max-util" % "0.1",
-    "com.pharbers" % "pharbers-memory" % "0.1",
-    "com.pharbers" % "pharbers-page-memory" % "0.1",
-    "com.pharbers" % "pharbers-message" % "0.1",
-    "com.pharbers" % "http" % "0.1",
+
+    "com.pharbers" % "pharbers-modules" % "0.2",
+    "com.pharbers" % "pharbers-data-parse" % "0.2",
+    "com.pharbers" % "pharbers-bson" % "0.2",
+    "com.pharbers" % "redis-driver" % "0.2",
+    "com.pharbers" % "errorcode" % "0.2",
+    "com.pharbers" % "pharbers-max-util" % "0.2",
+    "com.pharbers" % "pharbers-memory" % "0.2",
+    "com.pharbers" % "pharbers-page-memory" % "0.2",
+    "com.pharbers" % "pharbers-message" % "0.2",
+    "com.pharbers" % "http" % "0.2",
+
     "com.typesafe.akka" % "akka-actor_2.11" % "2.4.16",
     "com.typesafe.akka" % "akka-agent_2.11" % "2.4.16",
     "com.typesafe.akka" % "akka-camel_2.11" % "2.4.16",
@@ -52,5 +54,5 @@ lazy val root = (project in file(".")).
   settings(
 	name := "pharber-calc",
 	fork in run := true,
-	javaOptions += "-Xmx12G"
+	javaOptions += "-Xmx8G"
   ).enablePlugins(JavaAppPackaging)
