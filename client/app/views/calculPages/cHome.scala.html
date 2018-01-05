@@ -1,14 +1,9 @@
 @pageLayout.HomePageLayout.mainContent("Max | Home") {
-    <style>
-            .condition {
-                margin: 5% auto;
-            }
-    </style>
     <div class="layui-fluid">
-        <div>&nbsp;</div>
+        <div class="h10"></div>
         <div class="layui-row shadow-tool" style="padding: 20px 20px"><!-- layui-bg-gray background-color: #f2f2f2; -->
             <form class="layui-form">
-                <div class="layui-col-md3">
+                <!--<div class="layui-col-md3">
                     <div class="layui-form-item condition">
                         <label class="layui-form-label">类型</label>
                         <div class="layui-input-block">
@@ -18,36 +13,32 @@
                             </select>
                         </div>
                     </div>
-                </div>
-                <div class="layui-col-md3">
+                </div>-->
+                <div class="layui-col-md4">
                     <div class="layui-form-item condition">
                         <label class="layui-form-label">市场</label>
                         <div class="layui-input-block">
-                            <select name="market">
-                                <option value="">请选择</option>
+                            <select name="market" lay-filter="market">
+                                <option value="">全部</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="layui-col-md3">
-                    <div class="layui-inline condition">
-                        <label class="layui-form-label">时间</label>
-                        <div class="layui-input-inline">
-                            <input type="text" name="date" style="width: 70px" class="layui-input" id="date" />
-                        </div>
-                        <span>to</span>
-                        <div class="layui-input-inline">
-                            <input type="text" name="to_date" style="width: 70px" class="layui-input" id="to_date" />
+
+                <div class="layui-col-md4">
+                    <div class="layui-form-item condition">
+                        <label class="layui-form-label">时间区间</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="date" class="layui-input" id="date"/>
                         </div>
                     </div>
                 </div>
-                <div class="layui-col-md3">
+
+                <div class="layui-col-md4">
                     <div class="layui-row">
                         <div class="layui-col-md1 condition">&nbsp;</div>
                         <div class="layui-col-md11 condition">
                             <div class="layui-btn-group">
-                                <button type="button" class="layui-btn" id="query"><i class="layui-icon">&#xe615;</i>
-                                    查询</button>
                                 <div class="btn-group" role="group" style="margin: 0 0 0 5px;">
                                     <button type="button" class="layui-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class="layui-icon">&#xe621;</i>
@@ -66,15 +57,22 @@
             </form>
         </div>
         <div class="layui-row">
-            <div class="layui-col-md12 shadow-tool historyLst" id="historyLst"></div>
+            <div class="layui-col-md12 shadow-tool historyLst" id="historyLst" style="display: none"></div>
+            <div class="h1"></div>
+            <div class="shadow-tool history-data-none-tip">
+                <div>
+                    <p>未找到筛选条件内的数据。</p>
+                    <p>请修改"筛选条件"或点击"添加数据"进行添加。</p>
+                </div>
+            </div>
             <div style="float: right;" id="page"></div>
         </div>
-
     </div>
 } {
     <script>
             var f = new Facade();
             $(function () {
+
                 windowWidth();
                 $(window).resize(function(){
                     windowWidth();
@@ -83,35 +81,36 @@
 
                 userLogin();
                 loadSelect();
-                var queryBtn = $('#query');
-                queryBtn.click(function () {
-                    var datatype = $('select[name="datatype"]').val();
+
+                var selectBoxChange = function(dateparam) {
+                    // 快速解决方案 后续还需要就解注释
+//                    var datatype = $('select[name="datatype"]').val();
                     var market = $('select[name="market"]').val();
-                    var date = $('input[name="date"]').val();
-                    var to_date = $('input[name="to_date"]').val();
+                    var date = dateparam || $('input[name="date"]').val();
                     var json = JSON.stringify(f.parameterPrefix.conditions({
                         'user_token': $.cookie('user_token'),
-                        'datatype': datatype === "" ? undefined : datatype,
-                        'date': (date ==="" || to_date=== "") ? undefined : date+"~"+to_date,
+                        'datatype': 'city',//datatype === "" ? undefined : datatype,
+                        'date': (date === "") ? undefined : date,
                         'market': market === "" ? undefined : market
                     }));
-
                     loadHistory(json);
-                });
-                queryBtn.click();
+                };
+
+                selectBoxChange();
 
                 layui.use(['form', 'laydate'], function () {
-                    var laydate = layui.laydate;
+                    var laydate = layui.laydate, form = layui.form;
                     laydate.render({
                         elem: '#date',
-                        type: 'month'
+                        type: 'month',
+                        range: '~',
+                        done: function(value){
+                            selectBoxChange(value);
+                        }
                     });
-                });
-                layui.use(['form', 'laydate'], function () {
-                    var laydate = layui.laydate;
-                    laydate.render({
-                        elem: '#to_date',
-                        type: 'month'
+
+                    form.on('select(market)', function(){
+                        selectBoxChange();
                     });
                 });
 
@@ -209,11 +208,16 @@
                 $('.mask-layer').show();
                 $('.loading').show();
                 f.ajaxModule.baseCall('/history/queryHistoryByPage', json, 'POST', function (r) {
-///                    console.log(json);
                     if (r.status === 'ok') {
-                        var lst = $('#historyLst');
-                        lst.empty();
-                        lst.append(r.result.condition);
+                        var lst = $('#historyLst').empty();
+                        if ($(r.result.condition).find('tbody').children().length === 0) {
+                            $('.history-data-none-tip').show();
+                            lst.hide();
+                        } else {
+                            lst.append(r.result.condition);
+                            $('.history-data-none-tip').hide();
+                            lst.show();
+                        }
                         page(r.result.count, r.result.skip, r.result.take);
                         $('.mask-layer').hide();
                         $('.loading').hide();

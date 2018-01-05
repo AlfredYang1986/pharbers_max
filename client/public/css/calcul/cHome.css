@@ -131,6 +131,23 @@ body, html{
 .shadow-tool{
     box-shadow: #737373 1px 1px 6px;
 }
-.historyLst{
-    margin: 20px 0px;
+
+/*历史数据展示*/
+.historyLst {
+    margin: 20px 0;
+}
+.history-data-none-tip {
+    display: none;
+    padding: 250px 0 0 0;
+    height: 500px;
+    color: #7E7E7E;
+    font-size: 16px;
+}
+.history-data-none-tip > div {
+    width: 400px;
+    min-width: 450px;
+    margin: 0 auto;
+}
+.layui-form-label {
+    width: 110px;
 }
