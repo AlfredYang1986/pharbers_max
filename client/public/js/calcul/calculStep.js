@@ -378,8 +378,8 @@ var calc_step = (function ($, w) {
         console.info(obj);
         layer.msg("panel生成完成");
         var result = JSON.parse(obj.result);
-        $.each(result, function(ym, v1) {
-            $.each(v1, function(mkt, panel_lst) {
+        $.each(result, function(mkt, v1) {
+            $.each(v1, function(ym, panel_lst) {
                 $.each(panel_lst, function(i, fname){
                     fileNames.push(fname);
                 });

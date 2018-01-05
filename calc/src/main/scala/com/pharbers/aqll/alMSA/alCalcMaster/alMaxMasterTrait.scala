@@ -74,8 +74,8 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                     x._2.foreach{y=>
                         val panel = y._2.mkString(",")
                         rd.sadd(rid, panel)
-                        rd.hset(panel, "ym", x._1)
-                        rd.hset(panel, "mkt", y._1)
+                        rd.hset(panel, "mkt", x._1)
+                        rd.hset(panel, "ym", y._1)
                     }
                 }
 

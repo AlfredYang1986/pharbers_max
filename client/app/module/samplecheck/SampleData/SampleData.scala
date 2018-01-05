@@ -1,14 +1,13 @@
 package module.samplecheck.SampleData
 
-import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
+import com.pharbers.panel.phPanelFilePath
 import com.pharbers.driver.redis.phRedisDriver
-import com.pharbers.panel.pfizer.panel_file_path
 import com.pharbers.panel.util.excel.{phExcelData, phHandleExcel}
+import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
 import com.pharbers.panel.util.excel.phHandleExcel.{filterFun, postFun}
-
 import scala.collection.immutable.Map
 
-trait SampleData extends panel_file_path{
+trait SampleData extends phPanelFilePath{
 	
 	val csv2SampleCheckData : List[String] => List[String Map String] = { pathLst =>
 		pathLst.flatMap{ p =>
