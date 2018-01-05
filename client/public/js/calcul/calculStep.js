@@ -18,6 +18,8 @@ var calc_step = (function ($, w) {
     $('#thirdStep').hide();
     $('#calculResult').hide();
 
+    query_company();
+
     $(function(){
         $('button[name="upload-next"]').click(function(){
             toSecondStep();
@@ -38,12 +40,9 @@ var calc_step = (function ($, w) {
 
     var toSecondStep = function () {
         rotate_name = "panel-rotate";
-        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-            rotate_name = "panel-rotate";
-            $('#firstStep').hide();
-            $('#secondStep').show();
-            $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
-        }
+        $('#firstStep').hide();
+        $('#secondStep').show();
+        $('.scd-img')[0].src = "/assets/images/calculStep/step2.png";
     };
 
     var toThirdStep = function () {
@@ -76,21 +75,18 @@ var calc_step = (function ($, w) {
         info.empty();
         info.text("MAX正在解析您的文件...");
         prograssBar(10, 2, 0);
-        if(sourceMap.cpa !== "" && sourceMap.gycx !== ""){
-            info.empty();
-            info.text("MAX正在解析您的文件...");
-            prograssBar(10, 2, 0);
-            var json = JSON.stringify({
-                "businessType": "/calcYM",
-                "company": company,
-                "uid": $.cookie('uid'),
-                "cpa": sourceMap.cpa,
-                "gycx": sourceMap.gycx
-            });
-            f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
-        }else{
-            layer.msg('上传数据不全');
-        }
+
+        info.empty();
+        info.text("MAX正在解析您的文件...");
+        prograssBar(10, 2, 0);
+        var json = JSON.stringify({
+            "businessType": "/calcYM",
+            "company": company,
+            "uid": $.cookie('uid'),
+            "cpa": sourceMap.cpa,
+            "gycx": sourceMap.gycx
+        });
+        f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){}, function(e){console.error(e)});
     };
 
     var generat_panel_action = function(data, layer) {
@@ -159,16 +155,14 @@ var calc_step = (function ($, w) {
         w.step_chart.query_data();
     }
 
-    query_company();
-    load_cpa_source();
-    load_gycx_source();
-
     function query_company() {
         layui.use('layer', function () {
             var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
             f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
                 if(r.status === 'ok') {
-                    company = "fea9f203d4f593a96f0d6faa91ba24ba";//r.result.user.company;
+                    company = r.result.user.company;
+                    load_cpa_source();
+                    load_gycx_source();
                 } else if (r.status === 'error') {
                     layer.msg(r.error.message);
                 } else {
@@ -189,7 +183,7 @@ var calc_step = (function ($, w) {
                 elem: sel,
                 url: '/source/upload',
                 drag: false,
-                data: {"company": company} ,
+                data: {"company": company},
                 multiple: false , // 多文件上传
                 accept: 'file',
                 exts: 'xlsx',
@@ -425,7 +419,7 @@ var calc_step = (function ($, w) {
     var prograssBar = function (e, t, b) {
         var end = parseInt(e);
         var time = (typeof t !== 'undefined') ?  parseInt(t) * 1000 : 1;
-        var begin = (typeof b !== 'undefined') ?  parseInt(b) : end - 1;
+        var begin = (typeof b !== 'undefined') ?  parseInt(b) : end;
 
         var rotate = echarts.init(document.getElementById(rotate_name));
         var option = {

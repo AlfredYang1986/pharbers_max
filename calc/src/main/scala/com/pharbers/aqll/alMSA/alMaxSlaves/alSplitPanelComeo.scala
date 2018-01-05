@@ -5,7 +5,7 @@ import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.panel.util.phWebSocket
 import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
@@ -67,7 +67,7 @@ class alSplitPanelComeo(item: alMaxRunning, counter: ActorRef) extends Actor wit
                         "type" -> "error",
                         "error" -> "cannot split panel"
                     )
-                    alWebSocket(item.uid).post(msg)
+                    phWebSocket(item.uid).post(msg)
                     alTempLog("split panel file => Failed")
                 }
             }
