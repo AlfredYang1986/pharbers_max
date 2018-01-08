@@ -36,7 +36,11 @@ var sample = (function ($, w) {
     });
 
     var query_selectBox = function(){
-        var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")}));
+        var json = JSON.stringify(f.parameterPrefix.conditions({
+            "user_token": $.cookie("user_token"),
+            "uid": $.cookie("uid"),
+            "company": $.cookie("company")
+        }));
         f.ajaxModule.baseCall('/sample/querySelectBox', json, 'POST', function(r) {
             var market= [];
             var date = [];
@@ -54,7 +58,13 @@ var sample = (function ($, w) {
                     $select_date.append('<option value="' + v + '">' + v + '</option>');
                 });
             }
-            var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid"), "market": $select_market.val(), "date": $select_date.val()}));
+            var json = JSON.stringify(f.parameterPrefix.conditions({
+                "user_token": $.cookie("user_token"),
+                "uid": $.cookie("uid"),
+                "company": $.cookie("company"),
+                "market": $select_market.val(),
+                "date": $select_date.val()
+            }));
             query_data(json);
         });
     };
@@ -236,7 +246,12 @@ var sample = (function ($, w) {
     };
 
     $('#query-sample').click(function(){
-        var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid"), "market": $select_market.val(), "date": $select_date.val()}));
+        var json = JSON.stringify(f.parameterPrefix.conditions({
+            "user_token": $.cookie("user_token"),
+            "uid": $.cookie("uid"),
+            "company": $.cookie("company"),
+            "market": $select_market.val(),
+            "date": $select_date.val()}));
         query_data(json);
     });
 

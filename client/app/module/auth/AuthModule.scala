@@ -51,12 +51,18 @@ object AuthModule extends ModuleTrait with AuthData {
 				case Some(one) =>
 					val reVal = one - "name"
 					val uid = Sercurity.md5Hash(one("email").as[String])
+					val company = one("company").as[String]
 					val tmp = Sercurity.md5Hash(one("email").as[String] + date)
 					val accessToken = s"bearer${tmp}"
 					reVal.foreach(x => redisDriver.hset(accessToken, x._1, x._2.asOpt[String].getOrElse(x._2.as[List[String]].toString())))
 					redisDriver.hset(accessToken, "name", one("name").as[String].getBytes)
 					redisDriver.expire(accessToken, expire)
-					(Some(Map("user_token" -> toJson(accessToken), "uid" -> toJson(uid))), None)
+
+					(Some(Map(
+						"user_token" -> toJson(accessToken),
+						"uid" -> toJson(uid),
+						"company" -> toJson(company)
+					)), None)
 			}
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))

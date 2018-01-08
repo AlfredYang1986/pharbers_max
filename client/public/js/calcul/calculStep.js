@@ -4,7 +4,6 @@
 var calc_step = (function ($, w) {
     "use strict";
 
-    var company = "";
     var isCalcDone = false;
     var sourceMap = {"cpa":"","gycx":""};
     var f = new Facade();
@@ -17,8 +16,6 @@ var calc_step = (function ($, w) {
     $('#sampleResult').hide();
     $('#thirdStep').hide();
     $('#calculResult').hide();
-
-    query_company();
 
     $(function(){
         $('button[name="upload-next"]').click(function(){
@@ -33,9 +30,12 @@ var calc_step = (function ($, w) {
             })
         });
 
-        // $('#test-calc-result').click(function(){
-        //     toFourthStep()
-        // });
+        $('#test-sample-result').click(function(){
+            toSampleResult()
+        });
+        $('#test-calc-result').click(function(){
+            toFourthStep()
+        });
     });
 
     var toSecondStep = function () {
@@ -81,7 +81,7 @@ var calc_step = (function ($, w) {
         prograssBar(10, 2, 0);
         var json = JSON.stringify({
             "businessType": "/calcYM",
-            "company": company,
+            "company": $.cookie('company'),
             "uid": $.cookie('uid'),
             "cpa": sourceMap.cpa,
             "gycx": sourceMap.gycx
@@ -101,7 +101,7 @@ var calc_step = (function ($, w) {
 
         var json = JSON.stringify({
             "businessType": "/genternPanel",
-            "company": company,
+            "company": $.cookie('company'),
             "uid": $.cookie('uid'),
             "cpa": sourceMap.cpa,
             "gycx": sourceMap.gycx,
@@ -155,23 +155,6 @@ var calc_step = (function ($, w) {
         w.step_chart.query_data();
     }
 
-    function query_company() {
-        layui.use('layer', function () {
-            var json = JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token")}));
-            f.ajaxModule.baseCall('/upload/queryUserCompnay', json, 'POST', function(r){
-                if(r.status === 'ok') {
-                    company = r.result.user.company;
-                    load_cpa_source();
-                    load_gycx_source();
-                } else if (r.status === 'error') {
-                    layer.msg(r.error.message);
-                } else {
-                    layer.msg('服务出错请联系管理员！');
-                }
-            }, function(e){console.error(e)})
-        });
-    }
-
     function load_cpa_source () {
         var name = 'cpa';
         var txt = '#txt-'+name;
@@ -183,7 +166,7 @@ var calc_step = (function ($, w) {
                 elem: sel,
                 url: '/source/upload',
                 drag: false,
-                data: {"company": company},
+                data: {"company": $.cookie('company')},
                 multiple: false , // 多文件上传
                 accept: 'file',
                 exts: 'xlsx',
@@ -227,7 +210,7 @@ var calc_step = (function ($, w) {
                 elem: sel,
                 url: '/source/upload',
                 drag: false,
-                data: {"company": company} ,
+                data: {"company": $.cookie('company')} ,
                 multiple: false , // 多文件上传
                 accept: 'file',
                 exts: 'xlsx',
