@@ -28,7 +28,6 @@ libraryDependencies ++= Seq(
 	"commons-httpclient" % "commons-httpclient" % "3.1",
 	"org.mongodb" % "casbah_2.11" % "3.1.1",
 	"com.easemob" % "rest-java-sdk" % "1.0.1",
-
 	"com.pharbers" % "pharbers-modules" % "0.2",
 	"com.pharbers" % "pharbers-message" % "0.2",
 	"com.pharbers" % "mongodb-connect" % "0.2",
@@ -44,7 +43,6 @@ libraryDependencies ++= Seq(
 	"com.pharbers" % "encrypt" % "0.2",
 	"com.pharbers" % "http" % "0.2",
 	"com.pharbers" % "errorcode" % "0.2",
-
 	"org.apache.commons" % "commons-email" % "1.4",
 	"net.debasishg" % "redisclient_2.11" % "3.4"
 )

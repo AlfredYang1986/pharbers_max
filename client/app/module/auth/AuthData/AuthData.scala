@@ -21,7 +21,10 @@ trait AuthData {
 				(data \ "condition" \ "user" \ "name").asOpt[String].map(x => x).getOrElse("")
 			)),
 			"phone" -> toJson((data \ "condition" \ "user" \ "phone").asOpt[String].map(x => x).getOrElse("")),
-			"scope" -> toJson((data \ "condition" \ "user"  \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil))
+			"scope" -> toJson((data \ "condition" \ "user"  \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil)),
+			"company" -> toJson((data \ "condition" \ "user" \ "company").asOpt[String].map(x => x).getOrElse("")),
+			"companyPhone" -> toJson((data \ "condition" \ "user" \ "companyPhone").asOpt[String].map(x => x).getOrElse("")),
+			"companyAddress" -> toJson((data \ "condition" \ "user" \ "companyAddress").asOpt[String].map(x => x).getOrElse(""))
 		)
 	}
 	
