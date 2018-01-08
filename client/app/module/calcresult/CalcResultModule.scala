@@ -173,6 +173,8 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		Map("condition" -> toJson(result),
 			"result_condition" -> (mergerResult("result_condition") \ "select_values").getOrElse(throw new Exception("")),
 			"cursales" -> toJson(curMSumS),
+			"selectDate" -> toJson(selectDate),
+			"selectMarket" -> toJson(selectMarket),
 			"curproductsales" -> toJson(curPSumS)
 		   )
 	}

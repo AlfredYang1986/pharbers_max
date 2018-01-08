@@ -87,6 +87,19 @@ var step_chart = (function ($, w) {
 
         f.ajaxModule.baseCall('/calc/querySalesVsShare', j, 'POST', function(r) {
             if(r.status === 'ok') {
+                var $select_month =  $('select[name="calc-result-month"]');
+                var $select_market = $('select[name="calc-result-market"]');
+                $.each($select_market.find('option'), function(i, v){
+                    if(r.result.selectMarket === '201502') {
+                        $(v).attr("selected", true)
+                    }
+                });
+                $.each($select_month.find('option'), function(i, v){
+                    if(r.result.selectDate === '201502') {
+                        $(v).attr("selected", true)
+                    }
+                });
+
                 $('span[name="sumsales"]').empty().text(parseFloat(r.result.cursales / 1000000).toFixed(2));
                 $('span[name="productsales"]').empty().text(parseFloat(r.result.curproductsales / 1000000).toFixed(2));
                 $('span[name="share"]').empty().text((parseFloat(r.result.curproductsales) / parseFloat(r.result.cursales) * 100).toFixed(2));
