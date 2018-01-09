@@ -155,7 +155,7 @@ var calc_step = (function ($, w) {
         w.step_chart.mapChart().resize();
         w.step_chart.barChart().resize();
         w.step_chart.query_select();
-        // w.step_chart.query_data();
+        w.step_chart.query_data();
     }
 
     function load_cpa_source () {

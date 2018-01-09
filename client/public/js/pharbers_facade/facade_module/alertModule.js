@@ -13,8 +13,9 @@ alertHandlers.prototype.success = function(message) {
             area: ['30px', '100px']
         });
     });
-}
+};
 
+// 这个命名有问题
 alertHandlers.prototype.error = function(obj) {
     layui.use('layer', function(){
         this.icon = obj.icon || undefined;

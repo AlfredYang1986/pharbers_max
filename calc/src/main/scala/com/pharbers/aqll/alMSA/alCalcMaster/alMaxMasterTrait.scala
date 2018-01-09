@@ -266,7 +266,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
                 if(uid.startsWith("uid")){
                     val agentTest = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-                    agentTest ! startAggregationCalcData(uid)
+                    agentTest ! startAggregationCalcData(uid, Nil)
                 }
             }
         } else {
@@ -288,12 +288,10 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     
         val rid = rd.hget(uid, "rid").map(x => x).getOrElse(throw new Exception("not found uid"))
         val tidDetails = rd.smembers(rid).get.map(x =>(rd.hget(x.get, "ym").get, rd.hget(x.get, "mkt").get, rd.hget(x.get, "tid")))
-        if(showLst.isEmpty) {
+        if (showLst.isEmpty) {
             tidDetails.foreach( x => pushAggregationJobs(uid, x._3.get))
         } else {
-            showLst.map( x => tidDetails.find(f => f._1 == x.split("-")(1) && f._2 == x.split("-")(0))).filterNot(_.isEmpty).foreach{ x =>
-                pushAggregationJobs(uid, x.get._3.get)
-            }
+            showLst.map( x => tidDetails.find(f => f._1 == x.split("-")(1) && f._2 == x.split("-")(0))).filterNot(_.isEmpty).foreach( x => pushAggregationJobs(uid, x.get._3.get))
         }
         
         // TODO: 暂时不删除，测试通过在删除
