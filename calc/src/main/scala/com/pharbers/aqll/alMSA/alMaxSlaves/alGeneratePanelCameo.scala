@@ -4,11 +4,12 @@ import scala.concurrent.duration._
 import play.api.libs.json.JsString
 import scala.collection.immutable.Map
 import play.api.libs.json.Json.toJson
+import com.pharbers.panel.phGeneratePanel
 import com.pharbers.panel.pfizer.phPfizerHandle
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.panel.util.phWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
@@ -45,7 +46,7 @@ class alGeneratePanelCameo(panelJob: alPanelItem, counter: ActorRef) extends Act
             alTempLog(s"开始生成${panelJob.ym}月份的panel, args=" + args)
 
             val (result, panelResult) = try {
-                val panelResult = phPfizerHandle(args).getPanelFile(panelJob.ym)
+                val panelResult = phGeneratePanel(args).getPanelFile(panelJob.ym)
                 alTempLog(s"generate panel result = $panelResult")
                 (true, panelResult)
             } catch {
@@ -54,7 +55,7 @@ class alGeneratePanelCameo(panelJob: alPanelItem, counter: ActorRef) extends Act
                     (false, toJson("cannot generate panel"))
             }
 
-            self ! generate_panel_end(true, panelResult)
+            self ! generate_panel_end(result, panelResult)
         }
 
         case generate_panel_end(result, panelResult) => {
@@ -65,7 +66,7 @@ class alGeneratePanelCameo(panelJob: alPanelItem, counter: ActorRef) extends Act
                         "type" -> "error",
                         "error" -> "cannot generate panel"
                     )
-                    alWebSocket(panelJob.uid).post(msg)
+                    phWebSocket(panelJob.uid).post(msg)
                     alTempLog("generate panel => Failed")
             }
             shutSlaveCameo(generatePanelResult(panelJob.uid, panelResult))

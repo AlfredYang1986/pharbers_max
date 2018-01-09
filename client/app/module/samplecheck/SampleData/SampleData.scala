@@ -9,21 +9,21 @@ import scala.collection.immutable.Map
 
 trait SampleData extends phPanelFilePath{
 	
-	val csv2SampleCheckData : List[String] => List[String Map String] = { pathLst =>
+	def csv2SampleCheckData(pathLst: List[String], company: String): List[String Map String] = {
 		pathLst.flatMap{ p =>
 			// TODO: 公司写死的
-			alFileOpt(s"$base_path/fea9f203d4f593a96f0d6faa91ba24ba$output_local$p").requestDataFromFile(x => x).map { x =>
+			alFileOpt(s"$base_path/$company$output_local$p").requestDataFromFile(x => x).map { x =>
 				val s =  x.toString.split(31.toChar)
 				Map("phaId" -> s(5), "hospitalName" -> s(1), "date" -> s(2), "productMini" -> s(3), "market" -> s(7), "units" -> s(9), "sales" -> s(10))
 			}
 		}
 	}
 	
-	val xlsx2SampleCheckData: String => List[String Map String] = { path =>
+	def xlsx2SampleCheckData(path: String, company: String): List[String Map String] = {
 		implicit val postArg: String Map String => Option[String Map String] = postFun
 		implicit val filterArg: String Map String => Boolean = filterFun
 		// TODO: 公司写死的
-		phHandleExcel().readExcel(phExcelData(s"$base_path/fea9f203d4f593a96f0d6faa91ba24ba${universe_inf_file.replace("##market##", path)}", 1))
+		phHandleExcel().readExcel(phExcelData(s"$base_path/$company${universe_inf_file.replace("##market##", path)}", 1))
 	}
 	
 	def queryPanelWithRedis(uid: String): List[String] = {

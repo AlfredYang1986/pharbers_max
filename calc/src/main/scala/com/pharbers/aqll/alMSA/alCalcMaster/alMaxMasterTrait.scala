@@ -15,7 +15,7 @@ import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait._
-import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.panel.util.phWebSocket
 import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
@@ -40,7 +40,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 "ym" -> ym,
                 "mkt" -> mkt
             )
-            alWebSocket(uid).post(msg)
+            phWebSocket(uid).post(msg)
         }
 
         val a = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
@@ -83,7 +83,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                     "type" -> "generate_panel_result",
                     "result" -> panelResult.toString
                 )
-                alWebSocket(uid).post(msg)
+                phWebSocket(uid).post(msg)
             case None => Unit
         }
 
@@ -113,7 +113,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 "txt" -> "分拆文件完成",
                 "progress" -> "1"
             )
-            alWebSocket(item.uid).post(msg)
+            phWebSocket(item.uid).post(msg)
 
             val panel = item.tid
             rd.hset(panel, "tid", subs.head)
@@ -149,7 +149,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 "txt" -> "数据分组完成",
                 "progress" -> "2"
             )
-            alWebSocket(item.uid).post(msg)
+            phWebSocket(item.uid).post(msg)
 
             self ! pushScpJob(item)
         }
@@ -171,7 +171,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             "txt" -> "SCP完成",
             "progress" -> "3"
         )
-        alWebSocket(item.uid).post(msg)
+        phWebSocket(item.uid).post(msg)
     }
 
     def preCalcJob(item: alMaxRunning): Unit ={
@@ -182,7 +182,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             "txt" -> "等待计算",
             "progress" -> "4"
         )
-        alWebSocket(item.uid).post(msg)
+        phWebSocket(item.uid).post(msg)
     }
 
     def postCalcJob(result: Boolean, uid: String, panel: String, v: Double, u: Double): Unit = {
@@ -212,7 +212,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 "type" -> "error",
                 "error" -> "cannot calc data"
             )
-            alWebSocket(uid).post(msg)
+            phWebSocket(uid).post(msg)
             alTempLog("calc data => Failed")
 
             val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
@@ -228,7 +228,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             "txt" -> "正在入库",
             "progress" -> "91"
         )
-        alWebSocket(uid).post(msg)
+        phWebSocket(uid).post(msg)
     }
 
     def postRestoreJob(result: Boolean, uid: String): Unit ={
@@ -245,7 +245,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 "txt" -> "入库完成",
                 "progress" -> "99"
             )
-            alWebSocket(uid).post(msg)
+            phWebSocket(uid).post(msg)
 
             if(overSum == panelSum){
                 val msg = Map(
@@ -253,7 +253,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                     "txt" -> "计算完成",
                     "progress" -> "100"
                 )
-                alWebSocket(uid).post(msg)
+                phWebSocket(uid).post(msg)
 
                 alTempLog(s"计算完成 in ${df.format(new Date())}")
             }
@@ -264,7 +264,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 "type" -> "error",
                 "error" -> "cannot restore bson"
             )
-            alWebSocket(uid).post(msg)
+            phWebSocket(uid).post(msg)
         }
 
         val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
@@ -284,7 +284,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             "txt" -> "正在合并",
             "progress" -> "10"
         )
-        alWebSocket(uid).post(msg)
+        phWebSocket(uid).post(msg)
     }
     
     def postAggregationJob(uid: String, table: String, result: Boolean): Unit = {
@@ -296,13 +296,13 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             )
 
             alTempLog(s"合并完成 in ${df.format(new Date())}")
-            alWebSocket(uid).post(msg)
+            phWebSocket(uid).post(msg)
         } else {
             val msg = Map(
                 "type" -> "error",
                 "error" -> "cannot aggregation data"
             )
-            alWebSocket(uid).post(msg)
+            phWebSocket(uid).post(msg)
         }
         val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
         agent ! refundNodeForRole("splitaggregationslave")

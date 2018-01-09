@@ -25,7 +25,8 @@ object SampleCheckModule extends ModuleTrait with SampleData{
 	def querySelectBoxValue(data: JsValue)(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
 			val uid = (data \ "condition" \ "uid").asOpt[String].getOrElse(throw new Exception("wrong input"))
-			val rLst = csv2SampleCheckData(queryPanelWithRedis(uid)).map(x => Map("market" -> x("market"), "date" -> x("date"))).distinct
+			val company = (data \ "condition" \ "company").asOpt[String].getOrElse(throw new Exception("wrong input"))
+			val rLst = csv2SampleCheckData(queryPanelWithRedis(uid), company).map(x => Map("market" -> x("market"), "date" -> x("date"))).distinct
 			(Some(Map("data" -> toJson(Map("selectBox" -> toJson(rLst))) )), None)
 		} catch {
 			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
@@ -34,16 +35,13 @@ object SampleCheckModule extends ModuleTrait with SampleData{
 	
 	def queryHospitalNumber(data: JsValue)(pr: Option[String Map JsValue])(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
-//			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-//			val db = conn.queryDBInstance("calc").get
-			
 			val uid = (data \ "condition" \ "uid").asOpt[String].getOrElse(throw new Exception("wrong input"))
-			
+			val company = (data \ "condition" \ "company").asOpt[String].getOrElse(throw new Exception("wrong input"))
 			val market = (data \ "condition" \ "market").asOpt[String].map(x => x).getOrElse(throw new Exception("wrong input"))
 			val date = (data \ "condition" \ "date").asOpt[String].map(x => x).getOrElse(throw new Exception("wrong input"))
 			// TODO: 预留对接数据库,可以的话采用MongoDB的MapReduce
  			val timeList = alNearDecemberMonth.diff12Month(date).toList.dropRight(1)
-			val rLst = csv2SampleCheckData(queryPanelWithRedis(uid)).toStream.filter(f => f("market") == market && f("date") == date).map(f => f("phaId"))
+			val rLst = csv2SampleCheckData(queryPanelWithRedis(uid), company).toStream.filter(f => f("market") == market && f("date") == date).map(f => f("phaId"))
 			val listLst = timeList.map { x =>
 				Map("date" -> toJson(x), "hospitalNumber" -> toJson(0))
 			} :+ Map("date" -> toJson(date), "hospitalNumber" -> toJson(rLst.distinct.size))
@@ -60,16 +58,13 @@ object SampleCheckModule extends ModuleTrait with SampleData{
 	
 	def queryProductNumber(data: JsValue)(pr: Option[String Map JsValue])(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
-//			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-//			val db = conn.queryDBInstance("calc").get
-			
 			val uid = (data \ "condition" \ "uid").asOpt[String].getOrElse(throw new Exception("wrong input"))
-			
+			val company = (data \ "condition" \ "company").asOpt[String].getOrElse(throw new Exception("wrong input"))
 			val market = (data \ "condition" \ "market").asOpt[String].map(x => x).getOrElse(throw new Exception("wrong input"))
 			val date = (data \ "condition" \ "date").asOpt[String].map(x => x).getOrElse(throw new Exception("wrong input"))
 			// TODO: 预留对接数据库,可以的话采用MongoDB的MapReduce
 			val timeList = alNearDecemberMonth.diff12Month(date).toList.dropRight(1)
-			val rLst = csv2SampleCheckData(queryPanelWithRedis(uid)).toStream.filter(f => f("market") == market && f("date") == date).map(f => f("productMini"))
+			val rLst = csv2SampleCheckData(queryPanelWithRedis(uid), company).toStream.filter(f => f("market") == market && f("date") == date).map(f => f("productMini"))
 			val lineLst = timeList.map { x =>
 				Map("date" -> toJson(x), "productNumber" -> toJson(0))
 			} :+ Map("date" -> toJson(date), "productNumber" -> toJson(rLst.distinct.size))
@@ -86,16 +81,13 @@ object SampleCheckModule extends ModuleTrait with SampleData{
 	
 	def querySampleSales(data: JsValue)(pr: Option[String Map JsValue])(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
-//			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-//			val db = conn.queryDBInstance("calc").get
-			
 			val uid = (data \ "condition" \ "uid").asOpt[String].getOrElse(throw new Exception("wrong input"))
-			
+			val company = (data \ "condition" \ "company").asOpt[String].getOrElse(throw new Exception("wrong input"))
 			val market = (data \ "condition" \ "market").asOpt[String].map(x => x).getOrElse(throw new Exception("wrong input"))
 			val date = (data \ "condition" \ "date").asOpt[String].map(x => x).getOrElse(throw new Exception("wrong input"))
 			// TODO: 预留对接数据库,可以的话采用MongoDB的MapReduce
 			val timeList = alNearDecemberMonth.diff12Month(date).toList.dropRight(1)
-			val rLst = csv2SampleCheckData(queryPanelWithRedis(uid)).toStream.filter(f => f("market") == market && f("date") == date).map(f => f("sales").toDouble)
+			val rLst = csv2SampleCheckData(queryPanelWithRedis(uid), company).toStream.filter(f => f("market") == market && f("date") == date).map(f => f("sales").toDouble)
 			val barLst = timeList.map { x =>
 				Map("date" -> toJson(x), "sampleSales" -> toJson(0))
 			} :+ Map("date" -> toJson(date), "sampleSales" -> toJson(rLst.sum.formatted("%.2f")))
@@ -110,12 +102,12 @@ object SampleCheckModule extends ModuleTrait with SampleData{
 	def queryNotSampleHospital(data: JsValue)(pr: Option[String Map JsValue])(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
 			val uid = (data \ "condition" \ "uid").asOpt[String].getOrElse(throw new Exception("wrong input"))
-			
+			val company = (data \ "condition" \ "company").asOpt[String].getOrElse(throw new Exception("wrong input"))
 			val market = (data \ "condition" \ "market").asOpt[String].map(x => x).getOrElse(throw new Exception("wrong input"))
 			val date = (data \ "condition" \ "date").asOpt[String].map(x => x).getOrElse(throw new Exception("wrong input"))
 			
-			val csvLst = csv2SampleCheckData(queryPanelWithRedis(uid)).toStream.filter(f => f("market") == market && f("date") == date).map(f => f("phaId")).distinct
-			val allHospitalLst = xlsx2SampleCheckData(market).toStream.
+			val csvLst = csv2SampleCheckData(queryPanelWithRedis(uid), company).toStream.filter(f => f("market") == market && f("date") == date).map(f => f("phaId")).distinct
+			val allHospitalLst = xlsx2SampleCheckData(market, company).toStream.
 				filter(f => f("If Panel_All") == "1").
 				map(x => x - "住院病人手术人次数" - "住院治疗收入" - "门诊西药收入"
 							- "医疗收入" - "住院收入" - "住院药品收入"

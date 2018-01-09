@@ -5,7 +5,7 @@ import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.panel.util.phWebSocket
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg._
@@ -49,7 +49,7 @@ class alRestoreBsonComeo(uid: String, panel: String, counter: ActorRef) extends 
                     "type" -> "error",
                     "error" -> "cannot restore bson"
                 )
-                alWebSocket(uid).post(msg)
+                phWebSocket(uid).post(msg)
                 alTempLog("restore bson => Failed")
             }
             shutSlaveCameo(restoreBsonResult(result, uid))

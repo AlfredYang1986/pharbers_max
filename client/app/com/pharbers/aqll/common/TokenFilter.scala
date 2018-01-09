@@ -43,6 +43,7 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
     val noLogingUrlMapping1 = "/register" :: "/auth/" :: "/phonecode/" :: "/validation/token/" :: "/email/invocation/" :: "/password/" ::  Nil
     val noLogingUrlMapping2 = "/" :: "/login" :: "/test" :: "/akka/callback" :: "/order/success" :: "/token/fail" ::
                                 "/login/confirm" :: "/user/changepwd" :: "/user/forgetWithPassword" :: Nil
+//                                "/calc/querySelectBox" :: "/calc/querySalesVsShare" :: "/calc/queryCurVsPreWithCity"
     val bdUrlMapping = "/login/db" :: "/bd/bdUser" :: "/register/querybd" :: "/register/update" :: "/bd/addMember" ::
                         "/user/querypage" :: "/user/push" :: "/user/delete" :: Nil
 
