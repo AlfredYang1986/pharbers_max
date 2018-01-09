@@ -277,13 +277,24 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     }
     
     
-    def preAggregationJob(uid: String): Unit = {
-        val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found uid"))
-        val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
-        panelLst.map(panel => rd.hget(panel, "tid").getOrElse(throw new Exception("not found tid"))).toList foreach{x =>
-            pushAggregationJobs(uid, x)
+    def preAggregationJob(uid: String, showLst: List[String]): Unit = {
+    
+        val rid = rd.hget(uid, "rid").map(x => x).getOrElse(throw new Exception("not found uid"))
+        val tidDetails = rd.smembers(rid).get.map(x =>(rd.hget(x.get, "ym").get, rd.hget(x.get, "mkt").get, rd.hget(x.get, "tid")))
+        if(showLst.isEmpty) {
+            tidDetails.foreach( x => pushAggregationJobs(uid, x._3.get))
+        } else {
+            showLst.map( x => tidDetails.find(f => f._1 == x.split("-")(1) && f._2 == x.split("-")(0))).filterNot(_.isEmpty).foreach{ x =>
+                pushAggregationJobs(uid, x.get._3.get)
+            }
         }
         
+        // TODO: 暂时不删除，测试通过在删除
+//        val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
+//        panelLst.map(panel => rd.hget(panel, "tid").getOrElse(throw new Exception("not found tid"))).toList foreach{x =>
+//            pushAggregationJobs(uid, x)
+//        }
+
         val msg = Map(
             "type" -> "progress_calc_result_done",
             "txt" -> "正在合并",
