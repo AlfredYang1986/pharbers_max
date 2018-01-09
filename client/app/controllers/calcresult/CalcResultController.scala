@@ -29,25 +29,27 @@ trait redisController {
 	
 	def paralleSalesVsShare(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
+		val company = phRedisDriver().commonDriver.hget(uid, "company").get
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
 		getRedisCollections(uid).map { x =>
-			MessageRoutes(MsgCalcResultSalesVsShare(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js)))) :: Nil, None)
+			MessageRoutes(MsgCalcResultSalesVsShare(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js)))) :: Nil, None)
 		}
 	}
 	
 	def paralleCurVsPreWithCity(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
-		
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
+		val company = phRedisDriver().commonDriver.hget(uid, "company").get
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
 		getRedisCollections(uid).map { x =>
-			MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js )))) :: Nil, None)
+			MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js )))) :: Nil, None)
 		}
 	}
 
 	def paralleCondition(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
+		val company = phRedisDriver().commonDriver.hget(uid, "company").get
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
-		getRedisCollections(uid).map ( x => MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js )))) :: Nil, None)).toList
+		getRedisCollections(uid).map ( x => MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js )))) :: Nil, None))
 	}
 }
 

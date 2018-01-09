@@ -4,12 +4,13 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg.pushGroupJob
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.pushScpJob
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg.pushCalcJob
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg.pushRestoreJob
-
 import akka.actor.Actor
 import com.redis.RedisClient
 import java.util.{Date, UUID}
+
 import play.api.libs.json.JsValue
 import java.text.SimpleDateFormat
+
 import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
@@ -19,6 +20,7 @@ import com.pharbers.panel.util.phWebSocket
 import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.startAggregationCalcData
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
@@ -256,6 +258,9 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 phWebSocket(uid).post(msg)
 
                 alTempLog(s"计算完成 in ${df.format(new Date())}")
+
+                val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+                agent ! startAggregationCalcData(uid)
             }
         } else {
             var overSum = rd.get("overSum:" + uid).getOrElse("0").toInt

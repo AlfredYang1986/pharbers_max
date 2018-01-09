@@ -53,6 +53,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
 
             concert.data.zipWithIndex.foreach { x =>
                 max_precess(
+                    items.parent,
                     x._1.asInstanceOf[IntegratedData],
                     sub_item.tid,
                     Some(s"${x._2}/${concert.data.length}")
@@ -139,12 +140,13 @@ class alCalcDataImpl extends Actor with ActorLogging{
         recall.cur.get.storages.head.asInstanceOf[alStorage].data.asInstanceOf[List[IntegratedData]]
     }
 
-    private def max_precess(element: IntegratedData, sub_uuid: String, longPath: Option[String] = None)
+    private def max_precess(panel: String, element: IntegratedData, sub_uuid: String, longPath: Option[String] = None)
                            (recall: List[IntegratedData])(uid: String) = {
         if (!longPath.isEmpty) {
             val company = phRedisDriver().commonDriver.hget(uid, "company").get
+            val market = phRedisDriver().commonDriver.hget(panel, "mkt").get
 
-            val data_tmp = alShareData.hospdata("universe", company) map { el =>
+            val data_tmp = alShareData.hospdata("universe", company, market) map { el =>
                 val mrd = westMedicineIncome(el.getCompany, element.getYearAndmonth, 0.0, 0.0, element.getMinimumUnit,
                     element.getMinimumUnitCh, element.getMinimumUnitEn, element.getMarket1Ch,
                     element.getMarket1En, el.getSegment, el.getFactor, el.getIfPanelAll,
@@ -206,7 +208,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
     }
 
     def westMedicineIncome2map(mrd: westMedicineIncome) : Map[String, Any] = {
-        Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString),
+        Map(
             "Provice" -> mrd.getV("province").toString,
             "City" -> mrd.getV("prefecture").toString,
             "Panel_ID" -> mrd.phaid,

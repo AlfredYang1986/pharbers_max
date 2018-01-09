@@ -1,10 +1,7 @@
 package com.pharbers.aqll.alCalcHelp.alFinalDataProcess
 
-import java.util.UUID
-
 import com.mongodb.casbah.Imports.{MongoDBObject, _}
 import com.pharbers.aqll.common.alDao.from
-import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -77,7 +74,6 @@ case class alWeightSum(uid: String, company : String, temp: String, allTable: In
 				}
 
 				val builder = MongoDBObject.newBuilder
-				builder += "ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString)
 				builder += "Provice" -> x.get("Provice")
 				builder += "City" -> x.get("City")
 				builder += "Panel_ID" -> x.get("Panel_ID")

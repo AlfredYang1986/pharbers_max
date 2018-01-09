@@ -133,7 +133,6 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 	
 	def salesVsShareResultMerge(lst: List[Map[String, JsValue]])
 	                           (pr: Option[Map[String, JsValue]]): Map[String, JsValue] = {
-		
 		val mergerResult = MergeParallelResult(lst)
 		// TODO: 重构啊，重构啊
 		val selectDate = (pr.get("condition") \ "marketWithYear").asOpt[String] match {
@@ -144,15 +143,17 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 			case None => default(pr)("Market")
 			case Some(one) => one.split("-").tail.head
 		}
-		// TODO： 想一想，怎么才能知道公司名字呢
-		val product = "辉瑞"
+		val show_company = pr.get("show_company").asOpt[String] match {
+			case None => ""
+			case Some(one) => one
+		}
 		
 		val timeLst = alNearDecemberMonth.diff12Month(selectDate).toList.dropRight(1)
 		
 		val curTemp = mergerResult("cur").as[String Map List[String Map String]].values.toList.flatten
 		val historyTemp = mergerResult("history").as[String Map List[String Map String]].values.toList.flatten
 		
-		val curPSumS = curTemp.filter(f => f("Product").contains(product)).map(x => x("Sales").toDouble).sum
+		val curPSumS = curTemp.filter(f => f("Product").contains(show_company)).map(x => x("Sales").toDouble).sum
 		val curMSumS = curTemp.map(x => x("Sales").toDouble).sum
 		val curMSumU = curTemp.map(x => x("Units").toDouble).sum
 		val share = if(curMSumS == 0) 0 else ((curPSumS / curMSumS) * 100).formatted("%.2f").toDouble
@@ -162,7 +163,7 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 				Map("Date" -> selectDate, "Market" -> selectMarket, "Sales" -> curMSumS.toString, "Units" ->curMSumU.toString, "Share" -> share.toString)
 			case hlst =>
 				timeLst.map{ x =>
-					val hisPSumS = hlst.filter(f => f("Date") == x && f("Product").contains(product)).map(z => z("Sales").toDouble).sum
+					val hisPSumS = hlst.filter(f => f("Date") == x && f("Product").contains(show_company)).map(z => z("Sales").toDouble).sum
 					val hisMSumS = hlst.filter(f => f("Date") == x).map(z => z("Sales").toDouble).sum
 					val hisMSumU = hlst.filter(f => f("Date") == x).map(z => z("Units").toDouble).sum
 					val share = if(hisMSumS == 0) 0 else ((hisPSumS / hisMSumS) * 100).formatted("%.2f").toDouble
@@ -190,12 +191,16 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 			case None => default(pr)("Market")
 			case Some(one) => one.split("-").tail.head
 		}
-		val product = "辉瑞"
+		val show_company = pr.get("show_company").asOpt[String] match {
+			case None => ""
+			case Some(one) => one
+		}
+
 		val cuProvinceTemp = para("cur_result").as[String Map List[String Map String]].values.flatten
 		val result = cuProvinceTemp.groupBy(g => g("Province")).map { x =>
 			val sumSales = x._2.map(f => f("Sales").toDouble).sum
 			val sumUnits = x._2.map(f => f("Units").toDouble).sum
-			val sumProductSales = x._2.filter(f => f("Product").contains(product)).map(f => f("Sales").toDouble).sum
+			val sumProductSales = x._2.filter(f => f("Product").contains(show_company)).map(f => f("Sales").toDouble).sum
 			val share =  if(sumSales == 0) 0 else ((sumProductSales / sumSales) * 100).formatted("%.2f").toDouble
 			Map("Date" -> toJson(selectDate), "Market" -> toJson(selectMarket), "Province" -> toJson(x._1), "Sales" -> toJson(sumSales), "Units" -> toJson(sumUnits), "ProductSales" -> toJson(sumProductSales), "Share" -> toJson(share) )
 		}.toList.sortBy(s => s("Sales").as[Double]).reverse
@@ -221,34 +226,18 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 	                        (pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): Map[String, JsValue] = {
 		val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 		val db = conn.queryDBInstance("cli").get
-		
-		//		def merge(lst: List[String Map JsValue])(t: String Map JsValue): String Map JsValue = {
-		//			lst match {
-		//				case Nil => Map.empty
-		//				case head :: tail =>
-		//					val tmp = if(t.isEmpty) t ++ head
-		//					else {
-		//						head map{ x =>
-		//							val v = t.get(x._1).get.as[String]
-		//							(x._1, toJson((x._2.as[String] :: v :: Nil).distinct))
-		//						}
-		//					}
-		//					tmp ++ merge(tail)(tmp)
-		//			}
-		//		}
-		
 		val para = MergeParallelResult(lst)
 		val temp = para.values.map(x => x.as[List[String Map JsValue]]).toList.flatten
 		val o = DBObject("user_id" -> (pr.get("user") \ "user_id").as[String])
 		val company = db.queryObject(o, "users") { x =>
 			val profile = x.getAs[MongoDBObject]("profile")
 			val company = profile.get.getAs[String]("company")
-			Map("user_company" -> toJson(company))
+			val showCompany = profile.get.getAs[String]("showCompany")
+			Map("user_company" -> toJson(company), "show_company" -> toJson(showCompany))
 		} match {
 			case None => throw new Exception("data not exist")
-			case Some(one) => Map("user_company" -> one("user_company"))
+			case Some(one) => Map("user_company" -> one("user_company"), "show_company" -> one("show_company"))
 		}
-		//merge(temp)(Map.empty)
 		
 		Map("result_condition" -> toJson(Map("select_values" -> toJson(temp)))) ++ company
 	}

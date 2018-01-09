@@ -92,11 +92,11 @@
                     f.ajaxModule.asyncPost('/user/queryinfo', queryJson, function (data) {
                         console.log(data);
                         var user = data.result.user_info;
-                        $('.bd_user_name').text(data.result.user_info.name);
-                        $('.bd_user_email').text(data.result.user_info.email);
+                        $('.bd_user_name').text(user.name);
+                        $('.bd_user_email').text(user.email);
                         $('#in-name').attr('value',user.name);
                         $('#in-phone').attr('value',user.phone);
-                        $('#in-company').attr('value',user.company);
+                        $('#in-company').attr('value',user.showCompany);
                         $('#in-date').text(user.date);
                         $('#in-companyPhone').attr('value',user.companyPhone);
                         $('#in-companyAddress').attr('value',user.companyAddress);
