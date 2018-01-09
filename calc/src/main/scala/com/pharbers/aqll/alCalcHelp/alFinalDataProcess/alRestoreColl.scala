@@ -14,7 +14,7 @@ import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 case class alRestoreColl() {
     def apply(company: String, bsonpath: String) = {
         var first: Boolean = false
-        var bson_path = alBsonPath().bson_file_path
+        val bson_path = alBsonPath().bson_file_path
         val file = new File(bson_path + bsonpath)
         val fileList = file.listFiles()
         alTempLog(s"restore bson path = ${bson_path + bsonpath}")
@@ -22,7 +22,7 @@ case class alRestoreColl() {
 
         fileList.foreach(x => {
             dbrestoreCmd3(db1, company, x.toString, dbuser, dbpwd, dbhost, dbport.toInt).excute
-            if(first){
+            if(!first){
                 dbc.getCollection(company).createIndex(MongoDBObject("hosp_Index" -> 1))
                 dbc.getCollection(company).createIndex(MongoDBObject("City" -> 1))
                 dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1))

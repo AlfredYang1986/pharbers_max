@@ -20,7 +20,7 @@ import com.pharbers.panel.util.phWebSocket
 import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.refundNodeForRole
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.startAggregationCalcData
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.{startAggregationCalcData, startCalc}
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
@@ -86,6 +86,11 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                     "result" -> panelResult.toString
                 )
                 phWebSocket(uid).post(msg)
+
+                if(uid.startsWith("uid")) {
+                    val agentTest = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+                    agentTest ! startCalc(uid)
+                }
             case None => Unit
         }
 
@@ -259,8 +264,10 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
                 alTempLog(s"计算完成 in ${df.format(new Date())}")
 
-                val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-                agent ! startAggregationCalcData(uid)
+                if(uid.startsWith("uid")){
+                    val agentTest = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+                    agentTest ! startAggregationCalcData(uid)
+                }
             }
         } else {
             var overSum = rd.get("overSum:" + uid).getOrElse("0").toInt
