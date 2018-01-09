@@ -27,7 +27,7 @@ object alGeneratePanelCameo {
 
 class alGeneratePanelCameo(panelJob: alPanelItem, counter: ActorRef) extends Actor with ActorLogging {
     //TODO shijian chuancan
-    val timeoutMessager = context.system.scheduler.scheduleOnce(30 minute) {
+    val timeoutMessager = context.system.scheduler.scheduleOnce(100 minute) {
         self ! generate_panel_timeout()
     }
 
