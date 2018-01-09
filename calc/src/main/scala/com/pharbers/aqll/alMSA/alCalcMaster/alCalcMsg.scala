@@ -131,7 +131,7 @@ object alCalcMsg {
   
         case class aggregationDataStart()
         case class aggregationDataHand()
-        case class aggregationDataImpl(uid: String, table: String)
+        case class aggregationDataImpl(uid: String, company: String, temp: String)
         case class aggregationDataEnd(result: Boolean)
         case class aggregationDataTimeOut()
     }

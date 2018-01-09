@@ -8,7 +8,7 @@ import com.pharbers.aqll.common.alString.alStringOpt._
   * Created by Alfred on 13/03/2017.
   */
 object alShareData {
-    def hospdata(name: String, company: String) = DefaultData.hospdatabase(name, company)
+    def hospdata(name: String, company: String, market: String) = DefaultData.hospdatabase(name, company, market)
 
     val csv2IntegratedData : Any => IntegratedData = { txt =>
         val t = new IntegratedData()

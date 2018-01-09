@@ -13,53 +13,60 @@ object alActorTest extends App {
 	val config = ConfigFactory.load("split-test")
 	val system : ActorSystem = ActorSystem("calc", config)
 
-	val company = "fea9f203d4f593a96f0d6faa91ba24ba"
-	val cpa_file_local = "1705 CPA.xlsx"
-	val gycx_file_local = "1705 GYC.xlsx"
+	val company1 = "fea9f203d4f593a96f0d6faa91ba24ba"
+	val cpa_file_local1 = "1705 CPA.xlsx"
+	val gycx_file_local1 = "1705 GYC.xlsx"
+
+	val company2 = "8ee0ca24796f9b7f284d931650edbd4b"
+	val cpa_file_local2 = "to医药魔方 恩华CPA原始数据2015.1-2017.6.xlsx"
 
 	if (system.settings.config.getStringList("akka.cluster.roles").contains("splittest")){
 		Cluster(system).registerOnMemberUp {
 			val agent = system.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
 			val redisDriver = phRedisDriver().commonDriver
 
-			(1 to 3) foreach { x =>
+			(1 to 1) foreach { x =>
 				val uid = "uid" + x
-				redisDriver.hset(uid, "company", company)
+				redisDriver.hset(uid, "company", company2)
 
 				//test calc ym
 				if (false){
 					println("======================================== test calc ym")
-					agent ! startCalcYm(alPanelItem(company, uid, cpa_file_local, gycx_file_local))
+					agent ! startCalcYm(alPanelItem(company1, uid, cpa_file_local1, gycx_file_local1))
 				}
 
 				//test generter panel
-				if (false) {
+				if (true) {
 					println("================================== test generter panel")
-					agent ! startGeneratePanel(alPanelItem(company, uid, cpa_file_local, gycx_file_local, List("201705")))
-					Thread.sleep(300000)
-				} else if(true){
+					val ym = "201601" :: Nil
+					agent ! startGeneratePanel(alPanelItem(company2, uid, cpa_file_local2, "", ym))
+					Thread.sleep(5 * 60 * 1000)
+				} else if(false){
 					println("================================== write panel to redis")
 					val rid = UUID.randomUUID().toString
 					redisDriver.hset(uid, "rid", rid)
+					redisDriver.sadd(rid, "49eb8623-f9b3-4280-a33d-2c73b2f11a27")
+					redisDriver.hset("49eb8623-f9b3-4280-a33d-2c73b2f11a27", "mkt", "麻醉市场")
 					if(uid == "uid1"){
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201705INF.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705Specialty.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705Urology.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_S.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_D.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_W.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705CNS_R.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705CNS_Z.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705DVP.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ELIQUIS.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705HTN.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705HTN2.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705LD.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ONC.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN_C.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ZYVOX.xlsx")
-						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
+						redisDriver.hset("CPA_GYCX_panel_201705INF.xlsx", "mkt", "INF")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705Specialty.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705Urology.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_S.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_D.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_W.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705CNS_R.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705CNS_Z.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705DVP.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ELIQUIS.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705HTN.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705HTN2.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705LD.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ONC.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705PAIN_C.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705ZYVOX.xlsx")
+//						redisDriver.sadd(rid, "CPA_GYCX_panel_201705AI_R.xlsx")
 					} else if (uid == "uid2"){
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706INF.xlsx")
 						redisDriver.sadd(rid, "CPA_GYCX_panel_201706Specialty.xlsx")

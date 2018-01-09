@@ -1,20 +1,20 @@
 package com.pharbers.aqll.alCalcHelp
 
-import com.pharbers.aqll.alCalcHelp.alModel.java.{AdminHospitalDataBase, IntegratedData}
+import com.pharbers.panel.phPanelFilePath
 import com.pharbers.aqll.common.alDao.dataFactory._
 import com.pharbers.baseModules.PharbersInjectModule
 import com.pharbers.aqll.common.alDao.data_connection
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 import com.pharbers.aqll.common.alFileHandler.alExcelOpt.scala.alExcelDataParser
+import com.pharbers.aqll.alCalcHelp.alModel.java.{AdminHospitalDataBase, IntegratedData}
 
 object DefaultData {
+    object market_file_path extends phPanelFilePath
     object file_path extends PharbersInjectModule {
         override val id: String = "calc-path"
         override val configPath: String = "pharbers_config/calc_path.xml"
-        override val md = "bson-path" :: "hosp" ::
-                "field-names-hosp" :: "integrated" ::
-                "field-names-integrated" :: Nil
+        override val md = "bson-path" :: "hosp" :: "field-names-hosp" :: "integrated" :: "field-names-integrated" :: Nil
 
         val hosp = config.mc.find(p => p._1 == "hosp").get._2.toString
         val field_names_hosp = config.mc.find(p => p._1 == "field-names-hosp").get._2.toString
@@ -22,13 +22,14 @@ object DefaultData {
         val field_names_integrated = config.mc.find(p => p._1 == "field-names-integrated").get._2.toString
     }
 
-    def hospdatabase(path: String, company: String): List[AdminHospitalDataBase] = {
+    def hospdatabase(path: String, company: String, market: String): List[AdminHospitalDataBase] = {
         val hospdata_ch_file = file_path.hosp
         val hospdata_en_file = file_path.field_names_hosp
         type targt = AdminHospitalDataBase
         val hospdatabase = new alExcelDataParser(new targt, hospdata_en_file, hospdata_ch_file)
 
-        hospdatabase.prase(fileBase + company + hospitalData + "20ffa035fed5a5e72623075139e151b9")("")
+        val mkt_file_local = market_file_path.base_path + company + market_file_path.universe_inf_file.replace("##market##", market)
+        hospdatabase.prase(mkt_file_local)("")
         hospdatabase.data.toList.asInstanceOf[List[targt]]
     }
 

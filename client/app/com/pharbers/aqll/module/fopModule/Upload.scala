@@ -16,7 +16,7 @@ object Upload {
             data.files.foreach { x =>
                 val uuid = UUID.randomUUID
                 val company = data.dataParts("company").headOption.map(x => x).getOrElse("")
-                val path = s"$memorySplitFile$fileBase$company/Client"
+                val path = s"$fileBase$company$client_cpa_file"
                 val file = new File(path)
                 if (!file.exists()) file.mkdir()
                 new TemporaryFile(x.ref.file).moveTo(new File(s"$path/$uuid"), true)

@@ -70,6 +70,9 @@ var calc_step = (function ($, w) {
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
 
+    load_cpa_source();
+    load_gycx_source();
+
     var check_file = function(){
         var info = $("#loadInof");
         info.empty();
