@@ -14,7 +14,6 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alCalcHelp.alAkkaHttpJson.PlayJsonSupport
-import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.alFileExport
 import play.api.libs.json.OFormat
 
@@ -27,7 +26,7 @@ case class Item(str: String, lst: List[String])
 case class alCalcYmItem(company: String, uid: String, cpa: String, gycx: String)
 case class alPanelItem(company: String, uid: String, cpa: String, gycx: String, ym: List[String] = Nil)
 case class alCalcItem(uid: String)
-case class alCommitItem(uid: String)
+case class alCommitItem(uid: String, showLst: List[String])
 case class alExportItem(uid: String, filetype: String, datatype: String, market: List[String], staend: List[String])
 
 
@@ -52,7 +51,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson {
 	type route = server.Route
 	val actorSystem: ActorSystem
 
-	val routes: route = alCalcYM ~ alCalcData ~ alGenternPanel ~ alDataCommit ~ alDataExport ~ Test
+	val routes: route = alCalcYM ~ alCalcData ~ alGenternPanel ~ alDataCommit ~ alDataExport
 	
 	def Test: route = post {
 		path("test") {
@@ -100,12 +99,8 @@ trait alAkkaHttpFunction extends Directives with PlayJson {
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
 				val a = actorSystem.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-				a ! startAggregationCalcData(item.uid)
-				val rd =  phRedisDriver().commonDriver
-				val rid = rd.hget(item.uid, "rid").map(x=>x).getOrElse(throw new Exception("not found uid"))
-				val size = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none")).
-					map(panel => rd.hget(panel, "tid").getOrElse(throw new Exception("not found tid"))).toList.size
-				complete(toJson(successToJson(toJson(Map("size" -> size.toString))).get))
+				a ! startAggregationCalcData(item.uid, item.showLst)
+				complete(toJson(successToJson()))
 			}
 		}
 	}

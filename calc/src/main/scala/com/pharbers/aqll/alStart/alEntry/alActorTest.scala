@@ -120,7 +120,7 @@ object alActorTest extends App {
 
 				if(false){
 					println("===================== test calc -> aggregation")
-					agent ! startAggregationCalcData("47ee6f05c8994e9ddbe12c2971600766")
+					agent ! startAggregationCalcData("47ee6f05c8994e9ddbe12c2971600766", Nil)
 				}
 			}
 		}

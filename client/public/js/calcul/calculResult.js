@@ -7,10 +7,47 @@ var step_chart = (function ($, w) {
     var itemStyleColor = ['#3AD1C2', '#60C6CF', '#FFFFFF', '#009992'];
     var barLineChart, mapChart, barChart;
     var table_num = 0;
+    var form, layer;
     $(function(){
         bar_line_chart("market_trend");
         map_chart("market_map");
         bar_chart("market_bar");
+        layui.use(['form', 'layer'], function() {
+            form = layui.form;
+            layer = layui.layer;
+            form.on('submit(cancel)', function () {
+                layer.closeAll();
+                return false;
+            });
+            form.on('submit(save)', function (data) {
+                let show_lst = [];
+                $.each(data.field, function(i, v){show_lst.push(v)});
+                table_num = show_lst.length;
+                show_loading();
+                let json = JSON.stringify({
+                    "businessType": "/datacommit",
+                    "uid": $.cookie('uid'),
+                    "showLst": show_lst
+                });
+                f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function (r) {
+                    if (r.status === 'ok') {
+                        layer.closeAll();
+                    } else {
+                        console.error("Error");
+                    }
+                }, null, null, null, false);
+                return false;
+            });
+            form.on('checkbox(calc-result-choose-all)', function(data){
+                var inputs = $('div[name="calc-result-choose-lst"] input');
+                if (data.elem.checked) {
+                    $.each(inputs, function(i, v){$(v).prop("checked", true)});
+                } else {
+                    $.each(inputs, function(i, v){$(v).prop("checked", false)});
+                }
+                form.render('checkbox');
+            });
+        });
         $(w).resize(function () {
             barLineChart.resize();
             mapChart.resize();
@@ -27,46 +64,40 @@ var step_chart = (function ($, w) {
             query_data(json);
         });
         $('#submit-data').click(function(){
-            layui.use('layer', function(){
-                var layer = layui.layer;
-                layer.confirm('请确认本次结果无误，保存入数据库中数据将无法删除！<br/>并将已有月份的数据，进行覆盖。', {
-                    btn: ['确认', '取消'], //按钮
-                    resize: false,
-                    maxWidth: 'auto',
-                    closeBtn: 0
-                }, function(index){
-                    show_loading();
-                    layer.close(index);
-                    var json = JSON.stringify({
-                        "businessType": "/datacommit",
-                        "uid": $.cookie('uid')
-                    });
-                    f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function (r) {
-                        if (r.status === 'ok') {
-                            table_num = r.result.result.result.size;
-                        } else {
-                            console.error("Error");
-                        }
-                    }, null, null, null, false);
-                }, function(){});
-            });
 
+            layer.confirm('请确认本次结果无误，保存入数据库中数据将无法删除！<br/>并将已有月份的数据，进行覆盖。', {
+                btn: ['确认', '取消'], //按钮
+                resize: false,
+                maxWidth: 'auto',
+                closeBtn: 0
+            }, function(index){
+                let op = {
+                    "content": $('#calc-result-selectbox').html(),
+                    "title": '请确认本次要保存的数据：',
+                    "offset": '160px'
+                };
+                f.alertModule.open(op);
+                form.render('checkbox');
+            }, function(){});
         });
     });
 
     var query_select = function() {
         f.ajaxModule.baseCall('/calc/querySelectBox', JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")})), 'POST', function (r) {
             if(r.status === 'ok') {
-                var $select_month =  $('select[name="calc-result-month"]');
-                var $select_market = $('select[name="calc-result-market"]');
-                $select_month.empty();
-                $select_market.empty();
+                var $select_month =  $('select[name="calc-result-month"]').empty();
+                var $select_market = $('select[name="calc-result-market"]').empty();
+                var $select_checkbox = $('div[name="calc-result-choose-lst"]').empty();
+                $('p[name="calc-result-choose-all"]').empty().append('<input lay-filter="calc-result-choose-all" type="checkbox" name="" title="全部" lay-skin="primary">');
                 var market_lst = [];
                 var time_lst = [];
 
                 $.each(r.result.result_condition.select_values, function(i, v){
                     time_lst.push(v.Date);
                     market_lst.push(v.Market);
+                    var value = v.Market + '-' + v.Date;
+                    var title = v.Market + ' ' + v.Date;
+                    $select_checkbox.append('<input type="checkbox" name="' + value + '" title="' + title + '" value="' + value + '" lay-skin="primary">')
                 });
                 $.each($.unique(market_lst), function(i, v){$select_market.append('<option  value="'+ v +'">' + v + '</option>');});
                 $.each($.unique(time_lst).sort(), function(i, v){$select_month.append('<option  value="'+ v +'">' + v + '</option>');});
@@ -90,12 +121,12 @@ var step_chart = (function ($, w) {
                 var $select_month =  $('select[name="calc-result-month"]');
                 var $select_market = $('select[name="calc-result-market"]');
                 $.each($select_market.find('option'), function(i, v){
-                    if(r.result.selectMarket === '201502') {
+                    if(r.result.selectMarket === $(v).val()) {
                         $(v).attr("selected", true)
                     }
                 });
                 $.each($select_month.find('option'), function(i, v){
-                    if(r.result.selectDate === '201502') {
+                    if(r.result.selectDate === $(v).val()) {
                         $(v).attr("selected", true)
                     }
                 });

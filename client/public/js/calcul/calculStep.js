@@ -30,9 +30,9 @@ var calc_step = (function ($, w) {
             })
         });
 
-        $('#test-sample-result').click(function(){
-            toSampleResult()
-        });
+        // $('#test-sample-result').click(function(){
+        //     toSampleResult()
+        // });
         $('#test-calc-result').click(function(){
             toFourthStep()
         });

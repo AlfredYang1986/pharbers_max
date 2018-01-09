@@ -104,3 +104,13 @@
     color: white;
     background-color: #b1b1b1;
 }
+
+/*新增点击保存时弹出框css*/
+#calc-result-selectbox {
+    display: none;
+}
+.calc-result-choose-all {
+    color: #868686;
+    font-weight: 300;
+    margin: 15px 0 10px 110px;
+}
