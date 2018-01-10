@@ -23,19 +23,23 @@ var step_chart = (function ($, w) {
                 let show_lst = [];
                 $.each(data.field, function(i, v){show_lst.push(v)});
                 table_num = show_lst.length;
-                show_loading();
-                let json = JSON.stringify({
-                    "businessType": "/datacommit",
-                    "uid": $.cookie('uid'),
-                    "showLst": show_lst
-                });
-                f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function (r) {
-                    if (r.status === 'ok') {
-                        layer.closeAll();
-                    } else {
-                        console.error("Error");
-                    }
-                }, null, null, null, false);
+                if (show_lst.length === 0) {
+                    layer.msg("您尚未选择要保存的数据！");
+                } else {
+                    show_loading();
+                    let json = JSON.stringify({
+                        "businessType": "/datacommit",
+                        "uid": $.cookie('uid'),
+                        "showLst": show_lst
+                    });
+                    f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function (r) {
+                        if (r.status === 'ok') {
+                            layer.closeAll();
+                        } else {
+                            console.error("Error");
+                        }
+                    }, null, null, null, false);
+                }
                 return false;
             });
             form.on('checkbox(calc-result-choose-all)', function(data){
@@ -78,6 +82,8 @@ var step_chart = (function ($, w) {
                 };
                 f.alertModule.open(op);
                 form.render('checkbox');
+                // layui有点恶心，尤其是render，不得不删除
+                $('div p[name="calc-result-choose-all"]').next('div').remove()
             }, function(){});
         });
     });
@@ -88,7 +94,7 @@ var step_chart = (function ($, w) {
                 var $select_month =  $('select[name="calc-result-month"]').empty();
                 var $select_market = $('select[name="calc-result-market"]').empty();
                 var $select_checkbox = $('div[name="calc-result-choose-lst"]').empty();
-                $('p[name="calc-result-choose-all"]').empty().append('<input lay-filter="calc-result-choose-all" type="checkbox" name="" title="全部" lay-skin="primary">');
+                $('div p[name="calc-result-choose-all"]').empty().append('<input lay-filter="calc-result-choose-all" type="checkbox" name="" title="全部" lay-skin="primary">');
                 var market_lst = [];
                 var time_lst = [];
 
