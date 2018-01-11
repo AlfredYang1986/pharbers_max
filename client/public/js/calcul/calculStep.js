@@ -33,9 +33,10 @@ var calc_step = (function ($, w) {
         // $('#test-sample-result').click(function(){
         //     toSampleResult()
         // });
-        $('#test-calc-result').click(function(){
-            toFourthStep()
-        });
+        //
+        // $('#test-calc-result').click(function(){
+        //     toFourthStep()
+        // });
     });
 
     var toSecondStep = function () {
@@ -64,9 +65,6 @@ var calc_step = (function ($, w) {
     };
 
     $("#check-btn").click(function(){check_file()});
-    // 无用了
-    // $("#generat-panel-btn").click(function(){generat_panel_action()});
-
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
 
