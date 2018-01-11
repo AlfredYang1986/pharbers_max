@@ -28,9 +28,9 @@ class alAggregationDataComeo(uid: String, table: String, counter: ActorRef) exte
 	}
 	
 	def aggregation: Receive = {
-		case aggregationDataImpl(uid, company, temp) =>
-			alWeightSum(uid, company, s"$company$temp", 1).aggregation
-			self ! aggregationDataEnd(true)
+		case aggregationDataImpl(_, company, temp) =>
+			val result = alWeightSum(uid, company, s"$company$temp", 1).aggregation
+			self ! aggregationDataEnd(result)
 			
 		case aggregationDataEnd(result) =>
 			if (result) {

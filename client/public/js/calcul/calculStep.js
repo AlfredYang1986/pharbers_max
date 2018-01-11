@@ -30,13 +30,12 @@ var calc_step = (function ($, w) {
             })
         });
 
-        // $('#test-sample-result').click(function(){
-        //     toSampleResult()
-        // });
-        //
-        // $('#test-calc-result').click(function(){
-        //     toFourthStep()
-        // });
+        $('#test-sample-result').click(function(){
+            toSampleResult()
+        });
+        $('#test-calc-result').click(function(){
+            toFourthStep()
+        });
     });
 
     var toSecondStep = function () {
