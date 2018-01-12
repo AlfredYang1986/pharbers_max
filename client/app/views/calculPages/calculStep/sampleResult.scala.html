@@ -19,32 +19,34 @@
         </div>
         <div class="chart-sample shadow-button">
             <div class="title-s middle-font-sample">
-                样本中&nbsp;医院数量&nbsp;检查结果
+                <span name="sample-market-tip"></span><b><em> 医院样本数量</em></b>
             </div>
             <div class="row">
-                <div class="col-sm-4 col-md-6 col-lg-7">
-                    <div class="t-num">
-                        <div class="inCenParent">
-                            <div class="middle-font-sample inCenChild" name="cur-hospital-number"></div>
-                            <div class="small-font-sample">当前医院数量</div>
+                <div class="col-sm-4 col-md-6 col-lg-6">
+                    <div class="sample-num-tip">
+                        <div class="sample-icon">
+                            <span>&nbsp;&nbsp;&nbsp;</span><em>本月样本数</em>
                         </div>
-                        <div class="inCenParent">
-                            <div class="middle-font-sample inCenChild" name="pre-hospital-number"></div>
-                            <div class="small-font-sample">上期医院数量</div>
-                        </div>
-                        <div class="inCenParent">
-                            <div class="middle-font-sample inCenChild" name="last-hospital-number"></div>
-                            <div class="small-font-sample">去年同期</div>
+                        <div class="sample-icon">
+                            <b>·······</b><em>去年各月样本趋势</em>
                         </div>
                     </div>
-                    <div class="row"></div>
                 </div>
-                <div class="col-sm-8 col-md-6 col-lg-5">
-                    <div class="small-font-sample">
-                        <span>请依据"产品数量的变化"，判断本次样本的正确性，</span>
-                        <br>
-                        <span>如无特殊原因，产品数量有较大波动，请检查样本文件是否有误。</span>
-                    </div>
+                <div class="col-sm-8 col-md-6 col-lg-6 sample-table">
+                    <table class="layui-table text-center" lay-skin="nob">
+                        <tr class="sample-badge-content">
+                            <td>
+                                <span class="sample-badge" id="pct-sample-hospital"><b>%</b></span>
+                            </td>
+                            <td id="cur-sample-hospital-num"></td>
+                            <td id="base-sample-hospital-num"></td>
+                        </tr>
+                        <tr>
+                            <td>样本误差率</td>
+                            <td>本月样本个数</td>
+                            <td>去年同月样本数</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
             <div class="chart-body" id="lineChart1"></div>
@@ -52,32 +54,34 @@
         </div>
         <div class="chart-sample shadow-button">
             <div class="title-s middle-font-sample">
-                样本中&nbsp;产品数量&nbsp;检查结果
+                <span name="sample-market-tip"></span><b><em> 产品样本数量</em></b>
             </div>
             <div class="row">
-                <div class="col-sm-4 col-md-5 col-lg-7">
-                    <div class="t-num">
-                        <div class="inCenParent">
-                            <div class="middle-font-sample inCenChild" name="cur-product-number"></div>
-                            <div class="small-font-sample">当前产品数量</div>
+                <div class="col-sm-4 col-md-6 col-lg-6">
+                    <div class="sample-num-tip">
+                        <div class="sample-icon">
+                            <span>&nbsp;&nbsp;&nbsp;</span><em>本月样本数</em>
                         </div>
-                        <div class="inCenParent">
-                            <div class="middle-font-sample inCenChild" name="pre-product-number"></div>
-                            <div class="small-font-sample">上期产品数量</div>
-                        </div>
-                        <div class=" inCenParent">
-                            <div class="middle-font-sample inCenChild" name="last-product-number"></div>
-                            <div class="small-font-sample">去年同期</div>
+                        <div class="sample-icon">
+                            <b>·······</b><em>去年各月样本趋势</em>
                         </div>
                     </div>
-                    <div class="row"></div>
                 </div>
-                <div class="col-sm-8 col-md-7 col-lg-5">
-                    <div class="small-font-sample">
-                        <span>请依据"产品数量的变化"，判断本次样本的正确性，</span>
-                        <br>
-                        <span>如无特殊原因，产品数量有较大波动，请检查样本文件是否有误。</span>
-                    </div>
+                <div class="col-sm-8 col-md-6 col-lg-6 sample-table">
+                    <table class="layui-table text-center" lay-skin="nob">
+                        <tr class="sample-badge-content">
+                            <td>
+                                <span class="sample-badge" id="pct-sample-product"><b>%</b></span>
+                            </td>
+                            <td id="cur-sample-product-num"></td>
+                            <td id="base-sample-product-num"></td>
+                        </tr>
+                        <tr>
+                            <td>样本误差率</td>
+                            <td>本月样本个数</td>
+                            <td>去年同月样本数</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
             <div class="chart-body" id="lineChart2"></div>
@@ -87,7 +91,35 @@
         </div>
         <div class="chart-sample ">
             <div class="title-s middle-font-sample">
-                样本中&nbsp;销售额&nbsp;检查结果
+                <span name="sample-market-tip"></span><b><em> 样本销售额</em></b>
+            </div>
+            <div class="row">
+                <div class="col-sm-4 col-md-6 col-lg-6">
+                    <div class="sample-num-tip">
+                        <div class="sample-icon">
+                            <span>&nbsp;&nbsp;&nbsp;</span><em>本月样本数</em>
+                        </div>
+                        <div class="sample-icon">
+                            <b>·······</b><em>去年各月样本趋势</em>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8 col-md-6 col-lg-6 sample-table">
+                    <table class="layui-table text-center" lay-skin="nob">
+                        <tr class="sample-badge-content">
+                            <td>
+                                <span class="sample-badge" id="pct-sample-sales"><b>%</b></span>
+                            </td>
+                            <td id="cur-sample-sales-num"></td>
+                            <td id="base-sample-sales-num"></td>
+                        </tr>
+                        <tr>
+                            <td>样本误差率</td>
+                            <td>本月样本销售额</td>
+                            <td>去年同月样本销售额</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
             <div class="chart-body" id="barChart1"></div>
             <div class="chart-bottom"></div>
@@ -109,8 +141,7 @@
                                     <th lay-data="{field:'cityjb', width:'24%'}">城市级别</th>
                                 </tr>
                             </thead>
-                            <tbody id="sample-tbody">
-                            </tbody>
+                            <tbody id="sample-tbody"></tbody>
                         </table>
                     </div>
                 </div>

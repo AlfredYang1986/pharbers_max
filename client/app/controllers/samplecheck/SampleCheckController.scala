@@ -25,6 +25,15 @@ class SampleCheckController @Inject() (as_inject: ActorSystem, dbt: dbInstanceMa
 			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
 	})
 	
+	def queryDataBaseLine = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+		import com.pharbers.bmpattern.LogMessage.common_log
+		import com.pharbers.bmpattern.ResultMessage.common_result
+		
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryDataBaseLine"))), jv)
+			:: MsgQueryDataBaseLine(jv)
+			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+	})
+	
 	def queryHospitalNumber = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result

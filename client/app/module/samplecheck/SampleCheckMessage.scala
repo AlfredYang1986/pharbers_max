@@ -9,6 +9,8 @@ object SampleCheckMessage {
 	
 	case class MsgQuerySelectBoxValue(data: JsValue) extends MsgSampleCheckCommand
 	
+	case class MsgQueryDataBaseLine(data: JsValue) extends MsgSampleCheckCommand
+	
 	case class MsgQueryHospitalNumber(data: JsValue) extends MsgSampleCheckCommand
 	
 	case class MsgQueryProductNumber(data: JsValue) extends MsgSampleCheckCommand

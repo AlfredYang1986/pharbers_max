@@ -71,9 +71,10 @@ POST    /calc/callhttp                              controllers.callhttp.CallHtt
 
 # 样本检查
 POST    /sample/querySelectBox                      controllers.samplecheck.SampleCheckController.querySelectBoxValue
+POST    /sample/queryDataBaseLine                   controllers.samplecheck.SampleCheckController.queryDataBaseLine
 POST    /sample/queryHospitalNumber                 controllers.samplecheck.SampleCheckController.queryHospitalNumber
 POST    /sample/queryProductNumber                  controllers.samplecheck.SampleCheckController.queryProductNumber
-POST    /sqmple/querySampleSales                    controllers.samplecheck.SampleCheckController.querySampleSales
+POST    /sample/querySampleSales                    controllers.samplecheck.SampleCheckController.querySampleSales
 POST    /sample/queryHospitalList                   controllers.samplecheck.SampleCheckController.queryHospitalList
 
 # 获取本次计算数据
