@@ -1,8 +1,11 @@
 package com.pharbers.aqll.alCalcHelp.alFinalDataProcess
 
-import com.mongodb.casbah.Imports.{MongoDBObject, _}
 import com.pharbers.aqll.common.alDao.from
 import com.pharbers.aqll.alCalcHelp.dbcores._
+import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.commons.MongoDBObject
+import com.pharbers.aqll.alCalcHelp.dbAdmin.dba
+import com.pharbers.aqll.common.alFileHandler.databaseConfig.db1
 
 case class alWeightSum(uid: String, company: String, temp: String, allTable: Int) {
 	
@@ -76,6 +79,7 @@ case class alWeightSum(uid: String, company: String, temp: String, allTable: Int
 			dbc.getCollection(company).createIndex(MongoDBObject("Market" -> 1))
 			dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1))
 			dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1,"City" -> 1))
+			openShard(company, "hashed")
 		}
 
 		val builder = MongoDBObject.newBuilder
@@ -91,5 +95,18 @@ case class alWeightSum(uid: String, company: String, temp: String, allTable: Int
 		builder += "city_Index" -> s"${x.get("Provice")}${x.get("City")}${x.get("Market")}${x.get("Product")}${x.get("Date")}".hashCode//alEncryptionOpt.md5(s"${x.get("Provice")}${x.get("City")}${x.get("Market")}${x.get("Product")}${x.get("Date")}")
 		builder += "hosp_Index" -> x.get("hosp_Index")
 		dbc.getCollection(company) += builder.result()
+	}
+
+	private def openShard(coll: String, shardRules: String) ={
+		val dbname = db1
+		dbc.getCollection(coll).createIndex(MongoDBObject("_id" -> shardRules))
+		dba.command(
+			DBObject(
+				"shardcollection" -> s"$dbname.$coll",
+				"key" -> DBObject(
+					"_id" -> shardRules
+				)
+			)
+		)
 	}
 }

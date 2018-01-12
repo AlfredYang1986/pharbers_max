@@ -1,5 +1,6 @@
 package com.pharbers.aqll.alCalcHelp
 
+import com.mongodb.casbah.MongoDB
 import com.pharbers.panel.phPanelFilePath
 import com.pharbers.aqll.common.alDao.dataFactory._
 import com.pharbers.baseModules.PharbersInjectModule
@@ -48,12 +49,15 @@ trait DBList {
     implicit val dbc: data_connection
 }
 
-// TODO 这个地方需要读取配置文件，如果都是默认的可以忽略，最好读取配置文件
+object dbAdmin extends DBList {
+    override implicit val dbc: data_connection =  getDataAdmin(dbhost, dbport.toInt, dbuser, dbpwd)
+    val dba: MongoDB = dbc._conn.getDB("admin")
+}
+
 object dbcores extends DBList {
     override implicit val dbc: data_connection =  getDataCores(dbhost, dbport.toInt, dbuser, dbpwd, db1)
 }
 
-// TODO 这个地方需要读取配置文件，如果都是默认的可以忽略，最好读取配置文件
 object dbbasic extends DBList {
     override implicit val dbc: data_connection =  getDataBasic(dbhost, dbport.toInt, dbuser, dbpwd, db2)
 }
