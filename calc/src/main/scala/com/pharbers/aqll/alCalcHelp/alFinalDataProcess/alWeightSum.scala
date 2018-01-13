@@ -1,5 +1,6 @@
 package com.pharbers.aqll.alCalcHelp.alFinalDataProcess
 
+import com.mongodb.Bytes
 import com.pharbers.aqll.common.alDao.from
 import com.pharbers.aqll.alCalcHelp.dbcores._
 import com.mongodb.casbah.Imports._
@@ -11,6 +12,8 @@ case class alWeightSum(uid: String, company: String, temp: String, allTable: Int
 	
 	def aggregation: Boolean = {
 		try {
+			//防止游标超时
+			dbc.getCollection(company).addOption(Bytes.QUERYOPTION_NOTIMEOUT)
 			val lst = (from db() in temp).selectOneByOne("hosp_Index")(x => x)
 			val total = lst.size
 

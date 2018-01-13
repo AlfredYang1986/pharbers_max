@@ -36,9 +36,9 @@ class alRestoreBsonComeo(uid: String, panel: String, counter: ActorRef) extends 
             val company = rd.hget(uid, "company").get
             val bsonpath = rd.hget(panel, "tid").get
 
-            alRestoreColl().apply(s"$company$bsonpath", bsonpath)
+            val result = alRestoreColl().restore(s"$company$bsonpath", bsonpath)
 
-            self ! restore_bson_end(true)
+            self ! restore_bson_end(result)
         }
 
         case restore_bson_end(result) => {

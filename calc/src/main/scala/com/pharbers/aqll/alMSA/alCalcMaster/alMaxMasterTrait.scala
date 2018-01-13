@@ -273,6 +273,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 }
             }
         } else {
+            alTempLog(s"计算失败 in ${df.format(new Date())}")
             var overSum = rd.get("overSum:" + uid).getOrElse("0").toInt
             rd.set("overSum:" + uid, overSum += 1)
             val msg = Map(
@@ -322,6 +323,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             alTempLog(s"合并完成 in ${df.format(new Date())}")
             phWebSocket(uid).post(msg)
         } else {
+            alTempLog(s"合并失败 in ${df.format(new Date())}")
             val msg = Map(
                 "type" -> "error",
                 "error" -> "cannot aggregation data"
