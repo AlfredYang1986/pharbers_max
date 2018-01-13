@@ -239,18 +239,20 @@
 
             function exportAction(fileType){
                 show_loading();
-                var datatype = $('select[name="datatype"]').val();
-                var market = $('select[name="market"]').val();
-                var date = $('input[name="date"]').val().replace(/[^0-9]/ig,"");
-                var to_date = $('input[name="to_date"]').val().replace(/[^0-9]/ig,"");
+                // 快速解决方案 后续还需要就解注释
+//                var datatype = $('select[name="datatype"]').val();
+                let $date = $('input[name="date"]');
+                let market = $('select[name="market"]').val();
 
-                var json = JSON.stringify({
+                let start = ($date.val().split('~')[0] || "").replace(/[^0-9]/ig,"");;
+                let end = ($date.val().split('~')[1] || "").replace(/[^0-9]/ig,"");
+                let json = JSON.stringify({
                     "businessType": "/dataExport",
                     "uid": $.cookie('uid'),
                     "filetype": fileType,
-                    "datatype": datatype,
+                    "datatype": 'city',
                     "market": [market],
-                    "staend":[date, to_date]
+                    "staend":[start, end]
                 });
                 f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
                     if(r.status === 'ok') {
