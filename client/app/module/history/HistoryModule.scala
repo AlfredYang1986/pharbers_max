@@ -59,9 +59,6 @@ object HistoryModule extends ModuleTrait with HistoryData {
 			val o = conditions(data)
 			val skip = (data \ "condition" \ "skip").asOpt[Int].map(x => x).getOrElse(1)
 			val take = (data \ "condition" \ "take").asOpt[Int].map(x => x).getOrElse(10)
-			println(o)
-			println(skip)
-			println(take)
 			implicit val result: List[String Map JsValue] = pr match {
 				case None => throw new Exception("")
 				case Some(x) => db.queryMultipleObject(o, x("user").as[String Map JsValue].get("company").get.as[String], "Date", skip = skip, take = take)
