@@ -267,12 +267,12 @@ var sample = (function ($, w) {
 
     let common = function(leftName) {
         return {
-            tooltip : {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                }
-            },
+            // tooltip : {
+            //     trigger: 'axis',
+            //     axisPointer: {
+            //         type: 'shadow'
+            //     }
+            // },
             grid: {
                 left: '8%',
                 right: '5%',
