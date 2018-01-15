@@ -11,10 +11,10 @@ import com.pharbers.aqll.common.alFileHandler.databaseConfig._
 
 /**
   * Created by jeorch on 2017/11/14.
-  *     Modify by clock on 2017.12.21
+  *     Modify by clock on 2018.1.15
   */
 case class alRestoreColl() {
-    def restore(temp_coll: String, bsonpath: String) = {
+    def restore(temp_coll: String, bsonpath: String): Boolean = {
         var first: Boolean = false
         val bson_path = alBsonPath().bson_file_path
         val file = new File(bson_path + bsonpath)
@@ -23,26 +23,25 @@ case class alRestoreColl() {
         alTempLog(s"restore bson files count = ${fileList.length}")
 
         try {
-            fileList.foreach(x => {
-                dbrestoreCmd3(db1, temp_coll, x.toString, dbuser, dbpwd, dbhost, dbport.toInt).excute
-                if (!first) {
-                    dbc.getCollection(temp_coll).createIndex(MongoDBObject("hosp_Index" -> 1))
-                    dbc.getCollection(temp_coll).createIndex(MongoDBObject("City" -> 1))
-                    dbc.getCollection(temp_coll).createIndex(MongoDBObject("Date" -> 1))
-                    dbc.getCollection(temp_coll).createIndex(MongoDBObject("Market" -> 1))
-                    dbc.getCollection(temp_coll).createIndex(MongoDBObject("Date" -> 1, "Market" -> 1))
-                    dbc.getCollection(temp_coll).createIndex(MongoDBObject("Date" -> 1, "Market" -> 1, "City" -> 1))
-                    openShard(temp_coll, "hashed")
-                }
+            openShard(temp_coll, "hashed")
+            openIndex(temp_coll)
 
-                first = true
-            })
+            fileList.foreach(x => dbrestoreCmd3(db1, temp_coll, x.toString, dbuser, dbpwd, dbhost, dbport.toInt).excute)
+            true
         } catch {
-        case ex: Exception =>
-            println(s".....>> ${ex.getMessage}")
-            false
+            case ex: Exception =>
+                println(s".....>> ${ex.getMessage}")
+                false
         }
-        true
+    }
+
+    private def openIndex(coll: String) ={
+        dbc.getCollection(coll).createIndex(MongoDBObject("hosp_Index" -> 1))
+        dbc.getCollection(coll).createIndex(MongoDBObject("City" -> 1))
+        dbc.getCollection(coll).createIndex(MongoDBObject("Date" -> 1))
+        dbc.getCollection(coll).createIndex(MongoDBObject("Market" -> 1))
+        dbc.getCollection(coll).createIndex(MongoDBObject("Date" -> 1, "Market" -> 1))
+        dbc.getCollection(coll).createIndex(MongoDBObject("Date" -> 1, "Market" -> 1, "City" -> 1))
     }
 
     private def openShard(coll: String, shardRules: String) ={

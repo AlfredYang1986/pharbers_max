@@ -12,6 +12,11 @@ case class alWeightSum(uid: String, company: String, temp: String, allTable: Int
 	
 	def aggregation: Boolean = {
 		try {
+			if(dbc.getCollection(company).count() == 0){
+				openShard
+				openIndex
+			}
+
 			//防止游标超时
 			dbc.getCollection(company).addOption(Bytes.QUERYOPTION_NOTIMEOUT)
 			val lst = (from db() in temp).selectOneByOne("hosp_Index")(x => x)
@@ -74,17 +79,6 @@ case class alWeightSum(uid: String, company: String, temp: String, allTable: Int
 	}
 
 	private def insertFinalData(x: DBObject, f_units_sum: Double, f_sales_sum: Double) = {
-		if(dbc.getCollection(company).count() == 1){
-			dbc.getCollection(company).createIndex(MongoDBObject("hosp_Index" -> 1))
-			dbc.getCollection(company).createIndex(MongoDBObject("prov_Index" -> 1))
-			dbc.getCollection(company).createIndex(MongoDBObject("city_Index" -> 1))
-			dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1))
-			dbc.getCollection(company).createIndex(MongoDBObject("Market" -> 1))
-			dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1))
-			dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1,"City" -> 1))
-			openShard(company, "hashed")
-		}
-
 		val builder = MongoDBObject.newBuilder
 		builder += "Provice" -> x.get("Provice")
 		builder += "City" -> x.get("City")
@@ -100,14 +94,23 @@ case class alWeightSum(uid: String, company: String, temp: String, allTable: Int
 		dbc.getCollection(company) += builder.result()
 	}
 
-	private def openShard(coll: String, shardRules: String) ={
-		val dbname = db1
-		dbc.getCollection(coll).createIndex(MongoDBObject("_id" -> shardRules))
+	private def openIndex ={
+		dbc.getCollection(company).createIndex(MongoDBObject("hosp_Index" -> 1))
+		dbc.getCollection(company).createIndex(MongoDBObject("prov_Index" -> 1))
+		dbc.getCollection(company).createIndex(MongoDBObject("city_Index" -> 1))
+		dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1))
+		dbc.getCollection(company).createIndex(MongoDBObject("Market" -> 1))
+		dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1))
+		dbc.getCollection(company).createIndex(MongoDBObject("Date" -> 1,"Market" -> 1,"City" -> 1))
+	}
+
+	private def openShard ={
+		dbc.getCollection(company).createIndex(MongoDBObject("_id" -> "hashed"))
 		dba.command(
 			DBObject(
-				"shardcollection" -> s"$dbname.$coll",
+				"shardcollection" -> s"$db1.$company",
 				"key" -> DBObject(
-					"_id" -> shardRules
+					"_id" -> "hashed"
 				)
 			)
 		)
