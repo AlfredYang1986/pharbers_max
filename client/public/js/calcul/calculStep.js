@@ -30,12 +30,15 @@ var calc_step = (function ($, w) {
             })
         });
 
-        // $('#test-sample-result').click(function(){
-        //     toSampleResult()
-        // });
-        // $('#test-calc-result').click(function(){
-        //     toFourthStep()
-        // });
+        $("#test-sample-result").click(function(){
+            toSampleResult()
+        });
+        $("#test-calc-page").click(function(){
+            toThirdStep()
+        });
+        $("#test-calc-result").click(function(){
+            toFourthStep()
+        });
     });
 
     var toSecondStep = function () {
@@ -125,6 +128,7 @@ var calc_step = (function ($, w) {
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
             prograssBar(99, 60, 0);
+            $("#calculInof").removeClass("hide");
         }, function(e){console.error(e)});
     };
 
