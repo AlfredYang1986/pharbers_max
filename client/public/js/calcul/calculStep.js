@@ -30,15 +30,15 @@ var calc_step = (function ($, w) {
             })
         });
 
-        $("#test-sample-result").click(function(){
-            toSampleResult()
-        });
-        $("#test-calc-page").click(function(){
-            toThirdStep()
-        });
-        $("#test-calc-result").click(function(){
-            toFourthStep()
-        });
+        // $("#test-sample-result").click(function(){
+        //     toSampleResult()
+        // });
+        // $("#test-calc-page").click(function(){
+        //     toThirdStep()
+        // });
+        // $("#test-calc-result").click(function(){
+        //     toFourthStep()
+        // });
     });
 
     var toSecondStep = function () {
@@ -69,6 +69,7 @@ var calc_step = (function ($, w) {
     $("#check-btn").click(function(){check_file()});
     $("#to-third-btn").click(function(){toThirdStep()});
     $("#calc-btn").click(function(){calc_action()});
+    $("#calc-result-btn").click(function(){toFourthStep()});
 
     load_cpa_source();
     load_gycx_source();
@@ -378,8 +379,11 @@ var calc_step = (function ($, w) {
     //计算完成 websocket
     var progress_calc_result = function(obj){
         console.info(obj);
+
+        prograssBar(100);
+        $("#calculInof").addClass("hide");
+        $("#calc-result-btn").removeClass("hide");
         layer.msg("计算完成");
-        toFourthStep()
     };
 
     //保存按钮 websocket
