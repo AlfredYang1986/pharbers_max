@@ -23,7 +23,7 @@ case class alRestoreColl() {
         alTempLog(s"restore bson files count = ${fileList.length}")
 
         try {
-            openShard(temp_coll, "hashed")
+//            openShard(temp_coll, "hashed")
             openIndex(temp_coll)
 
             fileList.foreach(x => dbrestoreCmd3(db1, temp_coll, x.toString, dbuser, dbpwd, dbhost, dbport.toInt).excute)

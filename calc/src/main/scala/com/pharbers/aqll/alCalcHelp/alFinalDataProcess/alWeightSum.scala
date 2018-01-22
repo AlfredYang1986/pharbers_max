@@ -9,11 +9,10 @@ import com.pharbers.aqll.alCalcHelp.dbAdmin.dba
 import com.pharbers.aqll.common.alFileHandler.databaseConfig.db1
 
 case class alWeightSum(uid: String, company: String, temp: String, allTable: Int) {
-	
 	def aggregation: Boolean = {
 		try {
 			if(dbc.getCollection(company).count() == 0){
-				openShard
+//				openShard
 				openIndex
 			}
 
