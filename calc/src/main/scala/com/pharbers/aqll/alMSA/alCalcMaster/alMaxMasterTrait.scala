@@ -208,22 +208,25 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             if (calcSum == core_number) {
                 alTempLog(s"$panel calc data => Success")
                 self ! pushRestoreJob(uid, panel)
-
-                val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
-                agent ! refundNodeForRole("splitcalcslave")
+//
+//                val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+//                agent ! refundNodeForRole("splitcalcslave")
             }
         } else {
-            val calcSum = rd.get("calcSum:" + tid).getOrElse("0").toInt
-            rd.set("calcSum:" + tid, calcSum + 1)
+            var calcSum = rd.get("calcSum:" + tid).getOrElse("0").toInt
+            calcSum += 1
+            rd.set("calcSum:" + tid, calcSum)
             val msg = Map(
                 "type" -> "error",
                 "error" -> "cannot calc data"
             )
             phWebSocket(uid).post(msg)
-            alTempLog("calc data => Failed")
+            alTempLog(s"$panel calc data => Failed")
 
-            val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
-            agent ! refundNodeForRole("splitcalcslave")
+            if (calcSum == core_number) {
+                val agent = context.actorSelection("akka.tcp://calc@" + masterIP + ":2551/user/agent-reception")
+                agent ! refundNodeForRole("splitcalcslave")
+            }
         }
     }
 
@@ -263,13 +266,14 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 phWebSocket(uid).post(msg)
 
                 alTempLog(s"计算完成 in ${df.format(new Date())}")
-
-                if(uid.startsWith("uid")){
-                    val agentTest = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-                    agentTest ! startAggregationCalcData(uid, Nil)
-                }
+//
+//                if(uid.startsWith("uid")){
+//                    val agentTest = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+//                    agentTest ! startAggregationCalcData(uid, Nil)
+//                }
             }
         } else {
+            alTempLog(s"计算失败 in ${df.format(new Date())}")
             var overSum = rd.get("overSum:" + uid).getOrElse("0").toInt
             rd.set("overSum:" + uid, overSum += 1)
             val msg = Map(
@@ -280,12 +284,12 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         }
 
         val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitcalcslave")
         agent ! refundNodeForRole("splitrestorebsonslave")
     }
     
     
     def preAggregationJob(uid: String, showLst: List[String]): Unit = {
-    
         val rid = rd.hget(uid, "rid").map(x => x).getOrElse(throw new Exception("not found uid"))
         val tidDetails = rd.smembers(rid).get.map(x =>(rd.hget(x.get, "ym").get, rd.hget(x.get, "mkt").get, rd.hget(x.get, "tid")))
         if (showLst.isEmpty) {
@@ -319,6 +323,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             alTempLog(s"合并完成 in ${df.format(new Date())}")
             phWebSocket(uid).post(msg)
         } else {
+            alTempLog(s"合并失败 in ${df.format(new Date())}")
             val msg = Map(
                 "type" -> "error",
                 "error" -> "cannot aggregation data"

@@ -1,17 +1,30 @@
 <pharbers-modules>
     <data-parse>
-        <contrast_file_path value="../calc/config/FileBase"/>
-        <client_file_path value=""/>
-        <product_vs_ims_file value="" />
-        <universe_inf_file value="/Manage/matchFile/universe_##market##_online.xlsx" />
-        <markets_file value="" />
-        <unpublished_hos_file value="" />
-        <fill_hos_data_file value="" />
-        <cache_file value="" />
-        <output_file value="/Output/" />
-        <makets value="INF" />
+        <contrast_file_path value="config/FileBase/"/>
+        <client_file_path value="/Client/"/>
+        <product_vs_ims_file value="/Manage/匹配表.xlsx"/>
+        <universe_inf_file value="/Manage/matchFile/universe_##market##_online.xlsx"/>
+        <markets_file value="/Manage/通用名市场定义.xlsx"/>
+        <unpublished_hos_file value="/Manage/2017年未出版医院名单.xlsx"/>
+        <fill_hos_data_file value="/Manage/补充医院.csv"/>
+        <cache_file value="/Cache/"/>
+        <output_file value="/Output/"/>
+    </data-parse>
+
+    <company_fea9f203d4f593a96f0d6faa91ba24ba>
+        <markets value="INF,SPE"/>
         <!--<makets value="AI_S,AI_W,CNS_Z,LD,URO" />-->
         <!--INF,SPE,AI_S,AI_W,CNS_Z,ELQ,LD,URO-->
         <!--PAIN_C,HTN2，ELQ-->
-    </data-parse>
+
+        <INF value="com.pharbers.panel.pfizer.phPfizerHandle"/>
+        <SPE value="com.pharbers.panel.pfizer.phPfizerHandle"/>
+        <URO value="com.pharbers.panel.pfizer.phPfizerHandle"/>
+    </company_fea9f203d4f593a96f0d6faa91ba24ba>
+
+    <company_8ee0ca24796f9b7f284d931650edbd4b>
+        <markets value="麻醉市场"/>
+
+        <麻醉市场 value="com.pharbers.panel.nhwa.phNhwaHandle"/>
+    </company_8ee0ca24796f9b7f284d931650edbd4b>
 </pharbers-modules>

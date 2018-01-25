@@ -29,7 +29,7 @@
                     <div class="layui-form-item condition">
                         <label class="layui-form-label">时间区间</label>
                         <div class="layui-input-block">
-                            <input type="text" name="date" class="layui-input" id="date" placeholder="起始时间 ~ 结束时间"/>
+                            <input type="text" name="date" class="layui-input" id="date" placeholder="全部"/>
                         </div>
                     </div>
                 </div>
@@ -72,7 +72,6 @@
     <script>
             var f = new Facade();
             $(function () {
-
                 windowWidth();
                 $(window).resize(function(){
                     windowWidth();
@@ -81,6 +80,21 @@
 
                 userLogin();
                 loadSelect();
+
+                // 这只是暂时的解决方案，后续会研究layui的源码
+                $("#date").focus(function(){
+                    $("#date").attr("placeholder","起始时间 ~ 结束时间");
+                });
+
+                $("body").click(function(){
+                    setTimeout(function(){
+                        if($("#layui-laydate1").html() === undefined) {
+                            $("#date").attr("placeholder","全部");
+                        }
+                    }, 100);
+                });
+
+
 
                 var selectBoxChange = function(dateparam) {
                     // 快速解决方案 后续还需要就解注释
@@ -186,22 +200,28 @@
             };
 
             var loadSelect = function () {
+                $('.mask-layer').show();
+                $('.loading').show();
                 var json = JSON.stringify(f.parameterPrefix.conditions({'user_token': $.cookie('user_token')}));
                 f.ajaxModule.baseCall('/history/queryHistorySelect', json, 'POST', function (r) {
                     if (r.status === 'ok') {
                         var market = $('select[name="market"]');
                         market.empty();
-                        market.append('<option value="">请选择</option>');
+                        market.append('<option value="">全部</option>');
                         $.each(r.result.condition.market, function (i, v) {
                             market.append('<option>' + v + '</option>');
                         });
                         layui.use('form', function () {
                             layui.form.render()
                         });
+                        $('.mask-layer').hide();
+                        $('.loading').hide();
                     }
                 }, function (e) {
                     console.error(e);
                 })
+
+
             };
 
             var loadHistory = function (json) {
