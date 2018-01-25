@@ -31,37 +31,25 @@ trait redisController {
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
 		val company = phRedisDriver().commonDriver.hget(uid, "company").get
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
-		// TODO: 测试用注释掉
-		getRedisCollections(uid).map(x => x).filter(f => f == "333").map { x =>
-			MessageRoutes(MsgCalcResultSalesVsShare(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"${company}444")) ++ js)))) :: Nil, None)
+		getRedisCollections(uid).map { x =>
+			MessageRoutes(MsgCalcResultSalesVsShare(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js)))) :: Nil, None)
 		}
-//		getRedisCollections(uid).map { x =>
-//			MessageRoutes(MsgCalcResultSalesVsShare(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js)))) :: Nil, None)
-//		}
 	}
 	
 	def paralleCurVsPreWithCity(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
 		val company = phRedisDriver().commonDriver.hget(uid, "company").get
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
-		// TODO: 测试用注释掉
-		getRedisCollections(uid).map(x => x).filter(f => f == "333").map { x =>
-			MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"${company}444")) ++ js)))) :: Nil, None)
+		getRedisCollections(uid).map { x =>
+			MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js )))) :: Nil, None)
 		}
-//		getRedisCollections(uid).map { x =>
-//			MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js )))) :: Nil, None)
-//		}
 	}
 
 	def paralleCondition(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
 		val company = phRedisDriver().commonDriver.hget(uid, "company").get
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
-		// TODO: 测试用注释掉
-		getRedisCollections(uid).map(x => x).filter(f => f == "333").map { x =>
-			MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"${company}444")) ++ js)))) :: Nil, None)
-		}
-//		getRedisCollections(uid).map ( x => MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js )))) :: Nil, None))
+		getRedisCollections(uid).map ( x => MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js )))) :: Nil, None))
 	}
 }
 
