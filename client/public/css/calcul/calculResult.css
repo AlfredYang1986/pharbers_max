@@ -92,6 +92,7 @@
 }
 
 .area-btn {
+    width: 200px;
     position: relative;
     top: 40px;
     left: 400px;

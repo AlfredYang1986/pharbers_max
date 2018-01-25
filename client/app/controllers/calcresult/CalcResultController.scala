@@ -77,10 +77,11 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 			:: msg_CommonResultMessage() :: Nil, None)
 	})
 	
-	def querySalesVsShare =  Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+	
+	def querySalesVsShare = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCalcResult"))), jv)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("querySalesVsShare"))), jv)
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
@@ -90,31 +91,6 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 			:: msg_CommonResultMessage() :: Nil, None)
 	})
 	
-	def querySalesVsShare2 = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
-		import com.pharbers.bmpattern.LogMessage.common_log
-		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("querySalesVsShare2"))), jv)
-			:: MsgAuthTokenParser(jv)
-			:: MsgAuthTokenExpire(jv)
-			:: msg_user_token_op(jv)
-			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
-			:: MsgCalcResultHistorySumSales2(jv)
-			:: ParallelMessage(paralleSalesVsShare(jv), salesVsShareResultMerge)
-			:: msg_CommonResultMessage() :: Nil, None)
-	})
-	
-	def queryCurVsPreWithCity = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
-		import com.pharbers.bmpattern.LogMessage.common_log
-		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCurVsPreWithCity"))), jv)
-			:: MsgAuthTokenParser(jv)
-			:: MsgAuthTokenExpire(jv)
-			:: msg_user_token_op(jv)
-			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
-			:: MsgCalcResultHistoryCurVsPreWithCity(jv)
-			:: ParallelMessage(paralleCurVsPreWithCity(jv), salesMapWithCityResultMerge)
-			:: msg_CommonResultMessage() :: Nil, None)
-	})
 	
 	def queryAreaData = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
