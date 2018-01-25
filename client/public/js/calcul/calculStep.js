@@ -34,9 +34,9 @@ var calc_step = (function ($, w) {
         //     toSampleResult()
         // });
         //
-        // $('#test-calc-result').click(function(){
-        //     toFourthStep()
-        // });
+        $('#test-calc-result').click(function(){
+            toFourthStep()
+        });
     });
 
     var toSecondStep = function () {

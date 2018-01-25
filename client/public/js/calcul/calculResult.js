@@ -3,15 +3,483 @@
  */
 var step_chart = (function ($, w) {
     "use strict";
-    var f = new Facade();
-    var itemStyleColor = ['#3AD1C2', '#60C6CF', '#FFFFFF', '#009992'];
-    var barLineChart, mapChart, barChart;
-    var table_num = 0;
-    var form, layer;
+    let f = new Facade();
+    let itemStyleColor = ['#3AD1C2', '#60C6CF', '#FFFFFF', '#009992'];
+    let barLineChart, mapChart, provinces_barChart, city_barChart;
+    let table_num = 0;
+    let form, layer;
+
+    // 先完善功能，这个重复问题与Echarts版本问题后续重构的时候需要解决
+    let areaData = [];
+    let lastData = [];
+    let curData = [];
+
+    let city_areaData = [];
+    let city_lastData = [];
+    let city_curData = [];
+
+    let province_option = {
+        baseOption: {
+            timeline: {show: false},//这个不能删除
+            // legend: {
+            //     data: ['去年同期', '本期'],
+            //     top: 4,
+            //     right: '15%',
+            //     textStyle: {
+            //         color: '#000000',
+            //     },
+            // },
+            title: {
+                text: "市场规模排名",
+                left: '200'
+            },
+            tooltip: {
+                show: true,
+                trigger: 'axis',
+                formatter: '{b}<br/>{a}: {c}（Mil）',
+                axisPointer: {
+                    type: 'shadow',
+                }
+            },
+            grid: [{
+                show: false,
+                left: '10%',
+                top: 60,
+                bottom: 60,
+                containLabel: true,
+                width: '40%',
+            }, {
+                show: false,
+                left: '50.5%',
+                top: 80,
+                bottom: 60,
+                width: '0%',
+            }, {
+                show: false,
+                right: '10%',
+                top: 60,
+                bottom: 60,
+                containLabel: true,
+                width: '40%',
+            }],
+            xAxis: [
+                {
+                    type: 'value',
+                    inverse: true,
+                    axisLine: {
+                        show: false,
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                    position: 'top',
+                    axisLabel: {
+                        show: false,
+                        textStyle: {
+                            color: '#000000',
+                            fontSize: 12,
+                        },
+                    },
+                    splitLine: {
+                        show: false,
+                        lineStyle: {
+                            color: '#1F2022',
+                            width: 1,
+                            type: 'solid',
+                        },
+                    },
+                }, {
+                    gridIndex: 1,
+                    show: false,
+                }, {
+                    gridIndex: 2,
+                    type: 'value',
+                    axisLine: {
+                        show: false,
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                    position: 'top',
+                    axisLabel: {
+                        show: false,
+                        textStyle: {
+                            color: '#B2B2B2',
+                            fontSize: 12,
+                        },
+                    },
+                    splitLine: {
+                        show: false,
+                        lineStyle: {
+                            color: '#1F2022',
+                            width: 1,
+                            type: 'solid',
+                        },
+                    },
+                }, ],
+            yAxis: [{
+                type: 'category',
+                inverse: true,
+                position: 'right',
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    show: false,
+                    margin: 8,
+                    textStyle: {
+                        color: '#9D9EA0',
+                        fontSize: 12,
+                    },
+
+                },
+                data: areaData,
+            }, {
+                gridIndex: 1,
+                type: 'category',
+                inverse: true,
+                position: 'left',
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    show: true,
+                    textStyle: {
+                        align: 'center',
+                        color: '#9D9EA0',
+                        fontSize: 12,
+                    },
+
+                },
+                data: areaData//
+            }, {
+                gridIndex: 2,
+                type: 'category',
+                inverse: true,
+                position: 'left',
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    show: false,
+                    textStyle: {
+                        color: '#9D9EA0',
+                        fontSize: 12,
+                    },
+
+                },
+                data: areaData,
+            }, ],
+            series: [],
+        },
+        options: [
+            {
+                series: [{
+                    name: '去年同期',
+                    type: 'bar',
+                    barGap: 20,
+                    barWidth: 20,
+                    label: {
+                        normal: {
+                            show: false,
+                        },
+                        emphasis: {
+                            show: true,
+                            position: 'left',
+                            offset: [0, 0],
+                            textStyle: {
+                                color: '#08C7AE',
+                                fontSize: 14,
+                            },
+                        },
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#659F83',
+                        },
+                        emphasis: {
+                            color: '#08C7AE',
+                        },
+                    },
+                    data: lastData,
+                }, {
+                    name: '本期',
+                    type: 'bar',
+                    barGap: 20,
+                    barWidth: 20,
+                    xAxisIndex: 2,
+                    yAxisIndex: 2,
+                    label: {
+                        normal: {
+                            show: false,
+                        },
+                        emphasis: {
+                            show: true,
+                            position: 'right',
+                            offset: [0, 0],
+                            textStyle: {
+                                color: '#08C7AE',
+                                fontSize: 14,
+                            },
+                        },
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#08C7AE',
+                        },
+                        emphasis: {
+                            color: '#08C7AE',
+                        },
+                    },
+                    data: curData,
+                }
+                ]
+            }
+        ]
+    };
+
+    let city_option = {
+        baseOption: {
+            timeline: {show: false},//这个不能删除
+            // legend: {
+            //     data: ['去年同期', '本期'],
+            //     top: 4,
+            //     right: '15%',
+            //     textStyle: {
+            //         color: '#000000',
+            //     },
+            // },
+            title: {
+                text: "市场规模排名",
+                left: '200'
+            },
+            tooltip: {
+                show: true,
+                trigger: 'axis',
+                formatter: '{b}<br/>{a}: {c}（Mil）',
+                axisPointer: {
+                    type: 'shadow',
+                }
+            },
+            grid: [{
+                show: false,
+                left: '10%',
+                top: 60,
+                bottom: 60,
+                containLabel: true,
+                width: '40%',
+            }, {
+                show: false,
+                left: '50.5%',
+                top: 80,
+                bottom: 60,
+                width: '0%',
+            }, {
+                show: false,
+                right: '10%',
+                top: 60,
+                bottom: 60,
+                containLabel: true,
+                width: '40%',
+            }],
+            xAxis: [
+                {
+                    type: 'value',
+                    inverse: true,
+                    axisLine: {
+                        show: false,
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                    position: 'top',
+                    axisLabel: {
+                        show: false,
+                        textStyle: {
+                            color: '#000000',
+                            fontSize: 12,
+                        },
+                    },
+                    splitLine: {
+                        show: false,
+                        lineStyle: {
+                            color: '#1F2022',
+                            width: 1,
+                            type: 'solid',
+                        },
+                    },
+                }, {
+                    gridIndex: 1,
+                    show: false,
+                }, {
+                    gridIndex: 2,
+                    type: 'value',
+                    axisLine: {
+                        show: false,
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                    position: 'top',
+                    axisLabel: {
+                        show: false,
+                        textStyle: {
+                            color: '#B2B2B2',
+                            fontSize: 12,
+                        },
+                    },
+                    splitLine: {
+                        show: false,
+                        lineStyle: {
+                            color: '#1F2022',
+                            width: 1,
+                            type: 'solid',
+                        },
+                    },
+                }, ],
+            yAxis: [{
+                type: 'category',
+                inverse: true,
+                position: 'right',
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    show: false,
+                    margin: 8,
+                    textStyle: {
+                        color: '#9D9EA0',
+                        fontSize: 12,
+                    },
+
+                },
+                data: city_areaData,
+            }, {
+                gridIndex: 1,
+                type: 'category',
+                inverse: true,
+                position: 'left',
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    show: true,
+                    textStyle: {
+                        align: 'center',
+                        color: '#9D9EA0',
+                        fontSize: 12,
+                    },
+                },
+                data: city_areaData//
+            }, {
+                gridIndex: 2,
+                type: 'category',
+                inverse: true,
+                position: 'left',
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    show: false,
+                    textStyle: {
+                        color: '#9D9EA0',
+                        fontSize: 12,
+                    },
+
+                },
+                data: city_areaData,
+            }, ],
+            series: [],
+        },
+        options: [
+            {
+                series: [{
+                    name: '去年同期',
+                    type: 'bar',
+                    barGap: 20,
+                    barWidth: 20,
+                    label: {
+                        normal: {
+                            show: false,
+                        },
+                        emphasis: {
+                            show: true,
+                            position: 'left',
+                            offset: [0, 0],
+                            textStyle: {
+                                color: '#08C7AE',
+                                fontSize: 14,
+                            },
+                        },
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#659F83',
+                        },
+                        emphasis: {
+                            color: '#08C7AE',
+                        },
+                    },
+                    data: city_lastData,
+                }, {
+                    name: '本期',
+                    type: 'bar',
+                    barGap: 20,
+                    barWidth: 20,
+                    xAxisIndex: 2,
+                    yAxisIndex: 2,
+                    label: {
+                        normal: {
+                            show: false,
+                        },
+                        emphasis: {
+                            show: true,
+                            position: 'right',
+                            offset: [0, 0],
+                            textStyle: {
+                                color: '#08C7AE',
+                                fontSize: 14,
+                            },
+                        },
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#08C7AE',
+                        },
+                        emphasis: {
+                            color: '#08C7AE',
+                        },
+                    },
+                    data: city_curData,
+                }
+                ]
+            }
+        ]
+    };
+
     $(function(){
         bar_line_chart("market_trend");
         map_chart("market_map");
-        bar_chart("market_bar");
+        provinces_bar_chart("provinces_bar");
+        city_bar_chart("city_bar");
         layui.use(['form', 'layer'], function() {
             form = layui.form;
             layer = layui.layer;
@@ -52,11 +520,7 @@ var step_chart = (function ($, w) {
                 form.render('checkbox');
             });
         });
-        $(w).resize(function () {
-            barLineChart.resize();
-            mapChart.resize();
-            barChart.resize();
-        });
+
         $('div[name="btn-query-calcresult"]').click(function(){
             var marketWithYear = $('select[name="calc-result-month"]').val() + '-' + $('select[name="calc-result-market"]').val();
             var json = JSON.stringify(f.parameterPrefix.conditions({
@@ -77,8 +541,8 @@ var step_chart = (function ($, w) {
             }, function(index){
                 let op = {
                     "content": $('#calc-result-selectbox').html(),
-                    "title": '请确认本次要保存的数据：',
-                    "offset": '160px'
+                    "title": '请确认本次要保存的数据：'
+                    // "offset": '160px'
                 };
                 f.alertModule.open(op);
                 form.render('checkbox');
@@ -86,9 +550,25 @@ var step_chart = (function ($, w) {
                 $('div p[name="calc-result-choose-all"]').next('div').remove()
             }, function(){});
         });
+
+
+        $('#provinces').click(function(){
+            $(this).attr('class', 'btn-result btn-active');
+            $('#city').attr('class', 'btn-result btn-result-info');
+            $('#provinces_bar').show();
+            $('#city_bar').hide();
+            provinces_barChart.resize();
+        });
+        $('#city').click(function(){
+            $(this).attr('class', 'btn-result btn-active');
+            $('#provinces').attr('class', 'btn-result btn-result-info');
+            $('#provinces_bar').hide();
+            $('#city_bar').show();
+            city_barChart.resize();
+        });
     });
 
-    var query_select = function() {
+    let query_select = function() {
         f.ajaxModule.baseCall('/calc/querySelectBox', JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")})), 'POST', function (r) {
             if(r.status === 'ok') {
                 var $select_month =  $('select[name="calc-result-month"]').empty();
@@ -111,21 +591,19 @@ var step_chart = (function ($, w) {
         });
     };
 
-    var query_data = function(json) {
+    let query_data = function(json) {
         $(document).ajaxStop(function(){
             hide_loading();
         });
         show_loading();
-        barLineChart.showLoading();
-        barChart.showLoading();
-        mapChart.showLoading();
 
-        var j = json || JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")}));
+        let j = json || JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")}));
 
-        f.ajaxModule.baseCall('/calc/querySalesVsShare', j, 'POST', function(r) {
+        f.ajaxModule.baseCall('/calc/test/querySalesVsShare', j, 'POST', function(r) {
             if(r.status === 'ok') {
-                var $select_month =  $('select[name="calc-result-month"]');
-                var $select_market = $('select[name="calc-result-market"]');
+
+                let $select_month =  $('select[name="calc-result-month"]');
+                let $select_market = $('select[name="calc-result-market"]');
                 $.each($select_market.find('option'), function(i, v){
                     if(r.result.selectMarket === $(v).val()) {
                         $(v).attr("selected", true)
@@ -141,10 +619,10 @@ var step_chart = (function ($, w) {
                 $('span[name="productsales"]').empty().text(parseFloat(r.result.curproductsales / 1000000).toFixed(2));
                 $('span[name="share"]').empty().text((parseFloat(r.result.curproductsales) / parseFloat(r.result.cursales) * 100).toFixed(2));
 
-                var $echart_option = barLineChart.getOption();
-                var xAxisData = [];
-                var seriesBarData = [];
-                var seriesLineData = [];
+                let $echart_option = barLineChart.getOption();
+                let xAxisData = [];
+                let seriesBarData = [];
+                let seriesLineData = [];
                 $.each(r.result.condition, function(i, v) {
                     xAxisData.push(v.Date);
                     seriesBarData.push((v.Sales / 1000000).toFixed(2));
@@ -154,42 +632,74 @@ var step_chart = (function ($, w) {
                 $echart_option.series[0].data = seriesBarData;
                 $echart_option.series[1].data = seriesLineData;
                 barLineChart.setOption($echart_option);
-                barLineChart.hideLoading();
             } else {
                 console.error("error");
             }
         });
 
-        f.ajaxModule.baseCall('/calc/queryCurVsPreWithCity', j, 'POST', function(r) {
+        f.ajaxModule.baseCall('/calc/test/queryAreaData', j, 'POST', function(r) {
             if(r.status === 'ok') {
-                var $echart_map_option = mapChart.getOption();
-                var $echart_bar_option = barChart.getOption();
+                let $echart_map_option = mapChart.getOption();
+                let $echart_provinces_bar_option = provinces_barChart.getOption();
+                let $echart_city_bar_option = city_barChart.getOption();
 
-                var seriesMapData = [];
-                var yAxisBarData = [];
-                var seriesBarMarketData = [];
-                var seriesBarProductData = [];
+                let seriesMapData = [];
+
 
                 $.each(r.result.condition, function(i, v) {
-                    seriesMapData.push({name: v.Province, value: v.Sales, productSales: v.ProductSales, share: v.Share});
+                    seriesMapData.push({name: v.Provinces, value: v.Sales, productSales: v.ProductSales, share: v.Share});
                 });
 
-                $.each(r.result.bar, function(i, v) {
-                    yAxisBarData.push(v.Province);
-                    seriesBarMarketData.push(v.Sales);
-                    seriesBarProductData.push(v.ProductSales);
+
+                $.each(r.result.provinces_bar.history_provinces, function(i, v){
+                    lastData.push(v.Sales);
                 });
+
+                $.each(r.result.provinces_bar.cur_provinces, function(i, v){
+                    areaData.push(v.Provinces);
+                    curData.push(v.Sales);
+                });
+
+                $.each(r.result.city_bar.history_city, function(i, v){
+                    city_lastData.push(v.Sales);
+                });
+
+                $.each(r.result.city_bar.cur_city, function(i, v){
+                    city_areaData.push(v.City);
+                    city_curData.push(v.Sales);
+                });
+
+
                 $echart_map_option.series[0].data = seriesMapData;
                 $echart_map_option.visualMap[0].max = seriesMapData[0].value;
 
-                $echart_bar_option.yAxis[0].data = yAxisBarData;
-                $echart_bar_option.series[0].data = seriesBarMarketData;
-                $echart_bar_option.series[1].data = seriesBarProductData;
+                $echart_provinces_bar_option.yAxis[0].data = areaData;
+                $echart_provinces_bar_option.yAxis[1].data = areaData.map(function(value) {
+                    return {
+                        value: value,
+                        textStyle: {
+                            align: 'center',
+                        }
+                    }
+                });
+
+                $echart_provinces_bar_option.yAxis[2].data = areaData;
+                $echart_provinces_bar_option.series[0].data = lastData;
+                $echart_provinces_bar_option.series[1].data = curData;
+
+
 
                 mapChart.setOption($echart_map_option);
-                barChart.setOption($echart_bar_option);
-                barChart.hideLoading();
-                mapChart.hideLoading();
+
+                provinces_barChart.setOption(province_option);
+
+
+
+                $echart_city_bar_option.yAxis[2].data = city_areaData;
+                $echart_city_bar_option.series[0].data = city_lastData;
+                $echart_city_bar_option.series[1].data = city_curData;
+
+                city_barChart.setOption(city_option);
 
             } else {
                 console.error("error");
@@ -199,7 +709,7 @@ var step_chart = (function ($, w) {
 
     function bar_line_chart(id) {
         barLineChart = echarts.init(document.getElementById(id));
-        var option = {
+        let option = {
             grid: {
                 left: '3%',
                 right: '4%',
@@ -248,7 +758,7 @@ var step_chart = (function ($, w) {
             ],
             series: [
                 {
-                    name:'Market Sales',
+                    name:'市场销量',
                     type:'bar',
                     barWidth: '80%',
                     yAxisIndex: 0,
@@ -267,7 +777,7 @@ var step_chart = (function ($, w) {
                     }
                 },
                 {
-                    name:'MAX Mono Share',
+                    name:'份额占比',
                     type:'line',
                     yAxisIndex: 1,
                     data: [], //[1, 13, 37, 35, 15, 13, 25, 21, 6, 45, 32, 2, 4, 13, 6, 4, 10],
@@ -275,14 +785,6 @@ var step_chart = (function ($, w) {
                         normal: {
                             show: true,
                             position: 'top'
-                        }
-                    },
-                    lineStyle: {
-                        normal: {
-                            color: itemStyleColor[1],
-                            width: 3,
-                            shadowBlur: 10,
-                            shadowOffsetY: 10
                         }
                     },
                     itemStyle: {
@@ -298,7 +800,7 @@ var step_chart = (function ($, w) {
 
     function map_chart(id) {
         mapChart = echarts.init(document.getElementById(id));
-        var option = {
+        let option = {
             title: {
                 // text: '中国大区分布图',
                 // subtext: '中国的八大区分布',
@@ -325,16 +827,16 @@ var step_chart = (function ($, w) {
                 trigger: 'item',
                 textStyle: {align: 'left'},
                 formatter: function (v) {
-                    var tip_content = '省份：'+ v.data.name +'<br/>';
-                    tip_content += '市场销量：'+ (f.thousandsModule.formatNum(v.data.value)) +'<br/>';
-                    tip_content += '产品销量：'+ (f.thousandsModule.formatNum(v.data.productSales)) +'<br/>';
+                    let tip_content = '省份：'+ v.data.name +'<br/>';
+                    tip_content += '市场销量：'+ (f.thousandsModule.formatNum(v.data.value)) + '(Mil)' +'<br/>';
+                    tip_content += '产品销量：'+ (f.thousandsModule.formatNum(v.data.productSales)) + '(Mil)'  +'<br/>';
                     tip_content += '份额：'+ (parseFloat(v.data.share) < 0 ? 0 : v.data.share) +'%';
                     return tip_content;
                 }
             },
             visualMap: {
                 min: 0,
-                max: 56173792,
+                max: 9999999999,
                 left: 'left',
                 top: 'bottom',
                 text: ['高','低'],
@@ -356,76 +858,27 @@ var step_chart = (function ($, w) {
         mapChart.setOption(option);
     }
 
-    function bar_chart(id) {
-        barChart = echarts.init(document.getElementById(id));
-        var option = {
-            tooltip: {
-                trigger: 'axis',
-                textStyle: {align: 'left'},
-                axisPointer: {type: 'shadow'}
-            },
-            legend: {
-                data: ['市场总销售额', '产品销售额'],
-                orient:'vertical'
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'value',
-                boundaryGap: [0, 0.01]
-            },
-            yAxis: {
-                type: 'category',
-                data: [],
-                axisLabel: {show: true, interval: 'auto', formatter: '{value}'}
-            },
-            series: [
-                {
-                    name: '市场总销售额',
-                    type: 'bar',
-                    itemStyle: {
-                        normal: {
-                            color : '#ADADAD',//柱状图颜色
-                            label: {
-                                // textStyle: {color: '#000000', fontSize: 3},
-                                show: false,
-                                position: 'right'
-                                // formatter: '{c}%'
-                            }
-                        }
-                    },
-                    data: []
-                },
-                {
-                    name: '产品销售额',
-                    type: 'bar',
-                    itemStyle: {
-                        normal: {
-                            color: '#60B3AD',
-                            label: {
-                                // textStyle: {color: '#000000', fontSize: 3},
-                                show: false,
-                                position: 'right'
-                                // formatter: '{c}%'
-                            }
-                        }
-                    },
-                    data: []
-                }
-            ]
-        };
-
-        barChart.setOption(option);
+    function provinces_bar_chart(id) {
+        provinces_barChart = echarts.init(document.getElementById(id));
+        provinces_barChart.setOption(province_option);
     }
+
+    function city_bar_chart(id) {
+        city_barChart = echarts.init(document.getElementById(id));
+        city_barChart.setOption(city_option);
+    }
+
+    $(w).resize(function () {
+        barLineChart.resize();
+        mapChart.resize();
+        provinces_barChart.resize();
+        city_barChart.resize();
+    });
 
     return {
         "barLineChart": function() {return barLineChart;},
         "mapChart": function() {return mapChart;},
-        "barChart": function() {return barChart;},
+        "barChart": function() {return provinces_barChart;},
         "query_data": query_data,
         "query_select": query_select,
         "table_num": function(){return table_num;}

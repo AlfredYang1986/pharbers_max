@@ -57,7 +57,7 @@ object HistoryModule extends ModuleTrait with HistoryData {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
 			val db = conn.queryDBInstance("calc").get
 			val o = conditions(data)
-			val skip = (data \ "condition" \ "skip").asOpt[Int].map(x => x).getOrElse(1)
+			val skip = (data \ "condition" \ "skip").asOpt[Int].map(x => x).getOrElse(0)
 			val take = (data \ "condition" \ "take").asOpt[Int].map(x => x).getOrElse(10)
 			implicit val result: List[String Map JsValue] = pr match {
 				case None => throw new Exception("")

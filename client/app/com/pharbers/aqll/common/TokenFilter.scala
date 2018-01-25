@@ -25,7 +25,7 @@ trait FilterTrait extends Filter {
             case Some(s) => s.split(";").map { cookie =>
                 val temp = cookie.split("=")
                 if (temp.length == 2) {
-                    (temp(0), temp(1))
+                    (temp(0).trim, temp(1).trim)
                 } else {
                     throw new Exception("用户禁用Cookie")
                 }
