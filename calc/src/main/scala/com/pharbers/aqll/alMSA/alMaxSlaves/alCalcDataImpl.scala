@@ -101,8 +101,13 @@ class alCalcDataImpl extends Actor with ActorLogging{
                         mrd.set_finalResultsUnit(mrd.volumeUnit)
                     } else {
                         avg.find(p => p._1 == seed.hashCode.toString).foreach { x =>
-                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation().get._2 * mrd.factor).toString).toDouble)
-                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation().get._2 * mrd.factor).toString).toDouble)
+                                if(x._2 < 0){
+                                    mrd.set_finalResultsValue(0.0)
+                                    mrd.set_finalResultsUnit(0.0)
+                                }else{
+                                    mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation().get._2 * mrd.factor).toString).toDouble)
+                                    mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation().get._2 * mrd.factor).toString).toDouble)
+                                }
                         }
                     }
                     value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
@@ -134,6 +139,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
                         (x.getYearAndmonth == t.getYearAndmonth) && (x.getMinimumUnitCh == t.getMinimumUnitCh)
                     }
                 } :: do_calc() :: Nil
+
         recall.result
         log.info(s"current recall data length ${recall.cur.get.length}")
         alTempLog(s"C3. current recall data length ${recall.cur.get.length}")
@@ -161,7 +167,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
                     el.getHospitalizedBeiIncome, el.getHospitalizedCireIncom, el.getHospitalizedOpsIncome,
                     el.getDrugIncome, el.getClimicDrugIncome, el.getClimicWestenIncome,
                     el.getHospitalizedDrugIncome, el.getHospitalizedWestenIncome, 0.0, 0.0)
-                backfireData(mrd)(recall)
+                fullGuessData(mrd)(recall)
             }
 
             val path = s"$memorySplitFile$calc$sub_uuid"
@@ -175,10 +181,10 @@ class alCalcDataImpl extends Actor with ActorLogging{
         }
     }
 
-    private def backfireData(mrd: westMedicineIncome)(inte_lst: List[IntegratedData]): westMedicineIncome = {
+    private def fullGuessData(mrd: westMedicineIncome)(inte_lst: List[IntegratedData]): westMedicineIncome = {
         /**
           * 根据年月 + 最小产品单位 + PHA_ID 找到Panle文件中的sales 与 unit
-          * 回填到被放大的数据中
+          * 补充到被放大的数据中
           */
         val tmp2 = inte_lst.filter(iter => mrd.yearAndmonth == iter.getYearAndmonth
             && mrd.minimumUnitCh == iter.getMinimumUnitCh
