@@ -101,7 +101,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
                         mrd.set_finalResultsUnit(mrd.volumeUnit)
                     } else {
                         avg.find(p => p._1 == seed.hashCode.toString).foreach { x =>
-                                if(x._2 < 0){
+                                if(x._2 < 0 || x._3 < 0){
                                     mrd.set_finalResultsValue(0.0)
                                     mrd.set_finalResultsUnit(0.0)
                                 }else{
