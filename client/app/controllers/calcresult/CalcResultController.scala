@@ -68,10 +68,11 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 			:: msg_CommonResultMessage() :: Nil, None)
 	})
 	
-	def querySalesVsShare =  Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+	
+	def querySalesVsShare = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCalcResult"))), jv)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("querySalesVsShare"))), jv)
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
@@ -81,15 +82,16 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 			:: msg_CommonResultMessage() :: Nil, None)
 	})
 	
-	def queryCurVsPreWithCity = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+	
+	def queryAreaData = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCurVsPreWithCity"))), jv)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryAreaData"))), jv)
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
-			:: MsgCalcResultHistoryCurVsPreWithCity(jv)
+			:: MsgCalcResultAreaData(jv)
 			:: ParallelMessage(paralleCurVsPreWithCity(jv), salesMapWithCityResultMerge)
 			:: msg_CommonResultMessage() :: Nil, None)
 	})

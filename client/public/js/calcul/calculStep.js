@@ -39,6 +39,7 @@ var calc_step = (function ($, w) {
         // $("#test-calc-result").click(function(){
         //     toFourthStep()
         // });
+
     });
 
     var toSecondStep = function () {
