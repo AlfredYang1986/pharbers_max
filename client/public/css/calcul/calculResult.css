@@ -130,3 +130,26 @@
     font-weight: 300;
     margin: 15px 0 10px 110px;
 }
+
+.current-lastyear {
+    position: relative;
+    left: 200px;
+    top: -42px;
+}
+
+.up {
+    color: #40D5BE;
+}
+
+.down {
+    color: #b31a1a;
+}
+
+.current-lastyear > p > span {
+    font-size: 18px;
+}
+
+.current-lastyear > .current-lastyear-tip {
+    font-size: 12px;
+    color: #6A7481;
+}
