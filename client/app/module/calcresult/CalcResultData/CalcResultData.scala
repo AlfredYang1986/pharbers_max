@@ -33,7 +33,8 @@ trait CalcResultData {
 	
 	def timeRange(date: Option[String], pr: String Map JsValue): String Map Long = {
 		date match {
-			case None => Map("start" -> dateRange(defaultData(pr)("Date"), -12), "end" -> dateRange(defaultData(pr)("Date"), 0))
+			case None =>
+				Map("start" -> dateRange(defaultData(pr)("Date"), -12), "end" -> dateRange(defaultData(pr)("Date"), 0))
 			case Some(x) => Map("start" -> dateRange(x, -12), "end" -> dateRange(x, 0))
 		}
 	}
@@ -41,8 +42,8 @@ trait CalcResultData {
 	def shareMrHistoryBeforeCondition(data: JsValue, pr: String Map JsValue): DBObject = {
 		val builder = MongoDBObject.newBuilder
 		(data \ "condition" \ "date").asOpt[String].
-			map(x => builder += "Date" -> DBObject("$gt" -> timeRange(Some(x), pr)("start"), "$lt" -> timeRange(Some(x), pr)("end"))).getOrElse(
-				builder += "Date" -> DBObject("$gt" -> timeRange(None, pr)("start"), "$lt" -> timeRange(None, pr)("end"))
+			map(x => builder += "Date" -> DBObject("$gte" -> timeRange(Some(x), pr)("start"), "$lt" -> timeRange(Some(x), pr)("end"))).getOrElse(
+				builder += "Date" -> DBObject("$gte" -> timeRange(None, pr)("start"), "$lt" -> timeRange(None, pr)("end"))
 			)
 		(data \ "condition" \ "market").asOpt[String].map(x => builder += "Market" -> x).getOrElse(builder += "Market" -> defaultData(pr)("Market"))
 		builder.result
@@ -51,8 +52,8 @@ trait CalcResultData {
 	def shareMrHistoryAfterCondition(data: JsValue, pr: String Map JsValue): DBObject = {
 		val builder = MongoDBObject.newBuilder
 		(data \ "condition" \ "date").asOpt[String].
-			map(x => builder += "_id.Date" -> DBObject("$gt" -> timeRange(Some(x), pr)("start"), "$lt" -> timeRange(Some(x), pr)("end"))).getOrElse(
-				builder += "_id.Date" -> DBObject("$gt" -> timeRange(None, pr)("start"), "$lt" -> timeRange(None, pr)("end"))
+			map(x => builder += "_id.Date" -> DBObject("$gte" -> timeRange(Some(x), pr)("start"), "$lt" -> timeRange(Some(x), pr)("end"))).getOrElse(
+				builder += "_id.Date" -> DBObject("$gte" -> timeRange(None, pr)("start"), "$lt" -> timeRange(None, pr)("end"))
 			)
 		(data \ "condition" \ "market").asOpt[String].map(x => builder += "_id.Market" -> x).getOrElse(builder += "_id.Market" -> defaultData(pr)("Market"))
 		builder.result

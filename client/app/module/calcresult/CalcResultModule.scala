@@ -142,9 +142,11 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		val curTemp = mergerResult("cur").as[List[String Map String]]
 		val historyTemp = pr.get("history").as[List[String Map String]]
 		
-		val curPSumS = curTemp.filter(f => f("Product").contains(show_company)).map(x => x("Sales").toDouble).sum.formatted("%.2f").toDouble
-		val curMSumS = curTemp.map(x => x("Sales").toDouble).sum.formatted("%.2f").toDouble
-		val curMSumU = curTemp.map(x => x("Units").toDouble).sum.formatted("%.2f").toDouble
+		val lastYear = alDateOpt.Timestamp2yyyyMM(alDateOpt.yyyyMM2LastLong(selectDate))// 去年同期时间戳
+		
+		val curPSumS = (curTemp.filter(f => f("Product").contains(show_company)).map(x => x("Sales").toDouble).sum / 1000000).formatted("%.2f").toDouble
+		val curMSumS = (curTemp.map(x => x("Sales").toDouble).sum / 1000000).formatted("%.2f").toDouble
+		val curMSumU = (curTemp.map(x => x("Units").toDouble).sum / 1000000).formatted("%.2f").toDouble
 		val share = if(curMSumS == 0) 0 else ((curPSumS / curMSumS) * 100).formatted("%.2f").toDouble
 		val result = historyTemp match {
 			case Nil =>
@@ -152,15 +154,42 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 				Map("Date" -> selectDate, "Market" -> selectMarket, "Sales" -> curMSumS.toString, "Units" -> curMSumU.toString, "Share" -> share.toString)
 			case hlst =>
 				timeLst.map{ x =>
-					val hisPSumS = hlst.filter(f => f("Date") == x && f("Product").contains(show_company)).map(z => z("Sales").toDouble).sum
-					val hisMSumS = hlst.filter(f => f("Date") == x).map(z => z("Sales").toDouble).sum.formatted("%.2f").toDouble
-					val hisMSumU = hlst.filter(f => f("Date") == x).map(z => z("Units").toDouble).sum.formatted("%.2f").toDouble
+					val hisPSumS = (hlst.filter(f => f("Date") == x && f("Product").contains(show_company)).map(z => z("Sales").toDouble).sum / 1000000).formatted("%.2f").toDouble
+					val hisMSumS = (hlst.filter(f => f("Date") == x).map(z => z("Sales").toDouble).sum / 1000000).formatted("%.2f").toDouble
+					val hisMSumU = (hlst.filter(f => f("Date") == x).map(z => z("Units").toDouble).sum / 1000000).formatted("%.2f").toDouble
 					val share = if(hisMSumS == 0) 0 else ((hisPSumS / hisMSumS) * 100).formatted("%.2f").toDouble
 					Map("Date" -> x, "Market" -> selectMarket , "Sales" -> hisMSumS.toString, "Units" -> hisMSumU.toString, "Share" -> share.toString)
 				} :+ Map("Date" -> selectDate, "Market" -> selectMarket, "Sales" -> curMSumS.toString, "Units" -> curMSumU.toString, "Share" -> share.toString)
 		}
-
+		val currentDataYear = historyTemp match {
+			case Nil => Map("sales_year" -> toJson("0"),
+							"productSales_year" -> toJson("0"))
+			case hlst =>
+				val salesSum = (hlst.filter(f => f("Date") == lastYear).map(z => z("Sales").toDouble).sum / 1000000).formatted("%.2f").toDouble
+				val productSalesSum = (hlst.filter(f => f("Date") == lastYear && f("Product").contains(show_company)).map(z => z("Sales").toDouble).sum / 1000000).formatted("%.2f").toDouble
+				
+				println(curMSumS)
+				println(curPSumS)
+				
+				println(salesSum)
+				println(productSalesSum)
+				
+				Map("sales_year" -> toJson {
+						if(salesSum == 0) "0"
+						else (((curMSumS - salesSum) / salesSum) * 100).formatted("%.2f")
+					},
+					"productSales_year" -> toJson {
+						if(productSalesSum == 0) "0"
+						else (((curPSumS - productSalesSum) / productSalesSum) * 100).formatted("%.2f")
+					}
+				)
+		}
+		
+		println(lastYear)
+		println(currentDataYear)
+		
 		Map("condition" -> toJson(result),
+			"data_last" -> toJson(currentDataYear),
 			"result_condition" -> (pr.get("result_condition") \ "select_values").getOrElse(throw new Exception("")),
 			"cursales" -> toJson(curMSumS),
 			"selectDate" -> toJson(selectDate),

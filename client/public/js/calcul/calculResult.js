@@ -148,16 +148,36 @@ var step_chart = (function ($, w) {
                     }
                 });
 
-                $('span[name="sumsales"]').empty().text(parseFloat(r.result.cursales / 1000000).toFixed(2));
-                $('span[name="productsales"]').empty().text(parseFloat(r.result.curproductsales / 1000000).toFixed(2));
+                $('span[name="sumsales"]').empty().text(r.result.cursales );
+                $('span[name="productsales"]').empty().text(r.result.curproductsales );
                 $('span[name="share"]').empty().text((parseFloat(r.result.curproductsales) / parseFloat(r.result.cursales) * 100).toFixed(2));
+
+
+                if (parseInt(r.result.data_last.sales_year) < 0) {
+                    $("market-sum-sales").attr("current-lastyear down");
+                    $('span[name="current-sales-sign"]').empty().text("-");
+                } else {
+                    $("market-sum-sales").attr("current-lastyear up");
+                    $('span[name="current-sales-sign"]').empty().text("+");
+                }
+                if (parseInt(r.result.data_last.productSales_year) < 0) {
+                    $("product-sales").attr("current-lastyear down");
+                    $('span[name="current-product-sales-sign"]').empty().text("-");
+                } else {
+                    $("product-sales").attr("current-lastyear up");
+                    $('span[name="current-product-sales-sign"]').empty().text("+");
+                }
+                $('span[name="current-sales-value"]').empty().text(r.result.data_last.sales_year);
+                $('span[name="current-product-sales-value"]').empty().text(r.result.data_last.productSales_year);
+
+
 
                 let xAxisData = [];
                 let seriesBarData = [];
                 let seriesLineData = [];
                 $.each(r.result.condition, function(i, v) {
                     xAxisData.push(v.Date);
-                    seriesBarData.push((v.Sales / 1000000).toFixed(2));
+                    seriesBarData.push(v.Sales);
                     seriesLineData.push(v.Share);
                 });
 
