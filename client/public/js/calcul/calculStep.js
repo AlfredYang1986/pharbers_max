@@ -77,9 +77,6 @@ var calc_step = (function ($, w) {
 
     var check_file = function(){
         var info = $("#loadInof");
-        info.empty();
-        info.text("MAX正在解析您的文件...");
-        prograssBar(10, 2, 0);
 
         info.empty();
         info.text("MAX正在解析您的文件...");
@@ -129,7 +126,7 @@ var calc_step = (function ($, w) {
         });
         f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function(r){
             layer.msg("开始计算");
-            prograssBar(99, 60, 0);
+            prograssBar(99, 60, 1);
             $("#calculInof").removeClass("hide");
         }, function(e){console.error(e)});
     };
@@ -381,10 +378,10 @@ var calc_step = (function ($, w) {
     var progress_calc_result = function(obj){
         console.info(obj);
 
-        prograssBar(100);
+        prograssBar(100, 1, 99);
+        layer.msg("计算完成");
         $("#calculInof").addClass("hide");
         $("#calc-result-btn").removeClass("hide");
-        layer.msg("计算完成");
     };
 
     //保存按钮 websocket
@@ -408,10 +405,14 @@ var calc_step = (function ($, w) {
         console.info(msg.data);
     };
 
+    var interval;
     var prograssBar = function (e, t, b) {
         var end = parseInt(e);
         var time = (typeof t !== 'undefined') ?  parseInt(t) * 1000 : 1;
         var begin = (typeof b !== 'undefined') ?  parseInt(b) : end;
+
+        if(typeof interval !== 'undefined')
+            clearInterval(interval);
 
         var rotate = echarts.init(document.getElementById(rotate_name));
         var option = {
@@ -473,7 +474,7 @@ var calc_step = (function ($, w) {
             }];
         }
 
-        var interval = setInterval(function () {
+        interval= setInterval(function () {
             if (begin === end) {
                 clearInterval(interval);
             } else if (begin === 100){

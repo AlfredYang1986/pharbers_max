@@ -19,6 +19,7 @@ object alActorTest extends App {
 
 	val company2 = "8ee0ca24796f9b7f284d931650edbd4b"
 	val cpa_file_local2 = "to医药魔方 恩华CPA原始数据2015.1-2017.6.xlsx"
+	val cpa_file_local3 = "180115恩华17年1-11月检索.xlsx"
 
 	if (system.settings.config.getStringList("akka.cluster.roles").contains("splittest")){
 		Cluster(system).registerOnMemberUp {
@@ -27,7 +28,7 @@ object alActorTest extends App {
 
 			(1 to 1) foreach { x =>
 				val uid = "uid" + x
-				redisDriver.hset(uid, "company", company1)
+				redisDriver.hset(uid, "company", company2)
 
 				//test calc ym
 				if (false){
@@ -36,21 +37,17 @@ object alActorTest extends App {
 				}
 
 				//test generter panel
-				if (false) {
+				if (true) {
 					println("================================== test generter panel")
-					val ym = "201501" :: "201503" :: "201504" :: "201506" ::
-							"201507" :: "201509" :: "201512" ::
-							"201601" :: "201602" :: "201603" :: "201604" :: "201605" :: "201606" ::
-							"201607" :: "201611" :: "201612" ::
-							"201702" :: "201704" :: "201705" :: Nil
+					val ym = "201701" :: "201702" :: "201703" :: "201704" :: "201705" :: "201706" ::
+							 "201707" :: "201708" :: "201709" :: "201710" :: Nil
 //					val ym = "201501" :: "201502" :: "201503" :: "201504" :: "201505" :: "201506" ::
 //							"201507" :: "201508" :: "201509" :: "201510" :: "201511" :: "201512" ::
 //							"201601" :: "201602" :: "201603" :: "201604" :: "201605" :: "201606" ::
-//							"201607" :: "201608" :: "201609" :: "201610" :: "201611" :: "201612" ::
-//							"201701" :: "201702" :: "201703" :: "201704" :: "201705" :: "201706" :: Nil
-					agent ! startGeneratePanel(alPanelItem(company2, uid, cpa_file_local2, "", ym))
+//							"201607" :: "201608" :: "201609" :: "201610" :: "201611" :: "201612" :: Nil
+					agent ! startGeneratePanel(alPanelItem(company2, uid, cpa_file_local3, "", ym))
 //					Thread.sleep(5 * 60 * 1000)
-				} else if(true){
+				} else if(false){
 					println("================================== write panel to redis")
 					val rid = UUID.randomUUID().toString
 					redisDriver.hset(uid, "rid", rid)
@@ -119,7 +116,7 @@ object alActorTest extends App {
 				}
 
 				//test split -> group -> calc -> bson
-				if(true){
+				if(false){
 					println("===================== test split -> group -> calc -> bson")
 					agent ! startCalc(uid)
 				}

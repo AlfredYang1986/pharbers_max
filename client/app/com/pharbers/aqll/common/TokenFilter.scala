@@ -65,7 +65,7 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
                    if (accessToken.isEmpty)
                        Results.Redirect(Call("GET", "/"))
                    else {
-                       validationToken2(accessToken) match {
+                       validationToken(accessToken) match {
                            case TokenFail() => Results.Redirect(Call("GET", "/"))
                            case User(_, _, _, scope) =>
                                if(scope.contains("NC") && bdUrlMapping.contains(targetURL)) Results.NotFound
@@ -77,24 +77,25 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
         }
     }
 
-    def validationToken(token: String): TokenAction = {
-        val reVal = att.decrypt2JsValue(token)
-        val expire_in = (reVal \ "expire_in").asOpt[Long].map(x => x).getOrElse(throw new Exception("token parse error"))
-        if (new Date().getTime > expire_in) TokenFail()
-        else {
-            val reMap = db.queryObject(DBObject("user_id" -> (reVal \ "user_id").as[String]), "users") match {
-                case None => db.queryObject(DBObject("reg_id" -> (reVal \ "user_id").as[String]), "reg_apply")
-                case one => one
-            }
+///   使用短token前的token验证方式
+//    def validationToken(token: String): TokenAction = {
+//        val reVal = att.decrypt2JsValue(token)
+//        val expire_in = (reVal \ "expire_in").asOpt[Long].map(x => x).getOrElse(throw new Exception("token parse error"))
+//        if (new Date().getTime > expire_in) TokenFail()
+//        else {
+//            val reMap = db.queryObject(DBObject("user_id" -> (reVal \ "user_id").as[String]), "users") match {
+//                case None => db.queryObject(DBObject("reg_id" -> (reVal \ "user_id").as[String]), "reg_apply")
+//                case one => one
+//            }
+//
+//            User(reMap.get.get("name").map(x => x.as[String]).getOrElse(""),
+//                reMap.get.get("email").map(x => x.as[String]).getOrElse(""),
+//                reMap.get.get("phone").map(x => x.as[String]).getOrElse(""),
+//                reMap.get.get("scope").map(x => x.as[List[String]]).getOrElse(Nil))
+//        }
+//    }
 
-            User(reMap.get.get("name").map(x => x.as[String]).getOrElse(""),
-                reMap.get.get("email").map(x => x.as[String]).getOrElse(""),
-                reMap.get.get("phone").map(x => x.as[String]).getOrElse(""),
-                reMap.get.get("scope").map(x => x.as[List[String]]).getOrElse(Nil))
-        }
-    }
-
-    def validationToken2(accessToken: String): TokenAction = {
+    def validationToken(accessToken: String): TokenAction = {
         val redisDriver = phRedisDriver().commonDriver
         val token = redisDriver.hgetall1(accessToken).getOrElse(Map())
         if (token.isEmpty) TokenFail()
