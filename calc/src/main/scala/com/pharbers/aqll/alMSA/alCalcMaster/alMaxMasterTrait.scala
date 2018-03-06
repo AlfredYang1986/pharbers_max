@@ -266,11 +266,11 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                 phWebSocket(uid).post(msg)
 
                 alTempLog(s"计算完成 in ${df.format(new Date())}")
-//
-//                if(uid.startsWith("uid")){
-//                    val agentTest = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-//                    agentTest ! startAggregationCalcData(uid, Nil)
-//                }
+
+                if(uid.startsWith("uid")){
+                    val agentTest = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+                    agentTest ! startAggregationCalcData(uid, Nil)
+                }
             }
         } else {
             alTempLog(s"计算失败 in ${df.format(new Date())}")
