@@ -4,17 +4,16 @@ import scala.concurrent.duration._
 import play.api.libs.json.JsString
 import scala.collection.immutable.Map
 import play.api.libs.json.Json.toJson
-import com.pharbers.panel.phGeneratePanel
-import com.pharbers.panel.pfizer.phPfizerHandle
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.panel.util.phWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg.calcYM_end
+import com.pharbers.panel.phPanelHeadle
 
 /**
   * Created by jeorch on 17-10-11.
@@ -46,7 +45,7 @@ class alGeneratePanelCameo(panelJob: alPanelItem, counter: ActorRef) extends Act
             alTempLog(s"开始生成${panelJob.ym}月份的panel, args=" + args)
 
             val (result, panelResult) = try {
-                val panelResult = phGeneratePanel(args).getPanelFile(panelJob.ym)
+                val panelResult = phPanelHeadle(args).getPanelFile(panelJob.ym)
                 alTempLog(s"generate panel result = $panelResult")
                 (true, panelResult)
             } catch {

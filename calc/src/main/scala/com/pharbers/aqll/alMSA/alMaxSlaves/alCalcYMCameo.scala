@@ -1,18 +1,19 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import play.api.libs.json._
+
 import scala.concurrent.duration._
 import scala.collection.immutable.Map
-import com.pharbers.panel.phGeneratePanel
-import com.pharbers.panel.pfizer.phPfizerHandle
+import com.pharbers.panel.phPanelHeadle
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.panel.util.phWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 
 /**
   * Created by jeorch on 17-10-11.
@@ -44,7 +45,7 @@ class alCalcYMCameo(calcYMJob: alPanelItem, counter: ActorRef) extends Actor wit
             alTempLog("开始过滤日期,arg=" + args)
 
             val (result, ym, mkt) = try {
-                val header = phGeneratePanel(args)
+                val header = phPanelHeadle(args)
                 val ym = header.calcYM.asInstanceOf[JsString].value
                 val markets = header.getMarkets.asInstanceOf[JsString].value
                 alTempLog(s"calcYM result, ym = $ym, mkt = $markets")

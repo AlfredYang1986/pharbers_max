@@ -12,7 +12,9 @@ libraryDependencies ++= Seq(
     "com.easemob" % "rest-java-sdk" % "1.0.1",
 
     "com.pharbers" % "pharbers-modules" % "0.2",
-    "com.pharbers" % "pharbers-data-parse" % "0.2",
+    "com.pharbers" % "pharbers-panel" % "0.2",
+    "com.pharbers" % "spark-driver" % "0.2",
+    "com.pharbers" % "mongodb-driver" % "0.2",
     "com.pharbers" % "pharbers-bson" % "0.2",
     "com.pharbers" % "redis-driver" % "0.2",
     "com.pharbers" % "errorcode" % "0.2",
@@ -46,7 +48,9 @@ libraryDependencies ++= Seq(
     "io.aeron" % "aeron-driver" % "1.0.4",
     "javax.mail" % "mail" % "1.4.7",
     "net.debasishg" % "redisclient_2.11" % "3.4",
-    "xerces" % "xercesImpl" % "2.11.0"
+    "xerces" % "xercesImpl" % "2.11.0",
+    "org.apache.spark" % "spark-sql_2.11" % "2.0.0",
+    "org.mongodb.spark" % "mongo-spark-connector_2.11" % "2.0.0"
 )
 
 lazy val root = (project in file(".")).

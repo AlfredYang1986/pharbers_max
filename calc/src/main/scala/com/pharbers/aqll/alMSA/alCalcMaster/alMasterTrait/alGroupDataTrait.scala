@@ -16,7 +16,7 @@ import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
-import com.pharbers.panel.util.phWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
 import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.common_jobs

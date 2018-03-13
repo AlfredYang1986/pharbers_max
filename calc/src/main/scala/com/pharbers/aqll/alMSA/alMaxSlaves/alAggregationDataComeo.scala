@@ -3,7 +3,7 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, PoisonPill, Props}
 import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.alWeightSum
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
-import com.pharbers.panel.util.phWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.aggregationMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg.canIReStart
 
