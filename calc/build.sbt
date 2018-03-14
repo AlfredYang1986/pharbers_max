@@ -9,6 +9,7 @@ resolvers += Resolver.mavenLocal
 
 libraryDependencies ++= Seq(
     "ch.qos.logback" % "logback-classic" % "1.1.3",
+    "org.specs2" % "specs2_2.11" % "3.7" % "test",
     "com.easemob" % "rest-java-sdk" % "1.0.1",
 
     "com.pharbers" % "pharbers-modules" % "0.2",
@@ -38,19 +39,23 @@ libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-http-testkit" % "10.0.1",
     "com.typesafe.akka" %% "akka-http-xml" % "10.0.1",
     "com.typesafe.play" % "play-json_2.11" % "2.5.6",
+
+    "org.apache.spark" % "spark-sql_2.11" % "2.0.0" exclude("org.slf4j","slf4j-log4j12"),
+    "org.mongodb.spark" % "mongo-spark-connector_2.11" % "2.0.0",
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.8.7",
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.7",
+    "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.7",
+
     "org.agrona" % "Agrona" % "0.9.0",
     "org.apache.commons" % "commons-email" % "1.4",
     "org.apache.poi" % "poi-ooxml" % "3.8",
     "org.apache.poi" % "poi-ooxml-schemas" % "3.8",
     "org.mongodb" % "casbah_2.11" % "3.1.1",
-    "org.specs2" % "specs2_2.11" % "3.7" % "test",
     "io.aeron" % "aeron-client" % "1.0.4",
     "io.aeron" % "aeron-driver" % "1.0.4",
     "javax.mail" % "mail" % "1.4.7",
     "net.debasishg" % "redisclient_2.11" % "3.4",
-    "xerces" % "xercesImpl" % "2.11.0",
-    "org.apache.spark" % "spark-sql_2.11" % "2.0.0",
-    "org.mongodb.spark" % "mongo-spark-connector_2.11" % "2.0.0"
+    "xerces" % "xercesImpl" % "2.11.0"
 )
 
 lazy val root = (project in file(".")).
