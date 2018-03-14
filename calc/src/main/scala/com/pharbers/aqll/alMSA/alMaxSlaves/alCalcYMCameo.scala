@@ -46,8 +46,11 @@ class alCalcYMCameo(calcYMJob: alPanelItem, counter: ActorRef) extends Actor wit
 
             val (result, ym, mkt) = try {
                 val header = phPanelHeadle(args)
+                println("header + " + header)
                 val ym = header.calcYM.asInstanceOf[JsString].value
+                println("ym + " + ym)
                 val markets = header.getMarkets.asInstanceOf[JsString].value
+                println("markets + " + markets)
                 alTempLog(s"calcYM result, ym = $ym, mkt = $markets")
                 (true, ym, markets)
             } catch {

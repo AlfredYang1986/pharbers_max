@@ -19,7 +19,7 @@ object alActorTest extends App {
 
 	val company2 = "8ee0ca24796f9b7f284d931650edbd4b"
 	val cpa_file_local2 = "to医药魔方 恩华CPA原始数据2015.1-2017.6.xlsx"
-	val cpa_file_local3 = "180115恩华17年1-11月检索.xlsx"
+	val cpa_file_local3 = "170915恩华2017年7月检索.xlsx"
 
 	if (system.settings.config.getStringList("akka.cluster.roles").contains("splittest")){
 		Cluster(system).registerOnMemberUp {
@@ -31,13 +31,13 @@ object alActorTest extends App {
 				redisDriver.hset(uid, "company", company2)
 
 				//test calc ym
-				if (false){
+				if (true){
 					println("======================================== test calc ym")
-					agent ! startCalcYm(alPanelItem(company1, uid, cpa_file_local1, gycx_file_local1))
+					agent ! startCalcYm(alPanelItem(company2, uid, cpa_file_local3, ""))
 				}
 
 				//test generter panel
-				if (true) {
+				if (false) {
 					println("================================== test generter panel")
 					val ym = "201701" :: "201702" :: "201703" :: "201704" :: "201705" :: "201706" ::
 							 "201707" :: "201708" :: "201709" :: "201710" :: Nil

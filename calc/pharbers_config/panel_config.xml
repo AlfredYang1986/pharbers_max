@@ -8,7 +8,7 @@
         <not_arrival_hosp_file value="未到医院名单.csv" />
         <not_published_hosp_file value="2017年未出版医院名单.csv" />
         <fill_hos_data_file value="补充医院.csv" />
-        <output_path value="config/FileBase/Output/" />
+        <output_path value="config/FileBase/" />
     </data-parse>
 
     <company_fea9f203d4f593a96f0d6faa91ba24ba>
