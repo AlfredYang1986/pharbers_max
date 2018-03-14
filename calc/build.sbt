@@ -42,6 +42,7 @@ libraryDependencies ++= Seq(
 
     "org.apache.spark" % "spark-sql_2.11" % "2.0.0" exclude("org.slf4j","slf4j-log4j12"),
     "org.mongodb.spark" % "mongo-spark-connector_2.11" % "2.0.0",
+    "org.apache.hadoop" % "hadoop-client" % "2.2.0" exclude("org.slf4j","slf4j-log4j12"),
     "com.fasterxml.jackson.core" % "jackson-core" % "2.8.7",
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.7",
     "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.7",
@@ -52,7 +53,6 @@ libraryDependencies ++= Seq(
     "org.apache.poi" % "poi-ooxml-schemas" % "3.8",
     "org.mongodb" % "casbah_2.11" % "3.1.1",
     "io.aeron" % "aeron-client" % "1.0.4",
-    "io.aeron" % "aeron-driver" % "1.0.4",
     "javax.mail" % "mail" % "1.4.7",
     "net.debasishg" % "redisclient_2.11" % "3.4",
     "xerces" % "xercesImpl" % "2.11.0"

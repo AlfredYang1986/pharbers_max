@@ -27,20 +27,19 @@ object alActorTest extends App {
 			val redisDriver = phRedisDriver().commonDriver
 
 			(1 to 1) foreach { x =>
-				val uid = "uid" + x
+				val uid = "0uid" + x
 				redisDriver.hset(uid, "company", company2)
 
 				//test calc ym
-				if (true){
+				if (false){
 					println("======================================== test calc ym")
 					agent ! startCalcYm(alPanelItem(company2, uid, cpa_file_local3, ""))
 				}
 
 				//test generter panel
-				if (false) {
+				if (true) {
 					println("================================== test generter panel")
-					val ym = "201701" :: "201702" :: "201703" :: "201704" :: "201705" :: "201706" ::
-							 "201707" :: "201708" :: "201709" :: "201710" :: Nil
+					val ym = "201707" :: Nil
 //					val ym = "201501" :: "201502" :: "201503" :: "201504" :: "201505" :: "201506" ::
 //							"201507" :: "201508" :: "201509" :: "201510" :: "201511" :: "201512" ::
 //							"201601" :: "201602" :: "201603" :: "201604" :: "201605" :: "201606" ::
