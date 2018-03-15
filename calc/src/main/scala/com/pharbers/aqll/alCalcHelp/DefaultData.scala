@@ -29,7 +29,8 @@ object DefaultData {
         type targt = AdminHospitalDataBase
         val hospdatabase = new alExcelDataParser(new targt, hospdata_en_file, hospdata_ch_file)
 
-        val mkt_file_local = market_file_path.base_path + company + market_file_path.universe_file.replace("##market##", market)
+        val mkt_file_local = market_file_path.client_path + company + "/Manage/matchFile/" +
+            market_file_path.universe_file.replace(".csv", ".xlsx")
         hospdatabase.prase(mkt_file_local)("")
         hospdatabase.data.toList.asInstanceOf[List[targt]]
     }

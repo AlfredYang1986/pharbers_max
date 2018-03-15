@@ -32,7 +32,7 @@ libraryDependencies ++= Seq(
 	"com.pharbers" % "pharbers-message" % "0.2",
 	"com.pharbers" % "mongodb-connect" % "0.2",
 	"com.pharbers" % "pharbers-max-util" % "0.2",
-	"com.pharbers" % "pharbers-data-parse" % "0.2",
+	"com.pharbers" % "pharbers-panel" % "0.2",
 	"com.pharbers" % "pharbers-sercurity" % "0.2",
 	"com.pharbers" % "mongodb-driver" % "0.2",
 	"com.pharbers" % "redis-driver" % "0.2",

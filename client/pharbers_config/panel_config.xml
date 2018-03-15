@@ -1,10 +1,10 @@
 <pharbers-modules>
     <data-parse>
         <base_path value="hdfs://192.168.100.174:12138/user/jeorch/"/>
-        <client_file_path value="config/FileBase/"/>
+        <client_file_path value="../calc/config/FileBase/"/>
         <product_match_file value="匹配表.csv" />
         <markets_match_file value="通用名市场定义.csv" />
-        <universe_file value="universe_麻醉市场_online.csv" />
+        <universe_file value="universe_##market##_online.xlsx" />
         <not_arrival_hosp_file value="未到医院名单.csv" />
         <not_published_hosp_file value="2017年未出版医院名单.csv" />
         <fill_hos_data_file value="补充医院.csv" />
