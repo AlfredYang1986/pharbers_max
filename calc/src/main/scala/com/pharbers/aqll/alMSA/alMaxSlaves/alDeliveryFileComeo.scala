@@ -52,7 +52,7 @@ class alDeliveryFileComeo(uid: String, table: String, counter: ActorRef) extends
 					"error" -> s"cannot generate delivery file, exception is ${fileName}"
 				)
 				phWebSocket(uid).post(msg)
-				alTempLog("delivery data => Failed")
+				alTempLog(s"delivery data => Failed because ${fileName}")
 			}
 			shutSlaveCameo(generateDeliveryFileResult(uid, fileName, result))
 		
