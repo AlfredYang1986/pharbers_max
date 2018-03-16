@@ -48,6 +48,7 @@
     w.console.info(array.distinct());
     w.console.info(array2.distinct());// 不支持深度判断
     w.console.info($.unique(array2));// 哎jQuery3.0过期了，并且不能深度判断
+
 })(jQuery, window);
 
 

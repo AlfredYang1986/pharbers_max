@@ -1,56 +1,13 @@
 package com.pharbers.aqll.alStart.alHttpFunc
 
-import akka.actor.{ActorSystem, Props}
-import akka.cluster.Cluster
-import akka.http.scaladsl.Http
+import akka.actor.ActorSystem
+import akka.http.scaladsl.{Http, server}
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import com.pharbers.aqll.alMSA.alCalcAgent.alAgentSingleton
-import com.pharbers.aqll.alMSA.alCalcMaster.alMaxMaster
-import com.pharbers.aqll.alMSA.alClusterLister.alMaxClusterLister
 import com.typesafe.config.{Config, ConfigFactory}
-import scala.concurrent.Future
 
-/**
-	* Created by qianpeng on 2017/3/26.
-	*/
-
-object alAkkaSystemGloble {
-	var system : ActorSystem = null
-}
-
-object alAkkaHttpMain extends App with RequestTimeout {
-	val config = ConfigFactory.load("application")
-	val host = config.getString("akka.http.server.host")
-	val port = config.getInt("akka.http.server.port")
-
-	implicit val system = ActorSystem("HttpMain")
-	implicit val ec = system.dispatcher
-	implicit val mat = ActorMaterializer()
-
-	val api = new alAkkaHttpFunctionApi(system, requestTimeout(config)).routes
-
-
-	val bindingFuture: Future[ServerBinding] = Http().bindAndHandle(api, host, port)
-
-	bindingFuture.map ( _ => stubmain).onFailure {
-		case _ => system.terminate()
-	}
-
-	def stubmain = {
-		val config = ConfigFactory.load("split-new-master")
-		val calcSystem: ActorSystem = ActorSystem("calc", config)
-		
-		if(calcSystem.settings.config.getStringList("akka.cluster.roles").contains("splitmaster")) {
-			Cluster(calcSystem).registerOnMemberUp {
-				alAkkaSystemGloble.system = calcSystem
-				calcSystem.actorOf(alAgentSingleton.props, alAgentSingleton.name)
-				calcSystem.actorOf(Props[alMaxClusterLister], "akka-listener")
-			}
-		}
-	}
-}
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
 trait RequestTimeout {
 	import scala.concurrent.duration._
@@ -58,5 +15,27 @@ trait RequestTimeout {
 		val t = config.getString("akka.http.server.request-timeout")
 		val d = Duration(t)
 		FiniteDuration(d.length, d.unit)
+	}
+}
+
+object alAkkaHttpSystem extends App with RequestTimeout {
+//	var actorSystem : Option[ActorSystem] = None
+	
+	val config: Config = ConfigFactory.load("akka-http")
+	val host: String = config.getString("akka.http.server.host")
+	val port: Int = config.getInt("akka.http.server.port")
+	
+	implicit val system:ActorSystem = ActorSystem("calc", config)
+	implicit val ec: ExecutionContextExecutor = system.dispatcher
+	implicit val mat: ActorMaterializer = ActorMaterializer()
+	
+	val api: server.Route = new alAkkaHttpFunctionApi(system, requestTimeout(config)).routes
+	
+	val bindingFuture: Future[ServerBinding] = Http().bindAndHandle(api, host, port)
+	bindingFuture.map ( _ => afterMain()).onFailure {case _ => system.terminate()}
+	
+	def afterMain(): Unit = {
+		println(s"host = $host, port = $port")
+		println(s"Akka Http 启动完成")
 	}
 }

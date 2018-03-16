@@ -29,6 +29,8 @@ class alPropertyAgent extends Actor with ActorLogging {
                                         "splitcalcslave" -> 0,
                                         "splitrestorebsonslave" -> 0,
                                         "splitaggregationslave" -> 0,
+                                        "splitdeliveryslave" -> 0,
+                                        "akkahttp" -> 0,
                                         "splittest" -> 0)
 
     val master_router: ActorRef = context.actorOf(

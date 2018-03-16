@@ -58,7 +58,7 @@ object alCameoScp {
     def props(item: alMaxRunning) = Props(new alCameoScp(item))
 }
 
-//scp cuowu chuli
+//TODO scp cuowu chuli
 class alCameoScp(item: alMaxRunning) extends Actor with ActorLogging {
     //TODO shijian chuan can
     val timeoutMessager = context.system.scheduler.scheduleOnce(30 minute) {
@@ -69,7 +69,7 @@ class alCameoScp(item: alMaxRunning) extends Actor with ActorLogging {
         case scp_pkg() => pkg_job
         case pkgend(_) => scp_job
         case scpend(_) => scp_end
-        case scp_timeout() => println("=====scp_timeout")
+        case scp_timeout() => alTempLog("scp_timeout")
         case msg: AnyRef =>
             alTempLog(s"Warning! Message not delivered. alCameoScp.received_msg=$msg")
             shutCameo

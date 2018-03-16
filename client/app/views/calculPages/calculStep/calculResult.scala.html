@@ -26,12 +26,20 @@
                         <div class="total-market">
                             <div class="small-font-result">市场总销量</div>
                             <div class="large-font-result">￥<span name="sumsales"></span> <span class="middle-font-result">Mil</span></div>
+                            <div id="market-sum-sales" class="current-lastyear up">
+                                <p class="current-lastyear-tip">同比</p>
+                                <p><span name="current-sales-sign">+</span><span name="current-sales-value">0</span>%</p>
+                            </div>
                         </div>
                     </div>
                     <div class="col-xs-4">
                         <div class="sales-market">
                             <div class="small-font-result">产品销量</div>
                             <div class="large-font-result">￥<span name="productsales"></span><span class="middle-font-result">Mil</span></div>
+                            <div id="product-sales" class="current-lastyear up">
+                                <p class="current-lastyear-tip">同比</p>
+                                <p><span name="current-product-sales-sign">+</span><span name="current-product-sales-value">0</span>%</p>
+                            </div>
                         </div>
                     </div>
                     <div class="col-xs-4">
@@ -50,15 +58,48 @@
             <div class="market-map-panel market-penal">
                 <div class="title-h1">市场&nbsp;地区层面分析</div>
                 <div class="middle-font-result">全国</div>
-                <div class=""><button class="btn-result btn-active">市场规模</button><button class="btn-result btn-result-info">市场增长率</button></div>
                 <div class="row">
-                    <div class="col-lg-8 col-md-12 col-sm-12">
+                    <div class="col-lg-6 col-md-8 col-sm-12">
                         <div class="market-map" id="market_map"></div>
                     </div>
-                    <div class="col-lg-4 col-md-12 col-sm-12">
-                        <div><button class="btn-result btn-active">省</button><button class="btn-result btn-result-info">城市</button></div>
-                        @*<div><span>排名&nbsp;</span><span>产品份额</span><span style="padding-left: 30px">销售额</span></div>*@
-                        <div class="market-bar" id="market_bar"></div>
+                    <div class="col-lg-6 col-md-4 col-sm-12">
+                        <div class="area-btn">
+                            <button class="btn-result btn-active" id="provinces">省</button><button class="btn-result btn-result-info" id="city">城市</button>
+                        </div>
+                        <div class="row time-tips">
+                            <div class="col-md-6 text-right" style="padding-right: 40px;">去年同期</div>
+                            <div class="col-md-6 text-left" style="padding-left: 40px;">本期</div>
+                        </div>
+                        <div class="market-bar" id="provinces_bar"></div>
+                        <div class="market-bar" style="display: none;" id="city_bar"></div>
+                        @*<p class="area-tips text-right">市场销量（百万）</p>*@
+                        <p class="area-tips text-right">※ 图表依据本期数据进行排名</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="layui-fluid" id="calc-result-selectbox">
+    <div class="layui-form">
+        <div class="layui-form-item">
+            <div class="layui-row">
+                <div class="layui-col-md-12">
+                    <p class="calc-result-choose-all" name="calc-result-choose-all"></p>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-input-block" name="calc-result-choose-lst"></div>
+            </div>
+            <div class="h50"> </div>
+            <div class="layui-row">
+                <div class="layui-col-md-5 layui-col-md-offset7">
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <button class="layui-btn layui-btn layui-btn-radius layui-bg-gray" lay-submit lay-filter="cancel">取消</button>
+                            <button class="layui-btn layui-btn layui-btn-radius" lay-submit lay-filter="save">确认保存</button>
+                        </div>
                     </div>
                 </div>
             </div>

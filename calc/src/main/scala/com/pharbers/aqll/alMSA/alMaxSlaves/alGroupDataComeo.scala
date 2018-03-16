@@ -68,8 +68,9 @@ class alGroupDataComeo (item: alMaxRunning,
             val result = cj.result
             val (parent, subs) = result.get.asInstanceOf[(String, List[String])]//this parent = item.tid
 
+            val rd =  phRedisDriver().commonDriver
             item.subs = subs.map{x=>
-                phRedisDriver().commonDriver.sadd(s"grouped:$parent", x)
+                rd.sadd(s"grouped:$parent", x)
                 alMaxRunning(item.uid, x, parent)
             }
             impl_router ! group_data_hand()

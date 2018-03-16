@@ -14,6 +14,8 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.stm.{Ref, atomic}
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
+import com.pharbers.driver.redis.phRedisDriver
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait alAggregationDataTrait { this: Actor =>
@@ -70,15 +72,11 @@ object alCameoAggregationData {
 }
 
 class alCameoAggregationData(uid: String, table: String, slaveActor: ActorRef) extends Actor with ActorLogging {
-	var start = false
-	
 	def aggregation: Receive = {
 		case aggregationDataStart() => slaveActor ! aggregationDataHand()
 		case aggregationDataHand() =>
-			if(!start) {
-				sender() ! aggregationDataImpl(uid, table)
-				start = true
-			}
+			val company = phRedisDriver().commonDriver.hget(uid, "company").map(x=>x).getOrElse(throw new Exception("not found company"))
+			sender() ! aggregationDataImpl(uid, company, table)
 			shutCameo()
 		case msg =>
 			alTempLog(s"Warning! Message not delivered. alCameoAggregationData.received_msg=$msg")

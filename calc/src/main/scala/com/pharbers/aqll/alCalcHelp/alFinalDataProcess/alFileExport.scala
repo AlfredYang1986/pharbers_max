@@ -11,7 +11,7 @@ import com.pharbers.aqll.common.alString.alStringOpt._
 import com.pharbers.aqll.common.alDate.scala.alDateOpt._
 import com.pharbers.aqll.alStart.alHttpFunc.alExportItem
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
-import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 import com.pharbers.aqll.common.alFileHandler.alCsvOpt.scala.CSVWriter
 
 /**
@@ -34,7 +34,7 @@ case class alFileExport(item: alExportItem) {
         try {
             val mktCondition = item.market.map(x => removeSpace(x)).filter(!_.isEmpty) match {
                 case Nil => None
-                case m => Some("Market" -> MongoDBObject("$in" -> m))
+                case head :: _ => Some("Market" -> head)
             }
 
             val dateCondition = item.staend.map(x => removeSpace(x)).filter(!_.isEmpty) match {
@@ -51,12 +51,11 @@ case class alFileExport(item: alExportItem) {
                 case Some(con) => conditions += con
                 case _ => Unit
             }
-            conditions.result
 
             val lst = item.datatype match {
-                case Provice => (from db() in company where conditions).selectOneByOne("prov_Index")(x => x)
-                case City => (from db() in company where conditions).selectOneByOne("city_Index")(x => x)
-                case Hospital => (from db() in company where conditions).selectOneByOne("hosp_Index")(x => x)
+                case Provice => (from db() in company where conditions.result).selectOneByOne("prov_Index")(x => x)
+                case City => (from db() in company where conditions.result).selectOneByOne("city_Index")(x => x)
+                case Hospital => (from db() in company where conditions.result).selectOneByOne("hosp_Index")(x => x)
             }
 
             total = lst.size
@@ -142,7 +141,7 @@ case class alFileExport(item: alExportItem) {
                 "type" -> "progress",
                 "progress" -> "1"
             )
-            alWebSocket(item.uid).post(msg)
+            phWebSocket(item.uid).post(msg)
         }
     }
 

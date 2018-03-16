@@ -24,32 +24,37 @@ trait redisController {
 		val rd = phRedisDriver().commonDriver
 		val rid = rd.hget(uid, "rid").map(x=>x).getOrElse(throw new Exception("not found uid"))
 		val panelLst = rd.smembers(rid).map(x=>x.map(_.get)).getOrElse(throw new Exception("panel list is none"))
-		panelLst.map{panel =>
-			rd.hget(panel, "tid").getOrElse(throw new Exception("not found tid"))
-		}.toList
+		panelLst.map(panel =>rd.hget(panel, "tid").getOrElse(throw new Exception("not found tid"))).toList
 	}
 	
 	def paralleSalesVsShare(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
+		val company = phRedisDriver().commonDriver.hget(uid, "company").get
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
-		getRedisCollections(uid).map { x =>
-			MessageRoutes(MsgCalcResultSalesVsShare(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js)))) :: Nil, None)
-		}
+//		getRedisCollections(uid).map(x => x).filter(f => f == "333").map { x =>
+//			MessageRoutes(MsgCalcResultSalesVsShare(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"${company}444")) ++ js)))) :: Nil, None)
+//		}
+		getRedisCollections(uid).map ( x => MessageRoutes(MsgCalcResultSalesVsShare(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js)))) :: Nil, None))
 	}
 	
 	def paralleCurVsPreWithCity(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
-		
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
+		val company = phRedisDriver().commonDriver.hget(uid, "company").get
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
-		getRedisCollections(uid).map { x =>
-			MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js )))) :: Nil, None)
-		}
+//		getRedisCollections(uid).map(x => x).filter(f => f == "333").map { x =>
+//			MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"${company}444")) ++ js)))) :: Nil, None)
+//		}
+		getRedisCollections(uid).map (x => MessageRoutes(MsgCalcResultCurVsPreWithCity(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js )))) :: Nil, None))
 	}
 
 	def paralleCondition(jv: JsValue)(implicit cm: CommonModules): List[MessageRoutes] = {
 		val uid = (jv \ "condition" \ "uid").asOpt[String].map(x => x).getOrElse(throw new Exception(""))
+		val company = phRedisDriver().commonDriver.hget(uid, "company").get
 		val js = (jv \ "condition").asOpt[String Map JsValue].map(x => x).getOrElse(throw new Exception(""))
-		getRedisCollections(uid).map ( x => MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"fea9f203d4f593a96f0d6faa91ba24ba$x")) ++ js )))) :: Nil, None)).toList
+//		getRedisCollections(uid).map(x => x).filter(f => f == "333").map { x =>
+//			MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"${company}444")) ++ js)))) :: Nil, None)
+//		}
+		getRedisCollections(uid).map ( x => MessageRoutes(MsgCalcResultCondition(toJson(Map("condition" -> toJson(Map("table" -> toJson(s"$company$x")) ++ js )))) :: Nil, None))
 	}
 }
 
@@ -68,10 +73,11 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 			:: msg_CommonResultMessage() :: Nil, None)
 	})
 	
-	def querySalesVsShare =  Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+	
+	def querySalesVsShare = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCalcResult"))), jv)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("querySalesVsShare"))), jv)
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
@@ -81,15 +87,16 @@ class CalcResultController @Inject() (as_inject : ActorSystem, dbt : dbInstanceM
 			:: msg_CommonResultMessage() :: Nil, None)
 	})
 	
-	def queryCurVsPreWithCity = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+	
+	def queryAreaData = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
 		import com.pharbers.bmpattern.LogMessage.common_log
 		import com.pharbers.bmpattern.ResultMessage.common_result
-		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryCurVsPreWithCity"))), jv)
+		MessageRoutes(msg_log(toJson(Map("method" -> toJson("queryAreaData"))), jv)
 			:: MsgAuthTokenParser(jv)
 			:: MsgAuthTokenExpire(jv)
 			:: msg_user_token_op(jv)
 			:: ParallelMessage(paralleCondition(jv), conditionResultMerge)
-			:: MsgCalcResultHistoryCurVsPreWithCity(jv)
+			:: MsgCalcResultAreaData(jv)
 			:: ParallelMessage(paralleCurVsPreWithCity(jv), salesMapWithCityResultMerge)
 			:: msg_CommonResultMessage() :: Nil, None)
 	})

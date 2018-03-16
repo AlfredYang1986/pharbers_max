@@ -50,8 +50,9 @@ class alCalcDataSlave extends Actor with ActorLogging {
             if (Await.result(f, t.duration).asInstanceOf[Boolean]) {
                 val spj = split_group_jobs(Map(split_group_jobs.max_uuid -> item.tid))
                 val (parent, sb) = spj.result.map (x => x.asInstanceOf[(String, List[String])]).getOrElse(throw new Exception("split grouped error"))
+                val rd = phRedisDriver().commonDriver
                 item.subs = sb.map{x =>
-                    phRedisDriver().commonDriver.sadd(s"splited:$parent", x)//this parent = item.tid
+                    rd.sadd(s"splited:$parent", x)//this parent = item.tid
                     alMaxRunning(item.uid, x, parent, Nil)
                 }
                 sender ! calc_data_hand2(item)

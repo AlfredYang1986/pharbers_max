@@ -16,7 +16,7 @@ import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.common.alFileHandler.fileConfig._
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGroupDataSlave
-import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.groupMsg._
 import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.common_jobs
@@ -124,7 +124,7 @@ class alCameoGroupData (item: alMaxRunning, slaveActor : ActorRef) extends Actor
                         "type" -> "error",
                         "error" -> "cannot group data"
                     )
-                    alWebSocket(groupResult.uid).post(msg)
+                    phWebSocket(groupResult.uid).post(msg)
                     alTempLog("group data trait => Failed")
                 }
             }

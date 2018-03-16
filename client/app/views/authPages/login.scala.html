@@ -57,6 +57,7 @@
                     $input[0].focus();
                     f.validationModule.input_blur("userName", "email");
                     f.validationModule.input_blur("pwd", "isEmp");
+                    f.cookieModule.cleanAllCookie();
                 });
 
                 layui.use(['form', 'layer'], function () {
@@ -85,6 +86,7 @@
                                if (r.status === 'ok') {
                                    f.cookieModule.setCookie("user_token", r.result.user_token);
                                    f.cookieModule.setCookie("uid", r.result.uid);
+                                   f.cookieModule.setCookie("company", r.result.company);
                                    setTimeout(function(){location = "/auth/user/"}, 1000)
                                } else {
                                    layer.msg('用户名或密码错误！');

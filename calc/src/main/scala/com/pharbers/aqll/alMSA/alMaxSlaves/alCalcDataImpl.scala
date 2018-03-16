@@ -53,6 +53,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
 
             concert.data.zipWithIndex.foreach { x =>
                 max_precess(
+                    items.parent,
                     x._1.asInstanceOf[IntegratedData],
                     sub_item.tid,
                     Some(s"${x._2}/${concert.data.length}")
@@ -61,9 +62,10 @@ class alCalcDataImpl extends Actor with ActorLogging{
 
             val f = (m1: Map[String, Any], m2: Map[String, Any]) => m1.map(x => x._1 -> (x._2.toString.toDouble + m2(x._1).toString.toDouble))
 
+            val rdSet = phRedisDriver().phSetDriver
             maxSum.foreach { x =>
-                    //TODO key 没有唯一性
-                    phRedisDriver().phSetDriver.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
+                //TODO key 没有唯一性
+                rdSet.sadd("segment", alSegmentGroup(x._1, x._2._1, x._2._2, x._2._3).map, f)
             }
 
             val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
@@ -99,8 +101,13 @@ class alCalcDataImpl extends Actor with ActorLogging{
                         mrd.set_finalResultsUnit(mrd.volumeUnit)
                     } else {
                         avg.find(p => p._1 == seed.hashCode.toString).foreach { x =>
-                            mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation().get._2 * mrd.factor).toString).toDouble)
-                            mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation().get._2 * mrd.factor).toString).toDouble)
+                                if(x._2 < 0 || x._3 < 0){
+                                    mrd.set_finalResultsValue(0.0)
+                                    mrd.set_finalResultsUnit(0.0)
+                                }else{
+                                    mrd.set_finalResultsValue(BigDecimal((x._2 * mrd.selectvariablecalculation().get._2 * mrd.factor).toString).toDouble)
+                                    mrd.set_finalResultsUnit(BigDecimal((x._3 * mrd.selectvariablecalculation().get._2 * mrd.factor).toString).toDouble)
+                                }
                         }
                     }
                     value = BigDecimal((value + mrd.finalResultsValue).toString).toDouble
@@ -132,19 +139,20 @@ class alCalcDataImpl extends Actor with ActorLogging{
                         (x.getYearAndmonth == t.getYearAndmonth) && (x.getMinimumUnitCh == t.getMinimumUnitCh)
                     }
                 } :: do_calc() :: Nil
+
         recall.result
         log.info(s"current recall data length ${recall.cur.get.length}")
         alTempLog(s"C3. current recall data length ${recall.cur.get.length}")
         recall.cur.get.storages.head.asInstanceOf[alStorage].data.asInstanceOf[List[IntegratedData]]
     }
 
-    private def max_precess(element: IntegratedData, sub_uuid: String, longPath: Option[String] = None)
+    private def max_precess(panel: String, element: IntegratedData, sub_uuid: String, longPath: Option[String] = None)
                            (recall: List[IntegratedData])(uid: String) = {
         if (!longPath.isEmpty) {
-            val redisDriver = phRedisDriver().commonDriver
-            val company = redisDriver.hget(uid, "company").get
+            val company = phRedisDriver().commonDriver.hget(uid, "company").get
+            val market = phRedisDriver().commonDriver.hget(panel, "mkt").get
 
-            val data_tmp = alShareData.hospdata("universe", company) map { el =>
+            val data_tmp = alShareData.hospdata("universe", company, market) map { el =>
                 val mrd = westMedicineIncome(el.getCompany, element.getYearAndmonth, 0.0, 0.0, element.getMinimumUnit,
                     element.getMinimumUnitCh, element.getMinimumUnitEn, element.getMarket1Ch,
                     element.getMarket1En, el.getSegment, el.getFactor, el.getIfPanelAll,
@@ -159,7 +167,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
                     el.getHospitalizedBeiIncome, el.getHospitalizedCireIncom, el.getHospitalizedOpsIncome,
                     el.getDrugIncome, el.getClimicDrugIncome, el.getClimicWestenIncome,
                     el.getHospitalizedDrugIncome, el.getHospitalizedWestenIncome, 0.0, 0.0)
-                backfireData(mrd)(recall)
+                fullGuessData(mrd)(recall)
             }
 
             val path = s"$memorySplitFile$calc$sub_uuid"
@@ -173,10 +181,10 @@ class alCalcDataImpl extends Actor with ActorLogging{
         }
     }
 
-    private def backfireData(mrd: westMedicineIncome)(inte_lst: List[IntegratedData]): westMedicineIncome = {
+    private def fullGuessData(mrd: westMedicineIncome)(inte_lst: List[IntegratedData]): westMedicineIncome = {
         /**
           * 根据年月 + 最小产品单位 + PHA_ID 找到Panle文件中的sales 与 unit
-          * 回填到被放大的数据中
+          * 补充到被放大的数据中
           */
         val tmp2 = inte_lst.filter(iter => mrd.yearAndmonth == iter.getYearAndmonth
             && mrd.minimumUnitCh == iter.getMinimumUnitCh
@@ -206,7 +214,7 @@ class alCalcDataImpl extends Actor with ActorLogging{
     }
 
     def westMedicineIncome2map(mrd: westMedicineIncome) : Map[String, Any] = {
-        Map("ID" -> alEncryptionOpt.md5(UUID.randomUUID().toString),
+        Map(
             "Provice" -> mrd.getV("province").toString,
             "City" -> mrd.getV("prefecture").toString,
             "Panel_ID" -> mrd.phaid,

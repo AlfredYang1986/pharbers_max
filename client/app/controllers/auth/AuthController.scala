@@ -47,8 +47,8 @@ class AuthController @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, a
 		import com.pharbers.bmpattern.ResultMessage.common_result
 		MessageRoutes(msg_log(toJson(Map("method" -> toJson("auth_token_push_user"))), jv)
 			:: MsgAuthTokenUsed(jv)
-			:: MsgAuthTokenParser(jv)
-			:: MsgAuthTokenExpire(jv)
+			:: MsgAuthCodeParser(jv)
+			:: MsgAuthCodeExpire(jv)
 			:: msg_user_token_op(jv)
 			:: MsgAuthCodePushSuccess(jv)
 			:: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "msg" -> msg))))
