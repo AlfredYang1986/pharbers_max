@@ -1,19 +1,24 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import scala.concurrent.duration._
-import play.api.libs.json.JsString
+import play.api.libs.json.{JsString, JsValue}
+
 import scala.collection.immutable.Map
 import play.api.libs.json.Json.toJson
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.scpend
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg.calcYM_end
-import com.pharbers.panel.phPanelHeadle
+import com.pharbers.aqll.alMSA.alMaxCmdJob.alCmdActor
+import com.pharbers.panel.{phPanelFilePath, phPanelHeadle}
+import com.typesafe.config.ConfigFactory
 
 /**
   * Created by jeorch on 17-10-11.
@@ -24,7 +29,7 @@ object alGeneratePanelCameo {
               counter: ActorRef) = Props(new alGeneratePanelCameo(panelJob, counter))
 }
 
-class alGeneratePanelCameo(panelJob: alPanelItem, counter: ActorRef) extends Actor with ActorLogging {
+class alGeneratePanelCameo(panelJob: alPanelItem, counter: ActorRef) extends Actor with ActorLogging{
     //TODO shijian chuancan
     val timeoutMessager = context.system.scheduler.scheduleOnce(100 minute) {
         self ! generate_panel_timeout()

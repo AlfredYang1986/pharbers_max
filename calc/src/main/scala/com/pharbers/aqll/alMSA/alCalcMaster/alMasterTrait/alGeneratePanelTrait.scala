@@ -2,12 +2,15 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import akka.pattern.ask
 import akka.util.Timeout
+
 import scala.concurrent.stm._
 import scala.concurrent.Await
 import akka.routing.BroadcastPool
+
 import scala.concurrent.duration._
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
@@ -15,6 +18,10 @@ import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.{scpend, scpmsg}
+import com.pharbers.aqll.alMSA.alMaxCmdJob.alCmdActor
+import com.pharbers.panel.phPanelFilePath
+import com.typesafe.config.ConfigFactory
 
 /**
   * Created by jeorch on 17-8-31.
@@ -75,15 +82,28 @@ object alCameoGeneratePanel {
 }
 
 class alCameoGeneratePanel(panel_job : alPanelItem,
-                           slaveActor : ActorRef) extends Actor with ActorLogging {
+                           slaveActor : ActorRef) extends Actor with ActorLogging with phPanelFilePath {
     override def receive = {
-        case generate_panel_start() => slaveActor ! generate_panel_hand()
+        case generate_panel_start() => scp_job
+        case scpend(_) => slaveActor ! generate_panel_hand()
         case generate_panel_hand() =>
             sender ! generate_panel_start_impl(panel_job)
             shutCameo
         case msg: AnyRef =>
             alTempLog(s"Warning! Message not delivered. alCameoGeneratePanel.received_msg=$msg")
             shutCameo
+    }
+
+    def scp_job ={
+        val targetHost = ConfigFactory.load("split-calc-ym-slave").getString("akka.remote.netty.tcp.hostname")
+        val user = "spark"
+
+        val cmdActor = context.actorOf(alCmdActor.props())
+
+        val localFile = client_path + panel_job.company + source_dir + panel_job.cpa
+        val targetFile = base_path + panel_job.company + source_dir
+
+        cmdActor ! scpmsg(localFile, targetFile, targetHost, user)
     }
 
     def shutCameo = {
