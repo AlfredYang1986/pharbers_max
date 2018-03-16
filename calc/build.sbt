@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
     "com.pharbers" % "redis-driver" % "0.2",
     "com.pharbers" % "errorcode" % "0.2",
     "com.pharbers" % "pharbers-max-util" % "0.2",
+    "com.pharbers" % "pharbers-max-factory" % "0.1",
     "com.pharbers" % "pharbers-memory" % "0.2",
     "com.pharbers" % "pharbers-page-memory" % "0.2",
     "com.pharbers" % "pharbers-message" % "0.2",
