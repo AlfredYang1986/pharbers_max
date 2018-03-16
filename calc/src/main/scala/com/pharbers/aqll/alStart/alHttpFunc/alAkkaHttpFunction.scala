@@ -27,6 +27,7 @@ case class alCalcYmItem(company: String, uid: String, cpa: String, gycx: String)
 case class alPanelItem(company: String, uid: String, cpa: String, gycx: String, ym: List[String] = Nil)
 case class alCalcItem(uid: String)
 case class alCommitItem(uid: String, showLst: List[String])
+case class alDeliveryCommitItem(uid: String)
 case class alExportItem(uid: String, filetype: String, datatype: String, market: List[String], staend: List[String])
 
 
@@ -42,6 +43,7 @@ trait PlayJson extends PlayJsonSupport {
 	implicit val itemFormatPanel: OFormat[alPanelItem]  = format[alPanelItem]
 	implicit val itemFormatCalc: OFormat[alCalcItem]  = format[alCalcItem]
 	implicit val itemFormatCommitItem: OFormat[alCommitItem]  = format[alCommitItem]
+	implicit val itemFormatDeliveryCommitItem: OFormat[alDeliveryCommitItem]  = format[alDeliveryCommitItem]
 	implicit val itemFormatExportItem: OFormat[alExportItem]  = format[alExportItem]
 }
 
@@ -51,7 +53,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson {
 	type route = server.Route
 	val actorSystem: ActorSystem
 
-	val routes: route = alCalcYM ~ alCalcData ~ alGenternPanel ~ alDataCommit ~ alDataExport
+	val routes: route = alCalcYM ~ alCalcData ~ alGenternPanel ~ alDataCommit ~ alDeliveryCommit ~ alDataExport
 	
 	def Test: route = post {
 		path("test") {
@@ -100,6 +102,16 @@ trait alAkkaHttpFunction extends Directives with PlayJson {
 			entity(as[alCommitItem]) { item =>
 				val a = actorSystem.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
 				a ! startAggregationCalcData(item.uid, item.showLst)
+				complete(toJson(successToJson()))
+			}
+		}
+	}
+
+	def alDeliveryCommit: route = post {
+		path("deliverycommit") {
+			entity(as[alDeliveryCommitItem]) { item =>
+				val a = actorSystem.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+				a ! startGenerateDeliveryFile(item.uid)
 				complete(toJson(successToJson()))
 			}
 		}

@@ -13,6 +13,7 @@ object alCalcMsg {
     case class startGeneratePanel(item: alPanelItem)
     case class startCalc(uid: String)
     case class startAggregationCalcData(uid: String, showLst: List[String])
+    case class startGenerateDeliveryFile(uid: String)
 
     //calc ym module
     object ymMsg {
@@ -134,6 +135,19 @@ object alCalcMsg {
         case class aggregationDataImpl(uid: String, company: String, temp: String)
         case class aggregationDataEnd(result: Boolean)
         case class aggregationDataTimeOut()
+    }
+
+    // generate delivery file
+    object generateDeliveryFile {
+        case class pushDeliveryJob(uid: String)
+        case class generateDeliveryFileSchedule()
+        case class generateDeliveryFileResult(uid: String, table: String, result: Boolean)
+
+        case class generateDeliveryFileStart()
+        case class generateDeliveryFileHand()
+        case class generateDeliveryFileImpl(uid: String, company: String, temp: String)
+        case class generateDeliveryFileEnd(fileName: String, result: Boolean)
+        case class generateDeliveryFileTimeOut()
     }
 
     /**

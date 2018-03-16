@@ -24,7 +24,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.{startAggregationCalcData,
 
 trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
                         with alSplitPanelTrait with alGroupDataTrait with alScpQueueTrait
-                        with alCalcDataTrait with alRestoreBsonTrait with alAggregationDataTrait{ this : Actor =>
+                        with alCalcDataTrait with alRestoreBsonTrait with alAggregationDataTrait with alGenerateDeliveryFIleTrait{ this : Actor =>
     val rd: RedisClient =  phRedisDriver().commonDriver
     val df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
@@ -327,6 +327,44 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             val msg = Map(
                 "type" -> "error",
                 "error" -> "cannot aggregation data"
+            )
+            phWebSocket(uid).post(msg)
+        }
+        val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+        agent ! refundNodeForRole("splitaggregationslave")
+    }
+
+    def preGenerateDeliveryJob(uid: String): Unit = {
+        alTempLog(s"开始生成交付文件 ${df.format(new Date())}")
+
+        val rid = rd.hget(uid, "rid").map(x => x).getOrElse(throw new Exception("not found uid"))
+        val tidDetails = rd.smembers(rid).get.map(x =>rd.hget(x.get, "tid"))
+
+        tidDetails.foreach( x => pushDeliveryJobs(uid, x.get))
+
+        val msg = Map(
+            "type" -> "progress_delivery_file_done",
+            "txt" -> "正在生成交付文件",
+            "progress" -> "11"
+        )
+        phWebSocket(uid).post(msg)
+    }
+
+    def postGenerateDeliveryJob(uid: String, fileName: String, result: Boolean): Unit = {
+        if (result) {
+            val msg = Map(
+                "type" -> "progress_delivery_file_done",
+                "fileName" -> s"$fileName",
+                "progress" -> "100"
+            )
+
+            alTempLog(s"生成完成 in ${df.format(new Date())}")
+            phWebSocket(uid).post(msg)
+        } else {
+            alTempLog(s"生成失败 in ${df.format(new Date())}")
+            val msg = Map(
+                "type" -> "error",
+                "error" -> s"cannot generate deliveryFile ,ErrorLog is ${fileName}"
             )
             phWebSocket(uid).post(msg)
         }
