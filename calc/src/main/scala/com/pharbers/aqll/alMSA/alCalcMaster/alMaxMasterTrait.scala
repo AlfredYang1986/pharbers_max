@@ -288,7 +288,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         agent ! refundNodeForRole("splitrestorebsonslave")
     }
     
-    
     def preAggregationJob(uid: String, showLst: List[String]): Unit = {
         val rid = rd.hget(uid, "rid").map(x => x).getOrElse(throw new Exception("not found uid"))
         val tidDetails = rd.smembers(rid).get.map(x =>(rd.hget(x.get, "ym").get, rd.hget(x.get, "mkt").get, rd.hget(x.get, "tid")))
@@ -343,9 +342,9 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         tidDetails.foreach( x => pushDeliveryJobs(uid, x.get))
 
         val msg = Map(
-            "type" -> "progress_delivery_file_done",
+            "type" -> "progress_delivery",
             "txt" -> "正在生成交付文件",
-            "progress" -> "11"
+            "progress" -> "1"
         )
         phWebSocket(uid).post(msg)
     }
@@ -353,7 +352,7 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
     def postGenerateDeliveryJob(uid: String, fileName: String, result: Boolean): Unit = {
         if (result) {
             val msg = Map(
-                "type" -> "progress_delivery_file_done",
+                "type" -> "progress_delivery_result",
                 "fileName" -> s"$fileName",
                 "progress" -> "100"
             )

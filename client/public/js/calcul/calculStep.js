@@ -30,15 +30,15 @@ var calc_step = (function ($, w) {
             })
         });
 
-        // $("#test-sample-result").click(function(){
-        //     toSampleResult()
-        // });
-        // $("#test-calc-page").click(function(){
-        //     toThirdStep()
-        // });
-        // $("#test-calc-result").click(function(){
-        //     toFourthStep()
-        // });
+        $("#test-sample-result").click(function(){
+            toSampleResult()
+        });
+        $("#test-calc-page").click(function(){
+            toThirdStep()
+        });
+        $("#test-calc-result").click(function(){
+            toFourthStep()
+        });
 
     });
 
@@ -155,6 +155,7 @@ var calc_step = (function ($, w) {
         w.step_chart.mapChart().resize();
         w.step_chart.barChart().resize();
         w.step_chart.query_select();
+        w.step_chart.query_select_delivery();
         w.step_chart.query_data();
     }
 

@@ -131,6 +131,11 @@
     margin: 15px 0 10px 110px;
 }
 
+/*新增点击交付时弹出框css*/
+#result-delivery-selectbox {
+    display: none;
+}
+
 .current-lastyear {
     position: relative;
     left: 200px;
