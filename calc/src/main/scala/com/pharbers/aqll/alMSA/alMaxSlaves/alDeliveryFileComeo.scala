@@ -12,6 +12,8 @@ import scala.concurrent.duration._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.common.alFileHandler.databaseConfig.db1
+import com.pharbers.aqll.common.alFileHandler.fileConfig.memorySplitFile
+import com.pharbers.aqll.common.alFileHandler.fileConfig.export_file
 import com.pharbers.nhwa.DriverNHWA
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -36,8 +38,10 @@ class alDeliveryFileComeo(uid: String, table: String, counter: ActorRef) extends
             try {
                 alTempLog(s"Start generateDeliveryFileImpl")
                 val driverNHWA = DriverNHWA()
-                val deliveryFile = driverNHWA.generateDeliveryFileFromMongo(s"$db1", s"$company$temp")
-                self ! generateDeliveryFileEnd(deliveryFile, true)
+                val originFilePath = driverNHWA.generateDeliveryFileFromMongo(s"$db1", s"$company$temp")
+                val fileName = s"${company}-${temp}.csv"
+                driverNHWA.move2ExportFolder(originFilePath, s"${memorySplitFile}${export_file}${fileName}")
+                self ! generateDeliveryFileEnd(fileName, true)
             } catch {
                 case ex: Exception => self ! generateDeliveryFileEnd(ex.getMessage, false)
             }
@@ -52,7 +56,7 @@ class alDeliveryFileComeo(uid: String, table: String, counter: ActorRef) extends
 					"error" -> s"cannot generate delivery file, exception is ${fileName}"
 				)
 				phWebSocket(uid).post(msg)
-				alTempLog("delivery data => Failed")
+				alTempLog(s"delivery data => Failed because ${fileName}")
 			}
 			shutSlaveCameo(generateDeliveryFileResult(uid, fileName, result))
 		
