@@ -44,6 +44,29 @@ var step_chart = (function ($, w) {
                 }
                 return false;
             });
+            form.on('submit(delivery)', function (data) {
+                let show_lst = [];
+                $.each(data.field, function(i, v){show_lst.push(v)});
+                table_num = show_lst.length;
+                if (show_lst.length === 0) {
+                    layer.msg("您尚未选择要交付的数据！");
+                } else {
+                    show_loading();
+                    let json = JSON.stringify({
+                        "businessType": "/deliverycommit",
+                        "uid": $.cookie('uid'),
+                        "showLst": show_lst
+                    });
+                    f.ajaxModule.baseCall('/calc/callhttp', json, 'POST', function (r) {
+                        if (r.status === 'ok') {
+                            layer.closeAll();
+                        } else {
+                            console.error("Error");
+                        }
+                    }, null, null, null, false);
+                }
+                return false;
+            });
             form.on('checkbox(calc-result-choose-all)', function(data){
                 var inputs = $('div[name="calc-result-choose-lst"] input');
                 if (data.elem.checked) {
@@ -64,6 +87,7 @@ var step_chart = (function ($, w) {
             }));
             query_data(json);
         });
+
         $('#submit-data').click(function(){
 
             layer.confirm('请确认本次结果无误，保存入数据库中数据将无法删除！<br/>并将已有月份的数据，进行覆盖。', {
@@ -81,6 +105,25 @@ var step_chart = (function ($, w) {
                 form.render('checkbox');
                 // layui有点恶心，尤其是render，不得不删除
                 $('div p[name="calc-result-choose-all"]').next('div').remove()
+            }, function(){});
+        });
+
+        $('#delivery-data').click(function(){
+
+            layer.confirm('确认本次结果无误后，MAX 即将导出您本次的计算结果！', {
+                btn: ['确认', '取消'], //按钮
+                resize: false,
+                maxWidth: 'auto',
+                closeBtn: 0
+            }, function(index){
+                let op = {
+                    "content": $('#result-delivery-selectbox').html(),
+                    "title": '请确认本次要导出的数据：'
+                };
+                f.alertModule.open(op);
+                form.render('checkbox');
+                // layui有点恶心，尤其是render，不得不删除
+                $('div p[name="result-delivery-choose-all"]').next('div').remove()
             }, function(){});
         });
 
@@ -108,6 +151,29 @@ var step_chart = (function ($, w) {
                 var $select_market = $('select[name="calc-result-market"]').empty();
                 var $select_checkbox = $('div[name="calc-result-choose-lst"]').empty();
                 $('div p[name="calc-result-choose-all"]').empty().append('<input lay-filter="calc-result-choose-all" type="checkbox" name="" title="全部" lay-skin="primary">');
+                var market_lst = [];
+                var time_lst = [];
+
+                $.each(r.result.result_condition.select_values, function(i, v){
+                    time_lst.push(v.Date);
+                    market_lst.push(v.Market);
+                    var value = v.Market + '-' + v.Date;
+                    var title = v.Market + ' ' + v.Date;
+                    $select_checkbox.append('<input type="checkbox" name="' + value + '" title="' + title + '" value="' + value + '" lay-skin="primary">')
+                });
+                $.each($.unique(market_lst), function(i, v){$select_market.append('<option  value="'+ v +'">' + v + '</option>');});
+                $.each($.unique(time_lst).sort(), function(i, v){$select_month.append('<option  value="'+ v +'">' + v + '</option>');});
+            }
+        });
+    };
+
+    let query_select_delivery = function() {
+        f.ajaxModule.baseCall('/calc/querySelectBox', JSON.stringify(f.parameterPrefix.conditions({"user_token": $.cookie("user_token"), "uid": $.cookie("uid")})), 'POST', function (r) {
+            if(r.status === 'ok') {
+                var $select_month =  $('select[name="calc-result-month"]').empty();
+                var $select_market = $('select[name="calc-result-market"]').empty();
+                var $select_checkbox = $('div[name="result-delivery-choose-lst"]').empty();
+                $('div p[name="result-delivery-choose-all"]').empty().append('<input lay-filter="result-delivery-choose-all" type="checkbox" name="" title="全部" lay-skin="primary">');
                 var market_lst = [];
                 var time_lst = [];
 
@@ -963,6 +1029,7 @@ var step_chart = (function ($, w) {
         "barChart": function() {return provinces_barChart;},
         "query_data": query_data,
         "query_select": query_select,
+        "query_select_delivery": query_select_delivery,
         "table_num": function(){return table_num;}
     }
 }(jQuery, window));
