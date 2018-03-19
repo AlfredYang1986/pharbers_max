@@ -1,11 +1,11 @@
 <pharbers-modules>
     <nhwa-delivery-config>
-        <max_result_file value="/home/jeorch/work/max/files/NHWA/max/max_result.csv" />
-        <hospital_match_file value="/home/jeorch/work/max/files/NHWA/max/交付格式医院匹配表.csv" />
-        <nhwa_match_file value="/home/jeorch/work/max/files/NHWA/max/nhwa匹配表.csv" />
-        <acc_match_file value="/home/jeorch/work/max/files/NHWA/max/match_acc.csv" />
-        <area_match_file value="/home/jeorch/work/max/files/NHWA/max/match_area.csv" />
-        <market_match_file value="/home/jeorch/work/max/files/NHWA/max/match_market.csv" />
-        <output_path value="/home/jeorch/work/max/files/NHWA/spark-result" />
+        <max_result_file value="/mnt/config/FileBase/8ee0ca24796f9b7f284d931650edbd4b/max_result.csv" />
+        <hospital_match_file value="/mnt/config/FileBase/8ee0ca24796f9b7f284d931650edbd4b/交付格式医院匹配表.csv" />
+        <nhwa_match_file value="/mnt/config/FileBase/8ee0ca24796f9b7f284d931650edbd4b/nhwa匹配表.csv" />
+        <acc_match_file value="/mnt/config/FileBase/8ee0ca24796f9b7f284d931650edbd4b/match_acc.csv" />
+        <area_match_file value="/mnt/config/FileBase/8ee0ca24796f9b7f284d931650edbd4b/match_area.csv" />
+        <market_match_file value="/mnt/config/FileBase/8ee0ca24796f9b7f284d931650edbd4b/match_market.csv" />
+        <output_path value="/mnt/config/FileBase/8ee0ca24796f9b7f284d931650edbd4b/Delivery" />
     </nhwa-delivery-config>
 </pharbers-modules>
