@@ -18,7 +18,7 @@ trait SampleData extends phPanelFilePath {
 	
 	def csv2SampleCheckData(pathLst: List[String], company: String): List[String Map String] = {
 		pathLst.flatMap{ p =>
-			alFileOpt(s"$client_path$company$output_path$p").requestDataFromFile(x => x).map { x =>
+			alFileOpt(s"$client_path$company$output_dir$p").requestDataFromFile(x => x).map { x =>
 				val s =  x.toString.split(31.toChar)
 				Map("phaId" -> s(5), "hospitalName" -> s(1), "date" -> s(2), "productMini" -> s(3), "market" -> s(7), "units" -> s(9), "sales" -> s(10))
 			}
@@ -26,7 +26,8 @@ trait SampleData extends phPanelFilePath {
 	}
 	
 	def xlsx2SampleCheckData(path: String, company: String): List[String Map String] = {
-		phHandleExcel().read2Lst(phExcelFileInfo(s"$client_path$company/Manage/matchFile/${universe_file.replace("##market##", path)}", 1))
+		val match_file = universe_file.replace("##market##", path).replace(".csv", ".xlsx")
+		phHandleExcel().read2Lst(phExcelFileInfo(s"$client_path$company$match_file", 1))
 	}
 	
 	def queryPanelWithRedis(uid: String): List[String] = {

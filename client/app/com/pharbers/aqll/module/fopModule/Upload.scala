@@ -7,16 +7,16 @@ import play.api.mvc.MultipartFormData
 import play.api.libs.json.Json.toJson
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsValue, Json}
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import com.pharbers.panel.phPanelFilePath
 
-object Upload {
+object Upload extends phPanelFilePath {
     def uploadFile(data: MultipartFormData[TemporaryFile]): JsValue = {
         try {
             var lst: List[JsValue] = Nil
             data.files.foreach { x =>
                 val uuid = UUID.randomUUID
                 val company = data.dataParts("company").headOption.map(x => x).getOrElse("")
-                val path = s"$fileBase$company$client_cpa_file"
+                val path = s"$client_path$company$source_dir"
                 val file = new File(path)
                 if (!file.exists()) file.mkdir()
                 new TemporaryFile(x.ref.file).moveTo(new File(s"$path/$uuid"), true)
