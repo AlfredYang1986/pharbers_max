@@ -82,26 +82,13 @@ object alCameoCalcYM {
 
 class alCameoCalcYM(calcYM_job: alPanelItem, slaveActor: ActorRef) extends Actor with ActorLogging with phPanelFilePath {
     override def receive: Receive = {
-        case calcYM_start() => scp_job
-        case scpend(_) => slaveActor ! calcYM_hand()
+        case calcYM_start() => slaveActor ! calcYM_hand()
         case calcYM_hand() =>
             sender ! calcYM_start_impl(calcYM_job)
             shutCameo
         case msg: AnyRef =>
             alTempLog(s"Warning! Message not delivered. alCameoCalcYM.received_msg=$msg")
             shutCameo
-    }
-
-    def scp_job ={
-        val targetHost = ConfigFactory.load("split-calc-ym-slave").getString("akka.remote.netty.tcp.hostname")
-        val user = "spark"
-
-        val cmdActor = context.actorOf(alCmdActor.props())
-
-        val localFile = client_path + calcYM_job.company + source_dir + calcYM_job.cpa
-        val targetFile = base_path + calcYM_job.company + source_dir
-
-        cmdActor ! scpmsg(localFile, targetFile, targetHost, user)
     }
 
     def shutCameo = {
