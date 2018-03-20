@@ -87,7 +87,7 @@ class alCameoDeliveryFile(uid: String, table: String, slaveActor: ActorRef) exte
 	override def receive: Receive = delivery
 	
 	def shutCameo(): Unit = {
-		alTempLog("stopping aggregation data cameo")
+		alTempLog("stopping delivery cameo")
 		self ! PoisonPill
 	}
 }
