@@ -145,7 +145,7 @@ object alCalcMsg {
 
         case class generateDeliveryFileStart()
         case class generateDeliveryFileHand()
-        case class generateDeliveryFileImpl(uid: String, company: String, temp: String)
+        case class generateDeliveryFileImpl(uid: String, company: String, listJob: List[String])
         case class generateDeliveryFileEnd(fileName: String, result: Boolean)
         case class generateDeliveryFileTimeOut()
     }

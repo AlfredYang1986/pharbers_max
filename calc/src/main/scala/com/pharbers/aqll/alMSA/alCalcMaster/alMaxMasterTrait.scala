@@ -338,11 +338,12 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
 
         val rid = rd.hget(uid, "rid").map(x => x).getOrElse(throw new Exception("not found uid"))
 
-        val tidDetails = rd.smembers(rid).get.map(x =>(rd.hget(x.get, "ym").get, rd.hget(x.get, "mkt").get, rd.hget(x.get, "tid")))
+        val tidDetails = rd.smembers(rid).get.map(x =>(rd.hget(x.get, "ym").get, rd.hget(x.get, "mkt").get, rd.hget(x.get, "tid").get))
         if (showLst.isEmpty) {
-            tidDetails.foreach( x => pushDeliveryJobs(uid, x._3.get))
+            pushDeliveryJobs(uid, tidDetails.map(x => x._3).toList)
         } else {
-            showLst.map( x => tidDetails.find(f => f._1 == x.split("-")(1) && f._2 == x.split("-")(0))).filterNot(_.isEmpty).foreach( x => pushDeliveryJobs(uid, x.get._3.get))
+            val listJob = showLst.map( x => tidDetails.find(f => f._1 == x.split("-")(1) && f._2 == x.split("-")(0))).filterNot(_.isEmpty).map(x => x.get._3)
+            pushDeliveryJobs(uid, listJob)
         }
 
         val msg = Map(

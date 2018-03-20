@@ -33,10 +33,10 @@ class alDeliveryFileSlave extends Actor with ActorLogging {
 				sender ! generateDeliveryFileHand()
 			else Unit
 			
-		case generateDeliveryFileImpl(uid, company, temp) =>
+		case generateDeliveryFileImpl(uid, company, listJob) =>
 			val counter = context.actorOf(alCommonErrorCounter.props)
-			val cur = context.actorOf(alDeliveryFileComeo.props(uid, temp, counter))
-			cur.tell(generateDeliveryFileImpl(uid, company, temp), sender)
+			val cur = context.actorOf(alDeliveryFileComeo.props(uid, listJob, counter))
+			cur.tell(generateDeliveryFileImpl(uid, company, listJob), sender)
 			
 		case msg => alTempLog(s"Warning! Message not delivered. alDeliveryFileSlave.received_msg=$msg")
 	}

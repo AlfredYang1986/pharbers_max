@@ -1,5 +1,7 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, PoisonPill, Props}
 import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.alWeightSum
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
@@ -20,10 +22,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.immutable.Map
 
 object alDeliveryFileComeo {
-	def props(uid: String, table: String, counter: ActorRef): Props = Props(new alDeliveryFileComeo(uid, table, counter))
+	def props(uid: String, listJob: List[String], counter: ActorRef): Props = Props(new alDeliveryFileComeo(uid, listJob, counter))
 }
 
-class alDeliveryFileComeo(uid: String, table: String, counter: ActorRef) extends Actor with ActorLogging {
+class alDeliveryFileComeo(uid: String, listJob: List[String], counter: ActorRef) extends Actor with ActorLogging {
 	
 	val timeoutMessager: Cancellable = context.system.scheduler.scheduleOnce(10 hours) {
 		self ! generateDeliveryFileTimeOut()
@@ -34,13 +36,16 @@ class alDeliveryFileComeo(uid: String, table: String, counter: ActorRef) extends
 	}
 	
 	def delivery: Receive = {
-		case generateDeliveryFileImpl(_, company, temp) => {
+		case generateDeliveryFileImpl(_, company, listJob) => {
             try {
                 alTempLog(s"Start generateDeliveryFileImpl")
                 val driverNHWA = DriverNHWA()
-                val originFilePath = driverNHWA.generateDeliveryFileFromMongo(s"$db1", s"$company$temp")
-                val fileName = s"${company}-${temp}.csv"
+                val listDF = listJob.map(temp => driverNHWA.generateDeliveryFileFromMongo(s"$db1", s"$company$temp"))
+                val originFilePath = driverNHWA.save2File(driverNHWA.unionDataFrameList(listDF))
+                val uuid = UUID.randomUUID().toString
+                val fileName = s"${company}-${uuid}.csv"
                 driverNHWA.move2ExportFolder(originFilePath, s"${memorySplitFile}${export_file}${fileName}")
+                driverNHWA.closeSparkSession
                 self ! generateDeliveryFileEnd(fileName, true)
             } catch {
                 case ex: Exception => self ! generateDeliveryFileEnd(ex.getMessage, false)
