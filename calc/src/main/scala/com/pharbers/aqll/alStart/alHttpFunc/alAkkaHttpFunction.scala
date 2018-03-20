@@ -27,7 +27,7 @@ case class alCalcYmItem(company: String, uid: String, cpa: String, gycx: String)
 case class alPanelItem(company: String, uid: String, cpa: String, gycx: String, ym: List[String] = Nil)
 case class alCalcItem(uid: String)
 case class alCommitItem(uid: String, showLst: List[String])
-case class alDeliveryCommitItem(uid: String)
+case class alDeliveryCommitItem(uid: String, showLst: List[String])
 case class alExportItem(uid: String, filetype: String, datatype: String, market: List[String], staend: List[String])
 
 
@@ -111,7 +111,7 @@ trait alAkkaHttpFunction extends Directives with PlayJson {
 		path("deliverycommit") {
 			entity(as[alDeliveryCommitItem]) { item =>
 				val a = actorSystem.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-				a ! startGenerateDeliveryFile(item.uid)
+				a ! startGenerateDeliveryFile(item.uid, item.showLst)
 				complete(toJson(successToJson()))
 			}
 		}

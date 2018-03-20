@@ -410,14 +410,13 @@ var calc_step = (function ($, w) {
 
     var progress_delivery = function(obj){
         console.info(obj);
-        prograssBar(99, 3, 1);
     };
 
     var progress_delivery_result = function(obj){
-        layer.msg("hdfgh");
+        layer.msg("交付文件生成结束");
         hide_loading();
-        var filename = window.socket.getValue(obj)('filename');
-        window.location.href = "/pharbers/files/"+filename;
+        var fileName = window.socket.getValue(obj)('fileName');
+        window.location.href = "/pharbers/files/"+fileName;
     };
 
     var txt = function(msg) {
