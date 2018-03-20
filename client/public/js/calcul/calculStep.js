@@ -277,6 +277,12 @@ var calc_step = (function ($, w) {
             case 'progress_calc_result_done':
                 progress_calc_result_done(obj);
                 break;
+            case 'progress_delivery':
+                progress_delivery(obj);
+                break;
+            case 'progress_delivery_result':
+                progress_delivery_result(obj);
+                break;
             case 'txt':
                 txt(obj);
                 break;
@@ -400,6 +406,17 @@ var calc_step = (function ($, w) {
         } else {
             //TODO: 后续接入进度条
         }
+    };
+
+    var progress_delivery = function(obj){
+        console.info(obj);
+    };
+
+    var progress_delivery_result = function(obj){
+        layer.msg("交付文件生成结束");
+        hide_loading();
+        var fileName = window.socket.getValue(obj)('fileName');
+        window.location.href = "/pharbers/files/"+fileName;
     };
 
     var txt = function(msg) {

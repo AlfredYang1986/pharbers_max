@@ -29,7 +29,7 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case startGeneratePanel(item) => self ! pushGeneratePanelJob(item)
         case startCalc(uid) => self ! pushSplitPanel(uid)
         case startAggregationCalcData(uid, showLst) => self ! pushAggregationJob(uid, showLst)
-        case startGenerateDeliveryFile(uid) => self ! pushDeliveryJob(uid)
+        case startGenerateDeliveryFile(uid, showLst) => self ! pushDeliveryJob(uid, showLst)
 
         //calc ym module
         case pushCalcYMJob(item) => preCalcYMJob(item)
@@ -73,7 +73,7 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case aggregationDataResult(uid, table, result) => postAggregationJob(uid, table, result)
 
         //generate delivery-file module
-        case pushDeliveryJob(uid) => preGenerateDeliveryJob(uid)
+        case pushDeliveryJob(uid, showLst) => preGenerateDeliveryJob(uid, showLst)
         case generateDeliveryFileSchedule() => deliveryScheduleJobs()
         case generateDeliveryFileResult(uid, fileName, result) => postGenerateDeliveryJob(uid, fileName, result)
 

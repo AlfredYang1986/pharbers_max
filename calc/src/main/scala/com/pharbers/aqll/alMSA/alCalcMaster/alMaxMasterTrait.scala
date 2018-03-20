@@ -333,13 +333,18 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
         agent ! refundNodeForRole("splitaggregationslave")
     }
 
-    def preGenerateDeliveryJob(uid: String): Unit = {
+    def preGenerateDeliveryJob(uid: String, showLst: List[String]): Unit = {
         alTempLog(s"开始生成交付文件 ${df.format(new Date())}")
 
         val rid = rd.hget(uid, "rid").map(x => x).getOrElse(throw new Exception("not found uid"))
-        val tidDetails = rd.smembers(rid).get.map(x =>rd.hget(x.get, "tid"))
 
-        tidDetails.foreach( x => pushDeliveryJobs(uid, x.get))
+        val tidDetails = rd.smembers(rid).get.map(x =>(rd.hget(x.get, "ym").get, rd.hget(x.get, "mkt").get, rd.hget(x.get, "tid").get))
+        if (showLst.isEmpty) {
+            pushDeliveryJobs(uid, tidDetails.map(x => x._3).toList)
+        } else {
+            val listJob = showLst.map( x => tidDetails.find(f => f._1 == x.split("-")(1) && f._2 == x.split("-")(0))).filterNot(_.isEmpty).map(x => x.get._3)
+            pushDeliveryJobs(uid, listJob)
+        }
 
         val msg = Map(
             "type" -> "progress_delivery",
@@ -368,6 +373,6 @@ trait alMaxMasterTrait extends alCalcYMTrait with alGeneratePanelTrait
             phWebSocket(uid).post(msg)
         }
         val agent = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-        agent ! refundNodeForRole("splitaggregationslave")
+        agent ! refundNodeForRole("splitdeliveryslave")
     }
 }

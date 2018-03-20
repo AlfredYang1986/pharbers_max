@@ -22,7 +22,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait alGenerateDeliveryFIleTrait { this: Actor =>
 	
 	val delivery_router: ActorRef = createDeliveryRouter
-	val delivery_jobs = Ref(List[(String, String)]())
+	val delivery_jobs = Ref(List[(String, List[String])]())
 
 	val deliverySchedule: Cancellable = context.system.scheduler.schedule(5 seconds, 1 seconds, self, generateDeliveryFileSchedule())
 
@@ -36,9 +36,9 @@ trait alGenerateDeliveryFIleTrait { this: Actor =>
 			)
 		).props(alDeliveryFileSlave.props), name = "delivery-file-router")
 
-	def pushDeliveryJobs(uid: String, table: String): Unit = {
+	def pushDeliveryJobs(uid: String, listJob: List[String]): Unit = {
 		atomic { implicit thx =>
-			delivery_jobs() = delivery_jobs() :+ uid -> table
+			delivery_jobs() = delivery_jobs() :+ uid -> listJob
 		}
 	}
 
@@ -62,22 +62,22 @@ trait alGenerateDeliveryFIleTrait { this: Actor =>
 		}
 	}
 
-	def generateDeliveryFile(uid: String, table: String): Unit = {
-		val cur = context.actorOf(alCameoDeliveryFile.props(uid, table, delivery_router))
+	def generateDeliveryFile(uid: String, listJob: List[String]): Unit = {
+		val cur = context.actorOf(alCameoDeliveryFile.props(uid, listJob, delivery_router))
 		cur ! generateDeliveryFileStart()
 	}
 }
 
 object alCameoDeliveryFile {
-	def props(uid: String, table: String, slaveActor: ActorRef): Props = Props(new alCameoDeliveryFile(uid, table, slaveActor))
+	def props(uid: String, listJob: List[String], slaveActor: ActorRef): Props = Props(new alCameoDeliveryFile(uid, listJob, slaveActor))
 }
 
-class alCameoDeliveryFile(uid: String, table: String, slaveActor: ActorRef) extends Actor with ActorLogging {
+class alCameoDeliveryFile(uid: String, listJob: List[String], slaveActor: ActorRef) extends Actor with ActorLogging {
 	def delivery: Receive = {
 		case generateDeliveryFileStart() => slaveActor ! generateDeliveryFileHand()
 		case generateDeliveryFileHand() =>
 			val company = phRedisDriver().commonDriver.hget(uid, "company").map(x=>x).getOrElse(throw new Exception("not found company"))
-			sender() ! generateDeliveryFileImpl(uid, company, table)
+			sender() ! generateDeliveryFileImpl(uid, company, listJob)
 			shutCameo()
 		case msg =>
 			alTempLog(s"Warning! Message not delivered. alCameoDeliveryFile.received_msg=$msg")
@@ -87,7 +87,7 @@ class alCameoDeliveryFile(uid: String, table: String, slaveActor: ActorRef) exte
 	override def receive: Receive = delivery
 	
 	def shutCameo(): Unit = {
-		alTempLog("stopping aggregation data cameo")
+		alTempLog("stopping delivery cameo")
 		self ! PoisonPill
 	}
 }
