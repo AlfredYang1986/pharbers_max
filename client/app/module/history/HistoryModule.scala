@@ -1,5 +1,6 @@
 package module.history
 
+import com.mongodb.{BasicDBObject, QueryOperators}
 import com.mongodb.casbah.Imports._
 import com.pharbers.ErrorCode
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
@@ -40,15 +41,19 @@ object HistoryModule extends ModuleTrait with HistoryData {
 	def queryMultipleObjectCount(data: JsValue)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-			val db = conn.queryDBInstance("calc").get
-			val o = conditions(data)
-			val result = pr match {
+            val db = conn.queryDBConnection("calc").get
+			var count: Int = 0
+			val lst = pr match {
 				case None => throw new Exception("")
-				case Some(x) => db.queryCount(o, x("user").as[String Map JsValue].get("company").get.as[String])
+				case Some(x) => {
+                    db.getCollection(s"${x("user").as[String Map JsValue].get("company").get.as[String]}_dictionary").find(DBObject("ym" -> new BasicDBObject(QueryOperators.EXISTS, true)))
+				}
 			}
-			(Some(Map("count" -> toJson(result)) ++ pr.get), None)
+			val lstColl = lst.toList.map(x => x.get("collectionName").asInstanceOf[String])
+			lstColl.foreach(x => count += db.getCollection(x).count())
+			(Some(Map("count" -> toJson(count), "lstColl" -> toJson(lstColl)) ++ pr.get), None)
 		} catch {
-			case ex: Exception => (None, Some(ErrorCode.errorToJson(ex.getMessage)))
+			case ex: Exception => println(s"*************${ex.getMessage}"); (None, Some(ErrorCode.errorToJson(ex.getMessage)))
 		}
 	}
 	
@@ -61,7 +66,11 @@ object HistoryModule extends ModuleTrait with HistoryData {
 			val take = (data \ "condition" \ "take").asOpt[Int].map(x => x).getOrElse(10)
 			implicit val result: List[String Map JsValue] = pr match {
 				case None => throw new Exception("")
-				case Some(x) => db.queryMultipleObject(o, x("user").as[String Map JsValue].get("company").get.as[String], "Date", skip = skip, take = take)
+				case Some(x) => {
+					var r: List[String Map JsValue] = List.empty
+					x("lstColl").as[List[String]].foreach(coll => r = r ::: db.queryMultipleObject(o, coll, "Date", skip = skip, take = take))
+					r
+				}
 			}
 			val html = tableOutHtml(data)
 			(Some(Map("condition" -> toJson(html.toString), "count" -> toJson(pr.get("count").as[Int]), "skip" -> toJson(skip), "take" -> toJson(take))), None)
