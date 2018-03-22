@@ -13,7 +13,6 @@ libraryDependencies ++= Seq(
     "com.easemob" % "rest-java-sdk" % "1.0.1",
 
     "com.pharbers" % "pharbers-all-libs" % "1.0",
-
     "com.pharbers" % "pharbers-module" % "0.1",
     "com.pharbers" % "pharbers-errorcode" % "0.1",
     "com.pharbers" % "pharbers-mongodb" % "0.1",
