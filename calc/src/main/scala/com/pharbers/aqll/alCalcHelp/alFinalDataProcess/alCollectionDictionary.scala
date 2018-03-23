@@ -6,7 +6,6 @@ import com.pharbers.aqll.alCalcHelp.dbcores._
 import com.pharbers.aqll.alStart.alHttpFunc.alCommitItem
 import com.pharbers.driver.redis.phRedisDriver
 import com.redis.RedisClient
-import java.util.Date
 import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 
 case class alCollectionDictionary(item: alCommitItem) {
