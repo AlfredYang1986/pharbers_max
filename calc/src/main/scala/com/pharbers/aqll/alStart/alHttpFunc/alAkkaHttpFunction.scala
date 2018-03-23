@@ -14,7 +14,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg._
 import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alCalcHelp.alAkkaHttpJson.PlayJsonSupport
-import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.alFileExport
+import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.{alCollectionDictionary, alFileExport}
 import play.api.libs.json.OFormat
 
 /**
@@ -100,9 +100,10 @@ trait alAkkaHttpFunction extends Directives with PlayJson {
 	def alDataCommit: route = post {
 		path("datacommit") {
 			entity(as[alCommitItem]) { item =>
-				val a = actorSystem.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
-				a ! startAggregationCalcData(item.uid, item.showLst)
-				complete(toJson(successToJson()))
+				val result = alCollectionDictionary(item).init
+//				val a = actorSystem.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
+//				a ! startAggregationCalcData(item.uid, item.showLst)
+                complete(toJson(successToJson(toJson(Map("result" -> result)))))
 			}
 		}
 	}

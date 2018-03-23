@@ -25,6 +25,8 @@ trait HistoryData {
 			builder += "Date" -> MongoDBObject("$gte" -> DateUtil.getDateLong(start),"$lt" -> DateUtil.getDateLong(end))
 		}.getOrElse(Unit)
 		(data \ "condition" \ "market").asOpt[String].map(x => builder += "Market" -> x).getOrElse(Unit)
+		builder += "f_units" -> MongoDBObject("$gt" -> 0)
+		builder += "f_sales" -> MongoDBObject("$gt" -> 0)
 		builder.result
 	}
 	
