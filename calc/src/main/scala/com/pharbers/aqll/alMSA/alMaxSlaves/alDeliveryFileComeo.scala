@@ -3,20 +3,17 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, PoisonPill, Props}
-import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.alWeightSum
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
-import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.aggregationMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.generateDeliveryFile.{generateDeliveryFileEnd, generateDeliveryFileImpl, generateDeliveryFileResult, generateDeliveryFileTimeOut}
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg.canIReStart
 
 import scala.concurrent.duration._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
-import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.common.alFileHandler.databaseConfig.db1
 import com.pharbers.aqll.common.alFileHandler.fileConfig.memorySplitFile
 import com.pharbers.aqll.common.alFileHandler.fileConfig.export_file
-import com.pharbers.nhwa.DriverNHWA
+import com.pharbers.delivery.nhwa.DriverNHWA
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.immutable.Map
@@ -39,6 +36,7 @@ class alDeliveryFileComeo(uid: String, listJob: List[String], counter: ActorRef)
 		case generateDeliveryFileImpl(_, company, listJob) => {
             try {
                 alTempLog(s"Start generateDeliveryFileImpl")
+
                 val driverNHWA = DriverNHWA()
                 val listDF = listJob.map(temp => driverNHWA.generateDeliveryFileFromMongo(s"$db1", s"$company$temp"))
                 val originFilePath = driverNHWA.save2File(driverNHWA.unionDataFrameList(listDF))
@@ -46,6 +44,7 @@ class alDeliveryFileComeo(uid: String, listJob: List[String], counter: ActorRef)
                 val fileName = s"${company}-${uuid}.csv"
                 driverNHWA.move2ExportFolder(originFilePath, s"${memorySplitFile}${export_file}${fileName}")
                 driverNHWA.closeSparkSession
+
                 self ! generateDeliveryFileEnd(fileName, true)
             } catch {
                 case ex: Exception => self ! generateDeliveryFileEnd(ex.getMessage, false)
