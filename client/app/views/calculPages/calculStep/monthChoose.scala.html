@@ -1,4 +1,4 @@
-<div class="modal fade" id="chooseMonth" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<!--<div class="modal fade" id="chooseMonth" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -25,5 +25,48 @@
                 <button type="button" class="layui-btn layui-btn-primary" id="generat-panel-btn">确认</button>
             </div>
         </div>
+    </div>
+</div> -->
+
+<div class="layui-fluid" id="panel-show-time">
+    <div class="layui-form">
+        <div class="layui-form-item">
+            <div class="layui-row">
+                <div class="layui-col-md-12">
+                    <p class="panel-select-time-tip">本次上传文件中含以下几个月份，<br>请选择要进行计算的月份。<em>（可多选）</em></p>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-input-block panel-select-time-checkbox" name="time-lst"></div>
+            </div>
+            <div class="h100"> </div>
+            <div class="layui-row">
+                <div class="layui-col-md-5 layui-col-md-offset7">
+                    <div class="layui-form-item">
+                        <label name="none-month" class="layui-form-label panel-select-time-btn-tip" onclick="calc_step.show_panel_none_month()">未显示需要的月份？</label>
+                        <div class="layui-input-block">
+                            <button class="layui-btn layui-btn layui-btn-radius" lay-submit lay-filter="*">确认</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="layui-fluid" id="panel-none-show-time">
+    <p class="panel-select-time-tip">您上传的文件可能月份丢失，请重新检查文件，<br>并重新上传。</p>
+</div>
+<div class="layui-fluid" id="panel-error">
+    <div class="panel-error-msg">
+        <b>无法解析文件</b>
+        <div class="h20"></div>
+        <p>原因可能为：</p>
+        <ol>
+            <li>1. 源文件<em>格式有误</em>。</li>
+            <li>2. 源文件<em>数据有误</em>。</li>
+            <li>3. 源文件<em>上传错误</em>。</li>
+        </ol>
+        <div class="h20"></div>
+        <p>请检查源文件，并重新上传源文件。</p>
     </div>
 </div>

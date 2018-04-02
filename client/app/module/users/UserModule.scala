@@ -71,7 +71,7 @@ object UserModule extends ModuleTrait with UserData {
             val db = conn.queryDBInstance("cli").get
             val o = m2d(data)
             val user_id = o.get("user_id")
-            val theSecret = db.queryObject(DBObject("user_id" -> user_id), "users")(d2m_with_secret).get.get("secret").get.as[String]
+            val theSecret = db.queryObject(DBObject("user_id" -> user_id), "users")(d2m_with_secret).get("secret").as[String]
             val js = (data \ "user").as[Map[String,JsValue]] + ("password" -> toJson(theSecret))
             val obj = toJson(Map("user" -> toJson(js)))
             db.updateObject(obj, "users", "user_id")

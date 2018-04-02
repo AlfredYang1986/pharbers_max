@@ -21,7 +21,10 @@ trait AuthData {
 				(data \ "condition" \ "user" \ "name").asOpt[String].map(x => x).getOrElse("")
 			)),
 			"phone" -> toJson((data \ "condition" \ "user" \ "phone").asOpt[String].map(x => x).getOrElse("")),
-			"scope" -> toJson((data \ "condition" \ "user"  \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil))
+			"scope" -> toJson((data \ "condition" \ "user"  \ "scope").asOpt[List[String]].map(x => x).getOrElse(Nil)),
+			"company" -> toJson((data \ "condition" \ "user" \ "company").asOpt[String].map(x => x).getOrElse("")),
+			"companyPhone" -> toJson((data \ "condition" \ "user" \ "companyPhone").asOpt[String].map(x => x).getOrElse("")),
+			"companyAddress" -> toJson((data \ "condition" \ "user" \ "companyAddress").asOpt[String].map(x => x).getOrElse(""))
 		)
 	}
 	
@@ -50,6 +53,8 @@ trait AuthData {
 		Map("user_id" -> toJson(obj.getAs[String]("user_id").map(x => x).getOrElse("")),
 			"email" -> toJson(profile.getAs[String]("email").map(x => x).getOrElse("")),
 			"name" -> toJson(profile.getAs[String]("name").map(x => x).getOrElse("")),
+			"company" -> toJson(profile.getAs[String]("company").map(x => x).getOrElse("")),
+			"showCompany" -> toJson(profile.getAs[String]("showCompany").map(x => x).getOrElse("")),
 			"phone" -> toJson(profile.getAs[String]("phone").map(x => x).getOrElse("")),
 			"scope" -> toJson(profile.as[MongoDBList]("scope").toList.asInstanceOf[List[String]]))
 	}

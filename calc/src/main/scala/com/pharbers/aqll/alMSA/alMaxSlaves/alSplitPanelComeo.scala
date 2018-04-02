@@ -4,8 +4,9 @@ import scala.concurrent.duration._
 import scala.collection.immutable.Map
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 import com.pharbers.aqll.alCalcHelp.alMaxDefines.alMaxRunning
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
@@ -13,6 +14,7 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.splitPanelMsg._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.common.alFileHandler.fileConfig.{fileBase, outPut}
 import com.pharbers.aqll.alCalcMemory.aljobs.alJobs.{max_jobs, max_split_csv_jobs}
+import com.pharbers.panel.phPanelFilePath
 
 /**
   * Created by alfredyang on 12/07/2017.
@@ -23,7 +25,7 @@ object alSplitPanelComeo {
               counter: ActorRef) = Props(new alSplitPanelComeo(item, counter))
 }
 
-class alSplitPanelComeo(item: alMaxRunning, counter: ActorRef) extends Actor with ActorLogging {
+class alSplitPanelComeo(item: alMaxRunning, counter: ActorRef) extends Actor with ActorLogging with phPanelFilePath {
     //TODO shijian chuancan
     val timeoutMessager = context.system.scheduler.scheduleOnce(10 minute) {
         self ! split_panel_timeout()
@@ -36,7 +38,7 @@ class alSplitPanelComeo(item: alMaxRunning, counter: ActorRef) extends Actor wit
     override def receive: Receive = {
         case split_panel_start_impl(item) => {
             val company = phRedisDriver().commonDriver.hget(item.uid, "company").map(x=>x).getOrElse(throw new Exception("not found company"))
-            val file = fileBase + company + outPut + item.tid
+            val file = base_path + company + output_dir + item.tid
 
             //方便测试
             val r = if(file.endsWith(".xlsx")){
@@ -67,7 +69,7 @@ class alSplitPanelComeo(item: alMaxRunning, counter: ActorRef) extends Actor wit
                         "type" -> "error",
                         "error" -> "cannot split panel"
                     )
-                    alWebSocket(item.uid).post(msg)
+                    phWebSocket(item.uid).post(msg)
                     alTempLog("split panel file => Failed")
                 }
             }

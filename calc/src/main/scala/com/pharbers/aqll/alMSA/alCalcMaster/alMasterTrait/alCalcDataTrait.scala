@@ -12,7 +12,7 @@ import com.pharbers.aqll.alCalcHelp.alMaxDefines._
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alMSA.alMaxSlaves.alCalcDataSlave
-import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.alCalcMemory.alprecess.alsplitstrategy.server_info
@@ -117,7 +117,7 @@ class alCameoCalcData (item: alMaxRunning,
                 "txt" -> "开始计算",
                 "progress" -> "5"
             )
-            alWebSocket(item.uid).post(msg)
+            phWebSocket(item.uid).post(msg)
 
             slaveActor ! calc_data_hand2(item)
         }

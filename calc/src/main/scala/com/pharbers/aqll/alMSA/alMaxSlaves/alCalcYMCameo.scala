@@ -1,17 +1,19 @@
 package com.pharbers.aqll.alMSA.alMaxSlaves
 
 import play.api.libs.json._
+
 import scala.concurrent.duration._
 import scala.collection.immutable.Map
-import com.pharbers.panel.pfizer.phPfizerHandle
+import com.pharbers.panel.phPanelHeadle
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.ymMsg._
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 
 /**
   * Created by jeorch on 17-10-11.
@@ -43,14 +45,15 @@ class alCalcYMCameo(calcYMJob: alPanelItem, counter: ActorRef) extends Actor wit
             alTempLog("开始过滤日期,arg=" + args)
 
             val (result, ym, mkt) = try {
-                val ym = phPfizerHandle(args).calcYM.asInstanceOf[JsString].value
-                val markets = phPfizerHandle(args).getMarkets.asInstanceOf[JsString].value
+                val header = phPanelHeadle(args)
+                val ym = header.calcYM.asInstanceOf[JsString].value
+                val markets = header.getMarkets.asInstanceOf[JsString].value
                 alTempLog(s"calcYM result, ym = $ym, mkt = $markets")
                 (true, ym, markets)
             } catch {
                 case ex: Exception =>
                     alTempLog("Warning! cannot calcYM" + ex.getMessage)
-                    (false, " "," ")
+                    (false, "0"," ")
             }
 
             self ! calcYM_end(result, ym, mkt)
@@ -64,7 +67,7 @@ class alCalcYMCameo(calcYMJob: alPanelItem, counter: ActorRef) extends Actor wit
                        "type" -> "error",
                        "error" -> "cannot calc ym"
                    )
-                   alWebSocket(calcYMJob.uid).post(msg)
+                   phWebSocket(calcYMJob.uid).post(msg)
                    alTempLog("calc ym => Failed")
             }
             shutSlaveCameo(calcYMResult(calcYMJob.uid, ym, mkt))
@@ -73,7 +76,7 @@ class alCalcYMCameo(calcYMJob: alPanelItem, counter: ActorRef) extends Actor wit
         case calcYM_timeout() => {
             log.info("Warning! calc ym timeout")
             alTempLog("Warning! calc ym timeout")
-            self ! calcYM_end(false, " ", " ")
+            self ! calcYM_end(false, "0", " ")
         }
 
         case canDoRestart(reason: Throwable) => {
@@ -85,7 +88,7 @@ class alCalcYMCameo(calcYMJob: alPanelItem, counter: ActorRef) extends Actor wit
         case cannotRestart(reason: Throwable) => {
             log.info(s"Warning! calc_ym Node reason is $reason")
             alTempLog(s"Warning! calc_ym Node cannotRestart, reason is $reason")
-            self ! calcYM_end(false, " ", " ")
+            self ! calcYM_end(false, "0", " ")
         }
 
         case msg: AnyRef => alTempLog(s"Warning! Message not delivered. alCalcYMCameo.received_msg=$msg")

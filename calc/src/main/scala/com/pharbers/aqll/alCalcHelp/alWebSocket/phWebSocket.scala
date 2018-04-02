@@ -9,7 +9,7 @@ import com.pharbers.baseModules.PharbersInjectModule
 /**
   * Created by clock on 17-11-12.
   */
-case class alWebSocket(uid: String) extends PharbersInjectModule {
+case class phWebSocket(uid: String) extends PharbersInjectModule {
     override val id: String = "wsocket-content"
     override val configPath: String = "pharbers_config/wsocket_content.xml"
     override val md = "remote_connect" :: "local_connect" :: "url" :: Nil

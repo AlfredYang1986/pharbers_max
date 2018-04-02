@@ -9,7 +9,6 @@ import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.token.AuthTokenTrait
 import module.auth.AuthModule.r2m
 import play.api.http.HttpFilters
-import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,7 +25,7 @@ trait FilterTrait extends Filter {
             case Some(s) => s.split(";").map { cookie =>
                 val temp = cookie.split("=")
                 if (temp.length == 2) {
-                    (temp(0), temp(1))
+                    (temp(0).trim, temp(1).trim)
                 } else {
                     throw new Exception("用户禁用Cookie")
                 }
@@ -41,66 +40,62 @@ class TokenFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext
     implicit val db = dbt.queryDBInstance("cli").get
 
     //恳请杨总不杀
-    val noLogingUrlMapping = "/assets/" :: "/auth/" :: "/register/" :: Nil
-    val bdUrlMapping = "/bd/bdUser" :: "/bd/addMember" :: "/login/db" :: Nil
+    val noLogingUrlMapping1 = "/register" :: "/auth/" :: "/phonecode/" :: "/validation/token/" :: "/email/invocation/" :: "/password/" ::  Nil
+    val noLogingUrlMapping2 = "/" :: "/login" :: "/test" :: "/akka/callback" :: "/order/success" :: "/token/fail" ::
+                                "/login/confirm" :: "/user/changepwd" :: "/user/forgetWithPassword" :: Nil
+//                                "/calc/querySelectBox" :: "/calc/querySalesVsShare" :: "/calc/queryCurVsPreWithCity"
+    val bdUrlMapping = "/login/db" :: "/bd/bdUser" :: "/register/querybd" :: "/register/update" :: "/bd/addMember" ::
+                        "/user/querypage" :: "/user/push" :: "/user/delete" :: Nil
 
     def apply(nextFilter: RequestHeader => Future[Result])
              (requestHeader: RequestHeader): Future[Result] = {
 
         val startTime = System.currentTimeMillis
+        def requestSuccess(result: Result) = result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
         nextFilter(requestHeader).map { result =>
-            requestHeader.uri match {
-                case s: String if s.startsWith("/assets/") => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case s: String if s.startsWith("/auth/") => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case s: String if s.startsWith("/register/") => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case s: String if s.equals("/") => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case s: String if s.equals("/login") => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case s: String if s.equals("/password/find")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case s: String if s.equals("/user/forgetWithPassword")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case s: String if s.equals("/akka/callback")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case s: String if s.equals("/test")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                
-                case s: String if s.equals("/calc/querySalesVsShare")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case s: String if s.equals("/calc/queryCurVsPreWithCity")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case s: String if s.equals("/calc/queryWithYearForCurVsPre")  => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                case _ => {
-                    val accessToken = getCookies(requestHeader).get("user_token").map(x => x).getOrElse("")
-                    if (accessToken.isEmpty) {
-                        Results.Redirect(Call("GET", "/"))
-                    } else {
-                        validationToken2(accessToken) match {
-                            case TokenFail() => Results.Redirect(Call("GET", "/"))
-                            case User(_, _, _, scope) =>
-                                if(scope.contains("NC") && bdUrlMapping.contains(requestHeader.uri)) {
-                                    Results.NotFound
-                                }
-                                else result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                            case _ => result.withHeaders("Request-Time" -> (System.currentTimeMillis - startTime).toString)
-                        }
-                    }
-                }
-            }
+               val targetURL = requestHeader.uri
+               if(targetURL.startsWith("/assets/"))
+                   requestSuccess(result)
+               else if(noLogingUrlMapping1.exists(x => targetURL.startsWith(x)))
+                   requestSuccess(result)
+               else if(noLogingUrlMapping2.exists(x => targetURL.equals(x)))
+                   requestSuccess(result)
+               else{
+                   val accessToken = getCookies(requestHeader).get("user_token").map(x => x).getOrElse("")
+                   if (accessToken.isEmpty)
+                       Results.Redirect(Call("GET", "/"))
+                   else {
+                       validationToken(accessToken) match {
+                           case TokenFail() => Results.Redirect(Call("GET", "/"))
+                           case User(_, _, _, scope) =>
+                               if(scope.contains("NC") && bdUrlMapping.contains(targetURL)) Results.NotFound
+                               else requestSuccess(result)
+                           case _ => requestSuccess(result)
+                       }
+                   }
+               }
         }
     }
 
-    def validationToken(token: String): TokenAction = {
-        val reVal = att.decrypt2JsValue(token)
-        val expire_in = (reVal \ "expire_in").asOpt[Long].map(x => x).getOrElse(throw new Exception("token parse error"))
-        if (new Date().getTime > expire_in) TokenFail()
-        else {
-            val reMap = db.queryObject(DBObject("user_id" -> (reVal \ "user_id").as[String]), "users") match {
-                case None => db.queryObject(DBObject("reg_id" -> (reVal \ "user_id").as[String]), "reg_apply")
-                case one => one
-            }
+///   使用短token前的token验证方式
+//    def validationToken(token: String): TokenAction = {
+//        val reVal = att.decrypt2JsValue(token)
+//        val expire_in = (reVal \ "expire_in").asOpt[Long].map(x => x).getOrElse(throw new Exception("token parse error"))
+//        if (new Date().getTime > expire_in) TokenFail()
+//        else {
+//            val reMap = db.queryObject(DBObject("user_id" -> (reVal \ "user_id").as[String]), "users") match {
+//                case None => db.queryObject(DBObject("reg_id" -> (reVal \ "user_id").as[String]), "reg_apply")
+//                case one => one
+//            }
+//
+//            User(reMap.get.get("name").map(x => x.as[String]).getOrElse(""),
+//                reMap.get.get("email").map(x => x.as[String]).getOrElse(""),
+//                reMap.get.get("phone").map(x => x.as[String]).getOrElse(""),
+//                reMap.get.get("scope").map(x => x.as[List[String]]).getOrElse(Nil))
+//        }
+//    }
 
-            User(reMap.get.get("name").map(x => x.as[String]).getOrElse(""),
-                reMap.get.get("email").map(x => x.as[String]).getOrElse(""),
-                reMap.get.get("phone").map(x => x.as[String]).getOrElse(""),
-                reMap.get.get("scope").map(x => x.as[List[String]]).getOrElse(Nil))
-        }
-    }
-
-    def validationToken2(accessToken: String): TokenAction = {
+    def validationToken(accessToken: String): TokenAction = {
         val redisDriver = phRedisDriver().commonDriver
         val token = redisDriver.hgetall1(accessToken).getOrElse(Map())
         if (token.isEmpty) TokenFail()

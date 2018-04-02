@@ -1,0 +1,7 @@
+<pharbers-modules>
+    <spark-config>
+        <host value="192.168.100.174" />
+        <port value="9999" />
+        <name value="pharbers-max" />
+    </spark-config>
+</pharbers-modules>

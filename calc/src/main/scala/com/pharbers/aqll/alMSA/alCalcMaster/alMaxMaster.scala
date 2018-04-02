@@ -9,10 +9,10 @@ import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.calcMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.restoreMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.aggregationMsg._
-
 import akka.actor.{Actor, ActorLogging, Props}
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent._
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.generateDeliveryFile.{generateDeliveryFileResult, generateDeliveryFileSchedule, pushDeliveryJob}
 
 /**
   * Created by clock on 2017.12.18
@@ -28,7 +28,8 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case startCalcYm(item) => self ! pushCalcYMJob(item)
         case startGeneratePanel(item) => self ! pushGeneratePanelJob(item)
         case startCalc(uid) => self ! pushSplitPanel(uid)
-        case startAggregationCalcData(uid) => self ! pushAggregationJob(uid)
+        case startAggregationCalcData(uid, showLst) => self ! pushAggregationJob(uid, showLst)
+        case startGenerateDeliveryFile(uid, showLst) => self ! pushDeliveryJob(uid, showLst)
 
         //calc ym module
         case pushCalcYMJob(item) => preCalcYMJob(item)
@@ -67,9 +68,14 @@ class alMaxMaster extends Actor with ActorLogging with alMaxMasterTrait {
         case restoreBsonResult(result, uid) => postRestoreJob(result, uid)
 
         //aggregation module
-        case pushAggregationJob(uid) => preAggregationJob(uid)
+        case pushAggregationJob(uid, showLst) => preAggregationJob(uid, showLst)
         case aggregationDataSchedule() => aggregationSchduleJobs()
         case aggregationDataResult(uid, table, result) => postAggregationJob(uid, table, result)
+
+        //generate delivery-file module
+        case pushDeliveryJob(uid, showLst) => preGenerateDeliveryJob(uid, showLst)
+        case generateDeliveryFileSchedule() => deliveryScheduleJobs()
+        case generateDeliveryFileResult(uid, fileName, result) => postGenerateDeliveryJob(uid, fileName, result)
 
         //Energy Manage
         case refundNodeSuccess() => Unit

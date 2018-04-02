@@ -28,7 +28,7 @@ class alRestoreBsonSlave extends Actor with ActorLogging {
     override def receive: Receive = {
         case restore_bson_hand() => {
             //TODO ask shenyong
-            implicit val t = Timeout(2 seconds)
+            implicit val t = Timeout(5 seconds)
             val a = context.actorSelection("akka.tcp://calc@"+ masterIP +":2551/user/agent-reception")
             val f = a ? takeNodeForRole("splitrestorebsonslave")
             if (Await.result(f, t.duration).asInstanceOf[Boolean])

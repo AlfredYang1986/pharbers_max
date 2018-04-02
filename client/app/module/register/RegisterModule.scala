@@ -224,7 +224,6 @@ object RegisterModule extends ModuleTrait with RegisterData {
 	def user_first_push(data: JsValue)(pr: Option[String Map JsValue])(implicit cm: CommonModules): (Option[String Map JsValue], Option[JsValue]) = {
 		try {
 			val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-			val att = cm.modules.get.get("att").map (x => x.asInstanceOf[AuthTokenTrait]).getOrElse(throw new Exception("no encrypt impl"))
 			val db = conn.queryDBInstance("cli").get
 			val app = pr.get("user_token")
 			val accessToken = app.as[String]

@@ -3,7 +3,7 @@ package com.pharbers.aqll.alMSA.alMaxSlaves
 import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, PoisonPill, Props}
 import com.pharbers.aqll.alCalcHelp.alFinalDataProcess.alWeightSum
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
-import com.pharbers.aqll.alCalcHelp.alWebSocket.alWebSocket
+import com.pharbers.aqll.alCalcHelp.alWebSocket.phWebSocket
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.aggregationMsg._
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.reStartMsg.canIReStart
 
@@ -28,11 +28,9 @@ class alAggregationDataComeo(uid: String, table: String, counter: ActorRef) exte
 	}
 	
 	def aggregation: Receive = {
-		case aggregationDataImpl(id, t) =>
-			/// 预留
-//			val rd = phRedisDriver().commonDriver
-			alWeightSum(id, "fea9f203d4f593a96f0d6faa91ba24ba", s"fea9f203d4f593a96f0d6faa91ba24ba$t", 1).aggregation
-			self ! aggregationDataEnd(true)
+		case aggregationDataImpl(_, company, temp) =>
+			val result = alWeightSum(uid, company, s"$company$temp", 1).aggregation
+			self ! aggregationDataEnd(result)
 			
 		case aggregationDataEnd(result) =>
 			if (result) {
@@ -42,7 +40,7 @@ class alAggregationDataComeo(uid: String, table: String, counter: ActorRef) exte
 					"type" -> "error",
 					"error" -> "cannot aggregation data"
 				)
-				alWebSocket(uid).post(msg)
+				phWebSocket(uid).post(msg)
 				alTempLog("aggregation data => Failed")
 			}
 			shutSlaveCameo(aggregationDataResult(uid, table, result))

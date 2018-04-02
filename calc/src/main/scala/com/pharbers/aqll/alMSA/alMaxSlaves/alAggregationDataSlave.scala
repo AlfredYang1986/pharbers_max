@@ -32,10 +32,10 @@ class alAggregationDataSlave extends Actor with ActorLogging {
 				sender ! aggregationDataHand()
 			else Unit
 			
-		case aggregationDataImpl(uid, table) =>
+		case aggregationDataImpl(uid, company, temp) =>
 			val counter = context.actorOf(alCommonErrorCounter.props)
-			val cur = context.actorOf(alAggregationDataComeo.props(uid, table, counter))
-			cur.tell(aggregationDataImpl(uid, table), sender)
+			val cur = context.actorOf(alAggregationDataComeo.props(uid, temp, counter))
+			cur.tell(aggregationDataImpl(uid, company, temp), sender)
 			
 		case msg => alTempLog(s"Warning! Message not delivered. alAggregationDataSlave.received_msg=$msg")
 	}

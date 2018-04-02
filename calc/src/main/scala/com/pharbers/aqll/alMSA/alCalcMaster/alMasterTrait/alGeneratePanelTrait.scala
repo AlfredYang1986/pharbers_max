@@ -2,12 +2,15 @@ package com.pharbers.aqll.alMSA.alCalcMaster.alMasterTrait
 
 import akka.pattern.ask
 import akka.util.Timeout
+
 import scala.concurrent.stm._
 import scala.concurrent.Await
 import akka.routing.BroadcastPool
+
 import scala.concurrent.duration._
 import com.pharbers.aqll.alCalcHelp.alLog.alTempLog
 import com.pharbers.aqll.alStart.alHttpFunc.alPanelItem
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.pharbers.aqll.alMSA.alMaxSlaves.alGeneratePanelSlave
 import com.pharbers.aqll.alMSA.alClusterLister.alAgentIP.masterIP
@@ -15,6 +18,10 @@ import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.panelMsg._
 import akka.cluster.routing.{ClusterRouterPool, ClusterRouterPoolSettings}
 import com.pharbers.aqll.alMSA.alCalcAgent.alPropertyAgent.queryIdleNodeInstanceInSystemWithRole
+import com.pharbers.aqll.alMSA.alCalcMaster.alCalcMsg.scpMsg.{scpend, scpmsg}
+import com.pharbers.aqll.alMSA.alMaxCmdJob.alCmdActor
+import com.pharbers.panel.phPanelFilePath
+import com.typesafe.config.ConfigFactory
 
 /**
   * Created by jeorch on 17-8-31.
@@ -75,7 +82,7 @@ object alCameoGeneratePanel {
 }
 
 class alCameoGeneratePanel(panel_job : alPanelItem,
-                           slaveActor : ActorRef) extends Actor with ActorLogging {
+                           slaveActor : ActorRef) extends Actor with ActorLogging with phPanelFilePath {
     override def receive = {
         case generate_panel_start() => slaveActor ! generate_panel_hand()
         case generate_panel_hand() =>

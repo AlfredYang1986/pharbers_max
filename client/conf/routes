@@ -8,9 +8,6 @@ GET     /test                            controllers.alMaxRouterController.test
 # Calc Akka Http 用于websocket
 POST    /akka/callback                   controllers.akkacallback.AkkaCallBackController.akkaCallBack
 
-# IM聊天室创建
-POST    /imroom/create                   controllers.immessage.ImRoomController.createChatRooms
-
 # 路人申请体验页面
 GET     /register/info                   controllers.alMaxRouterController.infoRegistration
 POST    /register/user                   controllers.register.RegisterController.user_apply
@@ -67,7 +64,6 @@ POST    /phonecode/check                            controllers.phonecode.PhoneS
 # 上传文件
 POST    /panel/upload                               controllers.upload.FopController.uploadFile
 POST    /source/upload                              controllers.upload.FopController.uploadFile
-POST    /upload/queryUserCompnay                    controllers.upload.FopController.queryUserCompnay
 GET     /pharbers/files/:name                       controllers.upload.FopController.downloadFile(name)
 
 # Call Http
@@ -75,15 +71,16 @@ POST    /calc/callhttp                              controllers.callhttp.CallHtt
 
 # 样本检查
 POST    /sample/querySelectBox                      controllers.samplecheck.SampleCheckController.querySelectBoxValue
+POST    /sample/queryDataBaseLine                   controllers.samplecheck.SampleCheckController.queryDataBaseLine
 POST    /sample/queryHospitalNumber                 controllers.samplecheck.SampleCheckController.queryHospitalNumber
 POST    /sample/queryProductNumber                  controllers.samplecheck.SampleCheckController.queryProductNumber
-POST    /sqmple/querySampleSales                    controllers.samplecheck.SampleCheckController.querySampleSales
+POST    /sample/querySampleSales                    controllers.samplecheck.SampleCheckController.querySampleSales
 POST    /sample/queryHospitalList                   controllers.samplecheck.SampleCheckController.queryHospitalList
 
 # 获取本次计算数据
 POST    /calc/querySelectBox                        controllers.calcresult.CalcResultController.querySelectBoxValue
 POST    /calc/querySalesVsShare                     controllers.calcresult.CalcResultController.querySalesVsShare
-POST    /calc/queryCurVsPreWithCity                 controllers.calcresult.CalcResultController.queryCurVsPreWithCity
+POST    /calc/queryAreaData                 controllers.calcresult.CalcResultController.queryAreaData
 
 # 查询历史数据
 POST    /history/queryHistoryByPage                 controllers.history.HistoryController.queryHistoryByPage
