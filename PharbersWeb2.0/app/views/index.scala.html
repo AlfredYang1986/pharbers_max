@@ -11,8 +11,10 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" disabled href="#">法伯科技<br>Pharbers Technology
-                        </a></div>
+                        <a class="navbar-brand" href="http://59.110.31.106/" target="_blank">
+                            <img alt="Brand" width="40px" src="@routes.Assets.versioned("images/landing/navbar_logo.jpg")">登录法伯科技<br>Login Pharbers Technology
+                        </a>
+                    </div>
                         @*<a class="navbar-brand" href="#">Pharbers technology</a></div>*@
                     <div id="navbar" class="navbar-collapse collapse">
                         <ul class="nav navbar-nav navbar-right">
@@ -40,8 +42,8 @@
                 <div class="item active">
                     <div class="container">
                         <div class="carousel-caption">
-                            <h1>让每个决策都精彩</h1>
-                            <p>Empower your decision making</p>
+                            <h1 style="letter-spacing:1.0px">不止于数据，让每个决策更精彩</h1>
+                            <p style="letter-spacing:1.0px">Above Data,Empower your decision making</p>
                         </div>
                         <div class="carousel-image wow zoomIn">
                             <img src="@routes.Assets.versioned("images/landing/laptop.png")" alt="laptop" /></div>
@@ -72,11 +74,8 @@
                     <p>法伯科技,创建于2008年，北京。
                         是一家以数据科技为驱动，专注于医药健康领域的循证咨询公司。
                         十年间，我们服务的客户已遍及整个中国医药市场的各个环节，包括医药企业、政府机构及健检部门等。
-                        2015年，经过多年积累，法伯重新定义自身，
-                        秉持“让数据技术人性化”的理念，
-                        致力于以专业的视角、高效的方式、科学的工具，为每位客户提供便捷、智能、高适应性的服务。
-                        现在，
-                        法伯以数据科学家身份，赋能医药行业
+                        2015年，经过多年积累，法伯重新定义自身，秉持“让数据技术人性化”的理念，致力于以专业的视角、高效的方式、科学的工具，为每位客户提供便捷、智能、高适应性的服务。<br />
+                        现在，法伯以数据科学家身份，赋能医药行业
                         让每位客户都能享受数据带来的价值，洞察业务，让决策更精彩。
                     </p>
                 </div>
@@ -94,7 +93,8 @@
                 <div class="row">
                     <div class="col-md-3 text-center wow fadeInLeft">
                         <div>
-                            <i class="fa fa-mobile features-icon"></i>
+
+                            <i class="fa fa-cogs features-icon"></i>
                             <h2>工具类Tool</h2>
                             <p>基于SaaS的数据分析工具，为企业带来高效，便捷，实用的解决方案。
                                 <br>MAX © ：市场动态监测工具
@@ -103,27 +103,32 @@
                             </p>
                         </div>
                         <div class="m-t-lg">
-                            <i class="fa fa-bar-chart features-icon"></i>
+                            <i class="fa fa-desktop features-icon"></i>
                             <h2>商业智能<br>Business Intelligence</h2>
                             <p>数据的集成，转置，存储，可视化分析，报表，仪表盘</p>
+
                         </div>
                     </div>
                     <div class="col-md-6 text-center  wow zoomIn">
                         <img src="@routes.Assets.versioned("images/landing/perspective.png")" alt="dashboard" class="img-responsive"></div>
                     <div class="col-md-3 text-center wow fadeInRight">
                         <div>
-                            <i class="fa fa-envelope features-icon"></i>
+                            <i class="fa fa-bar-chart features-icon"></i>
                             <h2>数据类Data</h2>
-                            <p>LIT © ：药品上市信息查询平台
+                            <p>县域（及社区）药品数据、疫苗数据报告
+                                <br>
+                                <br>
                                 <br>
                                 <br>
                                 <br>
                             </p>
                         </div>
                         <div class="m-t-lg">
-                            <i class="fa fa-google features-icon"></i>
+                            <i class="fa fa-briefcase features-icon"></i>
+
                             <h2>管理咨询Consulting</h2>
-                            <p>定制化依托于循证科学的管理咨询、市场研究项目</p>
+                            <p>依托于循证科学的管理咨询、市场研究项目,为医药企业提供数字化洞察服务，让数据充分转化为增长驱动力。<br>
+                            项目内容涉及： 市场潜力评估、营销优化组合、精准预测等</p>
                         </div>
                     </div>
                 </div>
@@ -177,7 +182,7 @@
                     <div class="col-lg-6 text-right wow fadeInRight">
                         <img src="@routes.Assets.versioned("images/landing/3.png")" alt="dashboard" class="img-responsive pull-right"></div>
                 </div>
-                <div class="row features-block">
+                <!-- <div class="row features-block">
                     <div class="col-lg-6 features-text wow fadeInLeft">
                         <small>LIT© （launch Intelligence Tool）</small>
                         <h2>药品上市信息查询平台</h2>
@@ -187,8 +192,8 @@
                         <a href="#" ><button class="btn btn-primary" name="show-message-wrapper">了解更多</button></a></div>
                     <div class="col-lg-6 text-right wow fadeInRight">
                         <img src="@routes.Assets.versioned("images/landing/4.png")" alt="dashboard" class="img-responsive pull-right"></div>
-                </div>
-                <div class="row features-block">
+                </div> -->
+                <!-- <div class="row features-block">
                     <div class="col-lg-6 features-text wow fadeInLeft">
                         <small>Business Intelligence Products</small>
                         <h2>商业智能类产品</h2>
@@ -198,20 +203,19 @@
                         <a href="#" ><button class="btn btn-primary" name="show-message-wrapper">了解更多</button></a></div>
                     <div class="col-lg-6 text-right wow fadeInRight">
                         <img src="@routes.Assets.versioned("images/landing/5.png")" alt="dashboard" class="img-responsive pull-right"></div>
-                </div>
+                </div> -->
 
-                <div class="row features-block">
+                <!-- <div class="row features-block">
                     <div class="col-lg-6 features-text wow fadeInLeft">
-                        <small>xxxxx xxxx xxxx</small>
+                        <small>Digital Management Consulting</small>
                         <h2>数字化管理咨询</h2>
-                        <!-- <p>一款针对区域销售管理能力的训练、测评工具。帮助区域经理应对多变的医药销售市场環境，做出更精彩的决策:</p> -->
                         <p>法伯科技，立于“数据之上”。作为新一代循证医药咨询公司，为医药企业提供数字化洞察服务，让数据充分转化为增长驱动力。
                             <br>主要客户涉及医药企业、政府单位、体健机构，根据您所处的不同业务线，做出定制化的谘询方案，项目内容涉及： 市场潜力评估、营销优化组合、精准预测等
                             </p>
                         <a href="#" ><button class="btn btn-primary" name="show-message-wrapper">了解更多</button></a></div>
                     <div class="col-lg-6 text-right wow fadeInRight">
                         <img src="@routes.Assets.versioned("images/landing/5.png")" alt="dashboard" class="img-responsive pull-right"></div>
-                </div>
+                </div> -->
             </div>
         </section>
 
@@ -278,14 +282,15 @@
         </section>
 
         <section class="navy-section testimonials">
-            <div class="container">
+            <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12 text-center wow zoomIn">
                         <i class="fa fa-comment big-icon"></i>
                         <h1>我们的客户</h1>
-                        <div class="testimonials-text">
-                            <span>辉瑞制药&nbsp;|&nbsp;拜耳医药&nbsp;|&nbsp;百时美施贵宝&nbsp;|&nbsp;安斯泰来制药（中国）有限公司&nbsp;|&nbsp;
-                                北京泰德制药股份有限公司&nbsp;|&nbsp;费森尤斯卡比（中国）&nbsp;|&nbsp;卫材（中国）药业有限公司&nbsp;|&nbsp;西安杨森制药有限公司&nbsp;|&nbsp;天士力集团</span>
+                        <div class="testimonials-text" style="font-size:16px;">
+                            <span>辉瑞制药&nbsp;|&nbsp;拜耳医药&nbsp;|&nbsp;阿斯利康&nbsp;|&nbsp;默克雪兰诺&nbsp;|&nbsp;百时美施贵宝&nbsp;|&nbsp;安斯泰来制药（中国）有限公司&nbsp;|&nbsp;
+                                卫材&nbsp;|&nbsp;赛诺菲巴斯德&nbsp;|&nbsp;诺和诺德&nbsp;&nbsp;雀巢&nbsp;|&nbsp;施维雅&nbsp;|&nbsp;天士力&nbsp;|&nbsp;信立泰&nbsp;|&nbsp;恩华&nbsp;|&nbsp;
+                                爱康国宾&nbsp;|&nbsp;西安杨森&nbsp;|&nbsp;中国医疗设备</span>
                         </div>
                     </div>
                 </div>
@@ -303,8 +308,8 @@
                 <div class="row m-b-lg">
                     <div class="col-lg-12  text-center">
                         <address>
-                            北京法伯宏业科技发展有限公司<br>北京市朝阳区东直门外大街小关56号5幢1层111室<br/>
-                            <abbr title="Phone">Tel：</abbr>010-84244216<br/><abbr title="Phone">E-mail：</abbr>yffan@@pharbers.com
+                            北京法伯科技发展有限公司<br>北京市朝阳区东直门外大街小关56号5幢1层111室<br/>
+                            <abbr title="Phone">Tel：</abbr>010-84244216<br/><abbr title="Phone">E-mail：</abbr>contact@@pharbers.com
                         </address>
                     </div>
                     <div class="col-lg-4">
@@ -312,7 +317,7 @@
                 <div class="row">
                     <div class="col-lg-12 text-center">
                         <!-- <a href="mailto:contact@@pharbers.com" class="btn btn-primary">Send us mail</a> -->
-                        <a href="#" ><button class="btn btn-primary" name="show-message-wrapper">了解更多</button></a>
+                        <a href="#" ><button class="btn btn-primary" name="show-message-wrapper">联系我们</button></a>
                         <p class="m-t-sm">或者跟我们在社交平台上的</p>
                         <ul class="list-inline social-icon">
                             <li>
@@ -356,31 +361,24 @@
                         <p class="message-right-title">快速预约体验</p>
                         <p class="message-right-content">请填写您的联络信息，我们的服务人员将在两个工作日与您联系。（皆为必填项）</p>
                         <div class="contact-wrapper">
-                            <form id="contact" >
+                            <form action="">
                                 <p class="input-wrapper">
-                                    <span><img src="@routes.Assets.versioned("images/landing/contact-company.png")" width="100%" alt=""></span>
-                                    <input type="text" name="user-company"  placeholder="公司名称">
+                                    <span><img src="@routes.Assets.versioned("images/landing/contact-company.png")" width="100%" alt=""></span><input type="text" name="user-company"  placeholder="公司名称">
                                     <span class="hint-text" name="hint-text-company">请输入公司名称</span>
                                 </p>
                                 <p class="input-wrapper">
-                                    <span><img src="@routes.Assets.versioned("images/landing/contact-user.png")" width="100%" alt=""></span>
-                                    <input type="text" name="user-name"  placeholder="联系人姓名">
+                                    <span><img src="@routes.Assets.versioned("images/landing/contact-user.png")" width="100%" alt=""></span><input type="text" name="user-name"  placeholder="联系人姓名">
                                     <span class="hint-text" name="hint-text-username">请输入联系人姓名</span>
                                 </p>
                                 <p class="input-wrapper">
-                                    <span><img src="@routes.Assets.versioned("images/landing/contact-email.png")" width="100%" alt=""></span>
-                                    <input type="E-mail" name="user-email"  placeholder="联络邮箱" />
+                                    <span><img src="@routes.Assets.versioned("images/landing/contact-email.png")" width="100%" alt=""></span><input type="E-mail" name="user-email"  placeholder="联络邮箱" />
                                     <span class="hint-text" name="hint-text-email">邮箱格式不正确</span>
                                 </p>
                                 <p class="input-wrapper">
-                                    <span><img src="@routes.Assets.versioned("images/landing/contact-phone.png")" width="100%" alt=""></span>
-                                    <input type="Phone" name="user-phonenumber"  placeholder="手机号">
+                                    <span><img src="@routes.Assets.versioned("images/landing/contact-phone.png")" width="100%" alt=""></span><input type="Phone" name="user-phonenumber"  placeholder="手机号">
                                     <span class="hint-text" name="hint-text-phonenumber">手机号码格式不正确</span>
                                 </p>
-                                <p class="submit-wrapper">
-                                    <button class="cancel-btn" name='close-message-wrapper'>取消</button>
-                                    <button class="btn submit-btn" name="submit-contact-message">提交</button>
-                                </p>
+                                <p class="submit-wrapper"><button class="cancel-btn" name='close-message-wrapper'>取消</button><button class="btn submit-btn" name="submit-contact-message">提交</button></p>
                             </form>
                         </div>
                     </div>

@@ -6572,8 +6572,12 @@ body.landing-page {
   color: #179d82;
 }
 .landing-page section p {
-  color: #aeaeae;
+  color: #8a8a8a;
   font-size: 13px;
+}
+.landing-page section p {
+  margin-bottom: 0;
+  line-height: 26px;
 }
 .landing-page address {
   font-size: 13px;
@@ -6660,7 +6664,7 @@ body.landing-page {
   display: block;
   font-size: 14px;
   background: #1ab394;
-  padding: 15px 20px 15px 20px;
+  padding: 15px 20px 15px 70px;
   border-radius: 0 0 5px 5px;
   font-weight: 700;
   transition: all 0.3s ease-in-out 0s;
@@ -6701,7 +6705,8 @@ body.landing-page {
   margin-top: 15px;
   border-radius: 5px;
   font-size: 12px;
-  padding: 10px;
+  /* padding: 10px; */
+  padding:10px 10px 10px 70px;
   height: auto;
 }
 .landing-page .header-back {
@@ -6827,7 +6832,7 @@ body.landing-page {
   margin-top: 40px;
 }
 .landing-page .features-text {
-  margin-top: 40px;
+  /* margin-top: 40px; */
 }
 .landing-page .features small {
   color: #1ab394;
@@ -6984,6 +6989,9 @@ body.landing-page {
   font-size: 14px;
   padding: 10px 20px;
   font-weight: 600;
+}
+.landing-page .btn-primary  {
+    margin-top: 15px;
 }
 .landing-page .btn-primary:hover,
 .landing-page .btn-primary:focus,

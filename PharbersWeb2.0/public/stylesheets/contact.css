@@ -167,3 +167,26 @@ color:#807b7b
     width: 100px;
     margin-top: 70px;
 }
+/* 通用样式 */
+.page-scroll {
+    position: relative;
+}
+.page-scroll img {
+    position: absolute;
+left: 0;    
+}
+/* .page-scroll .navbar-logo {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.page-scroll .navbar-brand {
+    padding-left: 30px;
+}
+.navbar-scroll .navbar-logo {
+    width: 25px;
+    position:absolute;
+    top: 50%;
+    transform: translateY(-50%);
+} */
