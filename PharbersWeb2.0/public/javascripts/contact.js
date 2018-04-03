@@ -51,7 +51,7 @@ $(function() {
             $('span[name="hint-text-email"]').show();
             return false;
         }
-    };
+    }
     // 验证phone number 函数
     function isPhoneNumber(object) {
         var phone = object.val();
@@ -59,7 +59,7 @@ $(function() {
             $('span[name="hint-text-phonenumber"]').show();
             return false;
         }
-    };
+    }
     // 显示用户填写信息页面
     $('button[name="show-message-wrapper"]').click(function(e) {
         e.preventDefault();
@@ -116,15 +116,46 @@ $(function() {
     // 提交按钮验证
     $('button[name="submit-contact-message"]').click(function(e){
         e.preventDefault();
-        if(isBlank() == false ) {
+        if(isBlank() === false ) {
             console.log("fail")
         } else {
+            console.info($('#contact').serializeObject());
+            var json = JSON.stringify($('#contact').serializeObject());
+            $.ajax({
+                type: 'POST',
+                url: 'contactus',
+                dataType: "json",
+                cache: false,
+                data: json,
+                contentType: "application/json,charset=utf-8",
+                Accept: "application/json,charset=utf-8",
+                success: function (data) {
+
+                }
+            });
+            $('body').css("overflow", "auto");
+
             $('.submit-success').show();
             setTimeout(function(){
                 $('.user-message-wrapper').hide();
                 $('.submit-success').hide();
             },1500)
         }
-
     })
-})
+});
+
+$.fn.serializeObject = function() {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};

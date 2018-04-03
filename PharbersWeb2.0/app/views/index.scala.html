@@ -356,24 +356,31 @@
                         <p class="message-right-title">快速预约体验</p>
                         <p class="message-right-content">请填写您的联络信息，我们的服务人员将在两个工作日与您联系。（皆为必填项）</p>
                         <div class="contact-wrapper">
-                            <form action="">
+                            <form id="contact" >
                                 <p class="input-wrapper">
-                                    <span><img src="@routes.Assets.versioned("images/landing/contact-company.png")" width="100%" alt=""></span><input type="text" name="user-company"  placeholder="公司名称">
+                                    <span><img src="@routes.Assets.versioned("images/landing/contact-company.png")" width="100%" alt=""></span>
+                                    <input type="text" name="user-company"  placeholder="公司名称">
                                     <span class="hint-text" name="hint-text-company">请输入公司名称</span>
                                 </p>
                                 <p class="input-wrapper">
-                                    <span><img src="@routes.Assets.versioned("images/landing/contact-user.png")" width="100%" alt=""></span><input type="text" name="user-name"  placeholder="联系人姓名">
+                                    <span><img src="@routes.Assets.versioned("images/landing/contact-user.png")" width="100%" alt=""></span>
+                                    <input type="text" name="user-name"  placeholder="联系人姓名">
                                     <span class="hint-text" name="hint-text-username">请输入联系人姓名</span>
                                 </p>
                                 <p class="input-wrapper">
-                                    <span><img src="@routes.Assets.versioned("images/landing/contact-email.png")" width="100%" alt=""></span><input type="E-mail" name="user-email"  placeholder="联络邮箱" />
+                                    <span><img src="@routes.Assets.versioned("images/landing/contact-email.png")" width="100%" alt=""></span>
+                                    <input type="E-mail" name="user-email"  placeholder="联络邮箱" />
                                     <span class="hint-text" name="hint-text-email">邮箱格式不正确</span>
                                 </p>
                                 <p class="input-wrapper">
-                                    <span><img src="@routes.Assets.versioned("images/landing/contact-phone.png")" width="100%" alt=""></span><input type="Phone" name="user-phonenumber"  placeholder="手机号">
+                                    <span><img src="@routes.Assets.versioned("images/landing/contact-phone.png")" width="100%" alt=""></span>
+                                    <input type="Phone" name="user-phonenumber"  placeholder="手机号">
                                     <span class="hint-text" name="hint-text-phonenumber">手机号码格式不正确</span>
                                 </p>
-                                <p class="submit-wrapper"><button class="cancel-btn" name='close-message-wrapper'>取消</button><button class="btn submit-btn" name="submit-contact-message">提交</button></p>
+                                <p class="submit-wrapper">
+                                    <button class="cancel-btn" name='close-message-wrapper'>取消</button>
+                                    <button class="btn submit-btn" name="submit-contact-message">提交</button>
+                                </p>
                             </form>
                         </div>
                     </div>
