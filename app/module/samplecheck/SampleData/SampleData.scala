@@ -3,14 +3,13 @@ package module.samplecheck.SampleData
 import com.mongodb.casbah.Imports._
 import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
-import com.pharbers.panel.phPanelFilePath
-import com.pharbers.panel.util.excel.{phExcelFileInfo, phHandleExcel}
+import com.pharbers.panel.panel_path_obj
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
 import scala.collection.immutable.Map
 
-trait SampleData extends phPanelFilePath {
+trait SampleData {
 	
 	class CalcType(n: Int, s: String)
 	case class CalcSum() extends CalcType(0, "sum")
@@ -18,7 +17,8 @@ trait SampleData extends phPanelFilePath {
 	
 	def csv2SampleCheckData(pathLst: List[String], company: String): List[String Map String] = {
 		pathLst.flatMap{ p =>
-			alFileOpt(s"$client_path$company$output_dir$p").requestDataFromFile(x => x).map { x =>
+				// 肯定不好使，编过再说，路径都要重新定义
+			alFileOpt(s"${panel_path_obj.p_client_path}$company$p").requestDataFromFile(x => x).map { x =>
 				val s =  x.toString.split(31.toChar)
 				Map("phaId" -> s(5), "hospitalName" -> s(1), "date" -> s(2), "productMini" -> s(3), "market" -> s(7), "units" -> s(9), "sales" -> s(10))
 			}
@@ -26,8 +26,9 @@ trait SampleData extends phPanelFilePath {
 	}
 	
 	def xlsx2SampleCheckData(path: String, company: String): List[String Map String] = {
-		val match_file = universe_file.replace("##market##", path).replace(".csv", ".xlsx")
-		phHandleExcel().read2Lst(phExcelFileInfo(s"$client_path$company$match_file", 1))
+		val match_file = panel_path_obj.p_universe_file.replace("##market##", path).replace(".csv", ".xlsx")
+//		phHandleExcel().read2Lst(phExcelFileInfo(s"$client_path$company$match_file", 1))
+		???
 	}
 	
 	def queryPanelWithRedis(uid: String): List[String] = {
