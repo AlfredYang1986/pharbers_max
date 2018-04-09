@@ -1037,7 +1037,7 @@ button.dim:active:before {
 .label {
   background-color: #d1dade;
   color: #5e5e5e;
-  font-family: 'Open Sans';
+  font-family:  helvetica;
   font-size: 10px;
   font-weight: 600;
   padding: 3px 8px;
@@ -1046,7 +1046,7 @@ button.dim:active:before {
 .badge {
   background-color: #d1dade;
   color: #5e5e5e;
-  font-family: 'Open Sans';
+  font-family:  helvetica;
   font-size: 11px;
   font-weight: 600;
   padding-bottom: 4px;
@@ -2316,7 +2316,7 @@ div.dt-button-info {
   width: 100%;
   font-size: 0.75em;
   line-height: 1.333333em;
-  font-family: open sans, lucida grande, lucida sans unicode, helvetica, arial, sans-serif;
+  font-family: lucida grande, lucida sans unicode, helvetica, arial, sans-serif;
   padding: 5px;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -3299,7 +3299,7 @@ body.tour-open .animated {
   border-bottom: 1px solid #e7eaec;
 }
 body {
-  font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif;
   background-color: #2f4050;
   font-size: 13px;
   color: #676a6c;
@@ -6537,7 +6537,7 @@ body.body-small .vote-icon {
 }
 body.landing-page {
   color: #676a6c;
-  font-family: 'Open Sans', helvetica, arial, sans-serif;
+  font-family: helvetica, arial, sans-serif;
   background-color: #fff;
 }
 .landing-page {
@@ -6620,7 +6620,7 @@ body.landing-page {
 }
 .landing-page .navbar-default .nav li a {
   color: #fff;
-  font-family: 'Open Sans', helvetica, arial, sans-serif;
+  font-family: helvetica, arial, sans-serif;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -6806,7 +6806,7 @@ body.landing-page {
 }
 .landing-page .carousel-caption p {
   font-weight: 700;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   text-shadow: none;
 }
 .landing-page .caption-link {
