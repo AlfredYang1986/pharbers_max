@@ -1,13 +1,13 @@
 package module.samplecheck.SampleData
 
-import com.mongodb.casbah.Imports._
-import com.pharbers.driver.redis.phRedisDriver
-import com.pharbers.aqll.common.alFileHandler.alFilesOpt.alFileOpt
-import com.pharbers.panel.panel_path_obj
 import play.api.libs.json.JsValue
+import com.mongodb.casbah.Imports._
+import com.pharbers.common.another_file_package.alFileOpt
 import play.api.libs.json.Json.toJson
 
 import scala.collection.immutable.Map
+import com.pharbers.panel.panel_path_obj
+import com.pharbers.driver.redis.phRedisDriver
 
 trait SampleData {
 	

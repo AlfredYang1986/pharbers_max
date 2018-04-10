@@ -1,12 +1,13 @@
 package module
 
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
-import com.pharbers.aqll.common.alCmd.scpcmd.scpCmd
 import play.api.libs.json.JsValue
-import com.pharbers.aqll.common.alFileHandler.alFilesOpt._
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+
+import com.pharbers.ErrorCode._
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.common.cmd.scpcmd.scpCmd
+import com.pharbers.common.another_file_package.fileConfig._
+import com.pharbers.alCalcMemory.alOther.alFileHandler.alFilesOpt._
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 /**
   * Created by Wli on 2017/2/20.
   */
@@ -48,7 +49,7 @@ object FilesUploadModule extends ModuleTrait {
         case "error" => throw new Exception("warn aliyun50 scp copy file failed")
       }
     } catch {
-      case ex : Exception => (None, Some(errorToJson(ex.getMessage())))
+      case ex : Exception => (None, Some(errorToJson(ex.getMessage)))
     }
   }
 

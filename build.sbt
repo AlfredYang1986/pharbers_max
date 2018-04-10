@@ -43,7 +43,8 @@ libraryDependencies ++= Seq(
   "com.pharbers" % "pharbers-pattern" % "0.1",
 
   "org.apache.commons" % "commons-email" % "1.4",
-  "net.debasishg" % "redisclient_2.11" % "3.4"
+  "net.debasishg" % "redisclient_2.11" % "3.4",
+  "log4j" % "log4j" % "1.2.17"
 )
 
 

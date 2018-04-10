@@ -1,10 +1,12 @@
 package module
 
-import com.pharbers.aqll.common.alCallHttp
 import play.api.libs.json.JsValue
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+
+import com.pharbers.ErrorCode._
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.aqll.common.alCallHttp
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+
 /**
   * Created by qianpeng on 2017/2/13.
   */
@@ -41,7 +43,7 @@ object CallAkkaHttpModule extends ModuleTrait {
 			//@unit testing
 			//(successToJson(toJson(Map("result" -> toJson(Map("status" -> toJson("success"),"message" -> toJson("201611#")))))), None)
 		} catch {
-			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
+			case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
 		}
 	}
 }

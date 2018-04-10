@@ -1,16 +1,16 @@
 package module
 
-import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.common.Page._
-import com.pharbers.mongodbConnect.{connection_instance, from}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.common.alString.alStringOpt._
-import com.pharbers.aqll.common.alDate.scala.alDateOpt._
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.mongodb.casbah.commons.MongoDBObject
+
+import com.pharbers.ErrorCode._
+import com.pharbers.aqll.common.Page._
 import com.pharbers.bmpattern.ModuleTrait
-import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.mongodbConnect.{connection_instance, from}
+import com.pharbers.common.datatype.string.PhStringOpt.removeSpace
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.pharbers.common.datatype.date.PhDateOpt.{MMyyyy2Long, Timestamp2yyyyMM}
 
 object ResultQueryModuleMessage {
 	sealed class msg_resultqueryBase extends CommonMessage("resultquery", ResultQueryModule)
@@ -41,11 +41,11 @@ object ResultQueryModule extends ModuleTrait {
 		val currentPage = (data \ "currentPage").asOpt[Int].map (x => x).getOrElse(3)
 		val company = (data \ "company").asOpt[String].get
 		try {
-			val result = (from db() in company where conditions).selectSkipTop(SKIP(currentPage))(TAKE)("Date")(calc_resultquery(_)).toList
+			val result = (from db() in company where conditions).selectSkipTop(SKIP(currentPage))(TAKE)("Date")(calc_resultquery).toList
 			lazy val total = (from db() in company where conditions).count
 			(successToJson(toJson(result),toJson(Page(currentPage,total))), None)
 		} catch {
-			case ex : Exception => (None, Some(errorToJson(ex.getMessage())))
+			case ex : Exception => (None, Some(errorToJson(ex.getMessage)))
 		}
 	}
 

@@ -1,13 +1,13 @@
 package module.callhttp
 
-import com.pharbers.aqll.common.alCallHttp
-import com.pharbers.aqll.common.alErrorCode.alErrorCode.{errorToJson, successToJson}
-import com.pharbers.bmmessages.{CommonModules, MessageDefines}
-import com.pharbers.bmpattern.ModuleTrait
-import module.callhttp.CallHttpMessage.MsgCallHttpServer
 import play.api.libs.json.JsValue
-import play.api.libs.json.Json.toJson
 import scala.collection.immutable.Map
+import module.callhttp.CallHttpMessage.MsgCallHttpServer
+
+import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.aqll.common.alCallHttp
+import com.pharbers.ErrorCode.{errorToJson, successToJson}
+import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 
 object CallHttpModule extends ModuleTrait {
 	def dispatchMsg(msg : MessageDefines)(pr : Option[Map[String, JsValue]])(implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
@@ -31,7 +31,7 @@ object CallHttpModule extends ModuleTrait {
 		} catch {
 			case ex: Exception =>
 				println(ex)
-				(None, Some(errorToJson(ex.getMessage())))
+				(None, Some(errorToJson(ex.getMessage)))
 		}
 	}
 }

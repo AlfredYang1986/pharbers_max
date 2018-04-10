@@ -1,17 +1,16 @@
 package module
 
-import com.mongodb.{BasicDBList, DBObject}
-import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
 import play.api.libs.json.JsValue
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
 import play.api.libs.json.Json.toJson
+import com.mongodb.{BasicDBList, DBObject}
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
-import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+
+import com.pharbers.ErrorCode._
 import com.pharbers.bmpattern.ModuleTrait
-import com.pharbers.cliTraits.DBTrait
-import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.common.datatype.date.PhDateOpt
 import com.pharbers.mongodbConnect.connection_instance
+import com.pharbers.sercuity.Sercurity.{md5Hash => md5}
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 
 object CompanyManageModuleMessage {
     sealed class msg_CompanyManageBase extends CommonMessage("companymanage", CompanyManageModule)
@@ -56,7 +55,7 @@ object CompanyManageModule extends ModuleTrait {
             "Ch" -> toJson(Company_Name_lst.get("Ch").asInstanceOf[String]),
             "En" -> toJson(Company_Name_lst.get("En").asInstanceOf[String]),
             "E_Mail" -> toJson(x.get("E-Mail").asInstanceOf[String]),
-            "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(x.get("Timestamp").asInstanceOf[Number].longValue()))))
+            "Timestamp" -> toJson(PhDateOpt.Timestamp2yyyyMMdd(x.get("Timestamp").asInstanceOf[Number].longValue()))))
     }
 
     def delete_company_func(data: JsValue)(implicit cm : CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
@@ -78,7 +77,7 @@ object CompanyManageModule extends ModuleTrait {
         try {
             (successToJson(findOneCompany(db,data)), None)
         } catch {
-            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
         }
     }
 
@@ -93,7 +92,7 @@ object CompanyManageModule extends ModuleTrait {
             au match {
                 case "add" => {
                     val Company_Id_MD5 = Company_Id match {
-                        case "" => alEncryptionOpt.md5(Company_Name_Ch match {
+                        case "" => md5(Company_Name_Ch match {
                             case "" => Company_Name_En
                             case _ => Company_Name_Ch
                         })
@@ -143,7 +142,7 @@ object CompanyManageModule extends ModuleTrait {
                 }
             }
         } catch {
-            case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
+            case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
         }
     }
 
@@ -161,7 +160,7 @@ object CompanyManageModule extends ModuleTrait {
                     "Ch" -> toJson(Company_Name.get("Ch").asInstanceOf[String]),
                     "En" -> toJson(Company_Name.get("En").asInstanceOf[String]),
                     "E_Mail" -> toJson(company.get.get("E-Mail").asInstanceOf[String]),
-                    "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(company.get.get("Timestamp").asInstanceOf[Number].longValue())),
+                    "Timestamp" -> toJson(PhDateOpt.Timestamp2yyyyMMdd(company.get.get("Timestamp").asInstanceOf[Number].longValue())),
                     "User_lst" -> toJson(User_lst.size)
                 ))
             }

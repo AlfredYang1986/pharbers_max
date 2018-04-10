@@ -1,23 +1,20 @@
 package module.calcresult
 
 import java.util.UUID
+import module.calcresult.CalcResultData.CalcResultData
+import module.calcresult.CalcResultMessage._
+import play.api.libs.json.{JsObject, JsValue}
+import play.api.libs.json.Json._
+import com.mongodb.casbah.Imports._
+import module.common.alNearDecemberMonth
+import scala.collection.immutable.Map
 
 import com.pharbers.ErrorCode
 import com.pharbers.aqll.common.MergeParallelResult
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
-import module.calcresult.CalcResultData.CalcResultData
-import module.calcresult.CalcResultMessage._
-import play.api.libs.json.{JsObject, JsValue}
-import play.api.libs.json.Json._
-import com.mongodb.casbah.Imports._
-import com.pharbers.aqll.common.alDate.java.DateUtil
-import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.sercuity.Sercurity
-import module.common.alNearDecemberMonth
-
-import scala.collection.immutable.Map
+import com.pharbers.common.datatype.date.PhDateOpt
 
 // TODO: 这次记住 要重构，已经看不下去了
 object CalcResultModule extends ModuleTrait with CalcResultData {
@@ -131,7 +128,7 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		
 		
 		val mergerResult = MergeParallelResult(lst)
-		val selectDate = alDateOpt.Timestamp2yyyyMM(mergerResult("selectDate").as[Long])
+		val selectDate = PhDateOpt.Timestamp2yyyyMM(mergerResult("selectDate").as[Long])
 		val selectMarket = mergerResult("selectMarket").as[String]
 		val show_company = pr.get("show_company").asOpt[String] match {
 			case None => ""
@@ -142,7 +139,7 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		val curTemp = mergerResult("cur").as[List[String Map String]]
 		val historyTemp = pr.get("history").as[List[String Map String]]
 		
-		val lastYear = alDateOpt.Timestamp2yyyyMM(alDateOpt.yyyyMM2LastLong(selectDate))// 去年同期时间戳
+		val lastYear = PhDateOpt.Timestamp2yyyyMM(PhDateOpt.yyyyMM2LastLong(selectDate))// 去年同期时间戳
 		
 		val curPSumS = (curTemp.filter(f => f("Product").contains(show_company)).map(x => x("Sales").toDouble).sum / 1000000).formatted("%.2f").toDouble
 		val curMSumS = (curTemp.map(x => x("Sales").toDouble).sum / 1000000).formatted("%.2f").toDouble
@@ -217,7 +214,7 @@ object CalcResultModule extends ModuleTrait with CalcResultData {
 		
 		val mergerResult = MergeParallelResult(lst)
 		
-		val selectDate = alDateOpt.Timestamp2yyyyMM(mergerResult("selectDate").as[Long])
+		val selectDate = PhDateOpt.Timestamp2yyyyMM(mergerResult("selectDate").as[Long])
 		val selectMarket = mergerResult("selectMarket").as[String]
 		val show_company = pr.get("show_company").asOpt[String] match {
 			case None => ""

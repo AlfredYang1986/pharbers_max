@@ -1,15 +1,15 @@
 package module.users.UserData
 
 import java.util.Date
-
-import com.mongodb.casbah.Imports._
-import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.cliTraits.DBTrait
-import com.pharbers.message.send.{EmailResetPasswordType, SendMessageTrait}
-import com.pharbers.sercuity.Sercurity
-import com.typesafe.config.ConfigFactory
 import play.api.libs.json.JsValue
+import com.mongodb.casbah.Imports._
 import play.api.libs.json.Json.toJson
+import com.typesafe.config.ConfigFactory
+
+import com.pharbers.cliTraits.DBTrait
+import com.pharbers.sercuity.Sercurity
+import com.pharbers.common.datatype.date.PhDateOpt
+import com.pharbers.message.send.{EmailResetPasswordType, SendMessageTrait}
 
 trait UserData {
 	val URL = ConfigFactory.load("URL")
@@ -75,7 +75,7 @@ trait UserData {
 			"phone" -> toJson(profile.getAs[String]("phone").map(x => x).getOrElse("0")),
 			"companyPhone" -> toJson(profile.getAs[String]("companyPhone").map(x => x).getOrElse("")),
 			"companyAddress" -> toJson(profile.getAs[String]("companyAddress").map(x => x).getOrElse("")),
-			"date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(obj.getAs[Number]("date").getOrElse(0).toString.toLong)),
+			"date" -> toJson(PhDateOpt.Timestamp2yyyyMMdd(obj.getAs[Number]("date").getOrElse(0).toString.toLong)),
 			"scope" -> toJson(profile.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)))
 	}
 
@@ -90,7 +90,7 @@ trait UserData {
 			"showCompany" -> toJson(profile.getAs[String]("showCompany").map(x => x).getOrElse("")),
 			"companyPhone" -> toJson(profile.getAs[String]("companyPhone").map(x => x).getOrElse("")),
 			"companyAddress" -> toJson(profile.getAs[String]("companyAddress").map(x => x).getOrElse("")),
-			"date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(obj.getAs[Number]("date").getOrElse(0).toString.toLong)),
+			"date" -> toJson(PhDateOpt.Timestamp2yyyyMMdd(obj.getAs[Number]("date").getOrElse(0).toString.toLong)),
 			"scope" -> toJson(profile.getAs[List[String]]("scope").map(x => x).getOrElse(Nil)))
 	}
 
