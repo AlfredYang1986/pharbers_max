@@ -1,6 +1,0 @@
-<pharbers-modules>
-    <mongo-config>
-        <host value="192.168.100.174" />
-        <port value="27017" />
-    </mongo-config>
-</pharbers-modules>

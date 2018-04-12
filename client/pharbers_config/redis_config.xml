@@ -1,6 +1,0 @@
-<pharbers-modules>
-    <redis-config>
-        <host value="192.168.100.141" />
-        <port value="6379" />
-    </redis-config>
-</pharbers-modules>
