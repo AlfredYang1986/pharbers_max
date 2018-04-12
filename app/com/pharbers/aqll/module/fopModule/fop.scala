@@ -1,15 +1,15 @@
 package com.pharbers.aqll.module.fopModule
 
 import java.io.File
-
+import java.util.UUID
 import java.io.FileInputStream
-import play.api.mvc.MultipartFormData
-import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
-import java.util.UUID
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import play.api.mvc.MultipartFormData
+import play.api.libs.Files.TemporaryFile
+
+import com.pharbers.common.another_file_package.fileConfig._
 
 object fop {
 	
@@ -22,7 +22,7 @@ object fop {
 				if(!file.exists()) {
 					file.mkdir()
 				}
-				new TemporaryFile(x.ref.file).moveTo(new File(s"$root$program$fileBase$uuid"), true)
+				new TemporaryFile(x.ref.file).moveTo(new File(s"$root$program$fileBase$uuid"), replace = true)
 						lst = lst :+ toJson(uuid.toString)
 				}
 				Json.toJson(Map("status" -> toJson("ok"), "result" -> toJson(lst)))

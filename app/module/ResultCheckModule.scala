@@ -1,17 +1,17 @@
 package module
 
-import com.mongodb.casbah.Imports.DBObject
-import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.mongodbConnect.connection_instance
-import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.common.alNearDecemberMonth
-
 import scala.collection.mutable.ListBuffer
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.mongodb.casbah.Imports.DBObject
+import com.mongodb.casbah.commons.MongoDBObject
+
+import com.pharbers.ErrorCode._
 import com.pharbers.bmpattern.ModuleTrait
+import com.pharbers.common.datatype.date.PhDateOpt
+import com.pharbers.mongodbConnect.connection_instance
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 
 object ResultCheckModuleMessage {
 	sealed class msg_resultCheckBase extends CommonMessage("resultcheck", ResultCheckModule)
@@ -122,9 +122,9 @@ object ResultCheckModule extends ModuleTrait {
 		*/
 	def queryDBObject(market: String,date: String,el: String,list: Option[List[String]]): DBObject ={
 		val ces_date = el match {
-			case "cur" => alDateOpt.yyyyMM2Long(date)
-			case "ear" => alDateOpt.yyyyMM2EarlyLong(date)
-			case "las" => alDateOpt.yyyyMM2LastLong(date)
+			case "cur" => PhDateOpt.yyyyMM2Long(date)
+			case "ear" => PhDateOpt.yyyyMM2EarlyLong(date)
+			case "las" => PhDateOpt.yyyyMM2LastLong(date)
 		}
 		list match {
 			case None => MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$eq" -> ces_date))
@@ -142,20 +142,20 @@ object ResultCheckModule extends ModuleTrait {
 		*/
 	def queryNearTwelveMonth(database: connection_instance,company: String,market: String,date: String,temp_coll: String): List[Map[String,Any]] ={
 		val date_lst_str = alNearDecemberMonth.diff12Month(date)
-		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> alDateOpt.ArrayDate2ArrayTimeStamp(alNearDecemberMonth.diff12Month(date))))
+		val query = MongoDBObject("Market" -> market,"Date" -> MongoDBObject("$in" -> PhDateOpt.ArrayDate2ArrayTimeStamp(alNearDecemberMonth.diff12Month(date))))
 		database.getCollection(temp_coll).count() match {
 			case 0 => {
 				val list_map = database.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
-					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),"f_sales" -> x.get("f_sales")
+					Map("Date" -> PhDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),"f_sales" -> x.get("f_sales")
 					)).toList
 				matchDataByDate(date_lst_str,(None,Some(SumByDate(list_map))))
 			}
 			case _ => {
 				val temp_list_map = database.getCollection(temp_coll).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
-					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),"f_sales" -> x.get("f_sales")
+					Map("Date" -> PhDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),"f_sales" -> x.get("f_sales")
 					)).toList
 				val fina_list_map = database.getCollection(company).find(query).sort(MongoDBObject("Date" -> 1)).map(x =>
-					Map("Date" -> alDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),"f_sales" -> x.get("f_sales")
+					Map("Date" -> PhDateOpt.Timestamp2yyyyMM(x.get("Date").asInstanceOf[Number].longValue()),"f_sales" -> x.get("f_sales")
 					)).toList
 				matchDataByDate(date_lst_str,(Some(SumByDate(temp_list_map)),Some(SumByDate(fina_list_map))))
 			}

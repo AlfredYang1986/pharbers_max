@@ -1,17 +1,17 @@
 package module
 
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json.toJson
 import com.mongodb.{BasicDBList, BasicDBObject, DBObject}
 import com.pharbers.mongodbConnect.{connection_instance, from}
-import play.api.libs.json.JsValue
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.commons.{MongoDBList, MongoDBObject}
-import com.pharbers.aqll.common.alCommonEnum
-import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
-import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+
+import com.pharbers.ErrorCode._
 import com.pharbers.bmpattern.ModuleTrait
-import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.aqll.common.alCommonEnum
+import com.pharbers.common.datatype.date.PhDateOpt
+import com.pharbers.sercuity.Sercurity.{md5Hash => md5}
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 
 object UserManageModuleMessage {
     sealed class msg_UserManageBase extends CommonMessage("usermanage", UserManageModule)
@@ -61,7 +61,7 @@ object UserManageModule extends ModuleTrait {
                 "isadministrator" -> toJson(user.get("isadministrator").asInstanceOf[Number].longValue() match {
                     case 0 => alCommonEnum.AverageUser
                     case 1 => alCommonEnum.Administrators}),
-                "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(user.get("Timestamp").asInstanceOf[Number].longValue()))
+                "Timestamp" -> toJson(PhDateOpt.Timestamp2yyyyMMdd(user.get("Timestamp").asInstanceOf[Number].longValue()))
             ))
         }
         toJson(User_lst)
@@ -135,7 +135,7 @@ object UserManageModule extends ModuleTrait {
 //                            "Password" -> toJson(u.get("Password").asInstanceOf[String]),
                             "auth" -> toJson(u.get("auth").asInstanceOf[Number].intValue()),
                             "isadministrator" -> toJson(u.get("isadministrator").asInstanceOf[Number].intValue()),
-                            "Timestamp" -> toJson(alDateOpt.Timestamp2yyyyMMdd(u.get("Timestamp").asInstanceOf[Number].longValue())),
+                            "Timestamp" -> toJson(PhDateOpt.Timestamp2yyyyMMdd(u.get("Timestamp").asInstanceOf[Number].longValue())),
                             "Company_CH" -> toJson(company.head.get("Ch").asInstanceOf[String]),
                             "Company_EN" -> toJson(company.head.get("En").asInstanceOf[String])
                         ))

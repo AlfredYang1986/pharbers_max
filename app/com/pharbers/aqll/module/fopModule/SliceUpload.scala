@@ -1,16 +1,16 @@
 package com.pharbers.aqll.module.fopModule
 
-import play.api.libs.Files.TemporaryFile
-import play.api.mvc.MultipartFormData
 import java.io._
-
-import com.pharbers.aqll.common.alFileHandler.fileConfig._
+import play.api.libs.Files
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
-import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
-import com.pharbers.aqll.common.alString.alStringOpt
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import play.api.libs.Files
+import play.api.mvc.MultipartFormData
+import play.api.libs.Files.TemporaryFile
+
+import com.pharbers.ErrorCode._
+import com.pharbers.sercuity.Sercurity.{md5Hash => md5}
+import com.pharbers.common.another_file_package.fileConfig._
+import com.pharbers.common.datatype.string.PhStringOpt.removeSpace
 
 /**
   * Created by liwei on 2017/4/7.
@@ -28,10 +28,11 @@ object SliceUpload {
                 val t_lst = getPathByFileType(data)
                 val filename = t_lst.head match {
                     case "Hospital" => {
-                        val company = data.dataParts.get("company").get.head
-                        val date = data.dataParts.get("date").get.head
-                        val market = data.dataParts.get("market").get.head
-                        alEncryptionOpt.md5(company + date + alStringOpt.removeSpace(market))
+                        val company = data.dataParts("company").head
+                        val date = data.dataParts("date").head
+                        val market = data.dataParts("market").head
+
+                        md5(company + date + removeSpace(market))
                     }
                     case _ => x.filename
                 }
@@ -52,10 +53,10 @@ object SliceUpload {
                 println(t_lst)
                 val filename = t_lst.head match {
                     case "Hospital" => {
-                        val company = data.dataParts.get("company").get.head
-                        val date = data.dataParts.get("date").get.head
-                        val market = data.dataParts.get("market").get.head
-                        alEncryptionOpt.md5(company + date + alStringOpt.removeSpace(market))
+                        val company = data.dataParts("company").head
+                        val date = data.dataParts("date").head
+                        val market = data.dataParts("market").head
+                        md5(company + date + removeSpace(market))
                     }
                     case _ => x.filename
                 }
@@ -100,8 +101,8 @@ object SliceUpload {
 
     // TODO : 根据前台传过来的文件类型归档文件
     def getPathByFileType(data: MultipartFormData[TemporaryFile]): List[String] = {
-        val filetype = data.dataParts.get("filetype").get.head
-        val company = data.dataParts.get("company").get.head
+        val filetype = data.dataParts("filetype").head
+        val company = data.dataParts("company").head
         val outpath = filetype match {
 //            case "CPA" => s"$root$program$fileBase$company$client_cpa_file"
 //            case "GYCX" => s"$root$program$fileBase$company$client_gycx_file"

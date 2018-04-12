@@ -40,15 +40,15 @@
                         <div class="layui-col-md11 condition">
                             <div class="layui-btn-group">
                                 <div class="btn-group" role="group" style="margin: 0 0 0 5px;">
-                                    <button type="button" class="layui-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <button type="button" class="layui-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="exportResult">
                                         <i class="layui-icon">&#xe621;</i>
                                         导出
-                                        <span class="caret"></span>
+                                        <!--<span class="caret"></span>-->
                                     </button>
-                                    <ul class="dropdown-menu">
+                                    <!--<ul class="dropdown-menu">
                                         <li><a href="#" id="exportToCSV">CSV</a></li>
                                         <li><a href="#" id="exportToTXT">TXT</a></li>
-                                    </ul>
+                                    </ul>-->
                                 </div>
                             </div>
                         </div>
@@ -67,10 +67,46 @@
             </div>
             <div style="float: right;" id="page"></div>
         </div>
-    </div>
+        <div id="btn_exportResult" style="display: none;"></div>
 } {
     <script>
             var f = new Facade();
+            var form,layui;
+
+            //导出弹窗
+            $("#exportResult").click(function(){
+                layui.use(['form', 'layer'], function(){
+                    form = layui.form; layer = layui.layer;
+                    form.on('submit(*)', function (data) {
+                        generat_panel_action(data, layer);
+                        return false;
+                    })
+                });
+                var market = $('select[name="market"]').val();
+                var date = $('input[name="date"]').val();
+                $("#btn_exportResult").empty();
+                $("#btn_exportResult").append(
+                '<div class="layui-form" style="font-size: 18px;line-height: 80px;">' +
+                '<div class="layui-form-item" style="margin-top: 30px">'+
+                '<label class="layui-form-label col-md-2">数据格式</label><div class="col-md-6">' +
+                '<select style="padding-left: 20px"><option value ="nhwa">恩华交付格式</option> </select> </div></div>' +
+                '<div class="layui-form-item" style="margin-top: 25px; line-height: 1px;"><label class="layui-form-label col-md-2">文件格式</label>' +
+                '<div class="layui-input-block">&nbsp;&nbsp;&nbsp<input type="radio" name="radio_type" value="csv" title="CSV">&nbsp;&nbsp;&nbsp;&nbsp;' +
+                '<input type="radio" name="radio_type" value="excel" title="Excel"></div></div></div>'
+                )
+                f.alertModule.open({
+                        title: '请选择导出格式',
+                        offset: '200px',
+                        content: $("#btn_exportResult").html(),
+                        btns: ['取消', '确认导出'],
+                        btn1: function(index) {layer.close(index);},
+                        btn2: function() {
+
+                        }
+                    });
+                form.render()
+            });
+
             $(function () {
                 windowWidth();
                 $(window).resize(function(){

@@ -1,11 +1,11 @@
 package module.history.HistoryData
 
-import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.Imports.{DBObject, MongoDBObject}
-import com.pharbers.aqll.common.alDate.java.DateUtil
-import com.pharbers.aqll.common.alDate.scala.alDateOpt
 import play.api.libs.json.JsValue
+import com.mongodb.casbah.Imports._
 import play.api.libs.json.Json.toJson
+import com.mongodb.casbah.Imports.{DBObject, MongoDBObject}
+
+import com.pharbers.common.datatype.date.{DateUtil, PhDateOpt}
 
 trait HistoryData {
 	
@@ -41,10 +41,10 @@ trait HistoryData {
 			Map("market" -> toJson(r))
 		}
 	}
-	
+
 	implicit val d2m: DBObject => Map[String, JsValue] = { obj =>
 		Map(
-			"Date" -> toJson(alDateOpt.Timestamp2yyyyMM(obj.getAs[Number]("Date").get.longValue())),
+			"Date" -> toJson(PhDateOpt.Timestamp2yyyyMM(obj.getAs[Number]("Date").get.longValue())),
 			"Provice" -> toJson(obj.getAs[String]("Provice").get),
 			"City" -> toJson(obj.getAs[String]("City").get),
 			"Panel_ID" -> toJson(obj.getAs[String]("Panel_ID").get),

@@ -1,15 +1,16 @@
 package module
 
+import play.api.libs.json._
 import com.mongodb.DBObject
+import play.api.libs.json.Json._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.aqll.common.alEncryption.alEncryptionOpt
-import play.api.libs.json.Json._
-import play.api.libs.json._
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+
+import com.pharbers.ErrorCode._
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.sercuity.Sercurity.{md5Hash => md5}
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 
 object LoginModuleMessage {
     sealed class msg_LoginBaseQuery extends CommonMessage("login", LoginModule)
@@ -31,7 +32,7 @@ object LoginModule extends ModuleTrait {
           case Some(x) => {
               key match {
                   case "Account" => Some("User_lst."+key $eq x.toString)
-                  case _ => Some("User_lst."+key $eq alEncryptionOpt.md5(x.asInstanceOf[String]))
+                  case _ => Some("User_lst."+key $eq md5(x.asInstanceOf[String]))
               }
           }
         }

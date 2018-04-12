@@ -3,13 +3,13 @@ package module
 import com.mongodb.casbah.commons.MongoDBObject
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import com.pharbers.aqll.common.alDate.scala.alDateOpt
-import com.pharbers.aqll.common.alEncryption.alEncryptionOpt._
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+
+import com.pharbers.ErrorCode._
 import com.pharbers.bmpattern.ModuleTrait
-import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.common.datatype.date.PhDateOpt
 import com.pharbers.mongodbConnect.connection_instance
+import com.pharbers.sercuity.Sercurity.{md5Hash => md5}
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 
 object MarketManageModuleMessage {
     sealed class msg_MarketManageBase extends CommonMessage("marketmanage", MarketManageModule)
@@ -42,7 +42,7 @@ object MarketManageModule extends ModuleTrait {
                 toJson(Map(
                     "Market_Id" -> toJson(x.get("Market_Id").asInstanceOf[String]),
                     "Market_Name" -> toJson(x.get("Market_Name").asInstanceOf[String]),
-                    "Date" -> toJson(alDateOpt.Timestamp2yyyyMMdd(x.get("Date").asInstanceOf[Number].longValue()))
+                    "Date" -> toJson(PhDateOpt.Timestamp2yyyyMMdd(x.get("Date").asInstanceOf[Number].longValue()))
                 ))).toList
             (successToJson(toJson(result)), None)
         } catch {

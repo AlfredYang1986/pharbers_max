@@ -1,16 +1,15 @@
 package module
 
-import com.mongodb.casbah.commons.MongoDBObject
-import com.pharbers.mongodbConnect.{connection_instance, from}
-import play.api.libs.json.Json.toJson
 import play.api.libs.json._
-import com.pharbers.aqll.common.alDate.scala.alDateOpt
-
+import play.api.libs.json.Json.toJson
 import scala.collection.mutable.ListBuffer
-import com.pharbers.aqll.common.alErrorCode.alErrorCode._
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import com.mongodb.casbah.commons.MongoDBObject
+
+import com.pharbers.ErrorCode._
 import com.pharbers.bmpattern.ModuleTrait
-import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.common.datatype.date.PhDateOpt
+import com.pharbers.mongodbConnect.{connection_instance, from}
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 
 object SampleReportModuleMessage {
 	sealed class msg_ReportBaseQuery extends CommonMessage("samplereport", SampleReportModule)
@@ -28,31 +27,31 @@ object SampleReportModule extends ModuleTrait {
 		val query = MongoDBObject("Company" -> company)
 		implicit val db = cm.modules.get.get("db").map (x => x.asInstanceOf[connection_instance]).getOrElse(throw new Exception("no db connection"))
 		try {
-			val market_lst = (from db() in "FactResult" where query).selectSort("Date")(MongoDBReport(_)).toList
-			val market_arr = market_lst.asInstanceOf[List[Map[String,Any]]].groupBy(x => x.get("Market").get)
+			val market_lst = (from db() in "FactResult" where query).selectSort("Date")(MongoDBReport).toList
+			val market_arr = market_lst.asInstanceOf[List[Map[String,Any]]].groupBy(x => x("Market"))
 			val lb = new ListBuffer[JsValue]()
 			market_arr.foreach { x =>
 				val date_lst_sb,dhp_lst_sb = new ListBuffer[JsValue]()
 				x._2.foreach { y =>
-					val date = y.get("Date").get
+					val date = y("Date")
 					date_lst_sb.append(toJson(s"$date"))
-					val e_query = MongoDBObject("Company" -> company,"Market" -> y.get("Market").get,"Date" -> MongoDBObject("$eq" -> alDateOpt.yyyyMM2EarlyLong(date.toString)))
-					val l_query = MongoDBObject("Company" -> company,"Market" -> y.get("Market").get,"Date" -> MongoDBObject("$eq" -> alDateOpt.yyyyMM2LastLong(y.get("Date").get.toString)))
+					val e_query = MongoDBObject("Company" -> company,"Market" -> y("Market"),"Date" -> MongoDBObject("$eq" -> PhDateOpt.yyyyMM2EarlyLong(date.toString)))
+					val l_query = MongoDBObject("Company" -> company,"Market" -> y("Market"),"Date" -> MongoDBObject("$eq" -> PhDateOpt.yyyyMM2LastLong(y("Date").toString)))
 					dhp_lst_sb.append(
-						toJson(Map("Date" -> toJson(y.get("Date").get.toString),
-							"c_HospNum" -> toJson(y.get("HospNum").get.toString),
-							"c_ProductNum" -> toJson(y.get("ProductNum").get.toString),
-							"e_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryProductNum(_)).toList,"ProductNum").toString),
-							"e_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryHospNum(_)).toList,"HospNum").toString),
-							"l_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryProductNum(_)).toList,"ProductNum").toString),
-							"l_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryHospNum(_)).toList,"HospNum").toString)
+						toJson(Map("Date" -> toJson(y("Date").toString),
+							"c_HospNum" -> toJson(y("HospNum").toString),
+							"c_ProductNum" -> toJson(y("ProductNum").toString),
+							"e_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryProductNum).toList,"ProductNum").toString),
+							"e_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where e_query).select(queryHospNum).toList,"HospNum").toString),
+							"l_HospNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryProductNum).toList,"ProductNum").toString),
+							"l_ProductNum" -> toJson(getNum((from db() in "SampleCheckResult" where l_query).select(queryHospNum).toList,"HospNum").toString)
 						)))
 				}
 				lb.append(toJson(Map("Market" -> toJson(x._1.toString),"date_lst_sb" -> toJson(date_lst_sb.toList),"dhp_lst_sb" -> toJson(dhp_lst_sb.toList))))
 			}
 			(successToJson(toJson(lb)), None)
 		} catch {
-			case ex: Exception => (None, Some(errorToJson(ex.getMessage())))
+			case ex: Exception => (None, Some(errorToJson(ex.getMessage)))
 		}
 	}
 
@@ -60,7 +59,7 @@ object SampleReportModule extends ModuleTrait {
 		lst match {
 			case Nil => 0
 			case i if i.equals(null) => 0
-			case i if !i.equals(null) => lst.head.get(keystr).get.asInstanceOf[Number].longValue()
+			case i if !i.equals(null) => lst.head(keystr).asInstanceOf[Number].longValue()
 		}
 	}
 
@@ -73,7 +72,7 @@ object SampleReportModule extends ModuleTrait {
 			"HospNum" -> d.getAs[Number]("HospNum").get.longValue(),
 			"ProductNum" -> d.getAs[Number]("ProductNum").get.longValue(),
 			"Market" -> d.getAs[String]("Market").get,
-			"Date" -> alDateOpt.Timestamp2yyyyMM(d.getAs[Number]("Date").get.longValue())
+			"Date" -> PhDateOpt.Timestamp2yyyyMM(d.getAs[Number]("Date").get.longValue())
 		)
 	}
 }
