@@ -58,19 +58,4 @@ class requestArgsQuery @Inject() (implicit akkasys : ActorSystem) extends Contro
 			case _ : Exception => BadRequest("Bad Request for input")
 		}
 	}
-	
-	//测试
-	def uploadRequestArgs2(request : Request[TemporaryFile]) : Result = {
-		try {
-//			println(request.body.file)
-//			request.body.moveTo(new File("/Users/qianpeng/FileBase/fea9f203d4f593a96f0d6faa91ba24ba/Client/CPA/aa.xlsx"), true)
-//			request.body.asMultipartFormData.map { x =>
-//				Ok(func(x))
-//			}.getOrElse (BadRequest("Bad Request for input"))
-			
-			Ok("File uploaded")
-		} catch {
-			case ex : Exception => BadRequest("Bad Request for input")
-		}
-	}
 }

@@ -3,7 +3,7 @@ package module.auth.AuthData
 
 import com.mongodb.casbah.Imports.{DBObject, _}
 import com.pharbers.cliTraits.DBTrait
-import com.pharbers.message.send.{EmailActiveCodeType, EmailAuthCodeType, SendMessageTrait}
+//import com.pharbers.message.send.{EmailActiveCodeType, EmailAuthCodeType, SendMessageTrait}
 import com.typesafe.config.ConfigFactory
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
@@ -76,17 +76,17 @@ trait AuthData {
 			"scope" -> toJson(reg_content.as[MongoDBList]("scope").toList.asInstanceOf[List[String]]))
 	}
 	
-	def emailAuthCode(email: String, token: String)(implicit msg: SendMessageTrait, db: DBTrait): String = {
-		// TODO： 改成配置文件
-		val url = URL.getString("URL.registerCode")
-		val html = views.html.emailContent.authcode(url, email, token)
-		msg.sendMailMessage(email, EmailAuthCodeType()).sendHtmlMail.setSubTheme("授权码").setContext(html.toString).sendToEmail
-	}
-	
-	def emailAtiveAccount(email: String, token: String)(implicit msg: SendMessageTrait, db: DBTrait): String = {
-		// TODO： 改成配置文件
-		val url = s"${URL.getString("URL.validation")}${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
-		val html = views.html.emailContent.activeAccount(email, url)
-		msg.sendMailMessage(email, EmailActiveCodeType()).sendHtmlMail.setSubTheme("快速登入").setContext(html.toString).sendToEmail
-	}
+//	def emailAuthCode(email: String, token: String)(implicit msg: SendMessageTrait, db: DBTrait): String = {
+//		// TODO： 改成配置文件
+//		val url = URL.getString("URL.registerCode")
+//		val html = views.html.emailContent.authcode(url, email, token)
+//		msg.sendMailMessage(email, EmailAuthCodeType()).sendHtmlMail.setSubTheme("授权码").setContext(html.toString).sendToEmail
+//	}
+//
+//	def emailAtiveAccount(email: String, token: String)(implicit msg: SendMessageTrait, db: DBTrait): String = {
+//		// TODO： 改成配置文件
+//		val url = s"${URL.getString("URL.validation")}${java.net.URLEncoder.encode(token, "ISO-8859-1")}"
+//		val html = views.html.emailContent.activeAccount(email, url)
+//		msg.sendMailMessage(email, EmailActiveCodeType()).sendHtmlMail.setSubTheme("快速登入").setContext(html.toString).sendToEmail
+//	}
 }
