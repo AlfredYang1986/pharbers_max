@@ -1,4 +1,4 @@
-package com.pharbers.aqll.dbmodule
+package com.pharbers.module
 
 import com.pharbers.dbManagerTrait.dbInstanceManager
 //import com.pharbers.message.send.SendMessageTrait

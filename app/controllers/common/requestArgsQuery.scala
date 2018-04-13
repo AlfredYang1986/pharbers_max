@@ -1,6 +1,5 @@
 package controllers.common
 
-import java.io.File
 import javax.inject.Inject
 
 import play.api.mvc._
@@ -13,7 +12,6 @@ import com.pharbers.bmpattern.RoutesActor
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
-import play.api.libs.Files
 import play.api.libs.Files.TemporaryFile
 
 object requestArgsQuery {
@@ -21,7 +19,7 @@ object requestArgsQuery {
 }
 
 class requestArgsQuery @Inject() (implicit akkasys : ActorSystem) extends Controller {
-	implicit val t = Timeout(1 * 60 * 10 second)
+	implicit val t = Timeout(5 second)
 
 	def requestArgs(request : Request[AnyContent])(func : JsValue => JsValue) : Result = {
 		try {

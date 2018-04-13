@@ -1,4 +1,4 @@
-package com.pharbers.aqll.dbmodule
+package com.pharbers.module
 
 import javax.inject.Singleton
 

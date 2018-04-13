@@ -1,5 +1,6 @@
 import play.routes.compiler.InjectedRoutesGenerator
 import play.sbt.PlayScala
+import scala.language.experimental.macros
 
 def common = Seq(
 	scalaVersion := "2.11.8",

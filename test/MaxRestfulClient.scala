@@ -12,12 +12,64 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionContext) {
     @Inject def this(ws: WSClient, ec: ExecutionContext) = this(ws, "http://127.0.0.1:9000")(ec)
 
-    def authLoginWithPhone(phone : String, screen_name : String = "", screen_photo : String = "") : Future[JsValue] = {
-        ws.url(baseUrl + "/al/auth")
+    def pushUser(user : JsValue) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/user/push")
             .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
-            .post(toJson(Map("phone" -> phone, "screen_name" -> screen_name, "screen_photo" -> screen_photo)))
+            .post(
+                toJson(Map(
+                    "user" -> user
+                ))
+            )
             .map { response =>
 //                println(response.json)
+                response.json
+            }
+    }
+
+    def popUser(user_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/user/pop")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "user_id" -> toJson(user_id)
+                    ))
+                ))
+            )
+            .map { response =>
+                //                println(response.json)
+                response.json
+            }
+    }
+
+    def queryUser(user_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/user/query")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "user_id" -> toJson(user_id)
+                    ))
+                ))
+            )
+            .map { response =>
+                //                println(response.json)
+                response.json
+            }
+    }
+
+    def queryUserMulti(user_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/user/query/multi")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "users" -> toJson(user_id :: Nil)
+                    ))
+                ))
+            )
+            .map { response =>
+                //                println(response.json)
                 response.json
             }
     }
