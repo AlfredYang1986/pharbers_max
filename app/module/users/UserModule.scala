@@ -21,13 +21,4 @@ object UserModule extends ModuleTrait {
     }
 
     object inner_traits extends UserCreation with UserResult with UserCondition
-
-//    def queryUserMulti(data : JsValue)
-//                      (pr : Option[Map[String, JsValue]])
-//                      (implicit cm : CommonModules) : (Option[Map[String, JsValue]], Option[JsValue]) = {
-//
-//        import inner_traits.qcm
-//        import inner_traits.sr
-//        processor (value => returnValue(queryMulti(value)("users"), "users"))(MergeStepResult(data, pr))
-//    }
 }
