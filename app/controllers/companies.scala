@@ -1,6 +1,5 @@
-package controllers.users
+package controllers
 
-import javax.inject.Inject
 import akka.actor.ActorSystem
 import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
 import com.pharbers.bmpattern.LogMessage.msg_log
@@ -8,14 +7,15 @@ import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
-import module.users.UserMessage._
+import javax.inject.Inject
+import module.UserMessage.{msg_popUser, msg_pushUser, msg_queryUser, msg_queryUserMulti}
 import play.api.libs.json.Json.toJson
 import play.api.mvc.Action
 
-class UsersController @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait) {
+class companies @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait) {
     implicit val as = as_inject
 
-    def pushUser = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+    def pushCompany = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
         import com.pharbers.bmpattern.LogMessage.common_log
         import com.pharbers.bmpattern.ResultMessage.common_result
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("push new user"))), jv)
@@ -23,7 +23,7 @@ class UsersController @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, 
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })
 
-    def popUser = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+    def popCompany = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
         import com.pharbers.bmpattern.LogMessage.common_log
         import com.pharbers.bmpattern.ResultMessage.common_result
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("pop user"))), jv)
@@ -31,7 +31,7 @@ class UsersController @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, 
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })
 
-    def queryUser = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+    def queryCompany = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
         import com.pharbers.bmpattern.LogMessage.common_log
         import com.pharbers.bmpattern.ResultMessage.common_result
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("query user"))), jv)
@@ -39,7 +39,7 @@ class UsersController @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, 
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })
 
-    def queryUserMulti = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
+    def queryCompanyMulti = Action(request => requestArgsQuery().requestArgsV2(request) { jv =>
         import com.pharbers.bmpattern.LogMessage.common_log
         import com.pharbers.bmpattern.ResultMessage.common_result
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("query user multi"))), jv)

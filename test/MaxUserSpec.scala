@@ -1,4 +1,3 @@
-import module.common.pharbersmacro.commonMacro
 import org.specs2.mutable.Specification
 import org.specs2.specification.{AfterAll, BeforeAll}
 import play.api.libs.json.JsValue

@@ -73,4 +73,34 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 response.json
             }
     }
+
+    def pushCompany(company : JsValue) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/company/push")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "company" -> company
+                ))
+            )
+            .map { response =>
+                //                println(response.json)
+                response.json
+            }
+    }
+
+    def popCompany(company_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/company/pop")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "company_id" -> company_id
+                    ))
+                ))
+            )
+            .map { response =>
+                //                println(response.json)
+                response.json
+            }
+    }
 }

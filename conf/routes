@@ -2,12 +2,17 @@
 # This file defines all application routes (Higher priority routes first)
 
 # 用户登入
-POST    /auth/authWithPassword                       controllers.auth.AuthController.auth_with_password
+POST     /api/user/push                               controllers.users.pushUser
+POST     /api/user/pop                                controllers.users.popUser
+POST     /api/user/query                              controllers.users.queryUser
+POST     /api/user/query/multi                        controllers.users.queryUserMulti
 
-POST     /api/user/push                               controllers.users.UsersController.pushUser
-POST     /api/user/pop                                controllers.users.UsersController.popUser
-POST     /api/user/query                              controllers.users.UsersController.queryUser
-POST     /api/user/query/multi                        controllers.users.UsersController.queryUserMulti
+# 公司信息录入
+POST     /api/company/push                               controllers.companies.pushUser
+POST     /api/company/pop                                controllers.companies.popUser
+POST     /api/company/query                              controllers.companies.queryUser
+POST     /api/company/query/multi                        controllers.companies.queryUserMulti
+
 #POST    /user/update                                 controllers.auth.AuthController.auth_with_password
 #POST    /user/search                                 controllers.auth.AuthController.auth_with_password
 
