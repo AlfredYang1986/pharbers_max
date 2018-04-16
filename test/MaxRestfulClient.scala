@@ -103,4 +103,87 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 response.json
             }
     }
+
+    def queryCompany(company_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/company/query")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "company_id" -> company_id
+                    ))
+                ))
+            )
+            .map { response =>
+                //                println(response.json)
+                response.json
+            }
+    }
+
+    def queryCompanyMulti(company_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/company/query/multi")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "companies" -> toJson(company_id :: Nil)
+                    ))
+                ))
+            )
+            .map { response =>
+                //                println(response.json)
+                response.json
+            }
+    }
+
+    def bindUserCompany(user_id : String, company_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/user/company/bind")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "user" -> toJson(Map(
+                        "user_id" -> toJson(user_id)
+                    )),
+                    "company" -> toJson(Map(
+                        "company_id" -> toJson(company_id)
+                    ))
+                ))
+            )
+            .map { response =>
+                //                println(response.json)
+                response.json
+            }
+    }
+
+    def unbindUserCompany(bind_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/user/company/unbind")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "bind_id" -> toJson(bind_id)
+                    ))
+                ))
+            )
+            .map { response =>
+                //                println(response.json)
+                response.json
+            }
+    }
+
+    def userDetail(user_id: String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/user/detail")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "user_id" -> toJson(user_id)
+                    ))
+                ))
+            )
+            .map { response =>
+                //                println(response.json)
+                response.json
+            }
+    }
 }

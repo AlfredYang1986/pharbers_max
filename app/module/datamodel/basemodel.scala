@@ -3,16 +3,25 @@ package module.datamodel
 import com.mongodb.casbah.Imports._
 import play.api.libs.json.JsValue
 
-trait basemodel {
+import scala.reflect.ClassTag
+
+trait basemodel extends ClassTag[basemodel] {
 
     val primary_id = "_id"
     val name : String
-    val names : String = name + "s"
+    lazy val names : String = name + "s"
+
+    def runtimeClass: Class[_]
 
     /**
-      * query condition : 查询函数
+      * query condition : id查询函数
       */
     val qc : JsValue => DBObject
+
+    /**
+      * query condition : 详细查询函数
+      */
+    val anqc : JsValue => DBObject
 
     /**
       * query condition multi : 多重查询函数
