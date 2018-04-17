@@ -14,8 +14,6 @@ import module.common.processor
 import module.common.processor._
 import module.stragety.impl
 
-import scala.reflect.ClassTag
-
 abstract class msg_CompanyCommand extends CommonMessage("companies", CompanyModule)
 
 object CompanyMessage {
