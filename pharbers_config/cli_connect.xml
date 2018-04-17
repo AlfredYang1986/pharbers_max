@@ -4,6 +4,7 @@
         <server_port value="27017" />
         <connect_name value="Pharbers" />
         <connect_pwd value="Pharbers2017." />
-        <conn_name value="Max_Basic" />
+        <!--<conn_name value="Max_Basic" />-->
+        <conn_name value="pharbers-max" />
     </mongodb-connect>
 </pharbers-modules>
