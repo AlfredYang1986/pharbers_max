@@ -1,5 +1,7 @@
 package module
 
+import com.mongodb.casbah
+import com.mongodb.casbah.Imports
 import com.mongodb.casbah.Imports._
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
@@ -12,7 +14,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.common.processor
 import module.common.processor._
-import module.stragety.impl
+import module.stragety.{bind, impl, one2many}
 
 abstract class msg_CompanyCommand extends CommonMessage("companies", CompanyModule)
 
@@ -21,6 +23,10 @@ object CompanyMessage {
     case class msg_popCompany(data : JsValue) extends msg_CompanyCommand
     case class msg_queryCompany(data : JsValue) extends msg_CompanyCommand
     case class msg_queryCompanyMulti(data : JsValue) extends msg_CompanyCommand
+
+//    case class msg_bindUserCompany(data : JsValue) extends msg_CompanyCommand
+//    case class msg_unbindUserCompany(data : JsValue) extends msg_CompanyCommand
+    case class msg_expendUsersInfo(data : JsValue) extends msg_CompanyCommand
 }
 
 class company extends basemodel {
@@ -94,15 +100,56 @@ class company extends basemodel {
     }
 }
 
+class company2user extends one2many[company, user] with bind[company, user] {
+    override def createThis: company = impl[company]
+    override def createThat: user = impl[user]
+
+    override def one2manyssr(obj: Imports.DBObject): Map[String, JsValue] =
+        Map("_id" -> toJson(obj.getAs[String]("user_id").get))
+
+    override def one2manyaggregate(lst: List[Map[String, JsValue]]): DBObject =
+        $or(lst map (x => DBObject("_id" -> new ObjectId(x.get("_id").get.asOpt[String].get))))
+
+    override def one2manysdr(obj: Imports.DBObject): Map[String, JsValue] =
+        Map(
+            "condition" -> toJson(Map(
+                "bind_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString),
+                "user_id" -> toJson(obj.getAs[String]("company_id").get),
+                "company_id" -> toJson(obj.getAs[String]("company_id").get)
+            ))
+        )
+
+    override def unbind(data: JsValue): casbah.Imports.DBObject = {
+        val builder = MongoDBObject.newBuilder
+        val _id = (data \ "condition" \ "bind_id").asOpt[String].get
+        builder += "_id" -> new ObjectId(_id)
+
+        builder.result
+    }
+
+    override def bind(data: JsValue): Imports.DBObject = {
+        val builder = MongoDBObject.newBuilder
+        builder += "_id" -> ObjectId.get()
+        builder += "user_id" -> (data \ "user" \ "user_id").asOpt[String].get
+        builder += "company_id" -> (data \ "company" \ "company_id").asOpt[String].get
+
+        builder.result
+    }
+}
+
 object CompanyModule extends ModuleTrait {
     val ip = impl[company]
+    val oo = impl[company2user]
     import ip._
+    import oo._
 
     def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
         case msg_pushCompany(data) => pushMacro(d2m, ssr, data, names, name)
         case msg_popCompany(data) => popMacro(qc, popr, data, names)
         case msg_queryCompany(data) => queryMacro(qc, dr, MergeStepResult(data, pr), names, name)
         case msg_queryCompanyMulti(data) => queryMultiMacro(qcm, sr, MergeStepResult(data, pr), names, names)
+        case msg_expendUsersInfo(data) =>
+            processor(value => returnValue(queryConnection(value)(pr)("user_company")))(MergeStepResult(data, pr))
         case _ => ???
     }
 }

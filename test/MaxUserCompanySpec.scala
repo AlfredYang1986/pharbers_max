@@ -42,6 +42,7 @@ class MaxUserCompanySpec extends Specification with BeforeAll with AfterAll {
 
             The 'max' adding company functions should
                     query user with company info            $queryUserDetail
+                    query company with user info            $queryCompanyDetail
                                                                               """
 //    bind user and company               $bindUserCompanyTest
 
@@ -137,6 +138,26 @@ class MaxUserCompanySpec extends Specification with BeforeAll with AfterAll {
             val company = (user \ "company").asOpt[JsValue].get
             (company \ "company_name").asOpt[String].get must_== "公司"
             (company \ "company_des").asOpt[String].get must_== "工商税务"
+        }
+    }
+
+    def queryCompanyDetail = {
+        WsTestClient.withClient { client =>
+            val reVal = Await.result(
+                new MaxRestfulClient(client, "http://127.0.0.1:9000").companyDetail(company_id), time_out)
+            (reVal \ "status").asOpt[String].get must_== "ok"
+
+            println(reVal)
+            val result = (reVal \ "result").asOpt[JsValue].get
+            val company = (result \ "company").asOpt[JsValue].get
+            (company \ "company_name").asOpt[String].get must_== "公司"
+            (company \ "company_des").asOpt[String].get must_== "工商税务"
+
+            val user = (company \ "users").asOpt[List[JsValue]].get.head
+            (user \ "screen_name").asOpt[String].get must_== "名字"
+            (user \ "screen_photo").asOpt[String].get must_== "头像"
+            (user \ "email").asOpt[String].get must_== "alfredyang@blackmirror.tech"
+            (user \ "phone").asOpt[String].get must_== "13720200856"
         }
     }
 }

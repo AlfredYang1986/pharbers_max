@@ -15,7 +15,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import module.common.processor
 import module.common.processor._
-import module.stragety.{impl, one2one}
+import module.stragety.{bind, impl, one2one}
 
 abstract class msg_UserCommand extends CommonMessage("users", UserModule)
 
@@ -106,7 +106,7 @@ class user extends basemodel {
     }
 }
 
-class user2company extends one2one[user, company] {
+class user2company extends one2one[user, company] with bind[user, company] {
 
     override def createThis: user = impl[user]
     override def createThat: company = impl[company]

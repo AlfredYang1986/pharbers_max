@@ -19,6 +19,8 @@ POST    /api/user/company/unbind                     controllers.binding.bindUse
 
 # User query with company info
 POST    /api/user/detail                             controllers.binding.bindUserCompany.userDetail
+# Company query with user info
+POST    /api/company/detail                          controllers.binding.bindUserCompany.companyDetail
 
 #POST    /user/update                                 controllers.auth.AuthController.auth_with_password
 #POST    /user/search                                 controllers.auth.AuthController.auth_with_password
