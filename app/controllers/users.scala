@@ -20,6 +20,7 @@ class users @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthT
 
     def pushUser = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("push new user"))), jv)
+            :: msg_verifyRegister(jv)
             :: msg_pushUser(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })
