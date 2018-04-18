@@ -1,4 +1,4 @@
-package com.pharbers.common
+package module.common
 
 import play.api.libs.json.{JsObject, JsValue}
 import play.api.libs.json.Json.toJson

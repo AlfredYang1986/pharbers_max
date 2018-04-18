@@ -1,12 +1,13 @@
 package module.stragety
 
-import com.mongodb.casbah.Imports.DBObject
-import com.pharbers.bmmessages.CommonModules
-import com.pharbers.dbManagerTrait.dbInstanceManager
-import module.datamodel.basemodel
 import org.bson.types.ObjectId
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
+import com.mongodb.casbah.Imports.DBObject
+
+import module.datamodel.basemodel
+import com.pharbers.bmmessages.CommonModules
+import com.pharbers.dbManagerTrait.dbInstanceManager
 
 trait bind[This <: basemodel, That <: basemodel] {
     def bind(data : JsValue) : DBObject

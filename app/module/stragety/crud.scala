@@ -1,9 +1,10 @@
 package module.stragety
 
+import play.api.libs.json.JsValue
 import com.mongodb.casbah.Imports._
+
 import com.pharbers.bmmessages.CommonModules
 import com.pharbers.dbManagerTrait.dbInstanceManager
-import play.api.libs.json.JsValue
 
 trait crud {
     def creation(data : JsValue, primary_key : String = "_id")(db_name : String)

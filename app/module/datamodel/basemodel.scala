@@ -1,9 +1,8 @@
 package module.datamodel
 
-import com.mongodb.casbah.Imports._
-import play.api.libs.json.JsValue
-
 import scala.reflect.ClassTag
+import play.api.libs.json.JsValue
+import com.mongodb.casbah.Imports._
 
 trait basemodel extends ClassTag[basemodel] {
 
@@ -39,7 +38,7 @@ trait basemodel extends ClassTag[basemodel] {
     val sr : DBObject => Map[String, JsValue]
 
     /**
-      * detail result : 详细放回结果
+      * detail result : 详细返回结果
       */
     val dr : DBObject => Map[String, JsValue]
 

@@ -1,18 +1,17 @@
 package controllers.common
 
-import javax.inject.Inject
-
 import play.api.mvc._
-import play.api.libs.json.JsValue
-import akka.actor.{ActorSystem, Props}
-import akka.util.Timeout
 import akka.pattern.ask
-import com.pharbers.bmmessages.{MessageRoutes, excute}
-import com.pharbers.bmpattern.RoutesActor
-
-import scala.concurrent.duration._
+import akka.util.Timeout
+import javax.inject.Inject
 import scala.concurrent.Await
+import play.api.libs.json.JsValue
+import scala.concurrent.duration._
+import akka.actor.{ActorSystem, Props}
 import play.api.libs.Files.TemporaryFile
+
+import com.pharbers.bmpattern.RoutesActor
+import com.pharbers.bmmessages.{MessageRoutes, excute}
 
 object requestArgsQuery {
 	def apply()(implicit akkasys : ActorSystem) = new requestArgsQuery()
@@ -21,17 +20,7 @@ object requestArgsQuery {
 class requestArgsQuery @Inject() (implicit akkasys : ActorSystem) extends Controller {
 	implicit val t = Timeout(5 second)
 
-	def requestArgs(request : Request[AnyContent])(func : JsValue => JsValue) : Result = {
-		try {
-			request.body.asJson.map { x =>
-				Ok(func(x))
-			}.getOrElse (BadRequest("Bad Request for input"))
-		} catch {
-			case _ : Exception => BadRequest("Bad Request for input")
-		}
-	}
-
-	def requestArgsV2(request : Request[AnyContent])(func : JsValue => MessageRoutes) : Result = {
+	def requestArgs(request : Request[AnyContent])(func : JsValue => MessageRoutes) : Result = {
 		try {
 			request.body.asJson.map { x =>
 				Ok(commonExcution(func(x)))

@@ -2,20 +2,20 @@ package module
 
 import com.mongodb
 import com.mongodb.casbah
-import com.mongodb.casbah.Imports
-import com.mongodb.casbah.Imports._
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
-import com.pharbers.bmpattern.ModuleTrait
-import com.pharbers.common.MergeStepResult
-import module.UserMessage._
-import module.common.pharbersmacro.CURDMacro._
-import module.datamodel.basemodel
 import org.bson.types.ObjectId
 import play.api.libs.json.JsValue
+import com.mongodb.casbah.Imports
+import com.mongodb.casbah.Imports._
 import play.api.libs.json.Json.toJson
-import module.common.processor
+
+import module.UserMessage._
 import module.common.processor._
+import module.datamodel.basemodel
+import com.pharbers.bmpattern.ModuleTrait
 import module.stragety.{bind, impl, one2one}
+import module.common.pharbersmacro.CURDMacro._
+import module.common.{MergeStepResult, processor}
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 
 abstract class msg_UserCommand extends CommonMessage("users", UserModule)
 
@@ -39,7 +39,7 @@ class user extends basemodel {
         DBObject("_id" -> new ObjectId(tmp))
     }
 
-    val anqc: JsValue => _root_.com.mongodb.casbah.Imports.DBObject = { js =>
+    val anqc: JsValue => DBObject = { js => //_root_.com.mongodb.casbah.Imports.DBObject = { js =>
         val tmp = (js \ "condition" \ "user_id").asOpt[String].get
         DBObject("user_id" -> tmp)
     }
@@ -146,8 +146,8 @@ class user2company extends one2one[user, company] with bind[user, company] {
 }
 
 object UserModule extends ModuleTrait {
-    val ip = impl[user]
-    val oo = impl[user2company]
+    val ip: user = impl[user]
+    val oo: user2company = impl[user2company]
     import ip._
     import oo._
 
