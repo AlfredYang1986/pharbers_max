@@ -1,9 +1,8 @@
 import javax.inject.Inject
+import play.api.libs.ws.WSClient
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import play.api.libs.ws.WSClient
-
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Created by alfredyang on 07/07/2017.

@@ -2,24 +2,24 @@ package module
 
 import com.mongodb
 import com.mongodb.casbah
+import org.bson.types.ObjectId
+import play.api.libs.json.{JsObject, JsValue}
 import com.mongodb.casbah.Imports
 import com.mongodb.casbah.Imports._
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
-import com.pharbers.bmpattern.ModuleTrait
-import com.pharbers.common.MergeStepResult
-import module.UserMessage._
-import module.common.pharbersmacro.CURDMacro._
-import module.datamodel.basemodel
-import org.bson.types.ObjectId
-import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import module.common.processor
+import module.UserMessage._
 import module.common.processor._
+import module.datamodel.basemodel
+import com.pharbers.bmpattern.ModuleTrait
 import module.stragety.{bind, impl, one2one}
+import module.common.pharbersmacro.CURDMacro._
+import module.common.{MergeStepResult, processor}
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 
 abstract class msg_UserCommand extends CommonMessage("users", UserModule)
 
 object UserMessage {
+    case class msg_verifyRegister(data: JsValue) extends msg_UserCommand
     case class msg_pushUser(data: JsValue) extends msg_UserCommand
     case class msg_popUser(data : JsValue) extends msg_UserCommand
     case class msg_queryUser(data : JsValue) extends msg_UserCommand
@@ -39,9 +39,14 @@ class user extends basemodel {
         DBObject("_id" -> new ObjectId(tmp))
     }
 
-    val anqc: JsValue => _root_.com.mongodb.casbah.Imports.DBObject = { js =>
+    val anqc: JsValue => DBObject = { js =>
         val tmp = (js \ "condition" \ "user_id").asOpt[String].get
         DBObject("user_id" -> tmp)
+    }
+
+    val anqcByEmail: JsValue => DBObject = { js =>
+        val tmp = (js \ "user" \ "email").asOpt[String].get
+        DBObject("email" -> tmp)
     }
 
     val qcm : JsValue => DBObject = { js =>
@@ -146,12 +151,14 @@ class user2company extends one2one[user, company] with bind[user, company] {
 }
 
 object UserModule extends ModuleTrait {
-    val ip = impl[user]
-    val oo = impl[user2company]
+    val ip: user = impl[user]
+    val oo: user2company = impl[user2company]
     import ip._
     import oo._
 
-    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])(implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+    def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])
+                   (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
+        case msg_verifyRegister(data) => verifyRegister(data, pr)
         case msg_pushUser(data) => pushMacro(d2m, ssr, data, names, name)
         case msg_popUser(data) => popMacro(qc, popr, data, names)
         case msg_queryUser(data) => queryMacro(qc, dr, MergeStepResult(data, pr), names, name)
@@ -163,5 +170,16 @@ object UserModule extends ModuleTrait {
         case msg_unbindUserCompany(data) =>
             processor(value => returnValue(unbindConnection(value)("user_company")))(MergeStepResult(data, pr))
         case _ => ???
+    }
+
+    def verifyRegister(data: JsValue, pr: Option[Map[String, JsValue]])
+                      (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) ={
+
+        val queryResult = queryMacro(anqcByEmail, dr, MergeStepResult(data, pr), names, name)
+                val a = queryResult._1.get(name).asInstanceOf[JsObject].value
+        if(a.nonEmpty)
+            throw new Exception("user is repeat")
+        else
+            (pr, None)
     }
 }

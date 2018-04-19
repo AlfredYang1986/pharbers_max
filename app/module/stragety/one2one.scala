@@ -1,12 +1,12 @@
 package module.stragety
 
+import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.Imports.DBObject
+import play.api.libs.json.{JsObject, JsValue}
+
+import module.datamodel.basemodel
 import com.pharbers.bmmessages.CommonModules
 import com.pharbers.dbManagerTrait.dbInstanceManager
-import module.datamodel.basemodel
-import org.bson.types.ObjectId
-import play.api.libs.json.{JsObject, JsValue}
-import play.api.libs.json.Json.toJson
 
 trait one2one[This <: basemodel, That <: basemodel] { this : bind[This, That] =>
 
@@ -34,7 +34,7 @@ trait one2one[This <: basemodel, That <: basemodel] { this : bind[This, That] =>
 
         pr match {
             case None => Map(ta.name -> toJson(result))
-            case Some(x) => Map(tmp -> toJson(x.get(tmp).get.as[JsObject].value.toMap ++ Map(ta.name -> toJson(result))))
+            case Some(x) => Map(tmp -> toJson(x(tmp).as[JsObject].value.toMap ++ Map(ta.name -> toJson(result))))
         }
     }
 }

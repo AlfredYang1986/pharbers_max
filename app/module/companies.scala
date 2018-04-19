@@ -1,20 +1,20 @@
 package module
 
 import com.mongodb.casbah
-import com.mongodb.casbah.Imports
-import com.mongodb.casbah.Imports._
-import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
-import com.pharbers.bmpattern.ModuleTrait
-import com.pharbers.common.MergeStepResult
-import module.CompanyMessage._
-import module.common.pharbersmacro.CURDMacro._
-import module.datamodel.basemodel
 import org.bson.types.ObjectId
 import play.api.libs.json.JsValue
+import com.mongodb.casbah.Imports
+import com.mongodb.casbah.Imports._
 import play.api.libs.json.Json.toJson
-import module.common.processor
+
+import module.CompanyMessage._
 import module.common.processor._
+import module.datamodel.basemodel
+import com.pharbers.bmpattern.ModuleTrait
 import module.stragety.{bind, impl, one2many}
+import module.common.pharbersmacro.CURDMacro._
+import module.common.{MergeStepResult, processor}
+import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
 
 abstract class msg_CompanyCommand extends CommonMessage("companies", CompanyModule)
 
@@ -24,8 +24,6 @@ object CompanyMessage {
     case class msg_queryCompany(data : JsValue) extends msg_CompanyCommand
     case class msg_queryCompanyMulti(data : JsValue) extends msg_CompanyCommand
 
-//    case class msg_bindUserCompany(data : JsValue) extends msg_CompanyCommand
-//    case class msg_unbindUserCompany(data : JsValue) extends msg_CompanyCommand
     case class msg_expendUsersInfo(data : JsValue) extends msg_CompanyCommand
 }
 
@@ -108,7 +106,7 @@ class company2user extends one2many[company, user] with bind[company, user] {
         Map("_id" -> toJson(obj.getAs[String]("user_id").get))
 
     override def one2manyaggregate(lst: List[Map[String, JsValue]]): DBObject =
-        $or(lst map (x => DBObject("_id" -> new ObjectId(x.get("_id").get.asOpt[String].get))))
+        $or(lst map (x => DBObject("_id" -> new ObjectId(x("_id").asOpt[String].get))))
 
     override def one2manysdr(obj: Imports.DBObject): Map[String, JsValue] =
         Map(
@@ -138,8 +136,8 @@ class company2user extends one2many[company, user] with bind[company, user] {
 }
 
 object CompanyModule extends ModuleTrait {
-    val ip = impl[company]
-    val oo = impl[company2user]
+    val ip: company = impl[company]
+    val oo: company2user = impl[company2user]
     import ip._
     import oo._
 
