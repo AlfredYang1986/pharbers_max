@@ -20,7 +20,6 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-//                println(response.json)
                 response.json
             }
     }
@@ -36,7 +35,6 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }
@@ -52,7 +50,6 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }
@@ -68,10 +65,10 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }
+
 
     def pushCompany(company : JsValue) : Future[JsValue] = {
         ws.url(baseUrl + "/api/company/push")
@@ -82,7 +79,6 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }
@@ -98,7 +94,6 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }
@@ -114,7 +109,6 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }
@@ -130,10 +124,10 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }
+
 
     def bindUserCompany(user_id : String, company_id : String) : Future[JsValue] = {
         ws.url(baseUrl + "/api/user/company/bind")
@@ -149,7 +143,6 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }
@@ -165,7 +158,6 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }
@@ -181,7 +173,6 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }
@@ -197,7 +188,6 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 ))
             )
             .map { response =>
-                //                println(response.json)
                 response.json
             }
     }

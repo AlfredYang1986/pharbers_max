@@ -5,7 +5,7 @@ import play.api.mvc.Action
 import akka.actor.ActorSystem
 import play.api.libs.json.Json.toJson
 
-import module.CompanyMessage._
+import module.company.CompanyMessage._
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
 import com.pharbers.bmpattern.LogMessage.msg_log
@@ -20,6 +20,7 @@ class companies @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: A
 
     def pushCompany = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("push new user"))), jv)
+            :: msg_verifyCompanyRegister(jv)
             :: msg_pushCompany(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })

@@ -12,7 +12,7 @@ import com.pharbers.bmpattern.LogMessage.msg_log
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
 import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
-import module.CompanyMessage.{msg_expendUsersInfo, msg_queryCompany}
+import module.company.CompanyMessage.{msg_expendUsersInfo, msg_queryCompany}
 
 class bindUserCompany @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait) {
     implicit val as: ActorSystem = as_inject
@@ -21,6 +21,7 @@ class bindUserCompany @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, 
 
     def bind = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("bind user company"))), jv)
+            :: msg_verifyBind(jv)
             :: msg_bindUserCompany(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })

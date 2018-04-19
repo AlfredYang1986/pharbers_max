@@ -9,12 +9,13 @@ import com.pharbers.bmmessages.CommonMessage
 abstract class msg_UserCommand extends CommonMessage("users", UserModule)
 
 object UserMessage {
-    case class msg_verifyRegister(data: JsValue) extends msg_UserCommand
+    case class msg_verifyUserRegister(data: JsValue) extends msg_UserCommand
     case class msg_pushUser(data: JsValue) extends msg_UserCommand
     case class msg_popUser(data : JsValue) extends msg_UserCommand
     case class msg_queryUser(data : JsValue) extends msg_UserCommand
     case class msg_queryUserMulti(data : JsValue) extends msg_UserCommand
 
+    case class msg_verifyBind(data: JsValue) extends msg_UserCommand
     case class msg_bindUserCompany(data : JsValue) extends msg_UserCommand
     case class msg_unbindUserCompany(data : JsValue) extends msg_UserCommand
     case class msg_expendCompanyInfo(data : JsValue) extends msg_UserCommand

@@ -2,18 +2,16 @@ package module.users
 
 import org.bson.types.ObjectId
 import module.datamodel.basemodel
-import play.api.libs.json.{JsObject, JsValue}
+import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.Imports._
 import com.pharbers.bmmessages.CommonModules
 import com.pharbers.dbManagerTrait.dbInstanceManager
-import module.common.MergeStepResult
-import module.common.pharbersmacro.CURDMacro.queryMacro
 
 /**
   * Created by spark on 18-4-19.
   */
-class user extends basemodel with checkExist {
+class user extends basemodel with checkUserExist {
     override val name = "user"
     override def runtimeClass: Class[_] = classOf[user]
 
@@ -89,29 +87,25 @@ class user extends basemodel with checkExist {
     }
 }
 
-trait checkExist {
+trait checkUserExist {
 
-    val ckByEmail: JsValue => DBObject = { js =>
-        val tmp = (js \ "user" \ "email").asOpt[String].get
-        DBObject("email" -> tmp)
-    }
+    val ckBy: (String, JsValue) => (String, Any) = (by, jv) => by -> (jv \ "user" \ by).asOpt[String].get
+    val ckByName: (JsValue) => (String, Any) = ckBy("name", _)
+    val ckByEmail: (JsValue) => (String, Any) = ckBy("email", _)
 
-    val ckByName: JsValue => DBObject = { js =>
-        val tmp = (js \ "user" \ "name").asOpt[String].get
-        DBObject("name" -> tmp)
-    }
+    def ckByCondition(jv: JsValue)(func: JsValue =>(String, Any)) : DBObject = DBObject(func(jv))
 
-    def verifyRegister(data: JsValue, pr: Option[Map[String, JsValue]])
-                      (func : JsValue => DBObject,
-                       func_out : DBObject => Map[String, JsValue],
+    def verifyRegister(data: JsValue)
+                      (func: JsValue => (String, Any),
+                       func_out: DBObject => Map[String, JsValue],
                        coll_name: String)
                       (implicit cm: CommonModules): Map[String, JsValue] = {
 
         val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
         val db = conn.queryDBInstance("cli").get
 
-        db.queryObject(func(data), coll_name)(func_out) match {
-            case Some(_) => throw new Exception("user is repeat")
+        db.queryObject(ckByCondition(data)(func), coll_name)(func_out) match {
+            case Some(_) => throw new Exception("user email has been use")
             case None => Map.empty
         }
     }

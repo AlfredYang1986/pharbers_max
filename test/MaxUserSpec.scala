@@ -16,8 +16,7 @@ class MaxUserSpec extends Specification with BeforeAll with AfterAll {
     override def beforeAll(): Unit = pushUserTest
     override def afterAll(): Unit = popUserTest
 
-    override def is =
-        s2"""
+    override def is = s2"""
         This is a max to check the restful logic string
 
             The 'max' adding user functions should
@@ -26,14 +25,14 @@ class MaxUserSpec extends Specification with BeforeAll with AfterAll {
                 query users multi               $queryUserMulti
                                                                               """
 
-    lazy val user_push_info: JsValue = toJson(
-        Map(
-            "screen_name" -> "显示名字",
-            "screen_photo" -> "显示头像",
-            "email" -> "testEmail@email.com",
-            "phone" -> "13112341234"
-        )
+    lazy val user_push_map: Map[String, String] = Map(
+        "screen_name" -> "显示名字",
+        "screen_photo" -> "显示头像",
+        "email" -> "testEmail@email.com",
+        "phone" -> "13112341234"
     )
+
+    lazy val user_push_info: JsValue = toJson(user_push_map)
 
     lazy val apply_update_info: JsValue = toJson(
         Map(
@@ -51,65 +50,57 @@ class MaxUserSpec extends Specification with BeforeAll with AfterAll {
 
             val result = (reVal \ "result").asOpt[JsValue].get
             user_id = (result \ "user" \ "user_id").asOpt[String].get
-            println(user_id)
             user_id.length must_!= 0
         }
     }
 
     def pushRepeatUserTest: MatchResult[Any] = {
-        1 must_== 1
-//        WsTestClient.withClient { client =>
-//            val reVal = Await.result(new MaxRestfulClient(client, "http://127.0.0.1:9000").pushUser(user_push_info), time_out)
-//            val rrr = (reVal \ "status").asOpt[String].get// must_== "ok"
-//            println(rrr)
-//            println(reVal)
-//            val result = (reVal \ "result").asOpt[JsValue].get
-//            user_id = (result \ "user" \ "user_id").asOpt[String].get
-//            println(user_id)
-//            user_id.length must_!= 0
-//        }
+        WsTestClient.withClient { client =>
+            val reVal = Await.result(new MaxRestfulClient(client, "http://127.0.0.1:9000").pushUser(user_push_info), time_out)
+            (reVal \ "status").asOpt[String].get must_== "error"
+
+            val error_code = (reVal \ "error" \ "code").asOpt[Int].get
+            error_code must_== -201
+        }
+    }
+
+    def queryUserWithIDTest: MatchResult[Any] = {
+        WsTestClient.withClient { client =>
+            val reVal = Await.result(
+                new MaxRestfulClient(client, "http://127.0.0.1:9000").queryUser(user_id), time_out)
+            (reVal \ "status").asOpt[String].get must_== "ok"
+
+            val result = (reVal \ "result").asOpt[JsValue].get
+            (result \ "user" \ "screen_name").asOpt[String].get must_== user_push_map("screen_name")
+            (result \ "user" \ "screen_photo").asOpt[String].get must_== user_push_map("screen_photo")
+            (result \ "user" \ "email").asOpt[String].get must_== user_push_map("email")
+            (result \ "user" \ "phone").asOpt[String].get must_== user_push_map("phone")
+        }
+    }
+
+    def queryUserMulti: MatchResult[Any] = {
+        WsTestClient.withClient { client =>
+            val reVal = Await.result(
+                new MaxRestfulClient(client, "http://127.0.0.1:9000").queryUserMulti(user_id), time_out)
+            (reVal \ "status").asOpt[String].get must_== "ok"
+
+            val result = (reVal \ "result" \ "users").asOpt[List[JsValue]].get
+            result.length must_== 1
+
+            val head = result.head
+            (head \ "user_id").asOpt[String].get must_== user_id
+            (head \ "screen_name").asOpt[String].get must_== user_push_map("screen_name")
+            (head \ "screen_photo").asOpt[String].get must_== user_push_map("screen_photo")
+        }
     }
 
     def popUserTest: MatchResult[Any] = {
-        1 must_== 1
-//        WsTestClient.withClient { client =>
-//            val reVal = Await.result(new MaxRestfulClient(client, "http://127.0.0.1:9000").popUser(user_id), time_out)
-//            (reVal \ "status").asOpt[String].get must_== "ok"
-//
-//            val result = (reVal \ "result").asOpt[JsValue].get
-//            (result \ "pop user").asOpt[String].get must_== "success"
-//        }
-    }
+        WsTestClient.withClient { client =>
+            val reVal = Await.result(new MaxRestfulClient(client, "http://127.0.0.1:9000").popUser(user_id), time_out)
+            (reVal \ "status").asOpt[String].get must_== "ok"
 
-    def queryUserWithIDTest = {
-        1 must_== 1
-//        WsTestClient.withClient { client =>
-//            val reVal = Await.result(
-//                new MaxRestfulClient(client, "http://127.0.0.1:9000").queryUser(user_id), time_out)
-//            (reVal \ "status").asOpt[String].get must_== "ok"
-//
-//            val result = (reVal \ "result").asOpt[JsValue].get
-//            (result \ "user" \ "screen_name").asOpt[String].get must_== "名字"
-//            (result \ "user" \ "screen_photo").asOpt[String].get must_== "头像"
-//            (result \ "user" \ "email").asOpt[String].get must_== "alfredyang@blackmirror.tech"
-//            (result \ "user" \ "phone").asOpt[String].get must_== "13720200856"
-//        }
-    }
-
-    def queryUserMulti = {
-        1 must_== 1
-//        WsTestClient.withClient { client =>
-//            val reVal = Await.result(
-//                new MaxRestfulClient(client, "http://127.0.0.1:9000").queryUserMulti(user_id), time_out)
-//            (reVal \ "status").asOpt[String].get must_== "ok"
-//
-//            println(reVal)
-//            val result = (reVal \ "result").asOpt[JsValue].get
-//            val lst = (result \ "users").asOpt[List[JsValue]].get// must_== "名字"
-//            lst.length must_== 1
-//            val head = lst.head
-//            (head \ "screen_name").asOpt[String].get must_== "名字"
-//            (head \ "screen_photo").asOpt[String].get must_== "头像"
-//        }
+            val result = (reVal \ "result").asOpt[JsValue].get
+            (result \ "pop user").asOpt[String].get must_== "success"
+        }
     }
 }

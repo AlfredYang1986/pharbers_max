@@ -17,18 +17,22 @@ object UserModule extends ModuleTrait {
 
     def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])
                    (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
-        case msg_verifyRegister(data) =>
-            processor(value => returnValue(verifyRegister(value, pr)(ckByEmail, ssr, names)))(MergeStepResult(data, pr))
+
+        case msg_verifyUserRegister(data) =>
+            processor(value => returnValue(verifyRegister(value)(ckByEmail, ssr, names)))(MergeStepResult(data, pr))
         case msg_pushUser(data) => pushMacro(d2m, ssr, data, names, name)
         case msg_popUser(data) => popMacro(qc, popr, data, names)
         case msg_queryUser(data) => queryMacro(qc, dr, MergeStepResult(data, pr), names, name)
         case msg_queryUserMulti(data) => queryMultiMacro(qcm, sr, MergeStepResult(data, pr), names, names)
-        case msg_expendCompanyInfo(data) =>
-            processor(value => returnValue(queryConnection(value)(pr)("user_company")))(MergeStepResult(data, pr))
+
+        case msg_verifyBind(data) =>
+            processor(value => returnValue(verifyBind(value, vbc, ssr)("user_company")))(MergeStepResult(data, pr))
         case msg_bindUserCompany(data) =>
             processor(value => returnValue(bindConnection(value)("user_company")))(MergeStepResult(data, pr))
         case msg_unbindUserCompany(data) =>
             processor(value => returnValue(unbindConnection(value)("user_company")))(MergeStepResult(data, pr))
+        case msg_expendCompanyInfo(data) =>
+            processor(value => returnValue(queryConnection(value)(pr)("user_company")))(MergeStepResult(data, pr))
         case _ => ???
     }
 }

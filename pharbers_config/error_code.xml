@@ -2,6 +2,9 @@
     <error_code>
         <error reason="wrong input" code="-1" description="输入的参数有错误" />
 
+        <error reason="not implement" code="-2" description="工程师正在玩命的开发中" />
+
+        <!-- common error -->
         <error reason="url get error" code="-101" description="URL 有误" />
         <error reason="primary key error" code="-102" description="主键重复创建或者主键出错" />
         <error reason="data not exist" code="-103" description="数据不存在" />
@@ -12,15 +15,23 @@
         <error reason="time bound error" code="-108" description="时间界限错误" />
         <error reason="actor is not impl" code="-109" description="Actor未实现" />
 
-        <error reason="user have no email" code="-201" description="无用户邮箱" />
-        <error reason="user have no secret" code="-202" description="无用户密码" />
-        <error reason="user not exist" code="-203" description="用户不存在" />
-        <error reason="info input password" code="-204" description="请输入密码" />
-        <error reason="info input phone" code="-205" description="请输入手机号码" />
-        <error reason="info input email" code="-206" description="请输入联系邮箱" />
+        <!-- user error -->
+        <error reason="user email has been use" code="-201" description="用户已存在" />
+
+        <!-- company error -->
+        <error reason="company name has been use" code="-301" description="公司名已存在" />
+
+        <!-- user bind company error -->
+        <error reason="user and company bind has been use" code="-401" description="公司名已存在" />
+
+        <error reason="user have no email" code="-1201" description="无用户邮箱" />
+        <error reason="user have no secret" code="-1202" description="无用户密码" />
+        <error reason="user not exist" code="-1203" description="用户不存在" />
+        <error reason="info input password" code="-1204" description="请输入密码" />
+        <error reason="info input phone" code="-1205" description="请输入手机号码" />
+        <error reason="info input email" code="-1206" description="请输入联系邮箱" />
         <error reason="info input company name" code="-207" description="请输入公司名称" />
         <error reason="info input linkman name" code="-208" description="请输入联系人" />
-        <error reason="user is repeat" code="-209" description="用户重复" />
         <error reason="user is not BD" code="-210" description="该用户不是BD人员" />
         <error reason="user is not AD" code="-211" description="该用户不是AD人员" />
         <error reason="user already exists" code="-212" description="用户已存在, 请尝试登入" />
@@ -44,9 +55,7 @@
         <error reason="im error appkey" code="-404" description="IM应用标识错误" />
 
 
-        <error reason="not implement" code="-998" description="工程师正在玩命的开发中" />
-
-
+        <!-- 系统错误 -->
         <error reason="no db connection" code="-9001" description="没有找到数据库链接" />
         <error reason="db prase error" code="-9002" description="数据库结构发现错误" />
         <error reason="no encrypt impl" code="-9003" description="权限加密方式不清晰或者Token不存在" />
