@@ -5,7 +5,7 @@ import play.api.mvc.Action
 import akka.actor.ActorSystem
 import play.api.libs.json.Json.toJson
 
-import module.UserMessage._
+import module.users.UserMessage._
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
 import com.pharbers.bmpattern.LogMessage.msg_log

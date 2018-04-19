@@ -6,7 +6,6 @@ import play.api.libs.json.JsValue
 import com.mongodb.casbah.Imports
 import com.mongodb.casbah.Imports._
 import play.api.libs.json.Json.toJson
-
 import module.CompanyMessage._
 import module.common.processor._
 import module.datamodel.basemodel
@@ -15,6 +14,7 @@ import module.stragety.{bind, impl, one2many}
 import module.common.pharbersmacro.CURDMacro._
 import module.common.{MergeStepResult, processor}
 import com.pharbers.bmmessages.{CommonMessage, CommonModules, MessageDefines}
+import module.users.user
 
 abstract class msg_CompanyCommand extends CommonMessage("companies", CompanyModule)
 
