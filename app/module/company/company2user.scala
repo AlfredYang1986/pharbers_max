@@ -7,7 +7,7 @@ import play.api.libs.json.JsValue
 import com.mongodb.casbah.Imports
 import com.mongodb.casbah.Imports._
 import play.api.libs.json.Json.toJson
-import module.stragety.{bind, impl, one2many}
+import module.common.stragety.{bind, impl, one2many}
 import com.mongodb.casbah.Imports.{$or, DBObject, MongoDBObject}
 
 /**
@@ -27,7 +27,7 @@ class company2user extends one2many[company, user] with bind[company, user] {
         Map(
             "condition" -> toJson(Map(
                 "bind_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString),
-                "user_id" -> toJson(obj.getAs[String]("company_id").get),
+                "user_id" -> toJson(obj.getAs[String]("user_id").get),
                 "company_id" -> toJson(obj.getAs[String]("company_id").get)
             ))
         )

@@ -1,4 +1,4 @@
-package module.stragety
+package module.common.stragety
 
 import play.api.libs.json.JsValue
 import com.mongodb.casbah.Imports._

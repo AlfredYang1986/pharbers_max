@@ -1,8 +1,8 @@
-package module.users
+package module.jobs
 
 import com.mongodb
+import module.users.user
 import com.mongodb.casbah
-import module.company.company
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports
 import com.mongodb.casbah.Imports._
@@ -15,14 +15,15 @@ import com.mongodb.casbah.Imports.{DBObject, MongoDBObject}
 /**
   * Created by spark on 18-4-19.
   */
-class user2company extends one2one[user, company] with bind[user, company] with checkBindExist {
-    override def createThis: user = impl[user]
-    override def createThat: company = impl[company]
+class job2user extends one2one[job, user] with bind[job, user] with checkBindExist {
+
+    override def createThis: job = impl[job]
+    override def createThat: user = impl[user]
 
     override def one2onessr(obj: DBObject): Map[String, JsValue] =
         Map(
             "condition" -> toJson(Map(
-                "company_id" -> toJson(obj.getAs[String]("company_id").get)
+                "user_id" -> toJson(obj.getAs[String]("user_id").get)
             ))
         )
 
@@ -37,8 +38,8 @@ class user2company extends one2one[user, company] with bind[user, company] with 
     override def bind(data: JsValue): Imports.DBObject = {
         val builder = MongoDBObject.newBuilder
         builder += "_id" -> ObjectId.get()
-        builder += "user_id" -> (data \ "user" \ "user_id").asOpt[String].get
-        builder += "company_id" -> (data \ "company" \ "company_id").asOpt[String].get
+        builder += "job_id" -> (data \ "job" \ "job_id").asOpt[String].get
+        builder += "user_id" -> (data \ "condition" \ "user_id").asOpt[String].get
 
         builder.result
     }
@@ -47,15 +48,15 @@ class user2company extends one2one[user, company] with bind[user, company] with 
         Map(
             "condition" -> toJson(Map(
                 "bind_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString),
-                "user_id" -> toJson(obj.getAs[String]("user_id").get),
-                "company_id" -> toJson(obj.getAs[String]("company_id").get)
+                "job_id" -> toJson(obj.getAs[String]("job_id").get),
+                "user_id" -> toJson(obj.getAs[String]("user_id").get)
             ))
         )
 
-    override val checkBindExist: JsValue => DBObject = { jv =>
+    override val checkBindExist: (JsValue) => DBObject = { jv =>
         $and(
-            DBObject("user_id" -> (jv \ "user" \ "user_id").asOpt[String].get),
-            DBObject("company_id" -> (jv \ "company" \ "company_id").asOpt[String].get)
+            DBObject("job_id" -> (jv \ "job" \ "job_id").asOpt[String].get),
+            DBObject("user_id" -> (jv \ "user" \ "user_id").asOpt[String].get)
         )
     }
 }

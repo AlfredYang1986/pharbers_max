@@ -3,7 +3,7 @@ package module.common
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.pharbers.ErrorCode.errorToJson
-import module.stragety.crud
+import module.common.stragety.crud
 
 object processor extends crud {
     def apply(func : JsValue => (Option[Map[String, JsValue]], Option[JsValue]))

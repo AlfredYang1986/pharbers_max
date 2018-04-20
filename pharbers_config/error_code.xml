@@ -16,13 +16,16 @@
         <error reason="actor is not impl" code="-109" description="Actor未实现" />
 
         <!-- user error -->
-        <error reason="user email has been use" code="-201" description="用户已存在" />
+        <error reason="user email has been use" code="-201" description="用户邮箱已被使用" />
 
         <!-- company error -->
-        <error reason="company name has been use" code="-301" description="公司名已存在" />
+        <error reason="company name has been use" code="-301" description="公司名已被使用" />
 
         <!-- user bind company error -->
-        <error reason="user and company bind has been use" code="-401" description="公司名已存在" />
+        <error reason="user and company bind has been use" code="-401" description="该员工已与该公司绑定" />
+
+        <!-- job bind user error -->
+        <error reason="job and user bind has been use" code="-501" description="该任务已与该员工绑定" />
 
         <error reason="user have no email" code="-1201" description="无用户邮箱" />
         <error reason="user have no secret" code="-1202" description="无用户密码" />

@@ -1,44 +1,43 @@
 package module.users
 
 import org.bson.types.ObjectId
-import module.datamodel.basemodel
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.Imports._
-import com.pharbers.bmmessages.CommonModules
-import com.pharbers.dbManagerTrait.dbInstanceManager
+import module.common.datamodel.basemodel
+import module.common.checkExist.checkAttrExist
 
 /**
   * Created by spark on 18-4-19.
   */
-class user extends basemodel with checkUserExist {
+class user extends basemodel with checkAttrExist {
     override val name = "user"
     override def runtimeClass: Class[_] = classOf[user]
 
-    val qc : JsValue => DBObject = { js =>
+    override val qc : JsValue => DBObject = { js =>
         val tmp = (js \ "condition" \ "user_id").asOpt[String].get
         DBObject("_id" -> new ObjectId(tmp))
     }
 
-    val anqc: JsValue => DBObject = { js =>
+    override val anqc: JsValue => DBObject = { js =>
         val tmp = (js \ "condition" \ "user_id").asOpt[String].get
         DBObject("user_id" -> tmp)
     }
 
-    val qcm : JsValue => DBObject = { js =>
+    override val qcm : JsValue => DBObject = { js =>
         (js \ "condition" \ "users").asOpt[List[String]].get match {
             case Nil => DBObject("query" -> "none")
             case ll : List[String] => $or(ll map (x => DBObject("_id" -> new ObjectId(x))))
         }
     }
 
-    val ssr : DBObject => Map[String, JsValue] = { obj =>
+    override val ssr : DBObject => Map[String, JsValue] = { obj =>
         Map(
             "user_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString)
         )
     }
 
-    val sr : DBObject => Map[String, JsValue] = { obj =>
+    override val sr : DBObject => Map[String, JsValue] = { obj =>
         Map(
             "user_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString),
             "screen_name" -> toJson(obj.getAs[String]("screen_name").get),
@@ -46,7 +45,7 @@ class user extends basemodel with checkUserExist {
         )
     }
 
-    val dr : DBObject => Map[String, JsValue] = { obj =>
+    override val dr : DBObject => Map[String, JsValue] = { obj =>
         Map(
             "user_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString),
             "screen_name" -> toJson(obj.getAs[String]("screen_name").get),
@@ -56,13 +55,13 @@ class user extends basemodel with checkUserExist {
         )
     }
 
-    val popr : DBObject => Map[String, JsValue] = { _ =>
+    override val popr : DBObject => Map[String, JsValue] = { _ =>
         Map(
             "pop user" -> toJson("success")
         )
     }
 
-    val d2m : JsValue => DBObject = { js =>
+    override val d2m : JsValue => DBObject = { js =>
         val data = (js \ "user").asOpt[JsValue].map (x => x).getOrElse(toJson(""))
 
         val builder = MongoDBObject.newBuilder
@@ -75,7 +74,7 @@ class user extends basemodel with checkUserExist {
         builder.result
     }
 
-    val up2m : (DBObject, JsValue) => DBObject = { (obj, js) =>
+    override val up2m : (DBObject, JsValue) => DBObject = { (obj, js) =>
         val data = (js \ "user").asOpt[JsValue].get
 
         (data \ "screen_name").asOpt[String].map (x => obj += "screen_name" -> x).getOrElse(Unit)
@@ -85,28 +84,6 @@ class user extends basemodel with checkUserExist {
 
         obj
     }
-}
 
-trait checkUserExist {
-
-    val ckBy: (String, JsValue) => (String, Any) = (by, jv) => by -> (jv \ "user" \ by).asOpt[String].get
-    val ckByName: (JsValue) => (String, Any) = ckBy("name", _)
-    val ckByEmail: (JsValue) => (String, Any) = ckBy("email", _)
-
-    def ckByCondition(jv: JsValue)(func: JsValue =>(String, Any)) : DBObject = DBObject(func(jv))
-
-    def verifyRegister(data: JsValue)
-                      (func: JsValue => (String, Any),
-                       func_out: DBObject => Map[String, JsValue],
-                       coll_name: String)
-                      (implicit cm: CommonModules): Map[String, JsValue] = {
-
-        val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
-
-        db.queryObject(ckByCondition(data)(func), coll_name)(func_out) match {
-            case Some(_) => throw new Exception("user email has been use")
-            case None => Map.empty
-        }
-    }
+    override val ckAttrExist: JsValue => DBObject = ckByCondition("email", "user", _)
 }

@@ -1,11 +1,11 @@
-package module.stragety
+package module.common.stragety
 
 import org.bson.types.ObjectId
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.Imports.DBObject
 
-import module.datamodel.basemodel
+import module.common.datamodel.basemodel
 import com.pharbers.bmmessages.CommonModules
 import com.pharbers.dbManagerTrait.dbInstanceManager
 

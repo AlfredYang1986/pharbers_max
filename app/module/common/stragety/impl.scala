@@ -1,4 +1,4 @@
-package module.stragety
+package module.common.stragety
 
 import scala.reflect.ClassTag
 

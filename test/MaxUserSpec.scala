@@ -103,4 +103,5 @@ class MaxUserSpec extends Specification with BeforeAll with AfterAll {
             (result \ "pop user").asOpt[String].get must_== "success"
         }
     }
+
 }

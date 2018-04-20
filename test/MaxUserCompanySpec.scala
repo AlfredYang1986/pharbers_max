@@ -154,4 +154,5 @@ class MaxUserCompanySpec extends Specification with BeforeAll with AfterAll {
             (user \ "phone").asOpt[String].get must_== user_push_map("phone")
         }
     }
+
 }

@@ -1,4 +1,4 @@
-package module.datamodel
+package module.common.datamodel
 
 import scala.reflect.ClassTag
 import play.api.libs.json.JsValue

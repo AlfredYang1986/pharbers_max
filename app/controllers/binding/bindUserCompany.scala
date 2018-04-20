@@ -21,7 +21,7 @@ class bindUserCompany @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, 
 
     def bind = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("bind user company"))), jv)
-            :: msg_verifyBind(jv)
+            :: msg_verifyCompanyBind(jv)
             :: msg_bindUserCompany(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })

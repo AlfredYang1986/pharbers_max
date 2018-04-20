@@ -191,4 +191,5 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
                 response.json
             }
     }
+
 }

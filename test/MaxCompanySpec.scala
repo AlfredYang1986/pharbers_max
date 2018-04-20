@@ -101,4 +101,5 @@ class MaxCompanySpec extends Specification with BeforeAll with AfterAll {
             (result \ "pop company").asOpt[String].get must_== "success"
         }
     }
+
 }
