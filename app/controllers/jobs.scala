@@ -1,7 +1,6 @@
 package controllers
 
 import javax.inject.Inject
-
 import play.api.mvc.Action
 import akka.actor.ActorSystem
 import module.jobs.JobMessage._
@@ -19,11 +18,10 @@ class jobs @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTo
     import com.pharbers.bmpattern.LogMessage.common_log
     import com.pharbers.bmpattern.ResultMessage.common_result
 
-    def pushJob = Action(request => requestArgsQuery().requestArgs(request) { jv =>
+    def pushJob() = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("push new job"))), jv)
             :: msg_queryUser(jv) // 检查创建job的用户
             :: msg_pushJob(jv) // 创建一个job
-            :: msg_bindJobUser(jv) // bind 用户和job
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })
 
@@ -44,4 +42,5 @@ class jobs @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTo
             :: msg_queryJobMulti(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })
+
 }

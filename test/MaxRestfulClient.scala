@@ -177,13 +177,107 @@ class MaxRestfulClient(ws: WSClient, baseUrl: String)(implicit ec: ExecutionCont
             }
     }
 
-    def companyDetail(company_id : String) : Future[JsValue] = {
-        ws.url(baseUrl + "/api/company/detail")
+    def companyUsers(company_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/company/users")
             .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
             .post(
                 toJson(Map(
                     "condition" -> toJson(Map(
                         "company_id" -> toJson(company_id)
+                    ))
+                ))
+            )
+            .map { response =>
+                response.json
+            }
+    }
+
+
+    def pushJob(user_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/job/push")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "user_id" -> toJson(user_id)
+                    ))
+                ))
+            )
+            .map { response =>
+                response.json
+            }
+    }
+
+    def popJob(job_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/job/pop")
+                .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+                .post(
+                    toJson(Map(
+                        "condition" -> toJson(Map(
+                            "job_id" -> job_id
+                        ))
+                    ))
+                )
+                .map { response =>
+                    response.json
+                }
+    }
+
+    def bindJobUser(job_id: String, user_id: String): Future[JsValue] = {
+        ws.url(baseUrl + "/api/job/user/bind")
+                .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+                .post(
+                    toJson(Map(
+                        "job" -> toJson(Map(
+                            "job_id" -> toJson(job_id)
+                        )),
+                        "user" -> toJson(Map(
+                            "user_id" -> toJson(user_id)
+                        ))
+                    ))
+                )
+                .map { response =>
+                    response.json
+                }
+    }
+
+    def unbindJobUser(bind_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/job/user/unbind")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "bind_id" -> toJson(bind_id)
+                    ))
+                ))
+            )
+            .map { response =>
+                response.json
+            }
+    }
+
+    def jobDetail(job_id: String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/job/detail")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "job_id" -> toJson(job_id)
+                    ))
+                ))
+            )
+            .map { response =>
+                response.json
+            }
+    }
+
+    def userJobs(user_id : String) : Future[JsValue] = {
+        ws.url(baseUrl + "/api/user/jobs")
+            .withHeaders("Accept" -> "application/json", "Content-Type" -> "application/json")
+            .post(
+                toJson(Map(
+                    "condition" -> toJson(Map(
+                        "user_id" -> toJson(user_id)
                     ))
                 ))
             )

@@ -19,4 +19,6 @@ object UserMessage {
     case class msg_bindUserCompany(data : JsValue) extends msg_UserCommand
     case class msg_unbindUserCompany(data : JsValue) extends msg_UserCommand
     case class msg_expendCompanyInfo(data : JsValue) extends msg_UserCommand
+
+    case class msg_expendJobsInfo(data : JsValue) extends msg_UserCommand
 }

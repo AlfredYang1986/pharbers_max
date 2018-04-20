@@ -39,7 +39,7 @@ class job2user extends one2one[job, user] with bind[job, user] with checkBindExi
         val builder = MongoDBObject.newBuilder
         builder += "_id" -> ObjectId.get()
         builder += "job_id" -> (data \ "job" \ "job_id").asOpt[String].get
-        builder += "user_id" -> (data \ "condition" \ "user_id").asOpt[String].get
+        builder += "user_id" -> (data \ "user" \ "user_id").asOpt[String].get
 
         builder.result
     }

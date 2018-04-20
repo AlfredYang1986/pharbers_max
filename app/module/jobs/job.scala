@@ -41,7 +41,7 @@ class job extends basemodel {
     val sr : DBObject => Map[String, JsValue] = { obj =>
         Map(
             "job_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString),
-            "start_time" -> toJson(obj.getAs[String]("start_time").get),
+            "start_time" -> toJson(obj.getAs[Long]("start_time").get),
             "status" -> toJson(obj.getAs[String]("status").get)
         )
     }

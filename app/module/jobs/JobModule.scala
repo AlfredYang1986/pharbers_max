@@ -28,9 +28,9 @@ object JobModule extends ModuleTrait {
         case msg_bindJobUser(data) =>
             processor(value => returnValue(bindConnection(value)("job_user")))(MergeStepResult(data, pr))
         case msg_unbindJobUser(data) =>
-            processor(value => returnValue(unbindConnection(value)("user_company")))(MergeStepResult(data, pr))
+            processor(value => returnValue(unbindConnection(value)("job_user")))(MergeStepResult(data, pr))
         case msg_expendUserInfo(data) =>
-            processor(value => returnValue(queryConnection(value)(pr)("user_company")))(MergeStepResult(data, pr))
+            processor(value => returnValue(queryConnection(value)(pr)("job_user")))(MergeStepResult(data, pr))
         case _ => ???
     }
 }

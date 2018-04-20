@@ -139,7 +139,7 @@ class MaxUserCompanySpec extends Specification with BeforeAll with AfterAll {
     def queryCompanyDetail: MatchResult[Any] = {
         WsTestClient.withClient { client =>
             val reVal = Await.result(
-                new MaxRestfulClient(client, "http://127.0.0.1:9000").companyDetail(company_id), time_out)
+                new MaxRestfulClient(client, "http://127.0.0.1:9000").companyUsers(company_id), time_out)
             (reVal \ "status").asOpt[String].get must_== "ok"
 
             val result = (reVal \ "result").asOpt[JsValue].get
