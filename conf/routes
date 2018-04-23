@@ -16,7 +16,6 @@ POST    /api/company/query/multi                     controllers.companies.query
 # User Company binding
 POST    /api/user/company/bind                       controllers.binding.bindUserCompany.bind
 POST    /api/user/company/unbind                     controllers.binding.bindUserCompany.unbind
-
 # User query with company info
 POST    /api/user/detail                             controllers.binding.bindUserCompany.userDetail
 # Company query with user info
@@ -33,6 +32,11 @@ POST    /api/job/user/bind                           controllers.binding.bindJob
 POST    /api/job/user/unbind                         controllers.binding.bindJobUser.unbind
 POST    /api/job/detail                              controllers.binding.bindJobUser.jobDetail
 POST    /api/user/jobs                               controllers.binding.bindJobUser.userJobs
+
+# Job Status Change
+POST    /api/job/panel                               controllers.jobs.panelJob
+POST    /api/job/calc                                controllers.jobs.calcJob
+POST    /api/job/kill                                controllers.jobs.killJob
 
 #POST    /user/update                                 controllers.auth.AuthController.auth_with_password
 #POST    /user/search                                 controllers.auth.AuthController.auth_with_password

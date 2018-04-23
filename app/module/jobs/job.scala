@@ -11,7 +11,7 @@ import module.common.datamodel.basemodel
 /**
   * Created by spark on 18-4-19.
   */
-class job extends basemodel {
+class job extends basemodel with jobStatusChangeTrait {
     override val name = "job"
     override def runtimeClass: Class[_] = classOf[job]
 
@@ -41,12 +41,19 @@ class job extends basemodel {
     val sr : DBObject => Map[String, JsValue] = { obj =>
         Map(
             "job_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString),
-            "start_time" -> toJson(obj.getAs[Long]("start_time").get),
+            "start_time" -> toJson(obj.getAs[String]("start_time").get),
             "status" -> toJson(obj.getAs[String]("status").get)
         )
     }
 
-    val dr : DBObject => Map[String, JsValue] = sr
+    val dr : DBObject => Map[String, JsValue] = { obj =>
+        Map(
+            "job_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString),
+            "start_time" -> toJson(obj.getAs[String]("start_time").get),
+            "change_time" -> toJson(obj.getAs[String]("change_time").get),
+            "status" -> toJson(obj.getAs[String]("status").get)
+        )
+    }
 
     val popr : DBObject => Map[String, JsValue] = { _ =>
         Map(
@@ -54,23 +61,35 @@ class job extends basemodel {
         )
     }
 
-    val d2m : JsValue => DBObject = { js =>
-        val data = (js \ "job").asOpt[JsValue].map (x => x).getOrElse(toJson(""))
-
+    val d2m : JsValue => DBObject = { _ =>
+        val now = new Date().getTime.toString
         val builder = MongoDBObject.newBuilder
         builder += "_id" -> ObjectId.get()      // job_id 唯一标示
-        builder += "start_time" -> new Date().getTime
-        builder += "status" -> jobCreated(data).des
+        builder += "start_time" -> now
+        builder += "change_time" -> now
+        builder += "status" -> jobCreated().des
 
         builder.result
     }
 
     val up2m : (DBObject, JsValue) => DBObject = { (obj, js) =>
         val data = (js \ "job").asOpt[JsValue].get
-
-        (data \ "start_time").asOpt[String].map (x => obj += "start_time" -> x).getOrElse(Unit)
         (data \ "status").asOpt[String].map (x => obj += "status" -> x).getOrElse(Unit)
+        obj
+    }
+}
+
+trait jobStatusChangeTrait { this : basemodel =>
+
+    val changeStatus : (jobStatusDefine, DBObject, JsValue) => DBObject = { (jsd, obj, _) =>
+        obj += "status" -> jsd.des
+        obj += "change_time" -> new Date().getTime.toString
 
         obj
     }
+
+    val up2panel : (DBObject, JsValue) => DBObject = changeStatus(jobPanel(), _, _)
+    val up2calc : (DBObject, JsValue) => DBObject = changeStatus(jobCalc(), _, _)
+    val up2kill : (DBObject, JsValue) => DBObject = changeStatus(jobKill(), _, _)
+
 }

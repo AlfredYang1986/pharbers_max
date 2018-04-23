@@ -105,6 +105,7 @@ class MaxJobSpec extends Specification with BeforeAll with AfterAll {
         unbindJobUser
         popJobTest
         popUserTest
+        1 must_== 1
     }
 
     def queryJobDetail: MatchResult[Any] = {
@@ -116,7 +117,7 @@ class MaxJobSpec extends Specification with BeforeAll with AfterAll {
             val result = (reVal \ "result").asOpt[JsValue].get
             val job = (result \ "job").asOpt[JsValue].get
             (job \ "job_id").asOpt[String].get.length must_!= 0
-            (job \ "start_time").asOpt[Long].get must_!= 0
+            (job \ "start_time").asOpt[String].get.length must_!= 0
             (job \ "status").asOpt[String].get.length must_!= 0
 
             val user = (job \ "user").asOpt[JsValue].get
@@ -142,7 +143,7 @@ class MaxJobSpec extends Specification with BeforeAll with AfterAll {
 
             val job = (user \ "jobs").asOpt[List[JsValue]].get.head
             (job \ "job_id").asOpt[String].get.length must_!= 0
-            (job \ "start_time").asOpt[Long].get must_!= 0
+            (job \ "start_time").asOpt[String].get.length must_!= 0
             (job \ "status").asOpt[String].get.length must_!= 0
         }
     }

@@ -1,11 +1,12 @@
 package module.jobs
 
+import module.jobs.jobStatus._
 import module.jobs.JobMessage._
 import module.common.processor._
 import play.api.libs.json.JsValue
 import module.common.stragety.impl
 import com.pharbers.bmpattern.ModuleTrait
-import module.common.pharbersmacro.CURDMacro._
+import com.pharbers.pharbersmacro.CURDMacro._
 import module.common.{MergeStepResult, processor}
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 
@@ -31,6 +32,11 @@ object JobModule extends ModuleTrait {
             processor(value => returnValue(unbindConnection(value)("job_user")))(MergeStepResult(data, pr))
         case msg_expendUserInfo(data) =>
             processor(value => returnValue(queryConnection(value)(pr)("job_user")))(MergeStepResult(data, pr))
+
+        case msg_panelJob(data) => updateMacro(qc, up2panel, dr, data, names, name)
+        case msg_calcJob(data) => updateMacro(qc, up2calc, dr, data, names, name)
+        case msg_killJob(data) => updateMacro(qc, up2kill, dr, data, names, name)
+
         case _ => ???
     }
 }

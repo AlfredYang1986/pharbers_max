@@ -18,4 +18,11 @@ object JobMessage {
     case class msg_bindJobUser(data : JsValue) extends msg_JobCommand
     case class msg_unbindJobUser(data : JsValue) extends msg_JobCommand
     case class msg_expendUserInfo(data : JsValue) extends msg_JobCommand
+
+    case class msg_panelJob(data : JsValue) extends msg_JobCommand
+    case class msg_paneledJob(data : JsValue) extends msg_JobCommand
+    case class msg_calcJob(data : JsValue) extends msg_JobCommand
+    case class msg_calcingJob(data : JsValue) extends msg_JobCommand
+    case class msg_doneJob(data : JsValue) extends msg_JobCommand
+    case class msg_killJob(data : JsValue) extends msg_JobCommand
 }
