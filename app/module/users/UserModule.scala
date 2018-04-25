@@ -36,6 +36,12 @@ object UserModule extends ModuleTrait {
             processor(value => returnValue(uc.queryConnection(value)(pr)("user_company")))(MergeStepResult(data, pr))
         case msg_expendJobsInfo(data) =>
             processor(value => returnValue(uj.queryConnection(value)(pr)("job_user")))(MergeStepResult(data, pr))
+
+        case msg_authWithPassword(data) =>
+            processor(value => returnValue(authWithPassword(authPwd, dr)(value)(names)))(MergeStepResult(data, pr))
+        case msg_authSetExpire(data) =>
+            processor(value => returnValue(authSetExpire(value)))(MergeStepResult(data, pr))
+
         case _ => ???
     }
 }

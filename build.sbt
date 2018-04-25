@@ -38,11 +38,16 @@ libraryDependencies ++= Seq(
 	"com.pharbers" % "pharbers-redis" % "0.1",
 	"com.pharbers" % "pharbers-pattern" % "0.1",
 	"com.pharbers" % "pharbers-redis" % "0.1",
+	"com.pharbers" % "pharbers-max" % "0.1",
 
 	"org.apache.commons" % "commons-email" % "1.4",
 	"net.debasishg" % "redisclient_2.11" % "3.4",
+	"org.apache.kafka" % "kafka_2.11" % "1.1.0",
+	"org.apache.kafka" % "kafka-streams" % "1.1.0",
+	"org.apache.avro" % "avro" % "1.7.6",
 	"log4j" % "log4j" % "1.2.17",
-    "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
+	"commons-io" % "commons-io" % "2.4",
+	"org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
     "org.specs2" % "specs2_2.11" % "3.7" % "test"
 )
 

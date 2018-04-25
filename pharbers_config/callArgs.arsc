@@ -1,0 +1,11 @@
+{
+    "namespace": "pharbers.callArgs",
+    "type": "record",
+    "name": "payload",
+    "fields":[
+        {"name": "user_id",  "type": ["string", "null"]},
+        {"name": "date",  "type": ["string", "null"]},
+        {"name": "call", "type": ["string", "null"]},
+        {"name": "args", "type": {"type": "map", "values": "string"}}
+    ]
+}

@@ -2,6 +2,7 @@ package com.pharbers.module
 
 import com.pharbers.token.AuthTokenTrait
 import play.api.{Configuration, Environment}
+import com.pharbers.driver.PhRedisDriverImpl
 import com.pharbers.dbManagerTrait.dbInstanceManager
 
 /**
@@ -11,7 +12,9 @@ class MAXModules extends play.api.inject.Module {
     def bindings(env : Environment, conf : Configuration) = {
         Seq(
             bind[dbInstanceManager].to[MAXDBManager],
-            bind[AuthTokenTrait].to[MAXTokenInjectModule]
+            bind[AuthTokenTrait].to[MAXTokenInjectModule],
+            bind[PhRedisDriverImpl].to[MAXRedisManager],
+            bind[MAXMsgChannelModule].toSelf
         )
     }
 }

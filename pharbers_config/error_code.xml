@@ -17,6 +17,7 @@
 
         <!-- user error -->
         <error reason="user email has been use" code="-201" description="用户邮箱已被使用" />
+        <error reason="email or password error" code="-201" description="邮箱或密码错误" />
 
         <!-- company error -->
         <error reason="company name has been use" code="-301" description="公司名已被使用" />
@@ -27,8 +28,6 @@
         <!-- job bind user error -->
         <error reason="job and user bind has been use" code="-501" description="该任务已与该员工绑定" />
 
-        <error reason="user have no email" code="-1201" description="无用户邮箱" />
-        <error reason="user have no secret" code="-1202" description="无用户密码" />
         <error reason="user not exist" code="-1203" description="用户不存在" />
         <error reason="info input password" code="-1204" description="请输入密码" />
         <error reason="info input phone" code="-1205" description="请输入手机号码" />
@@ -67,6 +66,8 @@
         <error reason="db aggregation error " code="-9006" description="数据Map Reduce操作发生错误" />
         <error reason="actor system get error" code="-9007" description="后去系统Actor System失败" />
         <error reason="no message impl" code="-9008" description="没有Message实例" />
+
+        <error reason="no redis connection" code="-9101" description="没有找到Reids链接" />
 
         <error reason="unknown error" code="-9999" description="unknown error" />
     </error_code>

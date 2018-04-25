@@ -21,4 +21,7 @@ object UserMessage {
     case class msg_expendCompanyInfo(data : JsValue) extends msg_UserCommand
 
     case class msg_expendJobsInfo(data : JsValue) extends msg_UserCommand
+
+    case class msg_authWithPassword(data: JsValue) extends msg_UserCommand
+    case class msg_authSetExpire(data: JsValue) extends msg_UserCommand
 }

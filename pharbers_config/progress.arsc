@@ -1,0 +1,22 @@
+{
+    "namespace": "pharbers.progress",
+    "type": "record",
+    "name": "payload",
+    "fields":[
+        {
+            "name": "id",  "type": ["string", "null"]
+        },
+        {
+            "name": "name", "type": "string"
+        },
+        {
+            "name": "stages", "type": ["string", "null"]
+        },
+        {
+            "name": "progress", "type": ["int", "null"]
+        },
+        {
+            "name": "result", "type": ["string", "null"]
+        }
+    ]
+}

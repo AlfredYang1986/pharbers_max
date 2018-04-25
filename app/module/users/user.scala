@@ -10,7 +10,7 @@ import module.common.checkExist.checkAttrExist
 /**
   * Created by spark on 18-4-19.
   */
-class user extends basemodel with checkAttrExist {
+class user extends basemodel with checkAttrExist with authTrait {
     override val name = "user"
     override def runtimeClass: Class[_] = classOf[user]
 
@@ -51,6 +51,7 @@ class user extends basemodel with checkAttrExist {
             "screen_name" -> toJson(obj.getAs[String]("screen_name").get),
             "screen_photo" -> toJson(obj.getAs[String]("screen_photo").get),
             "email" -> toJson(obj.getAs[String]("email").get),
+            "password" -> toJson(obj.getAs[String]("password").get),
             "phone" -> toJson(obj.getAs[String]("phone").get)
         )
     }
@@ -69,6 +70,7 @@ class user extends basemodel with checkAttrExist {
         builder += "screen_name" -> (data \ "screen_name").asOpt[String].map (x => x).getOrElse("")
         builder += "screen_photo" -> (data \ "screen_photo").asOpt[String].map (x => x).getOrElse("")
         builder += "email" -> (data \ "email").asOpt[String].map (x => x).getOrElse("")     // 登录的唯一标示
+        builder += "password" -> (data \ "password").asOpt[String].map (x => x).getOrElse("")
         builder += "phone" -> (data \ "phone").asOpt[String].map (x => x).getOrElse("")
 
         builder.result
@@ -80,6 +82,7 @@ class user extends basemodel with checkAttrExist {
         (data \ "screen_name").asOpt[String].map (x => obj += "screen_name" -> x).getOrElse(Unit)
         (data \ "screen_photo").asOpt[String].map (x => obj += "screen_photo" -> x).getOrElse(Unit)
         (data \ "email").asOpt[String].map (x => obj += "email" -> x).getOrElse(Unit)
+        (data \ "password").asOpt[String].map (x => obj += "password" -> x).getOrElse(Unit)
         (data \ "phone").asOpt[String].map (x => obj += "phone" -> x).getOrElse(Unit)
 
         obj

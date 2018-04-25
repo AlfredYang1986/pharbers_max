@@ -21,6 +21,9 @@ POST    /api/user/detail                             controllers.binding.bindUse
 # Company query with user info
 POST    /api/company/users                           controllers.binding.bindUserCompany.companyUsers
 
+# User Behavior
+POST    /api/user/login                              controllers.users.userLogin
+
 # Job信息录入
 POST    /api/job/push                                controllers.jobs.pushJob
 POST    /api/job/pop                                 controllers.jobs.popJob
