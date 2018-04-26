@@ -1,7 +1,0 @@
-<pharbers-modules>
-    <progress-channel-config>
-        <endpoints value="localhost:9092" />
-        <schemapath value="pharbers_config/callArgs.arsc" />
-        <topic value="max" />
-    </progress-channel-config>
-</pharbers-modules>

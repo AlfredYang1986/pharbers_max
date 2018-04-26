@@ -37,6 +37,7 @@ POST    /api/job/detail                              controllers.binding.bindJob
 POST    /api/user/jobs                               controllers.binding.bindJobUser.userJobs
 
 # Job Status Change
+POST    /api/job/ymCalc                              controllers.jobs.ymCalcJob
 POST    /api/job/panel                               controllers.jobs.panelJob
 POST    /api/job/calc                                controllers.jobs.calcJob
 POST    /api/job/kill                                controllers.jobs.killJob

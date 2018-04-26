@@ -11,7 +11,7 @@ import module.common.datamodel.basemodel
 /**
   * Created by spark on 18-4-19.
   */
-class job extends basemodel with jobStatusChangeTrait {
+class job extends basemodel with jobStatusChangeTrait with callJob {
     override val name = "job"
     override def runtimeClass: Class[_] = classOf[job]
 
@@ -77,19 +77,4 @@ class job extends basemodel with jobStatusChangeTrait {
         (data \ "status").asOpt[String].map (x => obj += "status" -> x).getOrElse(Unit)
         obj
     }
-}
-
-trait jobStatusChangeTrait { this : basemodel =>
-
-    val changeStatus : (jobStatusDefine, DBObject, JsValue) => DBObject = { (jsd, obj, _) =>
-        obj += "status" -> jsd.des
-        obj += "change_time" -> new Date().getTime.toString
-
-        obj
-    }
-
-    val up2panel : (DBObject, JsValue) => DBObject = changeStatus(jobPanel(), _, _)
-    val up2calc : (DBObject, JsValue) => DBObject = changeStatus(jobCalc(), _, _)
-    val up2kill : (DBObject, JsValue) => DBObject = changeStatus(jobKill(), _, _)
-
 }
