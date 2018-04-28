@@ -39,6 +39,7 @@ trait callJob {
 
     val yf: JsValue => java.util.HashMap[String, Object] = { jv =>
         val map = new java.util.HashMap[String, Object]()
+        map.put("company", (jv \ "condition" \ "args" \ "company").asOpt[String].getOrElse(""))
         map.put("cpa", (jv \ "condition" \ "args" \ "cpa").asOpt[String].getOrElse(""))
         map.put("gycx", (jv \ "condition" \ "args" \ "gycx").asOpt[String].getOrElse(""))
         map
@@ -46,6 +47,7 @@ trait callJob {
 
     val pf: JsValue => java.util.HashMap[String, Object] = { jv =>
         val map = new java.util.HashMap[String, Object]()
+        map.put("company", (jv \ "condition" \ "args" \ "company").asOpt[String].getOrElse(""))
         map.put("cpa", (jv \ "condition" \ "args" \ "cpa").asOpt[String].getOrElse(""))
         map.put("gycx", (jv \ "condition" \ "args" \ "gycx").asOpt[String].getOrElse(""))
         map.put("ym", (jv \ "condition" \ "args" \ "ym").asOpt[String].getOrElse(""))
