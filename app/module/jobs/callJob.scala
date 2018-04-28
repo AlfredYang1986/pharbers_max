@@ -9,6 +9,7 @@ import com.mongodb.casbah.Imports.DBObject
 import com.pharbers.module.MAXCallJobPusher
 import com.pharbers.bmmessages.CommonModules
 import module.jobs.jobStatus._
+import play.api.libs.json.Json.toJson
 
 
 /**
@@ -65,8 +66,7 @@ trait callJob {
         map
     }
 
-    def callFunc(callName: String,
-                 func: JsValue => java.util.HashMap[String, Object])
+    def callFunc(callName: String, func: JsValue => java.util.HashMap[String, Object])
                 (jv: JsValue): Map[String, AnyRef] = {
         Map(
             "job_id" -> (jv \ "condition" \ "job_id").asOpt[String].get,
@@ -78,11 +78,12 @@ trait callJob {
         )
     }
 
-    def callJob(func: JsValue => Map[String, AnyRef])
-               (jv: JsValue)
-               (implicit cm: CommonModules): Unit = {
+    def callJob(func: (JsValue, String) => Map[String, AnyRef])
+               (call: String)(jv: JsValue)
+               (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
         val channel = cm.modules.get.get("cp").map(x => x.asInstanceOf[MAXCallJobPusher]).get
-        channel.pushRecord(func(jv))(channel.precord)
+        channel.pushRecord(func(jv, call))(channel.precord)
+        (Some(Map(call -> toJson("call success"))), None)
     }
 
 }

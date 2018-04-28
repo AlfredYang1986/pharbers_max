@@ -33,17 +33,13 @@ object JobModule extends ModuleTrait {
             processor(value => returnValue(queryConnection(value)(pr)("job_user")))(MergeStepResult(data, pr))
 
         case msg_ymCalcJob(data) =>
-            callJob(value => callFunc("ymCalc", yf)(value))(MergeStepResult(data, pr))
-            updateMacro(qc, up2ym, dr, data, names, name)
+            callJob((value, call) => callFunc(call, yf)(value))("ymCalc")(MergeStepResult(data, pr))
         case msg_panelJob(data) =>
-            callJob(value => callFunc("panel", pf)(value))(MergeStepResult(data, pr))
-            updateMacro(qc, up2panel, dr, data, names, name)
+            callJob((value, call) => callFunc(call, pf)(value))("panel")(MergeStepResult(data, pr))
         case msg_calcJob(data) =>
-            callJob(value => callFunc("calc", cf)(value))(MergeStepResult(data, pr))
-            updateMacro(qc, up2calc, dr, data, names, name)
+            callJob((value, call) => callFunc(call, cf)(value))("calc")(MergeStepResult(data, pr))
         case msg_killJob(data) =>
-            callJob(value => callFunc("kill", kf)(value))(MergeStepResult(data, pr))
-            updateMacro(qc, up2kill, dr, data, names, name)
+            callJob((value, call) => callFunc(call, kf)(value))("kill")(MergeStepResult(data, pr))
 
         case _ => ???
     }

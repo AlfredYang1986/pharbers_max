@@ -8,7 +8,8 @@
         {"name": "company_id",  "type": ["string", "null"]},
         {"name": "date",  "type": ["string", "null"]},
         {"name": "call", "type": ["string", "null"]},
-        {"name": "progress", "type": "int"},
+        {"name": "stage", "type": ["string", "null"]},
+        {"name": "progress", "type": ["int", "null"]},
         {"name": "result", "type": ["string", "null"]}
     ]
 }

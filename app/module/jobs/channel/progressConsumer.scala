@@ -6,7 +6,6 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 import java.util.concurrent.Executors
 import com.pharbers.channel.chanelImpl._
-import com.pharbers.module.MAXProgressConsumer
 import com.pharbers.bmpattern.LogMessage.msg_log
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.bmmessages.{CommonModules, MessageRoutes}

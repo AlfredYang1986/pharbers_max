@@ -35,10 +35,13 @@ object callJobResponseModule extends ModuleTrait {
     }
 
     def choiceStatus(jv: JsValue): (Imports.DBObject, JsValue) => Imports.DBObject = {
-        (jv \ "call").asOpt[String].get match {
-            case "ymCalc" => up2ymed
-            case "panel" => up2paneled
-            case "calc" => up2calced
+        ((jv \ "call").as[String], (jv \ "stage").as[String]) match {
+            case ("ymCalc", "start") => up2ym
+            case ("ymCalc", "done") => up2ymed
+            case ("panel", "start") => up2panel
+            case ("panel", "done") => up2paneled
+            case ("calc", "start") => up2calc
+            case ("calc", "done") => up2calced
             case _ => ???
         }
     }
