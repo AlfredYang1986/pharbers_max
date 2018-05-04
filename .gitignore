@@ -97,3 +97,5 @@ client/deploy_local/
 client/deploy_remote/
 calc/deploy_remote/
 calc/deploy_local/
+
+logs/

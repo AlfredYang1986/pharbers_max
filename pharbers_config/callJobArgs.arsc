@@ -1,0 +1,13 @@
+{
+    "namespace": "pharbers.callJobArgs",
+    "type": "record",
+    "name": "RPC",
+    "fields":[
+        {"name": "job_id",  "type": ["string", "null"]},
+        {"name": "user_id",  "type": ["string", "null"]},
+        {"name": "company_id",  "type": ["string", "null"]},
+        {"name": "date",  "type": ["string", "null"]},
+        {"name": "call", "type": ["string", "null"]},
+        {"name": "args", "type": {"type": "map", "values": "string"}}
+    ]
+}

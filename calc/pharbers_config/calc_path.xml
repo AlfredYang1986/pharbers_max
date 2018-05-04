@@ -1,9 +1,0 @@
-<pharbers-modules>
-    <calc-path>
-        <bson-path value="config/dumpdb/Max_Cores/" />
-        <hosp value="config/admin/HospDataStruct.xml" />
-        <field-names-hosp value="config/admin/FieldNamesHospDataStruct.xml" />
-        <integrated value="config/consumer/IntegratedDataStruct.xml" />
-        <field-names-integrated value="config/consumer/FieldNamesIntegratedDataStruct.xml" />
-    </calc-path>
-</pharbers-modules>
