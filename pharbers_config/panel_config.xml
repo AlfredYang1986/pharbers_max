@@ -1,31 +1,8 @@
 <pharbers-modules>
     <panel_config>
-        <base_path value="/mnt/config/FileBase/"/>
-        <client_file_path value="/mnt/config/FileBase/"/>
-        <product_match_file value="/匹配表.csv" />
-        <markets_match_file value="/通用名市场定义.csv" />
-        <universe_file value="/universe_##market##_online.csv" />
-        <not_arrival_hosp_file value="/未到医院名单.csv" />
-        <not_published_hosp_file value="/2017年未出版医院名单.csv" />
-        <fill_hos_data_file value="/补充医院.csv" />
-        <source_dir value="/Client/" />
-        <output_dir value="/Panel/" />
+        <client_dir value="/mnt/config/Client/" />
+        <match_file_dir value="/mnt/config/MatchFile/" />
+        <cache_dir value="/mnt/config/Cache/" />
+        <result_dir value="/mnt/config/Result/" />
     </panel_config>
-
-    <company_fea9f203d4f593a96f0d6faa91ba24ba>
-        <markets value="INF" />
-        <!--INF,SPE,URO,AI_W,CNS_Z,DVP,ELQ,AI_S,        LD,ONC,PAIN,HTN,AI_R-->
-        <!--CNS_R,HTN2,PAIN_C       -panel-->
-        <!--AI_D,ZYVOX       -no match-->
-
-        <INF value="com.pharbers.panel.pfizer.phPfizerHandle" />
-        <SPE value="com.pharbers.panel.pfizer.phPfizerHandle" />
-        <URO value="com.pharbers.panel.pfizer.phPfizerHandle" />
-    </company_fea9f203d4f593a96f0d6faa91ba24ba>
-
-    <company_8ee0ca24796f9b7f284d931650edbd4b>
-        <markets value="麻醉市场"/>
-
-        <麻醉市场 value="com.pharbers.panel.nhwa.phNhwaHandle" />
-    </company_8ee0ca24796f9b7f284d931650edbd4b>
 </pharbers-modules>

@@ -8,6 +8,8 @@
         <!-- common error -->
         <error reason="not implement" code="-101" description="工程师正在玩命的开发中" />
         <error reason="input wrong" code="-102" description="输入的参数有错误" />
+        <error reason="Bad Request for input" code="-103" description="输入的参数有错误" />
+        <error reason="upload error" code="-104" description="上传出错" />
 
         <!-- company error -->
         <error reason="company name has been use" code="-201" description="公司名已被使用" />

@@ -42,7 +42,7 @@ POST    /api/job/panel                               controllers.jobs.panelJob
 POST    /api/job/calc                                controllers.jobs.calcJob
 POST    /api/job/kill                                controllers.jobs.killJob
 
-#POST    /user/update                                 controllers.auth.AuthController.auth_with_password
+POST    /api/file/upload                             controllers.upload.FopController.uploadFile
 #POST    /user/search                                 controllers.auth.AuthController.auth_with_password
 
 # Map static resources from the /public folder to the /assets URL path

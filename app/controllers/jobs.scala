@@ -1,18 +1,18 @@
 package controllers
 
-import javax.inject.Inject
-import play.api.mvc.Action
 import akka.actor.ActorSystem
-import module.jobs.JobMessage._
-import play.api.libs.json.Json.toJson
+import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
+import com.pharbers.bmpattern.LogMessage.msg_log
+import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
+import com.pharbers.dbManagerTrait.dbInstanceManager
+import com.pharbers.module.{MAXCallJobPusher, MAXProgressConsumer}
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
-import module.users.UserMessage.msg_queryUser
-import com.pharbers.bmpattern.LogMessage.msg_log
-import com.pharbers.dbManagerTrait.dbInstanceManager
-import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
-import com.pharbers.module.{MAXCallJobPusher, MAXProgressConsumer}
-import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
+import javax.inject.Inject
+import module.jobs.JobMessage.{msg_expendUserInfo, _}
+import module.users.UserMessage.{msg_expendCompanyInfo, msg_queryUser}
+import play.api.libs.json.Json.toJson
+import play.api.mvc.Action
 
 class jobs @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait, cp: MAXCallJobPusher, pc: MAXProgressConsumer) {
     implicit val as: ActorSystem = as_inject
@@ -46,25 +46,31 @@ class jobs @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTo
 
 
     def ymCalcJob = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("panel job"))), jv)
-            :: msg_queryJob(jv) // 检查执行的job
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("ym calc job"))), jv)
+            :: msg_queryJob(jv)
             :: msg_expendUserInfo(jv)
+            :: msg_queryUser(jv)
+            :: msg_expendCompanyInfo(jv)
             :: msg_ymCalcJob(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
     })
 
     def panelJob = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("panel job"))), jv)
-            :: msg_queryJob(jv) // 检查执行的job
+            :: msg_queryJob(jv)
             :: msg_expendUserInfo(jv)
+            :: msg_queryUser(jv)
+            :: msg_expendCompanyInfo(jv)
             :: msg_panelJob(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
     })
 
     def calcJob = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("calc job"))), jv)
-            :: msg_queryJob(jv) // 检查执行的job
+            :: msg_queryJob(jv)
             :: msg_expendUserInfo(jv)
+            :: msg_queryUser(jv)
+            :: msg_expendCompanyInfo(jv)
             :: msg_calcJob(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
     })
