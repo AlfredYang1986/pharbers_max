@@ -53,22 +53,13 @@ trait callJob {
         map
     }
 
-    val cf: JsValue => java.util.HashMap[String, Object] = { jv =>
-        val map = new java.util.HashMap[String, Object]()
-        map.put("panel", (jv \ "condition" \ "args" \ "panel").asOpt[String].getOrElse(""))
-        map
-    }
-
-    val kf: JsValue => java.util.HashMap[String, Object] = { jv =>
-        val map = new java.util.HashMap[String, Object]()
-        map
-    }
+    val nullFun: JsValue => java.util.HashMap[String, Object] = { _ => new java.util.HashMap[String, Object]() }
 
     def callFunc(callName: String, func: JsValue => java.util.HashMap[String, Object])
                 (jv: JsValue): Map[String, AnyRef] = {
         Map(
             "job_id" -> (jv \ "condition" \ "job_id").asOpt[String].get,
-            "user_id" -> (jv \ "condition" \ "user_id").asOpt[String].get,
+            "user_id" -> (jv \ "user" \ "user_id").asOpt[String].get,
             "company_id" -> (jv \ "user" \ "company" \ "company_id").asOpt[String].get,
             "date" -> new Date().getTime.toString,
             "call" -> callName,
@@ -77,7 +68,8 @@ trait callJob {
     }
 
     def callJob(func: (JsValue, String) => Map[String, AnyRef])
-               (call: String)(jv: JsValue)
+               (call: String)
+               (jv: JsValue)
                (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
         val channel = cm.modules.get.get("cp").map(x => x.asInstanceOf[MAXCallJobPusher]).get
         channel.pushRecord(func(jv, call))(channel.precord)

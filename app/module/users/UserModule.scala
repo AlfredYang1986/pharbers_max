@@ -20,14 +20,14 @@ object UserModule extends ModuleTrait {
                    (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = msg match {
 
         case msg_verifyUserRegister(data) =>
-            processor(value => returnValue(checkExist(value, pr, "user email has been use")(ckAttrExist, ssr, names)))(MergeStepResult(data, pr))
-        case msg_pushUser(data) => pushMacro(d2m, ssr, data, names, name)
+            processor(value => returnValue(checkExist(value, pr, "user email has been use")(ckAttrExist, ssr, names)))(data)
+        case msg_pushUser(data) => pushMacro(d2m, ssr, MergeStepResult(data, pr), names, name)
         case msg_popUser(data) => popMacro(qc, popr, data, names)
         case msg_queryUser(data) => queryMacro(qc, dr, MergeStepResult(data, pr), names, name)
         case msg_queryUserMulti(data) => queryMultiMacro(qcm, sr, MergeStepResult(data, pr), names, names)
 
-        case msg_verifyCompanyBind(data) =>
-            processor(value => returnValue(checkExist(value, pr, "user and company bind has been use")(uc.checkBindExist, ssr, "user_company")))(MergeStepResult(data, pr))
+        case msg_bindUserCompanyPre(data) =>
+            processor(value => returnValue(uc.bindPre(value, pr, "user and company bind error")(uc.cbeIn, uc.cbeOut, "companies")))(data)
         case msg_bindUserCompany(data) =>
             processor(value => returnValue(uc.bindConnection(value)("user_company")))(MergeStepResult(data, pr))
         case msg_unbindUserCompany(data) =>

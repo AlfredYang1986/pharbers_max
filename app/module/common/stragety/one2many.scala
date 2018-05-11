@@ -1,12 +1,11 @@
 package module.common.stragety
 
-import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.Imports.DBObject
-import play.api.libs.json.{JsObject, JsValue}
-
-import module.common.datamodel.basemodel
 import com.pharbers.bmmessages.CommonModules
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import module.common.datamodel.basemodel
+import play.api.libs.json.Json.toJson
+import play.api.libs.json.{JsObject, JsValue}
 
 trait one2many[This <: basemodel, That <: basemodel] { this : bind[This, That] =>
 
@@ -25,17 +24,23 @@ trait one2many[This <: basemodel, That <: basemodel] { this : bind[This, That] =
         val ts = createThis
         val ta = createThat
 
-        val reVal = db.queryMultipleObject(ts.anqc(data), connect)(one2manyssr)
-        val result = db.queryMultipleObject(one2manyaggregate(reVal), ta.names)(ta.dr)
-
-        val tmp = outter match {
-            case "" => ts.name
-            case _ => outter
-        }
-
         pr match {
-            case None => Map(ta.name -> toJson(result))
-            case Some(x) => Map(tmp -> toJson(x(tmp).as[JsObject].value.toMap ++ Map(ta.names -> toJson(result))))
+            case None => throw new Exception("data not exist")
+            case Some(x) =>
+                val prMap = x(ts.name).as[JsObject].value.toMap
+
+                prMap.size match {
+                    case 0 => throw new Exception("data not exist")
+                    case _ =>
+                        val reVal = db.queryMultipleObject(ts.anqc(data), connect)(one2manyssr)
+                        val result = db.queryMultipleObject(one2manyaggregate(reVal), ta.names)(ta.dr)
+
+                        val tmp = outter match {
+                            case "" => ts.name
+                            case _ => outter
+                        }
+                        Map(tmp -> toJson(prMap ++ Map(ta.names -> toJson(result))))
+                }
         }
     }
 }

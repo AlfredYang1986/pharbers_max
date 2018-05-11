@@ -21,7 +21,7 @@ class job extends basemodel with jobStatusChangeTrait with callJob {
     }
 
     val anqc: JsValue => DBObject = { js =>
-        val tmp = (js \ "condition" \ "job_id").asOpt[String].get
+        val tmp = (js \ "job" \ "job_id").asOpt[String].get
         DBObject("job_id" -> tmp)
     }
 

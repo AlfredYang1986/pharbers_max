@@ -1,13 +1,13 @@
 package module.jobs
 
-import module.jobs.JobMessage._
-import module.common.processor._
-import play.api.libs.json.JsValue
-import module.common.stragety.impl
+import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.pharbersmacro.CURDMacro._
+import module.common.processor._
+import module.common.stragety.impl
 import module.common.{MergeStepResult, processor}
-import com.pharbers.bmmessages.{CommonModules, MessageDefines}
+import module.jobs.JobMessage.{msg_bindJobUserPre, _}
+import play.api.libs.json.{JsObject, JsValue}
 
 object JobModule extends ModuleTrait {
     val ip: job = impl[job]
@@ -23,25 +23,31 @@ object JobModule extends ModuleTrait {
         case msg_queryJob(data) => queryMacro(qc, dr, MergeStepResult(data, pr), names, name)
         case msg_queryJobMulti(data) => queryMultiMacro(qcm, sr, MergeStepResult(data, pr), names, names)
 
-        case msg_verifyUserBind(data) =>
-            processor(value => returnValue(checkExist(value, pr, "job and user bind has been use")(checkBindExist, ssr, "job_user")))(MergeStepResult(data, pr))
+        case msg_bindJobUserPre(data) =>
+            processor(value => returnValue(oo.bindPre(value, pr, "job and user bind error")(oo.cbeIn, oo.cbeOut, "users")))(data)
         case msg_bindJobUser(data) =>
             processor(value => returnValue(bindConnection(value)("job_user")))(MergeStepResult(data, pr))
         case msg_unbindJobUser(data) =>
             processor(value => returnValue(unbindConnection(value)("job_user")))(MergeStepResult(data, pr))
         case msg_expendUserInfo(data) =>
             processor(value => returnValue(queryConnection(value)(pr)("job_user")))(MergeStepResult(data, pr))
+        case msg_expendCompanyInfoByJob(data) => expendCompanyInfoByJob(MergeStepResult(data, pr))
 
         case msg_ymCalcJob(data) =>
             callJob((value, call) => callFunc(call, yf)(value))("ymCalc")(MergeStepResult(data, pr))
         case msg_panelJob(data) =>
             callJob((value, call) => callFunc(call, pf)(value))("panel")(MergeStepResult(data, pr))
         case msg_calcJob(data) =>
-            callJob((value, call) => callFunc(call, cf)(value))("calc")(MergeStepResult(data, pr))
+            callJob((value, call) => callFunc(call, nullFun)(value))("calc")(MergeStepResult(data, pr))
         case msg_killJob(data) =>
-            callJob((value, call) => callFunc(call, kf)(value))("kill")(MergeStepResult(data, pr))
+            callJob((value, call) => callFunc(call, nullFun)(value))("kill")(MergeStepResult(data, pr))
 
         case _ => ???
+    }
+
+    def expendCompanyInfoByJob(jv: JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+        val user = (jv \ "job" \ "user").as[JsObject]
+        (Some(jv.as[JsObject].value.toMap ++ Map("user" -> user)), None)
     }
 
 }

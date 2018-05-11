@@ -1,6 +1,6 @@
 package module.jobs.channel
 
-import com.pharbers.channel.chanelImpl._
+import com.pharbers.common.xmpp.kafka.{kafkaBasicConf, kafkaPushRecord, kafka_config_obj}
 
 trait callJobPusher extends kafkaBasicConf with kafkaPushRecord {
 

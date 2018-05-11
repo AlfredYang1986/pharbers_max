@@ -6,9 +6,8 @@ import com.mongodb.casbah.Imports._
 import com.pharbers.bmmessages.CommonModules
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.driver.PhRedisDriverImpl
-import com.pharbers.driver.redis.phRedisDriver
 import com.pharbers.sercuity.Sercurity
-import play.api.libs.json.{JsObject, JsValue}
+import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
 import scala.collection.immutable.Map
@@ -54,7 +53,6 @@ trait authTrait {
         rd.expire(accessToken, expire)
 
         Map(
-            "set expire" -> toJson("success"),
             "uid" -> toJson(uid),
             "user_token" -> toJson(accessToken)
         )

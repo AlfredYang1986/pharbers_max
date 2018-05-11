@@ -22,7 +22,7 @@ class company extends basemodel with checkAttrExist {
     }
 
     override val anqc: JsValue => _root_.com.mongodb.casbah.Imports.DBObject = { js =>
-        val tmp = (js \ "condition" \ "company_id").asOpt[String].get
+        val tmp = (js \ "company" \ "company_id").asOpt[String].get
         DBObject("company_id" -> tmp)
     }
 
@@ -82,4 +82,9 @@ class company extends basemodel with checkAttrExist {
     }
 
     override val ckAttrExist: JsValue => DBObject = ckByCondition("company_name", "company", _)
+
+    val qrc : JsValue => DBObject = { js =>
+        val tmp = (js \ "user" \ "company_name").asOpt[String].get
+        DBObject("company_name" -> tmp)
+    }
 }

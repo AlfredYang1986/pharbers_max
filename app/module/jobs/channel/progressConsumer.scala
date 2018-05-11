@@ -1,16 +1,17 @@
 package module.jobs.channel
 
+import java.util.concurrent.Executors
+
 import akka.actor.ActorSystem
+import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
+import com.pharbers.bmpattern.LogMessage.msg_log
+import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
+import com.pharbers.common.xmpp.kafka.{kafkaBasicConf, kafkaConsumer, kafka_config_obj}
+import com.pharbers.dbManagerTrait.dbInstanceManager
+import module.jobs.channel.callJobResponse.callJobResponseMessage._
 import org.bson.types.ObjectId
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
-import java.util.concurrent.Executors
-import com.pharbers.channel.chanelImpl._
-import com.pharbers.bmpattern.LogMessage.msg_log
-import com.pharbers.dbManagerTrait.dbInstanceManager
-import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
-import module.jobs.channel.callJobResponse.callJobResponseMessage._
-import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
 
 case class progressConsumer(as_inject: ActorSystem, dbt: dbInstanceManager) extends kafkaBasicConf with kafkaConsumer {
 

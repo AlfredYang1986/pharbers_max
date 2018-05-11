@@ -1,6 +1,6 @@
 <pharbers-modules>
     <progress-kafka-config>
-        <endpoints value="192.168.100.112:9092" />
+        <endpoints value="127.0.0.1:9092" />
         <callJobSP value="pharbers_config/callJobArgs.arsc" />
         <callJobTopic value="max_callJob" />
         <progressSP value="pharbers_config/callJobProgress.arsc" />

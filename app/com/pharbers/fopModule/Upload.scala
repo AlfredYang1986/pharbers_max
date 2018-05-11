@@ -7,8 +7,7 @@ import play.api.libs.json.Json.toJson
 import play.api.mvc.MultipartFormData
 import play.api.libs.Files.TemporaryFile
 import com.pharbers.ErrorCode.errorToJson
-import com.pharbers.common.algorithm.alTempLog
-import com.pharbers.panel.common.panel_path_obj
+import com.pharbers.common.algorithm.{alTempLog, max_path_obj}
 
 object Upload {
     // 可以同时上传多个文件
@@ -16,7 +15,7 @@ object Upload {
         try {
             val lst = data.files.map { file =>
                 val uuid = UUID.randomUUID
-                val path = panel_path_obj.p_clientPath
+                val path = max_path_obj.p_clientPath
                 new TemporaryFile(file.ref.file).moveTo(new File(s"$path/$uuid"), replace = true)
                 uuid
             }

@@ -1,49 +1,41 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 
-# 用户登入
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file                               controllers.Assets.versioned(path="/public", file: Asset)
+
+# 用户录入
 POST    /api/user/push                               controllers.users.pushUser
 POST    /api/user/pop                                controllers.users.popUser
 POST    /api/user/query                              controllers.users.queryUser
 POST    /api/user/query/multi                        controllers.users.queryUserMulti
+# User query with company info
+POST    /api/user/detail                             controllers.users.userDetail
 
 # 公司信息录入
 POST    /api/company/push                            controllers.companies.pushCompany
 POST    /api/company/pop                             controllers.companies.popCompany
 POST    /api/company/query                           controllers.companies.queryCompany
 POST    /api/company/query/multi                     controllers.companies.queryCompanyMulti
-
-# User Company binding
-POST    /api/user/company/bind                       controllers.binding.bindUserCompany.bind
-POST    /api/user/company/unbind                     controllers.binding.bindUserCompany.unbind
-# User query with company info
-POST    /api/user/detail                             controllers.binding.bindUserCompany.userDetail
 # Company query with user info
-POST    /api/company/users                           controllers.binding.bindUserCompany.companyUsers
+POST    /api/company/users                           controllers.companies.companyUsers
 
 # User Behavior
 POST    /api/user/login                              controllers.users.userLogin
+POST    /api/user/jobs                               controllers.users.userJobs
 
 # Job信息录入
 POST    /api/job/push                                controllers.jobs.pushJob
 POST    /api/job/pop                                 controllers.jobs.popJob
 POST    /api/job/query                               controllers.jobs.queryJob
 POST    /api/job/query/multi                         controllers.jobs.queryJobMulti
-
 # Job Bind User
-POST    /api/job/user/bind                           controllers.binding.bindJobUser.bind
-POST    /api/job/user/unbind                         controllers.binding.bindJobUser.unbind
-POST    /api/job/detail                              controllers.binding.bindJobUser.jobDetail
-POST    /api/user/jobs                               controllers.binding.bindJobUser.userJobs
+POST    /api/job/detail                              controllers.jobs.jobDetail
 
-# Job Status Change
-POST    /api/job/ymCalc                              controllers.jobs.ymCalcJob
-POST    /api/job/panel                               controllers.jobs.panelJob
-POST    /api/job/calc                                controllers.jobs.calcJob
-POST    /api/job/kill                                controllers.jobs.killJob
-
+# MAX Calcul Flow
 POST    /api/file/upload                             controllers.upload.FopController.uploadFile
-#POST    /user/search                                 controllers.auth.AuthController.auth_with_password
-
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                               controllers.Assets.versioned(path="/public", file: Asset)
+POST    /api/max/ymCalc                              controllers.max.ymCalc
+POST    /api/max/panel                               controllers.max.panel
+POST    /api/max/calc                                controllers.max.calc
+POST    /api/max/search                              controllers.max.search
+POST    /api/max/kill                                controllers.max.kill

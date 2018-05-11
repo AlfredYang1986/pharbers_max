@@ -20,7 +20,7 @@ class user extends basemodel with checkAttrExist with authTrait {
     }
 
     override val anqc: JsValue => DBObject = { js =>
-        val tmp = (js \ "condition" \ "user_id").asOpt[String].get
+        val tmp = (js \ "user" \ "user_id").asOpt[String].get
         DBObject("user_id" -> tmp)
     }
 
