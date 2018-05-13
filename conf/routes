@@ -37,5 +37,11 @@ POST    /api/file/upload                             controllers.upload.FopContr
 POST    /api/max/ymCalc                              controllers.max.ymCalc
 POST    /api/max/panel                               controllers.max.panel
 POST    /api/max/calc                                controllers.max.calc
-POST    /api/max/search                              controllers.max.search
 POST    /api/max/kill                                controllers.max.kill
+
+# MAX Search Flow
+POST    /api/search/history                          controllers.search.history
+POST    /api/search/market                           controllers.search.market
+POST    /api/search/years                            controllers.search.years
+POST    /api/search/check/simple                     controllers.search.simpleCheck
+POST    /api/search/check/result                     controllers.search.resultCheck

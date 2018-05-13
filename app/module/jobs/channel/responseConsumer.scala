@@ -13,7 +13,7 @@ import org.bson.types.ObjectId
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
-case class progressConsumer(as_inject: ActorSystem, dbt: dbInstanceManager) extends kafkaBasicConf with kafkaConsumer {
+case class responseConsumer(as_inject: ActorSystem, dbt: dbInstanceManager) extends kafkaBasicConf with kafkaConsumer {
 
     override lazy val group_id: String = ObjectId.get().toString
     override lazy implicit val dispatch: ActorSystem = as_inject

@@ -1,14 +1,13 @@
-package module.jobs
+package module.jobs.channel
 
 import java.util.Date
 
-import play.api.libs.json.JsValue
-import com.mongodb.casbah.Imports._
-import module.common.datamodel.basemodel
-import com.mongodb.casbah.Imports.DBObject
-import com.pharbers.module.MAXCallJobPusher
+import com.mongodb.casbah.Imports.{DBObject, _}
 import com.pharbers.bmmessages.CommonModules
-import module.jobs.jobStatus._
+import com.pharbers.module.MAXCallJobPusher
+import module.common.datamodel.basemodel
+import module.jobs.channel.jobStatus._
+import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
 

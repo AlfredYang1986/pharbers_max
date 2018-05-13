@@ -1,4 +1,4 @@
-package module.jobs
+package module.jobs.channel
 
 /**
   * Created by spark on 18-4-20.

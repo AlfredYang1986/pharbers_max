@@ -1,20 +1,20 @@
 package controllers
 
+import javax.inject.Inject
+import play.api.mvc.Action
 import akka.actor.ActorSystem
-import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
-import com.pharbers.bmpattern.LogMessage.msg_log
-import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
-import com.pharbers.dbManagerTrait.dbInstanceManager
-import com.pharbers.module.{MAXCallJobPusher, MAXProgressConsumer}
+import module.jobs.JobMessage._
+import play.api.libs.json.Json.toJson
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
-import javax.inject.Inject
-import module.jobs.JobMessage._
+import com.pharbers.bmpattern.LogMessage.msg_log
+import com.pharbers.dbManagerTrait.dbInstanceManager
 import module.users.UserMessage.msg_expendCompanyInfo
-import play.api.libs.json.Json.toJson
-import play.api.mvc.Action
+import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
+import com.pharbers.module.{MAXCallJobPusher, MAXResponseConsumer}
+import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
 
-class max @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait, cp: MAXCallJobPusher, pc: MAXProgressConsumer) {
+class max @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait, cp: MAXCallJobPusher, pc: MAXResponseConsumer) {
     implicit val as: ActorSystem = as_inject
 
     import com.pharbers.bmpattern.LogMessage.common_log
@@ -41,16 +41,6 @@ class max @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTok
     })
 
     def calc = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("calc job"))), jv)
-                :: msg_queryJob(jv)
-                :: msg_expendUserInfo(jv)
-                :: msg_expendCompanyInfoByJob(jv)
-                :: msg_expendCompanyInfo(jv)
-                :: msg_calcJob(jv)
-                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
-    })
-
-    def search = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("calc job"))), jv)
                 :: msg_queryJob(jv)
                 :: msg_expendUserInfo(jv)

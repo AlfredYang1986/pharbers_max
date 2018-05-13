@@ -1,5 +1,5 @@
 {
-    "namespace": "pharbers.callJobArgs",
+    "namespace": "pharbers.callJobRequest",
     "type": "record",
     "name": "RPC",
     "fields":[
