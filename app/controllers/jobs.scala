@@ -14,7 +14,7 @@ import module.users.UserMessage.msg_queryUser
 import play.api.libs.json.Json.toJson
 import play.api.mvc.Action
 
-class jobs @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait, cp: MAXCallJobPusher, pc: MAXResponseConsumer) {
+class jobs @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait, cp: MAXCallJobPusher, rc: MAXResponseConsumer) {
     implicit val as: ActorSystem = as_inject
 
     import com.pharbers.bmpattern.LogMessage.common_log

@@ -6,7 +6,7 @@ import com.pharbers.driver.PhRedisDriverImpl
 import com.pharbers.driver.util.redis_conn_cache
 import com.pharbers.token.tokenImpl.TokenImplTrait
 import javax.inject.{Inject, Singleton}
-import module.jobs.channel.{callJobPusher, responseConsumer}
+import module.jobs.callJob.{callJobPusher, responseConsumer}
 
 /**
   * Created by alfredyang on 01/06/2017.

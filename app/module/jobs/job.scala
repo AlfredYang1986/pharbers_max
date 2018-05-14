@@ -2,13 +2,13 @@ package module.jobs
 
 import java.util.Date
 
-import module.jobs.channel.jobStatus._
+import module.jobs.callJob.jobStatus._
 import org.bson.types.ObjectId
 import play.api.libs.json.JsValue
 import com.mongodb.casbah.Imports._
 import play.api.libs.json.Json.toJson
 import module.common.datamodel.basemodel
-import module.jobs.channel.{callJob, jobStatusChangeTrait}
+import module.jobs.callJob.{callJob, jobStatusChangeTrait}
 
 /**
   * Created by spark on 18-4-19.

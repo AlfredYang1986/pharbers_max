@@ -3,12 +3,11 @@
     "type": "record",
     "name": "payload",
     "fields":[
-        {"name": "job_id",  "type": ["string", "null"]},
         {"name": "user_id",  "type": ["string", "null"]},
         {"name": "company_id",  "type": ["string", "null"]},
         {"name": "date",  "type": ["string", "null"]},
         {"name": "call", "type": ["string", "null"]},
         {"name": "stage", "type": ["string", "null"]},
-        {"name": "result", "type": ["string", "null"]}
+        {"name": "result", "type": {"type": "map", "values": "string"}}
     ]
 }

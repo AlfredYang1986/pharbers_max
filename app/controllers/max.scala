@@ -14,7 +14,7 @@ import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
 import com.pharbers.module.{MAXCallJobPusher, MAXResponseConsumer}
 import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
 
-class max @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait, cp: MAXCallJobPusher, pc: MAXResponseConsumer) {
+class max @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait, cp: MAXCallJobPusher, rc: MAXResponseConsumer) {
     implicit val as: ActorSystem = as_inject
 
     import com.pharbers.bmpattern.LogMessage.common_log
