@@ -20,7 +20,7 @@ trait searchTrait {
         toJson( "mkt1" :: "mkt2" :: Nil )
     }
 
-    def searchAllMkt2(jv: JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
+    def searchAllMkt(jv: JsValue): (Option[Map[String, JsValue]], Option[JsValue]) = {
         val company_id = (jv \ "user" \ "company" \ "company_id").asOpt[String].get
         val temp = Some(
             Map(
@@ -139,26 +139,23 @@ trait searchTrait {
                 ),
                 "notfindhospital" -> toJson(
                     Map(
-                        "date" -> toJson("2018-01"),
-                        "province" -> toJson("北京"),
-                        "market" -> toJson("mkt1"),
-                        "product" -> toJson("巴拉巴拉巴拉"),
-                        "sales" -> toJson("100"),
-                        "units" -> toJson("20")
+                        "index" -> toJson("1"),
+                        "hospitalName" -> toJson("1aaa"),
+                        "province" -> toJson("1"),
+                        "city" -> toJson("aaa"),
+                        "cityLevel" -> toJson("5")
                     ) ::  Map(
-                        "date" -> toJson("2018-01"),
-                        "province" -> toJson("北京"),
-                        "market" -> toJson("mkt2"),
-                        "product" -> toJson("巴拉巴拉巴拉"),
-                        "sales" -> toJson("100"),
-                        "units" -> toJson("20")
+                        "index" -> toJson("2"),
+                        "hospitalName" -> toJson("bbbbb"),
+                        "province" -> toJson("1"),
+                        "city" -> toJson("bbbbbb"),
+                        "cityLevel" -> toJson("4")
                     ) :: Map(
-                        "date" -> toJson("2018-01"),
-                        "province" -> toJson("北京"),
-                        "market" -> toJson("mkt3"),
-                        "product" -> toJson("巴拉巴拉巴拉"),
-                        "sales" -> toJson("100"),
-                        "units" -> toJson("20")
+                        "index" -> toJson("3"),
+                        "hospitalName" -> toJson("cccccc"),
+                        "province" -> toJson("1"),
+                        "city" -> toJson("cccccc"),
+                        "cityLevel" -> toJson("3")
                     ) :: Nil
                 )
             )
@@ -207,17 +204,17 @@ trait searchTrait {
                 "region" -> toJson(
                     Map(
                         "name" -> toJson("北京"),
-                        "value" -> toJson("111"),
+                        "value" -> toJson("12111"),
                         "prodcutSales" -> toJson("12"),
                         "percentage" -> toJson("1.1")
                     ) :: Map(
                         "name" -> toJson("天津"),
-                        "value" -> toJson("111"),
+                        "value" -> toJson("16311"),
                         "prodcutSales" -> toJson("12"),
                         "percentage" -> toJson("1.1")
                     ) :: Map(
                         "name" -> toJson("上海"),
-                        "value" -> toJson("111"),
+                        "value" -> toJson("18311"),
                         "prodcutSales" -> toJson("12"),
                         "percentage" -> toJson("1.1")
                     ) :: Nil
@@ -228,22 +225,22 @@ trait searchTrait {
                             Map(
                                 "current" -> toJson(
                                     Map(
-                                        "province" -> toJson("北京市"),
+                                        "area" -> toJson("北京市"),
                                         "marketSales" -> toJson("1111"),
                                         "percentage" -> toJson("1.1")
                                     ) :: Map(
-                                        "province" -> toJson("天津市"),
+                                        "area" -> toJson("天津市"),
                                         "marketSales" -> toJson("1111"),
                                         "percentage" -> toJson("1.1")
                                     ) :: Nil
                                 ),
                                 "lastyear" -> toJson(
                                     Map(
-                                        "province" -> toJson("北京市"),
+                                        "area" -> toJson("北京市"),
                                         "marketSales" -> toJson("1111"),
                                         "percentage" -> toJson("1.1")
                                     ) :: Map(
-                                        "province" -> toJson("天津市"),
+                                        "area" -> toJson("天津市"),
                                         "marketSales" -> toJson("1111"),
                                         "percentage" -> toJson("1.1")
                                     ) :: Nil
@@ -254,22 +251,22 @@ trait searchTrait {
                             Map(
                                 "current" -> toJson(
                                     Map(
-                                        "city" -> toJson("北京市"),
+                                        "area" -> toJson("杭州市"),
                                         "marketSales" -> toJson("1111"),
                                         "percentage" -> toJson("1.1")
                                     ) :: Map(
-                                        "city" -> toJson("天津市"),
+                                        "area" -> toJson("天津市"),
                                         "marketSales" -> toJson("1111"),
                                         "percentage" -> toJson("1.1")
                                     ) :: Nil
                                 ),
                                 "lastyear" -> toJson(
                                     Map(
-                                        "city" -> toJson("北京市"),
+                                        "area" -> toJson("北京市"),
                                         "marketSales" -> toJson("1111"),
                                         "percentage" -> toJson("1.1")
                                     ) :: Map(
-                                        "city" -> toJson("天津市"),
+                                        "area" -> toJson("天津市"),
                                         "marketSales" -> toJson("1111"),
                                         "percentage" -> toJson("1.1")
                                     ) :: Nil
