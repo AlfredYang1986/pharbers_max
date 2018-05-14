@@ -1,4 +1,4 @@
-package module.jobs.channel.callJobResponse
+package module.jobs.callJob.callJobResponse
 
 import module.jobs.job
 import org.bson.types.ObjectId
@@ -13,13 +13,13 @@ import com.pharbers.pharbersmacro.CURDMacro._
 import module.common.{MergeStepResult, processor}
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 
-object callJobResponseModule extends ModuleTrait {
+object callJobResponseModule extends ModuleTrait with getJV2Map{
     val ip: job = impl[job]
     import ip._
 
     val qrc : JsValue => DBObject = { js =>
-        val tmp = (js \ "job_id").asOpt[String].get
-        DBObject("_id" -> new ObjectId(tmp))
+        val tmp = getArgs2Map(js)
+        DBObject("_id" -> new ObjectId(tmp("job_id")))
     }
 
     override def dispatchMsg(msg: MessageDefines)

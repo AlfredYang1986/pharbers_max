@@ -1,4 +1,4 @@
-package module.jobs.channel.callJobResponse
+package module.jobs.callJob.callJobResponse
 
 import com.pharbers.bmmessages.CommonMessage
 import play.api.libs.json.JsValue

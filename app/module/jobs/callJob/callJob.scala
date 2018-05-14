@@ -1,4 +1,4 @@
-package module.jobs.channel
+package module.jobs.callJob
 
 import java.util.Date
 
@@ -6,7 +6,7 @@ import com.mongodb.casbah.Imports.{DBObject, _}
 import com.pharbers.bmmessages.CommonModules
 import com.pharbers.module.MAXCallJobPusher
 import module.common.datamodel.basemodel
-import module.jobs.channel.jobStatus._
+import module.jobs.callJob.jobStatus._
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json.toJson
 
@@ -39,6 +39,7 @@ trait callJob {
 
     val yf: JsValue => java.util.HashMap[String, Object] = { jv =>
         val map = new java.util.HashMap[String, Object]()
+        map.put("job_id", (jv \ "condition" \ "job_id").asOpt[String].getOrElse(""))
         map.put("cpa", (jv \ "condition" \ "args" \ "cpa").asOpt[String].getOrElse(""))
         map.put("gycx", (jv \ "condition" \ "args" \ "gycx").asOpt[String].getOrElse(""))
         map
@@ -46,18 +47,22 @@ trait callJob {
 
     val pf: JsValue => java.util.HashMap[String, Object] = { jv =>
         val map = new java.util.HashMap[String, Object]()
+        map.put("job_id", (jv \ "condition" \ "job_id").asOpt[String].getOrElse(""))
         map.put("cpa", (jv \ "condition" \ "args" \ "cpa").asOpt[String].getOrElse(""))
         map.put("gycx", (jv \ "condition" \ "args" \ "gycx").asOpt[String].getOrElse(""))
         map.put("ym", (jv \ "condition" \ "args" \ "ym").asOpt[String].getOrElse(""))
         map
     }
 
-    val nullFun: JsValue => java.util.HashMap[String, Object] = { _ => new java.util.HashMap[String, Object]() }
+    val nullFun: JsValue => java.util.HashMap[String, Object] = { jv =>
+        val map = new java.util.HashMap[String, Object]()
+        map.put("job_id", (jv \ "condition" \ "job_id").asOpt[String].getOrElse(""))
+        map
+    }
 
     def callFunc(callName: String, func: JsValue => java.util.HashMap[String, Object])
                 (jv: JsValue): Map[String, AnyRef] = {
         Map(
-            "job_id" -> (jv \ "condition" \ "job_id").asOpt[String].get,
             "user_id" -> (jv \ "user" \ "user_id").asOpt[String].get,
             "company_id" -> (jv \ "user" \ "company" \ "company_id").asOpt[String].get,
             "date" -> new Date().getTime.toString,
@@ -66,10 +71,9 @@ trait callJob {
         )
     }
 
-    def callJob(func: (JsValue, String) => Map[String, AnyRef])
-               (call: String)
-               (jv: JsValue)
+    def callJob(func: (JsValue, String) => Map[String, AnyRef])(call: String)(jv: JsValue)
                (implicit cm: CommonModules): (Option[Map[String, JsValue]], Option[JsValue]) = {
+
         val channel = cm.modules.get.get("cp").map(x => x.asInstanceOf[MAXCallJobPusher]).get
         channel.pushRecord(func(jv, call))(channel.precord)
         (Some(Map(call -> toJson("call success"))), None)
