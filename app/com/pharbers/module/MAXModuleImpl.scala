@@ -1,15 +1,12 @@
 package com.pharbers.module
 
 import akka.actor.ActorSystem
-import org.bson.types.ObjectId
-import javax.inject.{Inject, Singleton}
-import com.pharbers.token.AuthTokenTrait
-import com.pharbers.bmmessages.CommonModules
+import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.driver.PhRedisDriverImpl
 import com.pharbers.driver.util.redis_conn_cache
 import com.pharbers.token.tokenImpl.TokenImplTrait
-import com.pharbers.dbManagerTrait.dbInstanceManager
-import module.jobs.channel.{callJobPusher, progressConsumer}
+import javax.inject.{Inject, Singleton}
+import module.jobs.callJob.{callJobPusher, responseConsumer}
 
 /**
   * Created by alfredyang on 01/06/2017.
@@ -27,5 +24,5 @@ class MAXRedisManager extends redis_conn_cache with PhRedisDriverImpl
 class MAXCallJobPusher extends callJobPusher
 
 @Singleton
-class MAXProgressConsumer @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager) extends progressConsumer(as_inject, dbt)
+class MAXResponseConsumer @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager) extends responseConsumer(as_inject, dbt)
 

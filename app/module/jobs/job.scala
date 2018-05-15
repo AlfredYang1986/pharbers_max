@@ -1,12 +1,14 @@
 package module.jobs
 
 import java.util.Date
-import module.jobs.jobStatus._
+
+import module.jobs.callJob.jobStatus._
 import org.bson.types.ObjectId
 import play.api.libs.json.JsValue
 import com.mongodb.casbah.Imports._
 import play.api.libs.json.Json.toJson
 import module.common.datamodel.basemodel
+import module.jobs.callJob.{callJob, jobStatusChangeTrait}
 
 /**
   * Created by spark on 18-4-19.
@@ -21,7 +23,7 @@ class job extends basemodel with jobStatusChangeTrait with callJob {
     }
 
     val anqc: JsValue => DBObject = { js =>
-        val tmp = (js \ "condition" \ "job_id").asOpt[String].get
+        val tmp = (js \ "job" \ "job_id").asOpt[String].get
         DBObject("job_id" -> tmp)
     }
 

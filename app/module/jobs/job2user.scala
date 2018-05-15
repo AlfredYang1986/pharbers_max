@@ -1,16 +1,15 @@
 package module.jobs
 
 import com.mongodb
-import module.users.user
 import com.mongodb.casbah
-import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports
-import com.mongodb.casbah.Imports._
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json.toJson
+import com.mongodb.casbah.Imports.{DBObject, MongoDBObject, _}
 import module.common.checkExist.checkBindExist
 import module.common.stragety.{bind, impl, one2one}
-import com.mongodb.casbah.Imports.{DBObject, MongoDBObject}
+import module.users.user
+import org.bson.types.ObjectId
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json.toJson
 
 /**
   * Created by spark on 18-4-19.
@@ -53,10 +52,15 @@ class job2user extends one2one[job, user] with bind[job, user] with checkBindExi
             ))
         )
 
-    override val checkBindExist: (JsValue) => DBObject = { jv =>
-        $and(
-            DBObject("job_id" -> (jv \ "job" \ "job_id").asOpt[String].get),
-            DBObject("user_id" -> (jv \ "user" \ "user_id").asOpt[String].get)
+    override val cbeIn: JsValue => DBObject = { jv =>
+        val tmp = (jv \ "condition" \ "user_id").asOpt[String].get
+        DBObject("_id" -> new ObjectId(tmp))
+    }
+
+    override val cbeOut: DBObject => Map[String, JsValue] = { obj =>
+        Map(
+            "user" -> toJson(Map("user_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString)))
         )
     }
+
 }

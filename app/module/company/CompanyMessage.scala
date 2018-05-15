@@ -15,5 +15,6 @@ object CompanyMessage {
     case class msg_queryCompany(data : JsValue) extends msg_CompanyCommand
     case class msg_queryCompanyMulti(data : JsValue) extends msg_CompanyCommand
 
+    case class msg_queryRegisterCompany(data : JsValue) extends msg_CompanyCommand
     case class msg_expendUsersInfo(data : JsValue) extends msg_CompanyCommand
 }

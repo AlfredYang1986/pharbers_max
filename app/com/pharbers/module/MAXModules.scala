@@ -15,7 +15,7 @@ class MAXModules extends play.api.inject.Module {
             bind[AuthTokenTrait].to[MAXTokenInjectModule],
             bind[PhRedisDriverImpl].to[MAXRedisManager],
             bind[MAXCallJobPusher].toSelf,
-            bind[MAXProgressConsumer].toSelf
+            bind[MAXResponseConsumer].toSelf
         )
     }
 }

@@ -1,0 +1,14 @@
+package controllers.upload
+
+import play.api.mvc._
+import javax.inject.Inject
+import akka.actor.ActorSystem
+import com.pharbers.fopModule.Upload
+import controllers.common.requestArgsQuery
+
+class FopController @Inject()(as_inject: ActorSystem) extends Controller {
+    implicit val as = as_inject
+    def uploadFile = Action { request =>
+        requestArgsQuery().uploadRequestArgs(request)(Upload.uploadFile)
+    }
+}

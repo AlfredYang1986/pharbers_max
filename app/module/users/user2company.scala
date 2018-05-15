@@ -52,10 +52,13 @@ class user2company extends one2one[user, company] with bind[user, company] with 
             ))
         )
 
-    override val checkBindExist: JsValue => DBObject = { jv =>
-        $and(
-            DBObject("user_id" -> (jv \ "user" \ "user_id").asOpt[String].get),
-            DBObject("company_id" -> (jv \ "company" \ "company_id").asOpt[String].get)
+    override val cbeIn: JsValue => DBObject = { jv =>
+            DBObject("company_name" -> (jv \ "user" \ "company_name").asOpt[String].get)
+    }
+
+    override val cbeOut: DBObject => Map[String, JsValue] = { obj =>
+        Map(
+            "company" -> toJson(Map("company_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString)))
         )
     }
 }

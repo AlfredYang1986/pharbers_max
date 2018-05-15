@@ -1,13 +1,12 @@
 package module.common.stragety
 
-import org.bson.types.ObjectId
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json.toJson
 import com.mongodb.casbah.Imports.DBObject
-
-import module.common.datamodel.basemodel
 import com.pharbers.bmmessages.CommonModules
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import module.common.datamodel.basemodel
+import org.bson.types.ObjectId
+import play.api.libs.json.Json.toJson
+import play.api.libs.json.{JsObject, JsValue}
 
 trait bind[This <: basemodel, That <: basemodel] {
     def bind(data : JsValue) : DBObject
@@ -25,15 +24,9 @@ trait bind[This <: basemodel, That <: basemodel] {
 
         val o = bind(data)
         db.insertObject(o, connect, "_id")
-
-        val ts = createThis
-        val ta = createThat
-
         val tmp = o.get("_id").asInstanceOf[ObjectId].toString
-        Map(
-            "bind " + ts.name + " with " + ta.name -> toJson("success"),
-            "bind_id" -> toJson(tmp)
-        )
+
+        data.as[JsObject].value.toMap - "condition" ++ Map("bind_id" -> toJson(tmp))
     }
 
     def unbindConnection(data : JsValue)

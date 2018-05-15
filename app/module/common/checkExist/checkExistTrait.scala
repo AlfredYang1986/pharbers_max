@@ -1,14 +1,14 @@
 package module.common.checkExist
 
-import play.api.libs.json.JsValue
 import com.mongodb.casbah.Imports.DBObject
 import com.pharbers.bmmessages.CommonModules
 import com.pharbers.dbManagerTrait.dbInstanceManager
+import play.api.libs.json.JsValue
 
 /**
   * Created by spark on 18-4-20.
   */
-trait checkExist {
+trait checkExistTrait {
     def checkExist(data: JsValue, pr: Option[Map[String, JsValue]], exMsg: String)
                   (func: JsValue => DBObject,
                    func_out: DBObject => Map[String, JsValue],
@@ -20,7 +20,9 @@ trait checkExist {
 
         db.queryObject(func(data), coll_name)(func_out) match {
             case Some(_) => throw new Exception(exMsg)
-            case None => Map.empty
+            case None => Unit
         }
+
+        pr.get
     }
 }
