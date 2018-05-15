@@ -28,19 +28,20 @@ trait one2many[This <: basemodel, That <: basemodel] { this : bind[This, That] =
             case None => throw new Exception("data not exist")
             case Some(x) =>
                 val prMap = x(ts.name).as[JsObject].value.toMap
+                if (prMap.isEmpty) throw new Exception("data not exist")
 
-                prMap.size match {
-                    case 0 => throw new Exception("data not exist")
-                    case _ =>
-                        val reVal = db.queryMultipleObject(ts.anqc(data), connect)(one2manyssr)
-                        val result = db.queryMultipleObject(one2manyaggregate(reVal), ta.names)(ta.dr)
-
-                        val tmp = outter match {
-                            case "" => ts.name
-                            case _ => outter
-                        }
-                        Map(tmp -> toJson(prMap ++ Map(ta.names -> toJson(result))))
+                val tmp = outter match {
+                    case "" => ts.name
+                    case _ => outter
                 }
+
+                val reVal = db.queryMultipleObject(ts.anqc(data), connect)(one2manyssr)
+                val result = reVal.size match {
+                    case 0 => Nil
+                    case _ => db.queryMultipleObject(one2manyaggregate(reVal), ta.names)(ta.dr)
+                }
+
+                Map(tmp -> toJson(prMap ++ Map(ta.names -> toJson(result))))
         }
     }
 }

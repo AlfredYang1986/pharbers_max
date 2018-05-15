@@ -50,7 +50,7 @@ trait callJob {
         map.put("job_id", (jv \ "condition" \ "job_id").asOpt[String].getOrElse(""))
         map.put("cpa", (jv \ "condition" \ "args" \ "cpa").asOpt[String].getOrElse(""))
         map.put("gycx", (jv \ "condition" \ "args" \ "gycx").asOpt[String].getOrElse(""))
-        map.put("ym", (jv \ "condition" \ "args" \ "ym").asOpt[String].getOrElse(""))
+        map.put("yms", (jv \ "condition" \ "args" \ "yms").asOpt[String].getOrElse(""))
         map
     }
 
