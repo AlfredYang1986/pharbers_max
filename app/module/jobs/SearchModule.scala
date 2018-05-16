@@ -3,12 +3,11 @@ package module.jobs
 import play.api.libs.json.JsValue
 import module.jobs.SearchMessage._
 import module.common.MergeStepResult
-import module.jobs.search.searchTrait
 import com.pharbers.builder.SearchFacade
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
 
-object SearchModule extends ModuleTrait with searchTrait {
+object SearchModule extends ModuleTrait {
     val search = new SearchFacade
 
     def dispatchMsg(msg: MessageDefines)(pr: Option[Map[String, JsValue]])
