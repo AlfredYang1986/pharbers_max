@@ -1,0 +1,9 @@
+<pharbers-modules>
+    <max_path_config>
+        <client_dir value="/mnt/config/Client/" />
+        <match_file_dir value="/mnt/config/MatchFile/" />
+        <cache_dir value="/mnt/config/Cache/" />
+        <panel_dir value="/mnt/config/Panel/" />
+        <max_dir value="/mnt/config/Max/" />
+    </max_path_config>
+</pharbers-modules>

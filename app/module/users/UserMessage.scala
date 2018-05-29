@@ -1,22 +1,26 @@
 package module.users
 
-import com.pharbers.bmmessages.CommonMessage
 import play.api.libs.json.JsValue
+import com.pharbers.bmmessages.CommonMessage
 
-abstract class msg_UserCommand extends CommonMessage("user", UserModule)
+/**
+  * Created by spark on 18-4-19.
+  */
+abstract class msg_UserCommand extends CommonMessage("users", UserModule)
+
 object UserMessage {
-    case class msg_user_push(data: JsValue) extends msg_UserCommand
-    case class msg_user_delete(data: JsValue) extends msg_UserCommand
-    case class msg_user_update(data: JsValue) extends msg_UserCommand
-    case class msg_user_query(data: JsValue) extends msg_UserCommand
-    case class msg_user_query_info(data: JsValue) extends msg_UserCommand
-    
-    case class msg_user_forget_password(data: JsValue) extends msg_UserCommand
-    case class msg_user_email_check(data: JsValue) extends msg_UserCommand
-    
-    case class msg_user_token_op(data: JsValue) extends msg_UserCommand
-    case class msg_user_chang_pwd(data: JsValue) extends msg_UserCommand
-    case class msg_user_check_pwd(data: JsValue) extends msg_UserCommand
+    case class msg_verifyUserRegister(data: JsValue) extends msg_UserCommand
+    case class msg_pushUser(data: JsValue) extends msg_UserCommand
+    case class msg_popUser(data : JsValue) extends msg_UserCommand
+    case class msg_queryUser(data : JsValue) extends msg_UserCommand
+    case class msg_queryUserMulti(data : JsValue) extends msg_UserCommand
 
-    case class msg_check_user_is_register(data: JsValue) extends msg_UserCommand
+    case class msg_bindUserCompanyPre(data: JsValue) extends msg_UserCommand
+    case class msg_bindUserCompany(data : JsValue) extends msg_UserCommand
+    case class msg_unbindUserCompany(data : JsValue) extends msg_UserCommand
+    case class msg_expendCompanyInfo(data : JsValue) extends msg_UserCommand
+    case class msg_expendJobsInfo(data : JsValue) extends msg_UserCommand
+
+    case class msg_authWithPassword(data: JsValue) extends msg_UserCommand
+    case class msg_authSetExpire(data: JsValue) extends msg_UserCommand
 }
