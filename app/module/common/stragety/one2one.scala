@@ -27,19 +27,20 @@ trait one2one[This <: basemodel, That <: basemodel] { this : bind[This, That] =>
             case None => throw new Exception("data not exist")
             case Some(x) =>
                 val prMap = x(ts.name).as[JsObject].value.toMap
+                if(prMap.isEmpty) throw new Exception("data not exist")
 
-                prMap.size match {
-                    case 0 => throw new Exception("data not exist")
-                    case _ =>
-                        val reVal = db.queryObject(ts.anqc(data), connect)(one2onessr).get
-                        val result = db.queryObject(ta.qc(toJson(reVal)), ta.names)(ta.dr).get
-
-                        val tmp = outter match {
-                            case "" => ts.name
-                            case _ => outter
-                        }
-                        Map(tmp -> toJson(prMap ++ Map(ta.name -> toJson(result))))
+                val tmp = outter match {
+                    case "" => ts.name
+                    case _ => outter
                 }
+
+                val reVal = db.queryObject(ts.anqc(data), connect)(one2onessr)
+                val result = reVal match {
+                    case None => Map().empty
+                    case Some(_) => db.queryObject(ta.qc(toJson(reVal)), ta.names)(ta.dr).get
+                }
+
+                Map(tmp -> toJson(prMap ++ Map(ta.name -> toJson(result.map(x => x._1.toString -> x._2)))))
         }
     }
 }

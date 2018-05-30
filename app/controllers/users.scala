@@ -9,6 +9,7 @@ import com.pharbers.driver.PhRedisDriverImpl
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
 import javax.inject.Inject
+import module.common.em.EmMessage.{msg_registerUserForEm, msg_userJoinChatgroupForEm}
 import module.company.CompanyMessage.msg_queryRegisterCompany
 import module.users.UserMessage._
 import play.api.libs.json.Json.toJson
@@ -27,11 +28,14 @@ class users @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthT
                 :: msg_pushUser(jv)
                 :: msg_bindUserCompanyPre(jv)
                 :: msg_bindUserCompany(jv)
+                :: msg_registerUserForEm(jv)
+                :: msg_userJoinChatgroupForEm(jv)
                 :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })
 
     def popUser = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("pop user"))), jv)
+                :: msg_pushUser(jv)
                 :: msg_popUser(jv)
                 :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })

@@ -51,7 +51,7 @@ class user extends basemodel with checkAttrExist with authTrait {
             "screen_name" -> toJson(obj.getAs[String]("screen_name").get),
             "screen_photo" -> toJson(obj.getAs[String]("screen_photo").get),
             "email" -> toJson(obj.getAs[String]("email").get),
-            "password" -> toJson(obj.getAs[String]("password").get),
+//            "password" -> toJson(obj.getAs[String]("password").get),
             "phone" -> toJson(obj.getAs[String]("phone").get)
         )
     }
