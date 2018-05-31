@@ -2,7 +2,13 @@
 # This file defines all application routes (Higher priority routes first)
 
 # Map static resources from the /public folder to the /assets URL path
+
 GET     /assets/*file                               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /                                           controllers.IndexController.index(path = "index.html")
+GET     /*path                                      controllers.IndexController.index(path)
+
+
+
 
 # 用户录入
 POST    /api/user/push                               controllers.users.pushUser
