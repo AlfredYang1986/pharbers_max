@@ -12,7 +12,7 @@ lazy val root = (project in file(".")).
 	enablePlugins(PlayScala).
 	settings(common: _*).
 	settings(
-		name := "pharber-client",
+		name := "pharbers-client",
 		fork in run := true,
 		javaOptions += "-Xmx2G"
 	)
