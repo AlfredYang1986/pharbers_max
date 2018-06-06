@@ -29,6 +29,22 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
                 :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
     })
 
+    def exportData = Action(request => requestArgsQuery().requestArgs(request) { jv =>
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("search history data"))), jv)
+            :: msg_queryUser(jv)
+            :: msg_expendCompanyInfo(jv)
+            :: msg_searchExportData(jv)
+            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+    })
+
+    def exportDelivery = Action(request => requestArgsQuery().requestArgs(request) { jv =>
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("search history data"))), jv)
+            :: msg_queryUser(jv)
+            :: msg_expendCompanyInfo(jv)
+            :: msg_searchExportDelivery(jv)
+            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+    })
+
     def market = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("search company market"))), jv)
                 :: msg_queryUser(jv)

@@ -11,6 +11,8 @@ abstract class msg_SearchCommand extends CommonMessage("search", SearchModule)
 object SearchMessage {
     case class msg_searchAllMkt(data: JsValue) extends msg_SearchCommand
     case class msg_searchHistory(data: JsValue) extends msg_SearchCommand
+    case class msg_searchExportData(data: JsValue) extends msg_SearchCommand
+    case class msg_searchExportDelivery(data: JsValue) extends msg_SearchCommand
 
     case class msg_searchSimpleCheckSelect(data: JsValue) extends msg_SearchCommand
     case class msg_searchSimpleCheck(data: JsValue) extends msg_SearchCommand

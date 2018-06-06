@@ -49,3 +49,5 @@ POST        /api/search/check/simple/select        controllers.search.simpleChec
 POST        /api/search/check/simple               controllers.search.simpleCheck
 POST        /api/search/check/result/select        controllers.search.simpleCheckSelect
 POST        /api/search/check/result               controllers.search.resultCheck
+POST        /api/search/exportData                 controllers.search.exportData
+POST        /api/search/exportDelivery             controllers.search.exportDelivery
