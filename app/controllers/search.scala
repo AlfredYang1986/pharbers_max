@@ -30,7 +30,7 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
     })
 
     def exportData = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("search history data"))), jv)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("export max data"))), jv)
             :: msg_queryUser(jv)
             :: msg_expendCompanyInfo(jv)
             :: msg_searchExportData(jv)
@@ -38,7 +38,7 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
     })
 
     def exportDelivery = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("search history data"))), jv)
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("export delivery data"))), jv)
             :: msg_queryUser(jv)
             :: msg_expendCompanyInfo(jv)
             :: msg_searchExportDelivery(jv)
