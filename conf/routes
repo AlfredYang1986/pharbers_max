@@ -23,9 +23,21 @@ POST        /api/company/query/multi               controllers.companies.queryCo
 # Company query with user info
 POST        /api/company/users                     controllers.companies.companyUsers
 
+# 权限信息录入
+POST        /api/role/push                         controllers.roles.pushRole
+POST        /api/role/pop                          controllers.roles.popRole
+POST        /api/role/query                        controllers.roles.queryRole
+POST        /api/role/query/multi                  controllers.roles.queryRoleMulti
+# role query with user info
+POST        /api/role/users                        controllers.roles.roleUsers
+# role user manager
+POST        /api/role/pushUser                     controllers.roles.pushUser
+POST        /api/role/popUser                      controllers.roles.popUser
+
 # User Behavior
 POST        /api/user/login                        controllers.users.userLogin
 POST        /api/user/jobs                         controllers.users.userJobs
+POST        /api/user/roles                        controllers.users.userRoles
 
 # Job信息录入
 POST        /api/job/push                          controllers.jobs.pushJob

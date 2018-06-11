@@ -66,6 +66,13 @@ class users @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthT
                 :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
     })
 
+    def userRoles = Action(request => requestArgsQuery().requestArgs(request) { jv =>
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("user roles"))), jv)
+                :: msg_queryUser(jv)
+                :: msg_expendRolesInfo(jv)
+                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att))))
+    })
+
     def userLogin = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("query user multi"))), jv)
                 :: msg_authWithPassword(jv)

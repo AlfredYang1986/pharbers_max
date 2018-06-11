@@ -13,6 +13,7 @@ object UserModule extends ModuleTrait {
     val ip: user = impl[user]
     val uc: user2company = impl[user2company]
     val uj: user2job = impl[user2job]
+    val ur: user2role = impl[user2role]
 
     import ip._
 
@@ -36,6 +37,8 @@ object UserModule extends ModuleTrait {
             processor(value => returnValue(uc.queryConnection(value)(pr)("user_company")))(MergeStepResult(data, pr))
         case msg_expendJobsInfo(data) =>
             processor(value => returnValue(uj.queryConnection(value)(pr)("job_user")))(MergeStepResult(data, pr))
+        case msg_expendRolesInfo(data) =>
+            processor(value => returnValue(ur.queryConnection(value)(pr)("user_role")))(MergeStepResult(data, pr))
 
         case msg_authWithPassword(data) =>
             processor(value => returnValue(authWithPassword(authPwd, dr)(value)(names)))(MergeStepResult(data, pr))

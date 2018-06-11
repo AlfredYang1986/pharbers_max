@@ -30,6 +30,13 @@
         <!-- job bind user error -->
         <error reason="job and user bind has been use" code="-601" description="该任务已与该员工绑定" />
 
+        <!-- role error -->
+        <error reason="role create error" code="-701" description="权限创建出错" />
+        <error reason="role name has been use" code="-702" description="该权限名称已被使用" />
+
+        <!-- role bind user error -->
+        <error reason="role name has been use" code="-801" description="该权限已与该员工绑定" />
+
         <!-- third error -->
         <!-- EM error -->
         <error reason="user email has been use for EM" code="-9001" description="用户邮箱已被使用 for EM" />
