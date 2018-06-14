@@ -1,7 +1,8 @@
 <pharbers-modules>
     <mongodb-connect-nodes>
-        <connect-config-path name="cli" value="pharbers_config/cli_connect.xml" />
-        <connect-config-path name="calc" value="pharbers_config/calc_connect.xml" />
-        <connect-config-path name="data" value="pharbers_config/data_connect.xml" />
+        <connect-config-path name="cli" value="pharbers_config/db_client_connect.xml" />
+        <connect-config-path name="market" value="pharbers_config/db_market_connect.xml" />
+        <connect-config-path name="data" value="pharbers_config/db_data_connect.xml" />
+        <connect-config-path name="aggregation" value="pharbers_config/db_aggregation_connect.xml" />
     </mongodb-connect-nodes>
 </pharbers-modules>

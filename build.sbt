@@ -36,6 +36,7 @@ libraryDependencies ++= Seq(
 	"com.pharbers" % "pharbers-security" % "0.1",
 	"com.pharbers" % "pharbers-redis" % "0.1",
 	"com.pharbers" % "pharbers-pattern" % "0.1",
+	"com.pharbers" % "pharbers-paction" % "0.1",
 	"com.pharbers" % "pharbers-max" % "0.1" exclude("com.fasterxml.jackson.core", "jackson-databind"),
 	"com.pharbers" % "pharbers-spark" % "0.1" exclude("com.fasterxml.jackson.core", "jackson-databind"),
 

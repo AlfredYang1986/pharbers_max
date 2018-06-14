@@ -4,8 +4,8 @@
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)
 GET         /api/files/:name                       controllers.fop.FopController.downloadFile(name)
-#GET         /                                      controllers.IndexController.index(path = "index.html")
-#GET         /*path                                 controllers.IndexController.index(path)
+GET         /                                      controllers.IndexController.index(path = "index.html")
+GET         /*path                                 controllers.IndexController.index(path)
 
 # 用户录入
 POST        /api/user/push                         controllers.users.pushUser
@@ -38,6 +38,7 @@ POST        /api/role/popUser                      controllers.roles.popUser
 POST        /api/user/login                        controllers.users.userLogin
 POST        /api/user/jobs                         controllers.users.userJobs
 POST        /api/user/roles                        controllers.users.userRoles
+POST        /api/user/isMaintenanceUser            controllers.users.isMaintenanceUser
 
 # Job信息录入
 POST        /api/job/push                          controllers.jobs.pushJob
@@ -61,16 +62,11 @@ POST        /api/search/check/simple/select        controllers.search.simpleChec
 POST        /api/search/check/simple               controllers.search.simpleCheck
 POST        /api/search/check/result/select        controllers.search.simpleCheckSelect
 POST        /api/search/check/result               controllers.search.resultCheck
+POST        /api/search/getExportType              controllers.search.getExportType
 POST        /api/search/exportData                 controllers.search.exportData
 POST        /api/search/exportDelivery             controllers.search.exportDelivery
 
 # MAX Maintenance Center
 POST        /api/maintenance/companies             controllers.maintenance.getAllCompanies
-POST        /api/maintenance/dataclean/allfiles    controllers.maintenance.getDataCleanModuleAllFiles
-POST        /api/maintenance/simple/allfiles       controllers.maintenance.getSimpleModuleAllFiles
-POST        /api/maintenance/max/allfiles          controllers.maintenance.getMaxModuleAllFiles
-POST        /api/maintenance/delivery/allfiles     controllers.maintenance.getDeliveryModuleAllFiles
-POST        /api/maintenance/dataclean/replacefile controllers.maintenance.replaceDataCleanModuleFile
-POST        /api/maintenance/simple/replacefile    controllers.maintenance.replaceSimpleModuleFile
-POST        /api/maintenance/max/replacefile       controllers.maintenance.replaceMaxModuleFile
-POST        /api/maintenance/delivery/replacefile  controllers.maintenance.replaceDeliveryModuleFile
+POST        /api/maintenance/module/matchfiles     controllers.maintenance.getSingleModuleAllFiles
+POST        /api/maintenance/matchfile/replace     controllers.maintenance.replaceMatchFile

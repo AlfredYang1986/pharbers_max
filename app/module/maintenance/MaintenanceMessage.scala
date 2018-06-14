@@ -11,13 +11,7 @@ abstract class msg_MaintenanceCommand extends CommonMessage("maintenance", Maint
 object MaintenanceMessage {
 
     case class msg_getMaintenanceCenterAllCompanies(data: JsValue) extends msg_MaintenanceCommand
-    case class msg_getDataCleanModuleAllFiles(data: JsValue) extends msg_MaintenanceCommand
-    case class msg_getSimpleModuleAllFiles(data: JsValue) extends msg_MaintenanceCommand
-    case class msg_getMaxModuleAllFiles(data: JsValue) extends msg_MaintenanceCommand
-    case class msg_getDeliveryModuleAllFiles(data: JsValue) extends msg_MaintenanceCommand
-    case class msg_replaceDataCleanModuleFile(data: JsValue) extends msg_MaintenanceCommand
-    case class msg_replaceSimpleModuleFile(data: JsValue) extends msg_MaintenanceCommand
-    case class msg_replaceMaxModuleFile(data: JsValue) extends msg_MaintenanceCommand
-    case class msg_replaceDeliveryModuleFile(data: JsValue) extends msg_MaintenanceCommand
+    case class msg_getSingleModuleAllFiles(data: JsValue) extends msg_MaintenanceCommand
+    case class msg_replaceMatchFile(data: JsValue) extends msg_MaintenanceCommand
 
 }

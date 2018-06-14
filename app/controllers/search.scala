@@ -29,6 +29,14 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
                 :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
     })
 
+    def getExportType = Action(request => requestArgsQuery().requestArgs(request) { jv =>
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("get export type"))), jv)
+            :: msg_queryUser(jv)
+            :: msg_expendCompanyInfo(jv)
+            :: msg_getExportType(jv)
+            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+    })
+
     def exportData = Action(request => requestArgsQuery().requestArgs(request) { jv =>
         MessageRoutes(msg_log(toJson(Map("method" -> toJson("export max data"))), jv)
             :: msg_queryUser(jv)

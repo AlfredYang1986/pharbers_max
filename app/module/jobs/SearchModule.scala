@@ -15,6 +15,7 @@ object SearchModule extends ModuleTrait {
 
         case msg_searchAllMkt(data) => search.searchAllMkt(MergeStepResult(data, pr))
         case msg_searchHistory(data) => search.searchHistory(MergeStepResult(data, pr))
+        case msg_getExportType(data) => search.getCurrentCompanyExportType(MergeStepResult(data, pr))
         case msg_searchExportData(data) => search.exportData(MergeStepResult(data, pr))
         case msg_searchExportDelivery(data) => search.exportDelivery(MergeStepResult(data, pr))
 

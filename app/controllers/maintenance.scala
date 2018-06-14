@@ -29,67 +29,19 @@ class maintenance @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att:
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
     })
 
-    def getDataCleanModuleAllFiles = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("get DataCleanModule all files"))), jv)
+    def getSingleModuleAllFiles = Action(request => requestArgsQuery().requestArgs(request) { jv =>
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("get single module all files"))), jv)
             :: msg_queryUser(jv)
             :: msg_expendCompanyInfo(jv)
-            :: msg_getDataCleanModuleAllFiles(jv)
+            :: msg_getSingleModuleAllFiles(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
     })
 
-    def getSimpleModuleAllFiles = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("get SimpleModule all files"))), jv)
+    def replaceMatchFile = Action(request => requestArgsQuery().requestArgs(request) { jv =>
+        MessageRoutes(msg_log(toJson(Map("method" -> toJson("replace match file"))), jv)
             :: msg_queryUser(jv)
             :: msg_expendCompanyInfo(jv)
-            :: msg_getSimpleModuleAllFiles(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
-    })
-
-    def getMaxModuleAllFiles = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("get MaxModule all files"))), jv)
-            :: msg_queryUser(jv)
-            :: msg_expendCompanyInfo(jv)
-            :: msg_getMaxModuleAllFiles(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
-    })
-
-    def getDeliveryModuleAllFiles = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("get DeliveryModule all files"))), jv)
-            :: msg_queryUser(jv)
-            :: msg_expendCompanyInfo(jv)
-            :: msg_getDeliveryModuleAllFiles(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
-    })
-
-    def replaceDataCleanModuleFile = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("replace DataCleanModule file"))), jv)
-            :: msg_queryUser(jv)
-            :: msg_expendCompanyInfo(jv)
-            :: msg_replaceDataCleanModuleFile(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
-    })
-
-    def replaceSimpleModuleFile = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("replace DataCleanModule file"))), jv)
-            :: msg_queryUser(jv)
-            :: msg_expendCompanyInfo(jv)
-            :: msg_replaceSimpleModuleFile(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
-    })
-
-    def replaceMaxModuleFile = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("replace MaxModule file"))), jv)
-            :: msg_queryUser(jv)
-            :: msg_expendCompanyInfo(jv)
-            :: msg_replaceMaxModuleFile(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
-    })
-
-    def replaceDeliveryModuleFile = Action(request => requestArgsQuery().requestArgs(request) { jv =>
-        MessageRoutes(msg_log(toJson(Map("method" -> toJson("replace DeliveryModule file"))), jv)
-            :: msg_queryUser(jv)
-            :: msg_expendCompanyInfo(jv)
-            :: msg_replaceDeliveryModuleFile(jv)
+            :: msg_replaceMatchFile(jv)
             :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
     })
 

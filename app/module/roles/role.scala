@@ -39,9 +39,7 @@ class role extends basemodel with checkAttrExist {
 
     val sr : DBObject => Map[String, JsValue] = { obj =>
         Map(
-            "role_id" -> toJson(obj.getAs[ObjectId]("_id").get.toString),
-            "role_name" -> toJson(obj.getAs[String]("role_name").get),
-            "role_des" -> toJson(obj.getAs[String]("role_des").get)
+            "role_name" -> toJson(obj.getAs[String]("role_name").get)
         )
     }
 
