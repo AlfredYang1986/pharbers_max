@@ -13,7 +13,7 @@ trait crud {
                  cm: CommonModules) : Map[String, JsValue] = {
 
         val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        val db = conn.queryDBInstance("client").get
 
         val o = func(data)
         db.insertObject(o, db_name, primary_key)
@@ -26,7 +26,7 @@ trait crud {
                cm: CommonModules) : Map[String, JsValue] = {
 
         val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        val db = conn.queryDBInstance("client").get
 
         val o = func(data)
         db.deleteObject(o, db_name, primary_key)
@@ -39,7 +39,7 @@ trait crud {
               cm: CommonModules) : Map[String, JsValue] = {
 
         val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        val db = conn.queryDBInstance("client").get
         db.queryObject(func(data), db_name)(func_out) match {
             case Some(m) => m
             case None => Map().empty
@@ -52,7 +52,7 @@ trait crud {
                    cm: CommonModules) : List[Map[String, JsValue]] = {
 
         val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        val db = conn.queryDBInstance("client").get
         val take = (data \ "take").asOpt[Int].map (x => x).getOrElse(20)
         val skip = (data \ "skip").asOpt[Int].map (x => x).getOrElse(0)
         val sort = (data \ "sort").asOpt[String].map (x => x).getOrElse("date")
@@ -66,7 +66,7 @@ trait crud {
                cm: CommonModules) : Map[String, JsValue] = {
 
         val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        val db = conn.queryDBInstance("client").get
 
         db.queryObject(func(data), db_name){ obj =>
             val tmp = func_update(obj, data)

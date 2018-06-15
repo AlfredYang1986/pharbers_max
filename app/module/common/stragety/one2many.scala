@@ -19,7 +19,7 @@ trait one2many[This <: basemodel, That <: basemodel] { this : bind[This, That] =
                        (implicit cm: CommonModules) : Map[String, JsValue] = {
 
         val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        val db = conn.queryDBInstance("client").get
 
         val ts = createThis
         val ta = createThat
