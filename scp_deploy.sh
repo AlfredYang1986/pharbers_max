@@ -3,6 +3,7 @@ dir=/home/spark/
 target=$host:$dir
 name=pharbers-client-1.1
 
+sbt clean dist
 rm -rf target/$name
 cd target/
 unzip universal/$name.zip
