@@ -1,6 +1,7 @@
 package com.pharbers.module
 
 import akka.actor.ActorSystem
+import com.pharbers.builder.SearchFacade
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.driver.PhRedisDriverImpl
 import com.pharbers.driver.util.redis_conn_cache
@@ -25,4 +26,7 @@ class MAXCallJobPusher extends callJobPusher
 
 @Singleton
 class MAXResponseConsumer @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager) extends responseConsumer(as_inject, dbt)
+
+@Singleton
+class MAXSearchFacade extends SearchFacade
 

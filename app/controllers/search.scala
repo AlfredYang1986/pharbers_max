@@ -7,15 +7,15 @@ import module.jobs.SearchMessage._
 import play.api.libs.json.Json.toJson
 import com.pharbers.token.AuthTokenTrait
 import controllers.common.requestArgsQuery
+import com.pharbers.module.MAXSearchFacade
 import com.pharbers.bmpattern.LogMessage.msg_log
 import com.pharbers.dbManagerTrait.dbInstanceManager
 import com.pharbers.bmmessages.{CommonModules, MessageRoutes}
 import com.pharbers.bmpattern.ResultMessage.msg_CommonResultMessage
-import com.pharbers.module.{MAXCallJobPusher, MAXResponseConsumer}
 import module.users.UserMessage.{msg_expendCompanyInfo, msg_queryUser}
 import module.jobs.JobMessage.{msg_expendCompanyInfoByJob, msg_expendUserInfo, msg_queryJob}
 
-class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait, cp: MAXCallJobPusher, rc: MAXResponseConsumer) {
+class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: AuthTokenTrait, sf: MAXSearchFacade) {
     implicit val as: ActorSystem = as_inject
 
     import com.pharbers.bmpattern.LogMessage.common_log
@@ -26,7 +26,7 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
                 :: msg_queryUser(jv)
                 :: msg_expendCompanyInfo(jv)
                 :: msg_searchHistory(jv)
-                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "sf" -> sf))))
     })
 
     def getExportType = Action(request => requestArgsQuery().requestArgs(request) { jv =>
@@ -34,7 +34,7 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
             :: msg_queryUser(jv)
             :: msg_expendCompanyInfo(jv)
             :: msg_getExportType(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "sf" -> sf))))
     })
 
     def exportData = Action(request => requestArgsQuery().requestArgs(request) { jv =>
@@ -42,7 +42,7 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
             :: msg_queryUser(jv)
             :: msg_expendCompanyInfo(jv)
             :: msg_searchExportData(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "sf" -> sf))))
     })
 
     def exportDelivery = Action(request => requestArgsQuery().requestArgs(request) { jv =>
@@ -50,7 +50,7 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
             :: msg_queryUser(jv)
             :: msg_expendCompanyInfo(jv)
             :: msg_searchExportDelivery(jv)
-            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+            :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "sf" -> sf))))
     })
 
     def market = Action(request => requestArgsQuery().requestArgs(request) { jv =>
@@ -58,7 +58,7 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
                 :: msg_queryUser(jv)
                 :: msg_expendCompanyInfo(jv)
                 :: msg_searchAllMkt(jv)
-                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "sf" -> sf))))
     })
 
     def simpleCheckSelect = Action(request => requestArgsQuery().requestArgs(request) { jv =>
@@ -68,7 +68,7 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
                 :: msg_expendCompanyInfoByJob(jv)
                 :: msg_expendCompanyInfo(jv)
                 :: msg_searchSimpleCheckSelect(jv)
-                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "sf" -> sf))))
     })
 
     def simpleCheck = Action(request => requestArgsQuery().requestArgs(request) { jv =>
@@ -78,7 +78,7 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
                 :: msg_expendCompanyInfoByJob(jv)
                 :: msg_expendCompanyInfo(jv)
                 :: msg_searchSimpleCheck(jv)
-                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "sf" -> sf))))
     })
 
     def resultCheck = Action(request => requestArgsQuery().requestArgs(request) { jv =>
@@ -88,7 +88,7 @@ class search @Inject()(as_inject: ActorSystem, dbt: dbInstanceManager, att: Auth
                 :: msg_expendCompanyInfoByJob(jv)
                 :: msg_expendCompanyInfo(jv)
                 :: msg_searchResultCheck(jv)
-                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "cp" -> cp))))
+                :: msg_CommonResultMessage() :: Nil, None)(CommonModules(Some(Map("db" -> dbt, "att" -> att, "sf" -> sf))))
     })
 
 }
