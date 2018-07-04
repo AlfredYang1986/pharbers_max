@@ -2,17 +2,19 @@ package module.users
 
 import module.common.processor._
 import module.users.UserMessage._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsArray, JsObject, JsValue}
 import module.common.stragety.impl
 import com.pharbers.bmpattern.ModuleTrait
 import com.pharbers.pharbersmacro.CURDMacro._
 import module.common.{MergeStepResult, processor}
 import com.pharbers.bmmessages.{CommonModules, MessageDefines}
+import play.api.libs.json.Json.toJson
 
 object UserModule extends ModuleTrait {
     val ip: user = impl[user]
     val uc: user2company = impl[user2company]
     val uj: user2job = impl[user2job]
+    val ur: user2role = impl[user2role]
 
     import ip._
 
@@ -36,6 +38,15 @@ object UserModule extends ModuleTrait {
             processor(value => returnValue(uc.queryConnection(value)(pr)("user_company")))(MergeStepResult(data, pr))
         case msg_expendJobsInfo(data) =>
             processor(value => returnValue(uj.queryConnection(value)(pr)("job_user")))(MergeStepResult(data, pr))
+        case msg_expendRolesInfo(data) =>
+            processor(value => returnValue(ur.queryConnection(value)(pr)("user_role")))(MergeStepResult(data, pr))
+        case msg_isMaintenanceUser() =>
+            val result = pr.get("user").as[JsObject].value("roles").as[JsArray].value match {
+                case ja if ja.contains(toJson(Map("role_name" -> "DevOps"))) => 1
+                case _ => 0
+            }
+            (Some(Map("isMaintenanceUser" -> toJson(result))), None)
+
 
         case msg_authWithPassword(data) =>
             processor(value => returnValue(authWithPassword(authPwd, dr)(value)(names)))(MergeStepResult(data, pr))

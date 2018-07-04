@@ -30,7 +30,7 @@ trait authTrait {
                         (implicit cm: CommonModules): Map[String, JsValue] = {
 
         val conn = cm.modules.get.get("db").map(x => x.asInstanceOf[dbInstanceManager]).getOrElse(throw new Exception("no db connection"))
-        val db = conn.queryDBInstance("cli").get
+        val db = conn.queryDBInstance("client").get
 
         db.queryObject(func(data), db_name)(func_out) match {
             case None => throw new Exception("email or password error")

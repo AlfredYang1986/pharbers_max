@@ -1,0 +1,10 @@
+<pharbers-modules>
+    <mongodb-connect>
+        <server_host value="192.168.100.176" />
+        <!--<server_host value="127.0.0.1" />-->
+        <server_port value="28102" />
+        <connect_name value="" />
+        <connect_pwd value="" />
+        <conn_name value="pharbers-max-market" />
+    </mongodb-connect>
+</pharbers-modules>
